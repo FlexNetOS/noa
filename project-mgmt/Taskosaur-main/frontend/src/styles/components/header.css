@@ -1,0 +1,699 @@
+/* Header Components Styles */
+
+/* Base Button Styles */
+.header-button-base {
+  @apply relative h-7 w-7 rounded-md transition-colors cursor-pointer;
+}
+
+.header-button-base:hover {
+  background-color: var(--accent);
+}
+
+.header-button-icon {
+  @apply size-4;
+  color: var(--muted-foreground);
+}
+
+/* Mode Toggle Component */
+.header-mode-toggle {
+  @apply relative h-7 w-7 rounded-md transition-colors cursor-pointer;
+}
+
+.header-mode-toggle:hover {
+  background-color: var(--accent);
+}
+
+.header-mode-toggle-icon {
+  @apply size-4;
+  color: var(--muted-foreground);
+}
+
+/* Dropdown Menu Base */
+.header-dropdown-menu-content {
+  @apply w-80 p-0 shadow-lg rounded-lg;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+
+.header-dropdown-menu-header {
+  @apply px-4 py-3;
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+}
+
+.header-dropdown-menu-title {
+  @apply flex items-center justify-between;
+}
+
+.header-dropdown-menu-title-text {
+  @apply text-sm font-semibold;
+  color: var(--foreground);
+}
+
+.header-dropdown-menu-badge {
+  @apply h-5 px-2 text-xs border-none bg-[var(--primary)]/10 text-[var(--primary)];
+}
+
+.header-dropdown-menu-body {
+  @apply max-h-80 overflow-y-auto;
+}
+
+/* Badge Notifications */
+.header-notification-badge {
+  @apply absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px] font-medium min-w-[16px] border-0;
+}
+
+.header-notification-badge-green {
+  @apply bg-green-600 text-white;
+}
+
+.header-notification-badge-red {
+  @apply bg-red-500 text-white;
+}
+
+/* Loading States */
+.header-loading-container {
+  @apply p-4;
+}
+
+.header-loading-list {
+  @apply space-y-3;
+}
+
+.header-loading-item {
+  @apply animate-pulse;
+}
+
+.header-loading-item-layout {
+  @apply flex items-start gap-3 p-3;
+}
+
+.header-loading-avatar {
+  @apply size-8 rounded-full flex-shrink-0;
+  background-color: var(--muted);
+}
+
+.header-loading-content {
+  @apply flex-1 space-y-2;
+}
+
+.header-loading-text-primary {
+  @apply h-4 rounded w-3/4;
+  background-color: var(--muted);
+}
+
+.header-loading-text-secondary {
+  @apply h-3 rounded w-1/2;
+  background-color: var(--muted);
+}
+
+.header-loading-text-tertiary {
+  @apply h-3 rounded w-1/4;
+  background-color: var(--muted);
+}
+
+.header-loading-buttons {
+  @apply flex gap-2;
+}
+
+.header-loading-button {
+  @apply h-6 rounded flex-1;
+  background-color: var(--muted);
+}
+
+/* Empty States */
+.header-empty-state {
+  @apply p-8 text-center;
+}
+
+.header-empty-icon {
+  @apply size-8 mx-auto mb-2;
+  color: var(--muted-foreground);
+}
+
+.header-empty-text {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+/* Invitation Manager */
+.header-invitations-item-container {
+  @apply p-2;
+}
+
+.header-invitations-item {
+  @apply p-3 rounded-md transition-colors;
+}
+
+.header-invitations-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.header-invitations-item-layout {
+  @apply flex items-start gap-3;
+}
+
+.header-invitations-item-avatar {
+  @apply size-8 rounded-md flex items-center justify-center flex-shrink-0;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.header-invitations-item-avatar-text {
+  @apply text-xs font-semibold;
+  color: var(--primary);
+}
+
+.header-invitations-item-content {
+  @apply flex-1 min-w-0;
+}
+
+.header-invitations-item-title {
+  @apply text-sm font-semibold mb-1 truncate;
+  color: var(--foreground);
+}
+
+.header-invitations-item-meta {
+  @apply text-xs mb-2;
+  color: var(--muted-foreground);
+}
+
+.header-invitations-item-meta-emphasis {
+  @apply font-medium;
+}
+
+.header-invitations-item-actions {
+  @apply flex gap-2;
+}
+
+.header-invitations-action-button-decline {
+  @apply flex-1 h-7 text-xs font-medium;
+}
+
+.header-invitations-action-button-accept {
+  @apply flex-1 h-7 text-xs font-medium;
+  background-color: var(--primary);
+}
+
+.header-invitations-action-button-accept:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+/* Invitation Modal */
+.header-invitation-modal-title {
+  @apply text-lg font-semibold;
+  color: var(--foreground);
+}
+
+.header-invitation-modal-content {
+  @apply space-y-4;
+}
+
+.header-invitation-modal-center {
+  @apply text-center;
+}
+
+.header-invitation-modal-avatar {
+  @apply size-12 rounded-full flex items-center justify-center mx-auto mb-3;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.header-invitation-modal-avatar-text {
+  @apply text-lg font-semibold;
+  color: var(--primary);
+}
+
+.header-invitation-modal-entity-name {
+  @apply text-lg font-semibold mb-1;
+  color: var(--foreground);
+}
+
+.header-invitation-modal-entity-meta {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.header-invitation-modal-details {
+  @apply rounded-lg p-4;
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.header-invitation-modal-details-list {
+  @apply space-y-2 text-sm;
+}
+
+.header-invitation-modal-details-item {
+  @apply flex justify-between;
+}
+
+.header-invitation-modal-details-label {
+  color: var(--muted-foreground);
+}
+
+.header-invitation-modal-details-value {
+  @apply font-medium truncate ml-2;
+  color: var(--foreground);
+}
+
+.header-invitation-modal-actions {
+  @apply flex gap-2;
+}
+
+.header-invitation-modal-button-decline {
+  @apply flex-1;
+}
+
+.header-invitation-modal-button-accept {
+  @apply flex-1;
+  background-color: var(--primary);
+}
+
+.header-invitation-modal-button-accept:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+/* Notification Dropdown */
+.header-notifications-item-container {
+  @apply p-2;
+}
+
+.header-notifications-item {
+  @apply p-3 rounded-md cursor-pointer transition-colors;
+}
+
+.header-notifications-item:hover {
+  background-color: var(--muted);
+}
+
+.header-notifications-item-disabled {
+  @apply opacity-50;
+}
+
+.header-notifications-item-layout {
+  @apply flex items-start gap-3;
+}
+
+.header-notifications-item-avatar {
+  @apply size-8 rounded-full flex items-center justify-center flex-shrink-0;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.header-notifications-item-avatar-text {
+  @apply text-xs font-semibold;
+  color: var(--primary);
+}
+
+.header-notifications-item-content {
+  @apply flex-1 min-w-0;
+}
+
+.header-notifications-item-header {
+  @apply flex items-start justify-between mb-1;
+}
+
+.header-notifications-item-title {
+  @apply text-sm font-semibold line-clamp-1 pr-2;
+  color: var(--foreground);
+}
+
+.header-notifications-item-priority {
+  @apply size-2 rounded-full flex-shrink-0;
+}
+
+.header-notifications-item-message {
+  @apply text-xs mb-2 line-clamp-2;
+  color: var(--muted-foreground);
+}
+
+.header-notifications-item-time {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.header-notifications-footer {
+  @apply px-4 py-3 flex justify-center items-center;
+  border-top: 1px solid hsl(var(--border) / 0.3);
+}
+
+.header-notifications-view-all {
+  @apply block text-center text-sm font-medium transition-colors cursor-pointer px-3;
+  color: var(--primary);
+}
+
+.header-notifications-view-all:hover {
+  color: hsl(var(--primary) / 0.8);
+}
+
+/* Organization Selector */
+.header-org-selector-loading {
+  @apply flex items-center gap-3 px-3 py-2 h-9 rounded-lg animate-pulse min-w-[180px];
+  background-color: var(--background);
+}
+
+.header-org-selector-loading-avatar {
+  @apply w-6 h-6 rounded-md;
+  background-color: var(--muted);
+}
+
+.header-org-selector-loading-content {
+  @apply space-y-1 flex-1;
+}
+
+.header-org-selector-loading-text-primary {
+  @apply w-20 h-3 rounded;
+  background-color: var(--muted);
+}
+
+.header-org-selector-loading-text-secondary {
+  @apply w-12 h-2 rounded;
+  background-color: var(--muted);
+}
+
+.header-org-selector-trigger {
+  @apply cursor-pointer flex items-center gap-2 h-9 px-2 transition-colors min-w-0 rounded-md border-none;
+}
+
+.header-org-selector-trigger:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.header-org-selector-avatar {
+  @apply size-7 flex-shrink-0 max-[530px]:size-4;
+}
+
+.header-org-selector-avatar-fallback {
+  @apply text-[13px] font-semibold;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.header-org-selector-name {
+  @apply hidden md:block text-sm font-medium truncate max-w-[90px];
+  color: var(--foreground);
+}
+
+.header-org-selector-chevron {
+  @apply w-4 h-4;
+  color: var(--muted-foreground);
+}
+
+.header-org-selector-dropdown {
+  @apply w-60 p-0 border-none shadow-sm backdrop-blur-sm;
+  background-color: var(--background);
+}
+
+/* Organization Profile Header */
+.header-org-profile-header {
+  @apply flex items-center gap-4 px-4 py-2;
+  background: linear-gradient(to right, hsl(var(--primary) / 0.05), hsl(var(--primary) / 0.1));
+}
+
+.header-org-profile-avatar {
+  @apply size-7 flex-shrink-0;
+}
+
+.header-org-profile-avatar-fallback {
+  @apply font-bold text-sm;
+  background: linear-gradient(to bottom right, var(--primary), hsl(var(--primary) / 0.8));
+  color: var(--primary-foreground);
+}
+
+.header-org-profile-info {
+  @apply flex-1 min-w-0;
+}
+
+.header-org-profile-name {
+  @apply text-sm font-bold truncate mb-0;
+  color: var(--foreground);
+}
+
+.header-org-profile-meta {
+  @apply text-xs truncate mb-0 flex justify-between items-center;
+  color: var(--muted-foreground);
+}
+
+.header-org-profile-badge {
+  @apply px-2 mt-1 text-[11px];
+  background-color: hsl(var(--primary) / 0.1);
+  color: var(--primary);
+  border: 1px solid hsl(var(--primary) / 0.2);
+}
+
+/* Organization List */
+.header-org-list-container {
+  @apply p-2;
+}
+
+.header-org-empty-state {
+  @apply px-4 py-8 text-center;
+}
+
+.header-org-empty-icon-container {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4;
+  background-color: var(--muted);
+}
+
+.header-org-empty-icon {
+  color: var(--muted-foreground);
+}
+
+.header-org-empty-title {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.header-org-empty-description {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.header-org-item {
+  @apply flex items-center gap-2 px-2 my-1 rounded cursor-pointer transition-colors;
+}
+
+.header-org-item:hover {
+  background-color: var(--muted);
+}
+
+.header-org-item-active {
+  border: 1px solid hsl(var(--primary) / 0.2);
+  background-color: var(--muted);
+}
+
+.header-org-item-inactive:hover {
+  background-color: var(--muted);
+}
+
+.header-org-item-avatar {
+  @apply h-7 w-7 flex-shrink-0;
+  border: 1px solid hsl(var(--primary) / 0.2);
+}
+
+.header-org-item-avatar-fallback {
+  @apply font-bold text-sm;
+  background: linear-gradient(to bottom right, var(--primary), hsl(var(--primary) / 0.8));
+  color: var(--primary-foreground);
+}
+
+.header-org-item-info {
+  @apply flex-1 min-w-0;
+}
+
+.header-org-item-name {
+  @apply text-xs font-semibold truncate;
+  color: var(--foreground);
+}
+
+.header-org-item-members {
+  @apply text-[10px];
+  color: var(--muted-foreground);
+}
+
+.header-org-item-check {
+  @apply shrink-0;
+  color: var(--primary);
+}
+
+/* Organization Footer */
+.header-org-footer {
+  @apply pt-2 pb-1 px-2 pl-0 sticky bottom-0;
+  border-top: 1px solid var(--border);
+  background-color: hsl(var(--background) / 0.8);
+}
+
+.header-org-manage-item {
+  @apply flex items-center gap-2 w-full rounded cursor-pointer transition-all duration-200 py-2 px-2;
+}
+
+.header-org-manage-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.header-org-manage-icon-container {
+  @apply size-7 rounded flex items-center justify-center flex-shrink-0;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.header-org-manage-icon {
+  @apply size-4;
+  color: var(--primary);
+}
+
+.header-org-manage-text {
+  @apply text-left flex-1 min-w-0;
+}
+
+.header-org-footer:hover {
+  background-color: var(--muted);
+}
+
+.header-org-manage-title {
+  @apply text-xs font-semibold mb-0;
+  color: var(--foreground);
+}
+
+/* User Profile Menu */
+.header-user-loading {
+  @apply flex items-center gap-2;
+}
+
+.header-user-loading-avatar {
+  @apply size-7 rounded-md animate-pulse;
+  background-color: var(--muted);
+}
+
+.header-user-loading-text {
+  @apply hidden md:block h-4 w-16 rounded animate-pulse;
+  background-color: var(--muted);
+}
+
+.header-user-trigger {
+  @apply cursor-pointer flex items-center gap-2 h-9 px-2 transition-colors min-w-0 rounded-md border-none;
+}
+
+.header-user-trigger:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.header-user-avatar {
+  @apply size-7 flex-shrink-0;
+}
+
+.header-user-avatar-fallback {
+  @apply text-[13px] font-semibold;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.header-user-info {
+  @apply hidden md:flex text-left min-w-0 flex-1;
+}
+
+.header-user-name {
+  @apply text-sm font-medium leading-none truncate max-w-[80px];
+  color: var(--foreground);
+}
+
+.header-user-chevron {
+  @apply w-4 h-4 flex-shrink-0;
+  color: var(--muted-foreground);
+}
+
+.header-user-dropdown {
+  @apply w-auto min-w-60 max-w-sm p-0 border-none shadow-sm backdrop-blur-sm;
+  background-color: var(--background);
+}
+
+/* User Info Header */
+.header-user-info-header {
+  @apply flex items-center gap-4 px-4 py-2;
+  background: linear-gradient(to right, hsl(var(--primary) / 0.05), hsl(var(--primary) / 0.1));
+}
+
+.header-user-info-avatar {
+  @apply size-7 flex-shrink-0;
+}
+
+.header-user-info-avatar-fallback {
+  @apply font-bold text-sm;
+  background: linear-gradient(to bottom right, var(--primary), hsl(var(--primary) / 0.8));
+  color: var(--primary-foreground);
+}
+
+.header-user-info-details {
+  @apply flex-1 min-w-0 max-w-xs;
+}
+
+.header-user-info-name {
+  @apply text-sm font-bold mb-0;
+  color: var(--foreground);
+  word-break: break-word;
+}
+
+.header-user-info-meta {
+  @apply flex flex-col justify-start text-xs mb-0;
+  color: var(--muted-foreground);
+  word-break: break-word;
+}
+
+.header-user-info-badge {
+  @apply text-[12px] font-medium px-0;
+  background-color: hsl(var(--primary) / 0.1);
+  color: var(--primary);
+  border: 1px solid hsl(var(--primary) / 0.2);
+}
+
+/* User Menu Items */
+.header-user-menu-container {
+  @apply p-2;
+}
+
+.header-user-menu-item {
+  @apply flex items-center  rounded cursor-pointer transition-all duration-200  w-full;
+}
+
+.header-user-menu-item:hover,
+.header-user-menu-item-logout:hover {
+  background-color: #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.dark .header-user-menu-item:hover,
+.dark .header-user-menu-item-logout:hover {
+  background-color: #1a1a1a;
+}
+
+.header-user-menu-item-logout {
+  @apply flex items-center gap-2 px-2 rounded cursor-pointer transition-all duration-200 py-2 w-full;
+  color: var(--destructive);
+}
+
+.header-user-menu-icon-container {
+  @apply rounded flex items-center justify-center flex-shrink-0;
+}
+
+.header-user-menu-icon-container-settings {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.header-user-menu-icon-container-logout {
+  background-color: hsl(var(--destructive) / 0.1);
+}
+
+.header-user-menu-icon-settings {
+  @apply size-4;
+  color: var(--primary);
+}
+
+.header-user-menu-icon-logout {
+  @apply size-[15px];
+  color: var(--destructive);
+}
+
+.header-user-menu-text {
+  @apply text-xs font-semibold mb-0;
+  color: var(--foreground);
+}
+
+/* Modal Dialog Wrapper */
+.header-invitation-modal-content-wrapper {
+  @apply max-w-md;
+}

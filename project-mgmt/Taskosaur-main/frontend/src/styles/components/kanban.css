@@ -1,0 +1,341 @@
+/* Kanban Components Styles */
+
+/* Status Column */
+.kanban-column-container {
+  @apply flex-shrink-0 w-80 h-screen;
+}
+
+.kanban-column-wrapper {
+  @apply rounded-md flex flex-col h-full;
+  background-color: var(--muted);
+}
+
+.kanban-column-header {
+  @apply flex items-center justify-between px-4 py-2;
+}
+
+.kanban-column-header-content {
+  @apply flex items-center gap-3;
+}
+
+.kanban-column-title {
+  @apply text-sm font-semibold;
+  color: var(--foreground);
+}
+
+.kanban-column-counter {
+  @apply text-xs;
+}
+
+.kanban-column-tasks-container {
+  @apply flex-1 overflow-y-auto p-3 pt-1 space-y-2;
+}
+
+.kanban-column-tasks-container-dragging {
+  @apply opacity-75;
+}
+
+.kanban-column-add-task-button {
+  @apply opacity-0 transition-opacity justify-center gap-2 text-xs  h-9;
+  color: var(--muted-foreground);
+}
+
+.group:hover .kanban-column-add-task-button {
+  @apply opacity-100;
+}
+
+/* Task Creation Form */
+.kanban-create-task-container {
+  @apply rounded-2xl;
+  background-color: var(--card);
+}
+
+.kanban-create-task-content {
+  @apply p-4 space-y-3;
+}
+
+.kanban-create-task-header {
+  @apply flex items-center justify-between;
+}
+
+.kanban-create-task-title {
+  @apply text-xs font-medium;
+  color: var(--muted-foreground);
+}
+
+.kanban-create-task-close-button {
+  @apply h-6 w-6 p-0;
+}
+
+.kanban-create-task-title-input {
+  @apply h-9 text-sm font-medium border-0 bg-transparent px-0 focus-visible:ring-0;
+}
+
+.kanban-create-task-form-grid {
+  @apply grid grid-cols-2 gap-2;
+}
+
+.kanban-create-task-field {
+  @apply space-y-1;
+}
+
+.kanban-create-task-label {
+  @apply text-xs font-medium;
+  color: var(--muted-foreground);
+}
+
+.kanban-create-task-date-input {
+  @apply h-8 text-xs;
+}
+
+.kanban-create-task-priority-dropdown {
+  @apply h-8 w-full justify-between text-xs;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.kanban-create-task-priority-content {
+  @apply w-full;
+  background-color: var(--card);
+}
+
+.kanban-create-task-priority-item {
+  @apply text-xs;
+}
+
+.kanban-create-task-assignee-field {
+  @apply space-y-1;
+}
+
+.kanban-create-task-loading {
+  @apply text-xs text-center;
+  color: var(--muted-foreground);
+}
+
+.kanban-create-task-actions {
+  @apply flex justify-end gap-2 pt-1;
+}
+
+.kanban-create-task-cancel {
+  @apply h-8 px-3;
+}
+
+.kanban-create-task-submit {
+  @apply h-8 px-4 text-xs disabled:opacity-50;
+}
+
+/* Task Card */
+.kanban-task-card {
+  @apply mb-3 bg-red-400 cursor-move transition-all duration-150 hover:shadow-md py-3 rounded-md border;
+  border-color: var(--border);
+}
+
+.kanban-task-card-dragging {
+  @apply opacity-60 rotate-1 shadow-lg;
+}
+
+.kanban-task-card-content {
+  @apply space-y-1;
+}
+
+.kanban-task-card-header {
+  @apply flex items-start justify-between;
+}
+
+.kanban-task-card-number {
+  @apply text-[10px] font-mono;
+  color: var(--muted-foreground);
+}
+
+.kanban-task-card-title {
+  @apply text-sm font-medium line-clamp-2;
+  color: var(--foreground);
+}
+
+.kanban-task-card-footer {
+  @apply flex items-center justify-between text-[10px] pt-1;
+  color: var(--muted-foreground);
+}
+
+.kanban-task-card-due-date {
+  @apply flex items-center gap-1;
+}
+
+.kanban-task-card-due-date-overdue {
+  @apply text-red-500;
+}
+
+.kanban-task-card-meta {
+  @apply flex items-center gap-2;
+}
+
+.kanban-task-card-comment-count {
+  @apply flex items-center gap-0.5;
+}
+
+.kanban-task-card-subtask-count {
+  @apply flex items-center gap-0.5;
+}
+
+/* User Selector */
+.kanban-user-selector-trigger {
+  @apply w-full justify-start h-8 text-xs truncate;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.kanban-user-selector-content {
+  @apply w-full p-0;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.kanban-user-selector-search-container {
+  @apply p-2;
+  border-bottom: 1px solid var(--border);
+}
+
+.kanban-user-selector-search-input {
+  @apply h-8 text-xs;
+}
+
+.kanban-user-selector-list {
+  @apply max-h-40 overflow-y-auto;
+}
+
+.kanban-user-selector-item {
+  @apply text-xs gap-1;
+}
+
+.kanban-user-selector-item-name {
+  @apply flex-1 truncate;
+}
+
+.kanban-user-selector-item-email {
+  @apply text-[10px];
+  color: var(--muted-foreground);
+}
+
+.kanban-user-selector-empty {
+  @apply py-3 text-center text-xs;
+  color: var(--muted-foreground);
+}
+
+/* Status Settings Modal */
+.kanban-status-modal-content {
+  @apply max-w-xl border-0;
+  background-color: var(--background);
+}
+
+.kanban-status-modal-title {
+  @apply text-lg;
+}
+
+.kanban-status-modal-description {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.kanban-status-modal-list {
+  @apply max-h-[55vh] overflow-y-auto py-4 space-y-2;
+}
+
+.kanban-status-modal-loading {
+  @apply flex items-center justify-center py-12 text-sm;
+  color: var(--muted-foreground);
+}
+
+/* Status Row - Edit Mode */
+.kanban-status-row-edit {
+  @apply flex items-center gap-3 p-3 rounded-lg;
+  background-color: var(--card);
+}
+
+.kanban-status-row-edit-grip {
+  @apply text-[var(--muted-foreground)];
+}
+
+.kanban-status-row-edit-color {
+  @apply h-6 w-6 cursor-pointer bg-transparent rounded;
+  border: 1px solid var(--border);
+}
+
+.kanban-status-row-edit-input {
+  @apply flex-1 h-8 text-sm;
+}
+
+/* Status Row - View Mode */
+.kanban-status-row-view {
+  @apply flex items-center gap-3 p-3 rounded-lg cursor-move transition border;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.kanban-status-row-view-dragging {
+  @apply opacity-60 scale-[1.02];
+}
+
+.kanban-status-row-view-drag-over {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.kanban-status-row-grip {
+  color: var(--muted-foreground);
+}
+
+.kanban-status-row-color {
+  @apply w-4 h-4 rounded-full;
+}
+
+.kanban-status-row-name {
+  @apply flex-1 text-sm;
+  color: var(--foreground);
+}
+
+.kanban-status-row-menu-trigger {
+  @apply opacity-0;
+}
+
+.group:hover .kanban-status-row-menu-trigger {
+  @apply opacity-100;
+}
+
+.kanban-status-row-menu-content {
+  @apply w-44 border;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.kanban-status-row-menu-delete {
+  @apply text-red-600 cursor-pointer hover:bg-[var(--muted)];
+}
+
+/* Add Status Row */
+.kanban-add-status-row {
+  @apply flex items-center gap-3 p-3 rounded-lg;
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.kanban-add-status-grip {
+  color: var(--muted-foreground);
+}
+
+.kanban-add-status-color {
+  @apply w-4 h-4 rounded-full;
+  background-color: hsl(var(--muted-foreground) / 0.5);
+}
+
+.kanban-add-status-input {
+  @apply flex-1 bg-transparent text-sm outline-none;
+}
+
+.kanban-add-status-button {
+  @apply w-full gap-2 py-3 text-sm;
+  color: var(--muted-foreground);
+}
+
+/* Modal Footer */
+.kanban-status-modal-footer {
+  @apply flex justify-between items-center pt-4 text-xs;
+  color: var(--muted-foreground);
+}

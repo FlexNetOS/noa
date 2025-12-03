@@ -1,0 +1,190 @@
+/* ================================
+   Cross-Browser Compatibility Styles
+   ================================ */
+
+@layer base {
+  /* WebKit and cross-browser compatibility fixes */
+  *,
+  *::before,
+  *::after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    @apply box-border;
+  }
+
+  /* WebKit scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+    @apply rounded-[var(--radius)];
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    @apply rounded-[var(--radius)] opacity-50;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border);
+    @apply opacity-80;
+  }
+
+  /* WebKit appearance reset for form elements */
+  input,
+  button,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: var(--radius);
+  }
+
+  /* WebKit input placeholder styling */
+  ::-webkit-input-placeholder {
+    color: var(--muted-foreground);
+    @apply opacity-100;
+  }
+
+  ::-moz-placeholder {
+    color: var(--muted-foreground);
+    @apply opacity-100;
+  }
+
+  :-ms-input-placeholder {
+    color: var(--muted-foreground);
+    @apply opacity-100;
+  }
+
+  ::placeholder {
+    color: var(--muted-foreground);
+    @apply opacity-100;
+  }
+
+  /* WebKit autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+    @apply transition-colors duration-[5000s];
+  }
+
+  /* WebKit focus outline reset */
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none;
+    -webkit-focus-ring-color: transparent;
+  }
+
+  /* WebKit transform and animation support */
+  .uses-3d {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* WebKit selection styling */
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  ::-moz-selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* WebKit backdrop filter support */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  /* WebKit mask and clip-path support */
+  .bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* WebKit touch and interaction improvements */
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* WebKit overflow scrolling for mobile */
+  .overflow-auto,
+  .overflow-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* WebKit gradient support fallbacks */
+  .bg-gradient-to-r,
+  .bg-gradient-to-l,
+  .bg-gradient-to-t,
+  .bg-gradient-to-b,
+  .bg-gradient-to-tr,
+  .bg-gradient-to-tl,
+  .bg-gradient-to-br,
+  .bg-gradient-to-bl {
+    background: -webkit-linear-gradient(var(--tw-gradient-stops));
+    background: -moz-linear-gradient(var(--tw-gradient-stops));
+    background: linear-gradient(var(--tw-gradient-stops));
+  }
+
+  /* WebKit animation performance */
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce {
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    @apply will-change-transform;
+    will-change: transform, opacity;
+  }
+
+  /* Additional WebKit-specific fixes for common issues */
+  @supports (-webkit-appearance: none) {
+    /* Safari-specific styles */
+    input[type="search"] {
+      -webkit-appearance: textfield;
+    }
+
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  /* Firefox-specific fixes */
+  @-moz-document url-prefix() {
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  }
+
+  /* Edge/IE-specific fixes */
+  @supports (-ms-ime-align: auto) {
+    input {
+      -ms-clear: none;
+    }
+  }
+}

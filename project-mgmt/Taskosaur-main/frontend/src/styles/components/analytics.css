@@ -1,0 +1,740 @@
+/* Analytics Components Styles */
+
+/* Analytics Dashboard Layout */
+.analytics-dashboard-container {
+  @apply space-y-6;
+}
+
+.analytics-dashboard-loading {
+  @apply flex items-center justify-center h-96;
+}
+
+.analytics-dashboard-loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2;
+  border-color: var(--primary);
+}
+
+.analytics-dashboard-no-data {
+  @apply text-center py-12;
+}
+
+.analytics-dashboard-no-data-title {
+  @apply text-lg font-medium mb-2;
+  color: var(--foreground);
+}
+
+.analytics-dashboard-no-data-description {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+/* Dashboard Header */
+.analytics-header-container {
+  @apply flex justify-between items-center;
+}
+
+.analytics-header-info {
+}
+
+.analytics-header-title {
+  @apply text-2xl font-semibold;
+  color: var(--foreground);
+}
+
+.analytics-header-subtitle {
+  color: var(--muted-foreground);
+}
+
+.analytics-header-actions {
+  @apply flex items-center space-x-3;
+}
+
+.analytics-date-select {
+  @apply px-3 py-2 border rounded-md text-sm;
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+/* Metrics Grid */
+.analytics-metrics-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+/* Chart Controls */
+.analytics-chart-controls {
+  @apply rounded-lg shadow-sm border p-4;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.analytics-chart-controls-header {
+  @apply flex items-center justify-between;
+}
+
+.analytics-chart-controls-title {
+  @apply text-lg font-semibold;
+  color: var(--foreground);
+}
+
+.analytics-chart-controls-filters {
+  @apply flex items-center space-x-2;
+}
+
+.analytics-chart-controls-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-chart-toggle-button {
+  @apply px-3 py-1 rounded-full text-sm transition-colors;
+}
+
+.analytics-chart-toggle-button-active {
+  background-color: hsl(var(--primary) / 0.1);
+  color: var(--primary);
+}
+
+.analytics-chart-toggle-button-inactive {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.analytics-chart-toggle-button-inactive:hover {
+  background-color: hsl(var(--muted) / 0.8);
+}
+
+/* Charts Grid */
+.analytics-charts-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+/* Insights Section */
+.analytics-insights-container {
+  @apply rounded-lg shadow-sm border p-6;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.analytics-insights-title {
+  @apply text-lg font-semibold mb-4;
+  color: var(--foreground);
+}
+
+.analytics-insights-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.analytics-insight-card {
+  @apply p-4 rounded-lg;
+}
+
+.analytics-insight-card-blue {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.analytics-insight-card-green {
+  @apply bg-green-50 dark:bg-green-900/20;
+}
+
+.analytics-insight-card-purple {
+  @apply bg-purple-50 dark:bg-purple-900/20;
+}
+
+.analytics-insight-card-orange {
+  @apply bg-orange-50 dark:bg-orange-900/20;
+}
+
+.analytics-insight-card-title {
+  @apply font-medium mb-2;
+}
+
+.analytics-insight-card-title-blue {
+  @apply text-blue-900 dark:text-blue-100;
+}
+
+.analytics-insight-card-title-green {
+  @apply text-green-900 dark:text-green-100;
+}
+
+.analytics-insight-card-title-purple {
+  @apply text-purple-900 dark:text-purple-100;
+}
+
+.analytics-insight-card-title-orange {
+  @apply text-orange-900 dark:text-orange-100;
+}
+
+.analytics-insight-card-content {
+  @apply text-sm;
+}
+
+.analytics-insight-card-content-blue {
+  @apply text-blue-800 dark:text-blue-200;
+}
+
+.analytics-insight-card-content-green {
+  @apply text-green-800 dark:text-green-200;
+}
+
+.analytics-insight-card-content-purple {
+  @apply text-purple-800 dark:text-purple-200;
+}
+
+.analytics-insight-card-content-orange {
+  @apply text-orange-800 dark:text-orange-200;
+}
+
+/* Detailed Statistics */
+.analytics-stats-container {
+  @apply rounded-lg shadow-sm border p-6;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.analytics-stats-title {
+  @apply text-lg font-semibold mb-4;
+  color: var(--foreground);
+}
+
+.analytics-stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.analytics-stats-section-title {
+  @apply font-medium mb-3;
+  color: var(--foreground);
+}
+
+.analytics-stats-list {
+  @apply space-y-2;
+}
+
+.analytics-stats-item {
+  @apply flex justify-between items-center;
+}
+
+.analytics-stats-item-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-stats-item-value {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+/* Metric Card Component */
+.analytics-metric-card {
+  @apply rounded-lg p-6 border transition-all hover:shadow-md;
+  border-color: var(--border);
+}
+
+.analytics-metric-card-clickable {
+  @apply cursor-pointer;
+}
+
+.analytics-metric-card-content {
+  @apply flex items-center justify-between;
+}
+
+.analytics-metric-card-info {
+}
+
+.analytics-metric-card-title {
+  @apply text-sm font-medium;
+  color: var(--muted-foreground);
+}
+
+.analytics-metric-card-value {
+  @apply text-2xl font-semibold mt-1;
+}
+
+.analytics-metric-card-change {
+  @apply text-xs mt-1;
+}
+
+.analytics-metric-card-icon {
+  @apply p-3 rounded-full;
+}
+
+.analytics-metric-card-icon-emoji {
+  @apply text-2xl;
+}
+
+/* Chart Container Base */
+.analytics-chart-container {
+  @apply rounded-lg shadow-none border-none space-y-4 pt-4;
+  background-color: var(--card);
+}
+
+.analytics-chart-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.analytics-chart-title {
+  @apply text-lg font-semibold;
+  color: var(--foreground);
+}
+
+.analytics-chart-legend {
+  @apply flex items-center space-x-4;
+}
+
+.analytics-chart-legend-item {
+  @apply flex items-center space-x-1;
+}
+
+.analytics-chart-legend-dot {
+  @apply w-3 h-3 rounded;
+}
+
+.analytics-chart-legend-line {
+  @apply w-3 h-0.5;
+}
+
+.analytics-chart-legend-label {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+/* Sprint Burndown Chart */
+.analytics-burndown-progress-container {
+  @apply mb-6;
+}
+
+.analytics-burndown-progress-header {
+  @apply flex items-center justify-between mb-2;
+}
+
+.analytics-burndown-progress-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-burndown-progress-value {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.analytics-burndown-progress-bar {
+  @apply w-full rounded-full h-2;
+  background-color: var(--muted);
+}
+
+.analytics-burndown-progress-fill {
+  @apply h-2 rounded-full transition-all duration-300;
+}
+
+.analytics-burndown-progress-labels {
+  @apply flex justify-between mt-2 text-xs;
+  color: var(--muted-foreground);
+}
+
+.analytics-burndown-chart-svg {
+  @apply border rounded;
+  border-color: var(--border);
+}
+
+.analytics-burndown-status-container {
+  @apply mt-4 flex items-center justify-between;
+}
+
+.analytics-burndown-status-badge {
+  @apply flex items-center space-x-2 px-3 py-1 rounded-full;
+}
+
+.analytics-burndown-status-badge-on-track {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.analytics-burndown-status-badge-behind {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+.analytics-burndown-status-indicator {
+  @apply w-2 h-2 rounded-full;
+}
+
+.analytics-burndown-status-text {
+  @apply text-sm font-medium;
+}
+
+.analytics-burndown-remaining {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-burndown-stats-container {
+  @apply mt-4 pt-4 border-t;
+  border-color: var(--border);
+}
+
+.analytics-burndown-stats-grid {
+  @apply grid grid-cols-3 gap-4 text-center;
+}
+
+.analytics-burndown-stat-value {
+  @apply text-lg font-semibold;
+}
+
+.analytics-burndown-stat-label {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+/* Task Distribution Chart */
+.analytics-distribution-chart-container {
+  @apply space-y-4;
+}
+
+.analytics-distribution-chart-svg-container {
+  @apply flex justify-center;
+}
+
+.analytics-distribution-chart-svg-wrapper {
+  @apply relative w-40 h-40;
+}
+
+.analytics-distribution-chart-svg {
+  @apply w-full h-full transform -rotate-90;
+}
+
+.analytics-distribution-chart-center {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
+.analytics-distribution-chart-total {
+  @apply text-center;
+}
+
+.analytics-distribution-chart-total-value {
+  @apply text-2xl font-bold;
+  color: var(--foreground);
+}
+
+.analytics-distribution-chart-total-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-distribution-legend-grid {
+  @apply grid grid-cols-2 gap-2;
+}
+
+.analytics-distribution-legend-item {
+  @apply flex items-center space-x-2;
+}
+
+.analytics-distribution-legend-color {
+  @apply w-3 h-3 rounded-full;
+}
+
+.analytics-distribution-legend-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-distribution-legend-value {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.analytics-distribution-percentages {
+  @apply pt-4 border-t space-y-2;
+  border-color: var(--border);
+}
+
+.analytics-distribution-percentage-item {
+  @apply flex items-center justify-between;
+}
+
+.analytics-distribution-percentage-info {
+  @apply flex items-center space-x-2;
+}
+
+.analytics-distribution-percentage-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.analytics-distribution-percentage-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-distribution-percentage-value {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.analytics-distribution-tabs {
+  @apply flex items-center space-x-1;
+}
+
+.analytics-distribution-tab {
+  @apply px-3 py-1 rounded text-sm font-medium transition-colors;
+}
+
+.analytics-distribution-tab-active {
+  color: var(--primary);
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.analytics-distribution-tab-inactive {
+  color: var(--muted-foreground);
+}
+
+.analytics-distribution-tab-inactive:hover {
+  color: var(--foreground);
+}
+
+/* Team Velocity Chart */
+.analytics-velocity-summary-grid {
+  @apply grid grid-cols-3 gap-4 mb-6;
+}
+
+.analytics-velocity-summary-item {
+  @apply text-center;
+}
+
+.analytics-velocity-summary-value {
+  @apply text-2xl font-bold;
+  color: var(--foreground);
+}
+
+.analytics-velocity-summary-value-positive {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.analytics-velocity-summary-value-negative {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.analytics-velocity-summary-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-velocity-chart-container {
+  @apply relative overflow-x-auto;
+}
+
+.analytics-velocity-chart-svg {
+  @apply border rounded;
+  border-color: var(--border);
+}
+
+.analytics-velocity-stats-container {
+  @apply mt-4 pt-4 border-t;
+  border-color: var(--border);
+}
+
+.analytics-velocity-stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.analytics-velocity-stats-section-title {
+  @apply font-medium mb-2;
+  color: var(--foreground);
+}
+
+.analytics-velocity-stats-list {
+  @apply space-y-1;
+}
+
+.analytics-velocity-stats-item {
+  @apply flex items-center justify-between text-sm;
+}
+
+.analytics-velocity-stats-item-label {
+  color: var(--muted-foreground);
+}
+
+.analytics-velocity-stats-item-value {
+  @apply font-medium;
+}
+
+.analytics-velocity-stats-item-value-green {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.analytics-velocity-stats-item-value-blue {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+.analytics-velocity-stats-item-value-orange {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.analytics-velocity-stats-item-value-white {
+  color: var(--foreground);
+}
+
+/* Workload Chart */
+.analytics-workload-overview-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4 mb-6;
+}
+
+.analytics-workload-overview-item {
+  @apply text-center;
+}
+
+.analytics-workload-overview-value {
+  @apply text-2xl font-bold;
+  color: var(--foreground);
+}
+
+.analytics-workload-overview-label {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-members-list {
+  @apply space-y-4;
+}
+
+.analytics-workload-member-container {
+  @apply space-y-2;
+}
+
+.analytics-workload-member-header {
+  @apply flex items-center justify-between;
+}
+
+.analytics-workload-member-info {
+  @apply flex items-center space-x-3;
+}
+
+.analytics-workload-member-details {
+}
+
+.analytics-workload-member-name {
+  @apply font-medium;
+  color: var(--foreground);
+}
+
+.analytics-workload-member-stats {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-member-status {
+  @apply text-right;
+}
+
+.analytics-workload-member-status-text {
+  @apply text-sm font-medium;
+}
+
+.analytics-workload-member-utilization {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-bars-container {
+  @apply space-y-2;
+}
+
+.analytics-workload-capacity-bar-container {
+  @apply relative;
+}
+
+.analytics-workload-capacity-bar-bg {
+  @apply w-full rounded-full h-4;
+  background-color: var(--muted);
+}
+
+.analytics-workload-capacity-bar-fill {
+  @apply h-4 rounded-full transition-all duration-300;
+}
+
+.analytics-workload-capacity-bar-text {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
+.analytics-workload-capacity-bar-label {
+  @apply text-xs font-medium text-white;
+}
+
+.analytics-workload-completion-bar-container {
+  @apply relative;
+}
+
+.analytics-workload-completion-bar-bg {
+  @apply w-full rounded-full h-2;
+  background-color: var(--muted);
+}
+
+.analytics-workload-completion-bar-fill {
+  @apply h-2 rounded-full bg-green-500 transition-all duration-300;
+}
+
+.analytics-workload-completion-labels {
+  @apply flex justify-between mt-1;
+}
+
+.analytics-workload-completion-label {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-distribution-container {
+  @apply mt-6 pt-4 border-t;
+  border-color: var(--border);
+}
+
+.analytics-workload-distribution-title {
+  @apply font-medium mb-3;
+  color: var(--foreground);
+}
+
+.analytics-workload-distribution-grid {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4;
+}
+
+.analytics-workload-distribution-item {
+  @apply text-center;
+}
+
+.analytics-workload-distribution-circle {
+  @apply w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center;
+}
+
+.analytics-workload-distribution-count {
+  @apply text-white text-sm font-medium;
+}
+
+.analytics-workload-distribution-label {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-recommendations-container {
+  @apply mt-6 pt-4 border-t;
+  border-color: var(--border);
+}
+
+.analytics-workload-recommendations-title {
+  @apply font-medium mb-3;
+  color: var(--foreground);
+}
+
+.analytics-workload-recommendations-list {
+  @apply space-y-2;
+}
+
+.analytics-workload-recommendation-item {
+  @apply flex items-start space-x-2 text-sm;
+}
+
+.analytics-workload-recommendation-dot {
+  @apply w-2 h-2 rounded-full mt-1.5 flex-shrink-0;
+}
+
+.analytics-workload-recommendation-text {
+  color: var(--muted-foreground);
+}
+
+.analytics-workload-recommendation-emphasis {
+  @apply font-medium;
+}

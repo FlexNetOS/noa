@@ -1,0 +1,56 @@
+h1,
+mat-dialog-actions,
+help-section {
+  :host-context([dir='rtl']) & {
+    direction: rtl;
+  }
+}
+
+.form-wrapper {
+  min-width: 280px;
+  max-width: 500px;
+}
+
+:host collapsible {
+  margin-top: var(--s2);
+  margin-bottom: var(--s2);
+}
+
+:host ::ng-deep .collapsible-title {
+  flex-grow: 0 !important;
+  font-weight: bold;
+  font-size: 17px;
+}
+
+:host::ng-deep .repeat-config-container {
+  display: block;
+  border-radius: 4px;
+  margin-left: var(--s2);
+  margin-bottom: var(--s5);
+}
+
+:host::ng-deep .weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s);
+
+  > * {
+    width: auto;
+    max-width: 48%;
+    min-width: 0;
+  }
+}
+:host::ng-deep .repeat-cycle {
+  display: flex;
+
+  > * {
+    width: 100%;
+    min-width: 0;
+    margin-left: var(--s2);
+
+    &:first-child {
+      margin-left: 0;
+      width: auto;
+    }
+  }
+}

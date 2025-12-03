@@ -1,0 +1,45 @@
+project_title: fastapi-next-starter
+tree_focus:
+- backend
+- frontend
+exclude_dirs:
+- .git
+- .next
+- __pycache__
+- build
+- dist
+- env
+- node_modules
+- out
+- venv
+- coverage
+- .pytest_cache
+important_dirs:
+- api
+- components
+- pages
+- app
+- src
+- models
+- schemas
+- routers
+- hooks
+- features
+- public
+- shared
+- config
+- tests
+- interfaces
+include_extensions:
+- .py
+- .ts
+- .tsx
+- .js
+- .jsx
+- .json
+- .css
+- .scss
+- .html
+- .md
+- .prisma
+- .env

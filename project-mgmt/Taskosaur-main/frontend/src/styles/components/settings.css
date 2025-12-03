@@ -1,0 +1,520 @@
+/* Settings Components Styles */
+
+/* ===== Settings Layout ===== */
+.settings-layout-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.settings-layout-container-dark {
+  @apply dark:bg-gray-900;
+}
+
+.settings-layout-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+}
+
+.settings-layout-header {
+  @apply mb-8;
+}
+
+.settings-layout-title {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+.settings-layout-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-layout-subtitle {
+  @apply mt-2 text-gray-600;
+}
+
+.settings-layout-subtitle-dark {
+  @apply dark:text-gray-400;
+}
+
+.settings-layout-grid {
+  @apply grid grid-cols-1 lg:grid-cols-4 gap-8;
+}
+
+/* Settings Navigation */
+.settings-nav {
+  @apply lg:col-span-1;
+}
+
+.settings-nav-list {
+  @apply space-y-2;
+}
+
+.settings-nav-item {
+  @apply w-full flex items-start space-x-3 px-4 py-3 rounded-lg text-left transition-colors;
+}
+
+.settings-nav-item-active {
+  @apply bg-indigo-50 text-indigo-700 border-l-4 border-indigo-500;
+}
+
+.settings-nav-item-active-dark {
+  @apply dark:bg-indigo-900/20 dark:text-indigo-300;
+}
+
+.settings-nav-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100;
+}
+
+.settings-nav-item-inactive-dark {
+  @apply dark:text-gray-300 dark:hover:bg-gray-800;
+}
+
+.settings-nav-item-icon {
+  @apply text-lg flex-shrink-0;
+}
+
+.settings-nav-item-content {
+  /* No specific styles - just a container */
+}
+
+.settings-nav-item-title {
+  @apply font-medium;
+}
+
+.settings-nav-item-description {
+  @apply text-sm text-gray-500;
+}
+
+.settings-nav-item-description-dark {
+  @apply dark:text-gray-400;
+}
+
+/* Organization Context */
+.settings-org-context {
+  @apply mt-8 p-4 bg-white rounded-lg border border-gray-200;
+}
+
+.settings-org-context-dark {
+  @apply dark:bg-gray-800 dark:border-gray-700;
+}
+
+.settings-org-context-title {
+  @apply text-sm font-medium text-gray-900 mb-2;
+}
+
+.settings-org-context-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-org-context-content {
+  @apply flex items-center space-x-2;
+}
+
+.settings-org-context-avatar {
+  @apply w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center;
+}
+
+.settings-org-context-avatar-dark {
+  @apply dark:bg-indigo-900;
+}
+
+.settings-org-context-avatar-text {
+  @apply text-indigo-600 font-medium;
+}
+
+.settings-org-context-avatar-text-dark {
+  @apply dark:text-indigo-400;
+}
+
+.settings-org-context-info {
+  /* No specific styles - just a container */
+}
+
+.settings-org-context-name {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.settings-org-context-name-dark {
+  @apply dark:text-white;
+}
+
+.settings-org-context-plan {
+  @apply text-xs text-gray-500;
+}
+
+.settings-org-context-plan-dark {
+  @apply dark:text-gray-400;
+}
+
+/* Settings Content */
+.settings-content {
+  @apply lg:col-span-3;
+}
+
+.settings-content-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.settings-content-card-dark {
+  @apply dark:bg-gray-800 dark:border-gray-700;
+}
+
+/* ===== Profile Settings ===== */
+.settings-profile-container {
+  @apply p-6;
+}
+
+.settings-profile-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.settings-profile-header-info {
+  /* No specific styles - just a container */
+}
+
+.settings-profile-title {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.settings-profile-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-profile-subtitle {
+  @apply text-gray-600;
+}
+
+.settings-profile-subtitle-dark {
+  @apply dark:text-gray-400;
+}
+
+.settings-profile-actions {
+  @apply flex space-x-3;
+}
+
+.settings-profile-sections {
+  @apply space-y-8;
+}
+
+/* Profile Section */
+.settings-profile-section {
+  /* No specific styles - just a container */
+}
+
+.settings-profile-section-title {
+  @apply text-lg font-medium text-gray-900 mb-4;
+}
+
+.settings-profile-section-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-profile-form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.settings-profile-form-grid-full {
+  @apply md:col-span-2;
+}
+
+/* Avatar Upload */
+.settings-profile-avatar-container {
+  @apply flex items-center space-x-4;
+}
+
+.settings-profile-avatar-upload {
+  /* No specific styles - just a container */
+}
+
+.settings-profile-avatar-input {
+  @apply hidden;
+}
+
+.settings-profile-avatar-label {
+  @apply cursor-pointer bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors;
+}
+
+.settings-profile-avatar-label-dark {
+  @apply dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600;
+}
+
+/* Skills */
+.settings-profile-skills-container {
+  @apply space-y-3;
+}
+
+.settings-profile-skills-list {
+  @apply flex flex-wrap gap-2;
+}
+
+.settings-profile-skill-badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800;
+}
+
+.settings-profile-skill-badge-dark {
+  @apply dark:bg-indigo-900 dark:text-indigo-200;
+}
+
+.settings-profile-skill-remove {
+  @apply ml-2 text-indigo-600 hover:text-indigo-800;
+}
+
+.settings-profile-skill-remove-dark {
+  @apply dark:text-indigo-400 dark:hover:text-indigo-300;
+}
+
+.settings-profile-skill-add {
+  @apply flex space-x-2;
+}
+
+/* Social Links Grid */
+.settings-profile-social-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+/* ===== Notification Settings ===== */
+.settings-notifications-container {
+  @apply p-6;
+}
+
+.settings-notifications-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.settings-notifications-header-info {
+  /* No specific styles - just a container */
+}
+
+.settings-notifications-title {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.settings-notifications-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-notifications-subtitle {
+  @apply text-gray-600;
+}
+
+.settings-notifications-subtitle-dark {
+  @apply dark:text-gray-400;
+}
+
+.settings-notifications-actions {
+  @apply flex space-x-3;
+}
+
+.settings-notifications-sections {
+  @apply space-y-8;
+}
+
+/* Email Preferences */
+.settings-notifications-email-section {
+  @apply bg-gray-50 rounded-lg p-6;
+}
+
+.settings-notifications-email-section-dark {
+  @apply dark:bg-gray-800;
+}
+
+.settings-notifications-email-title {
+  @apply text-lg font-medium text-gray-900 mb-4;
+}
+
+.settings-notifications-email-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-notifications-email-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.settings-notifications-email-field {
+  /* No specific styles - just a container */
+}
+
+.settings-notifications-email-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.settings-notifications-email-label-dark {
+  @apply dark:text-gray-300;
+}
+
+.settings-notifications-email-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-gray-900;
+}
+
+.settings-notifications-email-select-dark {
+  @apply dark:border-gray-600 dark:bg-gray-700 dark:text-white;
+}
+
+.settings-notifications-email-checkbox-group {
+  @apply space-y-2;
+}
+
+.settings-notifications-email-checkbox {
+  @apply flex items-center;
+}
+
+.settings-notifications-email-checkbox-input {
+  @apply h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded;
+}
+
+.settings-notifications-email-checkbox-label {
+  @apply ml-2 text-sm text-gray-700;
+}
+
+.settings-notifications-email-checkbox-label-dark {
+  @apply dark:text-gray-300;
+}
+
+.settings-notifications-email-time-group {
+  @apply flex space-x-2;
+}
+
+.settings-notifications-email-time-input {
+  @apply px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-gray-900;
+}
+
+.settings-notifications-email-time-input-dark {
+  @apply dark:border-gray-600 dark:bg-gray-700 dark:text-white;
+}
+
+.settings-notifications-email-time-separator {
+  @apply text-sm text-gray-500 py-2;
+}
+
+.settings-notifications-email-time-separator-dark {
+  @apply dark:text-gray-400;
+}
+
+/* Notification Categories */
+.settings-notifications-category {
+  /* No specific styles - just a container */
+}
+
+.settings-notifications-category-header {
+  @apply mb-4;
+}
+
+.settings-notifications-category-title {
+  @apply text-lg font-medium text-gray-900;
+}
+
+.settings-notifications-category-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-notifications-category-description {
+  @apply text-sm text-gray-600;
+}
+
+.settings-notifications-category-description-dark {
+  @apply dark:text-gray-400;
+}
+
+.settings-notifications-category-table {
+  @apply bg-white border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.settings-notifications-category-table-dark {
+  @apply dark:bg-gray-800 dark:border-gray-700;
+}
+
+.settings-notifications-category-table-body {
+  @apply divide-y divide-gray-200;
+}
+
+.settings-notifications-category-table-body-dark {
+  @apply dark:divide-gray-700;
+}
+
+/* Table Header */
+.settings-notifications-table-header {
+  @apply px-6 py-3 bg-gray-50;
+}
+
+.settings-notifications-table-header-dark {
+  @apply dark:bg-gray-800;
+}
+
+.settings-notifications-table-header-row {
+  @apply flex items-center justify-between;
+}
+
+.settings-notifications-table-header-title {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.settings-notifications-table-header-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-notifications-table-header-controls {
+  @apply flex items-center space-x-8;
+}
+
+.settings-notifications-table-header-control {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.settings-notifications-table-header-control-dark {
+  @apply dark:text-white;
+}
+
+/* Table Row */
+.settings-notifications-table-row {
+  @apply px-6 py-4;
+}
+
+.settings-notifications-table-row-content {
+  @apply flex items-center justify-between;
+}
+
+.settings-notifications-table-row-info {
+  @apply flex-1;
+}
+
+.settings-notifications-table-row-title {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.settings-notifications-table-row-title-dark {
+  @apply dark:text-white;
+}
+
+.settings-notifications-table-row-description {
+  @apply text-sm text-gray-500;
+}
+
+.settings-notifications-table-row-description-dark {
+  @apply dark:text-gray-400;
+}
+
+.settings-notifications-table-row-controls {
+  @apply flex items-center space-x-8;
+}
+
+.settings-notifications-table-row-checkbox {
+  @apply flex items-center;
+}
+
+.settings-notifications-table-row-checkbox-input {
+  @apply h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded;
+}
+
+/* Quick Actions */
+.settings-notifications-quick-actions {
+  @apply flex justify-between items-center pt-4 border-t border-gray-200;
+}
+
+.settings-notifications-quick-actions-dark {
+  @apply dark:border-gray-700;
+}
+
+.settings-notifications-quick-actions-left {
+  /* No specific styles - just a container */
+}
+
+.settings-notifications-quick-actions-right {
+  @apply flex space-x-2;
+}

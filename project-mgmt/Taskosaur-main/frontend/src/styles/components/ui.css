@@ -1,0 +1,277 @@
+/* ================================
+   UI Component Semantic Styles
+   ================================ */
+
+@layer components {
+  /* Focus and Accessibility Patterns */
+  .focus-ring {
+    @apply outline-none focus-visible:border-[var(--ring)] focus-visible:ring-[var(--ring)]/50 focus-visible:ring-[3px];
+  }
+
+  .invalid-state {
+    @apply aria-invalid:ring-[var(--destructive)]/20 dark:aria-invalid:ring-[var(--destructive)]/40 aria-invalid:border-[var(--destructive)];
+  }
+
+  .focus-outline-none {
+    @apply outline-none;
+    -webkit-focus-ring-color: transparent;
+  }
+
+  /* Form Input Base Patterns */
+  .form-input-base {
+    @apply border-[var(--input)] flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm;
+  }
+
+  .dark-input-background {
+    @apply dark:bg-[var(--input)]/30;
+  }
+
+  .dark-input-border {
+    @apply dark:border-[var(--input)];
+  }
+
+  .input-placeholder {
+    @apply placeholder:text-[var(--muted-foreground)];
+  }
+
+  .input-selection {
+    @apply selection:bg-[var(--primary)] selection:text-[var(--primary-foreground)];
+  }
+
+  .input-disabled {
+    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .file-input-styling {
+    @apply file:text-[var(--foreground)] file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium;
+  }
+
+  /* Button Base Patterns */
+  .button-flex-base {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all shrink-0;
+  }
+
+  .button-disabled {
+    @apply disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .button-svg-icons {
+    @apply [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full h-4 w-4 border-b-2 border-current;
+  }
+
+  /* Badge Base Patterns */
+  .badge-base {
+    @apply inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 transition-[color,box-shadow] overflow-hidden border-[var(--ring)];
+  }
+
+  .badge-svg-icons {
+    @apply [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none;
+  }
+
+  .removable-badge-base {
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium gap-1;
+  }
+
+  .removable-badge-close {
+    @apply hover:text-red-600 dark:hover:text-red-400 transition-colors;
+  }
+
+  /* Card and Container Patterns */
+  .card-base {
+    @apply bg-[var(--card)] text-[var(--card-foreground)] flex flex-col gap-6 rounded-xl border py-6 shadow-sm;
+  }
+
+  .card-header-grid {
+    @apply @container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6;
+  }
+
+  .card-action-position {
+    @apply col-start-2 row-span-2 row-start-1 self-start justify-self-end;
+  }
+
+  .card-content-padding {
+    @apply px-6;
+  }
+
+  .card-footer-layout {
+    @apply flex items-center px-6 [.border-t]:pt-6;
+  }
+
+  .modal-container {
+    @apply bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-700;
+  }
+
+  /* Skeleton Loading Patterns */
+  .skeleton-base {
+    @apply bg-[var(--accent)] animate-pulse rounded-md;
+  }
+
+  .skeleton-secondary {
+    @apply bg-[var(--secondary)] dark:bg-[var(--secondary)] rounded;
+  }
+
+  .skeleton-bar {
+    @apply bg-stone-200 dark:bg-stone-700;
+  }
+
+  /* Avatar Patterns */
+  .avatar-container {
+    @apply relative flex size-8 shrink-0 overflow-hidden rounded-full;
+  }
+
+  .avatar-fallback {
+    @apply bg-[var(--muted)] flex size-full items-center justify-center rounded-full;
+  }
+
+  .avatar-image {
+    @apply aspect-square size-full;
+  }
+
+  /* Alert Patterns */
+  .alert-base {
+    @apply relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start;
+  }
+
+  .alert-icon {
+    @apply [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current;
+  }
+
+  .alert-title {
+    @apply col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight;
+  }
+
+  .alert-description {
+    @apply text-[var(--muted-foreground)] col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed;
+  }
+
+  /* Table Patterns */
+  .table-base {
+    @apply w-full caption-bottom text-sm;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-[var(--muted)]/50 data-[state=selected]:bg-[var(--muted)] border-b transition-colors;
+  }
+
+  .table-header-row {
+    @apply [&_tr]:border-b;
+  }
+
+  .table-body-last {
+    @apply [&_tr:last-child]:border-0;
+  }
+
+  .table-footer {
+    @apply bg-[var(--muted)]/50 border-t font-medium [&>tr]:last:border-b-0;
+  }
+
+  .table-head {
+    @apply text-[var(--foreground)] h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px];
+  }
+
+  .table-cell {
+    @apply p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px];
+  }
+
+  .table-caption {
+    @apply text-[var(--muted-foreground)] mt-4 text-sm;
+  }
+
+  /* Typography Patterns */
+  .heading-lg {
+    @apply text-lg leading-none font-semibold;
+  }
+
+  .text-muted-sm {
+    @apply text-[var(--muted-foreground)] text-sm;
+  }
+
+  .text-relaxed {
+    @apply leading-relaxed;
+  }
+
+  .form-label {
+    @apply text-sm font-medium leading-none;
+  }
+
+  /* Icon Button Variants */
+  .icon-button-base {
+    @apply inline-flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .icon-button-primary {
+    @apply bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] focus:ring-[var(--primary)]/50;
+  }
+
+  .icon-button-outline {
+    @apply border border-[var(--border)] hover:bg-[var(--secondary)] text-[var(--foreground)] focus:ring-[var(--primary)]/50;
+  }
+
+  .icon-button-ghost {
+    @apply hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)];
+  }
+
+  /* Layout and Spacing Patterns */
+  .flex-center-gap {
+    @apply flex items-center justify-center gap-2;
+  }
+
+  .form-grid {
+    @apply grid gap-2;
+  }
+
+  .dialog-footer-layout {
+    @apply flex flex-col gap-2 sm:flex-row sm:justify-end;
+  }
+
+  .responsive-flex-layout {
+    @apply flex flex-col gap-2 sm:flex-row;
+  }
+
+  /* Dropdown and Animation Patterns */
+  /* Note: Complex animation classes are left inline due to Tailwind compatibility issues */
+
+  /* Dark Mode Hover States */
+  .dark-hover-background {
+    @apply dark:hover:bg-[var(--input)]/50;
+  }
+
+  .dark-destructive-variant {
+    @apply dark:bg-[var(--destructive)]/60;
+  }
+
+  /* Separator Pattern */
+  .separator-base {
+    @apply bg-[var(--border)] shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px;
+  }
+
+  /* Empty State Pattern */
+  .empty-state-container {
+    @apply flex flex-col items-center justify-center text-center py-12;
+  }
+
+  .empty-state-icon {
+    @apply w-12 h-12 text-[var(--muted-foreground)] mb-4;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-semibold text-[var(--foreground)] mb-2;
+  }
+
+  .empty-state-description {
+    @apply text-[var(--muted-foreground)] mb-4 max-w-md;
+  }
+
+  body.chat-open .flex-1.overflow-y-scroll {
+    margin-right: 400px !important;
+    transition: margin-right 300ms ease-in-out;
+  }
+
+  .flex-1.overflow-y-scroll {
+    transition: margin-right 300ms ease-in-out;
+  }
+}

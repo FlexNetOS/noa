@@ -1,0 +1,1428 @@
+/* Task Creation Page Styles */
+
+.task-page-container {
+  min-height: 100vh;
+  background-color: var(--background);
+  padding: 1.5rem;
+}
+
+.task-page-content {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* Header */
+.task-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.task-page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+  margin-bottom: 0.5rem;
+}
+
+.task-page-breadcrumb a {
+  color: var(--secondary-500);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.task-page-breadcrumb a:hover {
+  color: var(--primary-600);
+}
+
+.task-page-breadcrumb span {
+  color: var(--secondary-400);
+}
+
+.task-page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-page-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--secondary-900);
+}
+
+/* Layout */
+.task-page-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .task-page-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.task-page-main {
+  order: 2;
+}
+
+.task-page-sidebar {
+  order: 1;
+}
+
+@media (min-width: 1024px) {
+  .task-page-main {
+    order: 1;
+  }
+
+  .task-page-sidebar {
+    order: 2;
+  }
+}
+
+.task-page-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.task-page-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Form sections */
+.task-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Assignment dropdowns */
+.assignment-dropdown {
+  position: relative;
+}
+
+.assignment-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.assignment-button:hover {
+  border-color: var(--primary-500);
+}
+
+.assignment-button:disabled {
+  background: var(--secondary-100);
+  color: var(--secondary-400);
+  cursor: not-allowed;
+}
+
+.assignment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.assignment-user-details {
+  min-width: 0;
+  text-align: left;
+}
+
+.assignment-user-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--secondary-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assignment-user-email {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assignment-placeholder {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+}
+
+.assignment-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 0.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.assignment-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 0.75rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.assignment-dropdown-item:hover {
+  background: var(--secondary-50);
+}
+
+.assignment-dropdown-item.selected {
+  background: var(--primary-50);
+}
+
+.assignment-dropdown-item.remove {
+  color: var(--error-600);
+}
+
+.assignment-dropdown-item.remove:hover {
+  background: var(--error-50);
+}
+
+.assignment-user-role {
+  font-size: 0.75rem;
+  color: var(--secondary-400);
+}
+
+/* Labels section */
+.labels-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.labels-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.available-labels {
+  margin-bottom: 0.75rem;
+}
+
+.available-labels-title {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+  margin-bottom: 0.5rem;
+}
+
+.available-labels-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.available-label-button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--secondary-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.available-label-button:hover {
+  background: var(--secondary-50);
+}
+
+.add-label-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.add-label-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-label-color-select {
+  flex: 1;
+}
+
+/* Form validation */
+.required-field-warning {
+  font-size: 0.75rem;
+  color: var(--error-600);
+  background-color: var(--error-50);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--error-200);
+}
+
+/* Disabled states */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.available-label-button {
+  color: var(--secondary-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.available-label-button:hover {
+  background: var(--secondary-50);
+}
+
+.label-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label-form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label-form-row input {
+  flex: 1;
+}
+
+.add-label-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--primary-600);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.add-label-button:hover {
+  color: var(--primary-800);
+}
+
+.add-label-button:disabled {
+  color: var(--secondary-400);
+  cursor: not-allowed;
+}
+
+/* Attachments */
+.attachments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--secondary-50);
+}
+
+.attachment-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attachment-details {
+  min-width: 0;
+}
+
+.attachment-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--secondary-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-size {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+}
+
+.file-upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.file-upload-input {
+  display: none;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  border: 2px dashed var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.file-upload-label:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}
+
+.file-upload-label.uploading {
+  color: var(--secondary-400);
+  cursor: not-allowed;
+  border-color: var(--secondary-200);
+}
+
+.file-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-upload-text {
+  font-weight: 500;
+}
+
+.file-upload-subtext {
+  font-size: 0.75rem;
+  color: var(--secondary-400);
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+/* Assignment warning */
+.assignment-warning {
+  font-size: 0.75rem;
+  color: var(--error-600);
+  background: var(--error-50);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--error-200);
+}
+
+/* Loading states */
+.task-page-skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeleton-header {
+  height: 1.5rem;
+  background: var(--secondary-200);
+  border-radius: 0.25rem;
+  width: 33.333333%;
+  margin-bottom: 2rem;
+}
+
+.skeleton-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.skeleton-title {
+  height: 1.5rem;
+  background: var(--secondary-200);
+  border-radius: 0.25rem;
+  width: 25%;
+  margin-bottom: 1rem;
+}
+
+.skeleton-line {
+  height: 2.5rem;
+  background: var(--secondary-200);
+  border-radius: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-textarea {
+  height: 6rem;
+  background: var(--secondary-200);
+  border-radius: 0.25rem;
+}
+
+/* Error card */
+.error-card {
+  border-color: var(--error-200);
+  background: var(--error-50);
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.error-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--error-500);
+  margin-top: 0.125rem;
+}
+
+.error-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--error-700);
+  margin-bottom: 0.5rem;
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: var(--error-600);
+  margin-bottom: 1rem;
+}
+
+.error-link {
+  font-size: 0.875rem;
+  color: var(--primary-600);
+  text-decoration: underline;
+}
+
+.error-link:hover {
+  text-decoration: none;
+}
+
+/* Dark mode */
+.dark .task-page-title {
+  color: var(--secondary-100);
+}
+
+.dark .assignment-user-name {
+  color: var(--secondary-100);
+}
+
+.dark .assignment-user-email {
+  color: var(--secondary-400);
+}
+
+.dark .assignment-placeholder {
+  color: var(--secondary-400);
+}
+
+.dark .assignment-button:disabled {
+  background: var(--secondary-800);
+  color: var(--secondary-500);
+}
+
+.dark .assignment-dropdown-item:hover {
+  background: var(--secondary-800);
+}
+
+.dark .assignment-dropdown-item.selected {
+  background: var(--primary-900);
+}
+
+.dark .assignment-dropdown-item.remove:hover {
+  background: var(--error-900);
+}
+
+.dark .available-label-button {
+  color: var(--secondary-300);
+}
+
+.dark .available-label-button:hover {
+  background: var(--secondary-800);
+}
+
+.dark .attachment-item {
+  background: var(--secondary-800);
+}
+
+.dark .attachment-name {
+  color: var(--secondary-100);
+}
+
+.dark .attachment-size {
+  color: var(--secondary-400);
+}
+
+.dark .assignment-warning {
+  color: var(--error-400);
+  background: var(--error-900);
+  border-color: var(--error-800);
+}
+
+.dark .error-card {
+  border-color: var(--error-800);
+  background: var(--error-900);
+}
+
+.dark .error-title {
+  color: var(--error-300);
+}
+
+.dark .error-message {
+  color: var(--error-400);
+}
+
+.dark .error-link {
+  color: var(--primary-400);
+}
+
+.dark .skeleton-header,
+.dark .skeleton-title,
+.dark .skeleton-line,
+.dark .skeleton-textarea {
+  background: var(--secondary-700);
+}
+
+.task-table-body {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.task-table-row {
+  transition: background-color 0.2s ease;
+}
+
+.task-table-row:hover {
+  background: var(--secondary-50);
+}
+
+.task-table-cell {
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+}
+
+.task-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary-600);
+  transition: color 0.2s ease;
+}
+
+.task-link:hover {
+  color: var(--primary-900);
+}
+
+.project-link {
+  font-size: 0.875rem;
+  color: var(--secondary-700);
+  transition: color 0.2s ease;
+}
+
+.project-link:hover {
+  color: var(--primary-600);
+}
+
+.task-text {
+  font-size: 0.875rem;
+  color: var(--secondary-900);
+}
+
+.task-text-secondary {
+  font-size: 0.875rem;
+  color: var(--secondary-500);
+}
+
+/* Error and status messages */
+.task-error-message {
+  font-size: 0.75rem;
+  color: var(--error-600);
+  background-color: var(--error-50);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--error-200);
+}
+
+/* Attachment upload styles */
+.attachment-upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--secondary-50);
+}
+
+.attachment-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attachment-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.attachment-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--secondary-900);
+}
+
+.attachment-size {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+}
+
+.attachment-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  border: 2px dashed var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--secondary-500);
+}
+
+.attachment-upload-button:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}
+
+.attachment-upload-button:disabled {
+  color: var(--secondary-400);
+  cursor: not-allowed;
+  border-color: var(--secondary-200);
+}
+
+.attachment-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attachment-upload-text {
+  font-weight: 500;
+}
+
+.attachment-upload-help {
+  font-size: 0.75rem;
+  color: var(--secondary-400);
+}
+
+/* Form actions */
+.task-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Loading state for buttons */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  height: 1rem;
+  width: 1rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty State */
+.task-empty-state {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--secondary-500);
+}
+
+.task-empty-state-content {
+  padding: 2rem 0;
+}
+
+.task-empty-state-icon {
+  margin: 0 auto;
+  height: 3rem;
+  width: 3rem;
+  color: var(--secondary-400);
+}
+
+.task-empty-state-title {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--secondary-900);
+}
+
+.task-empty-state-description {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--secondary-500);
+}
+
+.task-empty-state-action {
+  margin-top: 1.5rem;
+}
+
+/* Assignee */
+.assignee-container {
+  display: flex;
+  align-items: center;
+}
+
+.assignee-avatar {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 50%;
+  background-color: var(--primary-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+}
+
+.assignee-placeholder {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 50%;
+  background-color: var(--secondary-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-500);
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+}
+
+.assignee-name {
+  font-size: 0.875rem;
+  color: var(--secondary-900);
+}
+
+/* Task Detail Loading Skeleton */
+.task-detail-loading {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.task-detail-loading-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.task-detail-loading-content {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.task-detail-loading-breadcrumb {
+  height: 1.5rem;
+  background-color: var(--secondary-200);
+  border-radius: 0.375rem;
+  width: 33.333333%;
+  margin-bottom: 2rem;
+}
+
+.task-detail-loading-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.task-detail-loading-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.task-detail-loading-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.task-detail-loading-card-header {
+  height: 1.5rem;
+  background-color: var(--secondary-200);
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.task-detail-loading-main .task-detail-loading-card-header {
+  width: 25%;
+}
+
+.task-detail-loading-sidebar .task-detail-loading-card-header {
+  width: 50%;
+}
+
+.task-detail-loading-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-detail-loading-line {
+  height: 1rem;
+  background-color: var(--secondary-200);
+  border-radius: 0.375rem;
+}
+
+.task-detail-loading-line-full {
+  width: 100%;
+}
+
+.task-detail-loading-line-3-4 {
+  width: 75%;
+}
+
+.task-detail-loading-line-1-2 {
+  width: 50%;
+}
+
+.task-detail-loading-input {
+  height: 2.5rem;
+  background-color: var(--secondary-200);
+  border-radius: 0.375rem;
+}
+
+/* Dark mode skeleton colors */
+[data-theme="dark"] .task-detail-loading-breadcrumb,
+[data-theme="dark"] .task-detail-loading-card-header,
+[data-theme="dark"] .task-detail-loading-line,
+[data-theme="dark"] .task-detail-loading-input {
+  background-color: var(--secondary-700);
+}
+
+/* Responsive design */
+@media (min-width: 1024px) {
+  .task-detail-loading-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Error State Styles */
+.task-detail-error {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.task-detail-error-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.task-detail-error-content {
+  border-color: var(--red-200);
+  background-color: var(--red-50);
+  padding: 1.5rem;
+}
+
+.task-detail-error-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.task-detail-error-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--red-500);
+  margin-top: 0.125rem;
+}
+
+.task-detail-error-text {
+  flex: 1;
+}
+
+.task-detail-error-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--red-700);
+  margin-bottom: 0.5rem;
+}
+
+.task-detail-error-message {
+  font-size: 0.875rem;
+  color: var(--red-600);
+  margin-bottom: 1rem;
+}
+
+.task-detail-error-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Dark mode error styles */
+[data-theme="dark"] .task-detail-error-content {
+  border-color: var(--red-800);
+  background-color: rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="dark"] .task-detail-error-title {
+  color: var(--red-300);
+}
+
+[data-theme="dark"] .task-detail-error-message {
+  color: var(--red-400);
+}
+
+.wmde-markdown {
+  background: var(--background) !important;
+}
+
+/* Hide up/down arrows in textarea (for Chrome, Edge, Safari) */
+.hide-arrows::-webkit-resizer,
+.hide-arrows::-webkit-scrollbar-corner {
+  display: none !important;
+}
+.hide-arrows::-webkit-inner-spin-button,
+.hide-arrows::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none !important;
+}
+/* Hide arrows for Firefox */
+.hide-arrows {
+  scrollbar-width: thin;
+}
+
+.task-md-editor {
+  background: var(--background) !important;
+}
+
+.task-md-editor .w-md-editor-toolbar {
+  background: var(--background) !important;
+}
+.task-md-editor .w-md-editor-toolbar ul li button,
+.task-md-editor .w-md-editor-toolbar ul li svg {
+  color: var(--foreground) !important;
+  fill: var(--foreground) !important;
+}
+
+.task-md-editor .w-md-editor-preview .wmde-markdown,
+.task-md-editor .w-md-editor-preview .wmde-markdown-color,
+.task-md-editor .w-md-editor-preview .wmde-markdown p,
+.task-md-editor .w-md-editor-preview .wmde-markdown h1,
+.task-md-editor .w-md-editor-preview .wmde-markdown h2,
+.task-md-editor .w-md-editor-preview .wmde-markdown h3,
+.task-md-editor .w-md-editor-preview .wmde-markdown h4,
+.task-md-editor .w-md-editor-preview .wmde-markdown h5,
+.task-md-editor .w-md-editor-preview .wmde-markdown h6,
+.task-md-editor .w-md-editor-preview .wmde-markdown span {
+  color: var(--foreground) !important;
+  fill: var(--foreground) !important;
+  font-size: 14px !important;
+}
+.task-md-editor .w-md-editor-text-textarea,
+.task-md-editor .w-md-editor-text-input,
+.task-md-editor .w-md-editor-text {
+  height: 100% !important;
+  min-height: 420px !important;
+}
+/* Hide the edit icon and add "Edit" text */
+.w-md-editor-toolbar button[data-name="edit"] svg {
+  display: none;
+}
+
+.w-md-editor-toolbar button[data-name="edit"]::after {
+  content: "Edit";
+  font-size: 13px;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* Hide the preview icon and add "Preview" text */
+.w-md-editor-toolbar button[data-name="preview"] svg {
+  display: none;
+}
+
+.w-md-editor-toolbar button[data-name="preview"]::after {
+  content: "Preview";
+  font-size: 13px;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* Hide the fullscreen toggle button completely */
+.w-md-editor-toolbar button[data-name="fullscreen"] {
+  display: none !important;
+}
+
+/* Optional: Add some spacing for better readability */
+.w-md-editor-toolbar button[data-name="edit"]::after,
+.w-md-editor-toolbar button[data-name="preview"]::after {
+  padding: 0 5px;
+}
+
+/* Ensure buttons maintain consistent sizing */
+.w-md-editor-toolbar button[data-name="edit"],
+.w-md-editor-toolbar button[data-name="preview"] {
+  min-width: 60px;
+  justify-content: center;
+}
+
+/* Active state styling for Edit/Preview buttons */
+.w-md-editor-toolbar button[data-name="edit"].active::after,
+.w-md-editor-toolbar button[data-name="preview"].active::after {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ====================================
+   Task Description Markdown Rendering
+   ==================================== */
+
+.task-description-view .wmde-markdown,
+.task-description-view .markdown-content {
+  background-color: transparent !important;
+  font-size: 14px !important;
+  color: var(--foreground) !important;
+  padding: 0 !important;
+  line-height: 1.6 !important;
+}
+
+.task-description-view .wmde-markdown p,
+.task-description-view .markdown-content p {
+  margin: 0.75em 0 !important;
+  font-size: 14px !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown h1,
+.task-description-view .markdown-content h1 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin: 1.5em 0 0.5em 0 !important;
+  color: var(--foreground) !important;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3em;
+}
+
+.task-description-view .wmde-markdown h2,
+.task-description-view .markdown-content h2 {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin: 1.25em 0 0.5em 0 !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown h3,
+.task-description-view .markdown-content h3 {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin: 1em 0 0.5em 0 !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown h4,
+.task-description-view .markdown-content h4,
+.task-description-view .wmde-markdown h5,
+.task-description-view .markdown-content h5,
+.task-description-view .wmde-markdown h6,
+.task-description-view .markdown-content h6 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin: 1em 0 0.5em 0 !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown strong,
+.task-description-view .markdown-content strong {
+  font-weight: 600 !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown code,
+.task-description-view .markdown-content code {
+  font-size: 13px !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 3px !important;
+  font-family: "Monaco", "Courier New", monospace !important;
+}
+
+.task-description-view .wmde-markdown pre,
+.task-description-view .markdown-content pre {
+  background-color: var(--muted) !important;
+  padding: 1em !important;
+  border-radius: 6px !important;
+  overflow-x: auto !important;
+  margin: 1em 0 !important;
+  border: 1px solid var(--border);
+}
+
+.task-description-view .wmde-markdown pre code,
+.task-description-view .markdown-content pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  font-size: 13px !important;
+}
+
+.task-description-view .wmde-markdown ul,
+.task-description-view .markdown-content ul,
+.task-description-view .wmde-markdown ol,
+.task-description-view .markdown-content ol {
+  padding-left: 2em !important;
+  margin: 0.75em 0 !important;
+}
+
+.task-description-view .wmde-markdown li,
+.task-description-view .markdown-content li {
+  margin: 0.25em 0 !important;
+  font-size: 14px !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown blockquote,
+.task-description-view .markdown-content blockquote {
+  border-left: 4px solid var(--primary) !important;
+  padding-left: 1em !important;
+  margin: 1em 0 !important;
+  color: var(--muted-foreground) !important;
+}
+
+.task-description-view .wmde-markdown a,
+.task-description-view .markdown-content a {
+  color: var(--primary) !important;
+  text-decoration: underline !important;
+}
+
+.task-description-view .wmde-markdown a:hover,
+.task-description-view .markdown-content a:hover {
+  color: var(--primary) !important;
+  opacity: 0.8;
+}
+
+.task-description-view .wmde-markdown hr,
+.task-description-view .markdown-content hr {
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+  margin: 1.5em 0 !important;
+}
+
+.task-description-view .wmde-markdown table,
+.task-description-view .markdown-content table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1em 0 !important;
+}
+
+.task-description-view .wmde-markdown th,
+.task-description-view .markdown-content th,
+.task-description-view .wmde-markdown td,
+.task-description-view .markdown-content td {
+  border: 1px solid var(--border) !important;
+  padding: 0.5em !important;
+  font-size: 14px !important;
+  color: var(--foreground) !important;
+}
+
+.task-description-view .wmde-markdown th,
+.task-description-view .markdown-content th {
+  background-color: var(--muted) !important;
+  font-weight: 600 !important;
+}
+
+/* Checkbox styling for task lists */
+.task-description-view .markdown-content input[type="checkbox"] {
+  margin-right: 0.5em !important;
+  cursor: pointer !important;
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: var(--primary) !important;
+}
+
+.task-description-view .markdown-content .checkbox-line {
+  display: flex !important;
+  align-items: flex-start !important;
+  margin: 0.25em 0 !important;
+  font-size: 14px !important;
+  color: var(--foreground) !important;
+}
+
+/* Empty state styling */
+.task-description-view > div:first-child:last-child {
+  color: var(--muted-foreground) !important;
+
+  font-size: 14px !important;
+}
+
+/* TaskActivity styling */
+/* src/styles/components/activity-timeline.css */
+
+.activity-timeline-container {
+  position: relative;
+}
+
+.activity-timeline-item {
+  display: flex;
+  gap: 0.75rem;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.activity-timeline-item:first-child {
+  padding-top: 0;
+}
+
+/* Timeline connector column */
+.activity-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* Vertical connecting lines */
+.timeline-line-top,
+.timeline-line-bottom {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-line-top {
+  top: 0;
+  bottom: 50%;
+}
+
+.timeline-line-bottom {
+  top: 50%;
+  bottom: -0.5rem;
+}
+
+/* Bullet point container */
+.timeline-bullet {
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Inner filled circle */
+.timeline-bullet-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+}
+
+/* Content area */
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Dark mode adjustments */
+.dark .timeline-line-top,
+.dark .timeline-line-bottom {
+  background: var(--border);
+  opacity: 0.5;
+}
+
+.dark .timeline-bullet {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.dark .timeline-bullet-inner {
+  background: var(--muted-foreground);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .activity-timeline {
+    width: 16px;
+  }
+
+  .timeline-bullet {
+    width: 14px;
+    height: 14px;
+  }
+
+  .timeline-bullet-inner {
+    width: 6px;
+    height: 6px;
+  }
+}

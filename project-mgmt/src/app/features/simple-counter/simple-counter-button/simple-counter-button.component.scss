@@ -1,0 +1,120 @@
+@use 'sass:math';
+
+@use '../../../../styles/_globals.scss' as *;
+@use '../../../../styles/components/number-badge' as badge;
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  height: var(--header-button-size);
+}
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+.main-btn {
+  position: relative;
+  margin-left: 0;
+  // needs to be above the rest
+  z-index: 2;
+
+  &.isTimeUp {
+    border: 2px solid var(--c-accent);
+  }
+
+  .mat-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    z-index: 2;
+
+    :host(.isSuccess) & {
+      opacity: 0.25;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .check-ico {
+    //color: var(--c-primary);
+    opacity: 1 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -64%);
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    //font-weight: bold;
+    z-index: 3;
+  }
+}
+
+.extra-label,
+.label {
+  @include badge.number-badge;
+
+  .wrapper:hover .stopwatch & {
+    opacity: 0;
+  }
+}
+
+.extra-label {
+  bottom: auto;
+  top: -4px;
+}
+
+.controls {
+  transition: var(--transition-standard);
+  position: absolute;
+  top: 100%;
+  display: flex;
+  flex-direction: column;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  // add a little bit of extra hover area
+  &:after {
+    content: '';
+    position: absolute;
+    top: calc(-1.25 * var(--s));
+    left: calc(-1.25 * var(--s));
+    right: calc(-1.25 * var(--s));
+    bottom: calc(-1.25 * var(--s));
+  }
+}
+
+.wrapper:hover .controls {
+  pointer-events: all;
+
+  .btn {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.btn {
+  transition: var(--transition-standard);
+  transform: translateY(-100%);
+  opacity: 0;
+  position: relative;
+  z-index: 2;
+  margin-top: var(--s-half);
+  margin-left: 0;
+
+  &:nth-child(2) {
+    transform: translateY(-200%);
+  }
+}

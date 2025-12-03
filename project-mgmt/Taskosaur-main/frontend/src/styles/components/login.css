@@ -1,0 +1,360 @@
+/* Login Page Styles - Fixed for Large Screens */
+
+/* Layout Classes */
+.login-container {
+  @apply min-h-screen flex bg-[var(--background)];
+}
+
+.login-content-panel {
+  @apply lg:w-1/2 relative;
+}
+
+.login-form-panel {
+  @apply w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 xl:p-10 min-h-screen overflow-y-auto;
+}
+
+.login-form-wrapper {
+  @apply w-full max-w-md my-auto;
+}
+
+/* Login Content Styles */
+.login-hero-container {
+  @apply relative flex flex-col justify-center px-8 lg:px-12 xl:px-16 py-8 bg-gradient-to-br from-[var(--primary)] via-[var(--primary)] to-[var(--primary)]/95 overflow-hidden h-full;
+}
+
+.login-hero-background {
+  @apply absolute inset-0;
+}
+
+.login-hero-gradient-overlay {
+  @apply absolute inset-0 bg-gradient-to-b from-transparent via-[var(--primary)]/10 to-[var(--primary)]/20;
+}
+
+.login-hero-content {
+  @apply relative z-10 max-w-2xl mx-auto lg:mx-0;
+}
+
+/* Brand Header */
+.login-brand-header {
+  @apply mb-8;
+}
+
+.login-brand-logo-row {
+  @apply flex items-center space-x-3 mb-6;
+}
+
+.login-brand-logo-icon {
+  @apply w-12 h-12 lg:w-14 lg:h-14 bg-[var(--primary-foreground)]/15 backdrop-blur-lg rounded-2xl flex items-center justify-center border border-[var(--primary-foreground)]/20 shadow-lg;
+}
+
+.login-brand-logo-sparkles {
+  @apply w-6 h-6 lg:w-7 lg:h-7 text-[var(--primary-foreground)];
+}
+
+.login-brand-title {
+  @apply text-xl lg:text-4xl font-bold text-[var(--primary-foreground)] tracking-tight;
+}
+
+.login-brand-subtitle-row {
+  @apply flex items-center space-x-2 mt-1;
+}
+
+.login-brand-award-icon {
+  @apply w-3 h-3 text-[var(--primary-foreground)]/70;
+}
+
+.login-brand-subtitle {
+  @apply text-[var(--primary-foreground)]/70 text-xs lg:text-sm font-medium;
+}
+
+.login-hero-heading {
+  @apply text-2xl lg:text-3xl xl:text-4xl font-bold text-[var(--primary-foreground)] mb-4 leading-tight;
+}
+
+.login-hero-heading-gradient {
+  @apply bg-gradient-to-r from-[var(--primary-foreground)] to-[var(--primary-foreground)]/80 bg-clip-text text-transparent;
+}
+
+.login-hero-description {
+  @apply text-[var(--primary-foreground)]/85 text-sm lg:text-base leading-relaxed mb-6 max-w-xl;
+}
+
+/* Features Grid */
+.login-features-grid {
+  @apply space-y-4;
+}
+
+.login-feature-card {
+  @apply cursor-pointer bg-white/5 backdrop-blur-sm border border-white/15 rounded-xl p-4 hover:bg-white/10 hover:border-white/25 transition-all duration-300 hover:shadow-lg hover:scale-[1.01] w-full;
+}
+
+.login-feature-content {
+  @apply flex items-start space-x-4;
+}
+
+.login-feature-icon-wrapper {
+  @apply w-10 h-10 lg:w-12 lg:h-12 bg-white/15 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 transition-all duration-300 flex-shrink-0 shadow-sm;
+}
+
+.login-feature-card:hover .login-feature-icon-wrapper {
+  @apply bg-white/25 scale-105;
+}
+
+.login-feature-icon {
+  @apply w-5 h-5 lg:w-6 lg:h-6 text-white;
+}
+
+.login-feature-text-content {
+  @apply flex-1 min-w-0;
+}
+
+.login-feature-header {
+  @apply flex items-center justify-between mb-1;
+}
+
+.login-feature-title {
+  @apply text-[var(--primary-foreground)] font-semibold text-sm lg:text-base transition-colors;
+}
+
+.login-feature-metric {
+  @apply text-xs font-medium text-[var(--primary-foreground)]/90 bg-[var(--primary-foreground)]/10 px-2 py-1 rounded-full;
+}
+
+.login-feature-description {
+  @apply text-[var(--primary-foreground)]/75 text-xs lg:text-sm leading-relaxed;
+}
+
+.login-feature-arrow {
+  @apply w-4 h-4 text-white/60 opacity-0 transition-all duration-300 flex-shrink-0;
+}
+
+.login-feature-card:hover .login-feature-arrow {
+  @apply opacity-100 translate-x-1;
+}
+
+/* Login Form Styles */
+.login-form-container {
+  @apply w-full space-y-5;
+}
+
+.login-form-header {
+  @apply text-center space-y-3;
+}
+
+.login-form-mode-toggle {
+  @apply fixed top-2 right-2 z-50;
+}
+
+.login-form-header-content {
+  @apply space-y-1.5;
+}
+
+.login-form-title {
+  @apply text-2xl sm:text-3xl lg:text-3xl font-bold text-[var(--foreground)] tracking-tight;
+}
+
+.login-form-subtitle {
+  @apply text-[var(--muted-foreground)] text-sm sm:text-base leading-relaxed max-w-sm mx-auto;
+}
+
+/* Error Alert */
+.login-error-alert {
+  @apply border-[var(--destructive)]/30 bg-[var(--destructive)]/5 backdrop-blur-sm;
+}
+
+.login-error-title {
+  @apply block font-semibold text-sm;
+}
+
+.login-error-message {
+  @apply text-xs opacity-90 mt-1;
+}
+
+/* Form Fields */
+.login-form {
+  @apply space-y-4;
+}
+
+.login-field-container {
+  @apply space-y-2;
+}
+
+.login-field-label {
+  @apply text-sm font-semibold text-[var(--foreground)] flex items-center space-x-2;
+}
+
+.login-field-icon {
+  @apply w-4 h-4;
+}
+
+.login-input {
+  @apply h-10 px-4 bg-[var(--card)] border-[var(--border)] focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent transition-all duration-200 rounded-lg shadow-sm hover:shadow-md;
+}
+
+.login-password-container {
+  @apply relative;
+}
+
+.login-password-input {
+  @apply h-10 pl-4 pr-10 bg-[var(--card)] border-[var(--border)] focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent transition-all duration-200 rounded-lg shadow-sm hover:shadow-md;
+}
+
+.login-password-toggle {
+  @apply absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-[var(--muted)]/50 rounded-lg;
+}
+
+/* Options Row */
+.login-options-row {
+  @apply flex items-center justify-between flex-wrap gap-2;
+}
+
+.login-remember-me-container {
+  @apply flex items-center space-x-2;
+}
+
+.login-remember-me-checkbox {
+  @apply rounded-md;
+}
+
+.login-remember-me-label {
+  @apply text-sm text-[var(--muted-foreground)] cursor-pointer hover:text-[var(--foreground)] transition-colors;
+}
+
+.login-forgot-password-link {
+  @apply text-sm font-medium text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors duration-200 hover:underline;
+}
+
+/* Buttons */
+.login-submit-button {
+  @apply w-full h-10 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] font-semibold shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg;
+}
+
+.login-loading-spinner {
+  @apply mr-2 h-4 w-4 animate-spin;
+}
+
+.login-button-arrow {
+  @apply ml-2 h-4 w-4 transition-transform duration-200;
+}
+
+.login-submit-button:hover .login-button-arrow,
+.login-signup-button:hover .login-button-arrow {
+  @apply translate-x-1;
+}
+
+/* Divider */
+.login-divider-container {
+  @apply relative my-5;
+}
+
+.login-divider-line {
+  @apply absolute inset-0 flex items-center;
+}
+
+.login-divider-border {
+  @apply w-full border-t border-[var(--border)];
+}
+
+.login-divider-text-container {
+  @apply relative flex justify-center text-sm;
+}
+
+.login-divider-text {
+  @apply px-4 bg-[var(--background)] text-[var(--muted-foreground)] font-medium;
+}
+
+/* Sign Up Button */
+.login-signup-button {
+  @apply w-full h-10 border-[var(--border)] hover:bg-[var(--accent)] hover:border-[var(--accent)]/50 font-semibold rounded-lg transition-all duration-200;
+}
+
+/* Footer */
+.login-footer {
+  @apply text-center mt-5;
+}
+
+.login-footer-text {
+  @apply text-xs text-[var(--muted-foreground)] leading-relaxed max-w-xs mx-auto;
+}
+
+.login-footer-link {
+  @apply text-[var(--primary)] hover:text-[var(--primary)]/80 hover:underline font-medium;
+}
+
+/* Scroll Container Utilities */
+.login-form-scroll-container {
+  @apply max-h-screen overflow-y-auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) transparent;
+}
+
+.login-form-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.login-form-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.login-form-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 3px;
+}
+
+/* Responsive Adjustments for Very Large Screens */
+@media (min-width: 1920px) {
+  .login-form-panel {
+    @apply p-12;
+  }
+
+  .login-form-wrapper {
+    @apply max-w-lg;
+  }
+}
+
+/* Compact Mode for Smaller Heights */
+@media (max-height: 800px) {
+  .login-form-header {
+    @apply space-y-2;
+  }
+
+  .login-form-title {
+    @apply text-xl sm:text-2xl lg:text-2xl;
+  }
+
+  .login-form-subtitle {
+    @apply text-xs sm:text-sm;
+  }
+
+  .login-form-container {
+    @apply space-y-4;
+  }
+
+  .login-form {
+    @apply space-y-3;
+  }
+
+  .login-divider-container {
+    @apply my-4;
+  }
+
+  .login-footer {
+    @apply mt-4;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .login-form-title {
+    @apply text-xl;
+  }
+
+  .login-form-subtitle {
+    @apply text-sm;
+  }
+
+  .login-input,
+  .login-password-input {
+    @apply text-base;
+  }
+}

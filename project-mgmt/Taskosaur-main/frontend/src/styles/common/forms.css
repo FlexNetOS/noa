@@ -1,0 +1,130 @@
+/* ================================
+   Form & Input Components
+   ================================ */
+
+@layer components {
+  /* Form Layout Classes */
+  .form-field-group {
+    @apply space-y-3;
+  }
+
+  .form-field-group-compact {
+    @apply space-y-2;
+  }
+
+  .form-stack {
+    @apply flex flex-col gap-2;
+  }
+
+  .form-row {
+    @apply flex items-center gap-4;
+  }
+
+  .form-grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  .form-grid-3 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  .form-section {
+    @apply space-y-4 p-4 border border-[var(--border)] rounded-lg bg-[var(--card)];
+  }
+
+  /* Input & Field Variants */
+  .field-container {
+    @apply space-y-2;
+  }
+
+  .field-label {
+    @apply text-sm font-medium text-[var(--foreground)] flex items-center gap-2;
+  }
+
+  .field-error {
+    @apply text-xs text-red-600 dark:text-red-400 mt-1;
+  }
+
+  .field-hint {
+    @apply text-xs text-[var(--muted-foreground)] mt-1;
+  }
+
+  /* Enhanced Form Input Classes */
+  .form-input-primary {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
+           rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+  }
+
+  .form-input-compact {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+  }
+
+  .form-textarea-primary {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
+           rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+  }
+
+  .form-select-primary {
+    @apply px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+           focus:outline-none focus:ring-2 focus:ring-indigo-500
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+  }
+
+  .form-label-primary {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+  }
+
+  .form-error-text {
+    @apply mt-1 text-sm text-red-600 dark:text-red-400;
+  }
+
+  .form-input-error {
+    @apply w-full px-3 py-2 border border-red-300 dark:border-red-600 
+           rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+  }
+
+  .form-input-disabled {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
+           rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+           bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400
+           cursor-not-allowed;
+  }
+
+  .form-error-box {
+    @apply bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4;
+  }
+
+  .form-error-box-text {
+    @apply text-sm text-red-700 dark:text-red-400;
+  }
+
+  /* Form Inputs with Disabled State Support */
+  .form-input-with-disabled {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+           disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500;
+  }
+
+  .form-textarea-with-disabled {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+           disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500;
+  }
+
+  .form-select-with-disabled {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+           disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-500;
+  }
+}

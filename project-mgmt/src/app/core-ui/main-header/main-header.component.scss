@@ -1,0 +1,420 @@
+@use '../../../styles/_globals.scss' as *;
+
+// TODO split up into more manageable bits
+
+@mixin btn-transition {
+  transition: var(--transition-standard);
+  opacity: 0;
+  position: relative;
+  z-index: 2;
+  margin: var(--s) 0 0 0;
+}
+
+:host {
+  display: block;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  --header-nav-button-gap: var(--s-half);
+  --header-button-size: 40px;
+}
+
+:host-context(.isMac.isElectron) {
+  padding-top: calc(var(--mac-title-bar-padding) - 8px);
+}
+
+:host-context(.isObsidianStyleHeader.isElectron) {
+  padding-right: var(--window-controls-width); // Space for window controls
+}
+
+:host-context(.isMac.isElectron),
+:host-context(.isObsidianStyleHeader.isElectron) {
+  -webkit-app-region: drag;
+  cursor: grab;
+
+  .wrapper {
+    -webkit-app-region: drag;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .current-work-context-title,
+  ::ng-deep .current-task-title,
+  button,
+  a,
+  ::ng-deep button,
+  ::ng-deep a {
+    -webkit-app-region: no-drag;
+  }
+}
+
+.wrapper {
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 4px 8px;
+  min-height: var(--bar-height-large);
+  @include mq(xs) {
+    min-height: var(--bar-height);
+    padding: 4px 16px;
+  }
+}
+
+.project-settings-btn {
+  display: none;
+  @include mq(xs) {
+    display: block;
+    transition: var(--transition-standard);
+    opacity: 0;
+    margin-right: var(--s2);
+    margin-left: calc(var(--s) * -1);
+    position: relative;
+    z-index: 1;
+  }
+
+  &:hover,
+  .current-work-context-title:hover + & {
+    opacity: 1;
+  }
+}
+
+a,
+button {
+  cursor: pointer;
+}
+
+button.isActive2 {
+  background: var(--c-accent);
+  transition: background var(--transition-standard);
+}
+
+.action-nav {
+  margin-right: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--header-nav-button-gap);
+
+  :host-context([dir='rtl']) & {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+  }
+  25%,
+  50% {
+    transform: scale(1);
+  }
+}
+
+.play-btn-wrapper {
+  position: relative;
+
+  .pulse-circle {
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    inset: 0;
+    top: auto;
+    left: -4px;
+    border-radius: 50%;
+    margin: auto;
+    animation: pulse 2s infinite;
+    background: var(--c-accent);
+    opacity: 0.6;
+  }
+
+  .play-btn {
+    position: relative;
+    margin-left: 0;
+    // make sure it is above the label of our focus button
+    z-index: 4;
+
+    .circle-svg {
+      transform: rotate(-90deg);
+      position: absolute;
+      opacity: 0.15;
+      top: -8px;
+      right: -8px;
+      pointer-events: none;
+    }
+
+    .mat-icon {
+      position: relative;
+      z-index: 2;
+    }
+  }
+
+  .pomodoro-label {
+    position: absolute;
+    line-height: 1;
+    padding: 2px 4px 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: var(--whiteframe-shadow-2dp);
+    font-weight: bold;
+    border-radius: 8px;
+    z-index: 4;
+    pointer-events: none;
+    bottom: calc(var(--s) * -0.25);
+    background: var(--bg-lighter);
+    color: var(--text-color-most-intense);
+  }
+
+  .pomodoro-controls {
+    transition: var(--transition-standard);
+    position: absolute;
+    top: 100%;
+    display: flex;
+    flex-direction: column;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+
+    &:after {
+      content: '';
+      position: absolute;
+      inset: calc(var(--s) * -1.25);
+    }
+  }
+
+  &:hover .pomodoro-controls {
+    pointer-events: all;
+
+    .pomodoro-btn {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .pomodoro-btn {
+    @include btn-transition;
+    transform: translateY(-100%);
+
+    &:nth-child(2) {
+      transform: translateY(-200%);
+    }
+  }
+}
+
+.mobile-dropdown-wrapper {
+  position: relative;
+}
+
+.mobile-dropdown {
+  position: absolute;
+  display: flex;
+  transition: var(--transition-standard);
+  top: 100%;
+  flex-direction: column;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+
+  &.isVisible {
+    pointer-events: all;
+  }
+
+  simple-counter-button {
+    @include btn-transition;
+    transform: translateY(-100%);
+    opacity: 0;
+    position: relative;
+    z-index: 2;
+    margin-top: var(--s);
+    margin-left: 0;
+
+    @for $i from 2 through 7 {
+      &:nth-child(#{$i}) {
+        transform: translateY(#{$i * -100%});
+      }
+    }
+  }
+
+  &.isVisible simple-counter-button {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.panel-btn {
+  position: relative;
+  transition: all 0.2s;
+  overflow: visible !important;
+
+  &.isActive {
+    background: transparent;
+
+    .mat-icon {
+      transition: all 0.2s;
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      border-radius: 4px;
+      box-shadow: 0 -2px 3px var(--separator-alpha);
+      background: var(--sidenav-bg);
+      content: '';
+      width: 100%;
+      position: absolute;
+      top: 0;
+      right: auto;
+      bottom: -5px;
+      left: 1px;
+      z-index: -1;
+    }
+
+    &.isCustomized::after {
+      background: var(--c-accent);
+    }
+  }
+
+  &:hover:not(.isActive):not(:disabled) {
+    background: var(--hover-color, rgba(0, 0, 0, 0.04));
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: transparent !important;
+
+    &::after {
+      background: transparent !important;
+    }
+  }
+}
+
+.spin {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.week-month-selector {
+  display: flex;
+  border-radius: var(--card-border-radius);
+  overflow: hidden;
+  margin-right: calc(var(--s) * 0.25);
+  box-shadow: var(--whiteframe-shadow-2dp);
+
+  @include mq(xs) {
+    margin-right: var(--s);
+  }
+
+  @include mq(xs, max) {
+    margin-right: calc(var(--s) * 0.125);
+  }
+}
+
+.week-month-btn {
+  min-width: 48px;
+  height: 36px;
+  padding: 0 var(--s);
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 0;
+  transition: var(--transition-standard);
+  cursor: pointer;
+  position: relative;
+
+  @include mq(xs, max) {
+    min-width: 40px;
+    padding: 0 calc(var(--s) * 0.75);
+    font-size: 11px;
+  }
+
+  @include lightTheme() {
+    &.active {
+      background: var(--c-primary);
+      color: white;
+      font-weight: 600;
+    }
+  }
+
+  @include darkTheme() {
+    background: var(--bg-lighter);
+    color: var(--text-color);
+
+    &:hover {
+      background: var(--dark8);
+    }
+
+    &.active {
+      background: var(--c-primary);
+      color: white;
+      font-weight: 600;
+    }
+  }
+
+  &:first-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    border-top-left-radius: var(--card-border-radius);
+    border-bottom-left-radius: var(--card-border-radius);
+
+    @include darkTheme() {
+      border-right-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.current-task-title {
+  position: absolute;
+  right: 100%;
+  width: auto;
+  border: 2px solid var(--c-accent);
+  border-radius: 12px;
+}
+
+.sync-state-ico {
+  // important because it might be overwritten by material styles sometimes
+  position: absolute !important;
+  font-size: 10px;
+  height: 10px;
+  line-height: 10px;
+}
+
+:host:hover ::ng-deep {
+  .current-task-title {
+    opacity: 0;
+  }
+}
+
+.focus-btn-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+
+  button {
+    margin: 0;
+  }
+
+  .focus-label {
+    position: absolute;
+    line-height: 1;
+    padding: 2px 4px 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    border-radius: 8px;
+    pointer-events: none;
+    bottom: calc(var(--s) * -0.25);
+    background: var(--bg-lighter);
+    color: var(--text-color-most-intense);
+  }
+}
