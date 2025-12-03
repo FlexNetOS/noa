@@ -1,7 +1,30 @@
-# Exclude test and diagnostic files first (before inclusions)
+# Node modules and dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+*.log
+
+# Temporary and test files
 test-*.ps1
 test-*.txt
 test-*.bat
 create-*.ps1
 create-*.bat
 setup-direct.ps1
+*.tmp
+*.temp
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Generated files (will be created by setup script)
+noa-profile.ps1
+.noa
