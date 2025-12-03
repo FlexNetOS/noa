@@ -29,16 +29,42 @@ Write-Host "=== Setting up NOA structure at '$NoaRoot' ===" -ForegroundColor Cya
 
 function Ensure-Dir {
     param([string]$Path)
-    if (-not (Test-Path -LiteralPath $Path)) {
-        Write-Host "Creating directory: $Path" -ForegroundColor Gray
-        New-Item -ItemType Directory -Path $Path -Force | Out-Null
+    try {
+        # Ensure we use absolute path
+        if (-not [System.IO.Path]::IsPathRooted($Path)) {
+            $Path = Join-Path $NoaRoot $Path
+        }
+
+        # Use .NET method for more reliable directory creation
+        if (-not [System.IO.Directory]::Exists($Path)) {
+            Write-Host "Creating directory: $Path" -ForegroundColor Gray
+            $null = [System.IO.Directory]::CreateDirectory($Path)
+            if ([System.IO.Directory]::Exists($Path)) {
+                Write-Host "  ✓ Created: $Path" -ForegroundColor Green
+            } else {
+                throw "Directory creation failed: $Path"
+            }
+        } else {
+            Write-Host "  ○ Already exists: $Path" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  ✗ ERROR: Failed to create '$Path': $($_.Exception.Message)" -ForegroundColor Red
+        Write-Error "Failed to create directory '$Path': $($_.Exception.Message)"
+        throw
     }
 }
 
 ### 1. Ensure base directory exists ##########################################
 
+Write-Host "Ensuring base directory exists..." -ForegroundColor Cyan
 Ensure-Dir -Path $NoaRoot
-Set-Location $NoaRoot
+
+# Verify we can write to the directory
+if (-not (Test-Path $NoaRoot)) {
+    throw "Cannot access or create base directory: $NoaRoot"
+}
+
+Write-Host "Base directory verified: $NoaRoot" -ForegroundColor Green
 
 ### 2. Create NOA monorepo directory structure ###############################
 
@@ -52,7 +78,8 @@ if (-not $SkipStructure) {
     )
 
     foreach ($dir in $mainDirs) {
-        Ensure-Dir -Path (Join-Path $NoaRoot $dir)
+        $fullPath = Join-Path $NoaRoot $dir
+        Ensure-Dir -Path $fullPath
     }
 
     # Repos subdirectories
@@ -149,7 +176,8 @@ if (-not $SkipStructure) {
 
 Write-Host "Creating .noa marker file..." -ForegroundColor Cyan
 
-$noaMarker = @"
+# Create .noa marker file content
+$noaMarkerContent = @"
 # NOA Configuration
 # This directory is the root of the NOA monorepo
 # NOA is a P2P server for connecting user devices for dynamically shared compute and storage
@@ -157,7 +185,7 @@ $noaMarker = @"
 # AI-first, conversational UI/OS - minimal extensions, CLI tools preferred
 "@
 
-$noaMarker | Out-File -FilePath (Join-Path $NoaRoot ".noa") -Encoding UTF8 -Force
+$noaMarkerContent | Out-File -FilePath (Join-Path $NoaRoot ".noa") -Encoding UTF8 -Force
 Write-Host "  Created .noa marker file" -ForegroundColor Green
 
 ### 4. Create Windows PowerShell profile for NOA environment ##################
@@ -166,78 +194,81 @@ Write-Host "Creating NOA PowerShell profile..." -ForegroundColor Cyan
 
 $profilePath = Join-Path $NoaRoot "noa-profile.ps1"
 
-$noaProfile = @"
-# NOA Environment Configuration for Windows PowerShell
-# Ensures all paths stay within $NoaRoot
-# NOA: P2P server for connecting user devices for dynamically shared compute and storage
+# Build the profile content using string concatenation to avoid here-string parsing issues
+$noaProfileLines = @(
+    "# NOA Environment Configuration for Windows PowerShell",
+    "# Ensures all paths stay within $NoaRoot",
+    "# NOA: P2P server for connecting user devices for dynamically shared compute and storage",
+    "",
+    "`$env:NOA_ROOT = `"$NoaRoot`"",
+    "`$env:NOA_REPOS = `"`$env:NOA_ROOT\repos`"",
+    "`$env:NOA_CONTAINERS = `"`$env:NOA_ROOT\containers`"",
+    "`$env:NOA_WORKSPACE = `"`$env:NOA_ROOT\workspace`"",
+    "`$env:NOA_CONFIG = `"`$env:NOA_ROOT\config`"",
+    "`$env:NOA_SCRIPTS = `"`$env:NOA_ROOT\scripts`"",
+    "`$env:NOA_LOGS = `"`$env:NOA_ROOT\logs`"",
+    "`$env:NOA_TMP = `"`$env:NOA_ROOT\tmp`"",
+    "`$env:NOA_P2P = `"`$env:NOA_ROOT\p2p`"",
+    "`$env:NOA_AI = `"`$env:NOA_ROOT\ai`"",
+    "`$env:NOA_AI_SHARED = `"`$env:NOA_AI\shared`"",
+    "`$env:NOA_AI_PROVIDERS = `"`$env:NOA_AI\providers`"",
+    "`$env:NOA_AI_DEVICES = `"`$env:NOA_AI\devices`"",
+    "`$env:NOA_AI_ORCHESTRATION = `"`$env:NOA_AI\orchestration`"",
+    "`$env:NOA_GIT = `"`$env:NOA_ROOT\git`"",
+    "`$env:NOA_GIT_REPOS = `"`$env:NOA_GIT\repos`"",
+    "`$env:NOA_GIT_PRS = `"`$env:NOA_GIT\prs`"",
+    "`$env:NOA_GIT_CONFLICTS = `"`$env:NOA_GIT\conflicts`"",
+    "`$env:NOA_GIT_CI_CD = `"`$env:NOA_GIT\ci-cd`"",
+    "`$env:NOA_GIT_MIRRORS = `"`$env:NOA_GIT\mirrors`"",
+    "`$env:NOA_BIN = `"`$env:NOA_ROOT\bin`"",
+    "`$env:NOA_ETC = `"`$env:NOA_ROOT\etc`"",
+    "`$env:NOA_LIB = `"`$env:NOA_ROOT\lib`"",
+    "`$env:NOA_OPT = `"`$env:NOA_ROOT\opt`"",
+    "`$env:NOA_SYS = `"`$env:NOA_ROOT\sys`"",
+    "`$env:NOA_INIT = `"`$env:NOA_ROOT\init`"",
+    "",
+    "# Add NOA directories to PATH",
+    "function Add-NoaPath {",
+    "    param([string]`$dir)",
+    "    if (Test-Path `$dir) {",
+    "        if (`$env:PATH -notlike `"*`$dir*`") {",
+    "            `$env:PATH = `"`$dir;`$env:PATH`"",
+    "        }",
+    "    }",
+    "}",
+    "",
+    "# Add NOA bin and scripts to PATH (highest priority)",
+    "Add-NoaPath `$env:NOA_BIN",
+    "Add-NoaPath `$env:NOA_SCRIPTS",
+    "",
+    "# Function to validate paths are within NOA_ROOT",
+    "function Test-NoaPath {",
+    "    param([string]`$path)",
+    "    `$noaRootPath = `$env:NOA_ROOT",
+    "    # Normalize paths for comparison (remove trailing backslashes)",
+    "    `$normalizedPath = `$path.TrimEnd('\')",
+    "    `$normalizedRoot = `$noaRootPath.TrimEnd('\')",
+    "    # Use StartsWith for explicit path validation instead of pattern matching",
+    "    if (-not `$normalizedPath.StartsWith(`$normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {",
+    "        Write-Error `"Path must be within `$noaRootPath: `$path`"",
+    "        return `$false",
+    "    }",
+    "    return `$true",
+    "}",
+    "",
+    "# Aliases for quick navigation",
+    "function cda { Set-Location `$env:NOA_ROOT }",
+    "function cdr { Set-Location `$env:NOA_REPOS }",
+    "function cdc { Set-Location `$env:NOA_CONTAINERS }",
+    "function cdw { Set-Location `$env:NOA_WORKSPACE }",
+    "function cdp { Set-Location `$env:NOA_P2P }",
+    "function cdai { Set-Location `$env:NOA_AI }",
+    "function cdgit { Set-Location `$env:NOA_GIT }",
+    "",
+    "Write-Host `"NOA environment loaded. Root: `$env:NOA_ROOT`" -ForegroundColor Green"
+)
 
-`$env:NOA_ROOT = "$NoaRoot"
-`$env:NOA_REPOS = "`$env:NOA_ROOT\repos"
-`$env:NOA_CONTAINERS = "`$env:NOA_ROOT\containers"
-`$env:NOA_WORKSPACE = "`$env:NOA_ROOT\workspace"
-`$env:NOA_CONFIG = "`$env:NOA_ROOT\config"
-`$env:NOA_SCRIPTS = "`$env:NOA_ROOT\scripts"
-`$env:NOA_LOGS = "`$env:NOA_ROOT\logs"
-`$env:NOA_TMP = "`$env:NOA_ROOT\tmp"
-`$env:NOA_P2P = "`$env:NOA_ROOT\p2p"
-`$env:NOA_AI = "`$env:NOA_ROOT\ai"
-`$env:NOA_AI_SHARED = "`$env:NOA_AI\shared"
-`$env:NOA_AI_PROVIDERS = "`$env:NOA_AI\providers"
-`$env:NOA_AI_DEVICES = "`$env:NOA_AI\devices"
-`$env:NOA_AI_ORCHESTRATION = "`$env:NOA_AI\orchestration"
-`$env:NOA_GIT = "`$env:NOA_ROOT\git"
-`$env:NOA_GIT_REPOS = "`$env:NOA_GIT\repos"
-`$env:NOA_GIT_PRS = "`$env:NOA_GIT\prs"
-`$env:NOA_GIT_CONFLICTS = "`$env:NOA_GIT\conflicts"
-`$env:NOA_GIT_CI_CD = "`$env:NOA_GIT\ci-cd"
-`$env:NOA_GIT_MIRRORS = "`$env:NOA_GIT\mirrors"
-`$env:NOA_BIN = "`$env:NOA_ROOT\bin"
-`$env:NOA_ETC = "`$env:NOA_ROOT\etc"
-`$env:NOA_LIB = "`$env:NOA_ROOT\lib"
-`$env:NOA_OPT = "`$env:NOA_ROOT\opt"
-`$env:NOA_SYS = "`$env:NOA_ROOT\sys"
-`$env:NOA_INIT = "`$env:NOA_ROOT\init"
-
-# Add NOA directories to PATH
-function Add-NoaPath {
-    param([string]`$dir)
-    if (Test-Path `$dir) {
-        if (`$env:PATH -notlike "*`$dir*") {
-            `$env:PATH = "`$dir;`$env:PATH"
-        }
-    }
-}
-
-# Add NOA bin and scripts to PATH (highest priority)
-Add-NoaPath `$env:NOA_BIN
-Add-NoaPath `$env:NOA_SCRIPTS
-
-# Function to validate paths are within NOA_ROOT
-function Test-NoaPath {
-    param([string]`$path)
-    `$noaRootPath = `$env:NOA_ROOT
-    # Normalize paths for comparison (remove trailing backslashes)
-    `$normalizedPath = `$path.TrimEnd('\')
-    `$normalizedRoot = `$noaRootPath.TrimEnd('\')
-    # Use StartsWith for explicit path validation instead of pattern matching
-    if (-not `$normalizedPath.StartsWith(`$normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        Write-Error "Path must be within `$noaRootPath: `$path"
-        return `$false
-    }
-    return `$true
-}
-
-# Aliases for quick navigation
-function cda { Set-Location `$env:NOA_ROOT }
-function cdr { Set-Location `$env:NOA_REPOS }
-function cdc { Set-Location `$env:NOA_CONTAINERS }
-function cdw { Set-Location `$env:NOA_WORKSPACE }
-function cdp { Set-Location `$env:NOA_P2P }
-function cdai { Set-Location `$env:NOA_AI }
-function cdgit { Set-Location `$env:NOA_GIT }
-
-Write-Host "NOA environment loaded. Root: `$env:NOA_ROOT" -ForegroundColor Green
-"@
+$noaProfile = $noaProfileLines -join "`r`n"
 
 $noaProfile | Out-File -FilePath $profilePath -Encoding UTF8 -Force
 Write-Host "  Created NOA PowerShell profile: $profilePath" -ForegroundColor Green
