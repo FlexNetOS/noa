@@ -1,13 +1,7 @@
-# Ignore everything in the repo by default
-/*
-
-# Keep the root README so the repo retains context
-!README.md
-
-# Keep the ignore file itself
-!.gitignore
-
-# Keep setup scripts
-!setup-*.ps1
-!adapt-script.ps1
-!check-worktrees.ps1
+# Exclude test and diagnostic files first (before inclusions)
+test-*.ps1
+test-*.txt
+test-*.bat
+create-*.ps1
+create-*.bat
+setup-direct.ps1

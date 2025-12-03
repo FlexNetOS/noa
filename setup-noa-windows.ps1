@@ -177,13 +177,13 @@ if (-not $SkipStructure) {
 Write-Host "Creating .noa marker file..." -ForegroundColor Cyan
 
 # Create .noa marker file content
-$noaMarkerContent = @"
+$noaMarkerContent = @'
 # NOA Configuration
 # This directory is the root of the NOA monorepo
 # NOA is a P2P server for connecting user devices for dynamically shared compute and storage
-# All paths must be relative to $NoaRoot
+# All paths must be relative to {0}
 # AI-first, conversational UI/OS - minimal extensions, CLI tools preferred
-"@
+'@ -f $NoaRoot
 
 $noaMarkerContent | Out-File -FilePath (Join-Path $NoaRoot ".noa") -Encoding UTF8 -Force
 Write-Host "  Created .noa marker file" -ForegroundColor Green
@@ -194,83 +194,82 @@ Write-Host "Creating NOA PowerShell profile..." -ForegroundColor Cyan
 
 $profilePath = Join-Path $NoaRoot "noa-profile.ps1"
 
-# Build the profile content using string concatenation to avoid here-string parsing issues
-$noaProfileLines = @(
-    "# NOA Environment Configuration for Windows PowerShell",
-    "# Ensures all paths stay within $NoaRoot",
-    "# NOA: P2P server for connecting user devices for dynamically shared compute and storage",
-    "",
-    "`$env:NOA_ROOT = `"$NoaRoot`"",
-    "`$env:NOA_REPOS = `"`$env:NOA_ROOT\repos`"",
-    "`$env:NOA_CONTAINERS = `"`$env:NOA_ROOT\containers`"",
-    "`$env:NOA_WORKSPACE = `"`$env:NOA_ROOT\workspace`"",
-    "`$env:NOA_CONFIG = `"`$env:NOA_ROOT\config`"",
-    "`$env:NOA_SCRIPTS = `"`$env:NOA_ROOT\scripts`"",
-    "`$env:NOA_LOGS = `"`$env:NOA_ROOT\logs`"",
-    "`$env:NOA_TMP = `"`$env:NOA_ROOT\tmp`"",
-    "`$env:NOA_P2P = `"`$env:NOA_ROOT\p2p`"",
-    "`$env:NOA_AI = `"`$env:NOA_ROOT\ai`"",
-    "`$env:NOA_AI_SHARED = `"`$env:NOA_AI\shared`"",
-    "`$env:NOA_AI_PROVIDERS = `"`$env:NOA_AI\providers`"",
-    "`$env:NOA_AI_DEVICES = `"`$env:NOA_AI\devices`"",
-    "`$env:NOA_AI_ORCHESTRATION = `"`$env:NOA_AI\orchestration`"",
-    "`$env:NOA_GIT = `"`$env:NOA_ROOT\git`"",
-    "`$env:NOA_GIT_REPOS = `"`$env:NOA_GIT\repos`"",
-    "`$env:NOA_GIT_PRS = `"`$env:NOA_GIT\prs`"",
-    "`$env:NOA_GIT_CONFLICTS = `"`$env:NOA_GIT\conflicts`"",
-    "`$env:NOA_GIT_CI_CD = `"`$env:NOA_GIT\ci-cd`"",
-    "`$env:NOA_GIT_MIRRORS = `"`$env:NOA_GIT\mirrors`"",
-    "`$env:NOA_BIN = `"`$env:NOA_ROOT\bin`"",
-    "`$env:NOA_ETC = `"`$env:NOA_ROOT\etc`"",
-    "`$env:NOA_LIB = `"`$env:NOA_ROOT\lib`"",
-    "`$env:NOA_OPT = `"`$env:NOA_ROOT\opt`"",
-    "`$env:NOA_SYS = `"`$env:NOA_ROOT\sys`"",
-    "`$env:NOA_INIT = `"`$env:NOA_ROOT\init`"",
-    "",
-    "# Add NOA directories to PATH",
-    "function Add-NoaPath {",
-    "    param([string]`$dir)",
-    "    if (Test-Path `$dir) {",
-    "        if (`$env:PATH -notlike `"*`$dir*`") {",
-    "            `$env:PATH = `"`$dir;`$env:PATH`"",
-    "        }",
-    "    }",
-    "}",
-    "",
-    "# Add NOA bin and scripts to PATH (highest priority)",
-    "Add-NoaPath `$env:NOA_BIN",
-    "Add-NoaPath `$env:NOA_SCRIPTS",
-    "",
-    "# Function to validate paths are within NOA_ROOT",
-    "function Test-NoaPath {",
-    "    param([string]`$path)",
-    "    `$noaRootPath = `$env:NOA_ROOT",
-    "    # Normalize paths for comparison (remove trailing backslashes)",
-    "    `$normalizedPath = `$path.TrimEnd('\')",
-    "    `$normalizedRoot = `$noaRootPath.TrimEnd('\')",
-    "    # Use StartsWith for explicit path validation instead of pattern matching",
-    "    if (-not `$normalizedPath.StartsWith(`$normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {",
-    "        Write-Error `"Path must be within `$noaRootPath: `$path`"",
-    "        return `$false",
-    "    }",
-    "    return `$true",
-    "}",
-    "",
-    "# Aliases for quick navigation",
-    "function cda { Set-Location `$env:NOA_ROOT }",
-    "function cdr { Set-Location `$env:NOA_REPOS }",
-    "function cdc { Set-Location `$env:NOA_CONTAINERS }",
-    "function cdw { Set-Location `$env:NOA_WORKSPACE }",
-    "function cdp { Set-Location `$env:NOA_P2P }",
-    "function cdai { Set-Location `$env:NOA_AI }",
-    "function cdgit { Set-Location `$env:NOA_GIT }",
-    "",
-    "Write-Host `"NOA environment loaded. Root: `$env:NOA_ROOT`" -ForegroundColor Green"
-)
+# Write the profile content directly to file to avoid here-string parsing issues
+# Using .NET StreamWriter for reliable output
+$profileContent = @"
+# NOA Environment Configuration for Windows PowerShell
+# Ensures all paths stay within NOA_ROOT
+# NOA: P2P server for connecting user devices for dynamically shared compute and storage
 
-$noaProfile = $noaProfileLines -join "`r`n"
+`$env:NOA_ROOT = "$NoaRoot"
+`$env:NOA_REPOS = "`$env:NOA_ROOT\repos"
+`$env:NOA_CONTAINERS = "`$env:NOA_ROOT\containers"
+`$env:NOA_WORKSPACE = "`$env:NOA_ROOT\workspace"
+`$env:NOA_CONFIG = "`$env:NOA_ROOT\config"
+`$env:NOA_SCRIPTS = "`$env:NOA_ROOT\scripts"
+`$env:NOA_LOGS = "`$env:NOA_ROOT\logs"
+`$env:NOA_TMP = "`$env:NOA_ROOT\tmp"
+`$env:NOA_P2P = "`$env:NOA_ROOT\p2p"
+`$env:NOA_AI = "`$env:NOA_ROOT\ai"
+`$env:NOA_AI_SHARED = "`$env:NOA_AI\shared"
+`$env:NOA_AI_PROVIDERS = "`$env:NOA_AI\providers"
+`$env:NOA_AI_DEVICES = "`$env:NOA_AI\devices"
+`$env:NOA_AI_ORCHESTRATION = "`$env:NOA_AI\orchestration"
+`$env:NOA_GIT = "`$env:NOA_ROOT\git"
+`$env:NOA_GIT_REPOS = "`$env:NOA_GIT\repos"
+`$env:NOA_GIT_PRS = "`$env:NOA_GIT\prs"
+`$env:NOA_GIT_CONFLICTS = "`$env:NOA_GIT\conflicts"
+`$env:NOA_GIT_CI_CD = "`$env:NOA_GIT\ci-cd"
+`$env:NOA_GIT_MIRRORS = "`$env:NOA_GIT\mirrors"
+`$env:NOA_BIN = "`$env:NOA_ROOT\bin"
+`$env:NOA_ETC = "`$env:NOA_ROOT\etc"
+`$env:NOA_LIB = "`$env:NOA_ROOT\lib"
+`$env:NOA_OPT = "`$env:NOA_ROOT\opt"
+`$env:NOA_SYS = "`$env:NOA_ROOT\sys"
+`$env:NOA_INIT = "`$env:NOA_ROOT\init"
 
-$noaProfile | Out-File -FilePath $profilePath -Encoding UTF8 -Force
+# Add NOA directories to PATH
+function Add-NoaPath {
+    param([string]`$dir)
+    if (Test-Path `$dir) {
+        if (`$env:PATH -notlike "*`$dir*") {
+            `$env:PATH = "`$dir;`$env:PATH"
+        }
+    }
+}
+
+# Add NOA bin and scripts to PATH (highest priority)
+Add-NoaPath `$env:NOA_BIN
+Add-NoaPath `$env:NOA_SCRIPTS
+
+# Function to validate paths are within NOA_ROOT
+function Test-NoaPath {
+    param([string]`$path)
+    `$noaRootPath = `$env:NOA_ROOT
+    # Normalize paths for comparison (remove trailing backslashes)
+    `$normalizedPath = `$path.TrimEnd([char]92)
+    `$normalizedRoot = `$noaRootPath.TrimEnd([char]92)
+    # Use StartsWith for explicit path validation instead of pattern matching
+    if (-not `$normalizedPath.StartsWith(`$normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        Write-Error "Path must be within `$noaRootPath`: `$path"
+        return `$false
+    }
+    return `$true
+}
+
+# Aliases for quick navigation
+function cda { Set-Location `$env:NOA_ROOT }
+function cdr { Set-Location `$env:NOA_REPOS }
+function cdc { Set-Location `$env:NOA_CONTAINERS }
+function cdw { Set-Location `$env:NOA_WORKSPACE }
+function cdp { Set-Location `$env:NOA_P2P }
+function cdai { Set-Location `$env:NOA_AI }
+function cdgit { Set-Location `$env:NOA_GIT }
+
+Write-Host "NOA environment loaded. Root: `$env:NOA_ROOT" -ForegroundColor Green
+"@
+
+[System.IO.File]::WriteAllText($profilePath, $profileContent, [System.Text.Encoding]::UTF8)
 Write-Host "  Created NOA PowerShell profile: $profilePath" -ForegroundColor Green
 Write-Host "  To use: . '$profilePath'" -ForegroundColor Yellow
 
@@ -348,12 +347,12 @@ Write-Host "=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "NOA Structure Summary:" -ForegroundColor Cyan
 Write-Host "  Root Directory: $NoaRoot" -ForegroundColor White
-Write-Host "  Repos: $NoaRoot\repos\{github,local,external}" -ForegroundColor White
-Write-Host "  Containers: $NoaRoot\containers\{docker,compose,volumes}" -ForegroundColor White
-Write-Host "  Workspace: $NoaRoot\workspace\{projects,agents,tools}" -ForegroundColor White
-Write-Host "  P2P: $NoaRoot\p2p\{nodes,storage,compute,network}" -ForegroundColor White
-Write-Host "  AI: $NoaRoot\ai\{providers,shared,devices,orchestration}" -ForegroundColor White
-Write-Host "  Git: $NoaRoot\git\{repos,prs,conflicts,ci-cd,mirrors,hooks}" -ForegroundColor White
+Write-Host "  Repos: $NoaRoot\repos\[github|local|external]" -ForegroundColor White
+Write-Host "  Containers: $NoaRoot\containers\[docker|compose|volumes]" -ForegroundColor White
+Write-Host "  Workspace: $NoaRoot\workspace\[projects|agents|tools]" -ForegroundColor White
+Write-Host "  P2P: $NoaRoot\p2p\[nodes|storage|compute|network]" -ForegroundColor White
+Write-Host "  AI: $NoaRoot\ai\[providers|shared|devices|orchestration]" -ForegroundColor White
+Write-Host "  Git: $NoaRoot\git\[repos|prs|conflicts|ci-cd|mirrors|hooks]" -ForegroundColor White
 Write-Host ""
 Write-Host "To activate NOA environment in PowerShell:" -ForegroundColor Yellow
 Write-Host "  . '$profilePath'" -ForegroundColor White
