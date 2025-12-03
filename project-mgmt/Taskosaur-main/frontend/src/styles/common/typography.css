@@ -1,0 +1,131 @@
+/* ================================
+   Typography & Font Styles
+   ================================ */
+
+@layer base {
+  /* WebKit font smoothing */
+  body {
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    @apply leading-relaxed;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@layer components {
+  /* Global text styles for uniformity */
+  .text-heading {
+    @apply text-2xl font-bold leading-tight;
+  }
+
+  .text-subheading {
+    @apply text-lg font-semibold leading-snug;
+  }
+
+  .text-body {
+    @apply text-base font-normal leading-relaxed;
+  }
+
+  .text-muted {
+    @apply text-[var(--muted-foreground)] text-sm font-normal;
+  }
+
+  /* Additional typography utilities */
+  .text-display {
+    @apply text-4xl font-bold leading-tight tracking-tight;
+  }
+
+  .text-title {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  .text-subtitle {
+    @apply text-xl font-semibold leading-normal;
+  }
+
+  .text-caption {
+    @apply text-xs font-medium leading-normal;
+  }
+
+  .text-overline {
+    @apply text-xs font-semibold uppercase tracking-wide leading-normal;
+  }
+
+  /* Font weight utilities */
+  .font-light {
+    @apply font-light;
+  }
+
+  .font-regular {
+    @apply font-normal;
+  }
+
+  .font-medium {
+    @apply font-medium;
+  }
+
+  .font-semibold {
+    @apply font-semibold;
+  }
+
+  .font-bold {
+    @apply font-bold;
+  }
+
+  /* Text color utilities with theme support */
+  .text-primary {
+    @apply text-[var(--primary)];
+  }
+
+  .text-secondary {
+    @apply text-[var(--secondary-foreground)];
+  }
+
+  .text-muted {
+    @apply text-[var(--muted-foreground)];
+  }
+
+  .text-accent {
+    @apply text-[var(--accent-foreground)];
+  }
+
+  .text-destructive {
+    @apply text-[var(--destructive)];
+  }
+
+  /* Reading-optimized text styles */
+  .prose {
+    @apply text-base leading-relaxed text-[var(--foreground)];
+  }
+
+  .prose h1 {
+    @apply text-4xl font-bold leading-tight tracking-tight mb-4;
+  }
+
+  .prose h2 {
+    @apply text-3xl font-bold leading-tight mb-3;
+  }
+
+  .prose h3 {
+    @apply text-2xl font-bold leading-tight mb-2;
+  }
+
+  .prose h4 {
+    @apply text-lg font-semibold leading-snug mb-2;
+  }
+
+  .prose p {
+    @apply text-base font-normal leading-relaxed mb-4;
+  }
+
+  .prose small {
+    @apply text-xs font-medium leading-normal text-[var(--muted-foreground)];
+  }
+}

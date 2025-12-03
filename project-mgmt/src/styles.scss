@@ -1,0 +1,39 @@
+@use 'sass:meta';
+@use 'styles/font/material-icons';
+
+@use 'sass:math';
+
+@import '../node_modules/@fontsource/open-sans/400.css';
+@import '../node_modules/@fontsource/open-sans/400-italic.css';
+@import '../node_modules/@fontsource/open-sans/700.css';
+@import '../node_modules/@fontsource/open-sans/300.css';
+
+@include meta.load-css('styles/_css-variables');
+@include meta.load-css('styles/themes');
+@include meta.load-css('styles/page');
+@include meta.load-css('styles/util');
+@include meta.load-css('styles/components/components');
+
+* {
+  //box-shadow: none !important;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+p,
+input,
+textarea,
+pre,
+[contenteditable] {
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+body.isDisableAnimations {
+  *,
+  *:after,
+  *:before {
+    transition: none !important;
+    animation: none !important;
+  }
+}

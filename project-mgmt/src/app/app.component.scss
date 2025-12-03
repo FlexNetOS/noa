@@ -1,0 +1,177 @@
+@use '../styles/_globals.scss' as *;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  // mobile viewport bug fix
+  min-height: -webkit-fill-available;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; // Prevent flex item from growing beyond container
+  overflow: hidden;
+}
+
+// Mobile bottom nav spacing
+.has-mobile-bottom-nav {
+  @include mq(xs, max) {
+    .main-content {
+      padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+// Override magic-side-nav styles for flex layout integration
+// Use desktop layout overrides only on larger screens
+@include mq(xs) {
+  mobile-bottom-nav {
+    display: none !important;
+  }
+
+  magic-side-nav {
+    ::ng-deep .nav-sidebar {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      bottom: auto !important;
+      height: 100vh !important;
+      min-height: -webkit-fill-available !important;
+      z-index: auto !important;
+    }
+  }
+}
+
+.header-wrapper {
+  position: relative;
+  z-index: var(--z-main-header-wrapper);
+  display: block;
+  transition: var(--transition-enter);
+  border-bottom: 1px solid transparent;
+  border-color: var(--extra-border-color);
+
+  &.isNotScrolled {
+    border-color: transparent !important;
+  }
+}
+
+.route-wrapper {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+  -webkit-app-region: no-drag !important;
+  height: 100%;
+  container-type: inline-size;
+  container-name: main-content;
+
+  > ::ng-deep router-outlet + * {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    overflow-x: hidden;
+    @include scrollY();
+  }
+
+  > ::ng-deep {
+    tag-task-page,
+    project-task-page {
+      overflow: hidden;
+    }
+  }
+}
+
+.backdrop {
+  // global styles in backdrop.scss
+}
+
+add-task-bar {
+  z-index: var(--z-add-task-bar);
+}
+
+main-header {
+  position: relative;
+  z-index: var(--z-main-header);
+}
+
+.right-panel {
+  min-width: 300px;
+  width: 40vw;
+  max-width: 700px;
+  min-height: 100vh;
+  // mobile viewport bug fix
+  min-height: -webkit-fill-available;
+
+  .mat-drawer-over & {
+    width: 80vw;
+
+    @include mq(xs, max) {
+      width: 90vw;
+    }
+  }
+}
+
+// SIDENAV
+// -------
+:host ::ng-deep .mat-drawer-content {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-sidenav-container.mat-sidenav-container {
+  background: transparent;
+}
+
+mat-sidenav,
+mat-sidenav-container {
+  height: 100%;
+}
+
+// sidebars
+mat-sidenav ::ng-deep .mat-drawer-inner-container {
+  @include scrollYImportant();
+
+  background: var(--sidenav-bg);
+}
+
+mat-sidenav {
+  width: fit-content;
+  z-index: var(--z-side-nav);
+}
+
+// Remove right border/shadow of the side nav
+
+:host ::ng-deep .mat-drawer.mat-drawer-side {
+  border-right-color: var(--sidebar-border-color);
+}
+
+@media (min-width: 800px) {
+  button.mat-mdc-menu-item {
+    width: 600px;
+  }
+}
+
+.bg-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed;
+}

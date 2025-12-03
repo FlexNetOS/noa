@@ -1,0 +1,88 @@
+/* Button Components Styles */
+
+/* ActionButton Styles */
+.actionbutton-base {
+  @apply flex items-center gap-2;
+}
+
+.actionbutton-secondary {
+  @apply h-9 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] whitespace-nowrap transition-all duration-200;
+}
+
+.actionbutton-primary {
+  @apply relative h-9 px-4 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] shadow-sm hover:shadow-md transition-all duration-200 font-medium;
+}
+
+.actionbutton-outline {
+  @apply h-9 px-4 border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors;
+}
+
+.actionbutton-ghost {
+  @apply h-9 px-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors;
+}
+
+.actionbutton-default {
+  @apply px-3;
+}
+
+/* IconButton Styles */
+.iconbutton-base {
+  @apply inline-flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.iconbutton-primary {
+  @apply bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] focus:ring-[var(--primary)]/50;
+}
+
+.iconbutton-secondary {
+  @apply bg-[var(--secondary)] hover:bg-[var(--secondary)]/90 text-[var(--secondary-foreground)] focus:ring-[var(--secondary)]/50;
+}
+
+.iconbutton-outline {
+  @apply border border-[var(--border)] hover:bg-[var(--secondary)] text-[var(--foreground)] focus:ring-[var(--primary)]/50;
+}
+
+.iconbutton-ghost {
+  @apply hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] focus:ring-[var(--primary)]/50;
+}
+
+.iconbutton-xs {
+  @apply p-1;
+}
+
+.iconbutton-sm {
+  @apply p-1.5;
+}
+
+.iconbutton-md {
+  @apply p-2;
+}
+
+.iconbutton-lg {
+  @apply p-3;
+}
+
+/* DropdownAction Styles */
+.dropdownaction-trigger {
+  @apply inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] transition-colors;
+}
+
+.dropdownaction-content {
+  @apply bg-[var(--card)] border border-[var(--border)] rounded-md shadow-lg p-1 min-w-48;
+}
+
+.dropdownaction-item {
+  @apply flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-[var(--accent)] cursor-pointer transition-colors;
+}
+
+.dropdownaction-item-destructive {
+  @apply flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 cursor-pointer transition-colors;
+}
+
+.dropdownaction-separator {
+  @apply h-px bg-[var(--border)] my-1;
+}
+
+.dropdownaction-icon {
+  @apply w-4 h-4;
+}

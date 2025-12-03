@@ -1,0 +1,508 @@
+/* Activity Components Styles */
+
+/* Loading States */
+.activity-loading-container {
+  @apply space-y-2;
+}
+
+.activity-loading-item {
+  @apply flex items-start gap-2 p-2 animate-pulse;
+}
+
+.activity-loading-avatar {
+  @apply w-8 h-8 rounded-full flex-shrink-0;
+  background-color: var(--muted);
+}
+
+.activity-loading-content {
+  @apply flex-1 space-y-1;
+}
+
+.activity-loading-title {
+  @apply h-3 rounded w-3/4;
+  background-color: var(--muted);
+}
+
+.activity-loading-subtitle {
+  @apply h-2 rounded w-1/2;
+  background-color: var(--muted);
+}
+
+/* Error States */
+.activity-error-container {
+  @apply text-center py-8 flex flex-col items-center justify-center;
+}
+
+.activity-error-icon-container {
+  @apply w-12 h-12 mb-3 rounded-xl flex items-center justify-center;
+  background-color: hsl(var(--destructive) / 0.1);
+}
+
+.activity-error-icon {
+  @apply w-6 h-6;
+  color: var(--destructive);
+}
+
+.activity-error-title {
+  @apply text-sm font-medium mb-1;
+  color: var(--accent-foreground);
+}
+
+.activity-error-description {
+  @apply text-xs mb-3;
+  color: var(--muted-foreground);
+}
+
+.activity-error-button {
+  @apply h-7 px-2 text-xs;
+}
+
+/* Empty States */
+.activity-empty-container {
+  @apply text-center py-8 flex flex-col items-center justify-center;
+}
+
+.activity-empty-icon-container {
+  @apply w-12 h-12 mb-3 rounded-xl flex items-center justify-center;
+  background-color: var(--muted);
+}
+
+.activity-empty-icon {
+  @apply w-6 h-6;
+  color: var(--muted-foreground);
+}
+
+.activity-empty-title {
+  @apply text-sm font-medium mb-1;
+  color: var(--accent-foreground);
+}
+
+.activity-empty-description {
+  @apply text-xs mb-3;
+  color: var(--muted-foreground);
+}
+
+.activity-empty-button {
+  @apply h-7 px-2 text-xs;
+}
+
+/* Activity Feed List */
+.activity-feed-container {
+  @apply space-y-1;
+}
+
+.activity-feed-item {
+  @apply flex items-start gap-2 p-2 rounded-md transition-colors;
+}
+
+.activity-feed-item:hover {
+  background-color: var(--accent);
+}
+
+.activity-feed-avatar {
+  @apply h-8 w-8 flex-shrink-0;
+}
+
+.activity-feed-avatar-fallback {
+  @apply text-xs font-semibold;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Activity Content */
+.activity-content-container {
+  @apply flex-1 min-w-0;
+}
+
+.activity-content-main {
+  @apply text-sm leading-relaxed;
+}
+
+.activity-content-user-name {
+  @apply font-bold;
+  color: var(--foreground);
+}
+
+.activity-content-action {
+  @apply mx-1;
+  color: var(--muted-foreground);
+}
+
+.activity-content-link {
+  @apply text-xs hover:underline font-bold ml-1;
+  color: var(--primary);
+}
+
+/* Activity Meta */
+.activity-meta-row {
+  @apply flex items-center gap-3 mt-1;
+}
+
+.activity-meta-timestamp {
+  @apply flex items-center gap-1 text-xs;
+  color: var(--muted-foreground);
+}
+
+.activity-meta-timestamp-icon {
+  @apply w-3 h-3;
+}
+
+.activity-meta-timestamp-text {
+  @apply font-medium;
+}
+
+.activity-meta-badge {
+  @apply text-xs capitalize;
+  background-color: hsl(var(--accent) / 0.3);
+  color: var(--accent-foreground);
+}
+
+.activity-meta-badge:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+/* Activity Comment */
+.activity-comment-container {
+  @apply mt-2 p-3 rounded-lg;
+  background-color: hsl(var(--accent) / 0.2);
+}
+
+.activity-comment-content {
+  @apply flex items-start gap-2;
+}
+
+.activity-comment-icon {
+  @apply w-4 h-4 mt-0.5 flex-shrink-0;
+  color: var(--primary);
+}
+
+.activity-comment-text {
+  @apply text-sm leading-relaxed;
+  color: var(--foreground);
+}
+
+/* Activity Page Styles */
+
+/* Root container */
+.activity-page-root {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+/* Main layout */
+.activity-page-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.activity-page-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.activity-page-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.activity-page-padding {
+  padding: 1rem;
+}
+
+/* Activity page container */
+.activity-page-container {
+  min-height: 100vh;
+  background: var(--background);
+  transition: color 0.2s ease-in-out;
+  border-radius: 0.5rem;
+  border: none;
+}
+
+/* Activity page content */
+.activity-page-content {
+  margin: 0 auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+}
+
+/* Page header icon */
+.page-header-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Actions container */
+.activity-page-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Active filter badge container */
+.active-filter-badge-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideInFromRight 0.2s ease-in-out;
+}
+
+/* Active filter badge */
+.active-filter-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid currentColor;
+  /* opacity: 0.2; */
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.active-filter-badge:hover {
+  /* background-color: currentColor; */
+  /* opacity: 0.2; */
+}
+
+/* Filter color classes */
+.filter-all {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: rgb(55, 65, 81);
+}
+
+.filter-task {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: rgb(21, 128, 61);
+}
+
+.filter-project {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: rgb(29, 78, 216);
+}
+
+.filter-workspace {
+  background-color: rgba(147, 51, 234, 0.1);
+  color: rgb(126, 34, 206);
+}
+
+.filter-user {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: rgb(194, 65, 12);
+}
+
+/* Filter badge icon */
+.filter-badge-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Filter badge text */
+.filter-badge-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Clear filter button */
+.clear-filter-button {
+  margin-left: 0.25rem;
+  padding: 0.125rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.clear-filter-button:hover {
+  opacity: 0.5;
+}
+
+/* Clear filter icon */
+.clear-filter-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Filter trigger button */
+.filter-trigger-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: transparent;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.filter-trigger-button:hover {
+  background-color: var(--accent);
+  border-color: var(--primary);
+  opacity: 0.5;
+}
+
+/* Filter trigger icon */
+.filter-trigger-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Filter active indicator */
+.filter-active-indicator {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--primary);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Filter dropdown content */
+.filter-dropdown-content {
+  width: 14rem;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  border-radius: 0.375rem;
+}
+
+/* Filter dropdown label */
+.filter-dropdown-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Filter dropdown separator */
+.filter-dropdown-separator {
+  background-color: var(--border);
+  height: 1px;
+  margin: 0;
+}
+
+/* Filter dropdown item */
+.filter-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-dropdown-item:hover {
+  background-color: var(--accent);
+  opacity: 0.5;
+}
+
+/* Filter dropdown item active */
+.filter-dropdown-item-active {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 500;
+}
+
+/* Filter dropdown icon */
+.filter-dropdown-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.filter-dropdown-icon-inactive {
+  background-color: var(--muted);
+  opacity: 0.3;
+}
+
+/* Dropdown icon */
+.dropdown-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Filter dropdown label text */
+.filter-dropdown-label-text {
+  flex: 1;
+}
+
+/* Filter dropdown check */
+.filter-dropdown-check {
+  width: 1rem;
+  height: 1rem;
+  color: var(--primary);
+  animation: zoomIn 0.2s ease-in-out;
+}
+
+/* Clear all filter item */
+.clear-all-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  transition: all 0.2s ease-in-out;
+}
+
+.clear-all-filter-item:hover {
+  background-color: var(--accent);
+  opacity: 0.5;
+  color: var(--foreground);
+}
+
+/* Clear all filter icon */
+.clear-all-filter-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Animations */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(0.5rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive design */
+@media (min-width: 1024px) {
+  .activity-page-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}

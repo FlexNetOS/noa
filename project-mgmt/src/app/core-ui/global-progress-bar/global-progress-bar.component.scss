@@ -1,0 +1,33 @@
+:host {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: block;
+
+  .mat-mdc-progress-bar {
+    height: 3px;
+    box-shadow: var(--whiteframe-shadow-2dp);
+  }
+}
+
+.badge {
+  display: inline-block;
+  //position: absolute;
+  //bottom: 3px;
+  //left: 0;
+  //left: 50%;
+  //transform: translateX(-50%);
+  //z-index: 9998;
+  pointer-events: none;
+  padding: 4px 8px;
+  padding-left: 8px;
+  line-height: 1;
+  border-top-right-radius: var(--card-border-radius);
+  box-shadow: var(--whiteframe-shadow-1dp);
+
+  background: var(--bg-lighter);
+  color: var(--text-color-less-intense);
+}

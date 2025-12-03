@@ -1,0 +1,18 @@
+@use '../mixins/material-icon';
+
+// Download from:
+// https://github.com/google/material-design-icons/tree/master/font
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local('Material Icons'),
+    local('MaterialIcons-Regular'),
+    url('../../assets/fonts/MaterialIcons-Regular.ttf') format('truetype');
+}
+
+.material-icons {
+  @include material-icon.materialIconBase();
+}
