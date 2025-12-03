@@ -1,0 +1,59 @@
+/* ================================
+   Loading & Empty States
+   ================================ */
+
+@layer components {
+  /* Loading & Skeleton Classes */
+  .skeleton-text {
+    @apply animate-pulse bg-[var(--muted)] h-4 rounded;
+  }
+
+  .skeleton-text-sm {
+    @apply animate-pulse bg-[var(--muted)] h-3 rounded;
+  }
+
+  .skeleton-text-lg {
+    @apply animate-pulse bg-[var(--muted)] h-5 rounded;
+  }
+
+  .skeleton-avatar {
+    @apply animate-pulse bg-[var(--muted)] w-10 h-10 rounded-full;
+  }
+
+  .skeleton-avatar-sm {
+    @apply animate-pulse bg-[var(--muted)] w-8 h-8 rounded-full;
+  }
+
+  .skeleton-card {
+    @apply animate-pulse bg-[var(--muted)] h-20 rounded-lg;
+  }
+
+  .skeleton-card-sm {
+    @apply animate-pulse bg-[var(--muted)] h-16 rounded-lg;
+  }
+
+  /* Empty State Classes */
+  .empty-state {
+    @apply text-center py-8 flex flex-col items-center justify-center;
+  }
+
+  .empty-state-compact {
+    @apply text-center py-6 flex flex-col items-center justify-center;
+  }
+
+  .empty-state-icon {
+    @apply w-12 h-12 mb-3 rounded-xl bg-[var(--muted)] flex items-center justify-center text-[var(--muted-foreground)];
+  }
+
+  .empty-state-icon-sm {
+    @apply w-10 h-10 mb-2 rounded-xl bg-[var(--muted)] flex items-center justify-center text-[var(--muted-foreground)];
+  }
+
+  .empty-state-title {
+    @apply text-sm font-medium text-[var(--foreground)] mb-1;
+  }
+
+  .empty-state-description {
+    @apply text-xs text-[var(--muted-foreground)] mb-3;
+  }
+}

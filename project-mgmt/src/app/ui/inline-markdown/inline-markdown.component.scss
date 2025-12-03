@@ -1,0 +1,70 @@
+@use '../../../styles/_globals.scss' as *;
+
+:host {
+  display: block;
+  position: relative;
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+.markdown-wrapper {
+  display: block;
+  box-sizing: border-box;
+  border: none;
+  overflow: auto;
+  position: relative;
+  transition: height var(--transition-fast);
+  transform-origin: top;
+  @include scrollY;
+
+  .resize-to-fit {
+    position: absolute;
+    right: var(--s2);
+    top: 0;
+    cursor: pointer;
+  }
+
+  &.isHideOverflow {
+    overflow: hidden;
+  }
+}
+
+.markdown-unparsed,
+.markdown-parsed {
+  //transition: height 1.3s;
+  border: 0;
+  padding: var(--s) var(--s2);
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  display: block;
+  resize: none;
+  min-height: inherit;
+  overflow: hidden;
+  cursor: text;
+}
+
+// NOTE:
+// see global marked.scss for more styles
+
+textarea {
+  outline: none;
+}
+
+.controls {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  transition: var(--transition-standard);
+
+  :host:hover & {
+    opacity: 1;
+  }
+  @include touchPrimaryDevice {
+    opacity: 0.5;
+  }
+}

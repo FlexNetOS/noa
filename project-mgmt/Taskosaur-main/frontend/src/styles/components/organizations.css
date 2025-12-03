@@ -1,0 +1,410 @@
+/* Organizations Components Styles */
+
+/* ===== Organization Card ===== */
+.organizations-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow;
+}
+
+.organizations-card-header {
+  @apply flex items-start justify-between;
+}
+
+.organizations-card-info {
+  @apply flex items-center space-x-3;
+}
+
+.organizations-card-avatar {
+  @apply w-12 h-12 rounded-lg object-cover;
+}
+
+.organizations-card-avatar-placeholder {
+  @apply w-12 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center;
+}
+
+.organizations-card-avatar-initial {
+  @apply text-indigo-600 dark:text-indigo-400 font-semibold text-lg;
+}
+
+.organizations-card-details {
+  /* No specific styles - just a container */
+}
+
+.organizations-card-name {
+  @apply font-semibold text-gray-900 dark:text-white;
+}
+
+.organizations-card-slug {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.organizations-card-actions {
+  @apply flex items-center space-x-2;
+}
+
+.organizations-card-manage-link {
+  @apply text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium;
+}
+
+.organizations-card-description {
+  @apply mt-3 text-sm text-gray-600 dark:text-gray-300;
+}
+
+.organizations-card-stats {
+  @apply mt-4 flex items-center justify-between;
+}
+
+.organizations-card-stats-group {
+  @apply flex items-center space-x-4;
+}
+
+.organizations-card-stat {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.organizations-card-stat-value {
+  @apply font-medium text-gray-900 dark:text-white;
+}
+
+.organizations-card-website-link {
+  @apply text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300;
+}
+
+.organizations-card-website-icon {
+  @apply w-4 h-4;
+}
+
+/* ===== Organization Selection Card ===== */
+.organizations-selection-card {
+  @apply cursor-pointer transition-all duration-200 hover:shadow-md;
+}
+
+.organizations-selection-card-selected {
+  @apply border-[var(--primary)] bg-[var(--primary)]/5 shadow-sm;
+}
+
+.organizations-selection-card-unselected {
+  @apply border-[var(--border)] hover:border-[var(--primary)]/50;
+}
+
+.organizations-selection-card-content {
+  @apply p-6;
+}
+
+.organizations-selection-card-header {
+  @apply flex items-start gap-4;
+}
+
+.organizations-selection-card-avatar {
+  @apply h-12 w-12 flex-shrink-0;
+}
+
+.organizations-selection-card-avatar-fallback {
+  @apply bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/80 text-[var(--primary-foreground)] text-lg font-bold;
+}
+
+.organizations-selection-card-info {
+  @apply flex-1 min-w-0;
+}
+
+.organizations-selection-card-title-row {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.organizations-selection-card-title {
+  @apply text-lg font-semibold text-[var(--foreground)] truncate;
+}
+
+.organizations-selection-card-check {
+  @apply w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0;
+}
+
+.organizations-selection-card-description {
+  @apply text-sm text-[var(--muted-foreground)] mb-3 line-clamp-2;
+}
+
+.organizations-selection-card-stats {
+  @apply flex items-center gap-4 text-xs text-[var(--muted-foreground)];
+}
+
+.organizations-selection-card-stat {
+  @apply flex items-center gap-1;
+}
+
+.organizations-selection-card-features {
+  @apply flex items-center gap-2 mt-3;
+}
+
+.organizations-selection-card-feature-badge {
+  @apply text-xs;
+}
+
+/* ===== Organization Form ===== */
+.organizations-form {
+  @apply space-y-6;
+}
+
+.organizations-form-field {
+  /* No specific styles - just a container */
+}
+
+.organizations-form-slug-hint {
+  @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+}
+
+.organizations-form-actions {
+  @apply flex justify-end space-x-3;
+}
+
+/* ===== Organization Members ===== */
+.organizations-members-container {
+  @apply space-y-4;
+}
+
+.organizations-members-header {
+  @apply pb-3;
+}
+
+.organizations-members-header-content {
+  @apply flex justify-between items-center;
+}
+
+.organizations-members-header-info {
+  /* No specific styles - just a container */
+}
+
+.organizations-members-title {
+  @apply text-sm font-semibold text-[var(--foreground)] flex items-center gap-2;
+}
+
+.organizations-members-title-icon {
+  @apply w-5 h-5 text-[var(--primary)];
+}
+
+.organizations-members-subtitle {
+  @apply text-sm text-[var(--muted-foreground)] mt-1;
+}
+
+.organizations-members-invite-button {
+  @apply h-8 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 hover:shadow-md transition-all duration-200 font-medium flex items-center gap-2;
+}
+
+.organizations-members-table {
+  @apply bg-[var(--card)]  border-none;
+}
+
+.organizations-members-table-header {
+  @apply px-4 py-3 border-b border-[var(--border)];
+  min-width: 640px;
+}
+
+.organizations-members-table-header-grid {
+  @apply grid grid-cols-12 gap-3 text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider;
+  min-width: 640px;
+}
+
+.organizations-members-table-body {
+  @apply divide-y divide-[var(--border)];
+  min-width: 640px;
+}
+
+.organizations-members-row {
+  @apply px-4 py-3;
+}
+
+.organizations-members-row-grid {
+  @apply grid grid-cols-12 gap-3 items-center;
+  min-width: 640px;
+}
+
+.organizations-member-info {
+  @apply col-span-4;
+}
+
+.organizations-member-info-content {
+  @apply flex items-center gap-3;
+}
+
+.organizations-member-details {
+  @apply min-w-0;
+}
+
+.organizations-member-name {
+  @apply text-xs font-medium text-[var(--foreground)] truncate;
+}
+
+.organizations-member-email {
+  @apply text-xs text-[var(--muted-foreground)] truncate;
+}
+
+.organizations-member-role {
+  @apply col-span-2;
+}
+
+.organizations-member-role-select {
+  @apply h-7 text-xs border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)];
+}
+
+.organizations-member-role-select-content {
+  @apply border-none bg-[var(--card)];
+}
+
+.organizations-member-role-badge {
+  @apply text-xs px-2 py-1 rounded-md border-none;
+}
+
+.organizations-member-status {
+  @apply col-span-2;
+}
+
+.organizations-member-status-badge {
+  @apply text-xs px-2 py-1 rounded-md border-none;
+}
+
+.organizations-member-joined {
+  @apply col-span-2;
+}
+
+.organizations-member-joined-date {
+  @apply text-sm text-[var(--muted-foreground)];
+}
+
+.organizations-member-actions {
+  @apply col-span-2;
+}
+
+.organizations-member-remove-button {
+  @apply h-7 border-none bg-[var(--destructive)]/10 hover:bg-[var(--destructive)]/20 text-[var(--destructive)] transition-all duration-200;
+}
+
+/* Empty State */
+.organizations-members-empty {
+  @apply px-4 py-8 text-center;
+}
+
+.organizations-members-empty-icon {
+  @apply w-12 h-12 mx-auto mb-3 rounded-xl bg-[var(--muted)] flex items-center justify-center;
+}
+
+.organizations-members-empty-title {
+  @apply text-sm font-semibold text-[var(--foreground)] mb-2;
+}
+
+.organizations-members-empty-message {
+  @apply text-sm text-[var(--muted-foreground)] mb-4;
+}
+
+.organizations-members-empty-button {
+  @apply h-8 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 hover:shadow-md transition-all duration-200 font-medium flex items-center gap-2;
+}
+
+/* ===== Role Badge Classes ===== */
+.organizations-role-badge-super-admin {
+  @apply bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800;
+}
+
+.organizations-role-badge-manager {
+  @apply bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800;
+}
+
+.organizations-role-badge-member {
+  @apply bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800;
+}
+
+.organizations-role-badge-viewer {
+  @apply bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)];
+}
+
+/* ===== Status Badge Classes ===== */
+/* Base */
+.organizations-status-badge {
+  @apply text-xs px-2 py-1 rounded-md font-medium border transition-colors duration-300 ease-in-out;
+}
+
+.organizations-status-badge-active {
+  @apply bg-[var(--status-active-bg)] text-white border-[var(--status-active-border)];
+}
+
+.organizations-status-badge-pending {
+  @apply bg-[var(--status-pending-bg)] text-white border-[var(--status-pending-border)];
+}
+
+.organizations-status-badge-inactive {
+  @apply bg-[var(--status-inactive-bg)] text-[var(--accent)] border-[var(--status-inactive-border)];
+}
+
+.organizations-status-badge-suspended {
+  @apply bg-[var(--status-suspended-bg)] text-white border-[var(--status-suspended-border)];
+}
+
+/* ===== Invite Modal ===== */
+.organizations-invite-modal {
+  @apply bg-[var(--card)] border-none rounded-[var(--card-radius)] shadow-lg max-w-md;
+}
+
+.organizations-invite-modal-title {
+  @apply text-[var(--foreground)] flex items-center gap-2;
+}
+
+.organizations-invite-modal-title-icon {
+  @apply w-5 h-5 text-[var(--primary)];
+}
+
+.organizations-invite-form {
+  @apply space-y-4;
+}
+
+.organizations-invite-field-label {
+  @apply text-sm font-medium text-[var(--foreground)];
+}
+
+.organizations-invite-field-input {
+  @apply mt-1 border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)];
+}
+
+.organizations-invite-field-error {
+  @apply text-xs text-[var(--destructive)] mt-1;
+}
+
+.organizations-invite-field-hint {
+  @apply text-xs text-[var(--muted-foreground)];
+}
+
+.organizations-invite-field-counter {
+  @apply text-xs text-[var(--muted-foreground)];
+}
+
+.organizations-invite-role-select {
+  @apply mt-1 border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)];
+}
+
+.organizations-invite-role-select-content {
+  @apply border-none bg-[var(--card)];
+}
+
+.organizations-invite-role-option {
+  @apply flex flex-col;
+}
+
+.organizations-invite-role-name {
+  @apply font-medium;
+}
+
+.organizations-invite-role-description {
+  @apply text-xs text-[var(--muted-foreground)];
+}
+
+.organizations-invite-actions {
+  @apply flex justify-end gap-3;
+}
+
+.organizations-invite-cancel-button {
+  @apply h-8 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] transition-all duration-200;
+}
+
+.organizations-invite-submit-button {
+  @apply h-8 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 hover:shadow-md transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.organizations-invite-loading-spinner {
+  @apply w-4 h-4 border-2 border-[var(--primary-foreground)] border-t-transparent rounded-full animate-spin mr-2;
+}

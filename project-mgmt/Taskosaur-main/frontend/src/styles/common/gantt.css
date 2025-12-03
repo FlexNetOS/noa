@@ -1,0 +1,160 @@
+/* ================================
+   Gantt Chart Styles
+   ================================ */
+
+@layer components {
+  /* Enhanced Gantt Chart Styles */
+  .gantt-wrapper {
+    @apply overflow-x-auto overflow-y-visible;
+  }
+
+  /* Ensure proper column alignment */
+  .gantt-task-row {
+    @apply flex items-center transition-colors duration-200;
+  }
+
+  .gantt-task-row:hover {
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  }
+
+  .gantt-task-info {
+    @apply flex-shrink-0;
+  }
+
+  .gantt-timeline-container {
+    @apply flex-1 min-w-0;
+  }
+
+  .gantt-timeline-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) var(--muted);
+  }
+
+  .gantt-timeline-scroll::-webkit-scrollbar {
+    @apply h-3;
+  }
+
+  .gantt-timeline-scroll::-webkit-scrollbar-track {
+    background: var(--muted);
+    @apply rounded-md;
+  }
+
+  .gantt-timeline-scroll::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    @apply rounded-md;
+    border: 2px solid var(--muted);
+  }
+
+  .gantt-timeline-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--foreground);
+  }
+
+  .gantt-task-bar {
+    @apply transition-all duration-300 relative overflow-hidden;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .gantt-task-bar::before {
+    content: "";
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+  }
+
+  .gantt-task-bar:hover::before {
+    @apply opacity-100;
+  }
+
+  .gantt-grid-line {
+    background: linear-gradient(to bottom, transparent 0%, var(--border) 50%, transparent 100%);
+  }
+
+  .gantt-today-line {
+    background: linear-gradient(to bottom, var(--primary) 0%, rgba(var(--primary-rgb), 0.5) 100%);
+    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.3);
+  }
+
+  .gantt-milestone {
+    @apply transition-transform duration-200;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  .gantt-milestone:hover {
+    @apply scale-120;
+  }
+
+  .gantt-tooltip {
+    backdrop-filter: blur(8px);
+    background: rgba(var(--popover-rgb), 0.95);
+    @apply border border-[var(--border)];
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .gantt-progress-indicator {
+    @apply rounded-sm;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  }
+
+  .gantt-task-bar-animate {
+    animation: gantt-task-load 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left center;
+  }
+
+  /* Smooth scrolling for timeline */
+  .gantt-smooth-scroll {
+    @apply scroll-smooth;
+  }
+
+  /* Enhanced focus states */
+  .gantt-focusable:focus {
+    @apply outline-2 outline-[var(--ring)] outline-offset-2;
+  }
+}
+
+/* Keyframe animations */
+@keyframes gantt-task-load {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Status-specific gradients */
+.status-done {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.status-in-progress {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.status-review {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+}
+
+.status-todo {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+/* Responsive Gantt styles */
+@media (max-width: 768px) {
+  .gantt-wrapper {
+    @apply p-4;
+  }
+
+  .gantt-task-info {
+    @apply min-w-40;
+  }
+
+  .gantt-timeline-header {
+    @apply text-xs;
+  }
+}

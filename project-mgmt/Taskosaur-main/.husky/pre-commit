@@ -1,0 +1,18 @@
+echo "🔍 Running linters across all workspaces..."
+
+# Run lint across all workspaces
+npm run lint
+
+# Capture the exit code
+LINT_EXIT_CODE=$?
+
+# If lint failed, prevent commit
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "❌ Lint failed! Please fix the errors before committing."
+  echo "   Run 'npm run lint' to see all errors."
+  exit 1
+fi
+
+echo "✅ All linters passed!"
+exit 0
