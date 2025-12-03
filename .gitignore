@@ -6,3 +6,8 @@
 
 # Keep the ignore file itself
 !.gitignore
+
+# Keep setup scripts
+!setup-*.ps1
+!adapt-script.ps1
+!check-worktrees.ps1
