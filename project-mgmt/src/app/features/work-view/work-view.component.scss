@@ -1,0 +1,332 @@
+@use '../../../styles/_globals.scss' as *;
+
+:host {
+  overflow: hidden !important;
+}
+
+add-task-bar {
+  margin: 0 auto var(--s2);
+  max-width: 628px;
+
+  ::ng-deep input {
+    box-shadow: none !important;
+  }
+}
+
+h1 {
+  margin: var(--s2) 0;
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+}
+
+.wrapper {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: var(--transition-enter);
+  overflow: hidden;
+
+  &.isFadeOut {
+    transition: var(--transition-duration-xs) var(--ani-standard-timing);
+    opacity: 0;
+  }
+}
+
+.work-view-header {
+  padding: var(--s-half);
+
+  position: relative;
+  min-height: var(--bar-height-small);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  @include mq(xs) {
+    padding: var(--s2) 0;
+  }
+
+  @include smallMainContainer() {
+    .label {
+      display: none;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  @include mq(xs, max) {
+    .label {
+      display: none;
+    }
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.completed-tasks-heading {
+  margin: var(--s);
+  margin-top: var(--s2);
+  //text-align: left;
+  font-size: 16px;
+  //border-bottom: 1px solid var(--extra-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backlog-heading {
+  margin: var(--s);
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  padding: 5px 0;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+
+  .item {
+    margin: 0 calc(1.5 * var(--s));
+    text-align: center;
+    position: relative;
+  }
+
+  .controls {
+    text-align: center;
+    margin: var(--s) 0;
+    white-space: nowrap;
+  }
+
+  .label {
+    margin-right: var(--s);
+  }
+
+  .no-wrap {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.take-a-break-reset-btn {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  z-index: 4;
+  transform: translateY(-50%) scale(0);
+  transition: var(--transition-standard);
+  opacity: 0;
+  visibility: hidden;
+  @include mq(xs) {
+    display: block;
+  }
+}
+
+.item:hover .take-a-break-reset-btn {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  visibility: visible;
+}
+
+.hide-controls-icon {
+  transform: rotate(90deg);
+}
+
+finish-day-btn,
+.finish-day-button-wrapper {
+  text-align: center;
+  margin: var(--s2) 0 var(--s);
+  padding-top: 8px;
+  display: block;
+  white-space: nowrap;
+
+  button {
+    margin: 0 var(--s);
+  }
+}
+
+.backlog,
+.today {
+  position: absolute;
+  left: 0;
+  //transition: max-height, min-height 500ms ease-in-out;
+  //transition: all 500ms linear;
+  width: 100%;
+
+  &.isAnimatable {
+    transition: var(--transition-standard);
+  }
+
+  task-list {
+    padding-top: 0;
+  }
+
+  task-list ::ng-deep > .task-list-inner {
+    min-height: 50px;
+  }
+}
+
+.today {
+  overflow-x: hidden;
+  @include scrollYImportant();
+  top: 0;
+  bottom: 0;
+  // make space for add task bar button not overlapping 'finish day' button
+  padding-bottom: 64px;
+}
+
+.backlog {
+  bottom: 0;
+
+  .inner-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+}
+
+// PLAN MODE
+.planning-mode-header {
+  text-align: center;
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.planning-mode-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--s2);
+  margin: var(--s);
+
+  @include mq(xs) {
+    margin: 0;
+  }
+
+  add-task-bar {
+    width: 100%;
+  }
+}
+
+.add-more-or-finish {
+  text-align: center;
+  padding-bottom: var(--s);
+
+  .btn-wrapper {
+    display: block;
+
+    button {
+      min-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-left: var(--s);
+      margin-bottom: var(--s);
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.add-scheduled {
+  margin-top: var(--s);
+}
+
+.ready-to-work-btn {
+  margin-top: var(--s2);
+
+  @include mq(xs) {
+    margin-top: var(--s3);
+  }
+}
+
+.no-tasks-illu-wrapper {
+  position: relative;
+  margin-bottom: 32px;
+
+  img {
+    width: 500px;
+    display: block;
+    margin: auto;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .no-tasks-label {
+    font-size: 17px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-weight: 400;
+    color: #333;
+
+    @include darkTheme() {
+      color: var(--text-color-most-intense);
+      font-weight: 500;
+      text-shadow:
+        0 0 2px black,
+        0 0 5px black;
+    }
+  }
+}
+
+// Unified collapsible section styles
+.collapsible-section {
+  margin-top: 16px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+:host ::ng-deep .collapsible-header {
+  font-size: 16px;
+  margin-top: 0;
+  padding: 12px 8px;
+  justify-content: center;
+  border-bottom: 2px solid transparent;
+
+  .collapsible-title {
+    flex-grow: 0;
+    margin-left: -10px;
+    opacity: 0.8;
+  }
+}
+
+:host collapsible.isExpanded ::ng-deep .collapsible-header {
+  border-bottom: 1px solid var(--extra-border-color);
+}
+
+.overdue-tasks {
+  margin-top: 16px;
+}
+
+.overdue-btn-wrapper {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 8px;
+  padding-top: 8px;
+}

@@ -1,0 +1,51 @@
+@if (isHideDone() || isHideAll()) {
+  <div
+    @expandFadeFast
+    class="done-task-box"
+  >
+    <button
+      (click)="expandDoneTasks()"
+      class="expand-tasks-btn"
+      mat-button
+    >
+      <!--TODO translate -->
+      <em
+        >+ {{ isHideDone() ? doneTasksLength() + ' done ' : allTasksLength() }} sub
+        tasks</em
+      >
+      <mat-icon>expand_more</mat-icon>
+    </button>
+  </div>
+}
+
+<div
+  cdkDropList
+  [cdkDropListConnectedTo]="dropListService.dropLists | async"
+  [cdkDropListSortingDisabled]="isSortingDisabled()"
+  [cdkDropListEnterPredicate]="enterPredicate"
+  [cdkDropListData]="dropModelDataForList()"
+  (cdkDropListDropped)="drop(filteredTasks(), $event)"
+  [@taskList]="
+    (dropListService.isBlockAniAfterDrop$ | async) ? 'BLOCK' : filteredTasks()?.length
+  "
+  [attr.data-id]="listModelId()"
+  class="task-list-inner"
+>
+  @for (task of filteredTasks(); track trackByFn($index, task); let i = $index) {
+    <task
+      [isInSubTaskList]="isSubTaskList()"
+      [isBacklog]="isBacklog()"
+      [task]="task"
+      cdkDrag
+      [cdkDragDisabled]="listModelId() === 'LATER_TODAY'"
+      [cdkDragData]="task"
+      (cdkDragStarted)="onDragStarted(task, $event)"
+      (cdkDragEnded)="onDragEnded()"
+    >
+    </task>
+  }
+</div>
+
+@if (noTasksMsg() && !allTasksLength()) {
+  <div class="no-tasks">{{ noTasksMsg() }}</div>
+}

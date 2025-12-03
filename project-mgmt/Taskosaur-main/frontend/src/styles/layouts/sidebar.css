@@ -1,0 +1,185 @@
+@reference "tailwindcss";
+
+/* Sidebar Container */
+.sidebar-container {
+  @apply flex h-screen;
+}
+
+/* Mini Sidebar */
+.mini-sidebar {
+  @apply w-16 bg-gray-900 dark:bg-gray-950 h-screen flex-col pt-3 items-center overflow-y-auto border-r border-gray-800 fixed left-0 top-0 z-40 hidden md:flex;
+}
+
+.mini-sidebar-button {
+  @apply mb-6 ml-0 w-10 h-10 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-200 hover:bg-gray-800;
+}
+
+.mini-sidebar-nav {
+  @apply flex-grow flex flex-col items-center gap-6;
+}
+
+.mini-sidebar-link {
+  @apply w-10 h-10 flex items-center justify-center rounded-md relative;
+}
+
+.mini-sidebar-link-active {
+  @apply bg-indigo-700 text-white;
+}
+
+.mini-sidebar-link-inactive {
+  @apply text-gray-400 hover:text-gray-200 hover:bg-gray-800;
+}
+
+/* Main Sidebar */
+.sidebar {
+  @apply w-full md:w-64 h-screen flex flex-col p-4 overflow-y-auto;
+}
+
+.sidebar-global {
+  @apply bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800;
+}
+
+.sidebar-workspace {
+  @apply bg-blue-100 dark:bg-blue-950 border-r border-blue-200 dark:border-blue-900;
+}
+
+.sidebar-project {
+  @apply bg-indigo-100 dark:bg-indigo-950 border-r border-indigo-200 dark:border-indigo-900;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  @apply h-16 mb-6 pb-4 flex items-center justify-between relative;
+}
+
+.sidebar-header-global {
+  @apply border-b border-gray-300 dark:border-gray-800;
+}
+
+.sidebar-header-workspace {
+  @apply border-b border-blue-300 dark:border-blue-900;
+}
+
+.sidebar-icon-container {
+  @apply flex-shrink-0 w-10 h-10 rounded-md flex items-center justify-center text-white;
+}
+
+.sidebar-global-icon {
+  @apply bg-indigo-700 rounded-full;
+}
+
+.sidebar-workspace-icon {
+  @apply bg-blue-700;
+}
+
+.sidebar-title {
+  @apply ml-2 text-lg font-medium flex items-center;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  @apply flex-grow;
+}
+
+.sidebar-nav-list {
+  @apply space-y-1 mb-6;
+}
+
+.sidebar-nav-item {
+  @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm;
+}
+
+.sidebar-nav-item-global-active {
+  @apply bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200;
+}
+
+.sidebar-nav-item-workspace-active {
+  @apply bg-blue-200 dark:bg-blue-900/70 text-blue-800 dark:text-blue-200;
+}
+
+.sidebar-nav-item-global-inactive {
+  @apply text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800/60;
+}
+
+.sidebar-nav-item-workspace-inactive {
+  @apply text-gray-800 dark:text-gray-300 hover:bg-blue-200 dark:hover:bg-blue-900/50;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  @apply mt-auto pt-4;
+}
+
+.sidebar-footer-global {
+  @apply border-t border-gray-300 dark:border-gray-800;
+}
+
+.sidebar-footer-workspace {
+  @apply border-t border-blue-300 dark:border-blue-900;
+}
+
+.sidebar-footer-link {
+  @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-300;
+}
+
+.sidebar-footer-link-global {
+  @apply hover:bg-gray-200 dark:hover:bg-gray-800/60;
+}
+
+.sidebar-footer-link-workspace {
+  @apply hover:bg-blue-200 dark:hover:bg-blue-900/50;
+}
+
+/* Workspace Switcher */
+.workspace-switcher {
+  @apply fixed top-24 left-4 w-72 bg-white dark:bg-gray-800 shadow-xl rounded-md border border-gray-200 dark:border-gray-700 p-3 z-50;
+}
+
+.workspace-switcher-header {
+  @apply flex justify-between items-center mb-2;
+}
+
+.workspace-switcher-title {
+  @apply text-sm font-medium;
+}
+
+.workspace-switcher-close {
+  @apply text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200;
+}
+
+.workspace-switcher-list {
+  @apply max-h-64 overflow-y-auto;
+}
+
+.workspace-switcher-item {
+  @apply px-2 py-2 rounded-md cursor-pointer;
+}
+
+.workspace-switcher-item-active {
+  @apply bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400;
+}
+
+.workspace-switcher-item-inactive {
+  @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.workspace-switcher-icon {
+  @apply h-6 w-6 rounded-md bg-indigo-600 dark:bg-indigo-800 flex items-center justify-center text-white text-xs;
+}
+
+.workspace-switcher-name {
+  @apply text-sm truncate;
+}
+
+.workspace-switcher-footer {
+  @apply mt-2 pt-2 border-t border-gray-200 dark:border-gray-700;
+}
+
+.workspace-switcher-create {
+  @apply flex items-center gap-2 px-2 py-2 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md;
+}
+
+/* Floating Toggle Button */
+.sidebar-toggle-button {
+  @apply fixed top-5 left-6 scale-z-95 w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700;
+}

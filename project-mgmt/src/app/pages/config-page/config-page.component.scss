@@ -1,0 +1,85 @@
+@use '../../../styles/_globals.scss' as *;
+
+.page-settings {
+  text-align: start;
+
+  collapsible {
+    position: relative;
+  }
+
+  .section-wrapper {
+    //display: grid;
+    //grid-template-columns: 50% 50%;
+    //grid-gap: 0 var(--s2);
+  }
+
+  .config-section {
+    border: 1px solid var(--divider-color);
+    break-inside: avoid;
+    margin-bottom: 10px;
+    border-radius: var(--card-border-radius);
+    background: var(--card-bg);
+
+    background-color: var(--card-bg);
+    //background-color: var(--bg-slightly-lighter);
+
+    .md-title {
+      margin-top: 0;
+    }
+
+    ::ng-deep .collapsible-header {
+      border-bottom: 1px solid transparent;
+    }
+
+    ::ng-deep .isExpanded .collapsible-header {
+      font-weight: bold;
+
+      border-color: var(--extra-border-color);
+    }
+  }
+
+  .settings-col {
+    margin-bottom: 30px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  @include mq(xs, max) {
+    .keyboard-settings {
+      display: none;
+    }
+  }
+}
+
+.version-footer {
+  margin-top: auto;
+  text-align: center;
+  font-style: italic;
+  padding: var(--s3);
+}
+
+:host .config-section ::ng-deep {
+  $this-panel-padding-left-right: 12px;
+
+  .collapsible-header {
+    font-size: 16px;
+    margin-top: 0;
+    padding: 10px $this-panel-padding-left-right;
+  }
+
+  .collapsible-panel {
+    //border-top: 1px solid black;
+    overflow: visible;
+
+    > * {
+      // for help icon positioning
+      // does not work because of translate on the slide down ani element
+      // position: static;
+
+      // add a padding
+      padding: 0 $this-panel-padding-left-right;
+    }
+  }
+}

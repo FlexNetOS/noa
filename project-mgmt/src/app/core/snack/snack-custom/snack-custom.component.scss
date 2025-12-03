@@ -1,0 +1,50 @@
+:host {
+  background: inherit;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+}
+
+.snack-icon {
+  margin-right: var(--s2);
+  position: relative;
+  z-index: 2;
+  //background: inherit;
+
+  .success & {
+    color: var(--success-green);
+  }
+
+  .error & {
+    color: var(--c-warn);
+  }
+}
+
+.message {
+  flex: 1;
+}
+
+button {
+  margin: 0;
+  margin-left: calc(1.5 * var(--s));
+}
+
+.button-wrapper {
+  margin-left: auto;
+}
+
+.button-wrapper-inner {
+  margin-top: -14px;
+  margin-bottom: -14px;
+  margin-right: -8px;
+}
+
+mat-progress-bar {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+}

@@ -1,0 +1,49 @@
+@reference "tailwindcss";
+
+/* Resizable Sidebar Styles */
+.resizable-sidebar {
+  @apply relative;
+  transition: width 100ms ease-out;
+}
+
+.resize-handle {
+  @apply absolute top-0 right-0 w-1 h-full cursor-ew-resize;
+  @apply hover:bg-indigo-500 z-10;
+}
+
+.resize-handle::before {
+  content: "";
+  @apply absolute top-0 right-0 w-4 h-full -mr-2 cursor-ew-resize opacity-0;
+}
+
+.resize-handle::after {
+  content: "";
+  @apply absolute inset-0 opacity-0 bg-indigo-500 transition-opacity duration-200;
+}
+
+.resize-handle:hover::after {
+  @apply opacity-100;
+}
+
+.is-resizing {
+  @apply cursor-ew-resize select-none;
+}
+
+.is-resizing * {
+  @apply select-none;
+}
+
+/* Custom Double Click to Reset Size */
+.resize-handle-double-click-area {
+  @apply absolute top-1/2 right-0 -translate-y-1/2 w-8 h-32 -mr-4;
+}
+
+/* Animation for width transitions when not dragging */
+.resizable-sidebar:not(.is-dragging) {
+  transition: width 100ms ease-out;
+}
+
+/* No transition during drag */
+.resizable-sidebar.is-dragging {
+  transition: none;
+}

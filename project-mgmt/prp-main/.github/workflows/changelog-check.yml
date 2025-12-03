@@ -1,0 +1,74 @@
+name: CHANGELOG Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  changelog-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check CHANGELOG.md updated
+        id: check
+        run: |
+          # Check if CHANGELOG.md was modified
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "CHANGELOG.md"; then
+            echo "changelog_updated=true" >> $GITHUB_OUTPUT
+            echo "✅ CHANGELOG.md updated! Good job! 🎉"
+          else
+            echo "changelog_updated=false" >> $GITHUB_OUTPUT
+            echo "❌ CHANGELOG.md not updated! 📝"
+          fi
+
+      - name: Verify Unreleased section exists
+        if: steps.check.outputs.changelog_updated == 'true'
+        run: |
+          if grep -q "## \[Unreleased\]" CHANGELOG.md; then
+            echo "✅ [Unreleased] section found! 🎯"
+          else
+            echo "⚠️  No [Unreleased] section found"
+            exit 1
+          fi
+
+      - name: Enforce CHANGELOG requirement
+        if: steps.check.outputs.changelog_updated == 'false'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📝 CHANGELOG.md must be updated!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "⚠️  Every PR needs CHANGELOG.md updates!"
+          echo ""
+          echo "Please add your changes to CHANGELOG.md:"
+          echo ""
+          echo "## [Unreleased]"
+          echo ""
+          echo "### Added"
+          echo "- Your awesome feature! ✨"
+          echo ""
+          echo "### Changed"
+          echo "- What you modified! 🔧"
+          echo ""
+          echo "### Fixed"
+          echo "- Bugs you squashed! 🐛"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📖 See AGENTS.md for release process"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          exit 1
+
+      - name: Success message
+        if: steps.check.outputs.changelog_updated == 'true'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ CHANGELOG.md updated! 🎉"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📖 Thank you for keeping our history!"
+          echo "✨ Great contribution!"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

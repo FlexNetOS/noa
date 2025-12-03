@@ -1,0 +1,33 @@
+appId: com.super-productivity.app
+productName: Super Productivity
+artifactName: ${name}-${arch}.${ext}
+files:
+  - electron/**/*
+  - '!electron/**/*.ts'
+  - '!electron/**/*.js.map'
+  - .tmp/angular-dist/**/*
+  - 'embedded.provisionprofile'
+  # Exclude Nx binaries - they're build tools, not runtime dependencies
+  - '!**/@nx/nx-darwin-*/**'
+  - '!**/@nx/nx-linux-*/**'
+  - '!**/@nx/nx-win32-*/**'
+directories:
+  output: './.tmp/app-builds'
+
+mac:
+  target:
+    - target: mas
+      arch:
+        - universal
+
+mas:
+  type: distribution
+  appId: com.super-productivity.app
+  category: public.app-category.productivity
+  icon: build/icon-mac.icns
+  gatekeeperAssess: false
+  darkModeSupport: true
+  hardenedRuntime: false
+  entitlements: build/entitlements.mas.plist
+  entitlementsInherit: build/entitlements.mas.inherit.plist
+  provisioningProfile: embedded.provisionprofile

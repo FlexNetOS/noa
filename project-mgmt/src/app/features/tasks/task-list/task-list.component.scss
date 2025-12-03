@@ -1,0 +1,60 @@
+@use '../../../../styles/_globals.scss' as *;
+
+:host {
+  display: block;
+  text-align: left;
+  // min-height: 50px;
+  list-style: none;
+  // add a little padding to top and bottom, to make drag dropping easier
+  padding: 5px 0;
+  margin: 0;
+  position: relative;
+
+  ::ng-deep task-list & {
+    margin: 2px 5px 0 5px;
+
+    @include mq(xs, max) {
+      margin: 1px 0 0 10px;
+    }
+  }
+}
+
+.done-task-box {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-tasks {
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+
+  color: var(--text-color-muted);
+}
+
+.expand-tasks-btn {
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cdk-drag-placeholder,
+.cdk-drag-preview {
+  border-radius: var(--task-border-radius);
+  overflow: hidden;
+
+  ::ng-deep .controls {
+    display: none;
+  }
+  ::ng-deep .box {
+    display: none;
+    box-shadow: none !important;
+  }
+}

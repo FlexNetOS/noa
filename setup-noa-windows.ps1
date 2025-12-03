@@ -194,82 +194,80 @@ Write-Host "Creating NOA PowerShell profile..." -ForegroundColor Cyan
 
 $profilePath = Join-Path $NoaRoot "noa-profile.ps1"
 
-# Write the profile content directly to file to avoid here-string parsing issues
-# Using .NET StreamWriter for reliable output
-$profileContent = @"
-# NOA Environment Configuration for Windows PowerShell
-# Ensures all paths stay within NOA_ROOT
-# NOA: P2P server for connecting user devices for dynamically shared compute and storage
+# Write the profile content line by line to avoid any parsing issues
+$sb = [System.Text.StringBuilder]::new()
+$null = $sb.AppendLine('# NOA Environment Configuration for Windows PowerShell')
+$null = $sb.AppendLine('# Ensures all paths stay within NOA_ROOT')
+$null = $sb.AppendLine('# NOA: P2P server for connecting user devices for dynamically shared compute and storage')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine("`$env:NOA_ROOT = `"$NoaRoot`"")
+$null = $sb.AppendLine('$env:NOA_REPOS = "$env:NOA_ROOT\repos"')
+$null = $sb.AppendLine('$env:NOA_CONTAINERS = "$env:NOA_ROOT\containers"')
+$null = $sb.AppendLine('$env:NOA_WORKSPACE = "$env:NOA_ROOT\workspace"')
+$null = $sb.AppendLine('$env:NOA_CONFIG = "$env:NOA_ROOT\config"')
+$null = $sb.AppendLine('$env:NOA_SCRIPTS = "$env:NOA_ROOT\scripts"')
+$null = $sb.AppendLine('$env:NOA_LOGS = "$env:NOA_ROOT\logs"')
+$null = $sb.AppendLine('$env:NOA_TMP = "$env:NOA_ROOT\tmp"')
+$null = $sb.AppendLine('$env:NOA_P2P = "$env:NOA_ROOT\p2p"')
+$null = $sb.AppendLine('$env:NOA_AI = "$env:NOA_ROOT\ai"')
+$null = $sb.AppendLine('$env:NOA_AI_SHARED = "$env:NOA_AI\shared"')
+$null = $sb.AppendLine('$env:NOA_AI_PROVIDERS = "$env:NOA_AI\providers"')
+$null = $sb.AppendLine('$env:NOA_AI_DEVICES = "$env:NOA_AI\devices"')
+$null = $sb.AppendLine('$env:NOA_AI_ORCHESTRATION = "$env:NOA_AI\orchestration"')
+$null = $sb.AppendLine('$env:NOA_GIT = "$env:NOA_ROOT\git"')
+$null = $sb.AppendLine('$env:NOA_GIT_REPOS = "$env:NOA_GIT\repos"')
+$null = $sb.AppendLine('$env:NOA_GIT_PRS = "$env:NOA_GIT\prs"')
+$null = $sb.AppendLine('$env:NOA_GIT_CONFLICTS = "$env:NOA_GIT\conflicts"')
+$null = $sb.AppendLine('$env:NOA_GIT_CI_CD = "$env:NOA_GIT\ci-cd"')
+$null = $sb.AppendLine('$env:NOA_GIT_MIRRORS = "$env:NOA_GIT\mirrors"')
+$null = $sb.AppendLine('$env:NOA_BIN = "$env:NOA_ROOT\bin"')
+$null = $sb.AppendLine('$env:NOA_ETC = "$env:NOA_ROOT\etc"')
+$null = $sb.AppendLine('$env:NOA_LIB = "$env:NOA_ROOT\lib"')
+$null = $sb.AppendLine('$env:NOA_OPT = "$env:NOA_ROOT\opt"')
+$null = $sb.AppendLine('$env:NOA_SYS = "$env:NOA_ROOT\sys"')
+$null = $sb.AppendLine('$env:NOA_INIT = "$env:NOA_ROOT\init"')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine('# Add NOA directories to PATH')
+$null = $sb.AppendLine('function Add-NoaPath {')
+$null = $sb.AppendLine('    param([string]$dir)')
+$null = $sb.AppendLine('    if (Test-Path $dir) {')
+$null = $sb.AppendLine('        if ($env:PATH -notlike "*$dir*") {')
+$null = $sb.AppendLine('            $env:PATH = ' + [char]34 + '$dir;$env:PATH' + [char]34)
+$null = $sb.AppendLine('        }')
+$null = $sb.AppendLine('    }')
+$null = $sb.AppendLine('}')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine('# Add NOA bin and scripts to PATH (highest priority)')
+$null = $sb.AppendLine('Add-NoaPath $env:NOA_BIN')
+$null = $sb.AppendLine('Add-NoaPath $env:NOA_SCRIPTS')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine('# Function to validate paths are within NOA_ROOT')
+$null = $sb.AppendLine('function Test-NoaPath {')
+$null = $sb.AppendLine('    param([string]$path)')
+$null = $sb.AppendLine('    $noaRootPath = $env:NOA_ROOT')
+$null = $sb.AppendLine('    # Normalize paths for comparison (remove trailing backslashes)')
+$null = $sb.AppendLine('    $normalizedPath = $path.TrimEnd([char]92)')
+$null = $sb.AppendLine('    $normalizedRoot = $noaRootPath.TrimEnd([char]92)')
+$null = $sb.AppendLine('    # Use StartsWith for explicit path validation instead of pattern matching')
+$null = $sb.AppendLine('    if (-not $normalizedPath.StartsWith($normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {')
+$null = $sb.AppendLine('        Write-Error ' + [char]34 + 'Path must be within NOA_ROOT - Path was $path' + [char]34)
+$null = $sb.AppendLine('        return $false')
+$null = $sb.AppendLine('    }')
+$null = $sb.AppendLine('    return $true')
+$null = $sb.AppendLine('}')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine('# Aliases for quick navigation')
+$null = $sb.AppendLine('function cda { Set-Location $env:NOA_ROOT }')
+$null = $sb.AppendLine('function cdr { Set-Location $env:NOA_REPOS }')
+$null = $sb.AppendLine('function cdc { Set-Location $env:NOA_CONTAINERS }')
+$null = $sb.AppendLine('function cdw { Set-Location $env:NOA_WORKSPACE }')
+$null = $sb.AppendLine('function cdp { Set-Location $env:NOA_P2P }')
+$null = $sb.AppendLine('function cdai { Set-Location $env:NOA_AI }')
+$null = $sb.AppendLine('function cdgit { Set-Location $env:NOA_GIT }')
+$null = $sb.AppendLine('')
+$null = $sb.AppendLine('Write-Host ' + [char]34 + 'NOA environment loaded. Root: $env:NOA_ROOT' + [char]34 + ' -ForegroundColor Green')
 
-`$env:NOA_ROOT = "$NoaRoot"
-`$env:NOA_REPOS = "`$env:NOA_ROOT\repos"
-`$env:NOA_CONTAINERS = "`$env:NOA_ROOT\containers"
-`$env:NOA_WORKSPACE = "`$env:NOA_ROOT\workspace"
-`$env:NOA_CONFIG = "`$env:NOA_ROOT\config"
-`$env:NOA_SCRIPTS = "`$env:NOA_ROOT\scripts"
-`$env:NOA_LOGS = "`$env:NOA_ROOT\logs"
-`$env:NOA_TMP = "`$env:NOA_ROOT\tmp"
-`$env:NOA_P2P = "`$env:NOA_ROOT\p2p"
-`$env:NOA_AI = "`$env:NOA_ROOT\ai"
-`$env:NOA_AI_SHARED = "`$env:NOA_AI\shared"
-`$env:NOA_AI_PROVIDERS = "`$env:NOA_AI\providers"
-`$env:NOA_AI_DEVICES = "`$env:NOA_AI\devices"
-`$env:NOA_AI_ORCHESTRATION = "`$env:NOA_AI\orchestration"
-`$env:NOA_GIT = "`$env:NOA_ROOT\git"
-`$env:NOA_GIT_REPOS = "`$env:NOA_GIT\repos"
-`$env:NOA_GIT_PRS = "`$env:NOA_GIT\prs"
-`$env:NOA_GIT_CONFLICTS = "`$env:NOA_GIT\conflicts"
-`$env:NOA_GIT_CI_CD = "`$env:NOA_GIT\ci-cd"
-`$env:NOA_GIT_MIRRORS = "`$env:NOA_GIT\mirrors"
-`$env:NOA_BIN = "`$env:NOA_ROOT\bin"
-`$env:NOA_ETC = "`$env:NOA_ROOT\etc"
-`$env:NOA_LIB = "`$env:NOA_ROOT\lib"
-`$env:NOA_OPT = "`$env:NOA_ROOT\opt"
-`$env:NOA_SYS = "`$env:NOA_ROOT\sys"
-`$env:NOA_INIT = "`$env:NOA_ROOT\init"
-
-# Add NOA directories to PATH
-function Add-NoaPath {
-    param([string]`$dir)
-    if (Test-Path `$dir) {
-        if (`$env:PATH -notlike "*`$dir*") {
-            `$env:PATH = "`$dir;`$env:PATH"
-        }
-    }
-}
-
-# Add NOA bin and scripts to PATH (highest priority)
-Add-NoaPath `$env:NOA_BIN
-Add-NoaPath `$env:NOA_SCRIPTS
-
-# Function to validate paths are within NOA_ROOT
-function Test-NoaPath {
-    param([string]`$path)
-    `$noaRootPath = `$env:NOA_ROOT
-    # Normalize paths for comparison (remove trailing backslashes)
-    `$normalizedPath = `$path.TrimEnd([char]92)
-    `$normalizedRoot = `$noaRootPath.TrimEnd([char]92)
-    # Use StartsWith for explicit path validation instead of pattern matching
-    if (-not `$normalizedPath.StartsWith(`$normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        Write-Error "Path must be within `$noaRootPath`: `$path"
-        return `$false
-    }
-    return `$true
-}
-
-# Aliases for quick navigation
-function cda { Set-Location `$env:NOA_ROOT }
-function cdr { Set-Location `$env:NOA_REPOS }
-function cdc { Set-Location `$env:NOA_CONTAINERS }
-function cdw { Set-Location `$env:NOA_WORKSPACE }
-function cdp { Set-Location `$env:NOA_P2P }
-function cdai { Set-Location `$env:NOA_AI }
-function cdgit { Set-Location `$env:NOA_GIT }
-
-Write-Host "NOA environment loaded. Root: `$env:NOA_ROOT" -ForegroundColor Green
-"@
-
-[System.IO.File]::WriteAllText($profilePath, $profileContent, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($profilePath, $sb.ToString(), [System.Text.Encoding]::UTF8)
 Write-Host "  Created NOA PowerShell profile: $profilePath" -ForegroundColor Green
 Write-Host "  To use: . '$profilePath'" -ForegroundColor Yellow
 

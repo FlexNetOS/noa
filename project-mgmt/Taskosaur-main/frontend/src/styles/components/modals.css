@@ -1,0 +1,191 @@
+/* Modal Components Styles */
+
+/* Base Modal Styles */
+.modal-overlay {
+  @apply fixed inset-0 z-50 overflow-y-auto;
+}
+
+.modal-backdrop {
+  @apply flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0;
+}
+
+.modal-backdrop-blur {
+  @apply fixed inset-0 transition-opacity bg-stone-500/75 dark:bg-stone-900/75;
+}
+
+.modal-spacer {
+  @apply hidden sm:inline-block sm:align-middle sm:h-screen;
+}
+
+.modal-container {
+  @apply inline-block align-bottom bg-white dark:bg-stone-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-stone-200 dark:border-stone-700;
+}
+
+.modal-content {
+  @apply bg-white dark:bg-stone-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4;
+}
+
+.modal-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.modal-title {
+  @apply text-lg font-medium text-stone-900 dark:text-stone-100;
+}
+
+.modal-close-button {
+  @apply text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors;
+}
+
+/* ConfirmationModal Styles */
+.confirmationmodal-overlay {
+  @apply fixed inset-0 z-50 overflow-y-auto;
+}
+
+.confirmationmodal-backdrop {
+  @apply flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0;
+}
+
+.confirmationmodal-blur {
+  @apply fixed inset-0 bg-black/20 backdrop-blur-sm transition-all duration-300;
+}
+
+.confirmationmodal-panel {
+  @apply relative transform overflow-hidden rounded-xl bg-white/80 dark:bg-stone-900/80 backdrop-blur-lg border border-white/20 dark:border-stone-700/30 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg;
+}
+
+.confirmationmodal-content {
+  @apply px-6 pt-6 pb-4;
+}
+
+.confirmationmodal-body {
+  @apply flex flex-col items-center;
+}
+
+.confirmationmodal-icon-wrapper {
+  @apply mx-auto flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-sm;
+}
+
+.confirmationmodal-icon-danger {
+  @apply bg-red-100/80 dark:bg-red-900/30;
+}
+
+.confirmationmodal-icon-warning {
+  @apply bg-amber-100/80 dark:bg-amber-900/30;
+}
+
+.confirmationmodal-icon-info {
+  @apply bg-amber-100/80 dark:bg-amber-900/30;
+}
+
+.confirmationmodal-icon-danger-color {
+  @apply h-6 w-6 text-red-600 dark:text-red-400;
+}
+
+.confirmationmodal-icon-warning-color {
+  @apply h-6 w-6 text-amber-600 dark:text-amber-400;
+}
+
+.confirmationmodal-icon-info-color {
+  @apply h-6 w-6 text-amber-600 dark:text-amber-400;
+}
+
+.confirmationmodal-text-container {
+  @apply text-center mt-2;
+}
+
+.confirmationmodal-title {
+  @apply text-sm font-semibold leading-6 text-stone-900 dark:text-stone-100;
+}
+
+.confirmationmodal-message-container {
+  @apply mt-2;
+}
+
+.confirmationmodal-message {
+  @apply text-xs text-stone-600 dark:text-stone-400;
+}
+
+.confirmationmodal-footer {
+  @apply bg-stone-50/50 dark:bg-stone-800/50 backdrop-blur-sm px-6 py-4 sm:flex sm:flex-row-reverse border-t border-stone-200/30 dark:border-stone-700/30;
+}
+
+.confirmationmodal-confirm-danger {
+  @apply inline-flex w-full justify-center rounded-lg bg-red-600/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-red-700/90 border border-red-500/20 sm:ml-3 sm:w-auto transition-all cursor-pointer;
+}
+
+.confirmationmodal-confirm-warning {
+  @apply inline-flex w-full justify-center rounded-lg bg-amber-600/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-amber-700/90 border border-amber-500/20 sm:ml-3 sm:w-auto transition-all cursor-pointer;
+}
+
+.confirmationmodal-confirm-info {
+  @apply inline-flex w-full justify-center rounded-lg bg-amber-600/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-amber-700/90 border border-amber-500/20 sm:ml-3 sm:w-auto transition-all cursor-pointer;
+}
+
+.confirmationmodal-cancel {
+  @apply mt-3 inline-flex w-full justify-center rounded-lg bg-stone-100/80 dark:bg-stone-800/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 shadow-lg hover:bg-stone-200/80 dark:hover:bg-stone-700/80 border border-stone-300/30 dark:border-stone-600/30 sm:mt-0 sm:w-auto transition-all cursor-pointer;
+}
+
+.confirmationmodal-header {
+  @apply flex items-start gap-3 mb-4;
+}
+
+.confirmationmodal-icon-wrapper {
+  @apply mt-4;
+}
+
+.confirmationmodal-icon-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900/20;
+}
+
+.confirmationmodal-icon-danger {
+  @apply bg-red-100 dark:bg-red-900/20;
+}
+
+.confirmationmodal-icon-info {
+  @apply bg-blue-100 dark:bg-blue-900/20;
+}
+
+.confirmationmodal-icon {
+  @apply w-5 h-5;
+}
+
+.confirmationmodal-icon-warning-color {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.confirmationmodal-icon-danger-color {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.confirmationmodal-icon-info-color {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+.confirmationmodal-content {
+  @apply flex-1;
+}
+
+.confirmationmodal-title {
+  @apply text-lg font-semibold text-stone-900 dark:text-stone-100 mb-2;
+}
+
+.confirmationmodal-message {
+  @apply text-sm text-stone-600 dark:text-stone-400 mb-4;
+}
+
+.confirmationmodal-actions {
+  @apply flex gap-3 justify-end;
+}
+
+.confirmationmodal-cancel-btn {
+  @apply px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-md hover:bg-stone-50 dark:hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500 transition-colors;
+}
+
+.confirmationmodal-confirm-btn {
+  @apply px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors;
+}
+
+.confirmationmodal-primary-btn {
+  @apply px-4 py-2 text-sm font-medium text-white bg-[var(--primary)] border border-transparent rounded-md hover:bg-[var(--primary)]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] transition-colors;
+}
