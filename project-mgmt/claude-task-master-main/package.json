@@ -115,7 +115,7 @@
 		"zod": "^4.1.12"
 	},
 	"optionalDependencies": {
-		"@anthropic-ai/claude-code": "^1.0.88",
+		"@anthropic-ai/claude-code": "^2.0.31",
 		"@biomejs/cli-linux-x64": "^1.9.4"
 	},
 	"engines": {
