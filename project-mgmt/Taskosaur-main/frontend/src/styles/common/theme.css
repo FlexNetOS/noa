@@ -1,0 +1,177 @@
+/* Theme Variables & Color System */
+
+@layer base {
+  :root {
+    --card-radius: 0.65rem;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+
+    /* Project and Task Category Colors */
+    --category-blue: #1a3b4d;
+    --category-cyan: #1a3f42;
+    --category-green: #1a3d32;
+    --category-lime: #1b3d1a;
+    --category-sage: #1a3d1c;
+
+    /* Category color variations for different states */
+    --category-blue-light: #2d4f63;
+    --category-cyan-light: #2d5358;
+    --category-green-light: #2d5148;
+    --category-lime-light: #2e5130;
+    --category-sage-light: #2d5132;
+
+    /* Category colors with opacity for backgrounds */
+    --category-blue-10: rgba(26, 59, 77, 0.1);
+    --category-cyan-10: rgba(26, 63, 66, 0.1);
+    --category-green-10: rgba(26, 61, 50, 0.1);
+    --category-lime-10: rgba(27, 61, 26, 0.1);
+    --category-sage-10: rgba(26, 61, 28, 0.1);
+
+    --category-blue-20: rgba(26, 59, 77, 0.2);
+    --category-cyan-20: rgba(26, 63, 66, 0.2);
+    --category-green-20: rgba(26, 61, 50, 0.2);
+    --category-lime-20: rgba(27, 61, 26, 0.2);
+    --category-sage-20: rgba(26, 61, 28, 0.2);
+
+    --odd-row: oklch(1 0 0 / 0.5);
+    --even-row: oklch(1 0 0);
+
+    /* Sidebar Colors - Light Theme */
+    --sidebar: oklch(0.99 0 0); /* Slightly darker white */
+    --mini-sidebar: oklch(0.95 0 0); /* Slightly darker for mini sidebar */
+    --sidebar-foreground: oklch(0.25 0 0); /* Darker text for better contrast */
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.95 0 0); /* Slightly darker for hover */
+    --sidebar-accent-foreground: oklch(0.15 0 0); /* Very dark text */
+    --sidebar-border: oklch(0.922 0 0 / 0.15); /* More visible border */
+    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar-muted: oklch(0.6 0 0); /* Better contrast for muted icons */
+    --hover-bg: oklch(0.92 0 0); /* More visible hover state */
+    --skeleton: #e5e7eb; /* gray-200 */
+    --skeleton-foreground: #d1d5db; /* gray-300 */
+    --skeleton-muted: #cbd5e1; /* slate-300 */
+
+    /* Organization Status */
+    /* ===== ACTIVE (Green) ===== */
+    --status-active-bg: oklch(62.002% 0.21063 142.517); /* stronger green */
+    --status-active-text: oklch(0.85 0.22 145); /* deep forest green text */
+    --status-active-border: oklch(0.65 0.18 145);
+
+    /* ===== PENDING (Amber / Orange) ===== */
+    --status-pending-bg: oklch(0.88 0.24 75); /* saturated amber */
+    --status-pending-text: oklch(0.3 0.22 75); /* strong amber-brown text */
+    --status-pending-border: oklch(0.68 0.2 75);
+
+    /* ===== INACTIVE (Gray / Neutral) ===== */
+    --status-inactive-bg: oklch(0.92 0.03 250); /* crisp light gray */
+    --status-inactive-text: oklch(0.35 0.02 250); /* darker gray text */
+    --status-inactive-border: oklch(0.62 0.03 250);
+
+    /* ===== SUSPENDED (Red) ===== */
+    --status-suspended-bg: oklch(0.86 0.25 25); /* vivid red */
+    --status-suspended-text: oklch(0.28 0.24 25); /* deep crimson text */
+    --status-suspended-border: oklch(0.65 0.22 25);
+  }
+
+  .dark {
+    --card-radius: 0.5rem;
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+
+    /* Project and Task Category Colors - Dark Theme */
+    --category-blue: #4a7a9a;
+    --category-cyan: #4a7e82;
+    --category-green: #4a7d72;
+    --category-lime: #4a7d4a;
+    --category-sage: #4a7d4c;
+
+    --category-blue-light: #5a8aaa;
+    --category-cyan-light: #5a8e92;
+    --category-green-light: #5a8d82;
+    --category-lime-light: #5a8d5a;
+    --category-sage-light: #5a8d5c;
+
+    /* Sidebar Colors - Dark Theme */
+    --sidebar: oklch(0.18 0 0); /* Slightly lighter dark */
+    --mini-sidebar: oklch(0.22 0 0); /* Slightly lighter for mini sidebar */
+    --sidebar-foreground: oklch(0.9 0 0); /* Lighter text for good contrast */
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.25 0 0); /* Lighter for hover visibility */
+    --sidebar-accent-foreground: oklch(0.95 0 0); /* Very light text */
+    --sidebar-border: oklch(1 0 0 / 0.02); /* More visible border */
+    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar-muted: oklch(0.7 0 0); /* Better contrast for muted icons */
+    --hover-bg: oklch(0.3 0 0); /* More visible hover state */
+    --skeleton: #171719; /* slate-800 */
+    --skeleton-foreground: #1f2227; /* slate-700 */
+    --skeleton-muted: #323c49; /* slate-600 */
+
+    --odd-row: oklch(0.97 0 0 / 0.2); /* muted, 20% */
+    --even-row: oklch(0.97 0 0 / 0.5); /* muted, 50% */
+
+    /* Organization Status */
+    /* ACTIVE */
+    --status-active-bg: oklch(0.38 0.14 145 / 0.9);
+    --status-active-text: oklch(0.82 0.18 145);
+    --status-active-border: oklch(0.52 0.16 145);
+
+    /* PENDING */
+    --status-pending-bg: oklch(0.4 0.15 75 / 0.9);
+    --status-pending-text: oklch(0.85 0.2 75);
+    --status-pending-border: oklch(0.55 0.18 75);
+
+    /* INACTIVE */
+    --status-inactive-bg: oklch(0.28 0.01 250 / 0.9);
+    --status-inactive-text: oklch(0.75 0.02 250);
+    --status-inactive-border: oklch(0.45 0.02 250);
+
+    /* SUSPENDED */
+    --status-suspended-bg: oklch(0.35 0.18 25 / 0.9);
+    --status-suspended-text: oklch(0.82 0.22 25);
+    --status-suspended-border: oklch(0.5 0.2 25);
+  }
+}

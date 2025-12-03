@@ -1,0 +1,2 @@
+-- Add SUPER_ADMIN to existing Role enum
+ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'SUPER_ADMIN';

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["frontend/**/*"],
+  "exclude": ["node_modules", "dist", "backend"]
+}

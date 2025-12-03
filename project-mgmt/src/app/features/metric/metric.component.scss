@@ -1,0 +1,59 @@
+@use '../../../styles/_globals.scss' as *;
+
+:host {
+  text-align: center;
+}
+
+h3 {
+  margin-top: var(--s4);
+  margin-bottom: var(--s);
+}
+
+.basic-stats {
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.metrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+table {
+  tr {
+    th {
+      text-align: start;
+    }
+
+    td {
+      text-align: start;
+    }
+  }
+}
+
+.pie-charts {
+  @include mq(sm) {
+    display: flex;
+
+    > section {
+      width: 50%;
+    }
+  }
+}
+
+section {
+  margin-bottom: var(--s2);
+}
+
+.metric-metrics {
+  margin-top: var(--s6);
+}

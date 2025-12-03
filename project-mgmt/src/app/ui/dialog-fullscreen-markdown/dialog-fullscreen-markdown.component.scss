@@ -1,0 +1,93 @@
+@use '../../../styles/_globals.scss' as *;
+
+:host {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+
+  :host-context([dir='rtl']) {
+    direction: rtl;
+  }
+}
+
+:host-context(.isMac.isElectron) {
+  padding-top: var(--mac-title-bar-padding);
+}
+
+.content {
+  flex-grow: 1;
+  position: relative;
+  color: var(--text-color-more-intense);
+  background-color: var(--bg-lightest);
+  textarea,
+  .markdown-preview {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    padding: var(--s) var(--s2);
+
+    @include scrollY;
+  }
+
+  textarea {
+    background: inherit;
+    color: inherit;
+    border: none;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    display: block;
+    resize: none;
+    min-height: inherit;
+    overflow: auto;
+    padding: var(--s) var(--s2);
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &.split-view {
+    textarea {
+      width: 50%;
+      right: 50%;
+    }
+
+    .markdown-preview {
+      width: 50%;
+      left: 50%;
+      border-left: 2px solid;
+
+      border-color: var(--extra-border-color);
+    }
+  }
+}
+
+.controls {
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: var(--whiteframe-shadow-2dp);
+  padding: 0 var(--s2);
+
+  > button {
+    margin: var(--s);
+  }
+}
+
+.left-buttons {
+  align-items: flex-start;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin: 8px;
+  margin-right: auto;
+}

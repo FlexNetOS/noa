@@ -1,0 +1,336 @@
+# Wiki.js Helm Chart Values
+# Production-ready configuration
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "fast-ssd"
+  postgresql:
+    auth:
+      postgresPassword: ""
+      database: wikijs
+      username: wikijs
+  redis:
+    auth:
+      enabled: true
+      password: ""
+
+# Wiki.js application configuration
+replicaCount: 2
+
+image:
+  registry: ghcr.io
+  repository: requarks/wiki
+  tag: "2"
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels:
+  app: wikijs
+  component: application
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+    - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: wiki.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: wikijs-tls
+      hosts:
+        - wiki.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Application configuration
+config:
+  # Database configuration
+  database:
+    type: postgres
+    host: postgresql
+    port: 5432
+    ssl: false
+
+  # Redis configuration
+  redis:
+    host: redis-master
+    port: 6379
+
+  # Security settings
+  security:
+    trustProxy: true
+    ssl: false
+
+  # Logging
+  logLevel: info
+  logFormat: json
+
+  # Features
+  features:
+    ratings: true
+    comments: true
+    pageRatings: true
+
+  # Performance settings
+  maxUploadSize: 52428800
+  searchMaxHits: 50
+
+  # SEO settings
+  seo:
+    description: "Knowledge base powered by Wiki.js"
+    robots: "index, follow"
+
+  # Authentication
+  authentication:
+    enabled: true
+    local:
+      enabled: true
+      allowRegistration: false
+
+  # Theme
+  theme:
+    primary: indigo
+    alt: blue-grey
+
+# Environment variables
+env: []
+  # - name: NODE_ENV
+  #   value: "production"
+  # - name: SESSION_SECRET
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: wikijs-secrets
+  #       key: session-secret
+
+# Secrets
+secrets:
+  # These should be provided externally or via secret management
+  sessionSecret: ""
+  jwtSecret: ""
+  dbPassword: ""
+  redisPassword: ""
+  adminEmail: ""
+  adminPassword: ""
+
+# Persistence
+persistence:
+  data:
+    enabled: true
+    storageClass: "fast-ssd"
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    annotations: {}
+
+  repo:
+    enabled: true
+    storageClass: "fast-ssd"
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    annotations: {}
+
+  backups:
+    enabled: true
+    storageClass: "standard"
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    annotations: {}
+
+# Volumes
+volumes: []
+volumeMounts: []
+
+# Init containers
+initContainers: []
+  # - name: wait-for-db
+  #   image: postgres:15-alpine
+  #   command: ['sh', '-c', 'until pg_isready -h postgresql -p 5432 -U wikijs; do sleep 2; done']
+
+# Sidecar containers
+sidecars: []
+
+# Node selector, tolerations, and affinity
+nodeSelector: {}
+tolerations: []
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - wikijs
+        topologyKey: kubernetes.io/hostname
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 12
+
+# Monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    annotations: {}
+  prometheusRule:
+    enabled: true
+    labels: {}
+    annotations: {}
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: "30d"
+  storageClass: "standard"
+  annotations: {}
+
+# PostgreSQL sub-chart configuration
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+    extraEnvVars:
+      - name: POSTGRES_INITDB_ARGS
+        value: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+
+# Redis sub-chart configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 250m
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    enabled: true
+    rules:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    enabled: true
+    rules:
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 53
+      - protocol: UDP
+        port: 53
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  maxUnavailable: ""
+
+# Additional manifests
+extraManifests: []
+
+# Tests
+tests:
+  enabled: true
