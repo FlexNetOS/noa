@@ -74,11 +74,34 @@ noa_validate_path() {
   return 0
 }
 
-# Alias for safe navigation
-alias cda='cd ${HOME}'
-alias cdr='cd ${HOME}/repos'
-alias cdc='cd ${HOME}/containers'
-alias cdw='cd ${HOME}/workspace'
-alias cdp='cd ${HOME}/p2p'
-alias cdai='cd ${HOME}/ai'
-alias cdgit='cd ${HOME}/git'
+# Alias for safe navigation (using NOA_ROOT, not HOME)
+alias cda='cd ${NOA_ROOT}'
+alias cdr='cd ${NOA_ROOT}/repos'
+alias cdc='cd ${NOA_ROOT}/containers'
+alias cdw='cd ${NOA_ROOT}/workspace'
+alias cdp='cd ${NOA_ROOT}/p2p'
+alias cdai='cd ${NOA_ROOT}/ai'
+alias cdgit='cd ${NOA_ROOT}/git'
+alias cds='cd ${NOA_ROOT}/scripts'
+alias cdl='cd ${NOA_ROOT}/logs'
+
+# Git workflow helpers
+alias git-sync='${NOA_SCRIPTS}/git-sync.sh'
+alias git-push-dev='${NOA_SCRIPTS}/git-push.sh'
+
+# Environment validation
+noa_validate_env() {
+  local errors=0
+  for dir in "$NOA_ROOT" "$NOA_SCRIPTS" "$NOA_CONFIG"; do
+    if [ ! -d "$dir" ]; then
+      echo "ERROR: Missing directory: $dir" >&2
+      errors=$((errors + 1))
+    fi
+  done
+  if [ $errors -eq 0 ]; then
+    echo "NOA environment validated successfully"
+    echo "  NOA_ROOT: $NOA_ROOT"
+    return 0
+  fi
+  return 1
+}
