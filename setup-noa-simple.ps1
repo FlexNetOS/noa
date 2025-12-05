@@ -1,6 +1,17 @@
 <#
-  Simplified NOA Setup Script for Windows 11
-  This version uses straightforward PowerShell without complex string building
+  Simplified NOA Setup Script for Windows 11 - FALLBACK VERSION
+  
+  NOTE: This is a legacy fallback script. For the full-featured setup, use:
+    .\scripts\setup\setup-noa.ps1
+  
+  The new script provides:
+  - Prerequisite installation (-InstallPrereqs)
+  - PowerShell profile integration (-IntegrateProfile)
+  - Comprehensive logging
+  - Better error handling
+  - Full directory structure
+  
+  This version uses straightforward PowerShell without complex string building.
 #>
 
 param(
