@@ -15,6 +15,16 @@ opt/nodejs/
 # Large local directories (llama.cpp, etc.)
 opt/llama.cpp/
 
+# Downloaded binaries (platform-specific, download via scripts/download-static-binaries.ps1)
+bin/*.exe
+bin/jq
+bin/rg
+bin/fd
+bin/bat
+
+# Local lib directory (bundled libraries)
+lib/
+
 # Build outputs
 dist/
 build/
