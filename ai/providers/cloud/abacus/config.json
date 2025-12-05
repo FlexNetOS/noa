@@ -1,0 +1,26 @@
+{
+  "name": "abacus",
+  "type": "cloud",
+  "priority": 3,
+  "enabled": true,
+  "cli": {
+    "command": "abacusai",
+    "package": "@abacus-ai/cli",
+    "version": "1.106.24817",
+    "requirements": {
+      "desktop": "https://desktop.abacus.ai/",
+      "note": "CLI requires Abacus Desktop app for authentication"
+    }
+  },
+  "config": {
+    "apiEndpoint": "https://api.abacus.ai"
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "embeddings": true,
+    "streaming": true,
+    "functionCalling": true,
+    "codeGeneration": true,
+    "agents": true
+  }
+}
