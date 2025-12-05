@@ -18,9 +18,6 @@
     If specified, adds NOA profile source line to PowerShell profile.
     Default is $false for CI/scripting scenarios.
 
-.PARAMETER Verbose
-    Enable verbose output for troubleshooting.
-
 .EXAMPLE
     .\setup-noa.ps1
     Run setup with default settings (N:\noa, no prereqs, no profile integration)
@@ -42,14 +39,10 @@ param(
     [switch]$InstallPrereqs = $false,
     
     [Parameter(Mandatory=$false)]
-    [switch]$IntegrateProfile = $false,
-    
-    [Parameter(Mandatory=$false)]
-    [switch]$Verbose = $false
+    [switch]$IntegrateProfile = $false
 )
 
 $ErrorActionPreference = "Stop"
-$DebugPreference = if ($Verbose) { "Continue" } else { "SilentlyContinue" }
 
 # Script metadata
 $ScriptVersion = "2.0.0"
@@ -67,8 +60,8 @@ function Write-Log {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "$timestamp [$Level] $Message"
     
-    # Write to log file if log directory exists
-    if (Test-Path (Join-Path $NoaRoot "logs")) {
+    # Write to log file if log directory exists and log file is set
+    if ($script:LogFile -and (Test-Path (Join-Path $NoaRoot "logs"))) {
         $logMessage | Add-Content -Path $script:LogFile -Encoding UTF8
     }
     
