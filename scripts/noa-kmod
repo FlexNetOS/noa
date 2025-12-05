@@ -1,0 +1,71 @@
+#!/bin/bash
+# NOA Kernel Module Management
+# Loads and manages kernel modules for P2P and networking
+
+NOA_ROOT="${HOME}"
+NOA_KERNEL="$NOA_ROOT/sys/kernel"
+MODULE_DIR="$NOA_KERNEL/modules"
+
+case "$1" in
+  load)
+    module=$2
+    if [ -z "$module" ]; then
+      echo "Usage: noa-kmod load <module-name>"
+      exit 1
+    fi
+
+    # Try to load module
+    if modprobe "$module" 2>/dev/null; then
+      echo "Loaded kernel module: $module"
+      echo "$module" >> "$NOA_KERNEL/loaded-modules"
+    else
+      echo "Failed to load module: $module"
+      echo "Note: Some modules may require root privileges"
+    fi
+    ;;
+  unload)
+    module=$2
+    if [ -z "$module" ]; then
+      echo "Usage: noa-kmod unload <module-name>"
+      exit 1
+    fi
+
+    if rmmod "$module" 2>/dev/null; then
+      echo "Unloaded kernel module: $module"
+      sed -i "/^$module\$/d" "$NOA_KERNEL/loaded-modules" 2>/dev/null || true
+    else
+      echo "Failed to unload module: $module"
+    fi
+    ;;
+  list)
+    echo "Loaded kernel modules:"
+    lsmod | grep -v "^Module" | awk '{print $1}' | while read mod; do
+      if [ -f "$NOA_KERNEL/loaded-modules" ] && grep -q "^$mod\$" "$NOA_KERNEL/loaded-modules"; then
+        echo "  $mod (NOA managed)"
+      fi
+    done
+    ;;
+  required)
+    echo "Kernel modules required for NOA P2P:"
+    echo "  - tun (TUN/TAP for VPN/P2P networking)"
+    echo "  - ip_tables (iptables for firewall)"
+    echo "  - nf_conntrack (Connection tracking)"
+    echo "  - bridge (Network bridging)"
+    ;;
+  check)
+    echo "Checking kernel module availability..."
+    for mod in tun ip_tables nf_conntrack bridge; do
+      if lsmod | grep -q "^$mod"; then
+        echo "  âœ“ ${mod}: loaded"
+      elif modinfo "$mod" >/dev/null 2>&1; then
+        echo "  â—‹ ${mod}: available (not loaded)"
+      else
+        echo "  âœ— ${mod}: not available"
+      fi
+    done
+    ;;
+  *)
+    echo "Usage: noa-kmod {load|unload|list|required|check} [module]"
+    exit 1
+    ;;
+esac

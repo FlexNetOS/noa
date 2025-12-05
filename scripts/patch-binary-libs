@@ -1,0 +1,19 @@
+#!/bin/bash
+# Patch binary to use bundled libraries from $NOA_ROOT/lib
+
+NOA_ROOT="${HOME}"
+NOA_LIB="$NOA_ROOT/lib"
+TARGET_BIN="$1"
+
+if [ -z "$TARGET_BIN" ] || [ ! -f "$TARGET_BIN" ]; then
+  echo "Usage: patch-binary-libs <binary-path>"
+  exit 1
+fi
+
+# Use patchelf to set rpath to NOA lib directory
+if command -v patchelf >/dev/null 2>&1; then
+  patchelf --set-rpath "$NOA_LIB" "$TARGET_BIN" 2>/dev/null || echo "Note: patchelf may not work on all binaries"
+  echo "Patched $TARGET_BIN to use libraries from $NOA_LIB"
+else
+  echo "Warning: patchelf not available, using LD_LIBRARY_PATH instead"
+fi

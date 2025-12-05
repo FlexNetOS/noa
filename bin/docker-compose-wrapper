@@ -1,0 +1,4 @@
+#!/bin/bash
+export DOCKER_HOST="unix://$NOA_ROOT/containers/docker.sock"
+export DOCKER_CONFIG="$NOA_ROOT/etc/docker"
+exec $NOA_ROOT/bin/docker-compose "$@"

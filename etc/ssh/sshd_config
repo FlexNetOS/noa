@@ -1,0 +1,13 @@
+# NOA P2P SSH Configuration (Self-contained)
+Port 2222
+HostKey $NOA_ROOT/etc/ssh/ssh_host_rsa_key
+HostKey $NOA_ROOT/etc/ssh/ssh_host_ecdsa_key
+HostKey $NOA_ROOT/etc/ssh/ssh_host_ed25519_key
+
+PermitRootLogin no
+PasswordAuthentication yes
+PubkeyAuthentication yes
+AllowUsers noa deflex
+X11Forwarding no
+
+PidFile $NOA_ROOT/init/run/sshd.pid

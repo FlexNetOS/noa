@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "workflow": {
+    "create": {
+      "location": "local",
+      "path": "${NOA_ROOT}/git/prs/open"
+    },
+    "review": {
+      "location": "local",
+      "automated": true,
+      "aiReview": true
+    },
+    "merge": {
+      "location": "local",
+      "conflictResolution": "ai-assisted",
+      "ciCheck": true
+    },
+    "sync": {
+      "github": {
+        "enabled": true,
+        "mode": "push-on-merge",
+        "untilLocalReady": true
+      }
+    }
+  },
+  "states": {
+    "open": "${NOA_ROOT}/git/prs/open",
+    "merged": "${NOA_ROOT}/git/prs/merged",
+    "closed": "${NOA_ROOT}/git/prs/closed"
+  }
+}
