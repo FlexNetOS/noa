@@ -1,3 +1,6 @@
 [submodule "opt/llama.cpp"]
 	path = opt/llama.cpp
-	url = https://github.com/ggerganov/llama.cpp.git
+	url = https://github.com/FlexNetOS/llama.cpp.git
+[submodule "opt/llama-cpp-rs"]
+	path = opt/llama-cpp-rs
+	url = https://github.com/FlexNetOS/llama-cpp-rs.git

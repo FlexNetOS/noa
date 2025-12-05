@@ -12,8 +12,9 @@ __pycache__/
 # Local tool installations (should not be committed)
 opt/nodejs/
 
-# Large local directories (llama.cpp, etc.)
-opt/llama.cpp/
+# Large local directories are now tracked as git submodules
+# opt/llama.cpp/ - tracked as submodule pointing to FlexNetOS/llama.cpp
+# opt/llama-cpp-rs/ - tracked as submodule pointing to FlexNetOS/llama-cpp-rs
 
 # Downloaded binaries (platform-specific, download via scripts/download-static-binaries.ps1)
 bin/*.exe

@@ -12,6 +12,23 @@ export {
 	type SerializableError
 } from './task-master-error.js';
 
+// Export Cursor-specific errors
+export {
+	CursorError,
+	CursorNotInstalledError,
+	CursorNotRunningError,
+	CursorConnectionError,
+	CursorTimeoutError,
+	CursorRateLimitError,
+	CursorQuotaExceededError,
+	CursorCommandError,
+	CursorMcpError,
+	toCursorError,
+	CURSOR_ERROR_CODES,
+	type CursorErrorCode,
+	type CursorErrorContext
+} from './cursor-errors.js';
+
 // Error implementations will be defined here
 // export * from './task-errors.js';
 // export * from './storage-errors.js';
