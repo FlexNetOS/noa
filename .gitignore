@@ -6,7 +6,22 @@ node_modules/
 dist/
 build/
 out/
+
+# Logs and temporary files
+logs/
 *.log
+*.tmp
+*.temp
+setup-log.txt
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Test results
+*.TestResults.xml
+TestResults.xml
 
 # Temporary and test files
 test-*.ps1
@@ -14,9 +29,6 @@ test-*.txt
 test-*.bat
 create-*.ps1
 create-*.bat
-setup-direct.ps1
-*.tmp
-*.temp
 
 # IDE and OS files
 .DS_Store
@@ -28,3 +40,4 @@ Thumbs.db
 # Generated files (will be created by setup script)
 noa-profile.ps1
 .noa
+Z:/
