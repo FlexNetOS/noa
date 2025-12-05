@@ -1,0 +1,318 @@
+diff --git a/.devops/tools.sh b/.devops/tools.sh
+old mode 100755
+new mode 100644
+diff --git a/build-xcframework.sh b/build-xcframework.sh
+old mode 100755
+new mode 100644
+diff --git a/ci/run.sh b/ci/run.sh
+old mode 100755
+new mode 100644
+diff --git a/convert_hf_to_gguf.py b/convert_hf_to_gguf.py
+old mode 100755
+new mode 100644
+diff --git a/convert_hf_to_gguf_update.py b/convert_hf_to_gguf_update.py
+old mode 100755
+new mode 100644
+diff --git a/convert_llama_ggml_to_gguf.py b/convert_llama_ggml_to_gguf.py
+old mode 100755
+new mode 100644
+diff --git a/convert_lora_to_gguf.py b/convert_lora_to_gguf.py
+old mode 100755
+new mode 100644
+diff --git a/docs/backend/CANN.md b/docs/backend/CANN.md
+old mode 100755
+new mode 100644
+diff --git a/docs/development/llama-star/idea-arch.key b/docs/development/llama-star/idea-arch.key
+old mode 100755
+new mode 100644
+diff --git a/examples/batched.swift/Makefile b/examples/batched.swift/Makefile
+old mode 100755
+new mode 100644
+diff --git a/examples/convert_legacy_llama.py b/examples/convert_legacy_llama.py
+old mode 100755
+new mode 100644
+diff --git a/examples/json_schema_to_grammar.py b/examples/json_schema_to_grammar.py
+old mode 100755
+new mode 100644
+diff --git a/examples/llama.android/gradlew b/examples/llama.android/gradlew
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/compare-embeddings-logits.sh b/examples/model-conversion/scripts/causal/compare-embeddings-logits.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/compare-logits.py b/examples/model-conversion/scripts/causal/compare-logits.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/convert-model.sh b/examples/model-conversion/scripts/causal/convert-model.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/run-casual-gen-embeddings-org.py b/examples/model-conversion/scripts/causal/run-casual-gen-embeddings-org.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/run-converted-model-embeddings-logits.sh b/examples/model-conversion/scripts/causal/run-converted-model-embeddings-logits.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/run-converted-model.sh b/examples/model-conversion/scripts/causal/run-converted-model.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/causal/run-org-model.py b/examples/model-conversion/scripts/causal/run-org-model.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/embedding/compare-embeddings-logits.sh b/examples/model-conversion/scripts/embedding/compare-embeddings-logits.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/embedding/convert-model.sh b/examples/model-conversion/scripts/embedding/convert-model.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/embedding/run-converted-model.sh b/examples/model-conversion/scripts/embedding/run-converted-model.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/embedding/run-original-model.py b/examples/model-conversion/scripts/embedding/run-original-model.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/check-nmse.py b/examples/model-conversion/scripts/utils/check-nmse.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/curl-embedding-server.sh b/examples/model-conversion/scripts/utils/curl-embedding-server.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/hf-add-model-to-collection.py b/examples/model-conversion/scripts/utils/hf-add-model-to-collection.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/hf-create-collection.py b/examples/model-conversion/scripts/utils/hf-create-collection.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/hf-create-model.py b/examples/model-conversion/scripts/utils/hf-create-model.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/hf-upload-gguf-model.py b/examples/model-conversion/scripts/utils/hf-upload-gguf-model.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/inspect-converted-model.sh b/examples/model-conversion/scripts/utils/inspect-converted-model.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/inspect-org-model.py b/examples/model-conversion/scripts/utils/inspect-org-model.py
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/perplexity-gen.sh b/examples/model-conversion/scripts/utils/perplexity-gen.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/perplexity-run-simple.sh b/examples/model-conversion/scripts/utils/perplexity-run-simple.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/perplexity-run.sh b/examples/model-conversion/scripts/utils/perplexity-run.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/quantize.sh b/examples/model-conversion/scripts/utils/quantize.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/model-conversion/scripts/utils/run-embedding-server.sh b/examples/model-conversion/scripts/utils/run-embedding-server.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/pydantic_models_to_grammar_examples.py b/examples/pydantic_models_to_grammar_examples.py
+old mode 100755
+new mode 100644
+diff --git a/examples/reason-act.sh b/examples/reason-act.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/server-llama2-13B.sh b/examples/server-llama2-13B.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/sycl/build.sh b/examples/sycl/build.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/sycl/run-llama2.sh b/examples/sycl/run-llama2.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/sycl/run-llama3.sh b/examples/sycl/run-llama3.sh
+old mode 100755
+new mode 100644
+diff --git a/examples/ts-type-to-grammar.sh b/examples/ts-type-to-grammar.sh
+old mode 100755
+new mode 100644
+diff --git a/ggml/src/ggml-cann/CMakeLists.txt b/ggml/src/ggml-cann/CMakeLists.txt
+old mode 100755
+new mode 100644
+diff --git a/ggml/src/ggml-cuda/template-instances/generate_cu_files.py b/ggml/src/ggml-cuda/template-instances/generate_cu_files.py
+old mode 100755
+new mode 100644
+diff --git a/ggml/src/ggml-webgpu/wgsl-shaders/embed_wgsl.py b/ggml/src/ggml-webgpu/wgsl-shaders/embed_wgsl.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/examples/writer.py b/gguf-py/examples/writer.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_convert_endian.py b/gguf-py/gguf/scripts/gguf_convert_endian.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_dump.py b/gguf-py/gguf/scripts/gguf_dump.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_editor_gui.py b/gguf-py/gguf/scripts/gguf_editor_gui.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_hash.py b/gguf-py/gguf/scripts/gguf_hash.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_new_metadata.py b/gguf-py/gguf/scripts/gguf_new_metadata.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/gguf/scripts/gguf_set_metadata.py b/gguf-py/gguf/scripts/gguf_set_metadata.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/tests/test_metadata.py b/gguf-py/tests/test_metadata.py
+old mode 100755
+new mode 100644
+diff --git a/gguf-py/tests/test_quants.py b/gguf-py/tests/test_quants.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/apple/validate-apps.sh b/scripts/apple/validate-apps.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/apple/validate-ios.sh b/scripts/apple/validate-ios.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/apple/validate-macos.sh b/scripts/apple/validate-macos.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/apple/validate-tvos.sh b/scripts/apple/validate-tvos.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/apple/validate-visionos.sh b/scripts/apple/validate-visionos.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/build-info.sh b/scripts/build-info.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/check-requirements.sh b/scripts/check-requirements.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/compare-commits.sh b/scripts/compare-commits.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/compare-llama-bench.py b/scripts/compare-llama-bench.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/create_ops_docs.py b/scripts/create_ops_docs.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/debug-test.sh b/scripts/debug-test.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/fetch_server_test_models.py b/scripts/fetch_server_test_models.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/gen-authors.sh b/scripts/gen-authors.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get-hellaswag.sh b/scripts/get-hellaswag.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get-pg.sh b/scripts/get-pg.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get-wikitext-103.sh b/scripts/get-wikitext-103.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get-wikitext-2.sh b/scripts/get-wikitext-2.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get-winogrande.sh b/scripts/get-winogrande.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/get_chat_template.py b/scripts/get_chat_template.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/hf.sh b/scripts/hf.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/jinja/jinja-tester.py b/scripts/jinja/jinja-tester.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/server-bench.py b/scripts/server-bench.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/snapdragon/adb/run-bench.sh b/scripts/snapdragon/adb/run-bench.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/snapdragon/adb/run-cli.sh b/scripts/snapdragon/adb/run-cli.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/snapdragon/adb/run-tool.sh b/scripts/snapdragon/adb/run-tool.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/sync-ggml-am.sh b/scripts/sync-ggml-am.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/sync-ggml.sh b/scripts/sync-ggml.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/sync_vendor.py b/scripts/sync_vendor.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/tool_bench.py b/scripts/tool_bench.py
+old mode 100755
+new mode 100644
+diff --git a/scripts/tool_bench.sh b/scripts/tool_bench.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/verify-checksum-models.py b/scripts/verify-checksum-models.py
+old mode 100755
+new mode 100644
+diff --git a/tests/test-json-schema-to-grammar.cpp b/tests/test-json-schema-to-grammar.cpp
+old mode 100755
+new mode 100644
+diff --git a/tests/test-lora-conversion-inference.sh b/tests/test-lora-conversion-inference.sh
+old mode 100755
+new mode 100644
+diff --git a/tests/test-tokenizer-0.sh b/tests/test-tokenizer-0.sh
+old mode 100755
+new mode 100644
+diff --git a/tests/test-tokenizers-repo.sh b/tests/test-tokenizers-repo.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/gguf-split/tests.sh b/tools/gguf-split/tests.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/mtmd/tests.sh b/tools/mtmd/tests.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/server/chat-llama2.sh b/tools/server/chat-llama2.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/server/chat.sh b/tools/server/chat.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/colorthemes.css b/tools/server/public_legacy/colorthemes.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-beeninorder.css b/tools/server/public_legacy/theme-beeninorder.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-ketivah.css b/tools/server/public_legacy/theme-ketivah.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-mangotango.css b/tools/server/public_legacy/theme-mangotango.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-playground.css b/tools/server/public_legacy/theme-playground.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-polarnight.css b/tools/server/public_legacy/theme-polarnight.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/public_legacy/theme-snowstorm.css b/tools/server/public_legacy/theme-snowstorm.css
+old mode 100755
+new mode 100644
+diff --git a/tools/server/tests/tests.sh b/tools/server/tests/tests.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/server/tests/unit/test_tool_call.py b/tools/server/tests/unit/test_tool_call.py
+old mode 100755
+new mode 100644
+diff --git a/tools/server/webui/scripts/install-git-hooks.sh b/tools/server/webui/scripts/install-git-hooks.sh
+old mode 100755
+new mode 100644
+diff --git a/tools/server/webui/scripts/post-build.sh b/tools/server/webui/scripts/post-build.sh
+old mode 100755
+new mode 100644
