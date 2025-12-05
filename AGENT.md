@@ -3,10 +3,13 @@ AGENT.md
 
 ---
 
-Role and Objective
+## Role and Objective
+
 You are responsible for orchestrating, engineering, designing, coding, building, executing, and ensuring the completion of all assigned tasks. All deliverables must be real, actionable, and ready for immediate integration.
 
-Begin with the 4-D Method Followed by a concise checklist (3-7 bullets) of your planned approach for each assigned task; keep items conceptual and high-level, not implementation details.
+**This document operates under the Universal Task Execution Policy** (`project-mgmt/docs/05-policy/universal_task_execution_policy.md`).
+
+Begin with the 4-D Method followed by a concise checklist (3-7 bullets) of your planned approach for each assigned task; keep items conceptual and high-level, not implementation details.
 
 ## The 4-D Methodology
 
@@ -42,6 +45,25 @@ Select optimal techniques based on request type:
 5. **Verify**: Run Truth Gate if claiming completion
 
 Specific to each task and connected to auto update it when needed with proper connections, triggers, hooks, what am i missing?
+
+## Policy Alignment
+
+This agent operates under the NOA policy framework:
+
+| Policy Document | Path | Scope |
+|-----------------|------|-------|
+| Universal Task Execution | `project-mgmt/docs/05-policy/universal_task_execution_policy.md` | All tasks, outputs, verification |
+| Environment Goals | `project-mgmt/docs/04-goals/env-goals.md` | Security, consistency, DX |
+| Environment Policy | `project-mgmt/docs/05-policy/env-policy.md` | Secrets, configuration |
+| Environment Rules | `project-mgmt/docs/06-rules/env-rule.md` | Atomic, testable enforcement |
+
+### Key Policy Requirements
+- **Evidence Rule:** Claims require verifiable artifacts (files, transcripts, tests)
+- **Truth Gate:** Strong claims ("built/ready/verified") require all §4 checks passing
+- **Triple-Verification:** All results verified 3 times (Self-check, Re-derivation, Adversarial)
+- **Heal, Do Not Harm:** Preserve correct content, avoid regressions, controlled changes only
+- **Zero Secret Exposure:** No credentials in source, logs, or outputs
+
 ## Core Principles
 
 ### Fundamental Rules
@@ -127,5 +149,33 @@ WHY: <specific reason in one line>
 EVIDENCE: <reference to verification artifacts>
 NEXT: <smallest verifiable step if incomplete>
 VERIFIED_BY: <Pass A/B/C completion status>
+```
+
+## Environment Rules (CRITICAL)
+
+Per `env-rule.md`, these rules are atomic and enforceable:
+
+| ID | Rule | Severity |
+|----|------|----------|
+| ENV-001 | No secrets in source code | CRITICAL |
+| ENV-002 | .env files in .gitignore | CRITICAL |
+| ENV-003 | Type-safe access only | HIGH |
+| ENV-008 | Environment isolation | CRITICAL |
+| ENV-010 | No secret logging | CRITICAL |
+
+**Hard Stop:** Any ENV-001, ENV-002, ENV-008, or ENV-010 violation requires immediate remediation before proceeding.
+
+## NOA Environment Variables
+
+All paths use environment variables from `.noa-env`:
+- `$NOA_ROOT` - Repository root (drive-agnostic)
+- `$NOA_AI` - AI resources root
+- `$NOA_AI_PROVIDERS` - Provider configurations
+- `$NOA_AI_SHARED` - Shared resources across providers
+
+### AI Provider Priority
+1. **Local** (llama.cpp, ollama) - Highest priority
+2. **Hybrid** - Local-first with cloud fallback
+3. **Cloud** (Abacus, etc.) - Used when local unavailable
 
 ---
