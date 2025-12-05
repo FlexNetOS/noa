@@ -1,0 +1,225 @@
+name: Setup CI
+
+on:
+  push:
+    branches:
+      - main
+      - fix-lite
+      - copilot/**
+    paths:
+      - 'scripts/setup/**'
+      - 'scripts/tests/**'
+      - '.github/workflows/setup-ci.yml'
+  pull_request:
+    branches:
+      - main
+      - fix-lite
+    paths:
+      - 'scripts/setup/**'
+      - 'scripts/tests/**'
+      - '.github/workflows/setup-ci.yml'
+
+jobs:
+  test-setup:
+    name: Test Setup Scripts
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup PowerShell
+        shell: pwsh
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)"
+          Write-Host "OS: $($PSVersionTable.OS)"
+      
+      - name: Install Pester v5
+        shell: pwsh
+        run: |
+          Write-Host "Installing Pester v5..."
+          Install-Module -Name Pester -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Force -SkipPublisherCheck -Scope CurrentUser
+          Import-Module Pester -MinimumVersion 5.0.0
+          Write-Host "Pester version: $((Get-Module Pester).Version)"
+      
+      - name: Run Pester Tests
+        shell: pwsh
+        run: |
+          Write-Host "Running NOA Setup Tests..."
+          
+          # Configure Pester
+          $config = New-PesterConfiguration
+          $config.Run.Path = "scripts/tests/Setup.Tests.ps1"
+          $config.Run.Exit = $true
+          $config.Output.Verbosity = "Detailed"
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = "TestResults.xml"
+          $config.TestResult.OutputFormat = "NUnitXml"
+          
+          # Run tests
+          Invoke-Pester -Configuration $config
+      
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: TestResults.xml
+          retention-days: 30
+      
+      - name: Smoke Test - Setup Script Execution
+        shell: pwsh
+        run: |
+          Write-Host "Running smoke test with temporary directory..."
+          
+          # Create a temporary NOA root for testing
+          $testRoot = Join-Path $env:RUNNER_TEMP "noa-smoke-test"
+          
+          # Run setup script
+          & .\scripts\setup\setup-noa.ps1 `
+            -NoaRoot $testRoot `
+            -InstallPrereqs:$false `
+            -IntegrateProfile:$false `
+            -ErrorAction Stop
+          
+          # Verify exit code
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Setup script failed with exit code: $LASTEXITCODE"
+            exit 1
+          }
+          
+          Write-Host "Smoke test passed!"
+      
+      - name: Verify Setup Artifacts
+        shell: pwsh
+        run: |
+          Write-Host "Verifying setup artifacts..."
+          
+          $testRoot = Join-Path $env:RUNNER_TEMP "noa-smoke-test"
+          
+          # Check critical files
+          $criticalFiles = @(
+            "noa-profile.ps1",
+            ".noa",
+            "config\noa.json"
+          )
+          
+          $missingFiles = @()
+          foreach ($file in $criticalFiles) {
+            $path = Join-Path $testRoot $file
+            if (-not (Test-Path $path)) {
+              $missingFiles += $file
+            } else {
+              Write-Host "[OK] $file exists"
+            }
+          }
+          
+          if ($missingFiles.Count -gt 0) {
+            Write-Error "Missing files: $($missingFiles -join ', ')"
+            exit 1
+          }
+          
+          # Check directories
+          $requiredDirs = @(
+            "repos", "containers", "workspace", "config", "scripts",
+            "logs", "tmp", "p2p", "ai", "git", "bin", "etc", "lib",
+            "opt", "sys", "init"
+          )
+          
+          $missingDirs = @()
+          foreach ($dir in $requiredDirs) {
+            $path = Join-Path $testRoot $dir
+            if (-not (Test-Path $path)) {
+              $missingDirs += $dir
+            } else {
+              Write-Host "[OK] $dir directory exists"
+            }
+          }
+          
+          if ($missingDirs.Count -gt 0) {
+            Write-Error "Missing directories: $($missingDirs -join ', ')"
+            exit 1
+          }
+          
+          Write-Host "All artifacts verified successfully!"
+      
+      - name: Test Profile Loading
+        shell: pwsh
+        run: |
+          Write-Host "Testing profile loading..."
+          
+          $testRoot = Join-Path $env:RUNNER_TEMP "noa-smoke-test"
+          $profilePath = Join-Path $testRoot "noa-profile.ps1"
+          
+          # Source the profile
+          . $profilePath
+          
+          # Verify environment variables
+          if (-not $env:NOA_ROOT) {
+            Write-Error "NOA_ROOT not set after loading profile"
+            exit 1
+          }
+          
+          Write-Host "NOA_ROOT: $env:NOA_ROOT"
+          
+          # Test navigation functions
+          $functions = @('cda', 'cdr', 'cdc', 'cdw')
+          foreach ($func in $functions) {
+            $funcExists = Get-Command $func -ErrorAction SilentlyContinue
+            if (-not $funcExists) {
+              Write-Error "Function $func not defined"
+              exit 1
+            } else {
+              Write-Host "[OK] Function $func defined"
+            }
+          }
+          
+          Write-Host "Profile loaded successfully!"
+
+  lint-powershell:
+    name: Lint PowerShell Scripts
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -SkipPublisherCheck -Scope CurrentUser
+          Import-Module PSScriptAnalyzer
+      
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Write-Host "Running PSScriptAnalyzer on setup scripts..."
+          
+          $scripts = Get-ChildItem -Path "scripts/setup" -Filter "*.ps1" -Recurse
+          $issues = @()
+          
+          foreach ($script in $scripts) {
+            Write-Host "Analyzing $($script.Name)..."
+            $results = Invoke-ScriptAnalyzer -Path $script.FullName -Severity Error,Warning
+            
+            if ($results) {
+              $issues += $results
+              foreach ($result in $results) {
+                Write-Host "  [$($result.Severity)] $($result.RuleName): $($result.Message)" -ForegroundColor Yellow
+              }
+            } else {
+              Write-Host "  No issues found" -ForegroundColor Green
+            }
+          }
+          
+          if ($issues.Count -gt 0) {
+            Write-Warning "Found $($issues.Count) issues. Review output above."
+            # Don't fail the build on warnings, only errors
+            $errors = $issues | Where-Object { $_.Severity -eq 'Error' }
+            if ($errors.Count -gt 0) {
+              Write-Error "Found $($errors.Count) errors!"
+              exit 1
+            }
+          }
+          
+          Write-Host "Linting completed successfully!"
