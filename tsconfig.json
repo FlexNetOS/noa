@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "exclude": [
+    ".cursor-server",
+    ".cursor-server/**/*",
+    "node_modules"
+  ]
+}

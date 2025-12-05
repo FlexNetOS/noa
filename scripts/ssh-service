@@ -1,0 +1,33 @@
+#!/bin/bash
+# NOA SSH Service Manager
+
+NOA_ROOT="${HOME}"
+SSHD_BIN="/usr/sbin/sshd"
+SSHD_CONFIG="$NOA_ROOT/etc/ssh/sshd_config"
+
+case "$1" in
+  start)
+    echo "Starting NOA SSH server..."
+    $SSHD_BIN -f $SSHD_CONFIG -D &
+    echo $! > $NOA_ROOT/init/run/sshd.pid
+    ;;
+  stop)
+    if [ -f $NOA_ROOT/init/run/sshd.pid ]; then
+      pid=$(cat $NOA_ROOT/init/run/sshd.pid)
+      kill $pid 2>/dev/null
+      rm -f $NOA_ROOT/init/run/sshd.pid
+    fi
+    ;;
+  status)
+    if [ -f $NOA_ROOT/init/run/sshd.pid ]; then
+      pid=$(cat $NOA_ROOT/init/run/sshd.pid)
+      kill -0 $pid 2>/dev/null && echo "SSH running (PID $pid)" || echo "SSH stopped"
+    else
+      echo "SSH stopped"
+    fi
+    ;;
+  *)
+    echo "Usage: ssh-service {start|stop|status}"
+    exit 1
+    ;;
+esac

@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "parallelProcessing": {
+    "enabled": true,
+    "maxConcurrentTasks": 10
+  },
+  "deviceTypes": {
+    "pc": {
+      "role": "primary-compute",
+      "capabilities": [
+        "compute",
+        "storage",
+        "gpu"
+      ],
+      "priority": 1
+    },
+    "mobile": {
+      "role": "input-output",
+      "capabilities": [
+        "camera",
+        "sensors",
+        "storage",
+        "display"
+      ],
+      "priority": 2
+    },
+    "mr-glasses": {
+      "role": "interface",
+      "capabilities": [
+        "display",
+        "sensors",
+        "spatial-tracking"
+      ],
+      "priority": 3
+    },
+    "laptop": {
+      "role": "secondary-compute",
+      "capabilities": [
+        "compute",
+        "storage"
+      ],
+      "priority": 2
+    }
+  },
+  "taskDistribution": {
+    "compute": [
+      "pc",
+      "laptop"
+    ],
+    "storage": [
+      "pc",
+      "mobile",
+      "laptop"
+    ],
+    "input": [
+      "mobile",
+      "mr-glasses"
+    ],
+    "output": [
+      "mobile",
+      "mr-glasses"
+    ]
+  },
+  "orchestration": {
+    "path": "${NOA_ROOT}/ai/orchestration",
+    "scheduling": "parallel",
+    "loadBalancing": true
+  }
+}

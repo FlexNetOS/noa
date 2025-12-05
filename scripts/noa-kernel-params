@@ -1,0 +1,47 @@
+#!/bin/bash
+# NOA Kernel Parameter Management
+# Sets kernel parameters for P2P and networking
+
+NOA_ROOT="${HOME}"
+NOA_KERNEL="$NOA_ROOT/sys/kernel"
+PARAMS_FILE="$NOA_KERNEL/params/current"
+
+case "$1" in
+  set)
+    param=$2
+    value=$3
+    if [ -z "$param" ] || [ -z "$value" ]; then
+      echo "Usage: noa-kernel-params set <param> <value>"
+      exit 1
+    fi
+
+    # Set kernel parameter (requires appropriate permissions)
+    if sysctl -w "$param=$value" >/dev/null 2>&1; then
+      echo "Set $param = $value"
+      echo "$param=$value" >> "$PARAMS_FILE"
+    else
+      echo "Failed to set parameter (may require root)"
+    fi
+    ;;
+  get)
+    param=$2
+    if [ -z "$param" ]; then
+      echo "Usage: noa-kernel-params get <param>"
+      exit 1
+    fi
+
+    sysctl "$param" 2>/dev/null || echo "Parameter not found"
+    ;;
+  list)
+    echo "NOA kernel parameters:"
+    if [ -f "$PARAMS_FILE" ]; then
+      cat "$PARAMS_FILE"
+    else
+      echo "No parameters set"
+    fi
+    ;;
+  *)
+    echo "Usage: noa-kernel-params {set|get|list} [param] [value]"
+    exit 1
+    ;;
+esac
