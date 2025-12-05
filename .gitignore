@@ -12,6 +12,9 @@ __pycache__/
 # Local tool installations (should not be committed)
 opt/nodejs/
 
+# Large local directories (llama.cpp, etc.)
+opt/llama.cpp/
+
 # Build outputs
 dist/
 build/
