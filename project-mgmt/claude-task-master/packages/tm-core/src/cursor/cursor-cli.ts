@@ -360,11 +360,15 @@ export class CursorCli {
 
   /**
    * Resume a previous chat session
+   * @param chatId - Optional chat ID to resume. If provided, uses --resume=chatId flag.
+   *                 If not provided, uses the 'resume' command to resume last session.
    */
   public async resumeChat(chatId?: string): Promise<CursorCliResult> {
     if (chatId) {
-      return this.execute([CursorCommand.RESUME, `--resume=${chatId}`]);
+      // Use the --resume flag with the chat ID (global option)
+      return this.execute([`${CursorCommand.RESUME}=${chatId}`]);
     }
+    // Use the 'resume' command to resume the last session
     return this.execute([CursorCommand.RESUME_CMD]);
   }
 
