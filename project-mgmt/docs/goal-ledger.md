@@ -23,19 +23,18 @@ This ledger provides:
 | G-ENV-002 | Environment parity | Environment | High | Active | [env-goals.md](01-goals/env-goals.md) | DevOps |
 | G-ENV-003 | Type-safe configuration | Environment | High | Active | [env-goals.md](01-goals/env-goals.md) | Dev Lead |
 | G-ENV-004 | Zero-downtime rotation | Environment | Medium | Active | [env-goals.md](01-goals/env-goals.md) | DevOps |
-| {G-XXX-NNN} | {Goal name} | {Topic} | {Priority} | {Status} | [{topic}-goals.md](01-goals/{topic}-goals.md) | {Owner} |
 
 ### Achieved Goals
 
 | ID | Goal | Topic | Achieved Date | Document | Evidence |
 |----|------|-------|---------------|----------|----------|
-| {G-XXX-NNN} | {Goal name} | {Topic} | {YYYY-MM-DD} | [{topic}-goals.md](01-goals/{topic}-goals.md) | {Link to proof} |
+| *(none yet)* | — | — | — | — | — |
 
 ### Deprecated Goals
 
 | ID | Goal | Topic | Deprecated Date | Reason | Superseded By |
 |----|------|-------|-----------------|--------|---------------|
-| {G-XXX-NNN} | {Goal name} | {Topic} | {YYYY-MM-DD} | {Why deprecated} | {New goal ID or N/A} |
+| *(none yet)* | — | — | — | — | — |
 
 ---
 
@@ -87,7 +86,6 @@ Examples:
 | Topic | Goal Count | Document | Policy | Rules |
 |-------|------------|----------|--------|-------|
 | Environment | 4 | [env-goals.md](01-goals/env-goals.md) | [env-policy.md](02-policy/env-policy.md) | [env-rule.md](03-rules/env-rule.md) |
-| {Topic} | {N} | [{topic}-goals.md](01-goals/{topic}-goals.md) | [{topic}-policy.md](02-policy/{topic}-policy.md) | [{topic}-rule.md](03-rules/{topic}-rule.md) |
 
 ### By Priority
 
@@ -116,7 +114,6 @@ Examples:
 |------|------------|-----------------|
 | G-ENV-003 | G-ENV-001 | Prerequisite |
 | G-ENV-004 | G-ENV-002 | Prerequisite |
-| {Goal ID} | {Goal ID(s)} | {Prerequisite/Parallel/Sequential} |
 
 ---
 
@@ -158,12 +155,12 @@ When creating a new goals document:
 ## LEDGER SUMMARY
 
 ```
-TOTAL GOALS: {N}
-ACTIVE: {N}
-ACHIEVED: {N}
-DEPRECATED: {N}
-BLOCKED: {N}
+TOTAL GOALS: 4
+ACTIVE: 4
+ACHIEVED: 0
+DEPRECATED: 0
+BLOCKED: 0
 
-LAST UPDATED: {YYYY-MM-DD}
-MAINTAINER: {Role/Name}
+LAST UPDATED: 2025-12-05
+MAINTAINER: Project Lead
 ```
