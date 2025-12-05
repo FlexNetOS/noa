@@ -7,7 +7,89 @@ Autonomous Progressive Dynamic Adaptation Evolution System (Peer-to-Peer) (Decen
 
 INSPIRATION: GOD's Creation - the universe design. BIOLOGICAL-INSPIRED "STEM CELL"AUTONOMOUS COMPUTING INTEGRATED WITH CAPSULE NETWORKS & CELL-BASED ARCHITECTURE
 
-Core Principles
+## Quick Start (Windows)
+
+Get NOA set up on Windows in minutes with our automated setup script.
+
+### Prerequisites
+
+- **PowerShell 7.4+** ([Download](https://aka.ms/powershell))
+- **Git** (installed automatically with `-InstallPrereqs`, or [download manually](https://git-scm.com/download/win))
+- **winget** (App Installer from Microsoft Store - for automated prerequisite installation)
+
+### One-Command Setup
+
+Open PowerShell as Administrator and run:
+
+```powershell
+# Clone the repository (if not already done)
+git clone https://github.com/FlexNetOS/noa.git
+cd noa
+
+# Run the setup script
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\scripts\setup\setup-noa.ps1 -InstallPrereqs -IntegrateProfile
+```
+
+This will:
+- ✅ Install prerequisites (Git, etc.) if missing
+- ✅ Create the complete NOA directory structure at `N:\noa`
+- ✅ Generate environment configuration and profile
+- ✅ Integrate NOA into your PowerShell profile for automatic loading
+
+### Custom Installation Location
+
+To install NOA at a different location:
+
+```powershell
+.\scripts\setup\setup-noa.ps1 -NoaRoot "C:\MyNOA" -IntegrateProfile
+```
+
+### CI/Testing Setup
+
+For automated testing or CI environments:
+
+```powershell
+.\scripts\setup\setup-noa.ps1 -NoaRoot "$env:TEMP\noa" -InstallPrereqs:$false -IntegrateProfile:$false
+```
+
+### Manual Profile Loading
+
+If you chose not to integrate with your PowerShell profile, load NOA manually:
+
+```powershell
+. N:\noa\noa-profile.ps1
+```
+
+### Available Commands After Setup
+
+Once the NOA profile is loaded, use these navigation shortcuts:
+
+- `cda` - Navigate to NOA root
+- `cdr` - Navigate to repos directory
+- `cdc` - Navigate to containers directory
+- `cdw` - Navigate to workspace directory
+- `cds` - Navigate to scripts directory
+- `cdl` - Navigate to logs directory
+
+### Troubleshooting
+
+**Execution Policy Error:**
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+```
+
+**Non-Admin Installation:**
+Run without `-InstallPrereqs` and install Git manually, or run as Administrator.
+
+**Custom Drive/Path Issues:**
+Ensure the path exists and you have write permissions. Use absolute paths (e.g., `C:\noa` or `\\server\share\noa`).
+
+**For detailed documentation, see [docs/setup/windows.md](docs/setup/windows.md)**
+
+---
+
+## Core Principles
 
 • Self-contained & Autonomous: Operates with complete independence with no dependentcies or environment connection the host or outside the '$user' directory.
 • User dynamic compute, storage, & cloud: Users use P2P connections for shared compute and storage within user hardware (e.g. pc, laptop, mobile, xr glasses, and so on) to create a user owned type cloud. Your data, models, and operations stay on your hardware, under your control.
