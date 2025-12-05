@@ -215,7 +215,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
-    "glob": "^11.1.0",
+    "glob": "^13.0.0",
     "husky": "^9.1.7",
     "ical.js": "^2.1.0",
     "idb": "^8.0.3",
