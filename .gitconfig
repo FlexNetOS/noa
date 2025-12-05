@@ -1,0 +1,10 @@
+[init]
+	defaultBranch = main
+	templateDir = /home/noa/git/hooks/templates
+[pull]
+	rebase = false
+[core]
+	autocrlf = input
+[user]
+	name = FlexNetOS
+	email = FlexNetOS@de-flex.net

@@ -1,0 +1,52 @@
+#!/bin/bash
+# NOA Library Bundling System
+# Copies all required libraries for a binary to $NOA_ROOT/lib
+
+NOA_ROOT="${HOME}"
+NOA_LIB="$NOA_ROOT/lib"
+TARGET_BIN="$1"
+
+if [ -z "$TARGET_BIN" ]; then
+  echo "Usage: bundle-libraries <binary-path>"
+  exit 1
+fi
+
+if [ ! -f "$TARGET_BIN" ]; then
+  echo "Error: Binary not found: $TARGET_BIN"
+  exit 1
+fi
+
+echo "Bundling libraries for: $TARGET_BIN"
+
+# Get all library dependencies
+ldd "$TARGET_BIN" 2>/dev/null | grep -v "not a dynamic executable" | while read line; do
+  # Extract library path
+  lib=$(echo $line | awk '{print $3}' | grep -v "^(")
+
+  if [ -n "$lib" ] && [ -f "$lib" ]; then
+    # Get library name
+    libname=$(basename $lib)
+
+    # Copy to NOA lib directory
+    mkdir -p $NOA_LIB
+    cp "$lib" "$NOA_LIB/$libname"
+
+    # Copy versioned symlinks if they exist
+    if [ -L "$lib" ]; then
+      reallib=$(readlink -f "$lib")
+      cp "$reallib" "$NOA_LIB/$(basename $reallib)" 2>/dev/null || true
+    fi
+
+    echo "  Bundled: $libname"
+  fi
+done
+
+# Also bundle libc and libdl (critical system libraries)
+for syslib in /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libdl.so.2; do
+  if [ -f "$syslib" ]; then
+    libname=$(basename $syslib)
+    cp "$syslib" "$NOA_LIB/$libname" 2>/dev/null || true
+  fi
+done
+
+echo "Library bundling complete"

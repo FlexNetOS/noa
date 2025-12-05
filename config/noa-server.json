@@ -1,0 +1,38 @@
+{
+  "name": "noa-node",
+  "version": "1.0.0",
+  "p2p": {
+    "port": 8080,
+    "network": "noa-network",
+    "discovery": {
+      "enabled": true,
+      "bootstrap": []
+    }
+  },
+  "storage": {
+    "path": "${NOA_ROOT}/p2p/storage",
+    "maxSize": "2TB",
+    "replication": 3
+  },
+  "compute": {
+    "enabled": true,
+    "maxWorkers": 8,
+    "resourceSharing": true
+  },
+  "network": {
+    "interface": "eth0",
+    "firewall": {
+      "enabled": true,
+      "rules": []
+    }
+  },
+  "ai": {
+    "multiProvider": true,
+    "configPath": "${NOA_ROOT}/config/ai-providers.json",
+    "deviceOrchestration": "${NOA_ROOT}/config/device-orchestration.json"
+  },
+  "logging": {
+    "level": "info",
+    "path": "${NOA_ROOT}/logs"
+  }
+}

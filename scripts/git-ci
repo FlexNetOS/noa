@@ -1,0 +1,28 @@
+#!/bin/bash
+# NOA Local Git CI/CD Tool
+
+NOA_GIT="$NOA_ROOT/git"
+CI_CONFIG="$NOA_ROOT/config/git-local-cicd.json"
+
+case "$1" in
+  run)
+    echo "Running local CI/CD pipeline: $2"
+    # TODO: Implement local CI/CD execution
+    ;;
+  status)
+    echo "CI/CD Pipeline Status:"
+    # TODO: Implement status check
+    ;;
+  logs)
+    echo "CI/CD Logs:"
+    ls -la $NOA_GIT/ci-cd/logs/ 2>/dev/null || echo "No logs"
+    ;;
+  artifacts)
+    echo "CI/CD Artifacts:"
+    ls -la $NOA_GIT/ci-cd/artifacts/ 2>/dev/null || echo "No artifacts"
+    ;;
+  *)
+    echo "Usage: git-ci {run|status|logs|artifacts} [args]"
+    exit 1
+    ;;
+esac
