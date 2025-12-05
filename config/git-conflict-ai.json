@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "enabled": true,
+  "provider": "local-first",
+  "strategies": {
+    "autoMerge": {
+      "enabled": true,
+      "confidence": 0.9
+    },
+    "aiSuggestion": {
+      "enabled": true,
+      "provider": "local",
+      "fallback": "cloud"
+    },
+    "mlops": {
+      "enabled": true,
+      "model": "conflict-resolution",
+      "training": true
+    }
+  },
+  "resolution": {
+    "path": "${NOA_ROOT}/git/conflicts/ai-resolved",
+    "backup": true,
+    "review": false
+  }
+}

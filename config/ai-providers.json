@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "providerPriority": [
+    "local",
+    "hybrid",
+    "cloud"
+  ],
+  "providers": {
+    "local": {
+      "enabled": true,
+      "priority": 1,
+      "types": [
+        "llama.cpp",
+        "ollama",
+        "local-llm"
+      ],
+      "configPath": "${NOA_ROOT}/ai/providers/local"
+    },
+    "cloud": {
+      "enabled": true,
+      "priority": 3,
+      "types": [
+        "openai",
+        "anthropic",
+        "google",
+        "mistral"
+      ],
+      "configPath": "${NOA_ROOT}/ai/providers/cloud"
+    },
+    "hybrid": {
+      "enabled": true,
+      "priority": 2,
+      "types": [
+        "local-first-with-cloud-fallback"
+      ],
+      "configPath": "${NOA_ROOT}/ai/providers/hybrid"
+    }
+  },
+  "sharedResources": {
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "workflows": "${NOA_ROOT}/ai/shared/workflows",
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "skills": "${NOA_ROOT}/ai/shared/skills",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "models": "${NOA_ROOT}/ai/shared/models"
+  },
+  "providerSwitching": {
+    "enabled": true,
+    "preserveConfigs": true,
+    "migrateState": true
+  }
+}

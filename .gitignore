@@ -2,6 +2,16 @@
 node_modules/
 **/node_modules/
 
+# Python virtual environments
+opt/venv/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local tool installations (should not be committed)
+opt/nodejs/
+
 # Build outputs
 dist/
 build/
@@ -36,6 +46,12 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # Generated files (will be created by setup script)
 noa-profile.ps1

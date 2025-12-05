@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "mode": "local-first",
+  "goals": {
+    "localGit": true,
+    "localPRs": true,
+    "localMerges": true,
+    "localConflictResolution": true,
+    "aiConflictResolution": true,
+    "localCICD": true,
+    "githubSync": "push-only"
+  },
+  "conflictResolution": {
+    "enabled": true,
+    "aiEnabled": true,
+    "mlopsEnabled": true,
+    "autoResolve": true,
+    "strategy": "ai-assisted",
+    "path": "${NOA_ROOT}/git/conflicts"
+  },
+  "pullRequests": {
+    "local": true,
+    "path": "${NOA_ROOT}/git/prs",
+    "workflow": {
+      "create": "local",
+      "review": "local",
+      "merge": "local",
+      "sync": "github-on-demand"
+    }
+  },
+  "merges": {
+    "local": true,
+    "path": "${NOA_ROOT}/git/merges",
+    "conflictResolution": "ai-assisted"
+  },
+  "ci-cd": {
+    "local": true,
+    "path": "${NOA_ROOT}/git/ci-cd",
+    "pipelines": {
+      "enabled": true,
+      "parallel": true,
+      "artifacts": true
+    }
+  },
+  "mirrors": {
+    "github": {
+      "enabled": true,
+      "mode": "push-only",
+      "path": "${HOME}/git/mirrors/github"
+    },
+    "local": {
+      "enabled": true,
+      "path": "${NOA_ROOT}/git/mirrors/local"
+    }
+  },
+  "github": {
+    "sync": {
+      "enabled": true,
+      "mode": "push-pr-only",
+      "untilLocalCICDReady": true
+    }
+  }
+}

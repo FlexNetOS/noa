@@ -1,0 +1,354 @@
+/* Shared Components Styles */
+
+/* ===== Members Manager ===== */
+
+/* Loading State */
+.members-manager-loading-card {
+  @apply rounded-[var(--card-radius)] border-none;
+}
+
+.members-manager-loading-container {
+  @apply p-6;
+}
+
+.members-manager-loading-title {
+  @apply h-6 bg-gray-200 rounded w-1/3 mb-6 animate-pulse;
+}
+
+.members-manager-loading-title-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-loading-list {
+  @apply space-y-4;
+}
+
+.members-manager-loading-item {
+  @apply flex items-center space-x-3 animate-pulse;
+}
+
+.members-manager-loading-avatar {
+  @apply h-10 w-10 bg-gray-200 rounded-full;
+}
+
+.members-manager-loading-avatar-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-loading-content {
+  @apply flex-1 space-y-2;
+}
+
+.members-manager-loading-name {
+  @apply h-4 bg-gray-200 rounded w-1/2;
+}
+
+.members-manager-loading-name-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-loading-email {
+  @apply h-3 bg-gray-200 rounded w-2/3;
+}
+
+.members-manager-loading-email-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-loading-role {
+  @apply h-6 w-16 bg-gray-200 rounded;
+}
+
+.members-manager-loading-role-dark {
+  @apply dark:bg-gray-700;
+}
+
+/* Main Card */
+.members-manager-card {
+  @apply bg-[var(--card)] rounded-[var(--card-radius)] border-none;
+}
+
+/* Header */
+.members-manager-header {
+  @apply pb-2;
+}
+
+.members-manager-header-content {
+  @apply flex items-center justify-between;
+}
+
+.members-manager-header-info {
+  /* No specific styles - just a container */
+}
+
+.members-manager-title {
+  @apply text-sm font-semibold text-[var(--foreground)] flex items-center gap-2;
+}
+
+.members-manager-title-icon {
+  @apply w-5 h-5 text-[var(--gray-500)];
+}
+
+.members-manager-actions {
+  @apply flex items-center gap-2;
+}
+
+/* Action Buttons */
+.members-manager-invite-button {
+  @apply h-9 w-20 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] flex items-center justify-center whitespace-nowrap cursor-pointer transition-all duration-200;
+}
+
+.members-manager-add-button {
+  @apply h-9 w-32 border-none bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 hover:shadow-md transition-all duration-200 font-medium rounded-lg flex items-center justify-center gap-2 text-sm;
+}
+
+.members-manager-add-button-icon {
+  @apply w-4 h-4;
+}
+
+/* Modals */
+.members-manager-modal {
+  @apply border-none bg-[var(--card)] rounded-[var(--card-radius)] shadow-lg;
+}
+
+.members-manager-modal-large {
+  @apply max-w-lg;
+}
+
+.members-manager-modal-title {
+  @apply text-[var(--foreground)];
+}
+
+.members-manager-modal-content {
+  @apply space-y-4 py-4;
+}
+
+.members-manager-modal-field {
+  @apply space-y-2;
+}
+
+.members-manager-modal-label {
+  @apply text-[var(--foreground)];
+}
+
+.members-manager-modal-input {
+  @apply border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)];
+}
+
+.members-manager-modal-select {
+  @apply h-9 border-none bg-[var(--primary)]/5 text-[var(--foreground)];
+}
+
+.members-manager-modal-select-content {
+  @apply border-none bg-[var(--card)];
+}
+
+/* Invite Modal Message */
+.members-manager-invite-message {
+  @apply p-3 rounded-lg text-sm;
+}
+
+.members-manager-invite-message-success {
+  @apply bg-green-50 text-green-700 border border-green-200;
+}
+
+.members-manager-invite-message-error {
+  @apply bg-red-50 text-red-700 border border-red-200;
+}
+
+/* Modal Actions */
+.members-manager-modal-actions {
+  @apply flex justify-end gap-3;
+}
+
+.members-manager-modal-cancel {
+  @apply h-9 w-20 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] transition-all duration-200;
+}
+
+.members-manager-modal-submit {
+  @apply h-9 w-28 border-none bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 hover:shadow-md transition-all duration-200 font-medium rounded-lg;
+}
+
+/* Loading Members List */
+.members-manager-modal-loading-list {
+  @apply space-y-3;
+}
+
+.members-manager-modal-loading-item {
+  @apply flex items-center space-x-3 p-3 border border-[var(--gray-200)] rounded-lg animate-pulse;
+}
+
+.members-manager-modal-loading-item-dark {
+  @apply dark:border-[var(--gray-700)];
+}
+
+.members-manager-modal-loading-item-avatar {
+  @apply h-8 w-8 bg-gray-200 rounded-full;
+}
+
+.members-manager-modal-loading-item-avatar-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-modal-loading-item-content {
+  @apply flex-1 space-y-2;
+}
+
+.members-manager-modal-loading-item-name {
+  @apply h-3 bg-gray-200 rounded w-3/4;
+}
+
+.members-manager-modal-loading-item-name-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-modal-loading-item-email {
+  @apply h-3 bg-gray-200 rounded w-1/2;
+}
+
+.members-manager-modal-loading-item-email-dark {
+  @apply dark:bg-gray-700;
+}
+
+.members-manager-modal-loading-item-button {
+  @apply h-6 w-12 bg-gray-200 rounded;
+}
+
+.members-manager-modal-loading-item-button-dark {
+  @apply dark:bg-gray-700;
+}
+
+/* Available Members List */
+.members-manager-available-list {
+  @apply max-h-64 overflow-y-auto space-y-2;
+}
+
+.members-manager-available-item {
+  @apply flex items-center justify-between p-3 border border-[var(--gray-200)] rounded-lg bg-[var(--gray-50)] hover:bg-[var(--primary)]/5 transition-colors;
+}
+
+.members-manager-available-item-dark {
+  @apply dark:border-[var(--gray-700)] dark:bg-[var(--gray-900)];
+}
+
+.members-manager-available-item-info {
+  @apply flex items-center space-x-3;
+}
+
+.members-manager-available-item-details {
+  /* No specific styles - just a container */
+}
+
+.members-manager-available-item-name {
+  @apply text-sm font-medium text-[var(--accent-foreground)];
+}
+
+.members-manager-available-item-email {
+  @apply text-xs text-[var(--gray-500)];
+}
+
+.members-manager-available-item-button {
+  @apply h-9 w-16 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] flex items-center justify-center whitespace-nowrap transition-all duration-200;
+}
+
+/* Empty State */
+.members-manager-empty-available {
+  @apply text-center py-8 px-4;
+}
+
+.members-manager-empty-available-title {
+  @apply text-sm text-[var(--gray-500)] font-medium;
+}
+
+.members-manager-empty-available-subtitle {
+  @apply text-xs text-[var(--gray-500)] mt-1;
+}
+
+/* Error Display */
+.members-manager-error {
+  @apply mx-6 mb-4 p-3 bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 rounded-lg;
+}
+
+.members-manager-error-text {
+  @apply text-sm text-[var(--destructive)];
+}
+
+/* Members List */
+.members-manager-content {
+  @apply pt-0;
+}
+
+.members-manager-list {
+  @apply space-y-3;
+}
+
+/* Empty State for Members */
+.members-manager-empty {
+  @apply text-center py-8 flex flex-col items-center justify-center;
+}
+
+.members-manager-empty-icon {
+  @apply w-12 h-12 mx-auto text-[var(--gray-400)] mb-3;
+}
+
+.members-manager-empty-title {
+  @apply text-sm font-medium text-[var(--accent-foreground)];
+}
+
+.members-manager-empty-subtitle {
+  @apply text-xs text-[var(--gray-500)] mt-1;
+}
+
+/* Member Item */
+.members-manager-member-item {
+  @apply flex items-center justify-between py-2 rounded-lg transition-colors;
+}
+
+.members-manager-member-info {
+  @apply flex items-center space-x-3;
+}
+
+.members-manager-member-details {
+  /* No specific styles - just a container */
+}
+
+.members-manager-member-name {
+  @apply text-sm font-medium text-[var(--accent-foreground)];
+}
+
+.members-manager-member-email {
+  @apply text-xs text-[var(--gray-500)];
+}
+
+.members-manager-member-actions {
+  @apply flex items-center gap-2;
+}
+
+/* Role Dropdown */
+.members-manager-role-button {
+  @apply cursor-pointer h-9 w-24 border-none bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--foreground)] flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 text-xs;
+}
+
+.members-manager-role-dropdown {
+  @apply text-xs z-50 border-none bg-[var(--card)] rounded-[var(--card-radius)] shadow-lg;
+}
+
+.members-manager-role-dropdown-item {
+  @apply text-[var(--foreground)] hover:bg-[var(--primary)]/10 text-xs;
+}
+
+.members-manager-role-dropdown-item-content {
+  @apply flex items-center justify-between w-full;
+}
+
+.members-manager-role-dropdown-check {
+  @apply w-4 h-4 text-[var(--primary)];
+}
+
+.members-manager-role-dropdown-remove {
+  @apply text-[var(--destructive)] hover:bg-[var(--destructive)]/10 bg-[var(--primary)]/5 text-xs;
+}
+
+.members-manager-role-dropdown-remove-icon {
+  @apply size-3;
+}

@@ -1,0 +1,97 @@
+/* Badge Components Styles */
+
+/* PriorityBadge Styles */
+.prioritybadge-base {
+  @apply inline-flex items-center px-2 py-0.5 text-sm font-medium rounded-full text-white;
+}
+
+.prioritybadge-low {
+  @apply bg-green-500 text-white dark:bg-green-400 dark:text-gray-900;
+}
+
+.prioritybadge-medium {
+  @apply bg-yellow-500 text-white dark:bg-yellow-400 dark:text-gray-900;
+}
+
+.prioritybadge-high {
+  @apply bg-orange-500 text-white dark:bg-orange-400 dark:text-gray-900;
+}
+
+.prioritybadge-highest {
+  @apply bg-red-600 text-white dark:bg-red-500 dark:text-gray-900;
+}
+
+/* StatusBadge Styles */
+.statusbadge-base {
+  @apply inline-flex items-center px-2 py-1 text-[13px] font-medium rounded-full border border-transparent w-24;
+}
+
+.statusbadge-todo {
+  @apply bg-gray-700 text-white dark:bg-gray-700 dark:text-gray-900;
+}
+
+.statusbadge-inprogress {
+  @apply bg-blue-600 text-white dark:bg-blue-400 dark:text-gray-900;
+}
+
+.statusbadge-inreview {
+  @apply bg-purple-600 text-white dark:bg-purple-400 dark:text-gray-900;
+}
+
+.statusbadge-done {
+  @apply bg-green-600 text-white dark:bg-green-400 dark:text-gray-900;
+}
+
+.statusbadge-cancelled {
+  @apply bg-red-600 text-white dark:bg-red-500 dark:text-gray-900;
+}
+
+/* TagBadge Styles */
+.tagbadge-base {
+  @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+}
+
+.tagbadge-colored {
+  @apply text-white;
+}
+
+.tagbadge-default {
+  @apply bg-[var(--secondary)] text-[var(--secondary-foreground)];
+}
+
+.tagbadge-removable {
+  @apply bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent)]/80 transition-colors gap-1;
+}
+
+.tagbadge-remove-btn {
+  @apply hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer;
+}
+
+.tagbadge-text {
+  @apply truncate max-w-24;
+}
+
+/* DynamicBadge Styles */
+.dynamicbadge-base {
+  @apply inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 transition-colors overflow-hidden;
+}
+
+.dynamicbadge-primary {
+  @apply border-transparent bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/80;
+}
+
+.dynamicbadge-secondary {
+  @apply border-transparent bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80;
+}
+
+.dynamicbadge-destructive {
+  @apply border-transparent bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/80;
+}
+
+.dynamicbadge-outline {
+  @apply text-[var(--foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)];
+}
+
+.dynamicbadge-icon {
+  @apply w-3 h-3;
+}

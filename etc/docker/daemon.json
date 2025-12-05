@@ -1,0 +1,9 @@
+{
+  "data-root": "${NOA_ROOT}/containers/docker-data",
+  "exec-root": "${NOA_ROOT}/containers/docker-exec",
+  "pidfile": "${NOA_ROOT}/containers/docker.pid",
+  "hosts": [
+    "unix://${NOA_ROOT}/containers/docker.sock"
+  ],
+  "containerd": "${NOA_ROOT}/containers/containerd.sock"
+}

@@ -1,0 +1,6 @@
+root = "${NOA_ROOT}/containers/containerd"
+state = "${NOA_ROOT}/containers/containerd-state"
+[grpc]
+  address = "${NOA_ROOT}/containers/containerd.sock"
+[plugins."io.containerd.grpc.v1.cri"]
+  sandbox_image = "registry.k8s.io/pause:3.9"

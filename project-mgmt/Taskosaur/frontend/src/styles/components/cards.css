@@ -1,0 +1,103 @@
+/* Card Components Styles */
+
+/* TaskCard Styles */
+/* TaskCard wrapper should use 'group' class directly in JSX */
+
+.taskcard-header {
+  @apply pb-0;
+}
+
+.taskcard-header-content {
+  @apply flex items-start justify-between;
+}
+
+.taskcard-main-content {
+  @apply flex-1;
+}
+
+.taskcard-title {
+  @apply text-xs font-medium text-stone-900 dark:text-stone-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors mb-2 line-clamp-2;
+}
+
+.taskcard-due-date {
+  @apply mt-2 flex items-center text-xs text-stone-600 dark:text-stone-400;
+}
+
+.taskcard-due-icon {
+  @apply mr-1;
+}
+
+/* QuickActionCard Styles */
+.quickactioncard-container {
+  @apply hover:shadow-md transition-all duration-200 hover:scale-[1.02] border-[var(--border)] bg-[var(--card)] rounded-lg p-4 cursor-pointer;
+}
+
+.quickactioncard-content {
+  @apply p-4 text-center;
+}
+
+.quickactioncard-icon {
+  @apply w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/80 flex items-center justify-center mx-auto mb-3 shadow-md shadow-[var(--primary)]/20 group-hover:shadow-[var(--primary)]/30 transition-shadow duration-200;
+}
+
+.quickactioncard-title {
+  @apply text-xs font-medium text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors duration-200 leading-tight;
+}
+
+.quickactioncard-description {
+  @apply text-xs text-[var(--muted-foreground)] mt-1;
+}
+
+/* StatCard Styles */
+.statcard-container {
+  @apply bg-[var(--card)] rounded-lg p-4 shadow-sm border-none;
+}
+
+.statcard-header {
+  @apply flex items-center justify-between mb-2;
+}
+
+.statcard-title {
+  @apply text-sm font-medium text-[var(--muted-foreground)];
+}
+
+.statcard-icon {
+  @apply w-4 h-4 text-[var(--muted-foreground)];
+}
+
+.statcard-value {
+  @apply text-2xl font-bold text-[var(--foreground)];
+}
+
+.statcard-change {
+  @apply text-xs text-[var(--muted-foreground)] mt-1;
+}
+
+/* EntityCard Styles */
+.entitycard-container {
+  @apply bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 hover:bg-[var(--accent)] transition-colors cursor-pointer;
+}
+
+.entitycard-header {
+  @apply flex items-center gap-3 mb-3;
+}
+
+.entitycard-avatar {
+  @apply w-8 h-8 bg-[var(--primary)] rounded-full flex items-center justify-center text-[var(--primary-foreground)] font-semibold text-sm;
+}
+
+.entitycard-info {
+  @apply flex-1 min-w-0;
+}
+
+.entitycard-title {
+  @apply font-medium text-sm text-[var(--foreground)] truncate;
+}
+
+.entitycard-subtitle {
+  @apply text-xs text-[var(--muted-foreground)] truncate;
+}
+
+.entitycard-meta {
+  @apply text-xs text-[var(--muted-foreground)];
+}

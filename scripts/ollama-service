@@ -1,0 +1,25 @@
+#!/bin/bash
+# NOA Ollama Service Manager
+
+NOA_ROOT="${HOME}"
+OLLAMA_BIN="$NOA_ROOT/bin/ollama"
+
+case "$1" in
+  start)
+    echo "Starting Ollama (contained in $NOA_ROOT)..."
+    export OLLAMA_MODELS="$NOA_ROOT/ai/shared/models/ollama"
+    export OLLAMA_HOST="127.0.0.1:11434"
+    $OLLAMA_BIN serve &
+    ;;
+  stop)
+    echo "Stopping Ollama..."
+    pkill -f "$OLLAMA_BIN serve"
+    ;;
+  status)
+    curl -s http://localhost:11434/api/tags > /dev/null && echo "Ollama is running" || echo "Ollama is not running"
+    ;;
+  *)
+    echo "Usage: ollama-service {start|stop|status}"
+    exit 1
+    ;;
+esac

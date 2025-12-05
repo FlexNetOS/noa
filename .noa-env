@@ -1,0 +1,84 @@
+# NOA Environment Configuration
+# Auto-detects NOA_ROOT based on where this file is located (drive-agnostic)
+# NOA: P2P server for connecting user devices for dynamically shared compute and storage
+
+# Auto-detect NOA_ROOT from the location of this script
+export NOA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export NOA_REPOS=$NOA_ROOT/repos
+export NOA_CONTAINERS=$NOA_ROOT/containers
+export NOA_WORKSPACE=$NOA_ROOT/workspace
+export NOA_CONFIG=$NOA_ROOT/config
+export NOA_SCRIPTS=$NOA_ROOT/scripts
+export NOA_LOGS=$NOA_ROOT/logs
+export NOA_TMP=$NOA_ROOT/tmp
+export NOA_P2P=$NOA_ROOT/p2p
+export NOA_AI=$NOA_ROOT/ai
+export NOA_AI_SHARED=$NOA_AI/shared
+export NOA_AI_PROVIDERS=$NOA_AI/providers
+export NOA_AI_DEVICES=$NOA_AI/devices
+export NOA_AI_ORCHESTRATION=$NOA_AI/orchestration
+export NOA_GIT=$NOA_ROOT/git
+export NOA_GIT_REPOS=$NOA_GIT/repos
+export NOA_GIT_PRS=$NOA_GIT/prs
+export NOA_GIT_CONFLICTS=$NOA_GIT/conflicts
+export NOA_GIT_CI_CD=$NOA_GIT/ci-cd
+export NOA_GIT_MIRRORS=$NOA_GIT/mirrors
+export NOA_BIN=$NOA_ROOT/bin
+export NOA_ETC=$NOA_ROOT/etc
+export NOA_LIB=$NOA_ROOT/lib
+export NOA_OPT=$NOA_ROOT/opt
+export NOA_SYS=$NOA_ROOT/sys
+export NOA_INIT=$NOA_ROOT/init
+
+# Kernel-level isolation paths
+export NOA_NAMESPACE=$NOA_SYS/namespace
+export NOA_CGROUP=$NOA_SYS/cgroup
+export NOA_KERNEL=$NOA_SYS/kernel
+
+# Add NOA directories to PATH (only if they exist and not already in PATH)
+noa_add_path() {
+  local dir="$1"
+  if [ -d "$dir" ] && [[ ":$PATH:" != *":$dir:"* ]]; then
+    export PATH="$dir:$PATH"
+  fi
+}
+
+# Add NOA directories to LD_LIBRARY_PATH (only if exists and not already added)
+noa_add_lib_path() {
+  local dir="$1"
+  if [ -d "$dir" ] && [ "$(ls -A "$dir" 2>/dev/null)" ] && [[ ":$LD_LIBRARY_PATH:" != *":$dir:"* ]]; then
+    export LD_LIBRARY_PATH="$dir:$LD_LIBRARY_PATH"
+  fi
+}
+
+# Add NOA bin and scripts to PATH (highest priority)
+noa_add_path "$NOA_BIN"
+noa_add_path "$NOA_SCRIPTS"
+
+# Set library path for bundled libraries
+noa_add_lib_path "$NOA_LIB"
+
+# Activate Python virtual environment
+[ -f "$NOA_OPT/venv/bin/activate" ] && source "$NOA_OPT/venv/bin/activate"
+
+# Ensure NOA CLI tool is accessible
+alias noa="$NOA_SCRIPTS/noa" 2>/dev/null || true
+
+# Function to validate paths are within NOA_ROOT
+noa_validate_path() {
+  local path="$1"
+  if [[ "$path" != $NOA_ROOT* ]]; then
+    echo "ERROR: Path must be within NOA_ROOT ($NOA_ROOT): $path" >&2
+    return 1
+  fi
+  return 0
+}
+
+# Alias for safe navigation
+alias cda='cd ${HOME}'
+alias cdr='cd ${HOME}/repos'
+alias cdc='cd ${HOME}/containers'
+alias cdw='cd ${HOME}/workspace'
+alias cdp='cd ${HOME}/p2p'
+alias cdai='cd ${HOME}/ai'
+alias cdgit='cd ${HOME}/git'

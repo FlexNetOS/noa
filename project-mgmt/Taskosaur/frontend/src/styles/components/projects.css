@@ -1,0 +1,344 @@
+/* Projects Components Styles */
+
+/* ===== New Project Modal ===== */
+.projects-modal-container {
+  @apply sm:max-w-lg;
+}
+
+.projects-modal-header {
+  @apply space-y-4 pb-2;
+}
+
+.projects-modal-header-content {
+  @apply flex items-center gap-3;
+}
+
+.projects-modal-icon {
+  @apply flex h-12 w-12 items-center justify-center rounded-xl shadow-lg transition-all duration-300;
+}
+
+.projects-modal-icon-content {
+  @apply h-6 w-6 text-[var(--card)];
+}
+
+.projects-modal-info {
+  /* No specific styles - just a container */
+}
+
+.projects-modal-title {
+  @apply text-xl font-semibold text-[var(--foreground)];
+}
+
+.projects-modal-description {
+  @apply text-sm text-[var(--muted-foreground)] mt-0.5;
+}
+
+.projects-modal-form {
+  @apply space-y-6;
+}
+
+/* Form Fields */
+.projects-form-field {
+  @apply space-y-2;
+}
+
+.projects-form-label {
+  @apply text-sm font-medium flex items-center gap-2;
+}
+
+.projects-form-label-icon {
+  @apply h-4 w-4 transition-colors duration-300;
+}
+
+.projects-form-label-required {
+  @apply text-red-500;
+}
+
+.projects-form-input {
+  @apply border-2 transition-colors duration-300;
+}
+
+.projects-form-textarea {
+  @apply min-h-[80px] border-2 transition-colors duration-300;
+}
+
+/* URL Preview */
+.projects-url-preview {
+  @apply flex items-center gap-2 mt-2 p-3 rounded-lg border transition-all duration-300;
+}
+
+.projects-url-preview-icon {
+  @apply h-4 w-4 transition-colors duration-300;
+}
+
+.projects-url-preview-label {
+  @apply text-xs text-[var(--muted-foreground)];
+}
+
+.projects-url-preview-code {
+  @apply text-xs font-mono bg-white/50 px-2 py-1 rounded border transition-colors duration-300 break-all whitespace-normal;
+}
+
+/* Workspace Selection */
+.projects-workspace-button {
+  @apply w-full justify-between font-normal h-10 border-2 transition-all bg-[var(--primary)]/5 duration-300;
+}
+
+.projects-workspace-loading {
+  @apply text-[var(--muted-foreground)];
+}
+
+.projects-workspace-selected {
+  @apply truncate text-[var(--foreground)];
+}
+
+.projects-workspace-placeholder {
+  @apply text-[var(--muted-foreground)];
+}
+
+.projects-workspace-dropdown-icon {
+  @apply h-4 w-4 opacity-50;
+}
+
+.projects-workspace-popover {
+  @apply w-[var(--radix-popover-trigger-width)] p-0 bg-[var(--popover)] border-[var(--border)] shadow-lg;
+}
+
+.projects-workspace-command {
+  @apply bg-[var(--popover)];
+}
+
+.projects-workspace-command-input {
+  @apply border-b border-[var(--border)];
+}
+
+.projects-workspace-command-empty {
+  @apply py-4 text-center text-sm text-[var(--muted-foreground)];
+}
+
+.projects-workspace-command-group {
+  @apply max-h-48 overflow-auto p-1;
+}
+
+.projects-workspace-command-item {
+  @apply flex items-center gap-2 px-2 py-2 rounded-sm cursor-pointer hover:bg-[var(--accent)] text-[var(--foreground)];
+}
+
+.projects-workspace-command-item-name {
+  @apply flex-1 truncate text-sm;
+}
+
+.projects-workspace-command-item-check {
+  @apply h-4 w-4 text-[var(--primary)];
+}
+
+/* Color Selection */
+.projects-color-container {
+  @apply flex items-center gap-3 p-3 rounded-lg border transition-all duration-300;
+}
+
+.projects-color-picker-wrapper {
+  @apply relative;
+}
+
+.projects-color-picker {
+  @apply w-12 h-10 rounded-lg border-2 cursor-pointer bg-transparent shadow-sm transition-all duration-300;
+}
+
+.projects-color-picker-overlay {
+  @apply absolute inset-1 rounded-md pointer-events-none shadow-inner;
+}
+
+.projects-color-input {
+  @apply flex-1 font-mono text-sm border-2 transition-colors duration-300;
+}
+
+.projects-form-hint {
+  @apply text-xs text-[var(--muted-foreground)] flex items-center gap-1;
+}
+
+.projects-form-hint-icon {
+  @apply h-3 w-3 transition-colors duration-300;
+}
+
+/* Form Actions */
+.projects-form-actions {
+  @apply flex gap-3 pt-6 border-t border-[var(--border)]/50;
+}
+
+.projects-form-cancel-button {
+  @apply flex-1 h-11 border-2 transition-all duration-300;
+}
+
+.projects-form-submit-button {
+  @apply flex-1 h-11 shadow-lg hover:shadow-xl transition-all duration-300 text-white;
+}
+
+.projects-form-submit-loading {
+  @apply animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2;
+}
+
+.projects-form-submit-icon {
+  @apply h-4 w-4 mr-2;
+}
+
+/* ===== Project Kanban View ===== */
+.projects-kanban-grid {
+  @apply grid grid-cols-1 lg:grid-cols-4 gap-4;
+}
+
+.projects-kanban-column {
+  @apply bg-[var(--card)] rounded-[var(--card-radius)] shadow-sm border-none p-4 flex flex-col justify-between;
+}
+
+.projects-kanban-column-header {
+  @apply pb-0;
+}
+
+.projects-kanban-column-header-content {
+  @apply flex justify-between items-center mb-4;
+}
+
+.projects-kanban-column-title {
+  @apply text-sm font-semibold text-[var(--foreground)];
+}
+
+.projects-kanban-column-count {
+  @apply text-xs text-[var(--gray-500)] bg-[var(--gray-100)] px-2 py-1 rounded-full;
+}
+
+.projects-kanban-column-content {
+  /* No specific styles - just a container */
+}
+
+.projects-kanban-tasks {
+  @apply space-y-3;
+}
+
+.projects-kanban-empty {
+  @apply py-8 text-center text-[var(--gray-400)] text-xs;
+}
+
+.projects-kanban-add-task {
+  @apply block w-full text-center text-xs font-medium text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors py-3 border-2 border-dashed border-[var(--border)] rounded-[var(--card-radius)] hover:border-[var(--primary)];
+}
+
+.projects-kanban-add-task-icon {
+  @apply inline mr-1;
+}
+
+/* Task Card */
+.projects-task-card-link {
+  @apply block;
+}
+
+.projects-task-card {
+  @apply bg-[var(--card)] rounded-[var(--card-radius)] shadow-sm border-none p-4 hover:shadow-md hover:border-[var(--primary)] transition-all cursor-pointer;
+}
+
+.projects-task-card-header {
+  @apply pb-0;
+}
+
+.projects-task-card-title {
+  @apply text-xs font-medium text-[var(--foreground)] mb-2 line-clamp-2;
+}
+
+.projects-task-card-content {
+  @apply pt-0;
+}
+
+.projects-task-card-meta {
+  @apply flex justify-between items-center mb-2;
+}
+
+.projects-task-card-due-date {
+  @apply text-xs text-[var(--gray-500)] flex items-center gap-1;
+}
+
+.projects-task-card-due-date-icon {
+  /* Size handled inline */
+}
+
+/* ===== Project Detail Error ===== */
+.projects-error-container {
+  @apply min-h-screen bg-[var(--background)];
+}
+
+.projects-error-wrapper {
+  @apply max-w-7xl mx-auto p-6;
+}
+
+.projects-error-card {
+  @apply border-red-200 bg-red-50;
+}
+
+.projects-error-card-dark {
+  @apply dark:border-red-800 dark:bg-red-900/20;
+}
+
+.projects-error-header {
+  @apply flex items-start gap-3 pb-0;
+}
+
+.projects-error-icon {
+  @apply w-5 h-5 text-red-500 mt-0.5;
+}
+
+.projects-error-content {
+  /* No specific styles - just a container */
+}
+
+.projects-error-title {
+  @apply text-sm font-semibold text-red-700 mb-2;
+}
+
+.projects-error-title-dark {
+  @apply dark:text-red-300;
+}
+
+.projects-error-description {
+  @apply text-sm text-red-600 mb-4;
+}
+
+.projects-error-description-dark {
+  @apply dark:text-red-400;
+}
+
+.projects-error-link {
+  @apply text-sm text-[var(--primary)] hover:underline;
+}
+
+.projects-error-link-dark {
+  @apply dark:text-[var(--primary)];
+}
+
+/* ===== Project Members (uses shared MembersManager) ===== */
+.projects-members-wrapper {
+  /* No specific styles - delegates to shared MembersManager component */
+}
+
+/* ===== Dynamic Color Classes (for theming) ===== */
+.projects-dynamic-primary {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}
+
+.projects-dynamic-primary-20 {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}
+
+.projects-dynamic-primary-10 {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}
+
+.projects-dynamic-primary-5 {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}
+
+.projects-dynamic-primary-80 {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}
+
+.projects-dynamic-primary-90 {
+  /* Uses CSS custom properties set dynamically via style attribute */
+}

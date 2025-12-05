@@ -1,0 +1,18 @@
+---
+pid: 8886
+cwd: /home/noa
+---
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+/bin/bash: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+/bin/bash: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+id: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+/bin/bash: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+uname: error while loading shared libraries: /home/noa/lib/libc.so.6: file too short
+(venv) noa@FlexNetOS-1001:~$

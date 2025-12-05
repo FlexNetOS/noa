@@ -1,0 +1,76 @@
+#!/bin/bash
+# NOA Self-Contained Init System
+# Manages all NOA services independently of systemd
+
+# Auto-detect NOA_ROOT from script location
+NOA_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NOA_INIT="$NOA_ROOT/init"
+NOA_SCRIPTS="$NOA_ROOT/scripts"
+PIDFILE="$NOA_INIT/run/noa-init.pid"
+
+start_service() {
+  local service=$1
+  local script="$NOA_SCRIPTS/${service}-service"
+
+  if [ -f "$script" ]; then
+    echo "Starting $service..."
+    $script start
+    echo $! > "$NOA_INIT/run/${service}.pid"
+  fi
+}
+
+stop_service() {
+  local service=$1
+  local pidfile="$NOA_INIT/run/${service}.pid"
+
+  if [ -f "$pidfile" ]; then
+    local pid=$(cat $pidfile)
+    if kill -0 $pid 2>/dev/null; then
+      echo "Stopping $service..."
+      kill $pid
+      rm -f $pidfile
+    fi
+  fi
+}
+
+case "$1" in
+  start)
+    echo "Starting NOA services..."
+    start_service docker
+    start_service ollama
+    start_service gitea
+    echo $$ > $PIDFILE
+    ;;
+  stop)
+    echo "Stopping NOA services..."
+    stop_service gitea
+    stop_service ollama
+    stop_service docker
+    [ -f $PIDFILE ] && rm -f $PIDFILE
+    ;;
+  restart)
+    $0 stop
+    sleep 2
+    $0 start
+    ;;
+  status)
+    echo "NOA Services Status:"
+    for service in docker ollama gitea; do
+      pidfile="$NOA_INIT/run/${service}.pid"
+      if [ -f "$pidfile" ]; then
+        pid=$(cat $pidfile)
+        if kill -0 $pid 2>/dev/null; then
+          echo "  ${service}: running (PID $pid)"
+        else
+          echo "  ${service}: stopped"
+        fi
+      else
+        echo "  ${service}: stopped"
+      fi
+    done
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac

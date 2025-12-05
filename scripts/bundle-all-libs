@@ -1,0 +1,27 @@
+#!/bin/bash
+# Bundle all libraries for all NOA binaries
+
+NOA_ROOT="${HOME}"
+NOA_BIN="$NOA_ROOT/bin"
+NOA_LIB="$NOA_ROOT/lib"
+NOA_SCRIPTS="$NOA_ROOT/scripts"
+
+echo "Bundling libraries for all NOA binaries..."
+
+# Find all binaries in NOA bin directory
+find $NOA_BIN -type f -executable | while read bin; do
+  if file "$bin" | grep -q "ELF.*executable"; then
+    echo "Processing: $bin"
+    $NOA_SCRIPTS/bundle-libraries "$bin"
+    $NOA_SCRIPTS/patch-binary-libs "$bin" 2>/dev/null || true
+  fi
+done
+
+# Also bundle Python libraries
+if [ -d "$NOA_ROOT/opt/venv" ]; then
+  echo "Bundling Python virtual environment libraries..."
+  find $NOA_ROOT/opt/venv/lib -name "*.so" -exec $NOA_SCRIPTS/bundle-libraries {} \; 2>/dev/null || true
+fi
+
+echo "Library bundling complete. Libraries in: $NOA_LIB"
+echo "Set LD_LIBRARY_PATH=$NOA_LIB:\$LD_LIBRARY_PATH"

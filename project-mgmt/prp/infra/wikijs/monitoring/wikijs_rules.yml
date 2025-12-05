@@ -1,0 +1,177 @@
+# Alerting rules for Wiki.js monitoring
+groups:
+- name: wikijs.rules
+  rules:
+  # Wiki.js application alerts
+  - alert: WikiJSDown
+    expr: up{job="wikijs"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      service: wikijs
+    annotations:
+      summary: "Wiki.js is down"
+      description: "Wiki.js has been down for more than 1 minute on {{ $labels.instance }}"
+
+  - alert: WikiJSHighResponseTime
+    expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+    for: 5m
+    labels:
+      severity: warning
+      service: wikijs
+    annotations:
+      summary: "Wiki.js high response time"
+      description: "Wiki.js 95th percentile response time is {{ $value }}s on {{ $labels.instance }}"
+
+  - alert: WikiJSHighErrorRate
+    expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+    for: 2m
+    labels:
+      severity: warning
+      service: wikijs
+    annotations:
+      summary: "Wiki.js high error rate"
+      description: "Wiki.js error rate is {{ $value }}% on {{ $labels.instance }}"
+
+  - alert: WikiJSHighMemoryUsage
+    expr: container_memory_usage_bytes{pod=~"wikijs-.*"} / container_spec_memory_limit_bytes * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+      service: wikijs
+    annotations:
+      summary: "Wiki.js high memory usage"
+      description: "Wiki.js memory usage is {{ $value }}% on {{ $labels.pod }}"
+
+  - alert: WikiJSHighCPUUsage
+    expr: rate(container_cpu_usage_seconds_total{pod=~"wikijs-.*"}[5m]) * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+      service: wikijs
+    annotations:
+      summary: "Wiki.js high CPU usage"
+      description: "Wiki.js CPU usage is {{ $value }}% on {{ $labels.pod }}"
+
+  # PostgreSQL alerts
+  - alert: PostgreSQLDown
+    expr: up{job="postgres"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      service: postgres
+    annotations:
+      summary: "PostgreSQL is down"
+      description: "PostgreSQL has been down for more than 1 minute on {{ $labels.instance }}"
+
+  - alert: PostgreSQLHighConnections
+    expr: pg_stat_activity_count > 80
+    for: 5m
+    labels:
+      severity: warning
+      service: postgres
+    annotations:
+      summary: "PostgreSQL high connection count"
+      description: "PostgreSQL has {{ $value }} active connections on {{ $labels.instance }}"
+
+  - alert: PostgreSQLSlowQueries
+    expr: rate(pg_stat_statements_mean_time_seconds[5m]) > 1
+    for: 5m
+    labels:
+      severity: warning
+      service: postgres
+    annotations:
+      summary: "PostgreSQL slow queries"
+      description: "PostgreSQL average query time is {{ $value }}s on {{ $labels.instance }}"
+
+  - alert: PostgreSQLDiskUsageHigh
+    expr: (node_filesystem_avail_bytes{mountpoint="/var/lib/postgresql/data"} / node_filesystem_size_bytes{mountpoint="/var/lib/postgresql/data"}) * 100 < 10
+    for: 5m
+    labels:
+      severity: critical
+      service: postgres
+    annotations:
+      summary: "PostgreSQL disk space low"
+      description: "PostgreSQL disk usage is {{ $value }}% full on {{ $labels.instance }}"
+
+  # Redis alerts
+  - alert: RedisDown
+    expr: up{job="redis"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      service: redis
+    annotations:
+      summary: "Redis is down"
+      description: "Redis has been down for more than 1 minute on {{ $labels.instance }}"
+
+  - alert: RedisHighMemoryUsage
+    expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+    for: 5m
+    labels:
+      severity: warning
+      service: redis
+    annotations:
+      summary: "Redis high memory usage"
+      description: "Redis memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+  - alert: RedisHighConnectionCount
+    expr: redis_connected_clients > 100
+    for: 5m
+    labels:
+      severity: warning
+      service: redis
+    annotations:
+      summary: "Redis high connection count"
+      description: "Redis has {{ $value }} connected clients on {{ $labels.instance }}"
+
+  # Infrastructure alerts
+  - alert: NodeHighCPUUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+      service: infrastructure
+    annotations:
+      summary: "Node high CPU usage"
+      description: "Node CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+  - alert: NodeHighMemoryUsage
+    expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+      service: infrastructure
+    annotations:
+      summary: "Node high memory usage"
+      description: "Node memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+  - alert: NodeDiskUsageHigh
+    expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+      service: infrastructure
+    annotations:
+      summary: "Node disk usage high"
+      description: "Node disk usage is {{ $value }}% on {{ $labels.instance }}"
+
+  - alert: PodCrashLooping
+    expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+    for: 5m
+    labels:
+      severity: warning
+      service: kubernetes
+    annotations:
+      summary: "Pod is crash looping"
+      description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been restarting {{ $value }} times in the last 15 minutes"
+
+  - alert: PodNotReady
+    expr: kube_pod_status_ready{condition="true"} == 0
+    for: 10m
+    labels:
+      severity: warning
+      service: kubernetes
+    annotations:
+      summary: "Pod not ready"
+      description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been not ready for more than 10 minutes"

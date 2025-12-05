@@ -1,0 +1,16 @@
+{
+  "name": "ollama",
+  "type": "local",
+  "priority": 1,
+  "enabled": true,
+  "config": {
+    "baseUrl": "http://localhost:11434",
+    "modelPath": "${NOA_ROOT}/ai/shared/models/ollama"
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "embeddings": true,
+    "streaming": true,
+    "functionCalling": true
+  }
+}

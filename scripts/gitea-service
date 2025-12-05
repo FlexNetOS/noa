@@ -1,0 +1,25 @@
+#!/bin/bash
+# NOA Gitea Service Manager
+
+NOA_ROOT="${HOME}"
+GITEA_BIN="$NOA_ROOT/bin/gitea"
+GITEA_CONFIG="$NOA_ROOT/git/gitea/config/app.ini"
+
+case "$1" in
+  start)
+    echo "Starting Gitea (contained in $NOA_ROOT)..."
+    cd $NOA_ROOT/git/gitea
+    $GITEA_BIN web --config $GITEA_CONFIG &
+    ;;
+  stop)
+    echo "Stopping Gitea..."
+    pkill -f "$GITEA_BIN web"
+    ;;
+  status)
+    curl -s http://localhost:3000 > /dev/null && echo "Gitea is running" || echo "Gitea is not running"
+    ;;
+  *)
+    echo "Usage: gitea-service {start|stop|status}"
+    exit 1
+    ;;
+esac

@@ -1,0 +1,83 @@
+#!/bin/bash
+# NOA CLI Tool - P2P Server & Multi-Provider AI Management
+
+NOA_ROOT="${HOME}"
+NOA_CONFIG="$NOA_ROOT/config/noa-server.json"
+AI_PROVIDERS_CONFIG="$NOA_ROOT/config/ai-providers.json"
+DEVICE_CONFIG="$NOA_ROOT/config/device-orchestration.json"
+
+case "$1" in
+  start)
+    echo "Starting NOA P2P server..."
+    # TODO: Implement server start
+    ;;
+  stop)
+    echo "Stopping NOA P2P server..."
+    # TODO: Implement server stop
+    ;;
+  status)
+    echo "NOA P2P server status..."
+    # TODO: Implement status check
+    ;;
+  nodes)
+    echo "Connected nodes..."
+    # TODO: Implement node listing
+    ;;
+  storage)
+    echo "Storage information..."
+    df -h $NOA_ROOT/p2p/storage
+    ;;
+  compute)
+    echo "Compute resources..."
+    nproc
+    free -h
+    ;;
+  ai)
+    case "$2" in
+      providers)
+        echo "Available AI providers:"
+        [ -f "$AI_PROVIDERS_CONFIG" ] && cat "$AI_PROVIDERS_CONFIG" | jq '.providers' || echo "Config not found"
+        ;;
+      devices)
+        echo "Registered devices:"
+        [ -f "$DEVICE_CONFIG" ] && cat "$DEVICE_CONFIG" | jq '.deviceTypes' || echo "Config not found"
+        ;;
+      shared)
+        echo "Shared AI resources:"
+        ls -la $NOA_ROOT/ai/shared/
+        ;;
+      switch)
+        echo "Switching AI provider to: $3"
+        # TODO: Implement provider switching
+        ;;
+      *)
+        echo "Usage: noa ai {providers|devices|shared|switch <provider>}"
+        ;;
+    esac
+    ;;
+  device)
+    case "$2" in
+      register)
+        echo "Registering device: $3"
+        # TODO: Implement device registration
+        ;;
+      list)
+        echo "Registered devices:"
+        ls -la $NOA_ROOT/ai/devices/registered/
+        ;;
+      capabilities)
+        echo "Device capabilities:"
+        [ -f "$DEVICE_CONFIG" ] && cat "$DEVICE_CONFIG" | jq '.deviceTypes' || echo "Config not found"
+        ;;
+      *)
+        echo "Usage: noa device {register <name>|list|capabilities}"
+        ;;
+    esac
+    ;;
+  *)
+    echo "Usage: noa {start|stop|status|nodes|storage|compute|ai|device}"
+    echo "  ai: {providers|devices|shared|switch <provider>}"
+    echo "  device: {register <name>|list|capabilities}"
+    exit 1
+    ;;
+esac

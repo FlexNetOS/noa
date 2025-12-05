@@ -1,0 +1,225 @@
+name: Nudge Response Handler
+
+on:
+  repository_dispatch:
+    types: [nudge_response]
+
+jobs:
+  process-nudge-response:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate NUDGE_SECRET
+        id: validate-secret
+        run: |
+          # Extract NUDGE_SECRET from payload
+          NUDGE_SECRET=$(echo '${{ github.event.client_payload.nudge_secret }}' | base64 -d 2>/dev/null || echo '${{ github.event.client_payload.nudge_secret }}')
+
+          # Validate secret format (basic checks)
+          if [[ -z "$NUDGE_SECRET" || ${#NUDGE_SECRET} -lt 16 ]]; then
+            echo "error=Invalid NUDGE_SECRET format" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          echo "secret_valid=true" >> $GITHUB_OUTPUT
+          echo "NUDGE_SECRET=$NUDGE_SECRET" >> $GITHUB_OUTPUT
+
+      - name: Extract response data
+        id: extract-data
+        run: |
+          # Extract required fields from payload
+          PRP="${{ github.event.client_payload.prp }}"
+          USER_HANDLE="${{ github.event.client_payload.user_handle }}"
+          RESPONSE="${{ github.event.client_payload.response }}"
+          TIMESTAMP="${{ github.event.client_payload.timestamp }}"
+          TELEGRAM_MESSAGE_ID="${{ github.event.client_payload.telegram_message_id }}"
+
+          # Validate required fields
+          if [[ -z "$PRP" || -z "$USER_HANDLE" || -z "$RESPONSE" ]]; then
+            echo "error=Missing required fields in payload" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Set outputs for next steps
+          echo "prp=$PRP" >> $GITHUB_OUTPUT
+          echo "user_handle=$USER_HANDLE" >> $GITHUB_OUTPUT
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "telegram_message_id=$TELEGRAM_MESSAGE_ID" >> $GITHUB_OUTPUT
+
+      - name: Validate PRP exists
+        id: validate-prp
+        run: |
+          PRP_FILE="${{ steps.extract-data.outputs.prp }}"
+
+          # Check if PRP file exists (case insensitive)
+          if [[ -f "PRPs/${PRP_FILE}.md" ]]; then
+            echo "prp_path=PRPs/${PRP_FILE}.md" >> $GITHUB_OUTPUT
+            echo "prp_exists=true" >> $GITHUB_OUTPUT
+          elif [[ -f "PRPs/${PRP_FILE,,}.md" ]]; then
+            echo "prp_path=PRPs/${PRP_FILE,,}.md" >> $GITHUB_OUTPUT
+            echo "prp_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "error=PRP file not found: PRPs/${PRP_FILE}.md" >> $GITHUB_OUTPUT
+            echo "prp_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Process response with Claude CLI
+        id: process-response
+        if: steps.validate-prp.outputs.prp_exists == 'true'
+        run: |
+          PRP_PATH="${{ steps.validate-prp.outputs.prp_path }}"
+          USER_HANDLE="${{ steps.extract-data.outputs.user_handle }}"
+          RESPONSE="${{ steps.extract-data.outputs.response }}"
+          TIMESTAMP="${{ steps.extract-data.outputs.timestamp }}"
+          TELEGRAM_MESSAGE_ID="${{ steps.extract-data.outputs.telegram_message_id }}"
+
+          # Create response processing prompt
+          cat > /tmp/nudge-response-prompt.md << EOF
+  # Nudge Response Processing
+
+  **PRP:** ${{ steps.extract-data.outputs.prp }}
+  **User:** $USER_HANDLE
+  **Timestamp:** $TIMESTAMP
+          **Telegram Message ID:** $TELEGRAM_MESSAGE_ID
+
+  **User Response:**
+  > $RESPONSE
+
+  Please analyze this response and update the PRP file at $PRP_PATH:
+
+  1. **Understand the user's intent** - What is the user asking for or deciding?
+  2. **Determine the impact** - How does this response affect the current PRP status?
+  3. **Update PRP progress** - Add appropriate progress comment with signal
+          4. **Suggest next actions** - What should the agents do next?
+
+  Available signals to use in progress comments:
+          - [da] Done Assessment - when task is complete and ready for validation
+          - [br] Blocker Resolved - when a blocker has been fixed
+          - [gg] Goal Clarification - when requirements are now clear
+          - [af] Feedback Provided - when user has given feedback on a proposal
+          - [aa] Admin Decision - when admin has made a decision
+          - [dp] Development Progress - when development can continue
+          - [cf] CI Failed - when user reports CI/testing issues
+          - [ic] Incident - when user reports a production issue
+          - [JC] Jesus Christ - when user reports critical incident resolved
+
+  Response should include:
+          - Brief summary of user's response
+          - Impact on current PRP status
+          - Updated progress entry with appropriate signal
+          - Recommended next steps
+          - Any changes to plan or approach
+
+  Please update the PRP file directly with your analysis and progress update.
+  EOF
+
+          # Process with Claude CLI (assuming it's available)
+          if command -v claude &> /dev/null; then
+            claude --prompt "$(cat /tmp/nudge-response-prompt.md)" --file "$PRP_PATH" --edit
+            echo "processed_with=claude_cli" >> $GITHUB_OUTPUT
+          else
+            # Fallback: create a basic update
+            echo "processed_with=fallback" >> $GITHUB_OUTPUT
+
+            # Create progress update
+            TIMESTAMP_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            PROGRESS_ENTRY="$TIMESTAMP_ISO | **User Response Received** from $USER_HANDLE: \"$RESPONSE\" | [af] | system (github-workflow)"
+
+            # Append to PRP progress section
+            if grep -q "^## 📊 Progress" "$PRP_PATH"; then
+              # Insert after progress header
+              sed -i "/^## 📊 Progress/a|$PROGRESS_ENTRY" "$PRP_PATH"
+            else
+              # Add progress section if it doesn't exist
+              echo -e "\n## 📊 Progress\n\n|$PROGRESS_ENTRY\n" >> "$PRP_PATH"
+            fi
+          fi
+
+      - name: Commit PRP updates
+        if: steps.validate-prp.outputs.prp_exists == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          PRP_PATH="${{ steps.validate-prp.outputs.prp_path }}"
+          USER_HANDLE="${{ steps.extract-data.outputs.user_handle }}"
+          TIMESTAMP="${{ steps.extract-data.outputs.timestamp }}"
+
+          git add "$PRP_PATH"
+          git diff --staged --quiet || git commit -m "📝 Process nudge response from $USER_HANDLE
+
+          Response received: $TIMESTAMP
+          PRP: ${{ steps.extract-data.outputs.prp }}
+          Telegram Message ID: ${{ steps.extract-data.outputs.telegram_message_id }}
+
+          Auto-generated by nudge response workflow"
+
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub issue for failed processing
+        if: failure()
+        run: |
+          gh issue create \
+            --title "❌ Nudge Response Processing Failed" \
+            --body "## Nudge Response Processing Error
+
+          **PRP:** ${{ steps.extract-data.outputs.prp }}
+          **User:** ${{ steps.extract-data.outputs.user_handle }}
+          **Timestamp:** ${{ steps.extract-data.outputs.timestamp }}
+          **Error:** ${{ steps.validate-secret.outputs.error || steps.extract-data.outputs.error || steps.validate-prp.outputs.error || 'Unknown error' }}
+
+          **Payload:**
+          \`\`\`json
+          ${{ toJSON(github.event.client_payload) }}
+          \`\`\`
+
+          Please investigate and manually process this response.
+          " \
+            --label "nudge-response" \
+            --label "processing-failed" || echo "Failed to create issue"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify success (if configured)
+        if: success() && steps.validate-prp.outputs.prp_exists == 'true'
+        run: |
+          # Optional: Send success notification back via nudge
+          # This would require NUDGE_SECRET to be available as a GitHub secret
+          if [[ -n "${{ secrets.NUDGE_SECRET }}" ]]; then
+            curl -X POST "${{ secrets.NUDGE_ENDPOINT || 'https://dcmaid.theedgestory.org/nudge' }}" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.NUDGE_SECRET }}" \
+              -d '{
+                "type": "direct",
+                "message": "✅ Your response has been processed and PRP updated",
+                "context": {
+                  "prp_id": "${{ steps.extract-data.outputs.prp }}",
+                  "user_response": "processed",
+                  "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+                },
+                "urgency": "low"
+              }' || echo "Failed to send success notification"
+          fi
+        env:
+          NUDGE_ENDPOINT: ${{ secrets.NUDGE_ENDPOINT }}
+          NUDGE_SECRET: ${{ secrets.NUDGE_SECRET }}

@@ -1,0 +1,364 @@
+/* Dashboard Page Styles */
+
+/* Main Layout */
+.dashboard-container {
+  @apply bg-[var(--background)] p-[1rem];
+}
+
+.dashboard-content {
+  @apply mx-auto p-4 space-y-6;
+}
+
+/* Today's Agenda Modal */
+.dashboard-modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/40;
+}
+
+.dashboard-modal-content {
+  @apply bg-[var(--card)] rounded-md shadow-lg p-6 relative w-full max-w-md;
+}
+
+.dashboard-modal-close {
+  @apply absolute top-2 right-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)];
+}
+
+/* Header Section */
+.dashboard-header {
+  @apply flex items-center justify-between;
+}
+
+.dashboard-user-section {
+  @apply flex items-center gap-3;
+}
+
+.dashboard-user-avatar {
+  @apply w-10 h-10 rounded-md bg-[var(--primary)] hover:bg-[var(--primary)]/90 flex items-center justify-center text-white font-semibold text-sm shadow-sm;
+}
+
+.dashboard-greeting {
+  @apply text-base font-semibold text-[var(--foreground)];
+}
+
+.dashboard-date-info {
+  @apply text-sm text-[var(--muted-foreground)] mt-0.5;
+}
+
+.dashboard-header-actions {
+  @apply flex items-center gap-2;
+}
+
+.dashboard-agenda-button {
+  @apply flex items-center gap-2 px-3 py-2 text-sm font-medium text-[var(--foreground)] bg-[var(--card)] border border-[var(--border)] rounded-md shadow-sm transition-colors hover:bg-[var(--accent)];
+}
+
+.dashboard-new-task-button {
+  @apply relative h-9 px-4 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] shadow-sm hover:shadow-md transition-all duration-200 font-medium rounded-md flex items-center gap-2 text-sm;
+}
+
+/* Stats Row */
+.dashboard-stats-row {
+  @apply flex gap-2 lg:gap-6;
+}
+
+.dashboard-stat-card {
+  @apply flex-1 min-w-0;
+}
+
+.dashboard-stat-card-inner {
+  @apply bg-[var(--card)] rounded-md py-3 h-20 flex flex-col justify-between border-none;
+}
+
+.dashboard-stat-content {
+  @apply p-0 h-full flex flex-col justify-between;
+}
+
+.dashboard-stat-header {
+  @apply flex items-center gap-1 mb-2;
+}
+
+.dashboard-stat-indicator {
+  @apply w-1 h-4 bg-[var(--primary)] rounded-full;
+}
+
+.dashboard-stat-title {
+  @apply text-xs font-semibold text-[var(--primary)] uppercase tracking-wide;
+}
+
+.dashboard-stat-values {
+  @apply flex items-center justify-between flex-1 gap-2;
+}
+
+.dashboard-stat-value-item {
+  @apply flex flex-col items-center flex-1;
+}
+
+.dashboard-stat-number {
+  @apply text-base font-bold text-[var(--accent-foreground)] dark:text-[var(--accent-foreground)];
+}
+
+.dashboard-loading-placeholder {
+  @apply animate-pulse bg-[var(--muted)] h-5 w-8 rounded block;
+}
+
+.dashboard-stat-label {
+  @apply text-[10px] text-[var(--muted-foreground)] uppercase tracking-wide;
+}
+
+/* Single Value Stats */
+.dashboard-single-stat-values {
+  @apply flex items-center justify-center flex-1 gap-2;
+}
+
+.dashboard-stat-icon {
+  @apply w-4 h-4 text-[var(--muted-foreground)];
+}
+
+.dashboard-stat-label-inline {
+  @apply text-[10px] text-[var(--muted-foreground)] uppercase tracking-wide ml-2;
+}
+
+/* Main Grid Layout */
+.dashboard-main-grid {
+  @apply grid grid-cols-1 lg:grid-cols-5 gap-4;
+}
+
+.dashboard-tasks-section {
+  @apply lg:col-span-3 rounded-md;
+}
+
+.dashboard-sidebar {
+  @apply lg:col-span-2 space-y-4;
+}
+
+/* Card Base Styles */
+.dashboard-card {
+  @apply bg-[var(--card)] rounded-md shadow-sm;
+}
+
+.dashboard-card-header {
+  @apply p-4 pb-2;
+}
+
+.dashboard-card-title-row {
+  @apply flex items-center justify-between mb-1;
+}
+
+.dashboard-card-title-section {
+  @apply flex items-center gap-2;
+}
+
+.dashboard-card-title {
+  @apply text-xs font-semibold text-[var(--primary)] uppercase tracking-wide;
+}
+
+.dashboard-card-subtitle {
+  @apply text-xs text-[var(--muted-foreground)] ml-3;
+}
+
+.dashboard-view-all-link {
+  @apply text-xs font-medium text-[var(--primary)] hover:text-[var(--primary)]/90 flex items-center gap-1;
+}
+
+.dashboard-card-content {
+  @apply px-4 pb-4;
+}
+
+/* Tasks Section */
+.dashboard-tasks-loading {
+  @apply py-12 text-center;
+}
+
+.dashboard-loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-2 border-purple-200 border-t-purple-600 mx-auto mb-3;
+}
+
+.dashboard-loading-text {
+  @apply text-xs text-[var(--muted-foreground)];
+}
+
+.dashboard-tasks-list {
+  @apply space-y-2;
+}
+
+.dashboard-task-item {
+  @apply flex justify-between items-start gap-3 p-2 rounded-md transition-colors cursor-pointer hover:bg-[var(--muted)];
+}
+
+.dashboard-task-left {
+  @apply flex items-start gap-2 flex-1 min-w-0;
+}
+
+.dashboard-priority-dot {
+  @apply w-2 h-2 rounded-full flex-shrink-0 mt-1 transition-all duration-200 cursor-pointer hover:scale-125 hover:ring-2 hover:ring-offset-2 hover:ring-[var(--primary)];
+}
+
+.dashboard-priority-tooltip {
+  @apply absolute z-10 hidden group-hover:inline-block bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg -mt-8 ml-2 whitespace-nowrap pointer-events-none lowercase;
+}
+
+.dashboard-task-title {
+  @apply text-sm font-medium text-[var(--accent-foreground)];
+}
+
+.dashboard-task-description {
+  @apply text-xs text-[var(--muted-foreground)] mt-0.5;
+}
+
+.dashboard-task-right {
+  @apply flex flex-col items-end gap-1;
+}
+
+.dashboard-task-status {
+  @apply inline-block min-w-[80px] text-center px-2 py-0.5 rounded text-[12px] font-semibold;
+}
+
+.dashboard-task-due-date {
+  @apply text-xs text-[var(--muted-foreground)] px-2 py-1 rounded-md whitespace-nowrap group-hover:text-[var(--primary)];
+}
+
+/* Empty States */
+.dashboard-empty-state {
+  @apply text-center py-8 flex flex-col items-center justify-center;
+}
+
+.dashboard-empty-state-small {
+  @apply text-center py-6 flex flex-col items-center justify-center;
+}
+
+.dashboard-empty-icon {
+  @apply w-12 h-12 mb-3 rounded-xl bg-[var(--muted)] flex items-center justify-center;
+}
+
+.dashboard-empty-icon-small {
+  @apply w-10 h-10 mb-2 rounded-xl bg-[var(--muted)] flex items-center justify-center;
+}
+
+.dashboard-empty-title {
+  @apply text-sm font-medium text-[var(--accent-foreground)] mb-1;
+}
+
+.dashboard-empty-description {
+  @apply text-xs text-[var(--muted-foreground)] mb-3;
+}
+
+.dashboard-empty-action {
+  @apply w-full flex justify-center;
+}
+
+.dashboard-empty-button {
+  @apply relative h-9 px-4 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] shadow-sm hover:shadow-md transition-all duration-200 font-medium rounded-md flex items-center gap-1 text-xs mx-auto;
+}
+
+/* Workspaces Section */
+.dashboard-workspace-list {
+  @apply space-y-2;
+}
+
+.dashboard-workspace-item {
+  @apply flex items-center gap-3 p-2 rounded-md transition-colors cursor-pointer hover:bg-[var(--muted)];
+}
+
+.dashboard-workspace-avatar-container {
+  @apply w-8 h-8 rounded-md bg-[var(--muted)] flex items-center justify-center flex-shrink-0;
+}
+
+.dashboard-workspace-avatar {
+  @apply text-xs font-semibold bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] rounded-md flex items-center justify-center cursor-pointer w-8 h-8 min-w-8 min-h-8;
+}
+
+.dashboard-workspace-info {
+  @apply flex-1 min-w-0;
+}
+
+.dashboard-workspace-name {
+  @apply text-sm font-medium text-[var(--accent-foreground)] truncate;
+}
+
+.dashboard-workspace-description {
+  @apply text-xs text-[var(--muted-foreground)] truncate;
+}
+
+/* Activities Section */
+.dashboard-activities-list {
+  @apply space-y-2;
+}
+
+.dashboard-activity-item {
+  @apply flex items-start gap-3 p-2 rounded-md transition-colors;
+}
+
+.dashboard-activity-icon-container {
+  @apply w-6 h-6 rounded-full bg-[var(--muted)] flex items-center justify-center flex-shrink-0 mt-0.5;
+}
+
+.dashboard-activity-icon {
+  @apply w-3 h-3 text-[var(--primary-foreground)] bg-[var(--primary)] hover:bg-[var(--primary)]/90 rounded-full p-0.5;
+}
+
+.dashboard-activity-content {
+  @apply flex-1 min-w-0;
+}
+
+.dashboard-activity-description {
+  @apply text-sm text-[var(--accent-foreground)];
+}
+
+.dashboard-activity-meta {
+  @apply text-xs text-[var(--muted-foreground)] mt-0.5;
+}
+
+/* Priority Colors */
+.priority-high {
+  @apply bg-red-500;
+}
+
+.priority-medium {
+  @apply bg-yellow-500;
+}
+
+.priority-low {
+  @apply bg-green-500;
+}
+
+.priority-default {
+  @apply bg-gray-300;
+}
+
+/* Status Colors */
+.status-done {
+  @apply bg-green-100 text-green-700;
+}
+
+.status-in-progress {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-todo {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.status-default {
+  @apply bg-gray-100 text-gray-700;
+}
+
+/* Loading State */
+.dashboard-loading-screen {
+  @apply min-h-screen bg-[var(--background)];
+}
+
+/* Icons */
+.dashboard-icon-sm {
+  @apply w-4 h-4;
+}
+
+.dashboard-icon-xs {
+  @apply w-3 h-3;
+}
+
+.dashboard-icon-md {
+  @apply w-5 h-5;
+}
+
+.dashboard-icon-lg {
+  @apply w-6 h-6;
+}

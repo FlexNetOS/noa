@@ -1,0 +1,33 @@
+#!/bin/bash
+# NOA Kernel Namespace Isolation
+# Creates isolated namespaces for NOA processes
+
+NOA_ROOT="${HOME}"
+NOA_NAMESPACE="$NOA_ROOT/sys/namespace"
+
+# Check if unshare is available (for namespace creation)
+if ! command -v unshare >/dev/null 2>&1; then
+  echo "unshare not available - installing util-linux..."
+  apt-get install -y util-linux
+fi
+
+create_namespace() {
+  local ns_type=$1
+  local ns_name=$2
+
+  # Create user namespace (required for other namespaces without root)
+  unshare --user --map-root-user --fork --pid --mount-proc --net --uts --ipc \\
+    -- $NOA_ROOT/bin/$ns_name "$@"
+}
+
+case "$1" in
+  run)
+    shift
+    create_namespace "$@"
+    ;;
+  *)
+    echo "Usage: noa-namespace run <command> [args...]"
+    echo "Creates isolated kernel namespace for command execution"
+    exit 1
+    ;;
+esac

@@ -1,0 +1,35 @@
+#!/bin/bash
+# NOA Docker Service Manager
+
+NOA_ROOT="${HOME}"
+DOCKER_BIN="$NOA_ROOT/bin/docker"
+CONTAINERD_BIN="$NOA_ROOT/bin/containerd"
+DOCKER_SOCK="$NOA_ROOT/containers/docker.sock"
+CONTAINERD_SOCK="$NOA_ROOT/containers/containerd.sock"
+
+case "$1" in
+  start)
+    echo "Starting Docker (contained in $NOA_ROOT)..."
+    mkdir -p $NOA_ROOT/containers/{docker-data,docker-exec}
+    $CONTAINERD_BIN --config $NOA_ROOT/etc/docker/containerd.toml &
+    sleep 2
+    $DOCKER_BIN daemon --config-file $NOA_ROOT/etc/docker/daemon.json &
+    ;;
+  stop)
+    echo "Stopping Docker..."
+    pkill -f "$DOCKER_BIN daemon"
+    pkill -f "$CONTAINERD_BIN"
+    ;;
+  status)
+    if [ -S "$DOCKER_SOCK" ]; then
+      echo "Docker is running"
+      $DOCKER_BIN --host unix://$DOCKER_SOCK ps
+    else
+      echo "Docker is not running"
+    fi
+    ;;
+  *)
+    echo "Usage: docker-service {start|stop|status}"
+    exit 1
+    ;;
+esac

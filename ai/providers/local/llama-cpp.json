@@ -1,0 +1,17 @@
+{
+  "name": "llama.cpp",
+  "type": "local",
+  "priority": 1,
+  "enabled": true,
+  "config": {
+    "modelPath": "${NOA_ROOT}/ai/shared/models",
+    "contextSize": 4096,
+    "threads": 0,
+    "gpuLayers": 0
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "embeddings": true,
+    "streaming": true
+  }
+}

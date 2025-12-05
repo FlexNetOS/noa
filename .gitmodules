@@ -1,0 +1,3 @@
+[submodule "opt/llama.cpp"]
+	path = opt/llama.cpp
+	url = https://github.com/ggerganov/llama.cpp.git

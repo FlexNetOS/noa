@@ -1,0 +1,99 @@
+#!/bin/bash
+# Download static binaries for common tools (self-contained)
+
+NOA_ROOT="${HOME}"
+NOA_BIN="$NOA_ROOT/bin"
+mkdir -p "$NOA_BIN"
+
+# Detect architecture
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64) ARCH_ALT="amd64"; ARCH_MUSL="x86_64-unknown-linux-musl" ;;
+  aarch64) ARCH_ALT="arm64"; ARCH_MUSL="aarch64-unknown-linux-musl" ;;
+  *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
+
+echo "Downloading static binaries to $NOA_BIN (arch: $ARCH)..."
+
+# Helper function to download with error handling
+download_binary() {
+  local name="$1"
+  local url="$2"
+  local dest="$3"
+  echo "  Downloading $name..."
+  if curl -fsSL "$url" -o "$dest" 2>/dev/null; then
+    chmod +x "$dest"
+    echo "    âœ“ $name installed"
+    return 0
+  else
+    echo "    âœ— Failed to download $name (URL may have changed)"
+    return 1
+  fi
+}
+
+# jq (static binary) - simple direct download
+if [ ! -f "$NOA_BIN/jq" ]; then
+  download_binary "jq" "https://github.com/jqlang/jq/releases/latest/download/jq-linux-$ARCH_ALT" "$NOA_BIN/jq" || true
+fi
+
+# ripgrep - requires extracting from tarball
+if [ ! -f "$NOA_BIN/rg" ]; then
+  echo "  Downloading ripgrep..."
+  RG_VERSION=$(curl -fsSL https://api.github.com/repos/BurntSushi/ripgrep/releases/latest 2>/dev/null | grep tag_name | cut -d '"' -f 4)
+  if [ -n "$RG_VERSION" ]; then
+    RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-${ARCH_MUSL}.tar.gz"
+    if curl -fsSL "$RG_URL" -o /tmp/rg.tar.gz 2>/dev/null; then
+      tar -xzf /tmp/rg.tar.gz -C /tmp 2>/dev/null && \
+      cp /tmp/ripgrep-*/rg "$NOA_BIN/rg" 2>/dev/null && \
+      chmod +x "$NOA_BIN/rg" && \
+      echo "    âœ“ ripgrep installed" || echo "    âœ— Failed to extract ripgrep"
+      rm -rf /tmp/rg.tar.gz /tmp/ripgrep-*
+    else
+      echo "    âœ— Failed to download ripgrep"
+    fi
+  else
+    echo "    âœ— Failed to get ripgrep version"
+  fi
+fi
+
+# bat - requires extracting from tarball
+if [ ! -f "$NOA_BIN/bat" ]; then
+  echo "  Downloading bat..."
+  BAT_VERSION=$(curl -fsSL https://api.github.com/repos/sharkdp/bat/releases/latest 2>/dev/null | grep tag_name | cut -d '"' -f 4)
+  if [ -n "$BAT_VERSION" ]; then
+    BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION}-${ARCH_MUSL}.tar.gz"
+    if curl -fsSL "$BAT_URL" -o /tmp/bat.tar.gz 2>/dev/null; then
+      tar -xzf /tmp/bat.tar.gz -C /tmp 2>/dev/null && \
+      cp /tmp/bat-*/bat "$NOA_BIN/bat" 2>/dev/null && \
+      chmod +x "$NOA_BIN/bat" && \
+      echo "    âœ“ bat installed" || echo "    âœ— Failed to extract bat"
+      rm -rf /tmp/bat.tar.gz /tmp/bat-*
+    else
+      echo "    âœ— Failed to download bat"
+    fi
+  else
+    echo "    âœ— Failed to get bat version"
+  fi
+fi
+
+# fd - requires extracting from tarball
+if [ ! -f "$NOA_BIN/fd" ]; then
+  echo "  Downloading fd..."
+  FD_VERSION=$(curl -fsSL https://api.github.com/repos/sharkdp/fd/releases/latest 2>/dev/null | grep tag_name | cut -d '"' -f 4)
+  if [ -n "$FD_VERSION" ]; then
+    FD_URL="https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd-${FD_VERSION}-${ARCH_MUSL}.tar.gz"
+    if curl -fsSL "$FD_URL" -o /tmp/fd.tar.gz 2>/dev/null; then
+      tar -xzf /tmp/fd.tar.gz -C /tmp 2>/dev/null && \
+      cp /tmp/fd-*/fd "$NOA_BIN/fd" 2>/dev/null && \
+      chmod +x "$NOA_BIN/fd" && \
+      echo "    âœ“ fd installed" || echo "    âœ— Failed to extract fd"
+      rm -rf /tmp/fd.tar.gz /tmp/fd-*
+    else
+      echo "    âœ— Failed to download fd"
+    fi
+  else
+    echo "    âœ— Failed to get fd version"
+  fi
+fi
+
+echo "Static binary download complete"
