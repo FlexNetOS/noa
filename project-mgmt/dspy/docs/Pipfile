@@ -11,7 +11,7 @@ mkdocs-jupyter = "*"
 mkdocs-redirects = "*"
 mkdocstrings = "*"
 mkdocstrings-python = "*"
-urllib3 = "==2.5.0"
+urllib3 = "==2.6.0"
 mistune = "==3.0.2"
 
 [requires]
