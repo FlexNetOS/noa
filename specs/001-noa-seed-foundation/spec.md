@@ -16,6 +16,10 @@ NOA (Name of App / Chief Executive Commander Chief Agent) is a multi-platform, a
 - **Autonomous Dynamic Repository Ingestion** and integration
 - **P2P Hive-Mind** across user-owned devices
 
+**Prerequisite Commands (platform-aware):**
+- Bash/WSL/macOS: `scripts/bash/check-prerequisites.sh --json`
+- PowerShell/Windows: `scripts/powershell/check-prerequisites.ps1 -Json`
+
 ---
 
 ## User Scenarios & Testing *(mandatory)*
@@ -33,6 +37,7 @@ As a user, I want to initialize NOA on my device so that it creates a self-conta
 1. **Given** a fresh system without NOA, **When** I run the NOA initialization, **Then** the system creates the complete directory structure (`noa_root/sys`, `noa_root/p2p`, `noa_root/opt`, `noa_root/init`, `noa_root/containers`, `noa_root/config`, `noa_root/bin`, `noa_root/ai`) with appropriate permissions
 2. **Given** a freshly initialized NOA, **When** I check the local database, **Then** it is operational and ready to store memories, tasks, and agent state
 3. **Given** NOA is initialized, **When** the network is disconnected, **Then** all core functionality continues to operate offline
+4. **Given** platform prerequisites need verification, **When** I run the prereq check, **Then** I invoke the platform-appropriate shim (`scripts/bash/check-prerequisites.sh --json` on Bash/WSL/macOS or `scripts/powershell/check-prerequisites.ps1 -Json` on PowerShell/Windows) and receive ✅/❌/⚠️ results for all required tools
 
 ---
 
