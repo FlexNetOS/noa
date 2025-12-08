@@ -51,6 +51,10 @@
 
 ### Prerequisite Check (CRITICAL - Run First)
 
+- Shimmed entrypoints (platform-aware):
+  - Bash/WSL/macOS: `scripts/bash/check-prerequisites.sh --json`
+  - PowerShell/Windows: `scripts/powershell/check-prerequisites.ps1 -Json`
+
 - [x] T673 **CRITICAL** ✅ DONE: Implement prerequisite check script (bash) in `init/check-prereqs.sh`
   - Check: Rust 1.83+, Go 1.23+, Node 20+, Python 3.12+, protoc 28+
   - Check: rustfmt, clippy, golangci-lint 1.62+, eslint 9+, ruff 0.8+
