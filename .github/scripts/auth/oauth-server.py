@@ -19,6 +19,7 @@ import os
 import json
 import secrets
 import logging
+import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, urlencode
 from typing import Dict, Any, Optional
@@ -85,7 +86,6 @@ class OAuthHandler(BaseHTTPRequestHandler):
 
     config: OAuthServerConfig = None
     oauth_manager: OAuthManager = None
-    sessions: Dict[str, Dict] = {}
 
     def do_GET(self):
         """Handle GET requests"""
@@ -248,7 +248,8 @@ class OAuthHandler(BaseHTTPRequestHandler):
         }
 
         state = secrets.token_urlsafe(32)
-        self.sessions[state] = {'provider': provider}
+        with self.server.sessions_lock:
+            self.server.sessions[state] = {'provider': provider}
 
         params = {
             'client_id': provider_config['client_id'],
@@ -283,11 +284,12 @@ class OAuthHandler(BaseHTTPRequestHandler):
             self.send_error_page("Missing code or state")
             return
 
-        if state not in self.sessions:
+        with self.server.sessions_lock:
+            session = self.server.sessions.pop(state, None)
+
+        if not session:
             self.send_error_page("Invalid state - possible CSRF attack")
             return
-
-        session = self.sessions.pop(state)
 
         # Exchange code for token
         try:
@@ -465,6 +467,9 @@ def run_server(port: int = 8080):
     OAuthHandler.oauth_manager = OAuthManager()
 
     server = HTTPServer(('0.0.0.0', port), OAuthHandler)
+    # Per-server session store with a lock to avoid cross-thread leakage
+    server.sessions: Dict[str, Dict[str, Any]] = {}
+    server.sessions_lock = threading.Lock()
 
     logger.info(f"🚀 FlexNetOS OAuth Server running on http://localhost:{port}")
     logger.info("Press Ctrl+C to stop")
