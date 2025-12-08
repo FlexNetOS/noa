@@ -51,13 +51,15 @@
 
 ### Prerequisite Check (CRITICAL - Run First)
 
-- [ ] T673 **CRITICAL** Implement prerequisite check script (bash) in `scripts/bash/check-prerequisites.sh`
+- [x] T673 **CRITICAL** ✅ DONE: Implement prerequisite check script (bash) in `init/check-prereqs.sh`
   - Check: Rust 1.83+, Go 1.23+, Node 20+, Python 3.12+, protoc 28+
   - Check: rustfmt, clippy, golangci-lint 1.62+, eslint 9+, ruff 0.8+
   - Check: Gitleaks 8.21+, Trivy 0.57+, Grype 0.84+, Semgrep 1.97+
+  - Check: Self-contained tools in noa_root/bin/ (per §3.1)
   - Output: ✅/❌/⚠️ per tool with install commands
-- [ ] T674 [P] **CRITICAL** Implement prerequisite check script (PowerShell) in `scripts/powershell/check-prerequisites.ps1`
-  - Mirror bash script functionality for Windows
+- [x] T674 [P] **CRITICAL** ✅ DONE: Implement prerequisite check script (PowerShell) in `scripts/setup/check-prereqs.ps1`
+  - Unified with setup scripts
+  - Constitution-compliant (§3.1 self-contained check)
   - Use winget/choco install commands
 - [ ] T675 [P] Add prerequisite check to CI pipeline in `.github/workflows/ci.yml`
 
@@ -96,16 +98,16 @@
 
 ### Storage Components Setup
 
-- [ ] T012 §3.2 Create data directory structure (`data/memory/`, `data/knowledge/`, `data/embeddings/`, `data/artifacts/`) in `noa_root/data/`
-- [ ] T013 [P] Setup Private OCI Registry configuration in `containers/oci/registry.yaml`
-- [ ] T014 [P] Setup MinIO S3-compatible storage config in `config/minio.yaml`
-- [ ] T015 [P] Setup Postgres/SQLite configuration in `config/database.yaml`
-- [ ] T016 [P] Setup Qdrant vector store configuration in `config/qdrant.yaml`
-- [ ] T017 [P] Setup Quickwit hybrid search configuration in `config/quickwit.yaml`
+- [ ] T741 §3.2 Create data directory structure (`data/memory/`, `data/knowledge/`, `data/embeddings/`, `data/artifacts/`) in `noa_root/data/`
+- [ ] T742 [P] Setup Private OCI Registry configuration in `containers/oci/registry.yaml`
+- [ ] T743 [P] Setup MinIO S3-compatible storage config in `config/minio.yaml`
+- [ ] T744 [P] Setup Postgres/SQLite configuration in `config/database.yaml`
+- [ ] T745 [P] Setup Qdrant vector store configuration in `config/qdrant.yaml`
+- [ ] T746 [P] Setup Quickwit hybrid search configuration in `config/quickwit.yaml`
 
 ### Database Schema (SQLite Primary)
 
-- [ ] T018 §3.2 Create complete SQLite schema with all 14 entities from data-model.md in `init/migrations/001_initial.sql`
+- [ ] T747 §3.2 Create complete SQLite schema with all 14 entities from data-model.md in `init/migrations/001_initial.sql`
 - [ ] T019 [P] §3.7 Create Memory table with JSON metadata and checksum in `init/migrations/001_initial.sql`
 - [ ] T020 [P] §3.7 Create Embedding table with vector column (384-dim) in `init/migrations/001_initial.sql`
 - [ ] T021 [P] §3.3 Create Agent table with stack_code support (mas_*, gen_mas) in `init/migrations/001_initial.sql`
@@ -1755,10 +1757,36 @@ Then implement P3 stories:
 - **Memory Retention Policy**: ✅ T532-T533 (config + auto-prune)
 - **Agent Marketplace**: ✅ T534-T535 (stub API + UI)
 
+### Success Criteria Coverage (SC-001 to SC-012) - §3.12
+- **SC-001 Init <60s**: ✅ T706 (benchmark)
+- **SC-002 CPU Inference <2s**: ✅ T707 (benchmark)
+- **SC-003 Memory Recall <500ms**: ✅ T710 (benchmark)
+- **SC-004 Digest 10K <30min**: ✅ T711 (benchmark)
+- **SC-005 200 Tasks 98%**: ✅ T712 (benchmark)
+- **SC-006 P2P Sync <5s**: ✅ T713 (benchmark)
+- **SC-007 UI Switch <200ms**: ✅ T714 (benchmark)
+- **SC-008 7-Day Continuous**: ✅ T715 (stability test)
+- **SC-009 Cross-Platform**: ✅ T717-T718 (consistency tests)
+- **SC-010 100% Rollback**: ✅ T716 (validation)
+- **SC-011 GPU <500ms**: ✅ T708 (benchmark)
+- **SC-012 Multi-GPU <300ms**: ✅ T709 (benchmark)
+
+### User Story Coverage (US1-US10)
+- **US1 (Init)**: ✅ 25 tasks (Phase 3)
+- **US2 (Neural)**: ✅ 58 tasks (Phase 4)
+- **US3 (Memory)**: ✅ 22 tasks (Phase 5)
+- **US4 (Digest)**: ✅ 50 tasks (Phase 6)
+- **US5 (UI)**: ✅ 38 tasks (Phase 7)
+- **US6 (P2P)**: ✅ 49 tasks (Phase 8)
+- **US7 (Agents)**: ✅ 56 tasks (Phase 9)
+- **US8 (Self-Improve)**: ✅ 55 tasks (Phase 10)
+- **US9 (Cross-Platform)**: ✅ 17 tasks T652-T668 (Phase 13)
+- **US10 (Connectors)**: ✅ 21 tasks T669-T689 (Phase 14)
+
 ### MVP Scope (US1 + US2 + US3 + 3-Plane Foundation)
 - **Tasks**: 330 (Foundation + 3-Plane + Providers + 3 stories + Multi-GPU)
 - **Estimated Duration**: 12-14 weeks with 2 developers
 
 ### Full Implementation
-- **Tasks**: 651
-- **Estimated Duration**: 24-28 weeks with 2-4 developers
+- **Tasks**: 740
+- **Estimated Duration**: 26-30 weeks with 2-4 developers

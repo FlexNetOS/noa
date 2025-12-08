@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Complete NOA environment setup for Windows
-    
+
 .DESCRIPTION
     Sets up the complete NOA environment including:
     - Directory structure
@@ -9,16 +9,16 @@
     - Tool downloads
     - PowerShell profile integration
     - Git configuration
-    
+
 .PARAMETER SkipTools
     Skip downloading optional tools (jq, rg, fd, bat)
-    
+
 .PARAMETER SkipProfile
     Skip PowerShell profile integration
-    
+
 .PARAMETER NoaRoot
     Override NOA_ROOT location (default: script parent directory)
-    
+
 .EXAMPLE
     .\setup.ps1
     .\setup.ps1 -SkipTools
@@ -116,12 +116,28 @@ if ($lfsVersion) {
 }
 
 # ============================================
-# 4. Download Tools
+# 4. Check Prerequisites (Build Toolchains)
+# ============================================
+Write-Host ""
+Write-Host "4. Checking build toolchain prerequisites..." -ForegroundColor Yellow
+
+$shimPrereqs = Join-Path $NoaRoot "scripts/powershell/check-prerequisites.ps1"
+$directPrereqs = Join-Path $NoaRoot "scripts/setup/check-prereqs.ps1"
+$checkPrereqsScript = if (Test-Path $shimPrereqs) { $shimPrereqs } else { $directPrereqs }
+
+if (Test-Path $checkPrereqsScript) {
+    & $checkPrereqsScript
+} else {
+    Write-Host "  [SKIP] check-prereqs.ps1 not found" -ForegroundColor Yellow
+}
+
+# ============================================
+# 4b. Download Self-Contained Tools
 # ============================================
 if (-not $SkipTools) {
     Write-Host ""
-    Write-Host "4. Downloading optional tools..." -ForegroundColor Yellow
-    
+    Write-Host "4b. Downloading self-contained utilities to bin/..." -ForegroundColor Yellow
+
     $downloadScript = Join-Path $NoaRoot "scripts/download-static-binaries.ps1"
     if (Test-Path $downloadScript) {
         & $downloadScript
@@ -130,7 +146,7 @@ if (-not $SkipTools) {
     }
 } else {
     Write-Host ""
-    Write-Host "4. Skipping tool download (use -SkipTools:$false to enable)" -ForegroundColor Yellow
+    Write-Host "4b. Skipping self-contained tool download (use -SkipTools:$false to enable)" -ForegroundColor Yellow
 }
 
 # ============================================
@@ -160,7 +176,7 @@ if (-not (Test-Path $envPath)) {
 if (-not $SkipProfile) {
     Write-Host ""
     Write-Host "6. PowerShell profile integration..." -ForegroundColor Yellow
-    
+
     $installScript = Join-Path $NoaRoot "scripts/install-profile.ps1"
     if (Test-Path $installScript) {
         & $installScript

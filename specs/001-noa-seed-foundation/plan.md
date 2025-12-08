@@ -54,10 +54,10 @@ Before any implementation, verify all CLI tools are installed:
 
 ```bash
 # Unix/macOS
-./scripts/bash/check-prerequisites.sh
+./init/check-prereqs.sh
 
 # Windows PowerShell
-.\scripts\powershell\check-prerequisites.ps1
+.\scripts\setup\check-prereqs.ps1
 ```
 
 **Tasks**: T673-T675 implement these scripts
@@ -70,7 +70,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - **75 Functional Requirements** (FR-001 to FR-075)
 - **12 Success Criteria** (SC-001 to SC-012)
 - **10 User Stories** (US1 to US10)
-- **740 Tasks** (T001 to T740)
+- **747 Tasks** (T001 to T747)
 
 **Key Features**:
 - Always-on continuous loop (FR-051-055)
@@ -79,6 +79,38 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - Autonomous goal generation (FR-066-070)
 - 5-stage self-healing loop (FR-071-075)
 - Advanced Learning: ToolkenGPT, Replay Memory, EWC, MAML (FR-043-046)
+
+---
+
+## Project-Mgmt Prompt Scope (Incorporated)
+
+- **Source**: `N:/noa/ai/shared/prompts/project-mgmt-prompt.md`
+- **Intent**: Fix and unify the project-mgmt app/director into the NOA agentic project-management system while preserving all source capabilities.
+- **Mission alignment**: NOA = agentic project-mgmt system that consolidates 18 repositories, maintains all **95 required features**, and runs as a fully automated AgenticAI platform with a single `.project-mgmt-env` (Node, Python, Cargo) and local-first AI.
+
+### Source Repositories (retain all features)
+- prp-main, PRPs-agentic-eng-development, spec-kit, super-productivity, BMAD-METHOD-v5, BMAD-METHOD, agentic-cursorrules, agent-rules, ruler, my-todo-app-main, tududi, Taskosaur, system-prompts-and-models-of-ai-tools, promptfusion, dspy, dspy-code, claude-task-master, Backlog.md.
+
+### Unified Architecture (baseline from prompt)
+- Single environment at `${PROJECT_ROOT}/.project-mgmt-env` (Node modules, python venv, Cargo, `.env`/`.env.example`).
+- `project-mgmt/` apps: web (Angular PWA), desktop (Electron), mobile (Capacitor), cli, mcp.
+- `project-mgmt/core/`: ai-shared linkage, providers (auto-detect, priority), memory (never forget, instant recall), tasks/goals/policy/rules/specs/backlog, sync (vector clock, encryption/compression), config, state (NgRx), time-tracking (pomodoro/focus/idle/break/worklog), imex, util.
+- AI layer: providers (claude, openai, ollama, llama.cpp, etc.), prompts (system/fusion/triggers), fusion engine.
+
+### Provider Systems (must implement)
+- Agent provider registry and auto-detection for 17 providers (CLI/IDE) with priority order **Local > Hybrid > Cloud** via provider-detection, provider-priority, ide-detection, shared-access services.
+- Local AI preferred (llama.cpp/Ollama), using ai/shared path resolution and symlinks.
+
+### NOA Commands Integration (CLI)
+- `noa ai providers|devices|shared|switch`, `noa start|stop|status|nodes|storage|compute`, `noa device register|list|capabilities`, Git helpers (`git-pr create|list|merge|sync`, `git-conflict detect|resolve`, `git-ci run|status`), self-containment (`bundle-libraries`, `bundle-all-libs`, `download-static-binaries`, `noa-kmod check`).
+
+### Memory + ai/shared
+- Memory service for never-forget + instant recall; semantic search; per-project context; uses ai/shared resources (agents, workflows, prompts, skills, tools, models, commands).
+
+### Feature Parity & Success Criteria (prompt)
+- **Feature parity**: 95/95 features from all repos; **Issue providers**: 8/8; **MCP tools**: 35+; **System prompts**: 25+; **Agent roles**: BMAD 10, PRP 7; **Agentic workflows**: 6.
+- **Performance/UX targets**: build <5m, web bundle <500KB gz, desktop cold start <2s, offline core 100%, AI task breakdown <3s, memory recall <100ms, provider detection 17/17, IDE integration (Cursor/VS Code/Windsurf) 100%, sync reliability 100%.
+- **AI priority**: Local-first enforced; ai/shared connection covers all 7 resource types; NOA command access 100%; productivity features (15) and sync providers (5) included.
 
 ---
 
@@ -237,7 +269,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | 740 |
+| **Total Tasks** | 747 |
 | Prerequisite Check | 3 (T673-T675) |
 | Phase 1-2 | 81 |
 | 3-Plane Architecture | 107 |
@@ -280,5 +312,5 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 **Plan Updated**: 2025-12-08
 **Total FRs**: 75
-**Total Tasks**: 740
+**Total Tasks**: 747
 **Estimated Duration**: 24-28 weeks (2-4 developers)

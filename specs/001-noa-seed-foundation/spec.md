@@ -749,10 +749,10 @@ Run the following to verify all prerequisites:
 
 ```bash
 # Unix/macOS
-./scripts/bash/check-prerequisites.sh
+./init/check-prereqs.sh
 
 # Windows PowerShell
-.\scripts\powershell\check-prerequisites.ps1
+.\scripts\setup\check-prereqs.ps1
 ```
 
 The script will output:
