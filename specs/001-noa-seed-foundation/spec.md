@@ -128,7 +128,7 @@ As a user, I want NOA to orchestrate specialized agents that work together to so
 
 1. **Given** a complex goal (e.g., "analyze and document this codebase"), **When** submitted to NOA, **Then** the system decomposes it into tasks and assigns them to appropriate agents
 2. **Given** agents encounter an error, **When** retry logic exhausts, **Then** the issue escalates appropriately with context preserved
-3. **Given** 200 concurrent tasks, **When** submitted to the orchestration system, **Then** at least 98% complete successfully within 60 seconds per task
+3. **Given** 200 concurrent tasks on Standard Hardware (16GB RAM, 8-core CPU - see Glossary), **When** submitted to the orchestration system, **Then** at least 98% complete successfully within 60 seconds per task (scales linearly with hardware tier: High-Performance supports 500+ concurrent tasks)
 
 ---
 
@@ -338,14 +338,34 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 | Term | Definition |
 |------|------------|
-| **NOA** | Name of App - the brand name for the entire system |
-| **CECCA** | Chief Executive Commander Chief Agent - the root orchestrator agent within NOA |
+| **NOA** | **N**ame **o**f **A**pp - the brand name for the entire autonomous agentic operating system. NOA encompasses all planes, agents, and infrastructure. When referring to "the system," use "NOA." |
+| **CECCA** | **C**hief **E**xecutive **C**ommander **C**hief **A**gent - the root orchestrator agent that lives *inside* NOA. CECCA decomposes goals into tasks and coordinates all other agents. When referring to "the main agent," use "CECCA." |
 | **MicroAgentStack (MAS)** | A deployable cluster of cooperative agents; code prefix: `mas_*` (reusable) or `gen_mas` (disposable) |
-| **Minimum Hardware** | 8GB RAM, 4-core CPU, no dedicated GPU, 20GB storage |
-| **Standard Hardware** | 16GB RAM, 8-core CPU (x64/arm64), integrated GPU, 100GB+ storage |
-| **High-Performance Hardware** | 64GB+ RAM, 16+ core CPU, dedicated GPU (RTX 3080+), 500GB+ NVMe |
-| **Development Hardware** | 512GB+ RAM, 24+ core CPU (Threadripper/EPYC), multi-GPU (2x RTX 5090+), 2TB+ NVMe, CUDA 13.1+ |
-| **Provider** | An AI model interface (local or cloud) that can execute inference tasks |
+| **Minimum Hardware** | 8GB RAM, 4-core CPU, no dedicated GPU, 20GB storage - suitable for basic operation with single small model |
+| **Standard Hardware** | 16GB RAM, 8-core CPU (x64/arm64), integrated GPU, 100GB+ storage - recommended for multi-SLM operation, used as baseline for latency targets (e.g., US2 "2 seconds", US7 "200 concurrent tasks") |
+| **High-Performance Hardware** | 64GB+ RAM, 16+ core CPU, dedicated GPU (RTX 3080+), 500GB+ NVMe - optimal for local inference |
+| **Development Hardware** | 512GB+ RAM, 24+ core CPU (Threadripper/EPYC), multi-GPU (2x RTX 5090+), 2TB+ NVMe, CUDA 13.1+ - full tensor parallelism |
+| **Provider** | An AI model interface (local or cloud) that can execute inference tasks. See **Provider Priority** below. |
+
+### Provider Priority & Fallback Order (FR-039)
+
+When multiple providers are available, NOA uses this priority order:
+
+| Priority | Provider | Type | Latency | Use Case |
+|----------|----------|------|---------|----------|
+| 1 | **llama.cpp** (5+ local models) | Local | <500ms | Primary inference - always available offline |
+| 2 | **Cursor** (IDE/CLI/Cloud) | Hybrid | <1s | Code-aware tasks when IDE context available |
+| 3 | **Claude Code** (CLI/Cloud/IDE) | Cloud | <2s | Complex reasoning, long context |
+| 4 | **Codex** (CLI/Cloud/IDE) | Cloud | <2s | Code generation, completion |
+| 5 | **VS Code Copilot** (IDE) | IDE | <1s | Inline completions when VS Code active |
+| 6 | **Git CLI** | Local | <100ms | Version control operations |
+| 7 | **Abacus** (CLI/Cloud) | Cloud | <3s | Specialized numerical/analytical tasks |
+
+**Fallback Strategy**:
+1. Always try local providers (llama.cpp) first for offline capability
+2. If local fails/unavailable, try IDE providers if IDE context exists
+3. If IDE unavailable, try cloud providers in priority order
+4. If all fail, queue task and notify user after 3 retry attempts
 
 ### 3-Plane Self-Update Architecture
 
@@ -675,10 +695,70 @@ noa_root/
 - **Redis 7.0+**: Event bus for inter-service communication (optional, falls back to in-process bus)
 - **Qdrant 1.8+**: Vector store for embeddings (or sqlite-vss for lightweight deployments)
 - **Node.js 20+**: JavaScript runtime for UI and scripts
-- **Rust toolchain 1.75+**: For core system components
-- **Go toolchain 1.21+**: For network services
-- **Python 3.11+**: For AI/ML integration and digest pipeline
+- **Rust toolchain 1.83+**: For core system components (latest stable as of Dec 2024)
+- **Go toolchain 1.23+**: For network services (latest stable as of Dec 2024)
+- **Python 3.12+**: For AI/ML integration and digest pipeline (latest stable)
 - **Docker/containerd**: Optional, for container-based deployment
+
+---
+
+## CLI Tool Prerequisites (CRITICAL)
+
+Before building or running NOA, the following CLI tools MUST be installed:
+
+### Build Toolchains (CRITICAL - Required for Compilation)
+
+| Tool | Minimum Version | Install Command (Windows) | Purpose |
+|------|-----------------|---------------------------|---------|
+| **Rust** | 1.83.0 | `winget install Rustlang.Rustup && rustup default stable` | Core runtime, llama-cpp-rs bindings |
+| **Go** | 1.23.0 | `winget install GoLang.Go` | P2P services, network layer |
+| **Node.js** | 20.0.0 | `winget install OpenJS.NodeJS.LTS` | UI, scripts, agent definitions |
+| **Python** | 3.12.0 | `winget install Python.Python.3.12` | Digest pipeline, ML integration |
+| **protoc** | 28.0.0 | `winget install Google.Protobuf` | P2P protocol buffer compilation |
+
+### Code Quality Tools (HIGH - Required for Quality Gates)
+
+| Tool | Minimum Version | Install Command | Purpose |
+|------|-----------------|-----------------|---------|
+| **rustfmt** | (bundled) | `rustup component add rustfmt` | Rust code formatting |
+| **clippy** | (bundled) | `rustup component add clippy` | Rust linting |
+| **golangci-lint** | 1.62.0 | `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest` | Go linting |
+| **eslint** | 9.0.0 | `npm install -g eslint` | TypeScript/JavaScript linting |
+| **ruff** | 0.8.0 | `pip install ruff` | Python linting (fast) |
+
+### Security Scanning Tools (HIGH - Required for FR-015)
+
+| Tool | Minimum Version | Install Command | Purpose |
+|------|-----------------|-----------------|---------|
+| **Gitleaks** | 8.21.0 | `choco install gitleaks` or `brew install gitleaks` | Secrets detection |
+| **Trivy** | 0.57.0 | `choco install trivy` or `brew install trivy` | Vulnerability scanning |
+| **Grype** | 0.84.0 | `choco install grype` or `brew install grype` | SBOM vulnerability matching |
+| **Semgrep** | 1.97.0 | `pip install semgrep` | Static analysis |
+
+### Optional Tools
+
+| Tool | Version | Install Command | Purpose |
+|------|---------|-----------------|---------|
+| **Docker** | 27.0.0+ | `winget install Docker.DockerDesktop` | Container deployment |
+| **kubectl** | 1.31.0+ | (bundled with Docker Desktop) | K8s management |
+| **Make** | 4.4.0+ | `choco install make` | Build automation |
+
+### Prerequisite Check Script
+
+Run the following to verify all prerequisites:
+
+```bash
+# Unix/macOS
+./scripts/bash/check-prerequisites.sh
+
+# Windows PowerShell
+.\scripts\powershell\check-prerequisites.ps1
+```
+
+The script will output:
+- ✅ Tool installed with version
+- ❌ Tool missing with install command
+- ⚠️ Tool installed but version too old
 
 ---
 
