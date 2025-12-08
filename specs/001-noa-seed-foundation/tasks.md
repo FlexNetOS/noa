@@ -23,6 +23,8 @@
 | §3.6 | Security & Privacy |
 | §3.7 | Total Memory Sovereignty |
 | §3.8 | P2P Hive-Mind |
+| §3.9 | Truth & Knowledge Seeking |
+| §3.10 | Biblical Governance |
 | §3.12 | Test Everything, Trust Nothing |
 | §4.6 | Goals-Policy-Rules Flow |
 
@@ -38,6 +40,8 @@
 | US6 | P2P Hive-Mind Device Federation | P2 | |
 | US7 | Autonomous Agent Orchestration | P2 | |
 | US8 | Self-Improvement & Code Modification | P3 | |
+| US9 | Cross-Platform Deployment | P3 | |
+| US10 | Connectors & External Integration | P3 | |
 
 ---
 
@@ -45,16 +49,42 @@
 
 **Purpose**: Project initialization and monorepo structure
 
+### Prerequisite Check (CRITICAL - Run First)
+
+- [ ] T673 **CRITICAL** Implement prerequisite check script (bash) in `scripts/bash/check-prerequisites.sh`
+  - Check: Rust 1.83+, Go 1.23+, Node 20+, Python 3.12+, protoc 28+
+  - Check: rustfmt, clippy, golangci-lint 1.62+, eslint 9+, ruff 0.8+
+  - Check: Gitleaks 8.21+, Trivy 0.57+, Grype 0.84+, Semgrep 1.97+
+  - Output: ✅/❌/⚠️ per tool with install commands
+- [ ] T674 [P] **CRITICAL** Implement prerequisite check script (PowerShell) in `scripts/powershell/check-prerequisites.ps1`
+  - Mirror bash script functionality for Windows
+  - Use winget/choco install commands
+- [ ] T675 [P] Add prerequisite check to CI pipeline in `.github/workflows/ci.yml`
+
 - [ ] T001 §3.1 Create monorepo directory structure per plan.md in `noa_root/`
-- [ ] T002 [P] §3.1 Initialize Rust workspace with Cargo.toml (all crates: api, embedder, trainer, indexer, ui, agent, common) in `noa_root/sys/core/Cargo.toml`
-- [ ] T003 [P] §3.1 Initialize Go module for P2P services in `noa_root/p2p/go.mod`
-- [ ] T004 [P] §3.1 Initialize TypeScript/Next.js project for UI in `noa_root/sys/ui/package.json`
-- [ ] T005 [P] §3.1 Initialize Python project for digest pipeline in `noa_root/sys/digest/pyproject.toml`
-- [ ] T006 [P] Configure linting: rustfmt, golangci-lint, eslint, ruff in `.config/`
-- [ ] T007 [P] Create cross-platform build scripts in `scripts/bash/build.sh` and `scripts/powershell/build.ps1`
-- [ ] T008 §3.1 Create environment configuration templates in `config/`
-- [ ] T009 [P] Setup GitHub Actions CI pipeline in `.github/workflows/ci.yml`
-- [ ] T010 Create README.md with quickstart instructions in `noa_root/README.md`
+
+### Directory Structure (FR-029 to FR-036)
+
+- [ ] T002 [P] §3.1 FR-029 Create and populate `noa_root/sys/` with system-level components: `core/`, `ui/`, `digest/`, `kernel/`
+- [ ] T003 [P] §3.1 FR-030 Create and populate `noa_root/p2p/` with P2P networking: `discovery/`, `sync/`, `compute/`, `storage/`
+- [ ] T004 [P] §3.1 FR-031 Create and populate `noa_root/opt/` with optional packages: `llama.cpp/`, `llama-cpp-rs/`, `ollama/`
+- [ ] T005 [P] §3.1 FR-032 Create and populate `noa_root/init/` with init scripts: `migrations/`, `seeds/`, `noa-init`
+- [ ] T006 [P] §3.1 FR-033 Create and populate `noa_root/containers/` with container definitions: `oci/`, `compose/`, `Dockerfile`
+- [ ] T007 [P] §3.1 FR-034 Create and populate `noa_root/config/` with configuration files: `noa-server.json`, `ai-providers.json`, `features.json`
+- [ ] T008 [P] §3.1 FR-035 Create and populate `noa_root/bin/` with executables: `noa`, `noa-server`, wrappers for `llama-cli`, `ollama`
+- [ ] T009 [P] §3.1 FR-036 Create and populate `noa_root/ai/` with AI assets: `providers/`, `models/`, `prompts/`, `grammars/`
+
+### Project Initialization
+
+- [ ] T010 [P] §3.1 Initialize Rust workspace with Cargo.toml (all crates: api, embedder, trainer, indexer, ui, agent, common) in `noa_root/sys/core/Cargo.toml`
+- [ ] T011 [P] §3.1 Initialize Go module for P2P services in `noa_root/p2p/go.mod`
+- [ ] T012 [P] §3.1 Initialize TypeScript/Next.js project for UI in `noa_root/sys/ui/package.json`
+- [ ] T013 [P] §3.1 Initialize Python project for digest pipeline in `noa_root/sys/digest/pyproject.toml`
+- [ ] T014 [P] Configure linting: rustfmt, golangci-lint, eslint, ruff in `.config/`
+- [ ] T015 [P] Create cross-platform build scripts in `scripts/bash/build.sh` and `scripts/powershell/build.ps1`
+- [ ] T016 §3.1 Create environment configuration templates in `config/`
+- [ ] T017 [P] Setup GitHub Actions CI pipeline in `.github/workflows/ci.yml`
+- [ ] T018 Create README.md with quickstart instructions in `noa_root/README.md`
 
 ---
 
@@ -154,15 +184,190 @@
 - [ ] T070 [P] Setup prometheus metrics export in `sys/core/src/observability/metrics.rs`
 - [ ] T071 [P] Create observability config in `config/observability.yaml`
 
-**Checkpoint**: Foundation ready - Continue to Shared Provider setup ✅
+**Checkpoint**: Foundation ready - Continue to 3-Plane Control Fabric ✅
 
 ---
 
-## Phase 2.5: Shared Provider Execution Memory (Critical)
+## Phase 2.5: 3-Plane Control Fabric Architecture (Critical)
+
+**Purpose**: Implement 3-plane architecture for zero-downtime self-updates with long-term memory persistence
+
+**⚠️ CRITICAL**: This phase implements FR-056 through FR-060 and FR-071 through FR-075
+
+**Reference**: `E:\dev\dev\workspaces\projects\agentic-homelab-p2p`
+
+### Autonomous Operation Entity Tables (data-model.md Entities 18-22)
+
+- [ ] T545 §3.4 Create Goal table (unified goal queue: user, self_generated, constitutional) in `init/migrations/005_autonomous.sql`
+- [ ] T546 [P] Create Plane table (sandbox/deployed/coordinator with role and status) in `init/migrations/005_autonomous.sql`
+- [ ] T547 [P] Create PlaneTransition table (promotion/rollback audit trail) in `init/migrations/005_autonomous.sql`
+- [ ] T548 [P] Create HealingEvent table (5-stage self-healing audit) in `init/migrations/005_autonomous.sql`
+- [ ] T549 [P] Create HealthMetric table (continuous health monitoring) in `init/migrations/005_autonomous.sql`
+- [ ] T550 [P] Create autonomous operation indexes in `init/migrations/005_autonomous.sql`
+
+### 3-Plane Directory Structure
+
+- [ ] T551 §3.1 Create sandbox-plane directory structure per plan.md in `noa_root/sandbox-plane/`
+- [ ] T552 [P] Create deployed-plane directory structure per plan.md in `noa_root/deployed-plane/`
+- [ ] T553 [P] Create coordinator-plane directory structure per plan.md in `noa_root/coordinator-plane/`
+- [ ] T554 [P] Create shared cross-plane directory structure in `noa_root/shared/`
+- [ ] T555 [P] Create run_sandbox.sh entry point in `sandbox-plane/bin/run_sandbox.sh`
+- [ ] T556 [P] Create run_coordinator.sh entry point in `coordinator-plane/bin/run_coordinator.sh`
+- [ ] T557 [P] Create run_deployed.sh entry point in `deployed-plane/bin/run_deployed.sh`
+
+### 14 Components per Plane
+
+- [ ] T558 Create agents component structure (bin/, manifests/, policy/, spec/, tests/) in `sandbox-plane/components/agents/`
+- [ ] T559 [P] Create memory component structure in `sandbox-plane/components/memory/`
+- [ ] T560 [P] Create models component structure in `sandbox-plane/components/models/`
+- [ ] T561 [P] Create orchestrator component structure in `sandbox-plane/components/orchestrator/`
+- [ ] T562 [P] Create dataplane component structure in `sandbox-plane/components/dataplane/`
+- [ ] T563 [P] Create networking component structure in `sandbox-plane/components/networking/`
+- [ ] T564 [P] Create observability component structure in `sandbox-plane/components/observability/`
+- [ ] T565 [P] Create packaging component structure in `sandbox-plane/components/packaging/`
+- [ ] T566 [P] Create perception component structure in `sandbox-plane/components/perception/`
+- [ ] T567 [P] Create security component structure in `sandbox-plane/components/security/`
+- [ ] T568 [P] Create system component structure in `sandbox-plane/components/system/`
+- [ ] T569 [P] Create ui component structure in `sandbox-plane/components/ui/`
+- [ ] T570 [P] Create update component structure in `sandbox-plane/components/update/`
+- [ ] T571 [P] Create workflow component structure in `sandbox-plane/components/workflow/`
+
+### Coordinator Plane Configuration
+
+- [ ] T572 §3.4 Create analytics.yaml (llama.cpp swarm config) in `coordinator-plane/config/analytics.yaml`
+- [ ] T573 [P] Create promotion-policy.yaml (risk tiers, canary cohorts, abort gates) in `coordinator-plane/config/promotion-policy.yaml`
+- [ ] T574 [P] Create channels.yml (update channels) in `coordinator-plane/config/channels.yml`
+- [ ] T575 [P] Create router.yml (traffic routing) in `coordinator-plane/config/router.yml`
+- [ ] T576 [P] Create global.yaml (constitutional policy) in `coordinator-plane/policy/global.yaml`
+
+### Coordinator Analytics Prompts
+
+- [ ] T577 Create constitutional-court.md prompt in `coordinator-plane/prompts/constitutional-court.md`
+- [ ] T578 [P] Create deployment-advisor.md prompt in `coordinator-plane/prompts/deployment-advisor.md`
+- [ ] T579 [P] Create risk-analyst.md prompt in `coordinator-plane/prompts/risk-analyst.md`
+- [ ] T580 [P] Create telemetry-forecaster.md prompt in `coordinator-plane/prompts/telemetry-forecaster.md`
+
+### Shared Infrastructure
+
+- [ ] T581 §3.8 Create shared/state/registry.db schema (capability metadata, deps, history) in `shared/state/registry_schema.sql`
+- [ ] T582 [P] Create shared/artifacts/ structure for build outputs in `shared/artifacts/`
+- [ ] T583 [P] Create shared/releases/ structure for promoted releases in `shared/releases/`
+- [ ] T584 [P] Create shared/logs/ structure with plane subdirs in `shared/logs/`
+- [ ] T585 [P] Create capability-pack-schema.yaml in `shared/config/capability-pack-schema.yaml`
+- [ ] T586 [P] Create message-bus.toml (Redis/NATS config) in `shared/config/message-bus.toml`
+- [ ] T587 [P] Create compose.yaml for container orchestration in `shared/runtime/compose.yaml`
+
+### Promotion Policy Engine (FR-057)
+
+- [ ] T588 §3.4 Implement promotion policy parser in `coordinator-plane/src/policy/parser.rs`
+- [ ] T589 [P] Implement risk tier classifier (low/medium/high/critical) in `coordinator-plane/src/policy/risk_tier.rs`
+- [ ] T590 [P] Implement canary cohort calculator in `coordinator-plane/src/policy/canary.rs`
+- [ ] T591 [P] Implement abort gate checker (latency, error_rate, violations) in `coordinator-plane/src/policy/abort_gates.rs`
+- [ ] T592 [P] Implement constitutional compliance checker in `coordinator-plane/src/policy/constitutional.rs`
+
+### Coordinator Analytics Engine
+
+- [ ] T593 §3.4 Implement llama.cpp analytics swarm runner in `coordinator-plane/src/analytics/swarm.rs`
+- [ ] T594 [P] Implement artifact ingestion from sandbox in `coordinator-plane/src/analytics/ingest.rs`
+- [ ] T595 [P] Implement capability evaluation in `coordinator-plane/src/analytics/evaluate.rs`
+- [ ] T596 [P] Implement decision trace logging in `coordinator-plane/src/analytics/decision_trace.rs`
+
+### Promotion Flow (FR-057, FR-058)
+
+- [ ] T597 §3.4 Implement promotion orchestrator in `coordinator-plane/src/promotion/orchestrator.rs`
+- [ ] T598 [P] Implement sandbox → coordinator artifact transfer in `coordinator-plane/src/promotion/transfer.rs`
+- [ ] T599 [P] Implement coordinator → deployed release push in `coordinator-plane/src/promotion/push.rs`
+- [ ] T600 [P] Implement rollback trigger on gate breach in `coordinator-plane/src/promotion/rollback.rs`
+
+### Canary Controller (FR-058)
+
+- [ ] T601 §3.4 Implement canary deployment controller in `deployed-plane/src/canary/controller.rs`
+- [ ] T602 [P] Implement traffic splitting (1-10% cohort) in `deployed-plane/src/canary/traffic.rs`
+- [ ] T603 [P] Implement SLO monitoring in `deployed-plane/src/canary/slo_monitor.rs`
+- [ ] T604 [P] Implement autopilot rollback on SLO violation in `deployed-plane/src/canary/autopilot.rs`
+
+### State Synchronization (FR-059)
+
+- [ ] T605 §3.8 Implement shared state sync between planes in `shared/src/sync/state_sync.rs`
+- [ ] T606 [P] Implement registry.db sync in `shared/src/sync/registry_sync.rs`
+- [ ] T607 [P] Implement knowledge base version sync in `shared/src/sync/knowledge_sync.rs`
+- [ ] T608 [P] Implement memory sync across planes in `shared/src/sync/memory_sync.rs`
+
+### Plane Transition Audit (FR-060)
+
+- [ ] T609 §3.5 Implement transition logger (before/after state) in `coordinator-plane/src/audit/transition_logger.rs`
+- [ ] T610 [P] Implement decision rationale recorder in `coordinator-plane/src/audit/decision_record.rs`
+- [ ] T611 [P] Implement transition query API in `coordinator-plane/src/audit/query.rs`
+
+### Self-Healing Loop (FR-071-075)
+
+- [ ] T612 §3.4 Implement continuous health monitoring in `sys/core/src/healing/monitor.rs`
+- [ ] T613 [P] Implement anomaly detection in `sys/core/src/healing/anomaly.rs`
+- [ ] T614 [P] Implement root cause analysis engine in `sys/core/src/healing/diagnose.rs`
+- [ ] T615 §3.4 Implement auto-fix executor (restart, reconfig, rollback, redistribute) in `sys/core/src/healing/fix.rs`
+- [ ] T616 [P] Implement fix validation in `sys/core/src/healing/validate.rs`
+- [ ] T617 [P] Implement retry counter (≥3 attempts before escalate) in `sys/core/src/healing/retry.rs`
+- [ ] T618 [P] Implement user escalation notification in `sys/core/src/healing/escalate.rs`
+- [ ] T619 §3.5 Implement healing audit logger in `sys/core/src/healing/audit.rs`
+- [ ] T620 [P] Implement plane swap for component recovery in `sys/core/src/healing/plane_swap.rs`
+
+### Autonomous Continuous Loop (FR-051-055)
+
+- [ ] T621 §3.4 Implement always-on continuous loop in `sys/core/src/autonomy/continuous_loop.rs`
+- [ ] T622 [P] Implement user goal queue manager in `sys/core/src/autonomy/goal_queue.rs`
+- [ ] T623 [P] Implement goal decomposition engine in `sys/core/src/autonomy/decompose.rs`
+- [ ] T624 [P] Implement resource optimization monitor in `sys/core/src/autonomy/resource_optimizer.rs`
+- [ ] T625 [P] Implement performance self-monitoring in `sys/core/src/autonomy/self_monitor.rs`
+
+### Full Autonomy Operation (FR-061-065)
+
+- [ ] T626 §3.4 Implement autonomous execution mode in `sys/core/src/autonomy/autonomous_mode.rs`
+- [ ] T627 [P] Implement co-improvement goal intake in `sys/core/src/autonomy/co_improve.rs`
+- [ ] T628 [P] Implement 3-plane rollback safety net in `sys/core/src/autonomy/safety_net.rs`
+- [ ] T629 §3.5 Implement real-time activity log (observation only) in `sys/core/src/autonomy/activity_log.rs`
+- [ ] T630 [P] Implement constitutional decision boundary in `sys/core/src/autonomy/constitutional_boundary.rs`
+
+### Autonomous Goal Generation (FR-066-070)
+
+- [ ] T631 §3.4 Implement self-generated goal engine in `sys/core/src/autonomy/goal_generator.rs`
+- [ ] T632 [P] Implement constitutional goal boundary checker in `sys/core/src/autonomy/goal_boundary.rs`
+- [ ] T633 §3.5 Implement goal rationale logger in `sys/core/src/autonomy/goal_rationale.rs`
+- [ ] T634 [P] Implement unified priority queue in `sys/core/src/autonomy/priority_queue.rs`
+- [ ] T635 [P] Implement pattern analysis for improvement opportunities in `sys/core/src/autonomy/pattern_analyzer.rs`
+
+### 3-Plane CLI Commands
+
+- [ ] T636 Implement `noa plane status` command in `sys/core/src/cli/plane.rs`
+- [ ] T637 [P] Implement `noa plane switch` command (emergency) in `sys/core/src/cli/plane.rs`
+- [ ] T638 [P] Implement `noa plane rollback` command in `sys/core/src/cli/plane.rs`
+- [ ] T639 [P] Implement `noa promotion status` command in `sys/core/src/cli/promotion.rs`
+- [ ] T640 [P] Implement `noa promotion approve` command (manual) in `sys/core/src/cli/promotion.rs`
+- [ ] T641 [P] Implement `noa healing status` command in `sys/core/src/cli/healing.rs`
+
+### 3-Plane API Endpoints
+
+- [ ] T642 Implement GET /api/v1/planes endpoint in `sys/core/src/api/routes/planes.rs`
+- [ ] T643 [P] Implement GET /api/v1/planes/{name}/health endpoint in `sys/core/src/api/routes/planes.rs`
+- [ ] T644 [P] Implement POST /api/v1/planes/switch endpoint (emergency) in `sys/core/src/api/routes/planes.rs`
+- [ ] T645 [P] Implement GET /api/v1/promotions endpoint in `sys/core/src/api/routes/promotions.rs`
+- [ ] T646 [P] Implement GET /api/v1/promotions/{id}/status endpoint in `sys/core/src/api/routes/promotions.rs`
+- [ ] T647 [P] Implement GET /api/v1/healing/status endpoint in `sys/core/src/api/routes/healing.rs`
+- [ ] T648 [P] Implement GET /api/v1/healing/events endpoint in `sys/core/src/api/routes/healing.rs`
+- [ ] T649 [P] Implement GET /api/v1/goals endpoint in `sys/core/src/api/routes/goals.rs`
+- [ ] T650 [P] Implement POST /api/v1/goals endpoint in `sys/core/src/api/routes/goals.rs`
+- [ ] T651 [P] Implement GET /api/v1/activity/stream WebSocket in `sys/core/src/api/routes/activity.rs`
+
+**3-Plane Checkpoint**: Architecture complete - Continue to Shared Provider setup ✅
+
+---
+
+## Phase 2.6: Shared Provider Execution Memory (Critical)
 
 **Purpose**: Enable multiple model providers to share memory, context, and execute tasks collaboratively
 
 **⚠️ CRITICAL**: This phase implements FR-037 through FR-042 for multi-provider collaborative execution
+
+**Prerequisite**: Phase 2.5 (3-Plane Control Fabric) must be complete
 
 ### Database Schema (Provider Entities)
 
@@ -349,6 +554,27 @@
 - [ ] T483 §3.2 [US2] Implement CUDA 13.1+ tiles configuration in `sys/core/src/neural/cuda_tiles.rs`
 - [ ] T484 [P] [US2] Add multi-GPU load balancing in `sys/core/src/neural/gpu_scheduler.rs`
 - [ ] T485 [P] [US2] Implement GPU health monitoring in `sys/core/src/neural/gpu_health.rs`
+
+### Advanced Learning Techniques (US2) - FR-043 to FR-046 (SHOULD)
+
+**Note**: These are SHOULD requirements - implement after MVP if resources allow.
+
+- [ ] T657 [US2] §3.4 Design ToolkenGPT integration architecture in `docs/architecture/toolkengpt.md`
+- [ ] T658 [P] [US2] Implement ToolkenGPT token registry in `sys/core/src/learning/toolkengpt/registry.rs`
+- [ ] T659 [P] [US2] Implement tool token embedding pre-training in `sys/core/src/learning/toolkengpt/pretrain.rs`
+- [ ] T660 [P] [US2] Implement tool token plugin loader in `sys/core/src/learning/toolkengpt/plugin.rs`
+- [ ] T661 [US2] §3.7 Design Replay Memory Cache architecture in `docs/architecture/replay_memory.md`
+- [ ] T662 [P] [US2] Implement short-term memory buffer in `sys/core/src/learning/replay/buffer.rs`
+- [ ] T663 [P] [US2] Implement external knowledge base connector in `sys/core/src/learning/replay/knowledge_base.rs`
+- [ ] T664 [P] [US2] Implement experience replay sampling in `sys/core/src/learning/replay/sampler.rs`
+- [ ] T665 [US2] §3.4 Design EWC (Elastic Weight Consolidation) module in `docs/architecture/ewc.md`
+- [ ] T666 [P] [US2] Implement Fisher Information computation in `sys/core/src/learning/ewc/fisher.rs`
+- [ ] T667 [P] [US2] Implement importance-weighted parameter consolidation in `sys/core/src/learning/ewc/consolidate.rs`
+- [ ] T668 [P] [US2] Implement dynamic architecture adapter modules in `sys/core/src/learning/ewc/adapters.rs`
+- [ ] T669 [US2] §3.4 Design MAML (Model-Agnostic Meta-Learning) module in `docs/architecture/maml.md`
+- [ ] T670 [P] [US2] Implement inner-loop task adaptation in `sys/core/src/learning/maml/inner_loop.rs`
+- [ ] T671 [P] [US2] Implement outer-loop meta-optimization in `sys/core/src/learning/maml/outer_loop.rs`
+- [ ] T672 [P] [US2] Implement few-shot learning interface in `sys/core/src/learning/maml/few_shot.rs`
 
 ### Candle Inference Layer (US2)
 
@@ -679,11 +905,11 @@
 
 ### P2P Storage Service (US6) - per p2p-protocol.proto
 
-- [ ] T509 [US6] §3.8 Implement Storage.Store RPC in `p2p/pkg/storage/store.go`
-- [ ] T510 [P] [US6] Implement Storage.Retrieve RPC in `p2p/pkg/storage/retrieve.go`
-- [ ] T511 [P] [US6] Implement Storage.Exists RPC in `p2p/pkg/storage/exists.go`
-- [ ] T512 [P] [US6] Implement Storage.List RPC in `p2p/pkg/storage/list.go`
-- [ ] T513 [P] [US6] Implement Storage.Replicate RPC in `p2p/pkg/storage/replicate.go`
+- [ ] T652 [US6] §3.8 Implement Storage.Store RPC in `p2p/pkg/storage/store.go`
+- [ ] T653 [P] [US6] Implement Storage.Retrieve RPC in `p2p/pkg/storage/retrieve.go`
+- [ ] T654 [P] [US6] Implement Storage.Exists RPC in `p2p/pkg/storage/exists.go`
+- [ ] T655 [P] [US6] Implement Storage.List RPC in `p2p/pkg/storage/list.go`
+- [ ] T656 [P] [US6] Implement Storage.Replicate RPC in `p2p/pkg/storage/replicate.go`
 
 ### Task Distribution (US6)
 
@@ -975,11 +1201,8 @@
 
 ### External Connectors (Feature-Flagged)
 
-- [ ] T385 Implement connector framework in `sys/core/src/connectors/base.rs`
-- [ ] T386 [P] Implement GitHub connector in `sys/core/src/connectors/github.rs`
-- [ ] T387 [P] Implement OpenAI connector in `sys/core/src/connectors/openai.rs`
-- [ ] T388 [P] Implement Claude connector in `sys/core/src/connectors/claude.rs`
-- [ ] T389 [P] Implement Email (SMTP/IMAP) connector in `sys/core/src/connectors/email.rs`
+> **NOTE**: Connector tasks moved to Phase 14 (US10) with full OAuth support and feature flags.
+> See T669-T689 for complete connector implementation.
 
 ### Secondary Layer Adapters
 
@@ -1063,14 +1286,212 @@ Per [universal_task_execution_policy.md](../../project-mgmt/docs/05-policy/unive
 
 ---
 
+## Phase 13: US9 - Cross-Platform Deployment (P3)
+
+**Purpose**: Enable NOA to run on Windows, macOS, Linux, mobile, tablets, and XR devices
+
+**User Story**: As a user, I want NOA to run on all my devices so I can use it everywhere.
+
+**Acceptance Criteria**:
+- Core functionality works identically across Windows 11, macOS, Ubuntu
+- Mobile companion app participates in P2P hive-mind
+- Resource usage adapts to available hardware
+
+### Cross-Platform Build Infrastructure (US9)
+
+- [ ] T652 [US9] Create platform detection module in `sys/core/src/platform/detect.rs`
+- [ ] T653 [P] [US9] Implement Windows-specific adaptations in `sys/core/src/platform/windows.rs`
+- [ ] T654 [P] [US9] Implement macOS-specific adaptations in `sys/core/src/platform/macos.rs`
+- [ ] T655 [P] [US9] Implement Linux-specific adaptations in `sys/core/src/platform/linux.rs`
+- [ ] T656 [P] [US9] Create cross-platform path resolver in `sys/core/src/platform/paths.rs`
+
+### CI/CD Matrix (US9)
+
+- [ ] T657 [US9] Create cross-platform CI matrix in `.github/workflows/cross-platform.yml`
+- [ ] T658 [P] [US9] Add Windows build job (x64) in `.github/workflows/cross-platform.yml`
+- [ ] T659 [P] [US9] Add macOS build jobs (x64, arm64) in `.github/workflows/cross-platform.yml`
+- [ ] T660 [P] [US9] Add Ubuntu build job (x64) in `.github/workflows/cross-platform.yml`
+- [ ] T661 [P] [US9] Create platform-specific artifact packaging in `scripts/package/`
+
+### Mobile Companion (US9)
+
+- [ ] T662 [US9] Create mobile companion project structure in `sys/mobile/`
+- [ ] T663 [P] [US9] Implement P2P client for mobile in `sys/mobile/src/p2p_client.rs`
+- [ ] T664 [P] [US9] Create minimal mobile UI (companion mode) in `sys/mobile/src/ui/`
+- [ ] T665 [US9] Implement hardware capability detection in `sys/core/src/platform/capabilities.rs`
+
+### Resource Adaptation (US9)
+
+- [ ] T666 [US9] Implement dynamic resource allocation based on hardware tier in `sys/core/src/resources/allocator.rs`
+- [ ] T667 [P] [US9] Implement model size selection per hardware in `sys/core/src/resources/model_selector.rs`
+- [ ] T668 [P] [US9] Implement graceful degradation on low-resource systems in `sys/core/src/resources/degradation.rs`
+
+**US9 Acceptance Criteria**:
+- [ ] CI passes on Windows, macOS (x64+arm64), Ubuntu
+- [ ] Mobile companion connects to desktop NOA
+- [ ] Resource usage scales with hardware tier
+
+---
+
+## Phase 14: US10 - Connectors & External Integration (P3)
+
+**Purpose**: Enable NOA to connect to external services (Gmail, GitHub, cloud storage)
+
+**User Story**: As a user, I want NOA to integrate with my existing accounts and services.
+
+**Acceptance Criteria**:
+- OAuth connectors authenticate within 5 seconds
+- Connectors degrade gracefully when network unavailable
+- All connectors feature-flagged and optional
+
+### Feature Flag Framework (US10)
+
+- [ ] T669 [US10] Implement feature flag service in `sys/core/src/features/flags.rs`
+- [ ] T670 [P] [US10] Create feature flag configuration in `config/features.json`
+- [ ] T671 [P] [US10] Implement feature flag CLI commands in `sys/core/src/cli/features.rs`
+
+### OAuth Framework (US10)
+
+- [ ] T672 [US10] Implement OAuth2 base client in `sys/core/src/connectors/oauth/client.rs`
+- [ ] T673 [P] [US10] Implement OAuth callback handler in `sys/core/src/connectors/oauth/callback.rs`
+- [ ] T674 [P] [US10] Implement token exchange flow in `sys/core/src/connectors/oauth/token_exchange.rs`
+- [ ] T675 [P] [US10] Implement token refresh mechanism in `sys/core/src/connectors/oauth/refresh.rs`
+- [ ] T676 [P] [US10] Implement secure token storage in `sys/core/src/connectors/oauth/storage.rs`
+
+### Connector Implementations (US10)
+
+- [ ] T677 [US10] Implement connector base trait in `sys/core/src/connectors/base.rs`
+- [ ] T678 [P] [US10] Implement GitHub connector in `sys/core/src/connectors/github.rs`
+- [ ] T679 [P] [US10] Implement Gmail/Google connector in `sys/core/src/connectors/google.rs`
+- [ ] T680 [P] [US10] Implement OpenAI connector in `sys/core/src/connectors/openai.rs`
+- [ ] T681 [P] [US10] Implement Claude connector in `sys/core/src/connectors/claude.rs`
+- [ ] T682 [P] [US10] Implement cloud storage connector (S3/GCS) in `sys/core/src/connectors/cloud_storage.rs`
+- [ ] T683 [P] [US10] Implement Email (SMTP/IMAP) connector in `sys/core/src/connectors/email.rs`
+
+### Connector Graceful Degradation (US10)
+
+- [ ] T684 [US10] Implement offline cache for connectors in `sys/core/src/connectors/cache.rs`
+- [ ] T685 [P] [US10] Implement network availability detection in `sys/core/src/connectors/network.rs`
+- [ ] T686 [P] [US10] Implement connector status reporting in `sys/core/src/connectors/status.rs`
+
+### Connector UI (US10)
+
+- [ ] T687 [US10] Create connector settings page in `sys/ui/src/pages/settings/connectors.tsx`
+- [ ] T688 [P] [US10] Create OAuth authorization flow UI in `sys/ui/src/components/connectors/OAuthFlow.tsx`
+- [ ] T689 [P] [US10] Create connector status dashboard in `sys/ui/src/components/connectors/StatusDashboard.tsx`
+
+**US10 Acceptance Criteria**:
+- [ ] OAuth authentication completes within 5 seconds
+- [ ] Connectors work with cached data when offline
+- [ ] All connectors can be disabled via feature flags
+
+---
+
+## Phase 15: Governance & Safety (FR-025 to FR-028)
+
+**Purpose**: Implement constitutional governance, biblical truth pipeline, and safety mechanisms
+
+### Constitutional Governance (FR-025)
+
+- [ ] T690 §3.10 Implement constitutional governance engine in `sys/core/src/governance/engine.rs`
+- [ ] T691 [P] §3.5 Implement governance audit trail in `sys/core/src/governance/audit.rs`
+- [ ] T692 [P] Create governance decision schema in `config/schemas/governance.json`
+
+### Biblical Governance Pipeline (FR-026) - §3.9 §3.10
+
+- [ ] T693 §3.10 Create biblical source text storage in `data/governance/biblical/sources/`
+- [ ] T694 [P] §3.10 Implement Greek/Hebrew text ingestion in `sys/core/src/governance/biblical/ingest.rs`
+- [ ] T695 [P] §3.10 Implement lexical analysis module in `sys/core/src/governance/biblical/lexical.rs`
+- [ ] T696 §3.10 Implement semantic embedding pipeline in `sys/core/src/governance/biblical/embedding.rs`
+- [ ] T697 [P] §3.10 Implement biblical knowledge graph integration in `sys/core/src/governance/biblical/knowledge_graph.rs`
+- [ ] T698 [P] §3.10 Create biblical governance prompts in `ai/shared/prompts/biblical-governance.md`
+- [ ] T699 §3.10 Implement ethical decision boundary from biblical principles in `sys/core/src/governance/biblical/ethics.rs`
+
+### Reward/Correction Mechanisms (FR-027)
+
+- [ ] T700 §3.4 Implement agent compliance reward system in `sys/core/src/governance/rewards.rs`
+- [ ] T701 [P] §3.12 Implement drift detection testing loop in `sys/core/src/governance/drift_detection.rs`
+- [ ] T702 [P] §3.4 Implement compliance correction mechanism in `sys/core/src/governance/correction.rs`
+
+### Self-Modification Rollback (FR-028)
+
+- [ ] T703 §3.4 Implement modification snapshot service in `sys/core/src/governance/snapshot.rs`
+- [ ] T704 [P] §3.4 Implement rollback path validator in `sys/core/src/governance/rollback_validator.rs`
+- [ ] T705 [P] §3.4 Implement modification reversal executor in `sys/core/src/governance/rollback_executor.rs`
+
+**Governance Acceptance Criteria**:
+- [ ] All agent decisions logged with rationale
+- [ ] Biblical text transformation pipeline operational
+- [ ] 100% of self-modifications have valid rollback path
+
+---
+
+## Phase 16: Success Criteria Verification (SC-001 to SC-012) - §3.12
+
+**Purpose**: Implement benchmarks and verification for all Success Criteria
+
+### Performance Benchmarks (SC-001, SC-002, SC-011, SC-012)
+
+- [ ] T706 §3.12 SC-001 Implement system initialization benchmark (<60s on standard hardware) in `tests/benchmarks/sc001_init.rs`
+- [ ] T707 [P] §3.12 SC-002 Implement CPU inference benchmark (<2s on CPU-only) in `tests/benchmarks/sc002_cpu_inference.rs`
+- [ ] T708 [P] §3.12 SC-011 Implement single GPU inference benchmark (<500ms) in `tests/benchmarks/sc011_gpu_inference.rs`
+- [ ] T709 [P] §3.12 SC-012 Implement multi-GPU inference benchmark (<300ms with tensor parallelism) in `tests/benchmarks/sc012_multi_gpu.rs`
+
+### Memory & Database Benchmarks (SC-003, SC-004)
+
+- [ ] T710 §3.12 SC-003 Implement memory recall benchmark (<500ms for any interaction) in `tests/benchmarks/sc003_memory_recall.rs`
+- [ ] T711 [P] §3.12 SC-004 Implement digest pipeline benchmark (<30min for 10K files) in `tests/benchmarks/sc004_digest.rs`
+
+### Concurrency & Scalability Benchmarks (SC-005, SC-006)
+
+- [ ] T712 §3.12 SC-005 Implement concurrent agent task benchmark (200 tasks, ≥98% success) in `tests/benchmarks/sc005_concurrent_tasks.rs`
+- [ ] T713 [P] §3.12 SC-006 Implement P2P sync benchmark (<5s for <1MB delta) in `tests/benchmarks/sc006_p2p_sync.rs`
+
+### UI & Responsiveness Benchmarks (SC-007)
+
+- [ ] T714 §3.12 SC-007 Implement UI context switch benchmark (<200ms) in `tests/benchmarks/sc007_ui_switch.rs`
+
+### Stability & Reliability Benchmarks (SC-008, SC-010)
+
+- [ ] T715 §3.12 SC-008 Implement 7-day continuous operation test in `tests/stability/sc008_long_running.rs`
+- [ ] T716 [P] §3.12 SC-010 Implement rollback path validation (100% coverage) in `tests/stability/sc010_rollback.rs`
+
+### Cross-Platform Verification (SC-009)
+
+- [ ] T717 §3.12 SC-009 Implement cross-platform consistency test suite in `tests/cross_platform/sc009_consistency.rs`
+- [ ] T718 [P] §3.12 SC-009 Create platform comparison report generator in `scripts/bash/platform-report.sh`
+
+### SC Verification CI Integration
+
+- [ ] T719 §3.12 Create SC verification workflow in `.github/workflows/sc-verification.yml`
+- [ ] T720 [P] §3.12 Create SC dashboard in `sys/ui/src/pages/admin/sc-dashboard.tsx`
+- [ ] T721 [P] §3.12 Create SC report generator in `scripts/bash/sc-report.sh`
+
+**SC Verification Acceptance Criteria**:
+- [ ] All 12 SCs have automated benchmarks
+- [ ] CI runs SC verification on release
+- [ ] SC dashboard shows current compliance status
+
+---
+
 ## Dependency Graph
 
 ```
 Phase 1 (Setup)
+    │  ├─ Directory Structure (FR-029-036): T002-T009
+    │  └─ Project Initialization: T010-T018
     ↓
 Phase 2 (Foundation - Database & Storage)
     ↓
-Phase 2.5 (Shared Provider Execution Memory) ← CRITICAL: Multi-provider collaborative execution
+Phase 2.5 (3-Plane Control Fabric) ← FR-056-060, FR-071-075
+    │  ├─ Autonomous Entity Tables (T545-T550)
+    │  ├─ 3-Plane Directory Structure (T551-T557)
+    │  ├─ 14 Components per Plane (T558-T571)
+    │  ├─ Promotion Policy Engine (T588-T592)
+    │  ├─ Self-Healing Loop (T612-T620)
+    │  └─ Autonomous Operation Loop (T621-T635)
+    ↓
+Phase 2.6 (Shared Provider Execution Memory) ← FR-037-042
     ↓
 ┌───────────────────────────────────────┐
 │         MVP (P1 User Stories)          │
@@ -1097,12 +1518,43 @@ Phase 10: US8 (Self-Improve) ← Requires US7
 Phase 11 (Project Mgmt Integration)
     ↓
 Phase 12 (Polish)
+    ↓
+┌───────────────────────────────────────┐
+│       P3 User Stories (Parallel)       │
+│  Phase 13: US9 (Cross-Platform)  ←─┐   │
+│  Phase 14: US10 (Connectors)     ←─┘   │
+└───────────────────────────────────────┘
+    ↓
+Phase 15 (Governance & Safety) ← FR-025-028, Biblical Pipeline
+    ↓
+Phase 16 (SC Verification) ← SC-001 to SC-012
+```
+
+### 3-Plane Control Fabric Flow
+
+```
+Phase 2.5 (3-Plane Architecture):
+    ┌──────────────────────────────────────────────────────────────┐
+    │  SANDBOX PLANE      COORDINATOR PLANE      DEPLOYED PLANE    │
+    │      (Blue)            (Analytics)             (Green)       │
+    │                                                              │
+    │  T551 dirs           T553 dirs               T552 dirs      │
+    │  T558-571 comps      T572-580 config         T601-604 canary│
+    │                      T588-596 analytics                      │
+    │                      T609-611 audit                          │
+    │                                                              │
+    │  Artifacts ──────▶   Evaluate ──────▶       Promote         │
+    │  (selftest)          (llama.cpp)            (canary)        │
+    │                                                              │
+    │  ◀────────────────   Rollback   ◀──────────────────────     │
+    │                      (T600)                  (T604)         │
+    └──────────────────────────────────────────────────────────────┘
 ```
 
 ### Provider Integration Flow
 
 ```
-Phase 2.5 Provider Setup:
+Phase 2.6 Provider Setup:
     llama.cpp (5+ models) ───┐
     Claude Code (CLI/Cloud/IDE) ───┤
     Codex (CLI/Cloud/IDE) ───┤
@@ -1110,6 +1562,24 @@ Phase 2.5 Provider Setup:
     Git CLI ───┤
     Cursor (IDE/CLI/Cloud) ───┤
     Abacus (CLI/Cloud) ───┘
+```
+
+### Autonomous Operation Flow
+
+```
+Continuous Loop (T621):
+    ┌──────────────────────────────────────────────────────────────┐
+    │                                                              │
+    │   Goal Queue ──▶ Decompose ──▶ Execute ──▶ Validate         │
+    │   (T622)         (T623)                                      │
+    │       ▲                                                      │
+    │       │                                                      │
+    │   Self-Generated Goals (T631-T635)                          │
+    │       │                                                      │
+    │   Self-Healing Loop (T612-T620):                            │
+    │   Detect → Diagnose → Auto-Fix → Validate → Escalate        │
+    │                                                              │
+    └──────────────────────────────────────────────────────────────┘
 ```
 
 ## Parallel Execution Opportunities
@@ -1164,44 +1634,112 @@ After MVP, implement P2 stories in parallel:
 
 Finally, implement self-improvement (US8) which requires stable agent framework (US7).
 
+Then implement P3 stories:
+- **US9**: Cross-platform deployment (Windows, macOS, Linux, mobile)
+- **US10**: External connectors with OAuth (GitHub, Gmail, cloud storage)
+
 ---
 
 ## Summary
 
 | Metric | Count |
 |--------|-------|
-| **Total Tasks** | 544 |
-| **Phase 1 (Setup)** | 10 |
+| **Total Tasks** | 740 |
+| **Phase 1 (Setup)** | 21 (includes FR-029-036 directory structure + 3 prerequisite check tasks) |
 | **Phase 2 (Foundation)** | 60 |
-| **Phase 2.5 (Shared Providers)** | 48 |
+| **Phase 2.5 (3-Plane Control Fabric)** | 107 (FR-056-060, FR-071-075) |
+| **Phase 2.6 (Shared Providers)** | 48 |
 | **US1 Tasks** | 25 |
-| **US2 Tasks** | 58 (includes 13 ModelSelectorAgents + 8 Multi-GPU + 3 model endpoints) |
+| **US2 Tasks** | 74 (includes 13 ModelSelectorAgents + 8 Multi-GPU + 3 model endpoints + 16 Advanced Learning) |
 | **US3 Tasks** | 22 |
 | **US4 Tasks** | 50 (includes 11 digest source/knowledge endpoints) |
 | **US5 Tasks** | 38 |
 | **US6 Tasks** | 49 (includes 21 P2P protocol service tasks: Discovery 4, Sync 4, Compute 4, Storage 5 + 4 infra) |
 | **US7 Tasks** | 56 (includes 7 agent/task endpoints) |
 | **US8 Tasks** | 55 |
+| **US9 Tasks** | 17 (Cross-Platform Deployment) |
+| **US10 Tasks** | 21 (Connectors & OAuth) |
 | **Phase 11 (Project Mgmt)** | 23 |
-| **Phase 12 (Polish)** | 53 (includes 21 Execution Policy + Open Questions tasks) |
-| **Parallelizable [P]** | 365 (67%) |
+| **Phase 12 (Polish)** | 48 (includes Execution Policy + Open Questions) |
+| **Phase 15 (Governance)** | 16 (FR-025-028, Biblical Pipeline) |
+| **Phase 16 (SC Verification)** | 16 (SC-001 to SC-012) |
+| **Parallelizable [P]** | 546 (74%) |
 
-### New Requirements Covered (FR-037 to FR-050)
+### Prerequisite Check Tasks (NEW - CRITICAL)
+- **Prerequisite Scripts**: ✅ T673-T675 (bash, PowerShell, CI integration)
+  - Checks: Rust 1.83+, Go 1.23+, Node 20+, Python 3.12+, protoc 28+
+  - Checks: rustfmt, clippy, golangci-lint 1.62+, eslint 9+, ruff 0.8+
+  - Checks: Gitleaks 8.21+, Trivy 0.57+, Grype 0.84+, Semgrep 1.97+
+
+### 3-Plane Control Fabric Architecture (NEW - FR-056-060)
+- **Autonomous Entities**: ✅ T545-T550 (Goal, Plane, PlaneTransition, HealingEvent, HealthMetric tables)
+- **3-Plane Directory Structure**: ✅ T551-T557 (sandbox-plane, deployed-plane, coordinator-plane)
+- **14 Components per Plane**: ✅ T558-T571 (agents, memory, models, orchestrator, dataplane, networking, observability, packaging, perception, security, system, ui, update, workflow)
+- **Coordinator Configuration**: ✅ T572-T580 (analytics.yaml, promotion-policy.yaml, constitutional prompts)
+- **Shared Infrastructure**: ✅ T581-T587 (registry.db, artifacts/, releases/, logs/)
+- **Promotion Policy Engine**: ✅ T588-T592 (risk tiers, canary cohorts, abort gates)
+- **Coordinator Analytics**: ✅ T593-T596 (llama.cpp swarm, artifact ingestion, evaluation)
+- **Promotion Flow**: ✅ T597-T600 (orchestrator, transfer, push, rollback)
+- **Canary Controller**: ✅ T601-T604 (traffic splitting, SLO monitoring, autopilot)
+- **State Synchronization**: ✅ T605-T608 (registry sync, knowledge sync, memory sync)
+- **Transition Audit**: ✅ T609-T611 (before/after state logging)
+
+### Autonomous Operation (NEW - FR-051-055, FR-061-075)
+- **Self-Healing Loop**: ✅ T612-T620 (detect, diagnose, auto-fix, validate, escalate, plane swap)
+- **Continuous Loop**: ✅ T621-T625 (always-on loop, goal queue, decomposition, optimization)
+- **Full Autonomy**: ✅ T626-T630 (autonomous mode, co-improvement, safety net, activity log)
+- **Goal Generation**: ✅ T631-T635 (self-generated goals, boundary checker, rationale logger, pattern analyzer)
+- **3-Plane CLI**: ✅ T636-T641 (plane status, switch, rollback, promotion commands)
+- **3-Plane API**: ✅ T642-T651 (planes, promotions, healing, goals, activity stream endpoints)
+
+### Advanced Learning Techniques (NEW - FR-043 to FR-046 SHOULD)
+- **ToolkenGPT (FR-043)**: ✅ T657-T660 (architecture, registry, pre-training, plugin loader)
+- **Replay Memory Cache (FR-044)**: ✅ T661-T664 (architecture, buffer, knowledge base, sampler)
+- **EWC Consolidation (FR-045)**: ✅ T665-T668 (architecture, Fisher info, consolidation, adapters)
+- **MAML Meta-Learning (FR-046)**: ✅ T669-T672 (architecture, inner loop, outer loop, few-shot)
+
+### Directory Structure Coverage (FR-029 to FR-036)
+- **FR-029 noa_root/sys/**: ✅ T002 (system-level components)
+- **FR-030 noa_root/p2p/**: ✅ T003 (P2P networking)
+- **FR-031 noa_root/opt/**: ✅ T004 (optional packages)
+- **FR-032 noa_root/init/**: ✅ T005 (init scripts)
+- **FR-033 noa_root/containers/**: ✅ T006 (container definitions)
+- **FR-034 noa_root/config/**: ✅ T007 (configuration files)
+- **FR-035 noa_root/bin/**: ✅ T008 (executables)
+- **FR-036 noa_root/ai/**: ✅ T009 (AI assets)
+
+### Governance & Safety Coverage (FR-025 to FR-028)
+- **FR-025 Constitutional Governance**: ✅ T690-T692 (engine, audit trail, schema)
+- **FR-026 Biblical Governance Pipeline**: ✅ T693-T699 (Greek/Hebrew ingest, lexical analysis, embedding, knowledge graph)
+- **FR-027 Reward/Correction Mechanisms**: ✅ T700-T702 (rewards, drift detection, correction)
+- **FR-028 Self-Modification Rollback**: ✅ T703-T705 (snapshot, validator, executor)
+
+### New Requirements Covered (FR-037 to FR-075)
 - **Shared Provider Execution Memory**: ✅ 48 tasks (FR-037 to FR-042)
 - **Collaborative Reasoning**: ✅ T450-T453
 - **8 Provider Types**: ✅ llama.cpp, Claude, Codex, Copilot, Git, Cursor, Abacus
 - **5+ Concurrent Local Models**: ✅ T429-T431
 - **Multi-GPU Support**: ✅ 8 tasks T478-T485 (FR-047 to FR-050)
 - **CUDA 13.1+ Tiles**: ✅ T483
+- **3-Plane Control Fabric**: ✅ 107 tasks T545-T651 (FR-056-060, FR-071-075)
+- **Autonomous Continuous Operation**: ✅ T621-T625 (FR-051-055)
+- **Full Autonomy Operation**: ✅ T626-T630 (FR-061-065)
+- **Autonomous Goal Generation**: ✅ T631-T635 (FR-066-070)
+- **Self-Healing Loop**: ✅ T612-T620 (FR-071-075)
 
 ### Contract Coverage (from contracts/)
-- **noa-core.openapi.yaml**: ✅ Health, Memory, Agents, Tasks, Models, System endpoints
+- **noa-core.openapi.yaml**: ✅ Health, Memory, Agents, Tasks, Models, System, Planes, Promotions, Healing, Goals, Activity
 - **digest-pipeline.openapi.yaml**: ✅ Sources, Jobs, Knowledge, Security endpoints
 - **p2p-protocol.proto**: ✅ All 4 services covered:
   - Discovery (T501-T503): Announce, FindPeers, Ping
   - Sync (T505-T508): GetState, PushChanges, PullChanges, ResolveConflict
-  - Storage (T509-T513): Store, Retrieve, Exists, List, Replicate
+  - Storage (T652-T656): Store, Retrieve, Exists, List, Replicate
   - Compute (T514-T517): SubmitTask, GetTaskStatus, CancelTask, StreamOutput
+
+### Data Model Coverage (22 Entities)
+- **Core (1-14)**: Memory, Embedding, Agent, AgentLog, Task, TaskEvent, MicroAgentStack, Capsule, KnowledgeNode, KnowledgeEdge, DigestSource, Model, Device, SyncState
+- **Providers (15-17)**: Provider, SharedExecutionContext, ProviderTask
+- **Autonomous (18-22 NEW)**: Goal, Plane, PlaneTransition, HealingEvent, HealthMetric
 
 ### Universal Task Execution Policy Artifacts (§9)
 - **Hash Generation**: ✅ T486-T487 (SHA-256 for all artifacts)
@@ -1217,10 +1755,10 @@ Finally, implement self-improvement (US8) which requires stable agent framework 
 - **Memory Retention Policy**: ✅ T532-T533 (config + auto-prune)
 - **Agent Marketplace**: ✅ T534-T535 (stub API + UI)
 
-### MVP Scope (US1 + US2 + US3)
-- **Tasks**: 223 (Foundation + Providers + 3 stories + Multi-GPU)
-- **Estimated Duration**: 8-10 weeks with 2 developers
+### MVP Scope (US1 + US2 + US3 + 3-Plane Foundation)
+- **Tasks**: 330 (Foundation + 3-Plane + Providers + 3 stories + Multi-GPU)
+- **Estimated Duration**: 12-14 weeks with 2 developers
 
 ### Full Implementation
-- **Tasks**: 535
-- **Estimated Duration**: 20-24 weeks with 2-4 developers
+- **Tasks**: 651
+- **Estimated Duration**: 24-28 weeks with 2-4 developers
