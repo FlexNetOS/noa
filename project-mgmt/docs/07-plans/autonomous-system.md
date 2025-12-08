@@ -6,23 +6,10 @@ CECCA, also-known-as: [Noa, or CEO]
 Definition: [Autonomous Self-Modifying AI System - Project Vision & Implementation Framework]
 Goal: [BIOLOGICAL-INSPIRED "STEM CELL" AUTONOMOUS COMPUTING INTEGRATED WITH CAPSULE NETWORKS & CELL-BASED ARCHITECTURE]
 Primary Objective: [Autonomous, Progressive Dynamic Adaptation Evolution System, Peer-to-Peer, Decentralized, Distributed, Flexible, Resilient, Scalable, Intelligent, Interoperability, Data Secure]
----
-
-## **Build Sequence**: CECCA Capsule → Primary Layer Capsules & Cells → Secondary Layer Integration
-
-1. **CECCA Capsule First** - Foundational autonomous AI system with verified self-modification capabilities
-2. **Primary Layer Expansion** - Complete autonomous ecosystem functioning strictly offline
-3. **Secondary Layer Integration** - Optional external system integration controlled by CECCA
 
 ---
 
-## STEM CELL COMPUTING FRAMEWORK
-
-### Biological-Inspired Architecture
-
-Drawing inspiration from biological stem cell systems, CECCA employs a **Stem Cell Computing Framework** that mirrors natural biological processes:
-
-#### CECCA as ROOT Stem Cell
+## (NOA) CECCA as ROOT Stem Cell
 
 **CECCA Capsule serves as the foundational ROOT Stem Cell** - the primary pluripotent computational entity capable of differentiating into any specialized system component. Like biological stem cells that can become any type of cell in an organism, CECCA can spawn, manage, and coordinate all other computational cells, capsules, and stacks.
 
@@ -41,7 +28,7 @@ Drawing inspiration from biological stem cell systems, CECCA employs a **Stem Ce
 - **Cross-Platform Optimization**: Native performance optimization for each target platform
 - **Scalable Architecture**: From single-device deployment to distributed multi-node federations
 
-#### Core Biological Analogies
+### Core Biological Analogies
 
 **Pluripotent STEM Layer**
 - Like biological stem cells, can differentiate into any specialized computational cell type
@@ -71,6 +58,14 @@ Drawing inspiration from biological stem cell systems, CECCA employs a **Stem Ce
 ---
 
 ## IMPLEMENTATION STRATEGY: THREE-PHASE LAYERED APPROACH
+
+## **Build Sequence**: CECCA Capsule → Primary Layer Capsules & Cells → Secondary Layer Integration
+
+1. **CECCA Capsule First** - Foundational autonomous AI system with verified self-modification capabilities
+2. **Primary Layer Expansion** - Complete autonomous ecosystem functioning strictly offline
+3. **Secondary Layer Integration** - Optional external system integration controlled by CECCA
+
+---
 
 ### Phase 1: CECCA Capsule Foundation
 
@@ -125,13 +120,7 @@ Drawing inspiration from biological stem cell systems, CECCA employs a **Stem Ce
 
 ---
 
-## PRIMARY LAYER COMPREHENSIVE ARCHITECTURE
-
-### Biological-Inspired Autonomous Computing Framework
-
-Building upon verified foundations, the Primary Layer encompasses complete autonomous computing with strict offline-first operation following stem cell computing principles.
-
-### 1. Local-First Computing & Storage (Cellular Metabolism)
+## 1. PRIMARY LAYER COMPREHENSIVE ARCHITECTURE. Local-First Computing & Storage (Cellular Metabolism)
 
 **Core Requirements:**
 
@@ -486,7 +475,7 @@ CECCA is designed for complete business autonomy, capable of operating entire en
 
 ## SECONDARY LAYER INTEGRATION FRAMEWORK
 
-### Optional External System Integration (CECCA-Controlled)
+### Required External System Integration with A/B Switching (CECCA-Controlled)
 
 The Secondary Layer provides optional integration capabilities that CECCA can autonomously enable or disable based on operational requirements, security assessments, and strategic benefits.
 
@@ -525,22 +514,12 @@ The Secondary Layer provides optional integration capabilities that CECCA can au
 
 ---
 
-**Implementation Priority Sequence**:
-
-1. **Phase 1 - Dynamic Graph Implementation**: Complete 25+ specialized ingestion graphs
-2. **Phase 2 - Neural Runtime Enhancement**: Advanced model orchestration and inference
-3. **Phase 3 - Enterprise Business Logic**: Autonomous business operations framework
-4. **Phase 4 - Multi-Node Federation**: Cross-device coordination and synchronization
-5. **Phase 5 - Secondary Layer Preparation**: External integration framework (when CECCA decides)
-
----
-
-# ALL-IN-ONE STEM-DRIVEN AUTONOMOUS SYSTEM MAP
+# AUTONOMOUS SYSTEM MAP
 
 ```mermaid
 flowchart TB
 %% =========================================
-%% ALL-IN-ONE STEM-DRIVEN AUTONOMOUS SYSTEM MAP (v10.8 • COMPREHENSIVE FRAMEWORK INTEGRATED)
+%% AUTONOMOUS SYSTEM MAP (COMPREHENSIVE FRAMEWORK INTEGRATED)
 %% =========================================
 %%
 %% PROJECT GOAL: Autonomous Computing Evolution
@@ -557,7 +536,7 @@ flowchart TB
 %% - Hierarchical organization: cells → capsules → stacks
 %% - Autonomous self-modification and continuous improvement
 %%
-%% POLICY FRAMEWORK: Evidence-Based Execution (universal_task_execution_policy.md)
+%% POLICY FRAMEWORK: Evidence-Based Execution
 %%
 %% ## 0 Scope and Priority
 %% - **Applies to:** all tasks, all outputs, all agents, all tools.
@@ -618,7 +597,7 @@ subgraph CECCA_CAP[CECCA Capsule]
   CC_STEM_DIFF[Cell: Enhanced Stem Differentiator • Autonomous Code Generation]:::accent
   CC_CHOP[Cell: Capsule Surgeon • Live Source Code Modification]:::accent
 
-  %% Enhanced ingestion graph cells (25+ specialized dynamic graphs)
+  %% Ingestion Graph cells (25+ specialized dynamic graphs)
   CC_EFG[Cell: Environment Function Graph • Live Host Environment Mapping]
   CC_DSG[Cell: Dynamic Software Graph • Live Software Analysis & Optimization]
   CC_DHG[Cell: Dynamic Hardware Graph • Live Hardware Monitoring & Tuning]
@@ -1037,7 +1016,7 @@ subgraph GLOSS[Glossary & Framework]
   G5[STEM: pluripotent layer that replicates/differentiates; enforces policies.]
 
   %% Biological Framework Terms
-  BIO1[CECCA: Computational Evolution through Cellular Capsule Architecture]
+  BIO1[CECCA: Chief Executive Command Chief AGENT]
   BIO2[Stem Cell Computing: Biological-inspired computing framework with pluripotent capabilities]
   BIO3[Primary Layer: Strictly offline autonomous computing layer]
   BIO4[Secondary Layer: Optional external integration layer controlled by CECCA]

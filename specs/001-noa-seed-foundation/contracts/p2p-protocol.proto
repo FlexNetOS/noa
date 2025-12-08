@@ -1,0 +1,365 @@
+// NOA P2P Protocol
+// Protocol Buffer definitions for peer-to-peer communication
+
+syntax = "proto3";
+
+package noa.p2p;
+
+option go_package = "github.com/noa/p2p/protocol";
+
+// ====================
+// Discovery Service
+// ====================
+
+service Discovery {
+  // Announce presence on the network
+  rpc Announce(AnnounceRequest) returns (AnnounceResponse);
+
+  // Query for peers
+  rpc FindPeers(FindPeersRequest) returns (FindPeersResponse);
+
+  // Ping peer for liveness
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message AnnounceRequest {
+  DeviceInfo device = 1;
+  repeated Capability capabilities = 2;
+  ResourceInfo resources = 3;
+}
+
+message AnnounceResponse {
+  bool accepted = 1;
+  string peer_id = 2;
+  repeated PeerInfo known_peers = 3;
+}
+
+message FindPeersRequest {
+  repeated Capability required_capabilities = 1;
+  int32 max_results = 2;
+}
+
+message FindPeersResponse {
+  repeated PeerInfo peers = 1;
+}
+
+message PingRequest {
+  int64 timestamp = 1;
+}
+
+message PingResponse {
+  int64 timestamp = 1;
+  int64 latency_ms = 2;
+}
+
+// ====================
+// Sync Service
+// ====================
+
+service Sync {
+  // Get sync state
+  rpc GetState(GetStateRequest) returns (GetStateResponse);
+
+  // Push changes to peer
+  rpc PushChanges(PushChangesRequest) returns (PushChangesResponse);
+
+  // Pull changes from peer
+  rpc PullChanges(PullChangesRequest) returns (PullChangesResponse);
+
+  // Resolve conflict
+  rpc ResolveConflict(ResolveConflictRequest) returns (ResolveConflictResponse);
+}
+
+message GetStateRequest {
+  string entity_type = 1;
+  int64 since_version = 2;
+}
+
+message GetStateResponse {
+  int64 current_version = 1;
+  bytes state_hash = 2;
+  int32 pending_changes = 3;
+}
+
+message PushChangesRequest {
+  string entity_type = 1;
+  repeated Change changes = 2;
+  int64 base_version = 3;
+}
+
+message PushChangesResponse {
+  bool accepted = 1;
+  int64 new_version = 2;
+  repeated Conflict conflicts = 3;
+}
+
+message PullChangesRequest {
+  string entity_type = 1;
+  int64 since_version = 2;
+  int32 max_changes = 3;
+}
+
+message PullChangesResponse {
+  repeated Change changes = 1;
+  int64 latest_version = 2;
+  bool has_more = 3;
+}
+
+message ResolveConflictRequest {
+  string conflict_id = 1;
+  Resolution resolution = 2;
+}
+
+message ResolveConflictResponse {
+  bool success = 1;
+  int64 new_version = 2;
+}
+
+// ====================
+// Compute Service
+// ====================
+
+service Compute {
+  // Submit task to peer
+  rpc SubmitTask(SubmitTaskRequest) returns (SubmitTaskResponse);
+
+  // Get task status
+  rpc GetTaskStatus(GetTaskStatusRequest) returns (GetTaskStatusResponse);
+
+  // Cancel task
+  rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+
+  // Stream task output
+  rpc StreamOutput(StreamOutputRequest) returns (stream TaskOutput);
+}
+
+message SubmitTaskRequest {
+  string task_id = 1;
+  TaskType task_type = 2;
+  bytes payload = 3;
+  ResourceRequirements requirements = 4;
+  int64 timeout_ms = 5;
+}
+
+message SubmitTaskResponse {
+  bool accepted = 1;
+  string execution_id = 2;
+  int64 estimated_ms = 3;
+}
+
+message GetTaskStatusRequest {
+  string execution_id = 1;
+}
+
+message GetTaskStatusResponse {
+  TaskStatus status = 1;
+  float progress = 2;
+  bytes result = 3;
+  string error = 4;
+}
+
+message CancelTaskRequest {
+  string execution_id = 1;
+}
+
+message CancelTaskResponse {
+  bool cancelled = 1;
+}
+
+message StreamOutputRequest {
+  string execution_id = 1;
+}
+
+message TaskOutput {
+  OutputType type = 1;
+  bytes data = 2;
+  int64 timestamp = 3;
+}
+
+// ====================
+// Storage Service
+// ====================
+
+service Storage {
+  // Store artifact
+  rpc Store(StoreRequest) returns (StoreResponse);
+
+  // Retrieve artifact
+  rpc Retrieve(RetrieveRequest) returns (RetrieveResponse);
+
+  // Check if artifact exists
+  rpc Exists(ExistsRequest) returns (ExistsResponse);
+
+  // List artifacts
+  rpc List(ListRequest) returns (ListResponse);
+
+  // Replicate artifact to peer
+  rpc Replicate(ReplicateRequest) returns (ReplicateResponse);
+}
+
+message StoreRequest {
+  string content_hash = 1;
+  bytes content = 2;
+  ArtifactMetadata metadata = 3;
+}
+
+message StoreResponse {
+  bool success = 1;
+  string content_hash = 2;
+}
+
+message RetrieveRequest {
+  string content_hash = 1;
+}
+
+message RetrieveResponse {
+  bytes content = 1;
+  ArtifactMetadata metadata = 2;
+}
+
+message ExistsRequest {
+  string content_hash = 1;
+}
+
+message ExistsResponse {
+  bool exists = 1;
+  repeated string locations = 2;
+}
+
+message ListRequest {
+  string prefix = 1;
+  int32 limit = 2;
+  string cursor = 3;
+}
+
+message ListResponse {
+  repeated ArtifactInfo artifacts = 1;
+  string next_cursor = 2;
+}
+
+message ReplicateRequest {
+  string content_hash = 1;
+  string target_peer = 2;
+}
+
+message ReplicateResponse {
+  bool success = 1;
+}
+
+// ====================
+// Common Types
+// ====================
+
+message DeviceInfo {
+  string device_id = 1;
+  string name = 2;
+  string type = 3;  // desktop, laptop, mobile, server
+  string platform = 4;  // windows, macos, linux, ios, android
+  string noa_version = 5;
+}
+
+message PeerInfo {
+  string peer_id = 1;
+  DeviceInfo device = 2;
+  repeated string addresses = 3;
+  repeated Capability capabilities = 4;
+  ResourceInfo resources = 5;
+  int64 last_seen = 6;
+}
+
+enum Capability {
+  CAPABILITY_UNSPECIFIED = 0;
+  CAPABILITY_INFERENCE = 1;
+  CAPABILITY_DIGEST = 2;
+  CAPABILITY_STORAGE = 3;
+  CAPABILITY_COMPUTE = 4;
+  CAPABILITY_GPU = 5;
+}
+
+message ResourceInfo {
+  int64 cpu_cores = 1;
+  int64 memory_mb = 2;
+  int64 storage_mb = 3;
+  int64 gpu_memory_mb = 4;
+  float cpu_available = 5;  // 0.0 - 1.0
+  float memory_available = 6;
+  float storage_available = 7;
+}
+
+message ResourceRequirements {
+  int64 min_memory_mb = 1;
+  int64 min_cpu_cores = 2;
+  bool requires_gpu = 3;
+  int64 estimated_duration_ms = 4;
+}
+
+message Change {
+  string id = 1;
+  string entity_id = 2;
+  string entity_type = 3;
+  ChangeType type = 4;
+  bytes data = 5;
+  int64 timestamp = 6;
+  string source_device = 7;
+  int64 version = 8;
+}
+
+enum ChangeType {
+  CHANGE_TYPE_UNSPECIFIED = 0;
+  CHANGE_TYPE_CREATE = 1;
+  CHANGE_TYPE_UPDATE = 2;
+  CHANGE_TYPE_DELETE = 3;
+}
+
+message Conflict {
+  string id = 1;
+  string entity_id = 2;
+  Change local_change = 3;
+  Change remote_change = 4;
+}
+
+enum Resolution {
+  RESOLUTION_UNSPECIFIED = 0;
+  RESOLUTION_LOCAL_WINS = 1;
+  RESOLUTION_REMOTE_WINS = 2;
+  RESOLUTION_MERGE = 3;
+}
+
+enum TaskType {
+  TASK_TYPE_UNSPECIFIED = 0;
+  TASK_TYPE_INFERENCE = 1;
+  TASK_TYPE_EMBEDDING = 2;
+  TASK_TYPE_PARSE = 3;
+  TASK_TYPE_ANALYZE = 4;
+  TASK_TYPE_CUSTOM = 5;
+}
+
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;
+  TASK_STATUS_QUEUED = 1;
+  TASK_STATUS_RUNNING = 2;
+  TASK_STATUS_COMPLETED = 3;
+  TASK_STATUS_FAILED = 4;
+  TASK_STATUS_CANCELLED = 5;
+}
+
+enum OutputType {
+  OUTPUT_TYPE_UNSPECIFIED = 0;
+  OUTPUT_TYPE_STDOUT = 1;
+  OUTPUT_TYPE_STDERR = 2;
+  OUTPUT_TYPE_PROGRESS = 3;
+  OUTPUT_TYPE_RESULT = 4;
+}
+
+message ArtifactMetadata {
+  string content_type = 1;
+  int64 size_bytes = 2;
+  int64 created_at = 3;
+  map<string, string> labels = 4;
+}
+
+message ArtifactInfo {
+  string content_hash = 1;
+  ArtifactMetadata metadata = 2;
+  int32 replica_count = 3;
+}

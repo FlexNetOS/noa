@@ -1,0 +1,735 @@
+openapi: 3.1.0
+info:
+  title: NOA Core API
+  description: |
+    Core API for NOA Seed Foundation.
+    Provides access to memory, agents, tasks, and system operations.
+  version: 1.0.0
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local NOA server
+
+tags:
+  - name: Health
+    description: System health and status
+  - name: Memory
+    description: Memory operations (Total Memory Sovereignty)
+  - name: Agents
+    description: Agent management and orchestration
+  - name: Tasks
+    description: Task management
+  - name: Models
+    description: AI model management
+  - name: System
+    description: System configuration and operations
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /health/ready:
+    get:
+      tags: [Health]
+      summary: Readiness check
+      operationId: getReadiness
+      responses:
+        '200':
+          description: System is ready
+        '503':
+          description: System not ready
+
+  # Memory endpoints
+  /memories:
+    get:
+      tags: [Memory]
+      summary: List memories
+      operationId: listMemories
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/MemoryType'
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of memories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryList'
+
+    post:
+      tags: [Memory]
+      summary: Create memory
+      operationId: createMemory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryCreate'
+      responses:
+        '201':
+          description: Memory created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+
+  /memories/{id}:
+    get:
+      tags: [Memory]
+      summary: Get memory by ID
+      operationId: getMemory
+      parameters:
+        - $ref: '#/components/parameters/MemoryId'
+      responses:
+        '200':
+          description: Memory details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /memories/search:
+    post:
+      tags: [Memory]
+      summary: Semantic search memories
+      operationId: searchMemories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemorySearch'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorySearchResults'
+
+  # Agent endpoints
+  /agents:
+    get:
+      tags: [Agents]
+      summary: List agents
+      operationId: listAgents
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AgentType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AgentStatus'
+      responses:
+        '200':
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentList'
+
+  /agents/{id}:
+    get:
+      tags: [Agents]
+      summary: Get agent by ID
+      operationId: getAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /agents/{id}/invoke:
+    post:
+      tags: [Agents]
+      summary: Invoke agent action
+      operationId: invokeAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentInvocation'
+      responses:
+        '200':
+          description: Invocation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResult'
+        '202':
+          description: Invocation accepted (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncOperation'
+
+  /agents/{id}/logs:
+    get:
+      tags: [Agents]
+      summary: Get agent activity logs
+      operationId: getAgentLogs
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Agent logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentLogList'
+
+  # Task endpoints
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks
+      operationId: listTasks
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskList'
+
+    post:
+      tags: [Tasks]
+      summary: Create task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /tasks/{id}:
+    get:
+      tags: [Tasks]
+      summary: Get task by ID
+      operationId: getTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+    patch:
+      tags: [Tasks]
+      summary: Update task
+      operationId: updateTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  # Model endpoints
+  /models:
+    get:
+      tags: [Models]
+      summary: List available models
+      operationId: listModels
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelList'
+
+  /models/{id}/load:
+    post:
+      tags: [Models]
+      summary: Load model into memory
+      operationId: loadModel
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      responses:
+        '200':
+          description: Model loaded
+        '202':
+          description: Model loading (async)
+
+  /models/{id}/unload:
+    post:
+      tags: [Models]
+      summary: Unload model from memory
+      operationId: unloadModel
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      responses:
+        '200':
+          description: Model unloaded
+
+  # System endpoints
+  /system/config:
+    get:
+      tags: [System]
+      summary: Get system configuration
+      operationId: getConfig
+      responses:
+        '200':
+          description: System configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfig'
+
+  /system/features:
+    get:
+      tags: [System]
+      summary: Get feature flags
+      operationId: getFeatures
+      responses:
+        '200':
+          description: Feature flags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureFlags'
+
+components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 50
+        maximum: 100
+
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+
+    MemoryId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    AgentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    TaskId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ModelId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        uptime_seconds:
+          type: integer
+        components:
+          type: object
+          additionalProperties:
+            type: string
+
+    MemoryType:
+      type: string
+      enum: [interaction, decision, learning, artifact]
+
+    Memory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        type:
+          $ref: '#/components/schemas/MemoryType'
+        content:
+          type: string
+        metadata:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        source_agent:
+          type: string
+          format: uuid
+
+    MemoryCreate:
+      type: object
+      required: [type, content]
+      properties:
+        type:
+          $ref: '#/components/schemas/MemoryType'
+        content:
+          type: string
+        metadata:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+
+    MemoryList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Memory'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    MemorySearch:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        limit:
+          type: integer
+          default: 10
+        filters:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/MemoryType'
+            tags:
+              type: array
+              items:
+                type: string
+
+    MemorySearchResults:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              memory:
+                $ref: '#/components/schemas/Memory'
+              score:
+                type: number
+                format: float
+
+    AgentType:
+      type: string
+      enum: [permanent, board, stack, dynamic]
+
+    AgentStatus:
+      type: string
+      enum: [active, paused, retired]
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/AgentType'
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+        version:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+
+    AgentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+
+    AgentInvocation:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+        inputs:
+          type: object
+        timeout_ms:
+          type: integer
+          default: 30000
+
+    AgentResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        outputs:
+          type: object
+        duration_ms:
+          type: integer
+        logs:
+          type: array
+          items:
+            type: string
+
+    AsyncOperation:
+      type: object
+      properties:
+        operation_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        status_url:
+          type: string
+          format: uri
+
+    AgentLogList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              timestamp:
+                type: string
+                format: date-time
+              action:
+                type: string
+              status:
+                type: string
+
+    TaskStatus:
+      type: string
+      enum: [pending, in_progress, blocked, completed, failed, cancelled]
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          type: integer
+        assigned_agent:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    TaskCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+          default: 0
+        tags:
+          type: array
+          items:
+            type: string
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          type: integer
+
+    TaskList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        total:
+          type: integer
+
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [llm, embedding, vision, audio]
+        provider:
+          type: string
+        status:
+          type: string
+          enum: [available, downloading, loading, loaded, error]
+        size_bytes:
+          type: integer
+        parameters:
+          type: string
+
+    ModelList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+
+    SystemConfig:
+      type: object
+      properties:
+        noa_root:
+          type: string
+        platform:
+          type: string
+        version:
+          type: string
+        models_path:
+          type: string
+        data_path:
+          type: string
+
+    FeatureFlags:
+      type: object
+      additionalProperties:
+        type: boolean
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
