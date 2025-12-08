@@ -1,0 +1,600 @@
+openapi: 3.1.0
+info:
+  title: NOA Digest Pipeline API
+  description: |
+    API for the 7-step digest pipeline that enables NOA to
+    "digest everything" - repositories, documents, APIs, and data sources.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1/digest
+
+tags:
+  - name: Digest
+    description: Digest pipeline operations
+  - name: Knowledge
+    description: Knowledge graph operations
+  - name: Security
+    description: Security scanning results
+
+paths:
+  /sources:
+    get:
+      tags: [Digest]
+      summary: List digest sources
+      operationId: listSources
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceList'
+
+    post:
+      tags: [Digest]
+      summary: Add source for digestion
+      operationId: addSource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceCreate'
+      responses:
+        '201':
+          description: Source added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestSource'
+        '202':
+          description: Digest started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestJob'
+
+  /sources/{id}:
+    get:
+      tags: [Digest]
+      summary: Get source details
+      operationId: getSource
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: Source details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestSource'
+
+  /sources/{id}/digest:
+    post:
+      tags: [Digest]
+      summary: Trigger digest for source
+      operationId: triggerDigest
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigestOptions'
+      responses:
+        '202':
+          description: Digest job started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestJob'
+
+  /jobs/{id}:
+    get:
+      tags: [Digest]
+      summary: Get digest job status
+      operationId: getJob
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestJob'
+
+  /sources/{id}/profile:
+    get:
+      tags: [Digest]
+      summary: Get source profile (profile.json)
+      operationId: getProfile
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: Source profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceProfile'
+
+  /sources/{id}/system-card:
+    get:
+      tags: [Digest]
+      summary: Get system card (system_card.md)
+      operationId: getSystemCard
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: System card
+          content:
+            text/markdown:
+              schema:
+                type: string
+
+  /sources/{id}/sbom:
+    get:
+      tags: [Security]
+      summary: Get SBOM
+      operationId: getSBOM
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: Software Bill of Materials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SBOM'
+
+  /sources/{id}/security:
+    get:
+      tags: [Security]
+      summary: Get security report
+      operationId: getSecurityReport
+      parameters:
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: Security report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityReport'
+
+  /knowledge/nodes:
+    get:
+      tags: [Knowledge]
+      summary: Query knowledge graph nodes
+      operationId: queryNodes
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [function, class, module, file, repo, concept]
+        - name: source_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Knowledge nodes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeList'
+
+  /knowledge/nodes/{id}:
+    get:
+      tags: [Knowledge]
+      summary: Get knowledge node
+      operationId: getNode
+      parameters:
+        - $ref: '#/components/parameters/NodeId'
+      responses:
+        '200':
+          description: Node details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeNode'
+
+  /knowledge/nodes/{id}/related:
+    get:
+      tags: [Knowledge]
+      summary: Get related nodes
+      operationId: getRelatedNodes
+      parameters:
+        - $ref: '#/components/parameters/NodeId'
+        - name: relationship
+          in: query
+          schema:
+            type: string
+            enum: [calls, imports, extends, implements, contains, references]
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [outgoing, incoming, both]
+            default: both
+      responses:
+        '200':
+          description: Related nodes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeList'
+
+  /knowledge/search:
+    post:
+      tags: [Knowledge]
+      summary: Semantic search knowledge graph
+      operationId: searchKnowledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeSearch'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeSearchResults'
+
+components:
+  parameters:
+    SourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    JobId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    NodeId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    SourceType:
+      type: string
+      enum: [repository, file, api, document]
+
+    DigestSource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/SourceType'
+        uri:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, fetching, parsing, analyzing, complete, failed]
+        last_digest:
+          type: string
+          format: date-time
+        version:
+          type: string
+        stats:
+          $ref: '#/components/schemas/DigestStats'
+
+    SourceCreate:
+      type: object
+      required: [type, uri]
+      properties:
+        type:
+          $ref: '#/components/schemas/SourceType'
+        uri:
+          type: string
+        name:
+          type: string
+        options:
+          $ref: '#/components/schemas/DigestOptions'
+
+    SourceList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigestSource'
+
+    DigestOptions:
+      type: object
+      properties:
+        depth:
+          type: string
+          enum: [shallow, full]
+          default: full
+        skip_security:
+          type: boolean
+          default: false
+        languages:
+          type: array
+          items:
+            type: string
+        force:
+          type: boolean
+          default: false
+
+    DigestJob:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, discover, fetch, parse, analyze, summarize, surface, secure, complete, failed]
+        progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        error:
+          type: string
+        stats:
+          $ref: '#/components/schemas/DigestStats'
+
+    DigestStats:
+      type: object
+      properties:
+        files_total:
+          type: integer
+        files_processed:
+          type: integer
+        nodes_created:
+          type: integer
+        edges_created:
+          type: integer
+        embeddings_created:
+          type: integer
+        vulnerabilities_found:
+          type: integer
+        languages:
+          type: object
+          additionalProperties:
+            type: integer
+
+    SourceProfile:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/SourceType'
+        languages:
+          type: array
+          items:
+            type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+        entry_points:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        last_updated:
+          type: string
+          format: date-time
+
+    SBOM:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: [cyclonedx, spdx]
+        version:
+          type: string
+        created:
+          type: string
+          format: date-time
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              version:
+                type: string
+              type:
+                type: string
+              purl:
+                type: string
+              licenses:
+                type: array
+                items:
+                  type: string
+
+    SecurityReport:
+      type: object
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          properties:
+            critical:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vulnerability'
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecretFinding'
+        licenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LicenseFinding'
+
+    Vulnerability:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+        package:
+          type: string
+        version:
+          type: string
+        fixed_version:
+          type: string
+        description:
+          type: string
+        cve:
+          type: string
+
+    SecretFinding:
+      type: object
+      properties:
+        type:
+          type: string
+        file:
+          type: string
+        line:
+          type: integer
+        redacted_match:
+          type: string
+
+    LicenseFinding:
+      type: object
+      properties:
+        package:
+          type: string
+        license:
+          type: string
+        risk:
+          type: string
+          enum: [low, medium, high]
+
+    KnowledgeNode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [function, class, module, file, repo, concept]
+        name:
+          type: string
+        qualified_name:
+          type: string
+        description:
+          type: string
+        source_id:
+          type: string
+          format: uuid
+        location:
+          type: object
+          properties:
+            file:
+              type: string
+            start_line:
+              type: integer
+            end_line:
+              type: integer
+        properties:
+          type: object
+
+    NodeList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeNode'
+        total:
+          type: integer
+
+    KnowledgeSearch:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        limit:
+          type: integer
+          default: 20
+        source_id:
+          type: string
+          format: uuid
+        types:
+          type: array
+          items:
+            type: string
+
+    KnowledgeSearchResults:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              node:
+                $ref: '#/components/schemas/KnowledgeNode'
+              score:
+                type: number
+                format: float
+              highlights:
+                type: array
+                items:
+                  type: string
