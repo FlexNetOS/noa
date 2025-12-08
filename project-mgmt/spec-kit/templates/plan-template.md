@@ -17,21 +17,42 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
 **Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Project Type**: [single/web/mobile - determines source structure]
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Core Principles Compliance
+
+| Principle | Compliant | Notes |
+|-----------|-----------|-------|
+| 3.1 Self-Contained & Autonomous | ☐ Yes / ☐ N/A | All paths under `noa_root` directory? |
+| 3.2 Local-First & Offline-Capable | ☐ Yes / ☐ N/A | Works without network? Graceful degradation? |
+| 3.3 Agentic Orchestration | ☐ Yes / ☐ N/A | Uses multi-agent pattern? SLM compatible? |
+| 3.4 Adaptive & Self-Improving | ☐ Yes / ☐ N/A | Supports learning loops? Rollback path? |
+| 3.5 Transparent & Auditable | ☐ Yes / ☐ N/A | All actions logged? Human-reviewable? |
+| 3.6 Security & Privacy | ☐ Yes / ☐ N/A | No hardcoded secrets? Data residency controlled? |
+| 3.7 Total Memory Sovereignty | ☐ Yes / ☐ N/A | Persistent storage? Instant recall? |
+| 3.8 P2P Hive-Mind | ☐ Yes / ☐ N/A | Supports multi-device? Resource sharing? |
+| 3.12 Test Everything | ☐ Yes / ☐ N/A | Verification built-in? |
+
+### Constitutional Flow Traceability
+
+| Level | Reference | Status |
+|-------|-----------|--------|
+| Goal | [Link to goal] | ☐ Linked |
+| Policy | [Link to policy] | ☐ Linked |
+| Rule | [Link to rule] | ☐ Linked |
+| Spec | [Link to spec] | ☐ Linked |
 
 ## Project Structure
 

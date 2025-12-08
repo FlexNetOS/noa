@@ -1,0 +1,188 @@
+# FlexNetOS Reusable Workflow for Organization-Wide Deployment
+# This workflow can be called from any repository in the FlexNetOS organization
+
+name: FlexNetOS Reusable Resolver
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: 'Pull request number to process'
+        required: true
+        type: number
+      max_iterations:
+        description: 'Maximum resolution iterations'
+        required: false
+        type: number
+        default: 10
+      ai_provider:
+        description: 'AI provider to use (web-claude, web-gpt, web-gemini, copilot)'
+        required: false
+        type: string
+        default: 'copilot'
+      auto_merge:
+        description: 'Enable auto-merge after resolution'
+        required: false
+        type: boolean
+        default: true
+      security_scan:
+        description: 'Enable security scanning'
+        required: false
+        type: boolean
+        default: true
+      quality_gates:
+        description: 'Enable quality gates before merge'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      BOT_TOKEN:
+        description: 'GitHub token with elevated permissions'
+        required: true
+      AI_SESSION_TOKEN:
+        description: 'Web app session token for AI provider'
+        required: false
+    outputs:
+      resolution_status:
+        description: 'Final resolution status'
+        value: ${{ jobs.resolve.outputs.status }}
+      total_fixes:
+        description: 'Total fixes applied'
+        value: ${{ jobs.resolve.outputs.total_fixes }}
+      merged:
+        description: 'Whether PR was merged'
+        value: ${{ jobs.merge.outputs.merged }}
+
+jobs:
+  # Pre-flight checks
+  preflight:
+    name: 🛫 Pre-flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should_proceed: ${{ steps.check.outputs.proceed }}
+      pr_state: ${{ steps.check.outputs.pr_state }}
+
+    steps:
+      - name: Validate PR
+        id: check
+        run: |
+          PR_STATE=$(gh pr view ${{ inputs.pr_number }} --json state -q '.state')
+
+          if [ "$PR_STATE" = "OPEN" ]; then
+            echo "proceed=true" >> $GITHUB_OUTPUT
+            echo "pr_state=$PR_STATE" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ PR is not open (state: $PR_STATE)"
+            echo "proceed=false" >> $GITHUB_OUTPUT
+            echo "pr_state=$PR_STATE" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  # Main resolution job
+  resolve:
+    name: 🤖 Resolve Issues
+    needs: preflight
+    if: needs.preflight.outputs.should_proceed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.resolver.outputs.status }}
+      total_fixes: ${{ steps.resolver.outputs.fixes }}
+      remaining: ${{ steps.resolver.outputs.remaining }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Environment
+        run: |
+          npm install -g eslint prettier typescript
+          pip install requests PyGithub
+
+      - name: Run Resolution Engine
+        id: resolver
+        uses: FlexNetOS/.github/.github/actions/ai-resolver@main
+        with:
+          pr_number: ${{ inputs.pr_number }}
+          ai_provider: ${{ inputs.ai_provider }}
+          session_token: ${{ secrets.AI_SESSION_TOKEN }}
+          max_iterations: ${{ inputs.max_iterations }}
+
+  # Security scanning
+  security:
+    name: 🔒 Security Scan
+    needs: resolve
+    if: inputs.security_scan && needs.resolve.outputs.status == 'complete'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Security Scan
+        uses: github/codeql-action/analyze@v3
+
+      - name: Dependency Audit
+        run: |
+          npm audit --production || true
+          pip-audit || true
+
+  # Quality gates
+  quality:
+    name: ✨ Quality Gates
+    needs: [resolve, security]
+    if: inputs.quality_gates && needs.resolve.outputs.status == 'complete'
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.gates.outputs.passed }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Quality Checks
+        id: gates
+        run: |
+          PASSED=true
+
+          # Test coverage check
+          if [ -f "package.json" ]; then
+            npm test -- --coverage || PASSED=false
+          fi
+
+          # Lint check
+          if [ -f ".eslintrc.json" ] || [ -f "eslint.config.js" ]; then
+            npx eslint . || PASSED=false
+          fi
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+
+  # Auto-merge
+  merge:
+    name: 🚀 Auto-Merge
+    needs: [resolve, quality]
+    if: |
+      inputs.auto_merge &&
+      needs.resolve.outputs.remaining == '0' &&
+      (needs.quality.outputs.passed == 'true' || !inputs.quality_gates)
+    runs-on: ubuntu-latest
+    outputs:
+      merged: ${{ steps.merge.outputs.merged }}
+
+    steps:
+      - name: Merge PR
+        id: merge
+        run: |
+          gh pr merge ${{ inputs.pr_number }} \
+            --merge \
+            --auto \
+            --delete-branch
+
+          echo "merged=true" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+

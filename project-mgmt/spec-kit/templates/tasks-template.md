@@ -12,11 +12,29 @@ description: "Task list template for feature implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+## Format: `[ID] [P?] [Story] [Principle?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Principle]**: Constitutional principle tag (e.g., §3.1, §3.7, §4.6) - optional but recommended
 - Include exact file paths in descriptions
+
+## Constitutional Principle Tags
+
+Use these tags to link tasks to constitution principles:
+
+| Tag | Principle |
+|-----|-----------|
+| §3.1 | Self-Contained & Autonomous |
+| §3.2 | Local-First & Offline-Capable |
+| §3.3 | Agentic Orchestration |
+| §3.4 | Adaptive & Self-Improving |
+| §3.5 | Transparent & Auditable |
+| §3.6 | Security & Privacy |
+| §3.7 | Total Memory Sovereignty |
+| §3.8 | P2P Hive-Mind |
+| §3.12 | Test Everything, Trust Nothing |
+| §4.6 | Goals-Policy-Rules Flow |
 
 ## Path Conventions
 
@@ -25,21 +43,21 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
+<!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
+
   The /speckit.tasks command MUST replace these with actual tasks based on:
   - User stories from spec.md (with their priorities P1, P2, P3...)
   - Feature requirements from plan.md
   - Entities from data-model.md
   - Endpoints from contracts/
-  
+
   Tasks MUST be organized by user story so each story can be:
   - Implemented independently
   - Tested independently
   - Delivered as an MVP increment
-  
+
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
 -->
@@ -240,12 +258,40 @@ With multiple developers:
 
 ---
 
+## Phase N+1: Constitutional Verification
+
+**Purpose**: Validate compliance with NOA constitution principles
+
+- [ ] TXXX [§3.1] Verify all paths resolve under `$user` directory
+- [ ] TXXX [§3.2] Test offline functionality and graceful degradation
+- [ ] TXXX [§3.5] Verify all agent actions are logged and auditable
+- [ ] TXXX [§3.6] Security review: no hardcoded secrets, data residency controlled
+- [ ] TXXX [§3.7] Verify memory persistence and instant recall capability
+- [ ] TXXX [§3.12] Run full test suite and verify all validations pass
+- [ ] TXXX [§4.6] Verify goals → policy → rules → spec → plan → tasks traceability
+
+---
+
+## CSV Export Format
+
+All tasks MUST be exportable to CSV with the following columns:
+
+```csv
+ID,Status,Parallel,Story,Principle,Description,File_Path,Dependencies
+T001,pending,N,US1,§3.1,"Create project structure",src/,none
+T002,pending,Y,US1,§3.7,"Setup local database",src/db/,T001
+```
+
+---
+
 ## Notes
 
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
+- [Principle] tag maps task to constitutional principle for compliance tracking
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Reward tracking**: Tasks tagged with principles contribute to compliance metrics

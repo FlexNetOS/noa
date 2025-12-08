@@ -1,0 +1,470 @@
+# FlexNetOS Organization Automation Configuration
+# Deploy this to FlexNetOS/.github repository for organization-wide automation
+# Version: 1.0.0
+
+organization:
+  name: FlexNetOS
+  admin_team: core-maintainers
+  bot_account: flexnetos-bot
+
+# Global automation settings
+automation:
+  enabled: true
+  mode: fully_automated  # Options: fully_automated, semi_automated, manual_review
+
+  # Human-in-the-loop settings (for gradual rollout)
+  human_override:
+    enabled: false  # Set to true to require approval for sensitive repos
+    approval_team: core-maintainers
+    timeout_hours: 24
+    auto_approve_on_timeout: true  # Continue automation if no response
+
+# Repository targeting
+repositories:
+  # Include all repositories
+  include_all: true
+
+  # Or specify patterns
+  include_patterns:
+    - "flexnetos-*"
+    - "noa-*"
+    - "core-*"
+
+  # Exclude specific repos
+  exclude:
+    - ".github"  # Don't automate the automation repo
+    - "docs"
+    - "website"
+
+  # Repository-specific overrides
+  overrides:
+    "critical-infrastructure":
+      automation_mode: semi_automated
+      require_approval: true
+
+    "experimental-*":
+      max_iterations: 5
+      auto_merge: false
+
+# AI Provider Configuration
+ai_providers:
+  # Priority order for provider selection
+  priority:
+    - cursor     # Cursor CLI (best for code operations)
+    - copilot    # GitHub Copilot (best GitHub integration)
+    - abacus     # Abacus AI (workflow automation)
+    - claude     # Claude.ai web
+    - chatgpt    # ChatGPT web
+    - gemini     # Google Gemini web
+    - local      # Local LLM fallback
+
+  # Web app authentication (not API keys)
+  authentication:
+    method: web_app_session
+    session_storage: github_secrets  # Store session tokens in GitHub secrets
+
+    # Secret names for each provider
+    secrets:
+      claude: CLAUDE_SESSION_TOKEN
+      chatgpt: CHATGPT_SESSION_TOKEN
+      gemini: GEMINI_COOKIES_JSON
+      copilot: GITHUB_TOKEN  # Uses standard GitHub token
+
+  # Model preferences
+  models:
+    code_review:
+      primary: copilot
+      fallback: claude
+    code_fix:
+      primary: claude
+      fallback: chatgpt
+    conflict_resolution:
+      primary: claude
+      fallback: local
+    security_analysis:
+      primary: chatgpt
+      fallback: gemini
+
+  # Rate limiting per provider
+  rate_limits:
+    cursor:
+      requests_per_hour: 200
+      requests_per_day: 5000
+    abacus:
+      requests_per_hour: 100
+      requests_per_day: 2000
+    claude:
+      requests_per_hour: 50
+      requests_per_day: 500
+    chatgpt:
+      requests_per_hour: 60
+      requests_per_day: 1000
+    gemini:
+      requests_per_hour: 100
+      requests_per_day: 1500
+    copilot:
+      requests_per_hour: 200
+      requests_per_day: 5000
+
+  # Provider-specific configurations
+  cursor:
+    # Reference: https://cursor.com/docs/cli/headless
+    cli_path: "cursor-agent"
+    model: "gpt-4"
+    force_apply: true
+    output_format: "json"
+    features:
+      - code_review
+      - fix_ci
+      - batch_processing
+      - streaming
+
+  abacus:
+    # Reference: https://abacus.ai/help/python-sdk/github_cicd
+    features:
+      - workflow_automation
+      - model_deployment
+      - code_analysis
+      - custom_agents
+
+# OAuth & Auth Connectors Configuration
+auth_connectors:
+  # GitHub App (recommended for org-wide access)
+  github_app:
+    enabled: true
+    app_name: "FlexNetOS Automation"
+    # Reference: https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps
+    permissions:
+      contents: write
+      issues: write
+      pull_requests: write
+      workflows: write
+      checks: write
+      actions: read
+      metadata: read
+      security_events: read
+    events:
+      - pull_request
+      - pull_request_review
+      - issues
+      - push
+      - workflow_run
+
+  # OAuth Providers for user account linking
+  oauth_providers:
+    google:
+      enabled: true
+      scopes:
+        - openid
+        - email
+        - profile
+      # For GCP AI services access
+      optional_scopes:
+        - https://www.googleapis.com/auth/cloud-platform
+
+    github:
+      enabled: true
+      # Reference: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+      scopes:
+        - repo
+        - workflow
+        - read:org
+        - read:user
+        - user:email
+
+    microsoft:
+      enabled: true
+      scopes:
+        - openid
+        - profile
+        - email
+        - offline_access
+
+    openai:
+      enabled: false  # Use API keys instead
+
+  # API Key providers (non-OAuth)
+  api_key_providers:
+    anthropic:
+      enabled: true
+      secret_name: ANTHROPIC_API_KEY
+
+    abacus:
+      enabled: true
+      secret_name: ABACUS_API_KEY
+
+    cursor:
+      enabled: true
+      secret_name: CURSOR_API_KEY
+
+  # Token storage
+  token_storage:
+    method: github_secrets  # or 'encrypted_file', 'vault'
+    encryption: true
+    rotation_days: 90
+
+# Issue Aggregation Settings
+issue_aggregation:
+  # Categories to collect
+  categories:
+    - workflow_failures
+    - linting_errors
+    - type_errors
+    - test_failures
+    - security_vulnerabilities
+    - merge_conflicts
+    - review_comments
+    - suggestions
+    - unresolved_conversations
+    - commit_issues
+    - dependency_issues
+    - code_quality
+    - documentation
+    - license_compliance
+
+  # Severity levels
+  severity_mapping:
+    critical:
+      - security_vulnerabilities
+      - merge_conflicts
+      - test_failures
+    high:
+      - type_errors
+      - workflow_failures
+      - dependency_issues
+    medium:
+      - linting_errors
+      - code_quality
+      - review_comments
+    low:
+      - documentation
+      - suggestions
+
+# Resolution Settings
+resolution:
+  # Auto-fix categories (no human review needed)
+  auto_fix:
+    - linting_errors
+    - formatting
+    - dependency_updates
+    - merge_conflicts
+    - simple_type_errors
+
+  # Require higher confidence for these
+  high_confidence_required:
+    - security_vulnerabilities
+    - complex_type_errors
+    - test_failures
+
+  # Always flag for review
+  manual_review_required:
+    - license_compliance
+    - api_breaking_changes
+
+  # Confidence thresholds
+  confidence:
+    auto_apply: 0.90
+    suggest_only: 0.70
+    skip: 0.50
+
+  # Loop control
+  loop:
+    max_iterations: 10
+    iteration_delay_seconds: 30
+    backoff_multiplier: 1.5
+    max_delay_seconds: 300
+
+  # Timeout settings
+  timeouts:
+    per_issue_seconds: 120
+    per_iteration_seconds: 1800
+    total_resolution_seconds: 7200
+
+# Auto-merge Settings
+auto_merge:
+  enabled: true
+
+  # Requirements before merge
+  requirements:
+    all_checks_passing: true
+    no_critical_issues: true
+    no_merge_conflicts: true
+    minimum_approvals: 0  # Set to 0 for fully automated
+
+  # Merge strategies by branch
+  strategies:
+    main:
+      method: merge  # merge, squash, rebase
+      delete_branch: true
+      require_linear_history: false
+    develop:
+      method: squash
+      delete_branch: true
+    "feature/*":
+      method: squash
+      delete_branch: true
+    "release/*":
+      method: merge
+      delete_branch: false
+
+  # Post-merge actions
+  post_merge:
+    close_tracking_issue: true
+    create_release_notes: false
+    trigger_deployment: false
+    notify_team: false
+
+# Security Settings
+security:
+  # Vulnerability handling
+  vulnerabilities:
+    auto_fix_critical: true
+    auto_fix_high: true
+    auto_fix_medium: true
+    auto_fix_low: false
+
+  # Dependency updates
+  dependencies:
+    auto_update_minor: true
+    auto_update_patch: true
+    auto_update_major: false  # Major versions need review
+
+  # Code scanning
+  scanning:
+    codeql_enabled: true
+    dependabot_enabled: true
+    secret_scanning_enabled: true
+
+  # Allowed actions
+  allowed_fix_types:
+    - dependency_version_bump
+    - eslint_auto_fix
+    - prettier_formatting
+    - typescript_strict_null_checks
+    - import_sorting
+
+# Rate Limiting & Backoff
+rate_limiting:
+  # GitHub API rate limiting
+  github_api:
+    requests_per_hour: 5000
+    burst_limit: 100
+    backoff_on_limit: true
+
+  # Workflow runs
+  workflow_runs:
+    max_concurrent: 5
+    queue_overflow: delay  # delay, cancel, or fail
+
+  # Cost management
+  cost_limits:
+    ai_requests_per_month: 10000
+    workflow_minutes_per_month: 50000
+
+# Audit & Logging
+audit:
+  # Log retention
+  retention_days: 90
+
+  # What to log
+  log_events:
+    - issue_aggregation
+    - resolution_attempt
+    - fix_applied
+    - merge_completed
+    - error_occurred
+    - rate_limit_hit
+
+  # Where to store logs
+  storage:
+    github_artifacts: true
+    external_logging: false
+
+  # Notification on audit events
+  notifications:
+    on_error: true
+    on_rate_limit: true
+    on_merge: false
+    channels:
+      - github_issues  # Create issues for important events
+
+# Rollback Settings
+rollback:
+  enabled: true
+
+  # Auto-rollback triggers
+  triggers:
+    - deployment_failure
+    - test_regression
+    - security_regression
+
+  # Rollback strategy
+  strategy:
+    method: revert_commit
+    create_rollback_pr: true
+    notify_team: true
+
+  # Time window for rollback consideration
+  window_hours: 24
+
+# Error Handling
+error_handling:
+  # On resolution failure
+  on_failure:
+    action: retry  # retry, skip, fail
+    max_retries: 3
+    retry_delay_seconds: 60
+
+  # Circuit breaker
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_time_seconds: 300
+
+  # Fallback behavior
+  fallback:
+    on_ai_unavailable: skip_ai_fixes
+    on_rate_limit: queue_and_retry
+    on_merge_conflict: flag_for_review
+
+# Notifications
+notifications:
+  # Channels
+  channels:
+    github_issues: true
+    slack: false
+    email: false
+
+  # Events to notify
+  events:
+    resolution_complete: false
+    merge_complete: false
+    error_occurred: true
+    rate_limit_warning: true
+
+  # Notification templates
+  templates:
+    error: |
+      ⚠️ **FlexNetOS Automation Error**
+
+      Repository: {{repository}}
+      PR: #{{pr_number}}
+      Error: {{error_message}}
+
+      [View Workflow Run]({{workflow_url}})
+
+# Deployment Configuration
+deployment:
+  # How to deploy this config to all repos
+  method: organization_workflow
+
+  # Sync settings
+  sync:
+    frequency: daily
+    on_config_change: true
+
+  # Validation
+  validation:
+    dry_run_on_change: true
+    require_approval: false
+
