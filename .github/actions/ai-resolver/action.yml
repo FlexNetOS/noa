@@ -565,19 +565,19 @@ runs:
                         f.write(resolved)
 
                     # File successfully resolved - attempt to stage it
-                    staged = False
                     try:
                         add_result = subprocess.run(['git', 'add', filepath], check=False)
-                        staged = (add_result.returncode == 0)
+                        if add_result.returncode == 0:
+                            return f"Conflict resolved and staged: {filepath}"
+                        else:
+                            # Git add failed - file modified but not staged
+                            # Return None to indicate incomplete fix (callers expect staged files)
+                            # Note: File content WAS modified on disk
+                            return None
                     except FileNotFoundError:
-                        pass  # git not available
-
-                    # Return success message even if staging failed
-                    # The file was successfully resolved regardless of git availability
-                    if staged:
-                        return f"Conflict resolved and staged: {filepath}"
-                    else:
-                        return f"Conflict resolved (not staged): {filepath}"
+                        # Git not available - file modified but cannot stage
+                        # Return None to maintain API contract (callers expect staged files)
+                        return None
                 except Exception:
                     return None
 

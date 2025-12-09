@@ -121,19 +121,19 @@ setup-noa.ps1 / setup-noa.sh
 
 **Purpose**: Create unified bootstrap script foundation
 
-- [ ] B001 Create `scripts/bootstrap/bootstrap.ps1` - main unified Windows entry point
-- [ ] B002 Create `scripts/bootstrap/bootstrap.sh` - main unified Unix entry point
-- [ ] B003 [P] Create `scripts/bootstrap/lib/logging.ps1` - centralized logging
+- [X] B001 Create `scripts/bootstrap/bootstrap.ps1` - main unified Windows entry point
+- [X] B002 Create `scripts/bootstrap/bootstrap.sh` - main unified Unix entry point
+- [X] B003 [P] Create `scripts/bootstrap/lib/logging.ps1` - centralized logging
 - [ ] B004 [P] Create `scripts/bootstrap/lib/logging.sh`
-- [ ] B005 [P] Create `scripts/bootstrap/lib/platform.ps1` - OS, arch, shell detection
+- [X] B005 [P] Create `scripts/bootstrap/lib/platform.ps1` - OS, arch, shell detection
 - [ ] B006 [P] Create `scripts/bootstrap/lib/platform.sh`
-- [ ] B007 [P] Create `scripts/bootstrap/lib/state.ps1` - bootstrap-state.json management
+- [X] B007 [P] Create `scripts/bootstrap/lib/state.ps1` - bootstrap-state.json management
 - [ ] B008 [P] Create `scripts/bootstrap/lib/state.sh`
-- [ ] B009 Create `scripts/bootstrap/lib/verification.ps1` - tool verification (SKIP|UPDATE|INSTALL|RELOCATE)
+- [X] B009 Create `scripts/bootstrap/lib/verification.ps1` - tool verification (SKIP|UPDATE|INSTALL|RELOCATE)
 - [ ] B010 Create `scripts/bootstrap/lib/verification.sh`
-- [ ] B011 [P] Create `scripts/bootstrap/lib/download.ps1` - download with caching
+- [X] B011 [P] Create `scripts/bootstrap/lib/download.ps1` - download with caching
 - [ ] B012 [P] Create `scripts/bootstrap/lib/download.sh`
-- [ ] B013 Create `scripts/bootstrap/config/tools.json` - all tool definitions
+- [X] B013 Create `scripts/bootstrap/config/tools.json` - all tool definitions
 
 ---
 
@@ -141,7 +141,7 @@ setup-noa.ps1 / setup-noa.sh
 
 **Purpose**: Create noa_root directory structure and state tracking
 
-- [ ] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
+- [X] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
 - [ ] B015 Create `scripts/bootstrap/lib/directories.sh`
 - [ ] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
 - [ ] B017 Create `config/bootstrap-state.json` schema (tool tracking)
@@ -167,7 +167,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Rust Toolchain → noa_root/opt/rust/
 
-- [ ] B024 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.ps1`
+- [X] B024 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.ps1`
   - Download rustup-init, install to opt/rust/
   - Set RUSTUP_HOME, CARGO_HOME
   - Verify: rustc >= 1.83
@@ -176,7 +176,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Go Toolchain → noa_root/opt/go/
 
-- [ ] B027 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.ps1`
+- [X] B027 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.ps1`
   - Download go.zip, extract to opt/go/
   - Set GOROOT, GOPATH, GOBIN, GOCACHE, GOMODCACHE
   - Verify: go >= 1.23
@@ -185,7 +185,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Node.js Toolchain → noa_root/opt/node/
 
-- [ ] B030 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.ps1`
+- [X] B030 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.ps1`
   - Download node.zip, extract to opt/node/
   - Set npm_config_prefix, npm_config_cache, NODE_PATH
   - Verify: node >= 22
@@ -194,7 +194,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Python Toolchain → noa_root/opt/python/ + opt/venv/
 
-- [ ] B033 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.ps1`
+- [X] B033 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.ps1`
   - Download embed zip or use python-build-standalone
   - Create venv at opt/venv/
   - Set VIRTUAL_ENV, PIP_CACHE_DIR
@@ -204,7 +204,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Protocol Buffers → noa_root/bin/
 
-- [ ] B036 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.ps1`
+- [X] B036 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.ps1`
   - Download from GitHub releases
   - Extract binary to bin/, includes to opt/protobuf/include/
   - Verify: protoc >= 28
@@ -274,14 +274,14 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Claude Code CLI (Priority 3 - Cloud/CLI/IDE)
 
-- [ ] B057a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.ps1`
+- [X] B057a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.ps1`
   - Install @anthropic-ai/claude-code via npm to opt/node/node_modules/
   - Alternative: Clone https://github.com/FlexNetOS/claude-code.git to opt/claude-code/
   - Create symlink: bin/claude → opt/node/node_modules/.bin/claude
   - Create provider config at ai/providers/cloud/claude-code/config.json
   - Configure shared resources path: ai/shared/
   - Verify: claude --version
-- [ ] B057b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.sh`
+- [X] B057b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.sh`
 
 #### Cursor CLI (Priority 2 - Hybrid/IDE/CLI)
 
@@ -295,14 +295,14 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Codex CLI (Priority 4 - Cloud/CLI)
 
-- [ ] B057e [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.ps1`
+- [X] B057e [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.ps1`
   - Install @openai/codex via npm to opt/node/node_modules/
   - Alternative: Clone https://github.com/FlexNetOS/codex.git to opt/codex/
   - Create symlink: bin/codex → opt/node/node_modules/.bin/codex
   - Create provider config at ai/providers/cloud/codex/config.json
   - Configure shared resources path: ai/shared/
   - Verify: codex --version
-- [ ] B057f [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.sh`
+- [X] B057f [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.sh`
 
 #### VS Code with Copilot (Priority 5 - IDE)
 
