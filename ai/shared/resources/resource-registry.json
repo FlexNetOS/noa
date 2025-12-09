@@ -1,0 +1,68 @@
+{
+    "$schema": "https://noa.local/schemas/resource-registry.json",
+    "version": "1.0.0",
+    "description": "Central registry of all unified shared resources (§3.13)",
+    "lastUpdated": "2025-12-08T00:00:00Z",
+    "registry": {
+        "agents": {
+            "path": "ai/shared/agents/",
+            "resources": []
+        },
+        "tools": {
+            "path": "ai/shared/tools/",
+            "resources": []
+        },
+        "commands": {
+            "path": "ai/shared/commands/",
+            "resources": []
+        },
+        "prompts": {
+            "path": "ai/shared/prompts/",
+            "resources": [
+                {
+                    "name": "project-mgmt-prompt",
+                    "file": "project-mgmt-prompt.md",
+                    "type": "system",
+                    "providers": [
+                        "all"
+                    ]
+                },
+                {
+                    "name": "startup-prmt",
+                    "file": "startup-prmt.md",
+                    "type": "system",
+                    "providers": [
+                        "all"
+                    ]
+                }
+            ]
+        },
+        "workflows": {
+            "path": "ai/shared/workflows/",
+            "resources": []
+        },
+        "skills": {
+            "path": "ai/shared/skills/",
+            "resources": []
+        },
+        "models": {
+            "path": "ai/shared/models/",
+            "resources": []
+        }
+    },
+    "executionMemory": {
+        "enabled": true,
+        "path": "ai/shared/resources/execution-memory.db",
+        "features": [
+            "context_sharing",
+            "reasoning_state",
+            "parallel_task_distribution",
+            "provider_state_sync"
+        ]
+    },
+    "validation": {
+        "onRegistration": true,
+        "checkDuplicates": true,
+        "validateSchema": true
+    }
+}

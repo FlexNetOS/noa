@@ -2,6 +2,8 @@
 
 **Status**: Design
 **Last Updated**: 2025-12-08
+**Spec**: 001-noa-seed-foundation
+**Constitutional Reference**: §4.11 Kernel Independence Policy
 
 ---
 
@@ -235,6 +237,15 @@ sys/
 | Container | 2-5% | Production, multi-tenant |
 | VM | 5-15% | Maximum isolation, untrusted code |
 | Bare-metal | 0% | Dedicated NOA hardware |
+
+---
+
+## Constitutional Compliance
+
+This document implements:
+- **§3.1 Self-Contained & Autonomous**: "no shared kernel dependency"
+- **§4.8 Cross-Platform Adaptive Deployment**: All platforms supported
+- **§4.11 Kernel Independence Policy**: Full implementation strategy
 
 ---
 
