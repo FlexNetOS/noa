@@ -443,8 +443,8 @@ ai/shared/
 - [ ] B065 [BOOT] Create `scripts/bootstrap/installers/dev-tools/chatgpt-desktop.ps1`
 - [ ] B066 [BOOT] Create `scripts/bootstrap/installers/dev-tools/claude-desktop.ps1`
 - [ ] B067 [BOOT] Create `scripts/bootstrap/installers/dev-tools/ai-apps.sh`
-- [ ] B068 [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/postman.ps1`
-- [ ] B069 [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/dbeaver.ps1`
+- [ ] B067a [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/postman.ps1`
+- [ ] B067b [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/dbeaver.ps1`
 
 ---
 
@@ -693,16 +693,16 @@ ai/shared/
 
 ### Storage Components Setup
 
-- [ ] T741 §3.2 Create data directory structure (`data/memory/`, `data/knowledge/`, `data/embeddings/`, `data/artifacts/`) in `noa_root/data/`
-- [ ] T742 [P] Setup Private OCI Registry configuration in `containers/oci/registry.yaml`
-- [ ] T743 [P] Setup MinIO S3-compatible storage config in `config/minio.yaml`
-- [ ] T744 [P] Setup Postgres/SQLite configuration in `config/database.yaml`
-- [ ] T745 [P] Setup Qdrant vector store configuration in `config/qdrant.yaml`
-- [ ] T746 [P] Setup Quickwit hybrid search configuration in `config/quickwit.yaml`
+- [ ] T018a §3.2 Create data directory structure (`data/memory/`, `data/knowledge/`, `data/embeddings/`, `data/artifacts/`) in `noa_root/data/`
+- [ ] T018b [P] Setup Private OCI Registry configuration in `containers/oci/registry.yaml`
+- [ ] T018c [P] Setup MinIO S3-compatible storage config in `config/minio.yaml`
+- [ ] T018d [P] Setup Postgres/SQLite configuration in `config/database.yaml`
+- [ ] T018e [P] Setup Qdrant vector store configuration in `config/qdrant.yaml`
+- [ ] T018f [P] Setup Quickwit hybrid search configuration in `config/quickwit.yaml`
 
 ### Database Schema (SQLite Primary)
 
-- [ ] T747 §3.2 Create complete SQLite schema with all 14 entities from data-model.md in `init/migrations/001_initial.sql`
+- [ ] T018g §3.2 Create complete SQLite schema with all 14 entities from data-model.md in `init/migrations/001_initial.sql`
 - [ ] T019 [P] §3.7 Create Memory table with JSON metadata and checksum in `init/migrations/001_initial.sql`
 - [ ] T020 [P] §3.7 Create Embedding table with vector column (384-dim) in `init/migrations/001_initial.sql`
 - [ ] T021 [P] §3.3 Create Agent table with stack_code support (mas_*, gen_mas) in `init/migrations/001_initial.sql`
@@ -844,6 +844,16 @@ ai/shared/
 - [ ] T579 [P] Create risk-analyst.md prompt in `coordinator-plane/prompts/risk-analyst.md`
 - [ ] T580 [P] Create telemetry-forecaster.md prompt in `coordinator-plane/prompts/telemetry-forecaster.md`
 
+### Biblical Governance ML Pipeline (FR-026) - Reference Implementation
+
+**Purpose**: Transform biblical texts to ML-compatible format for constitutional governance *(P2+ scope)*
+
+- [ ] T580a [P] §3.10 Create lexical analysis schema for biblical texts in `ai/governance/schema/lexical-schema.json`
+- [ ] T580b [P] §3.10 Create placeholder for Greek/Hebrew text ingestion in `ai/governance/ingest/text-loader.py`
+- [ ] T580c [P] §3.10 Create semantic embedding pipeline stub in `ai/governance/embeddings/biblical-embedder.py`
+- [ ] T580d [P] §3.10 Create knowledge graph integration interface in `ai/governance/kg/biblical-kg.py`
+- [ ] T580e §3.10 Document biblical governance data flow in `ai/governance/README.md`
+
 ### Shared Infrastructure
 
 - [ ] T581 §3.8 Create shared/state/registry.db schema (capability metadata, deps, history) in `shared/state/registry_schema.sql`
@@ -931,6 +941,7 @@ ai/shared/
 - [ ] T633 §3.5 Implement goal rationale logger in `sys/core/src/autonomy/goal_rationale.rs`
 - [ ] T634 [P] Implement unified priority queue in `sys/core/src/autonomy/priority_queue.rs`
 - [ ] T635 [P] Implement pattern analysis for improvement opportunities in `sys/core/src/autonomy/pattern_analyzer.rs`
+- [ ] T635a [P] §3.12 Create unit tests for pattern_analyzer in `sys/core/src/autonomy/pattern_analyzer_test.rs`
 
 ### 3-Plane CLI Commands
 
@@ -2191,6 +2202,64 @@ Continuous Loop (T621):
     └──────────────────────────────────────────────────────────────┘
 ```
 
+---
+
+## Phase 17: New Requirements (from /clarify Session 2025-12-08)
+
+### Rate Limiting & Throttling (FR-095-099) - Phase 2.6 Extension
+- [ ] T771 [P] FR-095 Implement per-provider rate limit registry in `sys/core/src/providers/rate_limits.rs`
+- [ ] T772 [P] FR-096 Implement exponential backoff handler (1s init, 60s max, 2x factor) in `sys/core/src/providers/backoff.rs`
+- [ ] T773 [P] FR-097 Implement P2P throttling based on peer capacity in `p2p/src/throttle/mod.go`
+- [ ] T774 FR-098 Implement self-generated goal rate limiter (max 10/hour) in `sys/core/src/autonomy/goal_limiter.rs`
+- [ ] T775 FR-099 Add rate limit state to Shared Provider Execution Memory in `ai/shared/resources/execution-memory.db`
+
+### Authentication & Identity (FR-100-109) - Phase 2 Extension
+- [ ] T776 [P] FR-100 Implement Ed25519 keypair generation per device in `sys/core/src/auth/device_identity.rs`
+- [ ] T777 [P] FR-101 Implement Argon2id key derivation for device key encryption in `sys/core/src/auth/key_derivation.rs`
+- [ ] T778 [P] FR-102 Implement QR code pairing flow (5-min expiry token) in `sys/core/src/auth/pairing/qr.rs`
+- [ ] T779 [P] FR-103 Implement 6-digit PIN pairing flow in `sys/core/src/auth/pairing/pin.rs`
+- [ ] T780 [P] FR-104 Implement Bluetooth/NFC proximity pairing in `sys/core/src/auth/pairing/proximity.rs`
+- [ ] T781 [P] FR-105 Implement encrypted file transfer pairing in `sys/core/src/auth/pairing/file_transfer.rs`
+- [ ] T782 FR-106 Implement P2P mutual TLS with device keys in `p2p/src/security/mtls.go`
+- [ ] T783 FR-107 Implement device revocation flow in `sys/core/src/auth/revocation.rs`
+- [ ] T784 FR-108 Implement key rotation mechanism in `sys/core/src/auth/key_rotation.rs`
+- [ ] T785 FR-109 Add browser password manager integration for web UI in `web/src/components/auth/PasswordManagerHint.tsx`
+
+### Accessibility & Internationalization (FR-110-119) - Phase 7 (US5) Extension
+- [ ] T786 [P] FR-110 Implement WCAG 2.1 AAA compliance audit in `web/src/utils/a11y/wcag-audit.ts`
+- [ ] T787 [P] FR-111 Implement keyboard navigation with focus indicators (7:1 contrast) in `web/src/styles/focus.css`
+- [ ] T788 [P] FR-112 Add ARIA labels to all interactive elements in `web/src/components/**/*.tsx`
+- [ ] T789 [P] FR-113 Implement high contrast mode and OS preference detection in `web/src/hooks/useAccessibility.ts`
+- [ ] T790 [P] FR-114 Create i18n string externalization system in `config/i18n/{locale}.json`
+- [ ] T791 FR-115 Bundle local translations (no cloud dependency) in `web/src/i18n/bundled/`
+- [ ] T792 FR-116 Add RTL layout support for Arabic/Hebrew in `web/src/styles/rtl.css`
+- [ ] T793 [P] FR-117 Implement locale detection and switching in `web/src/i18n/locale-detector.ts`
+- [ ] T794 [P] FR-118 Create translation contribution workflow in `docs/contributing/translations.md`
+- [ ] T795 FR-119 Bundle English, Spanish, Chinese, Arabic, Hebrew translations in `config/i18n/`
+
+### UI States & Feedback (FR-120-127) - Phase 7 (US5) Extension
+- [ ] T796 [P] FR-120 Implement skeleton loader components in `web/src/components/ui/Skeleton.tsx`
+- [ ] T797 [P] FR-121 Implement persistent status bar for background ops in `web/src/components/layout/StatusBar.tsx`
+- [ ] T798 [P] FR-122 Implement toast notification system with retry actions in `web/src/components/ui/Toast.tsx`
+- [ ] T799 [P] FR-123 Implement cached/partial data display with sync indicator in `web/src/hooks/useOfflineData.ts`
+- [ ] T800 [P] FR-124 Design meaningful empty states with suggested actions in `web/src/components/ui/EmptyState.tsx`
+- [ ] T801 [P] FR-125 Implement offline mode detection and indicator in `web/src/hooks/useNetworkStatus.ts`
+- [ ] T802 [P] FR-126 Implement error boundary with recovery options in `web/src/components/ErrorBoundary.tsx`
+- [ ] T803 FR-127 Add progress indicators for long-running ops (>2s) in `web/src/components/ui/Progress.tsx`
+
+### Multi-Modal Interaction (FR-128-136) - Phase 7 (US5) - MVP for Glasses
+- [ ] T804 [P] FR-128 Implement Whisper STT integration (<500ms latency) in `ai/voice/whisper_stt.py`
+- [ ] T805 [P] FR-129 Implement Piper/Coqui TTS with voice selection in `ai/voice/piper_tts.py`
+- [ ] T806 [P] FR-130 Implement camera input for real-time visual context in `web/src/components/vision/CameraInput.tsx`
+- [ ] T807 [P] FR-131 Implement screen capture for screenshot queries in `sys/core/src/vision/screen_capture.rs`
+- [ ] T808 [P] FR-132 Implement image file analysis via LLaVA in `ai/vision/llava_analyzer.py`
+- [ ] T809 FR-133 Implement graceful degradation for missing hardware in `sys/core/src/multimodal/fallback.rs`
+- [ ] T810 FR-134 Implement input method switching without restart in `sys/core/src/multimodal/switcher.rs`
+- [ ] T811 FR-135 Add privacy controls for camera/mic in `web/src/components/settings/PrivacyControls.tsx`
+- [ ] T812 FR-136 Implement multi-modal session persistence in `sys/core/src/multimodal/session.rs`
+
+---
+
 ## Parallel Execution Opportunities
 
 ### Within Foundation (Phase 2)
@@ -2199,6 +2268,7 @@ T018 (Schema) → T019-T036 (Tables) [PARALLEL]
 T050 (Errors) → T051-T055 (Config/Logging/DB) [PARALLEL]
 T056 (Server) → T057-T060 (Endpoints/Middleware) [PARALLEL]
 T061 (CLI) → T062-T067 (Commands) [PARALLEL]
+T776-T781 (Auth Pairing Methods) [PARALLEL]
 ```
 
 ### Within MVP Stories
@@ -2253,17 +2323,17 @@ Then implement P3 stories:
 
 | Metric | Count |
 |--------|-------|
-| **Total Tasks** | **920** (150 Bootstrap + 770 Core) |
+| **Total Tasks** | **962** (150 Bootstrap + 812 Core) |
 | **Phase 0 (Bootstrap)** | **150** (B001-B150) - NEW UNIFIED |
 | **Phase 1 (Setup)** | 21 (includes FR-029-036 directory structure + 3 prerequisite check tasks) |
-| **Phase 2 (Foundation)** | 60 |
+| **Phase 2 (Foundation)** | 70 (60 original + 10 Auth/Identity T776-T785) |
 | **Phase 2.5 (3-Plane Control Fabric)** | 107 (FR-056-060, FR-071-075) |
-| **Phase 2.6 (Shared Providers)** | 48 |
+| **Phase 2.6 (Shared Providers)** | 53 (48 original + 5 Rate Limiting T771-T775) |
 | **US1 Tasks** | 25 |
 | **US2 Tasks** | 74 (includes 13 ModelSelectorAgents + 8 Multi-GPU + 3 model endpoints + 16 Advanced Learning) |
 | **US3 Tasks** | 22 |
 | **US4 Tasks** | 50 (includes 11 digest source/knowledge endpoints) |
-| **US5 Tasks** | 38 |
+| **US5 Tasks** | 65 (38 original + 10 A11y/i18n T786-T795 + 8 UI States T796-T803 + 9 Multi-Modal T804-T812) |
 | **US6 Tasks** | 49 (includes 21 P2P protocol service tasks: Discovery 4, Sync 4, Compute 4, Storage 5 + 4 infra) |
 | **US7 Tasks** | 56 (includes 7 agent/task endpoints) |
 | **US8 Tasks** | 55 |
@@ -2273,7 +2343,8 @@ Then implement P3 stories:
 | **Phase 12 (Polish)** | 48 (includes Execution Policy + Open Questions) |
 | **Phase 15 (Governance)** | 16 (FR-025-028, Biblical Pipeline) |
 | **Phase 16 (SC Verification)** | 16 (SC-001 to SC-012) |
-| **Parallelizable [P]** | 601 (65%) |
+| **Phase 17 (New Requirements)** | 42 (T771-T812 from /clarify session) |
+| **Parallelizable [P]** | 638 (66%) |
 
 ### Phase 0 Bootstrap Summary (MERGED from 002-unified-bootstrap)
 
@@ -2358,6 +2429,13 @@ Then implement P3 stories:
 - **Self-Healing Loop**: ✅ T612-T620 (FR-071-075)
 - **Multi-Modal Interaction (FR-023)**: ✅ T760-T764 (voice/vision stubs with graceful degradation)
 - **Predictive Problem Solving (§3.11)**: ✅ T765-T770 (pattern recognition, failure analysis, risk assessment)
+
+### Clarification Session Requirements (FR-095 to FR-136) - 2025-12-08
+- **Rate Limiting & Throttling (FR-095-099)**: ✅ T771-T775 (per-provider limits, backoff, P2P throttle, goal limiter)
+- **Authentication & Identity (FR-100-109)**: ✅ T776-T785 (Ed25519 keys, Argon2id, QR/PIN/NFC pairing, mTLS, revocation)
+- **Accessibility & i18n (FR-110-119)**: ✅ T786-T795 (WCAG 2.1 AAA, keyboard nav, ARIA, RTL, bundled translations)
+- **UI States & Feedback (FR-120-127)**: ✅ T796-T803 (skeleton loaders, status bar, toasts, empty states, offline)
+- **Multi-Modal MVP (FR-128-136)**: ✅ T804-T812 (Whisper STT, Piper TTS, camera, screen capture, LLaVA, privacy)
 
 ### Contract Coverage (from contracts/)
 - **noa-core.openapi.yaml**: ✅ Health, Memory, Agents, Tasks, Models, System, Planes, Promotions, Healing, Goals, Activity
