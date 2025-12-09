@@ -1,0 +1,75 @@
+{
+  "name": "claude-code",
+  "type": "cloud",
+  "priority": 2,
+  "enabled": true,
+  "description": "Anthropic Claude Code CLI - agentic coding tool for terminal and IDE integration",
+  "repository": "https://github.com/FlexNetOS/claude-code.git",
+  "cli": {
+    "command": "claude",
+    "package": "@anthropic-ai/claude-code",
+    "version": "latest",
+    "installMethods": {
+      "npm": "npm install -g @anthropic-ai/claude-code",
+      "homebrew": "brew install --cask claude-code",
+      "windows": "irm https://claude.ai/install.ps1 | iex",
+      "curl": "curl -fsSL https://claude.ai/install.sh | bash"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/claude-code/claude.exe",
+      "unix": "${NOA_ROOT}/opt/claude-code/claude"
+    }
+  },
+  "modes": {
+    "cli": {
+      "description": "Terminal-based agentic coding",
+      "command": "claude",
+      "flags": ["--headless", "--print", "--output-format"]
+    },
+    "cloud": {
+      "description": "Cloud API for complex reasoning",
+      "apiEndpoint": "https://api.anthropic.com/v1/messages",
+      "authMethod": "api_key",
+      "envVar": "ANTHROPIC_API_KEY"
+    },
+    "ide": {
+      "description": "IDE extension integration",
+      "supportedIDEs": ["cursor", "vscode"],
+      "extensionId": "anthropic.claude-code"
+    }
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "codeGeneration": true,
+    "codeExecution": true,
+    "fileOperations": true,
+    "gitOperations": true,
+    "shellCommands": true,
+    "streaming": true,
+    "mcpIntegration": true,
+    "contextAware": true,
+    "longContext": true
+  },
+  "latency": {
+    "target": "<2s",
+    "timeout": 30000
+  },
+  "fallbackPriority": 3,
+  "useCases": [
+    "Complex reasoning",
+    "Long context tasks",
+    "Code review",
+    "Refactoring",
+    "Documentation generation",
+    "Git workflow automation"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  }
+}
+

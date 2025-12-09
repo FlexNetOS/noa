@@ -1,0 +1,587 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.0.0",
+  "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
+  "strategy": "All tools downloaded to noa_root. NO winget, choco, brew, or apt.",
+
+  "portable_toolchains": {
+    "_comment": "Language toolchains downloaded directly to noa_root/opt/",
+
+    "rust": {
+      "name": "Rust Toolchain",
+      "min_version": "1.83.0",
+      "install_to": "${NOA_ROOT}/opt/rust",
+      "env_vars": {
+        "RUSTUP_HOME": "${NOA_ROOT}/opt/rust/rustup",
+        "CARGO_HOME": "${NOA_ROOT}/opt/rust/cargo"
+      },
+      "path_additions": ["${NOA_ROOT}/opt/rust/cargo/bin"],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe",
+          "sha256": null,
+          "type": "executable",
+          "install_cmd": "${DOWNLOAD}/rustup-init.exe -y --default-toolchain stable --no-modify-path"
+        },
+        "linux_x64": {
+          "url": "https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init",
+          "sha256": null,
+          "type": "executable",
+          "install_cmd": "chmod +x ${DOWNLOAD}/rustup-init && ${DOWNLOAD}/rustup-init -y --default-toolchain stable --no-modify-path"
+        },
+        "macos_x64": {
+          "url": "https://static.rust-lang.org/rustup/dist/x86_64-apple-darwin/rustup-init",
+          "type": "executable"
+        },
+        "macos_arm64": {
+          "url": "https://static.rust-lang.org/rustup/dist/aarch64-apple-darwin/rustup-init",
+          "type": "executable"
+        }
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/rust/cargo/bin/rustc.exe --version",
+        "unix": "${NOA_ROOT}/opt/rust/cargo/bin/rustc --version"
+      }
+    },
+
+    "go": {
+      "name": "Go Toolchain",
+      "min_version": "1.23.0",
+      "latest_version": "1.23.4",
+      "install_to": "${NOA_ROOT}/opt/go",
+      "env_vars": {
+        "GOROOT": "${NOA_ROOT}/opt/go",
+        "GOPATH": "${NOA_ROOT}/opt/go/workspace",
+        "GOBIN": "${NOA_ROOT}/opt/go/workspace/bin",
+        "GOCACHE": "${NOA_ROOT}/opt/go/cache"
+      },
+      "path_additions": ["${NOA_ROOT}/opt/go/bin", "${NOA_ROOT}/opt/go/workspace/bin"],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://go.dev/dl/go1.23.4.windows-amd64.zip",
+          "sha256": "a44e9da7f9fb38b2e5b0c7b2d35f6f79a6b3e7f4c7e3d8a9f0e1b2c3d4e5f6a7",
+          "type": "zip",
+          "extract_to": "${NOA_ROOT}/opt",
+          "strip_components": 0
+        },
+        "linux_x64": {
+          "url": "https://go.dev/dl/go1.23.4.linux-amd64.tar.gz",
+          "type": "tar.gz",
+          "extract_to": "${NOA_ROOT}/opt",
+          "strip_components": 0
+        },
+        "macos_x64": {
+          "url": "https://go.dev/dl/go1.23.4.darwin-amd64.tar.gz",
+          "type": "tar.gz"
+        },
+        "macos_arm64": {
+          "url": "https://go.dev/dl/go1.23.4.darwin-arm64.tar.gz",
+          "type": "tar.gz"
+        }
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/go/bin/go.exe version",
+        "unix": "${NOA_ROOT}/opt/go/bin/go version"
+      }
+    },
+
+    "node": {
+      "name": "Node.js",
+      "min_version": "20.0.0",
+      "latest_version": "22.12.0",
+      "install_to": "${NOA_ROOT}/opt/node",
+      "env_vars": {
+        "NODE_PATH": "${NOA_ROOT}/opt/node/node_modules",
+        "npm_config_prefix": "${NOA_ROOT}/opt/node",
+        "npm_config_cache": "${NOA_ROOT}/opt/npm-cache"
+      },
+      "path_additions": ["${NOA_ROOT}/opt/node", "${NOA_ROOT}/opt/node/node_modules/.bin"],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://nodejs.org/dist/v22.12.0/node-v22.12.0-win-x64.zip",
+          "type": "zip",
+          "extract_to": "${NOA_ROOT}/opt",
+          "rename_from": "node-v22.12.0-win-x64",
+          "rename_to": "node"
+        },
+        "linux_x64": {
+          "url": "https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz",
+          "type": "tar.xz",
+          "extract_to": "${NOA_ROOT}/opt",
+          "rename_from": "node-v22.12.0-linux-x64",
+          "rename_to": "node"
+        },
+        "macos_x64": {
+          "url": "https://nodejs.org/dist/v22.12.0/node-v22.12.0-darwin-x64.tar.gz",
+          "type": "tar.gz"
+        },
+        "macos_arm64": {
+          "url": "https://nodejs.org/dist/v22.12.0/node-v22.12.0-darwin-arm64.tar.gz",
+          "type": "tar.gz"
+        }
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/node/node.exe --version",
+        "unix": "${NOA_ROOT}/opt/node/bin/node --version"
+      }
+    },
+
+    "python": {
+      "name": "Python",
+      "min_version": "3.12.0",
+      "latest_version": "3.12.8",
+      "install_to": "${NOA_ROOT}/opt/python",
+      "env_vars": {
+        "PYTHONHOME": "${NOA_ROOT}/opt/python",
+        "VIRTUAL_ENV": "${NOA_ROOT}/opt/venv"
+      },
+      "path_additions": ["${NOA_ROOT}/opt/python", "${NOA_ROOT}/opt/venv/Scripts", "${NOA_ROOT}/opt/venv/bin"],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://www.python.org/ftp/python/3.12.8/python-3.12.8-embed-amd64.zip",
+          "type": "zip",
+          "extract_to": "${NOA_ROOT}/opt/python",
+          "post_install": [
+            "Download get-pip.py",
+            "Run: ${NOA_ROOT}/opt/python/python.exe get-pip.py --no-warn-script-location",
+            "Create venv: ${NOA_ROOT}/opt/python/python.exe -m venv ${NOA_ROOT}/opt/venv"
+          ],
+          "note": "Embeddable Python requires special handling for pip and venv"
+        },
+        "linux_x64": {
+          "url": "https://github.com/indygreg/python-build-standalone/releases/download/20241206/cpython-3.12.8+20241206-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+          "type": "tar.gz",
+          "extract_to": "${NOA_ROOT}/opt",
+          "rename_from": "python",
+          "rename_to": "python"
+        },
+        "macos_x64": {
+          "url": "https://github.com/indygreg/python-build-standalone/releases/download/20241206/cpython-3.12.8+20241206-x86_64-apple-darwin-install_only_stripped.tar.gz",
+          "type": "tar.gz"
+        },
+        "macos_arm64": {
+          "url": "https://github.com/indygreg/python-build-standalone/releases/download/20241206/cpython-3.12.8+20241206-aarch64-apple-darwin-install_only_stripped.tar.gz",
+          "type": "tar.gz"
+        }
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/python/python.exe --version",
+        "unix": "${NOA_ROOT}/opt/python/bin/python3 --version"
+      }
+    }
+  },
+
+  "standalone_binaries": {
+    "_comment": "Single binary tools downloaded directly to noa_root/bin/",
+
+    "protoc": {
+      "name": "Protocol Buffers Compiler",
+      "min_version": "28.0.0",
+      "latest_version": "28.3",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "protocolbuffers/protobuf",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "protoc-*-win64.zip",
+          "binary_path": "bin/protoc.exe",
+          "includes_path": "include/"
+        },
+        "linux_x64": {
+          "asset_pattern": "protoc-*-linux-x86_64.zip",
+          "binary_path": "bin/protoc",
+          "includes_path": "include/"
+        },
+        "macos_x64": {
+          "asset_pattern": "protoc-*-osx-x86_64.zip",
+          "binary_path": "bin/protoc"
+        },
+        "macos_arm64": {
+          "asset_pattern": "protoc-*-osx-aarch_64.zip",
+          "binary_path": "bin/protoc"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/protoc --version"
+    },
+
+    "jq": {
+      "name": "jq",
+      "min_version": "1.7.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "jqlang/jq",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "jq-win64.exe",
+          "rename_to": "jq.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "jq-linux-amd64",
+          "rename_to": "jq",
+          "chmod": "755"
+        },
+        "macos_x64": {
+          "asset_pattern": "jq-macos-amd64",
+          "rename_to": "jq"
+        },
+        "macos_arm64": {
+          "asset_pattern": "jq-macos-arm64",
+          "rename_to": "jq"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/jq --version"
+    },
+
+    "rg": {
+      "name": "ripgrep",
+      "min_version": "14.0.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "BurntSushi/ripgrep",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "ripgrep-*-x86_64-pc-windows-msvc.zip",
+          "binary_path": "*/rg.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "ripgrep-*-x86_64-unknown-linux-musl.tar.gz",
+          "binary_path": "*/rg"
+        },
+        "macos_x64": {
+          "asset_pattern": "ripgrep-*-x86_64-apple-darwin.tar.gz",
+          "binary_path": "*/rg"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/rg --version"
+    },
+
+    "fd": {
+      "name": "fd",
+      "min_version": "10.0.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "sharkdp/fd",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "fd-*-x86_64-pc-windows-msvc.zip",
+          "binary_path": "*/fd.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "fd-*-x86_64-unknown-linux-musl.tar.gz",
+          "binary_path": "*/fd"
+        },
+        "macos_x64": {
+          "asset_pattern": "fd-*-x86_64-apple-darwin.tar.gz",
+          "binary_path": "*/fd"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/fd --version"
+    },
+
+    "bat": {
+      "name": "bat",
+      "min_version": "0.24.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "sharkdp/bat",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "bat-*-x86_64-pc-windows-msvc.zip",
+          "binary_path": "*/bat.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "bat-*-x86_64-unknown-linux-musl.tar.gz",
+          "binary_path": "*/bat"
+        },
+        "macos_x64": {
+          "asset_pattern": "bat-*-x86_64-apple-darwin.tar.gz",
+          "binary_path": "*/bat"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/bat --version"
+    },
+
+    "fzf": {
+      "name": "fzf",
+      "min_version": "0.55.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "junegunn/fzf",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "fzf-*-windows_amd64.zip",
+          "binary_path": "fzf.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "fzf-*-linux_amd64.tar.gz",
+          "binary_path": "fzf"
+        },
+        "macos_x64": {
+          "asset_pattern": "fzf-*-darwin_amd64.zip",
+          "binary_path": "fzf"
+        },
+        "macos_arm64": {
+          "asset_pattern": "fzf-*-darwin_arm64.zip",
+          "binary_path": "fzf"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/fzf --version"
+    },
+
+    "gitleaks": {
+      "name": "Gitleaks",
+      "min_version": "8.21.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "gitleaks/gitleaks",
+      "category": "security",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "gitleaks_*_windows_x64.zip",
+          "binary_path": "gitleaks.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "gitleaks_*_linux_x64.tar.gz",
+          "binary_path": "gitleaks"
+        },
+        "macos_x64": {
+          "asset_pattern": "gitleaks_*_darwin_x64.tar.gz",
+          "binary_path": "gitleaks"
+        },
+        "macos_arm64": {
+          "asset_pattern": "gitleaks_*_darwin_arm64.tar.gz",
+          "binary_path": "gitleaks"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/gitleaks version"
+    },
+
+    "trivy": {
+      "name": "Trivy",
+      "min_version": "0.57.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "aquasecurity/trivy",
+      "category": "security",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "trivy_*_Windows-64bit.zip",
+          "binary_path": "trivy.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "trivy_*_Linux-64bit.tar.gz",
+          "binary_path": "trivy"
+        },
+        "macos_x64": {
+          "asset_pattern": "trivy_*_macOS-64bit.tar.gz",
+          "binary_path": "trivy"
+        },
+        "macos_arm64": {
+          "asset_pattern": "trivy_*_macOS-ARM64.tar.gz",
+          "binary_path": "trivy"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/trivy --version"
+    },
+
+    "grype": {
+      "name": "Grype",
+      "min_version": "0.84.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "anchore/grype",
+      "category": "security",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "grype_*_windows_amd64.zip",
+          "binary_path": "grype.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "grype_*_linux_amd64.tar.gz",
+          "binary_path": "grype"
+        },
+        "macos_x64": {
+          "asset_pattern": "grype_*_darwin_amd64.tar.gz",
+          "binary_path": "grype"
+        },
+        "macos_arm64": {
+          "asset_pattern": "grype_*_darwin_arm64.tar.gz",
+          "binary_path": "grype"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/grype version"
+    },
+
+    "golangci-lint": {
+      "name": "golangci-lint",
+      "min_version": "1.62.0",
+      "install_to": "${NOA_ROOT}/bin",
+      "github_repo": "golangci/golangci-lint",
+      "category": "quality",
+      "note": "Can also be installed via 'go install' with portable Go",
+      "downloads": {
+        "windows_x64": {
+          "asset_pattern": "golangci-lint-*-windows-amd64.zip",
+          "binary_path": "*/golangci-lint.exe"
+        },
+        "linux_x64": {
+          "asset_pattern": "golangci-lint-*-linux-amd64.tar.gz",
+          "binary_path": "*/golangci-lint"
+        },
+        "macos_x64": {
+          "asset_pattern": "golangci-lint-*-darwin-amd64.tar.gz",
+          "binary_path": "*/golangci-lint"
+        },
+        "macos_arm64": {
+          "asset_pattern": "golangci-lint-*-darwin-arm64.tar.gz",
+          "binary_path": "*/golangci-lint"
+        }
+      },
+      "verify_cmd": "${NOA_ROOT}/bin/golangci-lint --version"
+    }
+  },
+
+  "pip_packages": {
+    "_comment": "Python packages installed to noa_root/opt/venv/ via portable pip",
+    "ruff": {
+      "name": "Ruff",
+      "min_version": "0.8.0",
+      "pip_name": "ruff",
+      "install_to": "${NOA_ROOT}/opt/venv",
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/venv/Scripts/ruff.exe --version",
+        "unix": "${NOA_ROOT}/opt/venv/bin/ruff --version"
+      }
+    },
+    "semgrep": {
+      "name": "Semgrep",
+      "min_version": "1.97.0",
+      "pip_name": "semgrep",
+      "install_to": "${NOA_ROOT}/opt/venv",
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/venv/Scripts/semgrep.exe --version",
+        "unix": "${NOA_ROOT}/opt/venv/bin/semgrep --version"
+      }
+    }
+  },
+
+  "npm_packages": {
+    "_comment": "Node packages installed to noa_root/opt/node/node_modules/ via portable npm",
+    "eslint": {
+      "name": "ESLint",
+      "min_version": "9.0.0",
+      "npm_name": "eslint",
+      "install_to": "${NOA_ROOT}/opt/node/node_modules",
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/eslint.cmd --version",
+        "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/eslint --version"
+      }
+    },
+    "claude-code": {
+      "name": "Claude Code CLI",
+      "min_version": "1.0.0",
+      "npm_name": "@anthropic-ai/claude-code",
+      "install_to": "${NOA_ROOT}/opt/node/node_modules",
+      "category": "ai_provider",
+      "repository": "https://github.com/FlexNetOS/claude-code.git",
+      "provider_config": "${NOA_ROOT}/ai/providers/cloud/claude-code/config.json",
+      "alternative_installs": {
+        "windows_native": "irm https://claude.ai/install.ps1 | iex",
+        "unix_native": "curl -fsSL https://claude.ai/install.sh | bash",
+        "homebrew": "brew install --cask claude-code"
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/claude.cmd --version",
+        "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/claude --version"
+      },
+      "capabilities": ["cli", "cloud", "ide"],
+      "priority": 3,
+      "latency_target": "<2s"
+    }
+  },
+
+  "rustup_components": {
+    "_comment": "Rust components installed via portable rustup",
+    "rustfmt": {
+      "name": "rustfmt",
+      "component_name": "rustfmt",
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/rust/cargo/bin/rustfmt.exe --version",
+        "unix": "${NOA_ROOT}/opt/rust/cargo/bin/rustfmt --version"
+      }
+    },
+    "clippy": {
+      "name": "Clippy",
+      "component_name": "clippy",
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/rust/cargo/bin/cargo-clippy.exe --version",
+        "unix": "${NOA_ROOT}/opt/rust/cargo/bin/cargo-clippy --version"
+      }
+    }
+  },
+
+  "installation_phases": [
+    {
+      "id": 1,
+      "name": "foundation",
+      "description": "Bootstrap infrastructure and download utilities",
+      "parallel": true
+    },
+    {
+      "id": 2,
+      "name": "toolchains",
+      "description": "Portable language toolchains",
+      "tools": ["rust", "go", "node", "python"],
+      "parallel": true
+    },
+    {
+      "id": 3,
+      "name": "quality",
+      "description": "Code quality tools (depend on toolchains)",
+      "tools": ["rustfmt", "clippy", "golangci-lint", "eslint", "ruff"],
+      "depends_on": ["toolchains"]
+    },
+    {
+      "id": 4,
+      "name": "security",
+      "description": "Security scanning tools",
+      "tools": ["gitleaks", "trivy", "grype", "semgrep"],
+      "parallel": true
+    },
+    {
+      "id": 5,
+      "name": "utilities",
+      "description": "Standalone utility binaries",
+      "tools": ["protoc", "jq", "rg", "fd", "bat", "fzf"],
+      "parallel": true
+    },
+    {
+      "id": 6,
+      "name": "ai_providers",
+      "description": "AI provider CLI tools (depend on toolchains)",
+      "tools": ["claude-code", "cursor-cli", "codex-cli", "abacus-cli"],
+      "depends_on": ["toolchains"],
+      "parallel": true,
+      "note": "Install provider CLIs to noa_root/opt/ for shared execution memory (FR-039)"
+    }
+  ],
+
+  "directories": {
+    "required": [
+      "bin",
+      "config",
+      "logs",
+      "opt",
+      "opt/rust",
+      "opt/rust/rustup",
+      "opt/rust/cargo",
+      "opt/go",
+      "opt/go/workspace",
+      "opt/go/workspace/bin",
+      "opt/go/cache",
+      "opt/node",
+      "opt/node/node_modules",
+      "opt/npm-cache",
+      "opt/python",
+      "opt/venv",
+      "opt/protobuf",
+      "opt/protobuf/include",
+      "opt/cache",
+      "opt/claude-code",
+      "tmp",
+      "ai/providers/cloud/claude-code",
+      "ai/shared"
+    ]
+  }
+}

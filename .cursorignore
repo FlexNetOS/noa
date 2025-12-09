@@ -1,2 +1,50 @@
 # Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
 .cursor-server
+
+# Large external codebases (submodules) - prevents OOM crashes
+opt/llama.cpp/
+opt/llama-cpp-rs/
+
+# Large project-mgmt subdirectories (external projects)
+project-mgmt/Taskosaur/
+project-mgmt/BMAD-METHOD/
+project-mgmt/BMAD-METHOD-v5/
+project-mgmt/Backlog.md/
+project-mgmt/dspy/
+project-mgmt/dspy-code/
+project-mgmt/system-prompts-and-models-of-ai-tools-main/
+project-mgmt/tududi/
+project-mgmt/android/
+project-mgmt/fastlane/
+
+# Large dependency/vendor directories
+**/node_modules/
+**/.git/
+**/dist/
+**/build/
+**/__pycache__/
+
+# Binary and compiled files
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+*.o
+*.obj
+
+# Large data files
+*.bin
+*.gguf
+*.onnx
+*.safetensors
+
+# Lock files (not needed for indexing)
+**/package-lock.json
+**/pnpm-lock.yaml
+**/yarn.lock
+**/Cargo.lock
+
+# IDE/Editor directories
+.vs/
+.vscode/
