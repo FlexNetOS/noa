@@ -134,6 +134,24 @@
 - **P2P Resource Sharing**: ☐ Supported / ☐ N/A
 - **Cross-Device Sync**: [Describe sync strategy if applicable]
 
+### Shared Provider Resources *(required for AI features)*
+
+- **Provider Integration**: ☐ Uses existing providers / ☐ Adds new provider / ☐ N/A
+- **Resource Unification Required**: ☐ Yes / ☐ No
+- **Resources to Refactor**: [List any provider-specific resources that need unification]
+
+| Resource Type | Provider-Specific Name | Unified Name | Location |
+|---------------|------------------------|--------------|----------|
+| Agent | [original] | [unified] | ai/shared/agents/ |
+| Tool | [original] | [unified] | ai/shared/tools/ |
+| Command | [original] | [unified] | ai/shared/commands/ |
+
+### Kernel Independence *(required for system features)*
+
+- **Kernel Mode Required**: ☐ Native / ☐ VM / ☐ Container / ☐ Sandbox / ☐ N/A
+- **Isolation Level**: [Describe required isolation level]
+- **Platform Support**: [List supported platforms for this feature]
+
 ### Constitutional Flow
 
 | Level | Document | Link |

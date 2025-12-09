@@ -1,32 +1,11 @@
 <!--
-Sync Impact Report
-Version change: 2.0.0 → 2.1.0 (MINOR)
+NOA Project Constitution
+Version: 2.1.0
+Last Amended: 2025-12-08
+Source: Derived from project-mgmt/spec-kit/memory/constitution.md (template)
 
-Modified principles:
-- 3.3 Agentic Orchestration → Enhanced with Provider Orchestration mode (Cursor as coordinator)
-- §4 Project-Management Layer → Added Provider Execution Memory requirements
-
-Added sections:
-- 3.13 Shared Provider Resource Unification
-- 4.9 Provider Orchestration & Execution Memory
-- 4.10 Resource Name Refactoring Policy
-- 4.11 Kernel Independence Policy
-
-Removed sections:
-- N/A
-
-Templates requiring updates:
-- ✅ /memory/constitution.md (this file - updated)
-- ⚠ /templates/plan-template.md (add provider resource policies, kernel independence checks)
-- ⚠ /templates/spec-template.md (add shared provider requirements section)
-- ⚠ /templates/tasks-template.md (add provider resource validation tasks)
-- ⚠ /templates/commands/constitution.md (confirm wording matches this versioned constitution)
-- ⚠ /templates/commands/specify.md (add provider unification requirements)
-- ⚠ /templates/commands/plan.md (enforce provider resource checks)
-- ⚠ README.md or docs (document new principles)
-
-Deferred items:
-- TODO(RATIFICATION_DATE): Set actual original adoption date once stakeholders agree
+This is the AUTHORITATIVE constitution for the NOA project.
+The spec-kit version is a TEMPLATE for projects using spec-kit.
 -->
 
 # NOA Constitution
@@ -56,7 +35,7 @@ This document defines the non‑negotiable principles, governance rules, and qua
 - **PROJECT_NAME**: NOA (Autonomous Agentic Project Management OS)
 - **PROJECT_MANIFESTO**: Multi-Platform Autonomous Self-Modifying Agentic OS
 - **SCOPE**: Local-first, agentic full-stack operating system that unifies and orchestrates multiple underlying tools, services, and codebases as one OS-like experience—a "seed application" that uses Agentic AI to autonomously grow and accomplish complex goals
-- **RATIFICATION_DATE**: TODO(RATIFICATION_DATE): Set the original adoption date
+- **RATIFICATION_DATE**: 2025-12-08
 - **LAST_AMENDED_DATE**: 2025-12-08
 - **CONSTITUTION_VERSION**: 2.1.0
 
@@ -413,11 +392,6 @@ The system MUST implement a Shared Provider Execution Memory bus for coordinated
   - Fall back to cloud providers in priority order
   - Queue task and notify user after 3 failed attempts
 
-- **Orchestration Mode**:
-  - When Cursor is available with IDE context, it MUST coordinate ALL providers
-  - Task-to-provider routing: reasoning → Claude, code → Codex, local → llama.cpp
-  - Result aggregation via Shared Provider Execution Memory bus
-
 **Rationale**: Unified execution memory enables the hive-mind to leverage all providers as a single coordinated system.
 
 ### 4.10 Resource Name Refactoring Policy
@@ -437,23 +411,10 @@ When external repositories or AI tool CLIs are downloaded and integrated, their 
   5. **Registration**: Register unified resources in `ai/shared/resources/resource-registry.json`
   6. **Validation**: Verify all providers can access the unified resource
 
-- **Naming Convention**:
-  - Provider-specific prefix MUST be removed: `claude-reasoning` → `reasoning`
-  - Capability-based naming MUST be used: `code-gen`, `reasoning`, `analysis`
-  - Version suffix SHOULD be appended for compatibility: `reasoning-v1`
-
 - **Backward Compatibility**:
   - Original provider-specific names MUST remain as aliases
   - Alias mapping in `ai/shared/resources/resource-aliases.json`
   - Deprecation warnings for direct provider-specific access
-
-**Example Refactoring**:
-
-| Original (Provider-Specific) | Unified (Shared) | Alias |
-|------------------------------|------------------|-------|
-| `claude` (claude-code) | `reasoning-agent` | `claude` → `reasoning-agent` |
-| `codex` (codex-cli) | `code-generation-tool` | `codex` → `code-generation-tool` |
-| `copilot-chat` (vscode) | `inline-completion-agent` | `copilot-chat` → `inline-completion-agent` |
 
 **Rationale**: Resource name refactoring ensures that capabilities from any provider become universally available to the entire hive-mind, preventing vendor lock-in and maximizing resource utilization.
 
@@ -467,23 +428,10 @@ The system MUST support operation independent of the host operating system kerne
   - **Container Mode**: Isolated container with minimal kernel interface
   - **Sandbox Mode**: User-space isolation (Windows Sandbox, Bubblewrap, App Sandbox)
 
-- **Platform Implementation**:
-  | Platform | Native | VM | Container | Sandbox |
-  |----------|--------|-----|-----------|---------|
-  | Windows | Windows kernel | Hyper-V | Docker/WSC | Windows Sandbox |
-  | Linux | Linux kernel | KVM/QEMU | Docker/Podman | Bubblewrap |
-  | macOS | Darwin kernel | Virtualization.framework | Docker | App Sandbox |
-
 - **Kernel Abstraction Layer (NKAL)**:
   - Unified interface regardless of underlying kernel
   - Process isolation, network stack, file system, memory, IPC abstractions
   - Mode switching via `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
-
-- **VM Image Requirements**:
-  - Base: Alpine Linux (minimal)
-  - Kernel: 6.6 LTS with P2P modules
-  - Size: <500MB compressed
-  - Boot time: <3 seconds
 
 **Rationale**: Kernel independence ensures NOA can operate with maximum isolation when needed, without being locked to any specific host OS.
 
@@ -559,8 +507,22 @@ All work MUST demonstrate traceability through the constitutional flow:
 
 ---
 
-**Version**: 2.1.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-08
+## Document Relationships
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| **This Constitution** | `CONSTITUTION.md` (root) | Authoritative governance for NOA project |
+| AGENT.md | `AGENT.md` (root) | Agent execution instructions |
+| Spec-Kit Constitution | `project-mgmt/spec-kit/memory/constitution.md` | Template for spec-kit users |
+| Feature Specs | `specs/*/spec.md` | Feature specifications |
+| Feature Plans | `specs/*/plan.md` | Implementation plans |
+| Feature Tasks | `specs/*/tasks.md` | Task lists |
+
+---
+
+**Version**: 2.1.0 | **Ratified**: 2025-12-08 | **Last Amended**: 2025-12-08
 
 ---
 
 End of Constitution v2.1.0
+
