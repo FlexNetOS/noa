@@ -520,12 +520,24 @@ runs:
             def _auto_fix(self, issue: Issue) -> Optional[str]:
                 """Apply automatic fixes for known issue types"""
                 if issue.category == 'lint':
-                    subprocess.run(['npx', 'eslint', '--fix', issue.file or '.'])
-                    return "ESLint auto-fix applied"
+                    try:
+                        result = subprocess.run(['npx', 'eslint', '--fix', issue.file or '.'], check=False)
+                        if result.returncode == 0:
+                            return "ESLint auto-fix applied"
+                    except FileNotFoundError:
+                        pass  # npx not available
+                    return None
                 elif issue.category == 'security':
-                    subprocess.run(['npm', 'audit', 'fix', '--force'])
-                    return "npm audit fix applied"
+                    try:
+                        result = subprocess.run(['npm', 'audit', 'fix', '--force'], check=False)
+                        if result.returncode == 0:
+                            return "npm audit fix applied"
+                    except FileNotFoundError:
+                        pass  # npm not available
+                    return None
                 elif issue.category == 'conflict':
+                    if issue.file is None:
+                        return None
                     return self._resolve_conflict(issue.file)
                 return None
 
@@ -540,18 +552,26 @@ runs:
 
                     # Simple resolution: take incoming changes
                     resolved = re.sub(
-                        r'<<<<<<<.*?\n(.*?)=======\n(.*?)>>>>>>>.*?\n',
+                        r'<<<<<<<[^\n]*\n(.*?)=======\n(.*?)>>>>>>>[^\n]*(?:\n|$)',
                         r'\2',
                         content,
                         flags=re.DOTALL
                     )
 
+                    if resolved == content:
+                        return None
+
                     with open(filepath, 'w') as f:
                         f.write(resolved)
 
-                    subprocess.run(['git', 'add', filepath])
-                    return f"Conflict resolved in {filepath}"
-                except:
+                    try:
+                        add_result = subprocess.run(['git', 'add', filepath], check=False)
+                        if add_result.returncode == 0:
+                            return f"Conflict resolved in {filepath}"
+                    except FileNotFoundError:
+                        pass  # git not available
+                    return None
+                except Exception:
                     return None
 
             def _get_issue_context(self, issue: Issue) -> str:
