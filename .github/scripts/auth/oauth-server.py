@@ -99,16 +99,28 @@ class OAuthHandler(BaseHTTPRequestHandler):
         elif path == '/health':
             self.handle_health()
         elif path.startswith('/auth/') and path.endswith('/callback'):
-            provider = path.split('/')[2]
-            self.handle_callback(provider, query)
+            parts = path.split('/')
+            if len(parts) >= 3:
+                provider = parts[2]
+                self.handle_callback(provider, query)
+            else:
+                self.send_error(400, "Invalid auth callback path")
         elif path.startswith('/auth/'):
-            provider = path.split('/')[2]
-            self.handle_auth_start(provider)
+            parts = path.split('/')
+            if len(parts) >= 3:
+                provider = parts[2]
+                self.handle_auth_start(provider)
+            else:
+                self.send_error(400, "Invalid auth path")
         elif path == '/tokens':
             self.handle_list_tokens()
         elif path.startswith('/revoke/'):
-            provider = path.split('/')[2]
-            self.handle_revoke(provider)
+            parts = path.split('/')
+            if len(parts) >= 3:
+                provider = parts[2]
+                self.handle_revoke(provider)
+            else:
+                self.send_error(400, "Invalid revoke path")
         else:
             self.send_error(404, "Not Found")
 

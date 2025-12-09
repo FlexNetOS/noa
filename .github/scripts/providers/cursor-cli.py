@@ -209,6 +209,7 @@ class CursorCLIProvider:
 
     async def fix_code(self, issue: Dict[str, Any], apply: bool = True) -> Dict[str, Any]:
         """Generate and optionally apply a code fix"""
+        import asyncio
         if not self.authenticated:
             raise Exception("Not authenticated")
 
@@ -233,7 +234,9 @@ Apply the fix directly to the file."""
             env = os.environ.copy()
             env['CURSOR_API_KEY'] = self.config.api_key
 
-            result = subprocess.run(
+            # Run subprocess in thread pool to avoid blocking event loop
+            result = await asyncio.to_thread(
+                subprocess.run,
                 cmd,
                 capture_output=True,
                 text=True,

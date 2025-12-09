@@ -606,11 +606,15 @@ class OAuthManager:
         if not token:
             return None
 
-        if token.is_expired and token.refresh_token:
-            connector = self.connectors.get(provider)
-            if connector:
-                token = connector.refresh_token(token.refresh_token)
-                self._save_token(provider, token, user_id)
+        if token.is_expired:
+            if token.refresh_token:
+                connector = self.connectors.get(provider)
+                if connector:
+                    token = connector.refresh_token(token.refresh_token)
+                    self._save_token(provider, token, user_id)
+            else:
+                # Expired and cannot refresh -> treat as missing
+                return None
 
         return token
 
