@@ -12,5 +12,14 @@
     "embeddings": true,
     "streaming": true,
     "functionCalling": true
+  },
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "workflows": "${NOA_ROOT}/ai/shared/workflows",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "prompts": "${NOA_ROOT}/ai/shared/prompts"
   }
 }

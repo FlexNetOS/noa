@@ -1,0 +1,130 @@
+# NOA Kernel Independence Tests - macOS (B148)
+#
+# Tests kernel-related functionality on macOS.
+# Includes Virtualization.framework checks.
+
+name: Kernel Tests (macOS)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+      - '.github/workflows/kernel-tests-macos.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+  workflow_dispatch:
+
+jobs:
+  test-nkal:
+    name: NKAL Unit Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Run NKAL Tests
+        run: |
+          cd sys/core
+          cargo test --lib kernel -- --nocapture
+
+  test-capabilities-detection:
+    name: Capabilities Detection
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Hypervisor Support
+        run: |
+          echo "Checking hypervisor support..."
+
+          hv_support=$(sysctl -n kern.hv_support 2>/dev/null || echo "0")
+          if [ "$hv_support" = "1" ]; then
+            echo "Hypervisor: Supported"
+          else
+            echo "Hypervisor: Not supported (expected on some CI runners)"
+          fi
+
+          # Check macOS version
+          echo "macOS version: $(sw_vers -productVersion)"
+          echo "Architecture: $(uname -m)"
+
+      - name: Check Container Runtime
+        run: |
+          echo "Checking container runtimes..."
+
+          if command -v docker &>/dev/null; then
+            echo "Docker: Found"
+            docker --version
+          else
+            echo "Docker: Not found"
+          fi
+
+          if command -v colima &>/dev/null; then
+            echo "Colima: Found"
+            colima version
+          else
+            echo "Colima: Not found"
+          fi
+
+      - name: Check Sandbox Support
+        run: |
+          echo "Checking sandbox support..."
+
+          # macOS has built-in sandbox-exec
+          if command -v sandbox-exec &>/dev/null; then
+            echo "sandbox-exec: Available"
+          fi
+
+  test-scripts:
+    name: Script Validation
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: brew install shellcheck
+
+      - name: Validate Bash Scripts
+        run: |
+          scripts=(
+            "sys/kernel/macos/vm/noa-vm.sh"
+          )
+
+          errors=0
+          for script in "${scripts[@]}"; do
+            if [ -f "$script" ]; then
+              echo "Validating: $script"
+              if shellcheck -e SC2034,SC2086 "$script"; then
+                echo "  [OK] Shellcheck passed"
+              else
+                echo "  [FAIL] Shellcheck errors"
+                ((errors++)) || true
+              fi
+            else
+              echo "Script not found: $script"
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Check Documentation
+        run: |
+          if [ -f "sys/kernel/macos/vm/README.md" ]; then
+            echo "[OK] macOS VM documentation exists"
+            head -20 sys/kernel/macos/vm/README.md
+          else
+            echo "[WARN] macOS VM documentation missing"
+          fi
+

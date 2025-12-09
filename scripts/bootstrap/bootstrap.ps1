@@ -36,7 +36,12 @@ param(
     [string]$NoaRoot,
     [switch]$SkipKernel,
     [switch]$SkipServices,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$InstallAllTools,
+    [switch]$InstallAiProviders,
+    [switch]$InstallSharedResources,
+    [switch]$Verify,
+    [switch]$Offline
 )
 
 $ErrorActionPreference = "Stop"
@@ -177,11 +182,101 @@ if (Test-Path $bundleScript) {
 }
 
 # ============================================
-# Phase 5: Kernel/Network Setup
+# Phase 5: Cache Setup
+# ============================================
+
+Write-Log "Phase 5: Setting up caches..." -Level Info
+
+$cacheSetupScript = Join-Path $NOA_SCRIPTS "bootstrap/config/cache-setup.ps1"
+if (Test-Path $cacheSetupScript) {
+    & $cacheSetupScript -NoaRoot $NoaRoot
+} else {
+    # Create cache directories manually
+    $cacheDirs = @("rust", "go", "npm", "pip", "models", "ollama", "huggingface", "downloads")
+    foreach ($cache in $cacheDirs) {
+        $cachePath = Join-Path $NoaRoot "cache/$cache"
+        if (-not (Test-Path $cachePath)) {
+            New-Item -ItemType Directory -Path $cachePath -Force | Out-Null
+        }
+    }
+    Write-Log "  Created cache directories" -Level Success
+}
+
+# ============================================
+# Phase 6: Install Toolchains (if requested)
+# ============================================
+
+if ($InstallAllTools) {
+    Write-Log "Phase 6: Installing all toolchains..." -Level Info
+
+    $installAllScript = Join-Path $NOA_SCRIPTS "setup/install-all-tools.ps1"
+    if (Test-Path $installAllScript) {
+        # Use hashtable splatting for named parameters (NOT array splatting)
+        $installParams = @{ NoaRoot = $NoaRoot }
+        if ($Force) { $installParams['UpdateExisting'] = $true }
+        & $installAllScript @installParams
+    } else {
+        Write-Log "  install-all-tools.ps1 not found (skipping)" -Level Warning
+    }
+} else {
+    Write-Log "Phase 6: Toolchain installation SKIPPED (use -InstallAllTools)" -Level Info
+}
+
+# ============================================
+# Phase 7: Install AI Providers (if requested)
+# ============================================
+
+if ($InstallAiProviders) {
+    Write-Log "Phase 7: Installing AI provider CLIs..." -Level Info
+
+    $aiProviderScripts = @(
+        "bootstrap/installers/ai-providers/claude-code.ps1",
+        "bootstrap/installers/ai-providers/codex-cli.ps1",
+        "bootstrap/installers/ai-providers/cursor-cli.ps1",
+        "bootstrap/installers/ai-providers/abacus-cli.ps1",
+        "bootstrap/installers/ai-providers/git-cli-provider.ps1"
+    )
+
+    foreach ($script in $aiProviderScripts) {
+        $scriptPath = Join-Path $NOA_SCRIPTS $script
+        if (Test-Path $scriptPath) {
+            Write-Log "  Running: $script" -Level Info
+            & $scriptPath -NoaRoot $NoaRoot
+        }
+    }
+} else {
+    Write-Log "Phase 7: AI provider installation SKIPPED (use -InstallAiProviders)" -Level Info
+}
+
+# ============================================
+# Phase 8: Setup Shared Resources (if requested)
+# ============================================
+
+if ($InstallSharedResources -or $InstallAiProviders) {
+    Write-Log "Phase 8: Setting up shared AI resources..." -Level Info
+
+    $sharedResourceScripts = @(
+        "bootstrap/installers/shared-resources/create-directories.ps1",
+        "bootstrap/installers/shared-resources/execution-memory.ps1",
+        "bootstrap/installers/shared-resources/provider-sync.ps1"
+    )
+
+    foreach ($script in $sharedResourceScripts) {
+        $scriptPath = Join-Path $NOA_SCRIPTS $script
+        if (Test-Path $scriptPath) {
+            & $scriptPath -NoaRoot $NoaRoot
+        }
+    }
+} else {
+    Write-Log "Phase 8: Shared resources setup SKIPPED (use -InstallSharedResources)" -Level Info
+}
+
+# ============================================
+# Phase 9: Kernel/Network Setup
 # ============================================
 
 if (-not $SkipKernel) {
-    Write-Log "Phase 5: Kernel/Network setup..." -Level Info
+    Write-Log "Phase 9: Kernel/Network setup..." -Level Info
 
     $kmodScript = Join-Path $NOA_SCRIPTS "noa-kmod.ps1"
     if (Test-Path $kmodScript) {
@@ -203,14 +298,14 @@ if (-not $SkipKernel) {
         Write-Log "  Run as Administrator for full kernel setup" -Level Warning
     }
 } else {
-    Write-Log "Phase 5: Kernel setup SKIPPED" -Level Info
+    Write-Log "Phase 9: Kernel setup SKIPPED" -Level Info
 }
 
 # ============================================
-# Phase 6: Generate Environment File
+# Phase 10: Generate Environment File
 # ============================================
 
-Write-Log "Phase 6: Generating environment configuration..." -Level Info
+Write-Log "Phase 10: Generating environment configuration..." -Level Info
 
 $envPath = Join-Path $NoaRoot "noa-env.ps1"
 
@@ -308,10 +403,10 @@ $envContent | Set-Content -Path $envPath -Encoding UTF8
 Write-Log "Created: noa-env.ps1" -Level Success
 
 # ============================================
-# Phase 7: Create Marker File
+# Phase 11: Create Marker File
 # ============================================
 
-Write-Log "Phase 7: Creating marker file..." -Level Info
+Write-Log "Phase 11: Creating marker file..." -Level Info
 
 $markerPath = Join-Path $NoaRoot ".noa"
 @"
@@ -323,6 +418,26 @@ root=$NoaRoot
 "@ | Set-Content -Path $markerPath -Encoding UTF8
 
 Write-Log "Created: .noa" -Level Success
+
+# ============================================
+# Phase 12: Verification (if requested)
+# ============================================
+
+if ($Verify) {
+    Write-Log "Phase 12: Running verification..." -Level Info
+
+    $verifyAllScript = Join-Path $NOA_SCRIPTS "bootstrap/verify/verify-all.ps1"
+    if (Test-Path $verifyAllScript) {
+        & $verifyAllScript -NoaRoot $NoaRoot
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "Verification found some issues - check logs" -Level Warning
+        }
+    } else {
+        Write-Log "  verify-all.ps1 not found (skipping)" -Level Warning
+    }
+} else {
+    Write-Log "Phase 12: Verification SKIPPED (use -Verify)" -Level Info
+}
 
 # ============================================
 # Summary

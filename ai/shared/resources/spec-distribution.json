@@ -1,0 +1,71 @@
+{
+  "$schema": "https://noa.local/schemas/spec-distribution.json",
+  "version": "1.0.0",
+  "description": "Manages shared spec distribution across all AI providers for parallel access (§3.13, FR-037)",
+  "lastUpdated": "2025-12-09T00:00:00Z",
+  "activeSpec": {
+    "path": null,
+    "hash": null,
+    "files": [],
+    "lastAccessed": null,
+    "accessCount": 0
+  },
+  "connectedProviders": [],
+  "parallelExecution": {
+    "enabled": true,
+    "coordinator": "spec-kit",
+    "coordinatorEntry": "/speckit.implement",
+    "taskDistribution": "capability-based",
+    "maxConcurrentProviders": 8,
+    "syncInterval": 1000,
+    "developmentPhase": {
+      "orchestrator": "spec-kit",
+      "entryCommand": "/speckit.implement",
+      "providerConnectionFn": "connect_provider",
+      "resultAggregation": "cursor-ide"
+    },
+    "productionPhase": {
+      "orchestrator": "cecca",
+      "entryPoint": "noa-ui",
+      "resultAggregation": "noa-dashboard"
+    }
+  },
+  "lockingPolicy": {
+    "enabled": true,
+    "lockTimeout": 30000,
+    "maxWaitTime": 60000,
+    "retryAttempts": 3
+  },
+  "auditConfig": {
+    "enabled": true,
+    "logPath": "ai/shared/resources/provider-access.log",
+    "retentionDays": 30,
+    "logLevel": "info"
+  },
+  "_schema": {
+    "activeSpec": {
+      "path": "string - Relative path to active spec directory",
+      "hash": "string - SHA-256 hash of spec contents for change detection",
+      "files": ["array - List of spec files (spec.md, plan.md, tasks.md, etc.)"],
+      "lastAccessed": "ISO8601 - Last access timestamp",
+      "accessCount": "number - Total access count across all providers"
+    },
+    "connectedProviders": {
+      "_example": {
+        "providerId": "claude-code",
+        "providerType": "cloud",
+        "accessMode": "read|write|coordinate",
+        "connectedAt": "ISO8601",
+        "lastSync": "ISO8601",
+        "status": "connected|disconnected|error",
+        "capabilities": ["reasoning", "code-gen", "analysis"]
+      }
+    },
+    "parallelExecution": {
+      "coordinator": "string - Provider ID that coordinates parallel tasks",
+      "taskDistribution": "round-robin|priority|capability-based",
+      "maxConcurrentProviders": "number - Max providers accessing spec simultaneously"
+    }
+  }
+}
+

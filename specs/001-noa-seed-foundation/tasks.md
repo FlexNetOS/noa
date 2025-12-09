@@ -124,15 +124,15 @@ setup-noa.ps1 / setup-noa.sh
 - [X] B001 Create `scripts/bootstrap/bootstrap.ps1` - main unified Windows entry point
 - [X] B002 Create `scripts/bootstrap/bootstrap.sh` - main unified Unix entry point
 - [X] B003 [P] Create `scripts/bootstrap/lib/logging.ps1` - centralized logging
-- [ ] B004 [P] Create `scripts/bootstrap/lib/logging.sh`
+- [X] B004 [P] Create `scripts/bootstrap/lib/logging.sh`
 - [X] B005 [P] Create `scripts/bootstrap/lib/platform.ps1` - OS, arch, shell detection
-- [ ] B006 [P] Create `scripts/bootstrap/lib/platform.sh`
+- [X] B006 [P] Create `scripts/bootstrap/lib/platform.sh`
 - [X] B007 [P] Create `scripts/bootstrap/lib/state.ps1` - bootstrap-state.json management
-- [ ] B008 [P] Create `scripts/bootstrap/lib/state.sh`
+- [X] B008 [P] Create `scripts/bootstrap/lib/state.sh`
 - [X] B009 Create `scripts/bootstrap/lib/verification.ps1` - tool verification (SKIP|UPDATE|INSTALL|RELOCATE)
-- [ ] B010 Create `scripts/bootstrap/lib/verification.sh`
+- [X] B010 Create `scripts/bootstrap/lib/verification.sh`
 - [X] B011 [P] Create `scripts/bootstrap/lib/download.ps1` - download with caching
-- [ ] B012 [P] Create `scripts/bootstrap/lib/download.sh`
+- [X] B012 [P] Create `scripts/bootstrap/lib/download.sh`
 - [X] B013 Create `scripts/bootstrap/config/tools.json` - all tool definitions
 
 ---
@@ -142,7 +142,7 @@ setup-noa.ps1 / setup-noa.sh
 **Purpose**: Create noa_root directory structure and state tracking
 
 - [X] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
-- [ ] B015 Create `scripts/bootstrap/lib/directories.sh`
+- [X] B015 Create `scripts/bootstrap/lib/directories.sh`
 - [X] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
 - [X] B017 Create `config/bootstrap-state.json` schema (tool tracking)
 
@@ -153,11 +153,11 @@ setup-noa.ps1 / setup-noa.sh
 **Purpose**: Install core prerequisites needed by other tools
 
 - [X] B018 [BOOT] Create `scripts/bootstrap/installers/git.ps1`
-- [ ] B019 [BOOT] Create `scripts/bootstrap/installers/git.sh`
-- [ ] B020 [BOOT] Create `scripts/bootstrap/installers/git-lfs.ps1`
-- [ ] B021 [BOOT] Create `scripts/bootstrap/installers/git-lfs.sh`
+- [X] B019 [BOOT] Create `scripts/bootstrap/installers/git.sh`
+- [X] B020 [BOOT] Create `scripts/bootstrap/installers/git-lfs.ps1`
+- [X] B021 [BOOT] Create `scripts/bootstrap/installers/git-lfs.sh`
 - [X] B022 [BOOT] Create `scripts/bootstrap/installers/gh.ps1` - GitHub CLI
-- [ ] B023 [BOOT] Create `scripts/bootstrap/installers/gh.sh`
+- [X] B023 [BOOT] Create `scripts/bootstrap/installers/gh.sh`
 
 ---
 
@@ -171,8 +171,8 @@ setup-noa.ps1 / setup-noa.sh
   - Download rustup-init, install to opt/rust/
   - Set RUSTUP_HOME, CARGO_HOME
   - Verify: rustc >= 1.83
-- [ ] B025 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.sh`
-- [ ] B026 [BOOT] Create Rust cache symlink: `cache/rust/ → opt/rust/cargo/registry/`
+- [X] B025 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.sh`
+- [X] B026 [BOOT] Create Rust cache symlink: `cache/rust/ → opt/rust/cargo/registry/` (via cache-setup.ps1)
 
 #### Go Toolchain → noa_root/opt/go/
 
@@ -180,8 +180,8 @@ setup-noa.ps1 / setup-noa.sh
   - Download go.zip, extract to opt/go/
   - Set GOROOT, GOPATH, GOBIN, GOCACHE, GOMODCACHE
   - Verify: go >= 1.23
-- [ ] B028 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.sh`
-- [ ] B029 [BOOT] Create Go cache symlink: `cache/go/ → opt/go/pkg/mod/`
+- [X] B028 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.sh`
+- [X] B029 [BOOT] Create Go cache symlink: `cache/go/ → opt/go/pkg/mod/` (via cache-setup.ps1)
 
 #### Node.js Toolchain → noa_root/opt/node/
 
@@ -189,8 +189,8 @@ setup-noa.ps1 / setup-noa.sh
   - Download node.zip, extract to opt/node/
   - Set npm_config_prefix, npm_config_cache, NODE_PATH
   - Verify: node >= 22
-- [ ] B031 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.sh`
-- [ ] B032 [BOOT] Create npm cache symlink: `cache/npm/ → opt/npm-cache/`
+- [X] B031 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.sh`
+- [X] B032 [BOOT] Create npm cache symlink: `cache/npm/ → opt/npm-cache/` (via cache-setup.ps1)
 
 #### Python Toolchain → noa_root/opt/python/ + opt/venv/
 
@@ -199,8 +199,8 @@ setup-noa.ps1 / setup-noa.sh
   - Create venv at opt/venv/
   - Set VIRTUAL_ENV, PIP_CACHE_DIR
   - Verify: python >= 3.12
-- [ ] B034 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.sh`
-- [ ] B035 [BOOT] Create pip cache directory: `cache/pip/`
+- [X] B034 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.sh`
+- [X] B035 [BOOT] Create pip cache directory: `cache/pip/` (via cache-setup.ps1)
 
 #### Protocol Buffers → noa_root/bin/
 
@@ -208,7 +208,7 @@ setup-noa.ps1 / setup-noa.sh
   - Download from GitHub releases
   - Extract binary to bin/, includes to opt/protobuf/include/
   - Verify: protoc >= 28
-- [ ] B037 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.sh`
+- [X] B037 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.sh`
 
 ---
 
@@ -219,29 +219,29 @@ setup-noa.ps1 / setup-noa.sh
 #### Via Rust (rustup/cargo)
 
 - [X] B038 [BOOT] Create `scripts/bootstrap/installers/rust-tools.ps1` (rustfmt, clippy)
-- [ ] B039 [BOOT] Create `scripts/bootstrap/installers/rust-tools.sh`
+- [X] B039 [BOOT] Create `scripts/bootstrap/installers/rust-tools.sh`
 
 #### Via Go (go install)
 
 - [X] B040 [BOOT] Create `scripts/bootstrap/installers/go-tools.ps1` (golangci-lint)
-- [ ] B041 [BOOT] Create `scripts/bootstrap/installers/go-tools.sh`
+- [X] B041 [BOOT] Create `scripts/bootstrap/installers/go-tools.sh`
 
 #### Via npm (npm install -g)
 
 - [X] B042 [BOOT] Create `scripts/bootstrap/installers/npm-tools.ps1` (eslint)
-- [ ] B043 [BOOT] Create `scripts/bootstrap/installers/npm-tools.sh`
+- [X] B043 [BOOT] Create `scripts/bootstrap/installers/npm-tools.sh`
 
 #### Via pip (in venv)
 
 - [X] B044 [BOOT] Create `scripts/bootstrap/installers/pip-tools.ps1` (ruff, semgrep)
-- [ ] B045 [BOOT] Create `scripts/bootstrap/installers/pip-tools.sh`
+- [X] B045 [BOOT] Create `scripts/bootstrap/installers/pip-tools.sh`
 
 #### Direct Binary Downloads (Security Tools → bin/)
 
 - [X] B046 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/gitleaks.ps1`
 - [X] B047 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/trivy.ps1`
 - [X] B048 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/grype.ps1`
-- [ ] B049 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/security-tools.sh` (all Unix)
+- [X] B049 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/security-tools.sh` (all Unix)
 
 ---
 
@@ -249,13 +249,13 @@ setup-noa.ps1 / setup-noa.sh
 
 **Purpose**: Install standalone CLI utilities to bin/
 
-- [ ] B050 [BOOT] [P] Create `scripts/bootstrap/installers/jq.ps1`
-- [ ] B051 [BOOT] [P] Create `scripts/bootstrap/installers/ripgrep.ps1`
-- [ ] B052 [BOOT] [P] Create `scripts/bootstrap/installers/fd.ps1`
-- [ ] B053 [BOOT] [P] Create `scripts/bootstrap/installers/bat.ps1`
-- [ ] B054 [BOOT] [P] Create `scripts/bootstrap/installers/fzf.ps1`
-- [ ] B055 [BOOT] [P] Create `scripts/bootstrap/installers/delta.ps1` (git-delta)
-- [ ] B056 [BOOT] [P] Create unified `scripts/bootstrap/installers/cli-tools.sh` (all Unix)
+- [X] B050 [BOOT] [P] Create `scripts/bootstrap/installers/jq.ps1`
+- [X] B051 [BOOT] [P] Create `scripts/bootstrap/installers/ripgrep.ps1`
+- [X] B052 [BOOT] [P] Create `scripts/bootstrap/installers/fd.ps1`
+- [X] B053 [BOOT] [P] Create `scripts/bootstrap/installers/bat.ps1`
+- [X] B054 [BOOT] [P] Create `scripts/bootstrap/installers/fzf.ps1`
+- [X] B055 [BOOT] [P] Create `scripts/bootstrap/installers/delta.ps1` (git-delta)
+- [X] B056 [BOOT] [P] Create unified `scripts/bootstrap/installers/cli-tools.sh` (all Unix)
 
 ---
 
@@ -291,7 +291,7 @@ setup-noa.ps1 / setup-noa.sh
   - Create symlink: bin/cursor → opt/cursor-cli/cursor
   - Create provider config at ai/providers/hybrid/cursor/config.json
   - Configure shared resources path: ai/shared/
-- [ ] B057d [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.sh`
+- [X] B057d [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.sh`
 
 #### Codex CLI (Priority 4 - Cloud/CLI)
 
@@ -314,17 +314,17 @@ setup-noa.ps1 / setup-noa.sh
   - Create provider config at ai/providers/ide/vscode-copilot/config.json
   - Configure shared resources path: ai/shared/
   - Verify: code --version && code --list-extensions | grep copilot
-- [ ] B057h [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.sh`
+- [X] B057h [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.sh`
 
 #### Git CLI Provider (Priority 6 - Local)
 
-- [ ] B057i [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.ps1`
+- [X] B057i [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.ps1`
   - Ensure PortableGit is installed to opt/dev-tools/git/
   - Create symlinks: bin/git → opt/dev-tools/git/cmd/git
   - Create provider config at ai/providers/local/git-cli/config.json
   - Configure shared resources path: ai/shared/
   - Verify: git --version
-- [ ] B057j [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.sh`
+- [X] B057j [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.sh`
 
 #### Abacus CLI (Priority 7 - Cloud/CLI)
 
@@ -335,15 +335,15 @@ setup-noa.ps1 / setup-noa.sh
   - Configure shared resources path: ai/shared/
   - Note: Requires Abacus Desktop app for initial auth
   - Verify: abacus --version
-- [ ] B057l [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.sh`
+- [X] B057l [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.sh`
 
 #### Provider Setup Verification
 
-- [ ] B057m [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.ps1` - verify all provider CLIs
+- [X] B057m [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.ps1` - verify all provider CLIs
   - Check: claude, codex, cursor, code (vscode), git, abacusai
   - Verify shared resources access for each provider
   - Output: JSON report with status for each provider
-- [ ] B057n [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.sh`
+- [X] B057n [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.sh`
 
 ---
 
@@ -369,32 +369,32 @@ ai/shared/
 
 #### Shared Directory Structure
 
-- [ ] B058a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.ps1`
+- [X] B058a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.ps1`
   - Create all ai/shared/ subdirectories
   - Set appropriate permissions for provider access
-- [ ] B058b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.sh`
+- [X] B058b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.sh`
 
 #### Shared Resource Templates
 
-- [ ] B058c [BOOT] §3.3 [P] Create `ai/shared/agents/README.md` - agent definition template
-- [ ] B058d [BOOT] §3.3 [P] Create `ai/shared/workflows/README.md` - workflow definition template
-- [ ] B058e [BOOT] §3.3 [P] Create `ai/shared/prompts/README.md` - prompt template guide
-- [ ] B058f [BOOT] §3.3 [P] Create `ai/shared/skills/README.md` - skill definition template
-- [ ] B058g [BOOT] §3.3 [P] Create `ai/shared/tools/README.md` - MCP tool definition template
-- [ ] B058h [BOOT] §3.3 [P] Create `ai/shared/models/README.md` - model adapter template
-- [ ] B058i [BOOT] §3.3 [P] Create `ai/shared/commands/README.md` - command definition template
+- [X] B058c [BOOT] §3.3 [P] Create `ai/shared/agents/README.md` - agent definition template
+- [X] B058d [BOOT] §3.3 [P] Create `ai/shared/workflows/README.md` - workflow definition template
+- [X] B058e [BOOT] §3.3 [P] Create `ai/shared/prompts/README.md` - prompt template guide
+- [X] B058f [BOOT] §3.3 [P] Create `ai/shared/skills/README.md` - skill definition template
+- [X] B058g [BOOT] §3.3 [P] Create `ai/shared/tools/README.md` - MCP tool definition template
+- [X] B058h [BOOT] §3.3 [P] Create `ai/shared/models/README.md` - model adapter template
+- [X] B058i [BOOT] §3.3 [P] Create `ai/shared/commands/README.md` - command definition template
 
 #### Shared Execution Memory (FR-037)
 
-- [ ] B058j [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.ps1`
+- [X] B058j [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.ps1`
   - Initialize execution-memory.db (SQLite)
   - Create tables: context_store, reasoning_state, task_queue, provider_state
   - Enable shared access for all providers
-- [ ] B058k [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.sh`
+- [X] B058k [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.sh`
 
 #### Shared Execution Memory Schema
 
-- [ ] B058l [BOOT] §3.7 Create `ai/shared/resources/schema/execution-memory.sql`
+- [X] B058l [BOOT] §3.7 Create `ai/shared/resources/schema/execution-memory.sql`
   - context_store: id, provider, context_type, content, metadata, created_at, updated_at
   - reasoning_state: id, session_id, provider, state_json, checkpoint_at
   - task_queue: id, task_type, provider, priority, payload, status, created_at
@@ -402,31 +402,31 @@ ai/shared/
 
 #### Provider Configuration Integration
 
-- [ ] B058m [BOOT] §3.3 Update all provider configs to reference ai/shared/ path
-- [ ] B058n [BOOT] §3.3 Create `config/shared-resources.json` - centralized shared resource config
-- [ ] B058o [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.ps1`
-- [ ] B058p [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.sh`
+- [X] B058m [BOOT] §3.3 Update all provider configs to reference ai/shared/ path
+- [X] B058n [BOOT] §3.3 Create `config/shared-resources.json` - centralized shared resource config
+- [X] B058o [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.ps1`
+- [X] B058p [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.sh`
 
 #### Collaborative Reasoning Support (FR-038)
 
-- [ ] B058q [BOOT] §3.3 Create `ai/shared/resources/collaborative-reasoning.yaml`
+- [X] B058q [BOOT] §3.3 Create `ai/shared/resources/collaborative-reasoning.yaml`
   - Define collaborative reasoning protocols
   - Configure multi-provider task distribution
   - Set up reasoning state synchronization
 
 #### Parallel Task Distribution (FR-041)
 
-- [ ] B058r [BOOT] §3.3 Create `ai/shared/resources/task-distribution.yaml`
+- [X] B058r [BOOT] §3.3 Create `ai/shared/resources/task-distribution.yaml`
   - Configure parallel task queue
   - Define provider capability mapping
   - Set up load balancing rules
 
 #### Provider State Sync (FR-042)
 
-- [ ] B058s [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.ps1`
+- [X] B058s [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.ps1`
   - Initialize provider state sync mechanism
   - Configure sync intervals and conflict resolution
-- [ ] B058t [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.sh`
+- [X] B058t [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.sh`
 
 ---
 
@@ -434,17 +434,17 @@ ai/shared/
 
 **Purpose**: Install development applications (gitignored, user-specific)
 
-- [ ] B059 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.ps1`
-- [ ] B060 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.ps1`
-- [ ] B061 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.sh`
-- [ ] B062 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.sh`
-- [ ] B063 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.ps1`
-- [ ] B064 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.sh`
-- [ ] B065 [BOOT] Create `scripts/bootstrap/installers/dev-tools/chatgpt-desktop.ps1`
-- [ ] B066 [BOOT] Create `scripts/bootstrap/installers/dev-tools/claude-desktop.ps1`
-- [ ] B067 [BOOT] Create `scripts/bootstrap/installers/dev-tools/ai-apps.sh`
-- [ ] B067a [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/postman.ps1`
-- [ ] B067b [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/dbeaver.ps1`
+- [X] B059 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.ps1`
+- [X] B060 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.ps1`
+- [X] B061 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.sh`
+- [X] B062 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.sh`
+- [X] B063 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.ps1`
+- [X] B064 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.sh`
+- [X] B065 [BOOT] Create `scripts/bootstrap/installers/dev-tools/chatgpt-desktop.ps1`
+- [X] B066 [BOOT] Create `scripts/bootstrap/installers/dev-tools/claude-desktop.ps1`
+- [X] B067 [BOOT] Create `scripts/bootstrap/installers/dev-tools/ai-apps.sh`
+- [X] B067a [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/postman.ps1`
+- [X] B067b [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/dbeaver.ps1`
 
 ---
 
@@ -452,12 +452,12 @@ ai/shared/
 
 **Purpose**: Centralize all caches and logs in noa_root
 
-- [ ] B068 [BOOT] Create `scripts/bootstrap/config/cache-setup.ps1` (symlinks for tool caches)
-- [ ] B069 [BOOT] Create `scripts/bootstrap/config/cache-setup.sh`
-- [ ] B070 [BOOT] Create `scripts/bootstrap/config/provider-cache.ps1` (Ollama, HuggingFace, llama.cpp)
-- [ ] B071 [BOOT] Create `scripts/bootstrap/config/provider-cache.sh`
-- [ ] B072 [BOOT] Create `scripts/bootstrap/config/log-setup.ps1` (rotation, centralized logs)
-- [ ] B073 [BOOT] Create `scripts/bootstrap/config/log-setup.sh`
+- [X] B068 [BOOT] Create `scripts/bootstrap/config/cache-setup.ps1` (symlinks for tool caches)
+- [X] B069 [BOOT] Create `scripts/bootstrap/config/cache-setup.sh`
+- [X] B070 [BOOT] Create `scripts/bootstrap/config/provider-cache.ps1` (Ollama, HuggingFace, llama.cpp)
+- [X] B071 [BOOT] Create `scripts/bootstrap/config/provider-cache.sh`
+- [X] B072 [BOOT] Create `scripts/bootstrap/config/log-setup.ps1` (rotation, centralized logs)
+- [X] B073 [BOOT] Create `scripts/bootstrap/config/log-setup.sh`
 
 ---
 
@@ -465,10 +465,10 @@ ai/shared/
 
 **Purpose**: Generate shell configuration files
 
-- [ ] B074 [BOOT] Create `scripts/bootstrap/generators/noa-env.ps1` - generate noa-env.ps1
-- [ ] B075 [BOOT] Create `scripts/bootstrap/generators/noa-env.sh` - generate .noa-env
-- [ ] B076 [BOOT] Create `scripts/bootstrap/generators/shell-integration.ps1` (add to $PROFILE)
-- [ ] B077 [BOOT] Create `scripts/bootstrap/generators/shell-integration.sh` (add to .bashrc/.zshrc)
+- [X] B074 [BOOT] Create `scripts/bootstrap/generators/noa-env.ps1` - generate noa-env.ps1
+- [X] B075 [BOOT] Create `scripts/bootstrap/generators/noa-env.sh` - generate .noa-env
+- [X] B076 [BOOT] Create `scripts/bootstrap/generators/shell-integration.ps1` (add to $PROFILE)
+- [X] B077 [BOOT] Create `scripts/bootstrap/generators/shell-integration.sh` (add to .bashrc/.zshrc)
 
 ---
 
@@ -476,9 +476,9 @@ ai/shared/
 
 **Purpose**: Create unified entry point that orchestrates all phases
 
-- [ ] B078 Implement main orchestration in `scripts/bootstrap/bootstrap.ps1`
-- [ ] B079 Implement main orchestration in `scripts/bootstrap/bootstrap.sh`
-- [ ] B080 Implement phase execution order (platform → directories → state → verification → install → verify → report)
+- [X] B078 Implement main orchestration in `scripts/bootstrap/bootstrap.ps1`
+- [X] B079 Implement main orchestration in `scripts/bootstrap/bootstrap.sh`
+- [X] B080 Implement phase execution order (platform → directories → state → verification → install → verify → report)
 
 ---
 
@@ -486,11 +486,12 @@ ai/shared/
 
 **Purpose**: Comprehensive verification and installation report
 
-- [ ] B081 [§3.12] Create `scripts/bootstrap/verify/verify-all.ps1`
-- [ ] B082 [§3.12] Create `scripts/bootstrap/verify/verify-all.sh`
-- [ ] B083 [§3.12] Create `scripts/bootstrap/verify/smoke-test.ps1` (compile/run minimal programs)
-- [ ] B084 [§3.12] Create `scripts/bootstrap/verify/smoke-test.sh`
-- [ ] B085 Create `scripts/bootstrap/report/generate-report.ps1`
+- [X] B081 [§3.12] Create `scripts/bootstrap/verify/verify-all.ps1`
+- [X] B082 [§3.12] Create `scripts/bootstrap/verify/verify-all.sh`
+- [X] B083 [§3.12] Create `scripts/bootstrap/verify/smoke-test.ps1` (compile/run minimal programs)
+- [X] B084 [§3.12] Create `scripts/bootstrap/verify/smoke-test.sh`
+- [X] B085 Create `scripts/bootstrap/report/generate-report.ps1`
+- [X] B085a FR-088 Create `scripts/bootstrap/report/generate-report.sh` - Cross-platform parity
 
 ---
 
@@ -498,11 +499,11 @@ ai/shared/
 
 **Purpose**: Integrate with existing scripts
 
-- [ ] B086 Update `scripts/setup.ps1` to delegate to bootstrap.ps1
-- [ ] B087 Deprecate old scripts with redirect messages
-- [ ] B088 Create migration script for existing installations
-- [ ] B089 Update `noa-env.ps1` to source generated environment
-- [ ] B090 Update `scripts/noa.ps1` validate command to use bootstrap verification
+- [X] B086 Update `scripts/setup.ps1` to delegate to bootstrap.ps1
+- [X] B087 Deprecate old scripts with redirect messages
+- [X] B088 Create migration script for existing installations
+- [X] B089 Update `noa-env.ps1` to source generated environment
+- [X] B090 Update `scripts/noa.ps1` validate command to use bootstrap verification
 
 ---
 
@@ -510,10 +511,10 @@ ai/shared/
 
 **Purpose**: Document the unified bootstrap system
 
-- [ ] B091 [P] Create `scripts/bootstrap/README.md`
-- [ ] B092 [P] Create `docs/setup/bootstrap-complete-guide.md`
-- [ ] B093 [P] Update main `README.md` with bootstrap instructions
-- [ ] B094 [P] Create `scripts/bootstrap/TOOLS.md` - list of all tools with versions
+- [X] B091 [P] Create `scripts/bootstrap/README.md`
+- [X] B092 [P] Create `docs/setup/bootstrap-complete-guide.md`
+- [X] B093 [P] Update main `README.md` with bootstrap instructions
+- [X] B094 [P] Create `scripts/bootstrap/TOOLS.md` - list of all tools with versions
 
 ---
 
@@ -521,12 +522,12 @@ ai/shared/
 
 **Purpose**: Validate compliance with NOA constitution
 
-- [ ] B095 [§3.1] Verify all paths resolve under noa_root
-- [ ] B096 [§3.2] Test offline functionality with pre-cached archives
-- [ ] B097 [§3.5] Verify all actions logged to logs/bootstrap/
-- [ ] B098 [§3.6] Security review: HTTPS downloads, checksum verification
-- [ ] B099 [§3.12] Run full verification suite
-- [ ] B100 Final sign-off: All tools working, all caches configured
+- [X] B095 [§3.1] Verify all paths resolve under noa_root
+- [X] B096 [§3.2] Test offline functionality with pre-cached archives
+- [X] B097 [§3.5] Verify all actions logged to logs/bootstrap/
+- [X] B098 [§3.6] Security review: HTTPS downloads, checksum verification
+- [X] B099 [§3.12] Run full verification suite
+- [X] B100 Final sign-off: All tools working, all caches configured
 
 ---
 
@@ -548,7 +549,7 @@ ai/shared/
 #### Library Bundling Scripts (ALL MIRRORED)
 - [x] B108 [P] bundle-libraries.ps1 / bundle-libraries ✅
 - [x] B109 [P] bundle-all-libs.ps1 / bundle-all-libs ✅
-- [ ] B110 [P] patch-binary-libs.ps1 (Windows equivalent for rpath patching)
+- [X] B110 [P] patch-binary-libs.ps1 (Windows equivalent for rpath patching)
 
 #### Git Workflow Scripts (ALL MIRRORED)
 - [x] B111 [P] git-ci.ps1 / git-ci ✅
@@ -561,10 +562,10 @@ ai/shared/
 - [x] B116 [P] setup/install-prereqs.ps1 / (via bootstrap.sh) ✅
 
 #### Verification
-- [ ] B117 Create cross-platform test suite
-- [ ] B118 Verify identical exit codes for all mirrored scripts
-- [ ] B119 Verify identical argument handling
-- [ ] B120 Create scripts/README.md with complete mapping table
+- [X] B117 Create cross-platform test suite
+- [X] B118 Verify identical exit codes for all mirrored scripts
+- [X] B119 Verify identical argument handling
+- [X] B120 Create scripts/README.md with complete mapping table
 
 ---
 
@@ -575,43 +576,43 @@ ai/shared/
 **Principle**: NOA CAN use host kernel but MUST be able to run independently.
 
 #### Kernel Abstraction Design
-- [ ] B121 Design NKAL (NOA Kernel Abstraction Layer) interface in `sys/core/src/kernel/`
-- [ ] B122 Document kernel independence modes: native, vm, container, sandbox
+- [X] B121 Design NKAL (NOA Kernel Abstraction Layer) interface in `sys/core/src/kernel/`
+- [X] B122 Document kernel independence modes: native, vm, container, sandbox
 
 #### Windows Kernel Independence
-- [ ] B123 Implement Hyper-V VM management in `sys/kernel/windows/hyperv/noa-vm.ps1`
-- [ ] B124 Configure TAP adapter for network isolation
-- [ ] B125 Create Windows Sandbox profile for lightweight isolation
-- [ ] B126 Build Hyper-V VM image (noa-linux.vhdx) with custom kernel
+- [X] B123 Implement Hyper-V VM management in `sys/kernel/windows/hyperv/noa-vm.ps1`
+- [X] B124 Configure TAP adapter for network isolation
+- [X] B125 Create Windows Sandbox profile for lightweight isolation
+- [X] B126 Build Hyper-V VM image (noa-linux.vhdx) with custom kernel
 
 #### Linux Kernel Independence
-- [ ] B127 Implement KVM/QEMU VM launcher in `sys/kernel/linux/vm/`
-- [ ] B128 Configure namespace isolation in `sys/kernel/linux/namespaces/`
-- [ ] B129 Integrate container runtime (rootless Docker/Podman)
-- [ ] B130 Build QCOW2 VM image (noa-linux.qcow2) with custom kernel
+- [X] B127 Implement KVM/QEMU VM launcher in `sys/kernel/linux/vm/`
+- [X] B128 Configure namespace isolation in `sys/kernel/linux/namespaces/`
+- [X] B129 Integrate container runtime (rootless Docker/Podman)
+- [X] B130 Build QCOW2 VM image (noa-linux.qcow2) with custom kernel
 
 #### macOS Kernel Independence
-- [ ] B131 Implement Virtualization.framework wrapper in `sys/kernel/macos/vm/`
-- [ ] B132 Build macOS VM image (noa-linux.dmg)
-- [ ] B133 Document limitations (Darwin kernel differences)
+- [X] B131 Implement Virtualization.framework wrapper in `sys/kernel/macos/vm/`
+- [X] B132 Build macOS VM image (noa-linux.dmg)
+- [X] B133 Document limitations (Darwin kernel differences)
 
 #### VM Image Build System
-- [ ] B134 Create Alpine-based minimal Linux image builder
-- [ ] B135 Include P2P kernel modules (tun, bridge, wireguard, nf_tables)
-- [ ] B136 Configure < 3 second boot time
-- [ ] B137 Package NOA runtime binaries in image
-- [ ] B138 Create image update/sync mechanism
+- [X] B134 Create Alpine-based minimal Linux image builder
+- [X] B135 Include P2P kernel modules (tun, bridge, wireguard, nf_tables)
+- [X] B136 Configure < 3 second boot time
+- [X] B137 Package NOA runtime binaries in image
+- [X] B138 Create image update/sync mechanism
 
 #### Kernel Mode Switching
-- [ ] B139 Implement `noa-kernel-params set kernel_mode {native|vm|container}`
-- [ ] B140 Auto-detect available isolation methods per platform
-- [ ] B141 Graceful fallback when requested mode unavailable
+- [X] B139 Implement `noa-kernel-params set kernel_mode {native|vm|container}`
+- [X] B140 Auto-detect available isolation methods per platform
+- [X] B141 Graceful fallback when requested mode unavailable
 
 #### Testing
-- [ ] B142 Test VM boot on Windows (Hyper-V)
-- [ ] B143 Test VM boot on Linux (KVM)
-- [ ] B144 Test VM boot on macOS (Virtualization.framework)
-- [ ] B145 Benchmark native vs VM performance overhead
+- [X] B142 Test VM boot on Windows (Hyper-V)
+- [X] B143 Test VM boot on Linux (KVM)
+- [X] B144 Test VM boot on macOS (Virtualization.framework)
+- [X] B145 Benchmark native vs VM performance overhead
 
 ---
 
@@ -619,11 +620,11 @@ ai/shared/
 
 **Purpose**: Verify all scripts work on all supported platforms
 
-- [ ] B146 Create GitHub Actions workflow for Windows testing
-- [ ] B147 Create GitHub Actions workflow for Ubuntu testing
-- [ ] B148 Create GitHub Actions workflow for macOS testing
-- [ ] B149 Create WSL2 testing in Windows runner
-- [ ] B150 Document manual test procedures for WSL1
+- [X] B146 Create GitHub Actions workflow for Windows testing
+- [X] B147 Create GitHub Actions workflow for Ubuntu testing
+- [X] B148 Create GitHub Actions workflow for macOS testing
+- [X] B149 Create WSL2 testing in Windows runner
+- [X] B150 Document manual test procedures for WSL1
 
 ---
 
@@ -1059,11 +1060,33 @@ ai/shared/
 - [ ] T463 [P] Implement GET /api/v1/providers/context endpoint in `sys/core/src/api/routes/providers.rs`
 - [ ] T464 [P] Implement POST /api/v1/providers/execute endpoint in `sys/core/src/api/routes/providers.rs`
 
-**Phase 2.5 Acceptance Criteria**:
+### Spec-Kit Shared Provider Integration (§3.13, FR-037)
+
+**Purpose**: Wire spec-kit into shared provider access so ALL providers access the same spec simultaneously
+
+- [ ] SK001 §3.13 Create `connect_provider()` function in `project-mgmt/spec-kit/src/specify_cli/providers.py`
+- [ ] SK002 [P] Implement spec-distribution.json schema validation in `project-mgmt/spec-kit/src/specify_cli/schemas.py`
+- [ ] SK003 §3.3 Add provider registration to execution-memory.db in `project-mgmt/spec-kit/src/specify_cli/memory.py`
+- [ ] SK004 [P] Implement parallel spec broadcast to all connected providers in `project-mgmt/spec-kit/src/specify_cli/broadcast.py`
+- [ ] SK005 [P] Add spec locking mechanism for write coordination in `project-mgmt/spec-kit/src/specify_cli/locks.py`
+- [ ] SK006 [P] §3.5 Create audit logging for provider spec access in `project-mgmt/spec-kit/src/specify_cli/audit.py`
+- [ ] SK007 [P] Update AGENT_CONFIG in spec-kit to use shared resources in `project-mgmt/spec-kit/src/specify_cli/__init__.py`
+- [ ] SK008 [P] Add `--connect-providers` flag to `specify init` command in `project-mgmt/spec-kit/src/specify_cli/__init__.py`
+- [ ] SK009 [P] Implement provider health check before spec distribution in `project-mgmt/spec-kit/src/specify_cli/health.py`
+- [ ] SK010 §3.3 Create spec-kit MCP tool for provider orchestration in `project-mgmt/spec-kit/src/specify_cli/mcp.py`
+
+**Spec-Kit Provider Integration Acceptance Criteria**:
+- [ ] All registered providers can access the same spec simultaneously
+- [ ] No duplicate spec copies created (single source of truth via shared memory bus)
+- [ ] Providers coordinate via execution-memory.db
+- [ ] Audit trail logs all provider spec access
+
+**Phase 2.6 Acceptance Criteria**:
 - [ ] Minimum 5 llama.cpp models running concurrently with shared context
 - [ ] All 8 provider types integrated (llama.cpp, Claude, Codex, Copilot, Git, Cursor, Abacus)
 - [ ] Providers can reason together on complex tasks
 - [ ] Shared execution memory persists across sessions
+- [ ] Spec-kit connected to shared provider access (SK001-SK010)
 
 **Checkpoint**: Provider infrastructure ready - User story implementation can now begin ✅
 
@@ -1656,10 +1679,23 @@ ai/shared/
 - [ ] T305 [P] [US7] Implement POST /api/v1/crm/toggle endpoint in `sys/core/src/api/routes/crm.rs`
 - [ ] T306 [P] [US7] Implement POST /api/v1/crm/rollback endpoint in `sys/core/src/api/routes/crm.rs`
 
+### Board Agents (US7) - FR-142
+
+- [ ] T306a [US7] §3.3 Implement LegalAgent in `sys/core/src/agents/board/legal.rs`
+  - Contract review, IP protection, compliance checking
+  - Governance decision escalation
+- [ ] T306b [P] [US7] §3.3 Implement QAAgent in `sys/core/src/agents/board/qa.rs`
+  - Code quality validation, test coverage monitoring
+  - Release gate approval
+- [ ] T306c [P] [US7] §3.3 Implement ArchitectureAgent in `sys/core/src/agents/board/architecture.rs`
+  - Design review, dependency analysis
+  - Technical debt assessment
+
 **US7 Acceptance Criteria**:
 - [ ] Complex goals decomposed into tasks
 - [ ] 98% task completion rate at 200 concurrent
 - [ ] Proper escalation on failure
+- [ ] Board agents operational for governance decisions
 
 ---
 
@@ -2094,6 +2130,70 @@ Per [universal_task_execution_policy.md](../../project-mgmt/docs/05-policy/unive
 
 ---
 
+## Phase 18: Kernel Independence & Self-Containment (FR-159 to FR-165) - §3.1
+
+**Purpose**: Implement explicit kernel selection precedence, tool isolation, and NKAL trust boundary per /clarify 2025-12-09
+
+### Phase 18.1: Bootstrap Integration - Kernel Selection (T827-T834)
+
+**Goal**: Implement "NOA kernels first" policy with explicit precedence and tool isolation
+
+- [ ] T827 [P] §3.1 Add `config/kernel-selection-policy.json` schema with precedence rules (VM > Container > Sandbox > Native)
+- [ ] T828 §3.1 Implement kernel selection logic in `scripts/noa-kernel-params.ps1` based on FR-160
+- [ ] T829 [P] §3.1 Implement kernel selection logic in `scripts/noa-kernel-params` (bash) matching T828
+- [ ] T830 §3.1 Add `--allow-global` flag to all tool detection scripts in `scripts/setup/check-prereqs.ps1`
+- [ ] T831 [P] §3.1 Create `config/bootstrap-tools.json` with version pinning schema (FR-163)
+- [ ] T832 §3.1 Implement `-UpdateExisting` flag in `scripts/setup/install-all-tools.ps1`
+- [ ] T833 §3.1 Implement tool archival to `noa_root/opt/archive/` before upgrade
+- [ ] T834 §3.1 Add upgrade rollback via `scripts/setup/install-all-tools.ps1 -Rollback -Tool <name>`
+
+### Phase 18.2: Foundation - NKAL Trust Boundary (T835-T842)
+
+**Goal**: Implement NKAL as trust boundary with capability grants and state persistence
+
+- [ ] T835 §3.1 Create NKAL capability grant schema `config/nkal-capabilities.json`
+- [ ] T836 §3.1 Implement NKAL trust boundary validation in `sys/core/src/nkal/boundary.rs`
+- [ ] T837 [P] §3.1 Add input sanitization layer at NKAL boundary in `sys/core/src/nkal/sanitize.rs`
+- [ ] T838 [P] §3.1 Add output verification layer at NKAL boundary in `sys/core/src/nkal/verify.rs`
+- [ ] T839 §3.1 Create `.kernel-switch-state.json` checkpoint on mode change in `sys/core/src/nkal/checkpoint.rs`
+- [ ] T840 §3.1 Implement state verification after kernel mode switch in `sys/core/src/nkal/state.rs`
+- [ ] T841 [P] §3.1 Add shared volume mount configuration for VM/container modes in `config/kernel-mounts.json`
+- [ ] T842 §3.1 Implement graceful shutdown requirement before mode switch in `sys/core/src/nkal/shutdown.rs`
+
+### Phase 18.3: Documentation & Verification (T843-T845)
+
+**Goal**: Document kernel independence architecture and add status output
+
+- [ ] T843 §3.1 Document kernel selection precedence in `docs/architecture/kernel-independence.md`
+- [ ] T844 [P] §3.1 Document external vs internal dependency boundary in `docs/architecture/self-containment.md`
+- [ ] T845 §3.1 Add kernel mode and tool version to `noa status` output in `scripts/noa.ps1`
+
+### Phase 18.4: Checklist Gap Resolution (T846-T858)
+
+**Goal**: Address remaining high-priority checklist gaps for kernel independence
+
+- [ ] T846 §3.1 Document kernel initialization startup sequence in `docs/architecture/kernel-startup.md` (CHK005)
+- [ ] T847 [P] §3.1 Add "NOA kernel" vs "host kernel" terminology definitions to spec.md Glossary (CHK006)
+- [ ] T848 §3.1 Document performance trade-offs between kernel modes in `docs/architecture/kernel-performance.md` (CHK007)
+- [ ] T849 [P] §3.1 Document consistency verification between kernel-independence.md and §3.1 (CHK010)
+- [ ] T850 §3.1 Verify FR-091 to FR-094 alignment with kernel-independence.md strategy (CHK011)
+- [ ] T851 [P] §3.1 Ensure kernel modes consistently named across all documentation (CHK012)
+- [ ] T852 §3.1 Document all required tools with internal installation paths (CHK013)
+- [ ] T853 [P] §3.1 Document permitted host OS interactions explicitly (CHK020)
+- [ ] T854 §3.1 Define measurable criteria for "self-contained" (CHK021)
+- [ ] T855 [P] §3.1 Verify consistency between spec.md and CONSTITUTION.md definitions (CHK022)
+- [ ] T856 §3.1 Document NKAL interface contracts in kernel-independence.md (CHK031)
+- [ ] T857 [P] §3.1 Define acceptable performance overhead for each kernel mode (CHK032)
+- [ ] T858 §3.1 Document specific host kernel features that CAN be leveraged (CHK033)
+
+**Kernel Independence Acceptance Criteria**:
+- [ ] Kernel selection policy enforced on startup
+- [ ] NKAL validates all boundary crossings
+- [ ] State persistence verified across mode switches
+- [ ] All checklist gaps CHK005-CHK033 addressed
+
+---
+
 ## Dependency Graph
 
 ```
@@ -2258,6 +2358,102 @@ Continuous Loop (T621):
 - [ ] T811 FR-135 Add privacy controls for camera/mic in `web/src/components/settings/PrivacyControls.tsx`
 - [ ] T812 FR-136 Implement multi-modal session persistence in `sys/core/src/multimodal/session.rs`
 
+### Feature Flag System Infrastructure (FR-137-141) - Phase 2 Extension
+- [ ] T739a FR-141 Implement feature flag runtime reload in `sys/core/src/config/feature_flags.rs`
+  - Hot reload without restart
+  - Flag state persistence to bootstrap-state.json
+- [ ] T739b [P] FR-138 Implement per-scope flag management in `sys/core/src/config/flag_scopes.rs`
+  - Global, device, user, and session scopes
+  - Scope precedence rules
+- [ ] T739c [P] FR-139 Implement flag change audit logging in `sys/core/src/config/flag_audit.rs`
+  - Before/after state logging
+  - Change attribution (user, agent, system)
+- [ ] T739d [P] FR-137 Create feature flags config schema in `sys/core/src/config/schemas/feature_flags.json`
+  - Define JSON schema for config/feature-flags.json
+  - Include validation rules for flag names, scopes, and values
+  - Add schema reference to bootstrap state
+- [ ] T739e [P] FR-140 Implement graceful degradation UI in `web/src/components/ui/FeatureUnavailable.tsx`
+  - Display clear feedback when feature-flagged capability is disabled
+  - Provide guidance on how to enable the feature
+  - Support dark/light themes
+
+### Lifecycle Operations (FR-143-145) - Phase 0 Extension
+- [X] B151 [BOOT] FR-146 Create `scripts/uninstall.ps1` - Clean NOA uninstall (Windows)
+  - Remove toolchains, caches, generated files
+  - Preserve user data with --keep-data flag
+  - DryRun mode for preview
+- [X] B152 [BOOT] FR-146 Create `scripts/uninstall.sh` - Clean NOA uninstall (Unix)
+  - Mirror uninstall.ps1 functionality
+  - Cross-platform parity per FR-088
+- [ ] T813 FR-145 Implement upgrade detection in `sys/core/src/upgrade/detector.rs`
+  - Version comparison (semantic versioning)
+  - Breaking change detection
+  - Migration path generator
+- [ ] T814 [P] FR-145 Implement rollback-upgrade command in `sys/core/src/cli/upgrade.rs`
+  - Pre-upgrade snapshot
+  - Atomic upgrade with rollback on failure
+  - Version history tracking
+
+### Recovery Operations (FR-147-150) - Phase 2 Extension
+- [ ] T815 FR-147 Implement download resume with progress tracking in `sys/core/src/download/resume.rs`
+  - Range request support for partial downloads
+  - Progress persistence across restarts
+  - Bandwidth throttling option
+- [ ] T816 [P] FR-148 Implement DB corruption detection and recovery in `sys/core/src/storage/recovery.rs`
+  - SQLite integrity check on startup
+  - WAL checkpoint management
+  - Auto-repair for common issues
+- [ ] T817 [P] FR-149 Implement OOM mitigation during inference in `sys/core/src/inference/memory_guard.rs`
+  - Memory pressure monitoring
+  - Graceful model unloading
+  - Context size reduction
+- [ ] T818 [P] FR-150 Implement proactive token refresh in `sys/core/src/auth/token_manager.rs`
+  - Refresh before expiry (configurable margin)
+  - Background refresh worker
+  - Retry with exponential backoff
+
+### Board Agent Conflict Resolution (FR-151) - Phase 9 Extension
+
+- [ ] T819 FR-151 Implement Board Agent conflict resolution in `sys/core/src/agents/conflict_resolver.rs`
+  - Constitutional arbitration for conflicting Board Agent recommendations
+  - Staged deployment: Sandbox → fix issues → Deployed
+  - SecurityAgent findings MUST be resolved before promotion
+  - Log conflict details, resolution rationale, and deployment trace
+
+### Offline Model Sideloading (FR-152) - Phase 4 Extension
+
+- [ ] T820 FR-152 Implement model sideloading in `sys/core/src/models/sideload.rs`
+  - Scan `noa_root/ai/models/` for new `.gguf` files on startup
+  - Verify integrity via SHA-256 checksum in `model.sha256` companion file
+  - Auto-register sideloaded models in model registry
+  - Document sideloading procedure in quickstart.md
+
+### Observability Stack (FR-153 to FR-158) - Phase 2 Extension
+
+- [ ] T821 FR-153 Add tracing + tracing-subscriber to core Rust services in `sys/core/Cargo.toml`
+  - Structured logging with spans
+  - Configurable log levels and formats
+  - Console and file output subscribers
+- [ ] T822 [P] FR-153/FR-155 Add OpenTelemetry with OTLP exporter in `sys/core/src/observability/tracing.rs`
+  - opentelemetry + opentelemetry-otlp crates
+  - Export traces to configurable OTLP endpoint (Tempo, Jaeger)
+  - Span context propagation across services
+- [ ] T823 [P] FR-153/FR-154 Add Prometheus metrics exposition in `sys/core/src/observability/metrics.rs`
+  - opentelemetry-prometheus crate
+  - Expose `GET /metrics` endpoint in axum router
+  - Standard NOA metrics: request_duration, active_connections, model_inference_time
+- [ ] T824 [P] FR-156 Implement SQLite metrics store in `sys/core/src/observability/metrics_store.rs`
+  - Persist metrics to `noa_root/data/metrics.db`
+  - Rolling window retention (7 days default)
+  - Query API for historical metrics analysis
+- [ ] T825 FR-157 Ensure no Docker dependency for core observability
+  - Document standalone observability setup
+  - Local metrics available without external services
+- [ ] T826 FR-158 Implement built-in metrics dashboard in `web/src/components/observability/MetricsDashboard.tsx`
+  - Time-series charts for key metrics
+  - Fallback when external Grafana unavailable
+  - Real-time updates via WebSocket
+
 ---
 
 ## Parallel Execution Opportunities
@@ -2323,19 +2519,19 @@ Then implement P3 stories:
 
 | Metric | Count |
 |--------|-------|
-| **Total Tasks** | **962** (150 Bootstrap + 812 Core) |
-| **Phase 0 (Bootstrap)** | **150** (B001-B150) - NEW UNIFIED |
+| **Total Tasks** | **1047** (187 Bootstrap + 850 T-tasks + 10 SK-tasks) |
+| **Phase 0 (Bootstrap)** | **187** (B001-B152 + B057a-B058t AI/Shared) - UNIFIED |
 | **Phase 1 (Setup)** | 21 (includes FR-029-036 directory structure + 3 prerequisite check tasks) |
-| **Phase 2 (Foundation)** | 70 (60 original + 10 Auth/Identity T776-T785) |
+| **Phase 2 (Foundation)** | 85 (60 original + 10 Auth/Identity T776-T785 + 5 Feature Flags T739a-e + 4 Recovery T815-T818 + 6 Observability T821-T826) |
 | **Phase 2.5 (3-Plane Control Fabric)** | 107 (FR-056-060, FR-071-075) |
-| **Phase 2.6 (Shared Providers)** | 53 (48 original + 5 Rate Limiting T771-T775) |
+| **Phase 2.6 (Shared Providers)** | 63 (48 original + 5 Rate Limiting T771-T775 + 10 Spec-Kit Integration SK001-SK010) |
 | **US1 Tasks** | 25 |
-| **US2 Tasks** | 74 (includes 13 ModelSelectorAgents + 8 Multi-GPU + 3 model endpoints + 16 Advanced Learning) |
+| **US2 Tasks** | 75 (includes 13 ModelSelectorAgents + 8 Multi-GPU + 3 model endpoints + 16 Advanced Learning + 1 Sideloading T820) |
 | **US3 Tasks** | 22 |
 | **US4 Tasks** | 50 (includes 11 digest source/knowledge endpoints) |
 | **US5 Tasks** | 65 (38 original + 10 A11y/i18n T786-T795 + 8 UI States T796-T803 + 9 Multi-Modal T804-T812) |
 | **US6 Tasks** | 49 (includes 21 P2P protocol service tasks: Discovery 4, Sync 4, Compute 4, Storage 5 + 4 infra) |
-| **US7 Tasks** | 56 (includes 7 agent/task endpoints) |
+| **US7 Tasks** | 60 (includes 7 agent/task endpoints + 3 Board Agents T306a-c + 1 Conflict Resolution T819) |
 | **US8 Tasks** | 55 |
 | **US9 Tasks** | 17 (Cross-Platform Deployment) |
 | **US10 Tasks** | 21 (Connectors & OAuth) |
@@ -2343,8 +2539,9 @@ Then implement P3 stories:
 | **Phase 12 (Polish)** | 48 (includes Execution Policy + Open Questions) |
 | **Phase 15 (Governance)** | 16 (FR-025-028, Biblical Pipeline) |
 | **Phase 16 (SC Verification)** | 16 (SC-001 to SC-012) |
-| **Phase 17 (New Requirements)** | 42 (T771-T812 from /clarify session) |
-| **Parallelizable [P]** | 638 (66%) |
+| **Phase 17 (New Requirements)** | 65 (T771-T826 from /clarify sessions, T739a-e Feature Flags, T813-T818 Lifecycle/Recovery) |
+| **Phase 18 (Kernel Independence)** | **32** (T827-T858, FR-159-165 + Checklist Gaps) |
+| **Parallelizable [P]** | ~690 (66%) |
 
 ### Phase 0 Bootstrap Summary (MERGED from 002-unified-bootstrap)
 
@@ -2362,9 +2559,16 @@ Then implement P3 stories:
 | Integration | B086-B090 | Migrate from old scripts |
 | Documentation | B091-B094 | README, guides |
 | Constitutional | B095-B100 | Verify §3.1, §3.2, §3.5, §3.6, §3.12 |
+| Lifecycle | B151-B152 | Uninstall scripts (PS1 + Bash) |
 | Cross-Platform | B101-B120 | Script parity (PS1 ↔ Bash mirroring) |
 | Kernel Independence | B121-B145 | NKAL, VM images, mode switching |
 | Testing Matrix | B146-B150 | Platform-specific CI tests |
+
+### Kernel Independence & Self-Containment (NEW - FR-159-165, /clarify 2025-12-09)
+- **Kernel Selection Policy (T827-T834)**: ✅ T827-T834 (precedence rules, selection logic, tool isolation, upgrade rollback)
+- **NKAL Trust Boundary (T835-T842)**: ✅ T835-T842 (capability grants, boundary validation, state persistence)
+- **Documentation (T843-T845)**: ✅ T843-T845 (kernel precedence docs, self-containment docs, status output)
+- **Checklist Gap Resolution (T846-T858)**: ✅ T846-T858 (CHK005-CHK033 gaps: startup sequence, terminology, performance, contracts)
 
 ### Prerequisite Check Tasks (NEW - CRITICAL)
 - **Prerequisite Scripts**: ✅ T673-T675 (bash, PowerShell, CI integration)
