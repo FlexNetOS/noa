@@ -143,8 +143,8 @@ setup-noa.ps1 / setup-noa.sh
 
 - [X] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
 - [ ] B015 Create `scripts/bootstrap/lib/directories.sh`
-- [ ] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
-- [ ] B017 Create `config/bootstrap-state.json` schema (tool tracking)
+- [X] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
+- [X] B017 Create `config/bootstrap-state.json` schema (tool tracking)
 
 ---
 
@@ -152,11 +152,11 @@ setup-noa.ps1 / setup-noa.sh
 
 **Purpose**: Install core prerequisites needed by other tools
 
-- [ ] B018 [BOOT] Create `scripts/bootstrap/installers/git.ps1`
+- [X] B018 [BOOT] Create `scripts/bootstrap/installers/git.ps1`
 - [ ] B019 [BOOT] Create `scripts/bootstrap/installers/git.sh`
 - [ ] B020 [BOOT] Create `scripts/bootstrap/installers/git-lfs.ps1`
 - [ ] B021 [BOOT] Create `scripts/bootstrap/installers/git-lfs.sh`
-- [ ] B022 [BOOT] Create `scripts/bootstrap/installers/gh.ps1` - GitHub CLI
+- [X] B022 [BOOT] Create `scripts/bootstrap/installers/gh.ps1` - GitHub CLI
 - [ ] B023 [BOOT] Create `scripts/bootstrap/installers/gh.sh`
 
 ---
@@ -218,17 +218,17 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Via Rust (rustup/cargo)
 
-- [ ] B038 [BOOT] Create `scripts/bootstrap/installers/rust-tools.ps1` (rustfmt, clippy)
+- [X] B038 [BOOT] Create `scripts/bootstrap/installers/rust-tools.ps1` (rustfmt, clippy)
 - [ ] B039 [BOOT] Create `scripts/bootstrap/installers/rust-tools.sh`
 
 #### Via Go (go install)
 
-- [ ] B040 [BOOT] Create `scripts/bootstrap/installers/go-tools.ps1` (golangci-lint)
+- [X] B040 [BOOT] Create `scripts/bootstrap/installers/go-tools.ps1` (golangci-lint)
 - [ ] B041 [BOOT] Create `scripts/bootstrap/installers/go-tools.sh`
 
 #### Via npm (npm install -g)
 
-- [ ] B042 [BOOT] Create `scripts/bootstrap/installers/npm-tools.ps1` (eslint)
+- [X] B042 [BOOT] Create `scripts/bootstrap/installers/npm-tools.ps1` (eslint)
 - [ ] B043 [BOOT] Create `scripts/bootstrap/installers/npm-tools.sh`
 
 #### Via pip (in venv)
@@ -238,9 +238,9 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Direct Binary Downloads (Security Tools → bin/)
 
-- [ ] B046 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/gitleaks.ps1`
-- [ ] B047 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/trivy.ps1`
-- [ ] B048 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/grype.ps1`
+- [X] B046 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/gitleaks.ps1`
+- [X] B047 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/trivy.ps1`
+- [X] B048 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/grype.ps1`
 - [ ] B049 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/security-tools.sh` (all Unix)
 
 ---
