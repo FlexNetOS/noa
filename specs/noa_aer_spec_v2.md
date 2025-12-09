@@ -1,6 +1,10 @@
 # noa – Agentic Environment Runtime (AER) v2  
 ### High-Level Architecture Specification
 
+> **Implementation**: See [001-noa-seed-foundation/](./001-noa-seed-foundation/) for the detailed implementation specification, tasks, and data model derived from this architecture.
+>
+> **Related Docs**: [Spec Index](./README.md) | [Constitution](../CONSTITUTION.md) | [AGENT.md](./AGENT.md)
+
 ---
 
 ## 1. Overview
