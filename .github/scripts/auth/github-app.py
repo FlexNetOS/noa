@@ -15,7 +15,7 @@ import jwt
 import logging
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -112,7 +112,7 @@ class GitHubApp:
 
         # Check cache
         cached = self.installation_tokens.get(installation_id)
-        if cached and datetime.fromisoformat(cached['expires_at'].replace('Z', '')) > datetime.utcnow():
+        if cached and datetime.fromisoformat(cached['expires_at'].replace('Z', '+00:00')) > datetime.now(timezone.utc):
             return cached['token']
 
         # Request new token

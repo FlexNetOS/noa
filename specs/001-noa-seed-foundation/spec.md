@@ -20,6 +20,11 @@ NOA (Name of App / Chief Executive Commander Chief Agent) is a multi-platform, a
 - Bash/WSL/macOS: `scripts/bash/check-prerequisites.sh --json`
 - PowerShell/Windows: `scripts/powershell/check-prerequisites.ps1 -Json`
 
+**Architecture References:**
+- [NOA AER Spec v2](../noa_aer_spec_v2.md) - High-level Agentic Environment Runtime architecture
+- [AGENT.md](../AGENT.md) - Agent execution guidelines and 4-D methodology
+- [NOA Constitution](../../CONSTITUTION.md) - Core principles and governance
+
 ---
 
 ## User Scenarios & Testing *(mandatory)*
