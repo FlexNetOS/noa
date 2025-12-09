@@ -542,41 +542,47 @@ runs:
                 return None
 
             def _resolve_conflict(self, filepath: str) -> Optional[str]:
-                """Resolve a merge conflict in a file"""
+                """Resolve a merge conflict in a file.
+
+                Atomic operation: either fully succeeds (file modified + staged)
+                or fully fails (file remains unchanged). This ensures consistent state.
+                """
                 try:
                     with open(filepath, 'r') as f:
-                        content = f.read()
+                        original_content = f.read()
 
-                    if '<<<<<<<' not in content:
+                    if '<<<<<<<' not in original_content:
                         return None
 
                     # Simple resolution: take incoming changes
                     resolved = re.sub(
                         r'<<<<<<<[^\n]*\n(.*?)=======\n(.*?)>>>>>>>[^\n]*(?:\n|$)',
                         r'\2',
-                        content,
+                        original_content,
                         flags=re.DOTALL
                     )
 
-                    if resolved == content:
+                    if resolved == original_content:
                         return None
 
+                    # Write resolved content
                     with open(filepath, 'w') as f:
                         f.write(resolved)
 
-                    # File successfully resolved - attempt to stage it
+                    # Attempt to stage the file
                     try:
                         add_result = subprocess.run(['git', 'add', filepath], check=False)
                         if add_result.returncode == 0:
                             return f"Conflict resolved and staged: {filepath}"
                         else:
-                            # Git add failed - file modified but not staged
-                            # Return None to indicate incomplete fix (callers expect staged files)
-                            # Note: File content WAS modified on disk
+                            # Git add failed - restore original content to maintain atomicity
+                            with open(filepath, 'w') as f:
+                                f.write(original_content)
                             return None
                     except FileNotFoundError:
-                        # Git not available - file modified but cannot stage
-                        # Return None to maintain API contract (callers expect staged files)
+                        # Git not available - restore original content to maintain atomicity
+                        with open(filepath, 'w') as f:
+                            f.write(original_content)
                         return None
                 except Exception:
                     return None
@@ -650,52 +656,91 @@ runs:
                     print(f"❌ Commit error: {e}")
 
             def run(self) -> Dict[str, Any]:
-                """Main resolution loop"""
+                """Main resolution loop with iterations.
+
+                Runs multiple iterations to catch issues revealed by prior fixes.
+                Continues until no issues remain or max_iterations is reached.
+                """
                 print("🤖 FlexNetOS AI Resolution Engine")
                 print(f"   Provider: {self.provider_name}")
                 print(f"   PR: #{self.pr_number}")
+                print(f"   Max Iterations: {self.max_iterations}")
                 print(f"   Dry Run: {self.dry_run}")
                 print()
 
-                # Collect issues
-                print("📋 Collecting issues...")
-                self.issues = self.collect_issues()
-                print(f"   Found {len(self.issues)} issues")
+                iteration = 0
+                total_fixes = 0
+                all_resolutions = []
 
-                # Resolve issues
-                print("\n🔧 Resolving issues...")
-                for issue in self.issues:
-                    print(f"   Processing: {issue.id}")
-                    resolution = self.resolve_issue(issue)
-                    self.resolutions.append(resolution)
+                while iteration < self.max_iterations:
+                    iteration += 1
+                    print(f"🔄 Iteration {iteration}/{self.max_iterations}")
 
-                    if resolution.status == 'fixed':
-                        self.fixes_applied += 1
-                        print(f"   ✅ Fixed: {issue.id}")
-                    else:
-                        self.remaining += 1
-                        print(f"   ⏭️ Skipped: {issue.id}")
+                    # Collect issues
+                    print("📋 Collecting issues...")
+                    self.issues = self.collect_issues()
+                    print(f"   Found {len(self.issues)} issues")
 
-                # Commit changes
-                if self.fixes_applied > 0:
-                    print("\n📦 Committing changes...")
-                    self.commit_changes()
+                    # No issues = we're done
+                    if len(self.issues) == 0:
+                        print("✅ No issues remaining!")
+                        break
+
+                    # Reset per-iteration counters
+                    iteration_fixes = 0
+                    iteration_skipped = 0
+
+                    # Resolve issues
+                    print("🔧 Resolving issues...")
+                    for issue in self.issues:
+                        print(f"   Processing: {issue.id}")
+                        resolution = self.resolve_issue(issue)
+                        all_resolutions.append(resolution)
+
+                        if resolution.status == 'fixed':
+                            iteration_fixes += 1
+                            total_fixes += 1
+                            print(f"   ✅ Fixed: {issue.id}")
+                        else:
+                            iteration_skipped += 1
+                            print(f"   ⏭️ Skipped: {issue.id}")
+
+                    # Commit changes for this iteration
+                    if iteration_fixes > 0:
+                        print("📦 Committing changes...")
+                        self.fixes_applied = iteration_fixes  # For commit message
+                        self.commit_changes()
+
+                    print(f"   Iteration {iteration}: {iteration_fixes} fixed, {iteration_skipped} skipped")
+
+                    # If no fixes were made this iteration, stop to prevent infinite loop
+                    if iteration_fixes == 0:
+                        print("ℹ️ No fixes made this iteration, stopping")
+                        break
+
+                    print()  # Blank line between iterations
+
+                # Final issue count after all iterations
+                final_issues = self.collect_issues()
+                self.remaining = len(final_issues)
 
                 # Generate report
                 status = 'complete' if self.remaining == 0 else 'partial'
                 report = {
                     'status': status,
                     'pr_number': self.pr_number,
-                    'total_issues': len(self.issues),
-                    'fixes_applied': self.fixes_applied,
+                    'iterations': iteration,
+                    'total_issues_found': len(all_resolutions),
+                    'fixes_applied': total_fixes,
                     'remaining': self.remaining,
-                    'resolutions': [asdict(r) for r in self.resolutions],
+                    'resolutions': [asdict(r) for r in all_resolutions],
                     'timestamp': datetime.utcnow().isoformat()
                 }
 
                 print(f"\n📊 Summary:")
                 print(f"   Status: {status}")
-                print(f"   Fixes: {self.fixes_applied}")
+                print(f"   Iterations: {iteration}")
+                print(f"   Total Fixes: {total_fixes}")
                 print(f"   Remaining: {self.remaining}")
 
                 return report
