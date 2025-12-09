@@ -1,0 +1,88 @@
+{
+  "name": "git-cli",
+  "type": "local",
+  "priority": 6,
+  "enabled": true,
+  "description": "Git CLI - Version control operations for code management and collaboration",
+  "installMethod": "portable",
+  "cli": {
+    "command": "git",
+    "version": "2.47.0",
+    "installMethods": {
+      "portable": "Download PortableGit from https://github.com/git-for-windows/git/releases",
+      "winget": "winget install Git.Git",
+      "brew": "brew install git",
+      "apt": "apt install git"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/dev-tools/git/cmd/git.exe",
+      "unix": "${NOA_ROOT}/opt/dev-tools/git/bin/git"
+    },
+    "subcommands": {
+      "version_control": ["init", "clone", "add", "commit", "push", "pull", "fetch", "merge", "rebase"],
+      "branching": ["branch", "checkout", "switch", "tag"],
+      "inspection": ["status", "log", "diff", "show", "blame"],
+      "collaboration": ["remote", "stash", "cherry-pick", "bisect"]
+    }
+  },
+  "modes": {
+    "cli": {
+      "description": "Command-line version control",
+      "command": "git",
+      "documentation": "https://git-scm.com/docs"
+    },
+    "automation": {
+      "description": "Git operations for CI/CD and automation",
+      "features": ["hooks", "scripting", "batch_operations"],
+      "documentation": "https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks"
+    }
+  },
+  "capabilities": {
+    "versionControl": true,
+    "branching": true,
+    "merging": true,
+    "diffing": true,
+    "historyTracking": true,
+    "collaboration": true,
+    "hooks": true,
+    "submodules": true,
+    "lfs": true,
+    "offline": true
+  },
+  "authentication": {
+    "methods": ["ssh_key", "https_token", "credential_helper"],
+    "documentation": "https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage"
+  },
+  "latency": {
+    "target": "<100ms",
+    "timeout": 30000
+  },
+  "fallbackPriority": 6,
+  "useCases": [
+    "Version control operations",
+    "Code history and blame",
+    "Branch management",
+    "Merge and conflict resolution",
+    "CI/CD integration",
+    "Collaboration workflows"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  },
+  "integrations": {
+    "github": {
+      "cli": "gh",
+      "documentation": "https://cli.github.com"
+    },
+    "gitlfs": {
+      "cli": "git-lfs",
+      "documentation": "https://git-lfs.github.com"
+    }
+  }
+}
+
