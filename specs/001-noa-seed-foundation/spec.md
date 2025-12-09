@@ -272,15 +272,17 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 - **FR-135**: System MUST support voice activation wake word detection for hands-free operation
 - **FR-136**: System SHOULD support XR/AR glasses integration via camera stream and spatial audio output
 
+### Functional Requirements - Memory & Logging
+
+- **FR-005**: System MUST persist all interactions, decisions, and learnings for instant recall (Total Memory Sovereignty)
+- **FR-006**: System MUST log all agent actions with who/what acted, why, and what changed
+
 ### Functional Requirements - Advanced Learning Techniques
 
 - **FR-043**: System SHOULD implement ToolkenGPT for pre-trained tool tokens that plug into larger models
 - **FR-044**: System SHOULD implement Replay Memory Cache for short-term memory with external knowledge base
 - **FR-045**: System SHOULD implement EWC (Elastic Weight Consolidation) for continual learning without catastrophic forgetting
 - **FR-046**: System SHOULD implement Meta-Learning (MAML) for rapid adaptation to new tasks with few examples
-
-- **FR-005**: System MUST persist all interactions, decisions, and learnings for instant recall (Total Memory Sovereignty)
-- **FR-006**: System MUST log all agent actions with who/what acted, why, and what changed
 
 ### Functional Requirements - Multi-GPU Support
 
@@ -373,7 +375,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 - **FR-021**: System MUST provide a dynamic, context-aware UI that reconfigures based on current task
 - **FR-022**: System MUST display a live, scrollable activity log of agent actions and decisions
-- **FR-023**: System SHOULD support multi-modal interaction (text, voice, vision) where hardware permits *(P3+ scope - text interaction is MVP; voice/vision deferred to US5 Dynamic UI phase)*
+- **FR-023**: System MUST support multi-modal interaction (text, voice, vision) where hardware permits *(Full MVP scope for glasses testing - see FR-128 to FR-136 for implementation details)*
 - **FR-024**: System MUST function with full UI capability offline
 
 ### Functional Requirements - Governance & Safety
