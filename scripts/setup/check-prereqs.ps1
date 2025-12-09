@@ -50,7 +50,7 @@ if ($PathsOnly) {
     $implPlan = $null
     $tasksFile = $null
     $availableDocs = @()
-    
+
     # Look for feature directories (prefer 001-noa-seed-foundation if exists)
     if (Test-Path $specsDir) {
         $features = Get-ChildItem -Path $specsDir -Directory | Where-Object { $_.Name -match '^\d{3}-' } | Sort-Object Name
@@ -59,7 +59,7 @@ if ($PathsOnly) {
             if (Test-Path $specPath) {
                 $featureDir = $feature.FullName
                 $featureSpec = $specPath
-                
+
                 # Check for optional docs
                 $planPath = Join-Path $feature.FullName "plan.md"
                 $tasksPath = Join-Path $feature.FullName "tasks.md"
@@ -67,19 +67,19 @@ if ($PathsOnly) {
                 $researchPath = Join-Path $feature.FullName "research.md"
                 $quickstartPath = Join-Path $feature.FullName "quickstart.md"
                 $contractsDir = Join-Path $feature.FullName "contracts"
-                
+
                 if (Test-Path $planPath) { $implPlan = $planPath; $availableDocs += "plan.md" }
                 if (Test-Path $tasksPath) { $tasksFile = $tasksPath; $availableDocs += "tasks.md" }
                 if (Test-Path $dataModelPath) { $availableDocs += "data-model.md" }
                 if (Test-Path $researchPath) { $availableDocs += "research.md" }
                 if (Test-Path $quickstartPath) { $availableDocs += "quickstart.md" }
                 if (Test-Path $contractsDir) { $availableDocs += "contracts/" }
-                
+
                 break  # Use first valid feature
             }
         }
     }
-    
+
     if ($Json) {
         $result = @{
             NOA_ROOT = $NoaRoot
