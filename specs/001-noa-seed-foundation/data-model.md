@@ -499,7 +499,7 @@ Unified goal queue for user-provided and self-generated goals.
 
 ### 19. Plane
 
-3-plane control fabric for zero-downtime self-updates. Reference: `E:\dev\dev\workspaces\projects\agentic-homelab-p2p`
+3-plane control fabric for zero-downtime self-updates. See `project-mgmt/docs/07-plans/autonomous-system.md` for architecture details.
 
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|

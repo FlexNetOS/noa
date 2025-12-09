@@ -29,6 +29,10 @@
 .EXAMPLE
     .\setup-noa.ps1 -NoaRoot "$env:TEMP\noa" -InstallPrereqs:$false -IntegrateProfile:$false
     Install to temp directory for testing (CI scenario)
+
+.EXAMPLE
+    .\setup-noa.ps1 -InstallAllTools -InstallAiProviders
+    Full setup with all toolchains and AI provider CLIs (FR-039)
 #>
 
 param(
@@ -39,7 +43,13 @@ param(
     [switch]$InstallPrereqs = $false,
 
     [Parameter(Mandatory=$false)]
-    [switch]$IntegrateProfile = $false
+    [switch]$IntegrateProfile = $false,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$InstallAllTools = $false,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$InstallAiProviders = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -101,28 +111,125 @@ function Invoke-PrereqInstallation {
         return
     }
 
-    & $checker
+    $jsonOutput = & $checker -Json 2>$null
     $exitCode = $LASTEXITCODE
 
     if ($exitCode -eq 0) {
         Write-Log "All prerequisites met." -Level Success
+        Update-NoaEnvWithToolchains
         return
     }
 
-    $installer = Join-Path $NoaRoot "scripts/setup/install-prereqs.ps1"
+    $installer = Join-Path $NoaRoot "scripts/setup/install-all-tools.ps1"
     if (-not (Test-Path $installer)) {
-        Write-Log "Installer shim not found: $installer" -Level Error
+        Write-Log "Installer not found: $installer" -Level Error
+        & $checker
         return
     }
 
-    Write-Log "Attempting prerequisite installation (winget-based)..." -Level Info
+    Write-Log "Attempting contained installation via install-all-tools.ps1..." -Level Info
     & $installer
 
+    # Update environment file with any newly installed toolchains before re-checking
+    Update-NoaEnvWithToolchains
+
+    Write-Log "Re-running prerequisite checker after installation..." -Level Info
     & $checker
     if ($LASTEXITCODE -eq 0) {
-        Write-Log "Prerequisites satisfied after installation." -Level Success
+        Write-Log "All prerequisites now satisfied!" -Level Success
+    } elseif ($LASTEXITCODE -eq 2) {
+        Write-Log "Critical tools installed. Some high-priority tools still missing." -Level Warning
     } else {
-        Write-Log "Prerequisites still missing; see checker output above." -Level Warning
+        Write-Log "Critical prerequisites still missing. Manual installation may be required." -Level Warning
+    }
+}
+
+function Update-NoaEnvWithToolchains {
+    <#
+    .SYNOPSIS
+        Updates noa-env.ps1 with portable toolchain environment variables
+    #>
+
+    $envPath = Join-Path $NoaRoot "noa-env.ps1"
+    $NOA_OPT = Join-Path $NoaRoot "opt"
+
+    # Check which portable toolchains are installed
+    $toolchainEnv = @()
+
+    # Rust
+    $rustCargoHome = Join-Path $NOA_OPT "rust/cargo"
+    $rustupHome = Join-Path $NOA_OPT "rust/rustup"
+    if (Test-Path (Join-Path $rustCargoHome "bin/rustc.exe")) {
+        $toolchainEnv += "`$env:RUSTUP_HOME = `"$rustupHome`""
+        $toolchainEnv += "`$env:CARGO_HOME = `"$rustCargoHome`""
+        $toolchainEnv += "`$env:PATH = `"$rustCargoHome\bin;`$env:PATH`""
+    }
+
+    # Go
+    $goRoot = Join-Path $NOA_OPT "go"
+    $goPath = Join-Path $NOA_OPT "go/workspace"
+    $goBin = Join-Path $goPath "bin"
+    if (Test-Path (Join-Path $goRoot "bin/go.exe")) {
+        $toolchainEnv += "`$env:GOROOT = `"$goRoot`""
+        $toolchainEnv += "`$env:GOPATH = `"$goPath`""
+        $toolchainEnv += "`$env:GOBIN = `"$goBin`""
+        $toolchainEnv += "`$env:GOCACHE = `"$(Join-Path $NOA_OPT "go/cache")`""
+        $toolchainEnv += "`$env:GOMODCACHE = `"$(Join-Path $NOA_OPT "go/pkg/mod")`""
+        $toolchainEnv += "`$env:PATH = `"$goRoot\bin;$goBin;`$env:PATH`""
+    }
+
+    # Node.js
+    $nodeRoot = Join-Path $NOA_OPT "node"
+    $npmCache = Join-Path $NOA_OPT "npm-cache"
+    if (Test-Path (Join-Path $nodeRoot "node.exe")) {
+        $toolchainEnv += "`$env:npm_config_prefix = `"$nodeRoot`""
+        $toolchainEnv += "`$env:npm_config_cache = `"$npmCache`""
+        $toolchainEnv += "`$env:PATH = `"$nodeRoot;`$env:PATH`""
+    }
+
+    # Python
+    $pythonRoot = Join-Path $NOA_OPT "python"
+    $venvPath = Join-Path $NOA_OPT "venv"
+    if (Test-Path (Join-Path $pythonRoot "python.exe")) {
+        $toolchainEnv += "`$env:PATH = `"$pythonRoot;$pythonRoot\Scripts;`$env:PATH`""
+        if (Test-Path $venvPath) {
+            $toolchainEnv += "# Activate venv: & `"$venvPath\Scripts\Activate.ps1`""
+        }
+    }
+
+    # protoc
+    $protobufBin = Join-Path $NOA_OPT "protobuf/bin"
+    if (Test-Path (Join-Path $protobufBin "protoc.exe")) {
+        $toolchainEnv += "`$env:PATH = `"$protobufBin;`$env:PATH`""
+    }
+
+    # NOA bin directory (self-contained utilities)
+    $noaBin = Join-Path $NoaRoot "bin"
+    $toolchainEnv += "`$env:PATH = `"$noaBin;`$env:PATH`""
+
+    if ($toolchainEnv.Count -gt 0) {
+        Write-Log "Updating noa-env.ps1 with portable toolchain paths..." -Level Info
+
+        $envContent = @(
+            "# NOA Environment Configuration"
+            "# Auto-generated by setup-noa.ps1 - Portable Toolchains"
+            "# Last Updated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+            ""
+            "# NOA Root"
+            "`$env:NOA_ROOT = `"$NoaRoot`""
+            ""
+            "# Portable Toolchain Configuration"
+            "# These paths point to noa_root/opt/ per Constitution §3.1"
+        )
+        $envContent += $toolchainEnv
+        $envContent += @(
+            ""
+            "# Verify NOA environment is loaded"
+            "Write-Host `"NOA environment loaded (portable toolchains active)`" -ForegroundColor Green"
+        )
+
+        $envContent -join "`r`n" | Set-Content -Path $envPath -Encoding UTF8
+        Write-Log "  Created: noa-env.ps1 with portable toolchain paths" -Level Success
     }
 }
 
@@ -200,6 +307,52 @@ try {
             Write-Log "  Created: $dir" -Level Success
         } else {
             Write-Log "  Exists: $dir" -Level Info
+        }
+    }
+
+    # Create AI provider directories
+    $aiProviderDirs = @(
+        "ai/providers/cloud/claude-code",
+        "ai/providers/cloud/codex",
+        "ai/providers/cloud/abacus",
+        "ai/providers/local",
+        "ai/providers/hybrid",
+        "ai/shared/agents",
+        "ai/shared/workflows",
+        "ai/shared/prompts",
+        "ai/shared/skills",
+        "ai/shared/tools",
+        "ai/shared/models"
+    )
+    foreach ($dir in $aiProviderDirs) {
+        $dirPath = Join-Path $NoaRoot $dir
+        if (-not (Test-Path $dirPath)) {
+            New-Item -ItemType Directory -Path $dirPath -Force | Out-Null
+        }
+    }
+    Write-Log "  Created AI provider directories" -Level Success
+
+    # Install all tools if requested (calls install-all-tools.ps1)
+    if ($InstallAllTools -or $InstallAiProviders) {
+        Write-Log "Installing toolchains and utilities..." -Level Info
+
+        $installAllScript = Join-Path $NoaRoot "scripts/setup/install-all-tools.ps1"
+        if (Test-Path $installAllScript) {
+            if ($InstallAllTools) {
+                Write-Log "  Running full tool installation..." -Level Info
+                & $installAllScript -NoaRoot $NoaRoot
+            } elseif ($InstallAiProviders) {
+                Write-Log "  Installing AI Provider CLIs only (FR-039)..." -Level Info
+                & $installAllScript -NoaRoot $NoaRoot -Tool "node","ai-providers"
+            }
+
+            if ($LASTEXITCODE -eq 0) {
+                Write-Log "  Tool installation complete" -Level Success
+            } else {
+                Write-Log "  Some tools may have failed to install" -Level Warning
+            }
+        } else {
+            Write-Log "  install-all-tools.ps1 not found: $installAllScript" -Level Warning
         }
     }
 

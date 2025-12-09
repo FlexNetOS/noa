@@ -3,6 +3,7 @@
   "providerPriority": [
     "local",
     "hybrid",
+    "ide",
     "cloud"
   ],
   "providers": {
@@ -12,7 +13,8 @@
       "types": [
         "llama.cpp",
         "ollama",
-        "local-llm"
+        "local-llm",
+        "git-cli"
       ],
       "configPath": "${NOA_ROOT}/ai/providers/local"
     },
@@ -23,7 +25,10 @@
         "openai",
         "anthropic",
         "google",
-        "mistral"
+        "mistral",
+        "claude-code",
+        "codex",
+        "abacus"
       ],
       "configPath": "${NOA_ROOT}/ai/providers/cloud"
     },
@@ -31,9 +36,18 @@
       "enabled": true,
       "priority": 2,
       "types": [
+        "cursor",
         "local-first-with-cloud-fallback"
       ],
       "configPath": "${NOA_ROOT}/ai/providers/hybrid"
+    },
+    "ide": {
+      "enabled": true,
+      "priority": 4,
+      "types": [
+        "vscode-copilot"
+      ],
+      "configPath": "${NOA_ROOT}/ai/providers/ide"
     }
   },
   "sharedResources": {
@@ -42,7 +56,19 @@
     "prompts": "${NOA_ROOT}/ai/shared/prompts",
     "skills": "${NOA_ROOT}/ai/shared/skills",
     "tools": "${NOA_ROOT}/ai/shared/tools",
-    "models": "${NOA_ROOT}/ai/shared/models"
+    "models": "${NOA_ROOT}/ai/shared/models",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "resources": "${NOA_ROOT}/ai/shared/resources"
+  },
+  "executionMemory": {
+    "enabled": true,
+    "path": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+    "features": [
+      "context_sharing",
+      "reasoning_state",
+      "parallel_task_distribution",
+      "provider_state_sync"
+    ]
   },
   "providerSwitching": {
     "enabled": true,

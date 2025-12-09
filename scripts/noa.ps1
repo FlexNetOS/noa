@@ -235,9 +235,9 @@ switch ($Command) {
         # Check prerequisites using unified script
         Write-Host ""
         Write-Host "Checking prerequisites..." -ForegroundColor Yellow
-        $shimPrereqs = Join-Path $NOA_ROOT "scripts/setup/check-prereqs.ps1"
-        $primaryPrereqs = Join-Path $NOA_ROOT "scripts/powershell/check-prerequisites.ps1"
-        $checkPrereqsScript = if (Test-Path $primaryPrereqs) { $primaryPrereqs } else { $shimPrereqs }
+        $shimPrereqs = Join-Path $NOA_ROOT "scripts/powershell/check-prerequisites.ps1"
+        $primaryPrereqs = Join-Path $NOA_ROOT "scripts/setup/check-prereqs.ps1"
+        $checkPrereqsScript = if (Test-Path $shimPrereqs) { $shimPrereqs } else { $primaryPrereqs }
 
         if (Test-Path $checkPrereqsScript) {
             $prereqExit = & $checkPrereqsScript
