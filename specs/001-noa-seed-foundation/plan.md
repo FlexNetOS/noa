@@ -340,6 +340,28 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ---
 
+## AER Core Models (from [noa_aer_spec_v2.md](../noa_aer_spec_v2.md))
+
+The NOA runtime is orchestrated by three core small language models (< 3B params each), running under llama.cpp:
+
+| Model | Full Name | Purpose | AER Reference |
+|-------|-----------|---------|---------------|
+| **EOM** | Env Orchestrator Model | Plans, coordinates, and reconfigures the environment. Proposes module changes, resource allocation, agent graph mutations | §9.1 |
+| **TSM** | Tool & Code Synthesizer Model | Generates tools, pipelines, DAGs, and microservice code within strict boundaries. Works with build/test pipeline | §9.2 |
+| **PSM** | Policy & Safety Model | Evaluates proposals from EOM/TSM (`ALLOW`/`DENY`/`REQUIRE_HUMAN_REVIEW`). Enforces data boundaries, sensitive capability use, compliance | §9.3 |
+
+**Integration Points:**
+- EOM informs the ModelSelectorAgent for task routing (US2 - Neural Runtime)
+- TSM powers self-improvement code generation (US8 - Self-Improvement)
+- PSM enforces constitutional boundaries (FR-025-026, §3.10)
+
+**Implementation Tasks:**
+- EOM integration: T097-T130 (Neural Runtime), T337-T368 (Self-Improvement)
+- TSM integration: T337-T368 (Self-Improvement), FR-043 (ToolkenGPT)
+- PSM integration: FR-067 (Constitutional governance), T690-T705 (Governance phase)
+
+---
+
 ## Constitution Check
 
 ### Core Principles Alignment

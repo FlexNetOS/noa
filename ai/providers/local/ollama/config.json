@@ -21,5 +21,16 @@
     "agents": "${NOA_ROOT}/ai/shared/agents",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "prompts": "${NOA_ROOT}/ai/shared/prompts"
+  },
+  "cli": {
+    "binaryPath": {
+      "unix": "${NOA_ROOT}/opt/ollama/ollama",
+      "windows": "${NOA_ROOT}/opt/ollama/ollama.exe"
+    },
+    "command": "ollama",
+    "wrapper": {
+      "unix": "${NOA_ROOT}/bin/ollama",
+      "windows": "${NOA_ROOT}/bin/ollama.cmd"
+    }
   }
 }

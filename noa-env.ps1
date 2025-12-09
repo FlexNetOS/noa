@@ -114,6 +114,12 @@ Add-NoaPath (Join-Path $env:NOA_OPT "python")
 # Add protobuf to PATH
 Add-NoaPath (Join-Path $env:NOA_OPT "protobuf\bin")
 
+# Add CMake to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "cmake\bin")
+
+# Add llama.cpp build to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "llama.cpp\build\bin\Release")
+
 # Add portable PowerShell to PATH (Constitution §3.1 compliance)
 $env:NOA_PWSH = Join-Path $env:NOA_OPT "powershell"
 Add-NoaPath $env:NOA_PWSH

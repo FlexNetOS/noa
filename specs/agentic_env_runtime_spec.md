@@ -1,5 +1,13 @@
 # Agentic Environment Runtime (AER) – High-Level Architecture Spec
 
+> ⚠️ **SUPERSEDED**: This document has been superseded by [noa_aer_spec_v2.md](./noa_aer_spec_v2.md).
+>
+> This file is retained for historical reference. For the current architecture, see:
+> - [AER Spec v2](./noa_aer_spec_v2.md) - Current high-level architecture
+> - [001-noa-seed-foundation/](./001-noa-seed-foundation/) - Implementation specification
+
+---
+
 ## 1. Purpose & Scope
 
 Design a **cross-platform agentic env** that:
