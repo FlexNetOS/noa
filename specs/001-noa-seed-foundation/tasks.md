@@ -795,8 +795,8 @@ ai/shared/
 
 - [X] T068 §3.5 Setup tracing-subscriber for log collection in `sys/core/src/observability/logging.rs`
 - [X] T069 [P] Setup opentelemetry OTLP export in `sys/core/src/observability/telemetry.rs`
-- [ ] T070 [P] Setup prometheus metrics export in `sys/core/src/observability/metrics.rs`
-- [ ] T071 [P] Create observability config in `config/observability.yaml`
+- [X] T070 [P] Setup prometheus metrics export in `sys/core/src/observability/metrics.rs`
+- [X] T071 [P] Create observability config in `config/observability.yaml`
 
 **Checkpoint**: Foundation ready - Continue to 3-Plane Control Fabric ✅
 
@@ -812,17 +812,17 @@ ai/shared/
 
 ### Autonomous Operation Entity Tables (data-model.md Entities 18-22)
 
-- [ ] T545 §3.4 Create Goal table (unified goal queue: user, self_generated, constitutional) in `init/migrations/005_autonomous.sql`
-- [ ] T546 [P] Create Plane table (sandbox/deployed/coordinator with role and status) in `init/migrations/005_autonomous.sql`
-- [ ] T547 [P] Create PlaneTransition table (promotion/rollback audit trail) in `init/migrations/005_autonomous.sql`
-- [ ] T548 [P] Create HealingEvent table (5-stage self-healing audit) in `init/migrations/005_autonomous.sql`
-- [ ] T549 [P] Create HealthMetric table (continuous health monitoring) in `init/migrations/005_autonomous.sql`
-- [ ] T550 [P] Create autonomous operation indexes in `init/migrations/005_autonomous.sql`
+- [X] T545 §3.4 Create Goal table (unified goal queue: user, self_generated, constitutional) in `init/migrations/005_autonomous.sql`
+- [X] T546 [P] Create Plane table (sandbox/deployed/coordinator with role and status) in `init/migrations/005_autonomous.sql`
+- [X] T547 [P] Create PlaneTransition table (promotion/rollback audit trail) in `init/migrations/005_autonomous.sql`
+- [X] T548 [P] Create HealingEvent table (5-stage self-healing audit) in `init/migrations/005_autonomous.sql`
+- [X] T549 [P] Create HealthMetric table (continuous health monitoring) in `init/migrations/005_autonomous.sql`
+- [X] T550 [P] Create autonomous operation indexes in `init/migrations/005_autonomous.sql`
 
 ### 3-Plane Directory Structure
 
-- [ ] T551 §3.1 Create sandbox-plane directory structure per plan.md in `noa_root/sandbox-plane/`
-- [ ] T552 [P] Create deployed-plane directory structure per plan.md in `noa_root/deployed-plane/`
+- [X] T551 §3.1 Create sandbox-plane directory structure per plan.md in `noa_root/sandbox-plane/`
+- [X] T552 [P] Create deployed-plane directory structure per plan.md in `noa_root/deployed-plane/`
 - [ ] T553 [P] Create coordinator-plane directory structure per plan.md in `noa_root/coordinator-plane/`
 - [ ] T554 [P] Create shared cross-plane directory structure in `noa_root/shared/`
 - [ ] T555 [P] Create run_sandbox.sh entry point in `sandbox-plane/bin/run_sandbox.sh`
