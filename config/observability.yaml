@@ -1,0 +1,163 @@
+# NOA Observability Configuration
+# §3.5: Observability - tracing, metrics, logging
+
+# Logging configuration
+logging:
+  # Log level: trace, debug, info, warn, error
+  level: info
+
+  # Log format: json, text, pretty
+  format: json
+
+  # Log output file
+  output: ${NOA_ROOT}/logs/noa.log
+
+  # Log rotation settings
+  rotate:
+    enabled: true
+    max_size_mb: 100
+    max_files: 10
+    compress: true
+
+  # Targets to include/exclude
+  targets:
+    include:
+      - noa_core
+      - http
+      - database
+      - agent
+      - provider
+    exclude:
+      - hyper
+      - tower
+
+# Tracing configuration (OpenTelemetry)
+tracing:
+  enabled: true
+
+  # OTLP exporter configuration
+  otlp:
+    endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    protocol: grpc  # grpc or http
+    timeout_ms: 30000
+
+  # Sampling configuration
+  sampling:
+    type: trace_id_ratio  # always_on, always_off, trace_id_ratio
+    ratio: 1.0  # For trace_id_ratio, 1.0 = 100%
+
+  # Service information
+  service:
+    name: noa-core
+    version: ${NOA_VERSION:-0.1.0}
+    environment: ${NOA_ENV:-development}
+
+  # Span processors
+  processors:
+    batch:
+      max_queue_size: 2048
+      scheduled_delay_ms: 5000
+      max_export_batch_size: 512
+
+# Metrics configuration (Prometheus)
+metrics:
+  enabled: true
+
+  # Prometheus endpoint
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+
+  # Push gateway (optional)
+  pushgateway:
+    enabled: false
+    endpoint: http://localhost:9091
+    job: noa-core
+    push_interval_secs: 15
+
+  # Metric collection settings
+  collection:
+    # System metrics (CPU, memory, etc.)
+    system_metrics: true
+    system_interval_secs: 15
+
+    # Database metrics
+    database_metrics: true
+
+    # Agent metrics
+    agent_metrics: true
+
+    # Provider metrics
+    provider_metrics: true
+
+# Health check configuration
+health:
+  # Health endpoint
+  endpoint: /health
+
+  # Component checks
+  components:
+    database:
+      enabled: true
+      timeout_ms: 5000
+
+    providers:
+      enabled: true
+      timeout_ms: 10000
+
+  # Kubernetes probes
+  kubernetes:
+    liveness:
+      endpoint: /health/live
+      initial_delay_secs: 10
+      period_secs: 10
+      timeout_secs: 5
+      failure_threshold: 3
+
+    readiness:
+      endpoint: /health/ready
+      initial_delay_secs: 5
+      period_secs: 5
+      timeout_secs: 3
+      failure_threshold: 3
+
+# Alerting configuration
+alerting:
+  enabled: false
+
+  # Alert destinations
+  destinations:
+    - type: webhook
+      url: ${ALERT_WEBHOOK_URL}
+
+  # Alert rules
+  rules:
+    - name: high_error_rate
+      condition: rate(noa_http_requests_total{status=~"5.."}[5m]) > 0.1
+      severity: critical
+
+    - name: slow_requests
+      condition: histogram_quantile(0.95, rate(noa_http_request_duration_seconds_bucket[5m])) > 5
+      severity: warning
+
+    - name: low_disk_space
+      condition: noa_disk_usage_percent > 90
+      severity: warning
+
+# Profiling configuration (optional)
+profiling:
+  enabled: false
+
+  # CPU profiling
+  cpu:
+    enabled: false
+    sample_rate: 100
+
+  # Memory profiling
+  memory:
+    enabled: false
+
+  # Async profiling
+  async:
+    enabled: false
+
