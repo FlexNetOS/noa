@@ -144,8 +144,9 @@ if (-not $Json) { Write-Host "" ; Write-Host "Checking AI providers..." -Foregro
 $verifyProviders = Join-Path $BOOTSTRAP_DIR "verify-ai-providers.ps1"
 if (Test-Path $verifyProviders) {
     Run-Check -Name "ai_providers" -Description "AI provider verification" -Test {
-        & $verifyProviders -Json | Out-Null
-        if ($LASTEXITCODE -eq 0) {
+        $null = & pwsh -NoLogo -NoProfile -File $verifyProviders -Json 2>&1
+        $exitCode = $LASTEXITCODE
+        if ($exitCode -eq 0) {
             return @{ success = $true; details = "All required providers configured" }
         } else {
             return @{ success = $false; error = "Some providers missing" }
@@ -159,8 +160,9 @@ if (-not $Json) { Write-Host "" ; Write-Host "Checking shared resources..." -For
 $verifyShared = Join-Path $BOOTSTRAP_DIR "verify-shared-resources.ps1"
 if (Test-Path $verifyShared) {
     Run-Check -Name "shared_resources" -Description "Shared resources verification" -Test {
-        & $verifyShared -Json | Out-Null
-        if ($LASTEXITCODE -eq 0) {
+        $null = & pwsh -NoLogo -NoProfile -File $verifyShared -Json 2>&1
+        $exitCode = $LASTEXITCODE
+        if ($exitCode -eq 0) {
             return @{ success = $true; details = "All shared resources configured" }
         } else {
             return @{ success = $false; error = "Some resources missing" }

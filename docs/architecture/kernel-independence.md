@@ -4,9 +4,26 @@
 
 NOA's Kernel Independence Layer (NKAL) enables operation across different isolation modes, from native execution to full VM isolation. This document describes the architecture, modes, and platform-specific implementations.
 
+## Kernel Selection Precedence (FR-159, FR-160)
+
+**Priority Order**: VM > Container > Sandbox > Native
+
+| Priority | Mode | Isolation Level | Use Case |
+|----------|------|-----------------|----------|
+| 1 (Highest) | **VM** | Maximum | Untrusted code, security-critical operations |
+| 2 | **Container** | High | Service deployment, reproducible builds |
+| 3 | **Sandbox** | Medium | Quick testing, untrusted scripts |
+| 4 (Default) | **Native** | None | Development, maximum performance |
+
+**Selection Logic**:
+- Default: Native mode (best performance)
+- Automatic escalation: Security requirements trigger higher isolation
+- Fallback chain: VM → Container → Sandbox → Native (if higher modes unavailable)
+- Mode switch command: `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
+
 ## Design Principles
 
-Per NOA Constitution §3.11:
+Per NOA Constitution §4.11:
 
 1. **Portability**: Run on any platform without modification
 2. **Isolation**: Support multiple isolation levels for security

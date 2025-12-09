@@ -422,18 +422,25 @@ When external repositories or AI tool CLIs are downloaded and integrated, their 
 
 The system MUST support operation independent of the host operating system kernel.
 
-- **Kernel Independence Modes**:
-  - **Native Mode** (default): Use host kernel for maximum performance
-  - **VM Mode**: Run custom NOA Linux kernel in VM (Hyper-V, KVM, Virtualization.framework)
-  - **Container Mode**: Isolated container with minimal kernel interface
-  - **Sandbox Mode**: User-space isolation (Windows Sandbox, Bubblewrap, App Sandbox)
+- **Kernel Independence Modes** (selection precedence: VM > Container > Sandbox > Native):
+  - **VM Mode** (Priority 1 - Maximum Isolation): Run custom NOA Linux kernel in VM (Hyper-V, KVM, Virtualization.framework)
+  - **Container Mode** (Priority 2): Isolated container with minimal kernel interface
+  - **Sandbox Mode** (Priority 3): User-space isolation (Windows Sandbox, Bubblewrap, App Sandbox)
+  - **Native Mode** (Priority 4 - Default): Use host kernel for maximum performance
+
+- **Kernel Selection Policy** (FR-159, FR-160 - B153-B160):
+  - Default mode: Native (best performance)
+  - Automatic escalation: Higher isolation modes selected when security requirements mandate
+  - Fallback chain: If VM unavailable → Container → Sandbox → Native
+  - No auto-escalation without explicit user/agent permission
 
 - **Kernel Abstraction Layer (NKAL)**:
   - Unified interface regardless of underlying kernel
   - Process isolation, network stack, file system, memory, IPC abstractions
   - Mode switching via `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
+  - State checkpoint before mode switch (`.kernel-switch-state.json`)
 
-**Rationale**: Kernel independence ensures NOA can operate with maximum isolation when needed, without being locked to any specific host OS.
+**Rationale**: Kernel independence ensures NOA can operate with maximum isolation when needed, without being locked to any specific host OS. The precedence order prioritizes security/isolation over performance when required.
 
 ## 5. Governance & Compliance Rules
 

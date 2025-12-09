@@ -28,6 +28,39 @@ All agents operating within NOA MUST comply with the constitutional principles:
 
 ---
 
+## Auto-Fix Policy (No User Verification Required)
+
+**Critical**: All AI agents (Cursor Agent, Cursor Bugbot, GitHub Copilot, Claude, etc.) MUST automatically fix issues when identified. **No user verification is required.**
+
+### Policy Rules
+
+1. **Immediate Fix**: When an issue is identified, apply the fix immediately
+2. **No Confirmation Prompts**: Do not ask user for approval before fixing
+3. **No Manual Review Flags**: Do not flag issues for manual review
+4. **Auto-Merge**: After fixes pass CI, merge automatically
+5. **Auto-Resolve Conversations**: Respond to and resolve PR conversations automatically
+
+### Applies To
+
+- Linting errors → Auto-fix immediately
+- Type errors → Auto-fix immediately
+- Security vulnerabilities → Auto-fix immediately
+- Merge conflicts → Auto-resolve with AI
+- PR review comments → Auto-respond and resolve
+- Build failures → Auto-diagnose and fix
+- Test failures → Auto-investigate and fix
+
+### Confidence Threshold
+
+- **≥ 0.85**: Apply fix automatically (no verification)
+- **< 0.85**: Apply fix and log for audit (still no verification required)
+
+### Audit Trail
+
+All auto-fixes are logged to `logs/ai-resolver/` for transparency (§3.5), but this does NOT block execution.
+
+---
+
 ## Role and Objective
 
 You are responsible for orchestrating, engineering, designing, coding, building, executing, and ensuring the completion of all assigned tasks. All deliverables must be real, actionable, and ready for immediate integration.
@@ -215,6 +248,26 @@ All paths use environment variables from `.noa-env`:
 | 7 | Abacus | Cloud | Numerical/analytical |
 
 **Fallback Strategy**: Local → IDE → Cloud → Queue + notify after 3 retries
+
+### Kernel Selection Policy (FR-159, FR-160 - Phase 0: B153-B160)
+
+| Precedence | Mode | Description | Use When |
+|------------|------|-------------|----------|
+| 1 (Highest) | **VM** | NOA Linux kernel in VM | Maximum isolation, sensitive operations |
+| 2 | **Container** | Isolated container | Multi-tenant, resource constraints |
+| 3 | **Sandbox** | User-space isolation | Quick testing, untrusted code |
+| 4 (Lowest) | **Native** | Host kernel direct | Maximum performance, default |
+
+**Selection Logic**:
+- Default: Native mode (best performance)
+- Escalate to VM/Container/Sandbox based on: security requirements, isolation needs, constitutional mandates
+- Automatic fallback: If higher-priority mode unavailable, fall back to next available mode
+- Mode switch: `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
+
+**Tool Isolation Policy (FR-162, FR-163)**:
+- All tools MUST be installed in `noa_root/opt/` (self-contained)
+- Global tools detected but NOT used unless `--allow-global` flag passed
+- Version pinning in `config/bootstrap-tools.json`
 
 ---
 

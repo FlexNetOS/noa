@@ -246,7 +246,16 @@ runs:
             }
 
             def __init__(self):
-                self.pr_number = os.environ.get('PR_NUMBER')
+                pr_number_str = os.environ.get('PR_NUMBER')
+                if not pr_number_str:
+                    raise ValueError("PR_NUMBER environment variable is required but not set. "
+                                   "Ensure this action is triggered by a pull_request event or "
+                                   "provide PR_NUMBER explicitly.")
+                try:
+                    self.pr_number = int(pr_number_str)
+                except ValueError:
+                    raise ValueError(f"PR_NUMBER must be a valid integer, got: '{pr_number_str}'")
+
                 self.provider_name = os.environ.get('AI_PROVIDER', 'copilot')
                 self.session_token = os.environ.get('SESSION_TOKEN')
                 self.confidence_threshold = float(os.environ.get('CONFIDENCE_THRESHOLD', '0.85'))
@@ -435,7 +444,7 @@ runs:
                                     severity='medium',
                                     file=thread.get('path'),
                                     line=thread.get('line'),
-                                    message=thread.get('comments', [{}])[0].get('body', ''),
+                                    message=(thread.get('comments') or [{}])[0].get('body', ''),
                                     auto_fixable='suggestion' in str(thread).lower()
                                 ))
                 except:
@@ -750,11 +759,25 @@ runs:
             resolver = AIResolver()
             report = resolver.run()
 
-            # Write outputs
-            with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-                f.write(f"status={report['status']}\n")
-                f.write(f"fixes={report['fixes_applied']}\n")
-                f.write(f"remaining={report['remaining']}\n")
+            # Write outputs to GITHUB_OUTPUT
+            github_output = os.environ.get('GITHUB_OUTPUT')
+            if not github_output:
+                if os.environ.get('GITHUB_ACTIONS'):
+                    raise EnvironmentError(
+                        "GITHUB_OUTPUT environment variable not set. "
+                        "This is required in GitHub Actions to pass outputs to downstream steps. "
+                        "Ensure you're using a supported runner version (actions/runner >= 2.297.0)."
+                    )
+                else:
+                    # Local testing: print outputs to stdout
+                    print(f"[LOCAL] status={report['status']}")
+                    print(f"[LOCAL] fixes={report['fixes_applied']}")
+                    print(f"[LOCAL] remaining={report['remaining']}")
+            else:
+                with open(github_output, 'a') as f:
+                    f.write(f"status={report['status']}\n")
+                    f.write(f"fixes={report['fixes_applied']}\n")
+                    f.write(f"remaining={report['remaining']}\n")
 
             # Save report
             with open('resolution_report.json', 'w') as f:

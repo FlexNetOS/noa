@@ -25,6 +25,18 @@ All agents operating within NOA MUST comply with the constitutional principles:
 | §3.11 | Predictive Problem Solving |
 | §3.12 | Test Everything, Trust Nothing |
 | §3.13 | Shared Provider Resource Unification |
+| §4.11 | Kernel Independence Policy |
+
+### Kernel Selection Policy (FR-159, FR-160 - B153-B160)
+
+| Precedence | Mode | Description |
+|------------|------|-------------|
+| 1 (Highest) | **VM** | Maximum isolation - untrusted code, security-critical |
+| 2 | **Container** | High isolation - services, reproducible builds |
+| 3 | **Sandbox** | Medium isolation - testing, scripts |
+| 4 (Default) | **Native** | No isolation - development, max performance |
+
+**Selection Logic**: Default Native, auto-escalate for security needs, fallback if unavailable.
 
 ---
 
