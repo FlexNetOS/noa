@@ -2,62 +2,128 @@
     "$schema": "https://noa.local/schemas/resource-registry.json",
     "version": "1.0.0",
     "description": "Central registry of all unified shared resources (§3.13)",
-    "lastUpdated": "2025-12-08T00:00:00Z",
+    "lastUpdated": "2025-12-09T00:00:00Z",
     "registry": {
         "agents": {
             "path": "ai/shared/agents/",
+            "description": "AI agent definitions",
             "resources": []
         },
         "tools": {
             "path": "ai/shared/tools/",
+            "description": "MCP tool definitions",
             "resources": []
         },
         "commands": {
             "path": "ai/shared/commands/",
+            "description": "Shared command definitions",
             "resources": []
         },
         "prompts": {
             "path": "ai/shared/prompts/",
+            "description": "Prompt templates",
             "resources": [
                 {
                     "name": "project-mgmt-prompt",
                     "file": "project-mgmt-prompt.md",
                     "type": "system",
-                    "providers": [
-                        "all"
-                    ]
+                    "providers": ["all"]
                 },
                 {
                     "name": "startup-prmt",
                     "file": "startup-prmt.md",
                     "type": "system",
-                    "providers": [
-                        "all"
-                    ]
+                    "providers": ["all"]
                 }
             ]
         },
         "workflows": {
             "path": "ai/shared/workflows/",
+            "description": "Orchestration workflows",
             "resources": []
         },
         "skills": {
             "path": "ai/shared/skills/",
+            "description": "Agent skill modules",
             "resources": []
         },
         "models": {
             "path": "ai/shared/models/",
+            "description": "Model adapters and configs",
             "resources": []
+        },
+        "resources": {
+            "path": "ai/shared/resources/",
+            "description": "Configuration and data files",
+            "resources": [
+                {
+                    "name": "spec-distribution",
+                    "file": "spec-distribution.json",
+                    "type": "coordination",
+                    "providers": ["all"],
+                    "description": "Manages shared spec distribution across all AI providers"
+                },
+                {
+                    "name": "resource-aliases",
+                    "file": "resource-aliases.json",
+                    "type": "mapping",
+                    "providers": ["all"],
+                    "description": "Provider-specific name mappings for backward compatibility"
+                },
+                {
+                    "name": "resource-mapping",
+                    "file": "resource-mapping.json",
+                    "type": "mapping",
+                    "providers": ["all"],
+                    "description": "Unified resource mapping across providers"
+                },
+                {
+                    "name": "collaborative-reasoning",
+                    "file": "collaborative-reasoning.yaml",
+                    "type": "configuration",
+                    "providers": ["all"],
+                    "description": "Multi-provider collaborative reasoning configuration"
+                },
+                {
+                    "name": "task-distribution",
+                    "file": "task-distribution.yaml",
+                    "type": "configuration",
+                    "providers": ["all"],
+                    "description": "Task distribution across AI providers"
+                },
+                {
+                    "name": "provider-sync-config",
+                    "file": "provider-sync-config.json",
+                    "type": "configuration",
+                    "providers": ["all"],
+                    "description": "Provider state synchronization configuration"
+                }
+            ]
+        },
+        "schemas": {
+            "path": "ai/shared/resources/schema/",
+            "description": "Database schemas",
+            "resources": [
+                {
+                    "name": "execution-memory-schema",
+                    "file": "execution-memory.sql",
+                    "type": "schema",
+                    "description": "SQLite schema for shared provider execution memory"
+                }
+            ]
         }
     },
     "executionMemory": {
         "enabled": true,
         "path": "ai/shared/resources/execution-memory.db",
+        "schema": "ai/shared/resources/schema/execution-memory.sql",
         "features": [
             "context_sharing",
             "reasoning_state",
             "parallel_task_distribution",
-            "provider_state_sync"
+            "provider_state_sync",
+            "conversation_history",
+            "audit_logging"
         ]
     },
     "validation": {

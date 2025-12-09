@@ -504,45 +504,201 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - Privacy controls for camera/mic
 - Multi-modal session persistence
 
+### FR-151: Board Agent Conflict Resolution
+**Phase**: 9 (US7 - Agent Orchestration)
+**Tasks**: T819
+
+- Constitutional arbitration for conflicting Board Agent recommendations
+- Staged deployment: Sandbox → fix issues → Deployed
+- SecurityAgent findings MUST be resolved before promotion to Deployed plane
+- Log conflict details, resolution rationale, and staged deployment trace to audit trail
+- Integrates with 3-plane architecture (FR-056)
+
+### FR-152: Offline Model Sideloading
+**Phase**: 4 (US2 - Neural Runtime)
+**Tasks**: T820
+
+- Support model acquisition via USB/file transfer for air-gapped scenarios
+- Copy `.gguf` models to `noa_root/ai/models/`
+- System detects and registers sideloaded models on startup
+- Integrity verification via SHA-256 checksum in `model.sha256` companion file
+- Document sideloading procedure in quickstart.md
+
+### FR-153 to FR-158: Observability Stack
+**Phase**: 2 (Foundation)
+**Tasks**: T821-T826
+
+- Implement Rust observability using `tracing` + `tracing-subscriber` (FR-153)
+- Add OpenTelemetry with OTLP exporter for distributed tracing (FR-153, FR-155)
+- Add `opentelemetry-prometheus` for metrics exposition (FR-153)
+- Expose Prometheus-format metrics at `GET /metrics` endpoint (FR-154)
+- Export traces via OTLP to configurable endpoint (Tempo, Jaeger) (FR-155)
+- Persist metrics to SQLite store (`noa_root/data/metrics.db`) for offline analysis (FR-156)
+- No Docker required for core observability (FR-157)
+- Provide built-in metrics dashboard in UI when Grafana unavailable (FR-158)
+
+### FR-159 to FR-165: Kernel Independence & Self-Containment (from /clarify 2025-12-09)
+**Phase**: 0 (Bootstrap) + 2 (Foundation)
+**Tasks**: T827-T845
+
+**FR-159: NOA Kernels First Policy** (CHK001 resolution)
+- System MUST implement explicit kernel selection precedence: NOA VM > Container > Sandbox > Native
+- Default mode MUST be Native for performance; escalation to isolated modes occurs automatically
+- Escalation triggers: untrusted code, external data processing, user request, constitutional requirement
+- Downgrade from isolated to native MUST require explicit user action
+
+**FR-160: Kernel Selection Precedence** (CHK008 resolution)
+- Priority 1: NOA VM (maximum isolation, untrusted code, cross-platform consistency)
+- Priority 2: Container (lightweight isolation, faster startup)
+- Priority 3: Sandbox (per-operation isolation, ephemeral environments)
+- Priority 4: Native/Host (default, trusted environment, performance-critical)
+- Selection logic documented in `config/kernel-selection-policy.json`
+
+**FR-161: External Dependency Boundary** (CHK019 resolution)
+- Internal = under `noa_root` directory tree, managed by NOA bootstrap
+- External = anything outside `noa_root` (host APIs, system libraries, global tools, cloud services)
+- Host kernel APIs permitted only in Native mode via NKAL abstraction
+- Global tools detected but NOT used unless `--allow-global` flag passed
+- Cloud services MUST be feature-flagged and optional
+
+**FR-162: Tool Isolation Mechanism** (CHK039 resolution)
+- `noa_root/bin` prepended to PATH before system paths
+- `NOA_*` environment variables point to `noa_root/opt/` toolchains
+- All package manager installs (npm/pip/cargo) use local prefix in `noa_root/opt/`
+- Shell wrappers in `noa_root/bin/` explicitly invoke internal tool paths
+- Internal versions preferred even if older than global
+
+**FR-163: Internal Tool Upgrade Mechanism** (CHK041 resolution)
+- Version requirements in `config/bootstrap-tools.json`
+- Explicit upgrade via `install-all-tools.ps1 -UpdateExisting` / `UPDATE_EXISTING=1`
+- Version checks on bootstrap (warn if outdated, no auto-upgrade)
+- Previous versions archived to `noa_root/opt/archive/{tool}-{version}/`
+- Rollback available for 7 days after upgrade
+
+**FR-164: Kernel Mode State Persistence** (CHK026 resolution)
+- All persistent state in `noa_root/data/` (accessible from all modes)
+- Checkpoint written to `.kernel-switch-state.json` before mode switch
+- VM/container modes mount `noa_root/data/` as shared volume
+- State verification after switch confirms checkpoint integrity
+- Hot-switch not supported; graceful shutdown required
+
+**FR-165: NKAL Trust Boundary** (CHK055 resolution)
+- NKAL defines boundary between trusted NOA code and untrusted host kernel
+- Above NKAL: full privileges within `noa_root`
+- Below NKAL: host kernel accessed only through NKAL interface
+- Input sanitization and output verification at boundary crossing
+- Privileged operations require capability grants in `config/nkal-capabilities.json`
+
+**FR-166: Host Kernel vs NOA Portable Dependency Policy** (from /clarify 2025-12-09)
+- **Host Kernel MAY Be Used For:**
+  1. Start-up/Bootstrap: Initial system boot and NOA initialization
+  2. Environment Scanning: Discovering host capabilities (CPU, GPU, memory, storage)
+  3. Host Optimization: Optimizing host performance (NOA internalizes discovered features)
+  4. File/Directory Access: Accessing host files/directories for goal completion (outside `noa_root`)
+- **NOA Portable Dependencies MUST Be Used For (100% Independence):**
+  - All tools (jq, ripgrep, fd, bat, etc.) → `noa_root/bin/`
+  - Terminal and shell → internal shell environment
+  - All packages (npm → `noa_root/opt/node`, pip → `noa_root/opt/venv`, cargo → `noa_root/opt/rust`)
+  - All services (llama-server, ollama, gitea) → `noa_root/init/services/`
+  - Network stack (VM/container mode) → NKAL abstraction
+  - All settings/configs → `noa_root/config/`
+  - All persistent state/data → `noa_root/data/`
+- **Platform Coverage**: ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware (x64, ARM, GPU)
+- **Independence Guarantee**: NOA achieves 100% independent functionality by bundling portable dependencies
+
+---
+
+## Kernel Independence & Self-Containment Tasks (T827-T845)
+
+### Phase 0: Bootstrap Integration
+
+| Task | Description | Dependencies |
+|------|-------------|--------------|
+| **T827** | Add `config/kernel-selection-policy.json` schema with precedence rules | B121 |
+| **T828** | Implement kernel selection logic in `noa-kernel-params.ps1` based on FR-160 | T827 |
+| **T829** | Implement kernel selection logic in `noa-kernel-params` (bash) | T828 |
+| **T830** | Add `--allow-global` flag to all tool detection scripts | B078 |
+| **T831** | Create `config/bootstrap-tools.json` with version pinning schema | B014 |
+| **T832** | Implement `-UpdateExisting` flag in `install-all-tools.ps1` | T831 |
+| **T833** | Implement tool archival to `noa_root/opt/archive/` before upgrade | T832 |
+| **T834** | Add upgrade rollback via `install-all-tools.ps1 -Rollback -Tool <name>` | T833 |
+
+### Phase 2: Foundation - NKAL & State Management
+
+| Task | Description | Dependencies |
+|------|-------------|--------------|
+| **T835** | Create NKAL capability grant schema `config/nkal-capabilities.json` | T001 |
+| **T836** | Implement NKAL trust boundary validation in `sys/core/src/nkal/` | T835, T022 |
+| **T837** | Add input sanitization layer at NKAL boundary | T836 |
+| **T838** | Add output verification layer at NKAL boundary | T837 |
+| **T839** | Create `.kernel-switch-state.json` checkpoint on mode change | T836 |
+| **T840** | Implement state verification after kernel mode switch | T839 |
+| **T841** | Add shared volume mount configuration for VM/container modes | T840, B125 |
+| **T842** | Implement graceful shutdown requirement before mode switch | T841 |
+
+### Documentation & Verification
+
+| Task | Description | Dependencies |
+|------|-------------|--------------|
+| **T843** | Document kernel selection precedence in `docs/architecture/kernel-independence.md` | T828 |
+| **T844** | Document external vs internal dependency boundary in `docs/architecture/self-containment.md` | T830 |
+| **T845** | Add kernel mode and tool version to `noa status` output | T842 |
+
 ---
 
 ## Task Summary
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | **963** |
-| **Phase 0: Bootstrap** | 169 (B001-B150 + B057a-B058t AI/Shared) |
-| Phase 1-2 | 81 |
-| 3-Plane Architecture | 107 |
-| Shared Providers | 53 (48 + 5 rate limiting) |
-| Advanced Learning | 16 (T657-T672) |
-| Authentication & Identity | 10 (T776-T785) |
-| Accessibility & i18n | 10 (T786-T795) |
-| UI States & Feedback | 8 (T796-T803) |
-| Multi-Modal | 9 (T804-T812) |
-| MVP (US1-3) | 99 |
-| P2 Stories | 193 |
-| P3 Stories | 93 |
-| Integration & Polish | 100 |
-| **Parallelizable** | 658 (68%) |
+| **Total Tasks** | **1034** |
+| **Phase 0: Bootstrap (B tasks)** | 187 |
+| **Phase 1+ Core (T tasks)** | 837 |
+| **Spec-Kit Integration (SK tasks)** | 10 |
+| Completed [X] | 172 |
+| Pending [ ] | 862 |
+| **Parallelizable** | ~680 (66%) |
 
-### Bootstrap Task Categories (Phase 0)
+### Task Breakdown by Phase
 
-| Subcategory | Tasks | Description |
-|-------------|-------|-------------|
-| Foundation | B001-B013 | Logging, platform detection, state management |
-| Directory Structure | B014-B017 | Create noa_root directories |
-| Prerequisites | B018-B023 | Git, Git LFS, GitHub CLI |
-| Toolchains | B024-B037 | Rust, Go, Node, Python, protoc (portable) |
-| Quality Tools | B038-B055 | Linters, formatters, security scanners |
-| **AI Provider CLIs** | **B057a-B057j** | **Claude Code, Cursor, Codex, Abacus CLIs (FR-039)** |
-| Dev Tools | B058-B067 | IDEs, Docker, AI apps (gitignored) |
-| Configuration | B068-B077 | Cache, logs, environment files |
-| Orchestrator | B078-B090 | Main bootstrap script, verification |
-| Documentation | B091-B100 | README, guides, constitutional checks |
-| Cross-Platform | B101-B120 | Script parity (PS1 ↔ Bash mirroring) |
-| Kernel Independence | B121-B145 | NKAL, VM images, mode switching |
-| Testing Matrix | B146-B150 | Platform-specific CI tests |
+| Phase | Tasks | Description |
+|-------|-------|-------------|
+| Phase 0: Bootstrap | 187 | B001-B150 + B057a-B086 (AI providers, shared resources, reports) |
+| Phase 1-2: Foundation | 81 | T001-T071 (directory, DB schema, API, CLI) |
+| Phase 2.5: 3-Plane Architecture | 107 | T545-T651 (control fabric, self-healing) |
+| Phase 2.6: Shared Providers | 63 | T417-T464 + T771-T775 + SK001-SK010 |
+| Phase 3: US1 (Init) | 25 | T072-T096 |
+| Phase 4: US2 (Neural Runtime) | 48 | T097-T130, T465-T485, T657-T672 |
+| Phase 5: US3 (Memory) | 26 | T131-T152 |
+| Phase 6: US4 (Digest) | 55 | T153-T191, T509-T541 |
+| Phase 7: US5 (Dynamic UI) | 85 | T192-T229, T760-T764, T786-T812 |
+| Phase 8: US6 (P2P) | 42 | T230-T271, T652-T656 |
+| Phase 9: US7 (Orchestration) | 65 | T272-T336 |
+| Phase 10: US8 (Self-Improvement) | 32 | T337-T368 |
+| Phase 11: US9-10 (Cross-Platform) | 48 | T369-T416 |
+| Phase 15: Governance | 16 | T690-T705 |
+| Phase 16: Verification | 25 | T706-T730 |
+| Phase 17: Polish | 15 | T731-T745 |
+| **Kernel Independence** | **19** | **T827-T845** |
+
+### Bootstrap Task Categories (Phase 0) - 186 Tasks
+
+| Subcategory | Tasks | Count | Description |
+|-------------|-------|-------|-------------|
+| Foundation | B001-B013 | 13 | Logging, platform detection, state management |
+| Directory Structure | B014-B017 | 4 | Create noa_root directories |
+| Prerequisites | B018-B023 | 6 | Git, Git LFS, GitHub CLI |
+| Toolchains | B024-B037 | 14 | Rust, Go, Node, Python, protoc (portable) |
+| Quality Tools | B038-B056 | 19 | Linters, formatters, security scanners, CLI utils |
+| **AI Provider CLIs** | **B057a-B057n** | **14** | **Claude Code, Cursor, Codex, VS Code Copilot, Git CLI, Abacus CLIs (FR-039)** |
+| **Shared Resources** | **B058a-B058t** | **20** | **Shared execution memory, provider state sync (FR-037-042)** |
+| Dev Tools | B059-B067b | 12 | IDEs, Docker, AI apps (gitignored) |
+| Configuration | B068-B077 | 10 | Cache, logs, environment files |
+| Orchestrator | B078-B090 | 13 | Main bootstrap script, verification |
+| Documentation | B091-B094 | 4 | README, guides, tool docs |
+| Constitutional | B095-B100 | 6 | Constitutional verification |
+| Cross-Platform | B101-B120 | 20 | Script parity (PS1 ↔ Bash mirroring) |
+| Kernel Independence | B121-B145 | 25 | NKAL, VM images, mode switching |
+| Testing Matrix | B146-B150 | 5 | Platform-specific CI tests |
 
 ---
 
@@ -562,6 +718,141 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | A4: NOA vs CECCA | ✅ | Added Terminology section with clear definitions |
 | A5: FR-043-046 tasks | ✅ | Added 16 tasks (T657-T672) for Advanced Learning |
 | D1: Duplicate T509-T513 | ✅ | Renumbered P2P Storage to T652-T656 |
+
+---
+
+## Spec-Kit Shared Provider Integration (FR-037, §3.13)
+
+**Purpose**: Wire spec-kit into the shared provider access system so ALL providers can access the same spec simultaneously without duplication.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SPEC-KIT SHARED PROVIDER ACCESS                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐         ┌──────────────────────────────────────────┐  │
+│  │   SPEC-KIT CLI   │         │         SHARED PROVIDER BUS               │  │
+│  │                  │         │                                           │  │
+│  │ • specify init   │────────►│  ai/shared/resources/spec-distribution/  │  │
+│  │ • /speckit.plan  │         │  ├── active-spec.json (current spec ref) │  │
+│  │ • /speckit.tasks │         │  ├── spec-locks.json (concurrency)       │  │
+│  │                  │         │  └── provider-access.log (audit trail)   │  │
+│  └──────────────────┘         └────────────────┬─────────────────────────┘  │
+│                                                │                             │
+│          ┌─────────────────────────────────────┼─────────────────────┐      │
+│          │                                     │                     │      │
+│          ▼                                     ▼                     ▼      │
+│  ┌───────────────┐    ┌───────────────┐    ┌───────────────┐    ┌────────┐ │
+│  │ Claude Code   │    │ Codex CLI     │    │ Cursor Agent  │    │ Copilot│ │
+│  │ (reasoning)   │    │ (code-gen)    │    │ (orchestrate) │    │ (IDE)  │ │
+│  │               │    │               │    │               │    │        │ │
+│  │ ◄──PARALLEL ACCESS TO SAME SPEC VIA SHARED MEMORY BUS──►              │ │
+│  └───────────────┘    └───────────────┘    └───────────────┘    └────────┘ │
+│                                                                              │
+│  EXECUTION MEMORY: ai/shared/resources/execution-memory.db                  │
+│  ├── spec_context (shared spec state)                                       │
+│  ├── provider_locks (coordination)                                          │
+│  └── parallel_tasks (distributed execution)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Spec-Kit Provider Connection Function
+
+spec-kit MUST implement a **universal provider connection function** that:
+
+1. **Connects ANY registered provider** to the shared spec context
+2. **Distributes specs** to all active providers simultaneously
+3. **Maintains read-only shared access** (no duplication, single source of truth)
+4. **Coordinates parallel execution** via the Shared Provider Execution Memory bus
+
+**Function Signature** (conceptual):
+
+```python
+def connect_provider(
+    provider_id: str,           # e.g., "claude-code", "codex", "cursor"
+    spec_path: str,             # Path to the spec (relative to noa_root)
+    access_mode: str = "read",  # "read" | "write" | "coordinate"
+    parallel: bool = True       # Enable parallel access by other providers
+) -> ProviderConnection:
+    """
+    Connect a provider to the shared spec distribution system.
+
+    All providers sharing the same spec_path get synchronized access via
+    the execution-memory.db bus without creating duplicate copies.
+    """
+```
+
+### Shared Spec Distribution Schema
+
+**File**: `ai/shared/resources/spec-distribution.json`
+
+```json
+{
+  "$schema": "https://noa.local/schemas/spec-distribution.json",
+  "version": "1.0.0",
+  "activeSpec": {
+    "path": "specs/001-noa-seed-foundation/",
+    "hash": "sha256:...",
+    "lastAccessed": "2025-12-09T00:00:00Z"
+  },
+  "connectedProviders": [
+    {
+      "providerId": "claude-code",
+      "accessMode": "read",
+      "connectedAt": "2025-12-09T00:00:00Z",
+      "lastSync": "2025-12-09T00:00:00Z"
+    },
+    {
+      "providerId": "codex",
+      "accessMode": "read",
+      "connectedAt": "2025-12-09T00:00:00Z"
+    }
+  ],
+  "parallelExecution": {
+    "enabled": true,
+    "coordinator": "cursor",
+    "taskDistribution": "round-robin"
+  }
+}
+```
+
+### Tasks for Spec-Kit Provider Integration
+
+| Task ID | Description | Dependencies |
+|---------|-------------|--------------|
+| **SK001** | Create `connect_provider()` function in spec-kit CLI | B057a-B057j |
+| **SK002** | Implement spec-distribution.json schema and validation | SK001 |
+| **SK003** | Add provider registration to execution-memory.db | SK002, T417 |
+| **SK004** | Implement parallel spec broadcast to all connected providers | SK003 |
+| **SK005** | Add spec locking mechanism for write coordination | SK004 |
+| **SK006** | Create audit logging for provider spec access | SK005 |
+| **SK007** | Update AGENT_CONFIG in spec-kit to use shared resources | SK002 |
+| **SK008** | Add `--connect-providers` flag to `specify init` | SK001 |
+| **SK009** | Implement provider health check before spec distribution | SK004 |
+| **SK010** | Create spec-kit MCP tool for provider orchestration | SK006 |
+
+### Integration with Existing Shared Resources
+
+The spec-kit integration uses these existing shared resource paths:
+
+| Resource | Path | Purpose |
+|----------|------|---------|
+| Execution Memory | `ai/shared/resources/execution-memory.db` | Provider coordination |
+| Resource Registry | `ai/shared/resources/resource-registry.json` | Provider registration |
+| Resource Mapping | `ai/shared/resources/resource-mapping.json` | Name unification |
+| Resource Aliases | `ai/shared/resources/resource-aliases.json` | Backward compatibility |
+| **Spec Distribution** | `ai/shared/resources/spec-distribution.json` | **NEW - Spec sharing** |
+
+### Provider Parallel Access Flow
+
+1. **Spec Creation/Update**: `/speckit.plan` or `/speckit.specify` creates/updates spec
+2. **Broadcast**: spec-kit broadcasts spec location to Shared Provider Bus
+3. **Provider Connection**: Each provider registers via `connect_provider()`
+4. **Parallel Read**: All providers read from same spec path (no duplication)
+5. **Coordinated Write**: Only one provider can write at a time (via locks)
+6. **Execution Memory Sync**: Provider state synced via execution-memory.db
 
 ---
 
@@ -597,8 +888,11 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ---
 
-**Plan Updated**: 2025-12-08
-**Total FRs**: 136 (75 core + 19 bootstrap + 42 clarifications)
-**Total Tasks**: 963 (169 bootstrap + 794 core)
-**Estimated Duration**: 30-34 weeks (2-4 developers)
+**Plan Updated**: 2025-12-09
+**Total FRs**: 166 (FR-001 to FR-166)
+**Total Tasks**: 1034 (187 Bootstrap + 837 Core + 10 Spec-Kit)
+**Completed**: 172 tasks (16.6%)
+**Pending**: 862 tasks
+**Estimated Duration**: 32-36 weeks (2-4 developers)
 **Cross-Platform Parity**: 100% (all scripts mirrored)
+**Kernel Independence**: FR-159 to FR-166 (8 new requirements)

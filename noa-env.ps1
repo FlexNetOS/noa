@@ -78,6 +78,24 @@ Add-NoaPath $env:NOA_SCRIPTS
 Add-NoaPath (Join-Path $env:GOROOT "bin")
 Add-NoaPath $env:GOBIN
 
+# Add Node.js and npm global modules to PATH
+$env:NOA_NODE = Join-Path $env:NOA_OPT "node"
+$env:npm_config_prefix = $env:NOA_NODE
+$env:npm_config_cache = Join-Path $env:NOA_OPT "npm-cache"
+Add-NoaPath $env:NOA_NODE
+Add-NoaPath (Join-Path $env:NOA_NODE "node_modules\.bin")
+
+# Add Rust to PATH
+$env:RUSTUP_HOME = Join-Path $env:NOA_OPT "rust\rustup"
+$env:CARGO_HOME = Join-Path $env:NOA_OPT "rust\cargo"
+Add-NoaPath (Join-Path $env:CARGO_HOME "bin")
+
+# Add Python to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "python")
+
+# Add protobuf to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "protobuf\bin")
+
 # Navigation aliases
 function cda { Set-Location $env:NOA_ROOT }
 function cdr { Set-Location $env:NOA_REPOS }
