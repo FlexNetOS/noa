@@ -10,6 +10,9 @@
 .PARAMETER Json
     Output results in JSON format
 
+.PARAMETER PathsOnly
+    Output only feature directory paths (for spec-kit integration)
+
 .PARAMETER NoaRoot
     NOA root directory (default: parent of scripts directory or env:NOA_ROOT)
 
@@ -19,12 +22,14 @@
 .EXAMPLE
     .\check-prereqs.ps1
     .\check-prereqs.ps1 -Json
+    .\check-prereqs.ps1 -Json -PathsOnly
     .\check-prereqs.ps1 -AllowGlobal
 #>
 
 [CmdletBinding()]
 param(
     [switch]$Json,
+    [switch]$PathsOnly,
     [string]$NoaRoot,
     [switch]$AllowGlobal
 )
@@ -35,6 +40,66 @@ if (-not $NoaRoot) {
     $NoaRoot = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent (Split-Path -Parent $PSScriptRoot) }
 }
 $NOA_BIN = Join-Path $NoaRoot "bin"
+
+# Handle -PathsOnly mode for spec-kit integration (/clarify, /plan, /tasks commands)
+if ($PathsOnly) {
+    # Find the active feature directory
+    $specsDir = Join-Path $NoaRoot "specs"
+    $featureDir = $null
+    $featureSpec = $null
+    $implPlan = $null
+    $tasksFile = $null
+    $availableDocs = @()
+    
+    # Look for feature directories (prefer 001-noa-seed-foundation if exists)
+    if (Test-Path $specsDir) {
+        $features = Get-ChildItem -Path $specsDir -Directory | Where-Object { $_.Name -match '^\d{3}-' } | Sort-Object Name
+        foreach ($feature in $features) {
+            $specPath = Join-Path $feature.FullName "spec.md"
+            if (Test-Path $specPath) {
+                $featureDir = $feature.FullName
+                $featureSpec = $specPath
+                
+                # Check for optional docs
+                $planPath = Join-Path $feature.FullName "plan.md"
+                $tasksPath = Join-Path $feature.FullName "tasks.md"
+                $dataModelPath = Join-Path $feature.FullName "data-model.md"
+                $researchPath = Join-Path $feature.FullName "research.md"
+                $quickstartPath = Join-Path $feature.FullName "quickstart.md"
+                $contractsDir = Join-Path $feature.FullName "contracts"
+                
+                if (Test-Path $planPath) { $implPlan = $planPath; $availableDocs += "plan.md" }
+                if (Test-Path $tasksPath) { $tasksFile = $tasksPath; $availableDocs += "tasks.md" }
+                if (Test-Path $dataModelPath) { $availableDocs += "data-model.md" }
+                if (Test-Path $researchPath) { $availableDocs += "research.md" }
+                if (Test-Path $quickstartPath) { $availableDocs += "quickstart.md" }
+                if (Test-Path $contractsDir) { $availableDocs += "contracts/" }
+                
+                break  # Use first valid feature
+            }
+        }
+    }
+    
+    if ($Json) {
+        $result = @{
+            NOA_ROOT = $NoaRoot
+            FEATURE_DIR = $featureDir
+            FEATURE_SPEC = $featureSpec
+            IMPL_PLAN = $implPlan
+            TASKS = $tasksFile
+            AVAILABLE_DOCS = $availableDocs
+        }
+        $result | ConvertTo-Json -Depth 3
+    } else {
+        Write-Host "NOA_ROOT=$NoaRoot"
+        Write-Host "FEATURE_DIR=$featureDir"
+        Write-Host "FEATURE_SPEC=$featureSpec"
+        Write-Host "IMPL_PLAN=$implPlan"
+        Write-Host "TASKS=$tasksFile"
+        Write-Host "AVAILABLE_DOCS=$($availableDocs -join ',')"
+    }
+    exit 0
+}
 
 $Installed = @()
 $MissingCritical = @()
