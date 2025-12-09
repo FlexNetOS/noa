@@ -36,7 +36,7 @@
 	02- NOA becomes $user's mirrored version of themselves
 	03- Parallel hive mind across all $user owned hardware and operating systems.
 	04- Excess hardware resources are leverages for NOA to operate e.g. compute & Storage.
-	05- $user as creator to imagine and develop goals through conversation request
+	05- $user is creator; to imagine and develop goals through conversation UI request.
 	06- NOA Executes and manages resources
 		01- NOA takes inventory then uses what is available to build what is needed to accomplish goal.
 		02- Brings $user imagination to real life
