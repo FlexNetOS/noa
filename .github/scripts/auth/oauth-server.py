@@ -252,6 +252,12 @@ class OAuthHandler(BaseHTTPRequestHandler):
             'microsoft': 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
         }
 
+        # Validate provider has a known auth URL
+        auth_url_base = auth_urls.get(provider)
+        if not auth_url_base:
+            self.send_error(400, f"Provider {provider} does not have a configured auth URL")
+            return
+
         scopes = {
             'google': ['openid', 'email', 'profile'],
             'github': ['repo', 'workflow', 'read:org', 'read:user', 'user:email'],
@@ -276,7 +282,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
             params['access_type'] = 'offline'
             params['prompt'] = 'consent'
 
-        auth_url = f"{auth_urls[provider]}?{urlencode(params)}"
+        auth_url = f"{auth_url_base}?{urlencode(params)}"
 
         self.send_response(302)
         self.send_header('Location', auth_url)

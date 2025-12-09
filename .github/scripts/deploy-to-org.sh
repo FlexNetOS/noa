@@ -155,7 +155,10 @@ should_exclude_repo() {
     local exclusions=$(yq '.repositories.exclude[]' "$CONFIG_FILE" 2>/dev/null || echo "")
 
     for exclusion in $exclusions; do
-        if [[ "$repo" == "$exclusion" ]] || [[ "$repo" == $exclusion ]]; then
+        # In [[ ]], RHS pattern matching requires unquoted variable
+        # Unquoted $exclusion enables glob patterns like *-temp or test-*
+        # Note: [[ ]] does NOT do filesystem pathname expansion on RHS
+        if [[ "$repo" == $exclusion ]]; then
             return 0  # Should exclude
         fi
     done
