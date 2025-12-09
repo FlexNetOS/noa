@@ -604,8 +604,10 @@ runs:
                     with open(issue.file, 'r') as f:
                         lines = f.readlines()
 
-                    start = max(0, (issue.line or 1) - 10)
-                    end = min(len(lines), (issue.line or 1) + 10)
+                    # Convert 1-indexed line number to 0-indexed array index
+                    line_idx = (issue.line or 1) - 1
+                    start = max(0, line_idx - 10)
+                    end = min(len(lines), line_idx + 11)  # +11 to include 10 lines after (exclusive end)
                     return ''.join(lines[start:end])
                 except:
                     return ""
