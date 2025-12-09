@@ -1,0 +1,100 @@
+# NOA Quickwit Hybrid Search Configuration
+# Purpose: Full-text + vector hybrid search for comprehensive retrieval
+# FR-003: Support for both keyword and semantic search
+
+version: "1.0"
+name: noa-quickwit
+
+# Quickwit node configuration
+node:
+  node_id: noa-local
+
+  # Local-only binding (FR-002: Local-first)
+  listen_address: localhost
+  rest_listen_port: 7280
+  grpc_listen_port: 7281
+
+# Storage configuration (FR-001: All within noa_root)
+storage:
+  # Local filesystem storage
+  default_index_root_uri: file://${NOA_ROOT}/data/quickwit/indexes
+
+  # Metastore path
+  metastore_uri: file://${NOA_ROOT}/data/quickwit/metastore
+
+# Indexer settings
+indexer:
+  # Batch settings
+  split_num_docs_target: 10000000
+  merge_policy:
+    type: stable_log
+    merge_factor: 10
+    max_merge_factor: 12
+
+# Searcher settings
+searcher:
+  # Search thread pool
+  fast_field_cache_capacity: 1GB
+  split_footer_cache_capacity: 500MB
+  max_num_concurrent_split_searches: 100
+
+# Pre-defined indexes for NOA
+indexes:
+  # Full-text search for memories
+  - index_id: memories
+    doc_mapping:
+      field_mappings:
+        - name: id
+          type: text
+          tokenizer: raw
+          fast: true
+        - name: content
+          type: text
+          tokenizer: default
+          record: position
+        - name: metadata
+          type: json
+        - name: created_at
+          type: datetime
+          fast: true
+        - name: embedding
+          type: bytes
+      timestamp_field: created_at
+
+  # Full-text search for code/knowledge
+  - index_id: knowledge
+    doc_mapping:
+      field_mappings:
+        - name: id
+          type: text
+          tokenizer: raw
+          fast: true
+        - name: source
+          type: text
+          tokenizer: default
+        - name: content
+          type: text
+          tokenizer: default
+          record: position
+        - name: language
+          type: text
+          tokenizer: raw
+          fast: true
+        - name: type
+          type: text
+          tokenizer: raw
+          fast: true
+        - name: created_at
+          type: datetime
+          fast: true
+
+# Logging
+logging:
+  level: info
+  output: ${NOA_ROOT}/logs/quickwit/quickwit.log
+
+# Jaeger tracing (optional)
+jaeger:
+  enabled: false
+  agent_endpoint: localhost:6831
+

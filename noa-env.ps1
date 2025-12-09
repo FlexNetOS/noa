@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
     NOA Environment Configuration for Windows PowerShell
-    
+
 .DESCRIPTION
     Sets up NOA environment variables and aliases for Windows.
     Source this file in your PowerShell profile for persistent configuration.
-    
+
 .EXAMPLE
     . .\noa-env.ps1
 #>
@@ -51,10 +51,35 @@ $env:NOA_OPT = Join-Path $env:NOA_ROOT "opt"
 $env:NOA_SYS = Join-Path $env:NOA_ROOT "sys"
 $env:NOA_INIT = Join-Path $env:NOA_ROOT "init"
 
+# Data directories (FR-001: All data within noa_root)
+$env:NOA_DATA = Join-Path $env:NOA_ROOT "data"
+$env:NOA_CACHE = Join-Path $env:NOA_ROOT "data/cache"
+$env:NOA_CONFIG_HOME = Join-Path $env:NOA_ROOT "etc"
+
+# AppData redirection (FR-001: Self-contained operation)
+# Override Windows AppData paths to keep all application data within NOA
+$env:APPDATA = Join-Path $env:NOA_ROOT "data/appdata/roaming"
+$env:LOCALAPPDATA = Join-Path $env:NOA_ROOT "data/appdata/local"
+$env:TEMP = Join-Path $env:NOA_ROOT "tmp"
+$env:TMP = Join-Path $env:NOA_ROOT "tmp"
+
+# XDG Base Directory specification (Unix compatibility)
+$env:XDG_DATA_HOME = Join-Path $env:NOA_ROOT "data"
+$env:XDG_CONFIG_HOME = Join-Path $env:NOA_ROOT "etc"
+$env:XDG_CACHE_HOME = Join-Path $env:NOA_ROOT "data/cache"
+$env:XDG_STATE_HOME = Join-Path $env:NOA_ROOT "data/state"
+
 # Kernel-level isolation paths
 $env:NOA_NAMESPACE = Join-Path $env:NOA_SYS "namespace"
 $env:NOA_CGROUP = Join-Path $env:NOA_SYS "cgroup"
 $env:NOA_KERNEL = Join-Path $env:NOA_SYS "kernel"
+
+# Go environment (portable installation)
+$env:GOROOT = Join-Path $env:NOA_OPT "go"
+$env:GOPATH = Join-Path $env:NOA_OPT "go\workspace"
+$env:GOBIN = Join-Path $env:NOA_OPT "go\workspace\bin"
+$env:GOCACHE = Join-Path $env:NOA_OPT "go\cache"
+$env:GOMODCACHE = Join-Path $env:NOA_OPT "go\pkg\mod"
 
 # Add NOA directories to PATH
 function Add-NoaPath {
@@ -66,6 +91,38 @@ function Add-NoaPath {
 
 Add-NoaPath $env:NOA_BIN
 Add-NoaPath $env:NOA_SCRIPTS
+
+# Add Go to PATH
+Add-NoaPath (Join-Path $env:GOROOT "bin")
+Add-NoaPath $env:GOBIN
+
+# Add Node.js and npm global modules to PATH
+$env:NOA_NODE = Join-Path $env:NOA_OPT "node"
+$env:npm_config_prefix = $env:NOA_NODE
+$env:npm_config_cache = Join-Path $env:NOA_OPT "npm-cache"
+Add-NoaPath $env:NOA_NODE
+Add-NoaPath (Join-Path $env:NOA_NODE "node_modules\.bin")
+
+# Add Rust to PATH
+$env:RUSTUP_HOME = Join-Path $env:NOA_OPT "rust\rustup"
+$env:CARGO_HOME = Join-Path $env:NOA_OPT "rust\cargo"
+Add-NoaPath (Join-Path $env:CARGO_HOME "bin")
+
+# Add Python to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "python")
+
+# Add protobuf to PATH
+Add-NoaPath (Join-Path $env:NOA_OPT "protobuf\bin")
+
+# Add portable PowerShell to PATH (Constitution §3.1 compliance)
+$env:NOA_PWSH = Join-Path $env:NOA_OPT "powershell"
+Add-NoaPath $env:NOA_PWSH
+
+# Warn if using system PowerShell instead of portable
+if ($PSHOME -notlike "*noa*") {
+    Write-Host "[WARN] Using system PowerShell: $PSHOME" -ForegroundColor Yellow
+    Write-Host "[INFO] For Constitution §3.1 compliance, use: N:\noa\opt\powershell\pwsh.exe" -ForegroundColor Gray
+}
 
 # Navigation aliases
 function cda { Set-Location $env:NOA_ROOT }
@@ -107,20 +164,20 @@ function Test-NoaEnv {
         $env:NOA_SCRIPTS,
         $env:NOA_CONFIG
     )
-    
+
     $missing = @()
     foreach ($var in $required) {
         if (-not $var -or -not (Test-Path $var)) {
             $missing += $var
         }
     }
-    
+
     if ($missing.Count -gt 0) {
         Write-Host "Missing or invalid NOA directories:" -ForegroundColor Red
         $missing | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
         return $false
     }
-    
+
     Write-Host "NOA environment validated successfully" -ForegroundColor Green
     Write-Host "  NOA_ROOT: $env:NOA_ROOT" -ForegroundColor Cyan
     return $true

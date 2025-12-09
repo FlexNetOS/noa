@@ -1,0 +1,80 @@
+# NOA Qdrant Vector Store Configuration
+# Purpose: High-performance vector similarity search for embeddings
+# FR-003: Support for semantic search via vector embeddings
+
+version: "1.0"
+name: noa-qdrant
+
+server:
+  # Local-only binding (FR-002: Local-first)
+  host: localhost
+  http_port: 6333
+  grpc_port: 6334
+
+storage:
+  # All data within noa_root (FR-001)
+  path: ${NOA_ROOT}/data/qdrant/storage
+
+  # Snapshots directory
+  snapshots_path: ${NOA_ROOT}/data/qdrant/snapshots
+
+  # Temporary files
+  temp_path: ${NOA_ROOT}/tmp/qdrant
+
+# Performance settings
+performance:
+  # Optimize for 16GB RAM (Standard Hardware)
+  max_search_threads: 0  # Auto-detect
+  max_optimization_threads: 2
+
+# Collection defaults
+collection_defaults:
+  # Vector settings for 384-dim embeddings (all-MiniLM-L6-v2)
+  vectors:
+    size: 384
+    distance: Cosine
+
+  # HNSW index settings
+  hnsw_config:
+    m: 16
+    ef_construct: 100
+    full_scan_threshold: 10000
+
+  # Optimizer settings
+  optimizer_config:
+    deleted_threshold: 0.2
+    vacuum_min_vector_number: 1000
+    default_segment_number: 0
+    max_segment_size: 200000
+    memmap_threshold: 50000
+    indexing_threshold: 20000
+
+# Pre-defined collections for NOA
+collections:
+  - name: memories
+    description: "User memory embeddings for semantic recall"
+    vectors:
+      size: 384
+      distance: Cosine
+
+  - name: knowledge
+    description: "Digested knowledge base embeddings"
+    vectors:
+      size: 384
+      distance: Cosine
+
+  - name: code
+    description: "Code embeddings for semantic search"
+    vectors:
+      size: 384
+      distance: Cosine
+
+# Logging
+logging:
+  level: info
+  output: ${NOA_ROOT}/logs/qdrant/qdrant.log
+
+# Telemetry (disabled for privacy)
+telemetry:
+  disabled: true
+

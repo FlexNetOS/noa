@@ -4,6 +4,12 @@
 # - Prefers contained installs under NOA_ROOT/bin
 # - Optional system-wide fallback with --allow-global
 # - Install hints point to scripts/setup/install-all-tools.sh
+#
+# Modes:
+#   Default:        Run toolchain prerequisite checks
+#   --paths-only:   Return feature directory paths for spec-kit commands
+#   --require-tasks: Fail if tasks.md doesn't exist (for /analyze)
+#   --include-tasks: Include tasks.md in output (implied by --paths-only)
 
 set -euo pipefail
 
@@ -14,12 +20,102 @@ NOA_BIN="$NOA_ROOT/bin"
 
 JSON_OUTPUT=false
 ALLOW_GLOBAL=false
+PATHS_ONLY=false
+REQUIRE_TASKS=false
+INCLUDE_TASKS=false
+
 for arg in "$@"; do
   case "$arg" in
     --json) JSON_OUTPUT=true ;;
     --allow-global) ALLOW_GLOBAL=true ;;
+    --paths-only) PATHS_ONLY=true ;;
+    --require-tasks) REQUIRE_TASKS=true ;;
+    --include-tasks) INCLUDE_TASKS=true ;;
   esac
 done
+
+# Handle --paths-only mode for spec-kit integration (/clarify, /plan, /tasks, /analyze commands)
+if $PATHS_ONLY; then
+  SPECS_DIR="$NOA_ROOT/specs"
+  FEATURE_DIR=""
+  FEATURE_SPEC=""
+  IMPL_PLAN=""
+  TASKS_FILE=""
+  CHECKLISTS_DIR=""
+  AVAILABLE_DOCS=()
+
+  # Look for feature directories (prefer 001-noa-seed-foundation if exists)
+  if [[ -d "$SPECS_DIR" ]]; then
+    for feature in "$SPECS_DIR"/[0-9][0-9][0-9]-*/; do
+      if [[ -d "$feature" ]]; then
+        spec_path="${feature}spec.md"
+        if [[ -f "$spec_path" ]]; then
+          FEATURE_DIR="${feature%/}"
+          FEATURE_SPEC="$spec_path"
+
+          # Check for optional docs
+          [[ -f "${feature}plan.md" ]] && IMPL_PLAN="${feature}plan.md" && AVAILABLE_DOCS+=("plan.md")
+          [[ -f "${feature}tasks.md" ]] && TASKS_FILE="${feature}tasks.md" && AVAILABLE_DOCS+=("tasks.md")
+          [[ -f "${feature}data-model.md" ]] && AVAILABLE_DOCS+=("data-model.md")
+          [[ -f "${feature}research.md" ]] && AVAILABLE_DOCS+=("research.md")
+          [[ -f "${feature}quickstart.md" ]] && AVAILABLE_DOCS+=("quickstart.md")
+          [[ -d "${feature}contracts" ]] && AVAILABLE_DOCS+=("contracts/")
+          [[ -d "${feature}checklists" ]] && CHECKLISTS_DIR="${feature}checklists" && AVAILABLE_DOCS+=("checklists/")
+
+          break  # Use first valid feature
+        fi
+      fi
+    done
+  fi
+
+  # Validate --require-tasks: fail if tasks.md doesn't exist when required
+  if $REQUIRE_TASKS && [[ -z "$TASKS_FILE" || ! -f "$TASKS_FILE" ]]; then
+    if $JSON_OUTPUT; then
+      cat <<EOF
+{
+  "error": "tasks.md not found",
+  "message": "The /analyze command requires tasks.md. Run /speckit.tasks first to generate it.",
+  "FEATURE_DIR": "$FEATURE_DIR",
+  "AVAILABLE_DOCS": [$(printf '"%s",' "${AVAILABLE_DOCS[@]}" | sed 's/,$//')]
+}
+EOF
+    else
+      echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
+      echo "The /analyze command requires tasks.md. Run /speckit.tasks first." >&2
+    fi
+    exit 1
+  fi
+
+  # Output results
+  if $JSON_OUTPUT; then
+    # Build JSON array for AVAILABLE_DOCS
+    docs_json=""
+    if [[ ${#AVAILABLE_DOCS[@]} -gt 0 ]]; then
+      docs_json=$(printf '"%s",' "${AVAILABLE_DOCS[@]}" | sed 's/,$//')
+    fi
+
+    cat <<EOF
+{
+  "NOA_ROOT": "$NOA_ROOT",
+  "FEATURE_DIR": "$FEATURE_DIR",
+  "FEATURE_SPEC": "$FEATURE_SPEC",
+  "IMPL_PLAN": "$IMPL_PLAN",
+  "TASKS": "$TASKS_FILE",
+  "CHECKLISTS_DIR": "$CHECKLISTS_DIR",
+  "AVAILABLE_DOCS": [$docs_json]
+}
+EOF
+  else
+    echo "NOA_ROOT=$NOA_ROOT"
+    echo "FEATURE_DIR=$FEATURE_DIR"
+    echo "FEATURE_SPEC=$FEATURE_SPEC"
+    echo "IMPL_PLAN=$IMPL_PLAN"
+    echo "TASKS=$TASKS_FILE"
+    echo "CHECKLISTS_DIR=$CHECKLISTS_DIR"
+    echo "AVAILABLE_DOCS=${AVAILABLE_DOCS[*]:-}"
+  fi
+  exit 0
+fi
 
 mkdir -p "$NOA_BIN"
 

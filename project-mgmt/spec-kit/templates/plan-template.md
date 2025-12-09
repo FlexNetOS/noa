@@ -44,6 +44,10 @@
 | 3.7 Total Memory Sovereignty | ☐ Yes / ☐ N/A | Persistent storage? Instant recall? |
 | 3.8 P2P Hive-Mind | ☐ Yes / ☐ N/A | Supports multi-device? Resource sharing? |
 | 3.12 Test Everything | ☐ Yes / ☐ N/A | Verification built-in? |
+| 3.13 Shared Provider Resource Unification | ☐ Yes / ☐ N/A | Resources refactored for shared access? |
+| 4.9 Provider Orchestration | ☐ Yes / ☐ N/A | Uses shared execution memory? |
+| 4.10 Resource Name Refactoring | ☐ Yes / ☐ N/A | Provider names unified? |
+| 4.11 Kernel Independence | ☐ Yes / ☐ N/A | Supports multiple kernel modes? |
 
 ### Constitutional Flow Traceability
 
@@ -53,6 +57,30 @@
 | Policy | [Link to policy] | ☐ Linked |
 | Rule | [Link to rule] | ☐ Linked |
 | Spec | [Link to spec] | ☐ Linked |
+
+### Provider Resource Unification Plan
+
+*Required when integrating external repositories or AI provider tools (§3.13, §4.10)*
+
+| External Resource | Origin | Unified Name | Shared Location | Status |
+|-------------------|--------|--------------|-----------------|--------|
+| [e.g., claude-reasoning] | claude-code repo | reasoning-agent | ai/shared/agents/ | ☐ Refactored |
+| [e.g., codex-generate] | codex-cli repo | code-generation-tool | ai/shared/tools/ | ☐ Refactored |
+
+**Execution Memory Integration**: ☐ Yes / ☐ N/A
+- Shared context path: `ai/shared/resources/execution-memory.db`
+- Provider state sync: ☐ Enabled / ☐ N/A
+
+### Kernel Independence Mode
+
+*Required for features that may require isolation (§4.11)*
+
+| Mode | Supported | Notes |
+|------|-----------|-------|
+| Native | ☐ Yes / ☐ N/A | Default mode, host kernel |
+| VM | ☐ Yes / ☐ N/A | Hyper-V / KVM / Virtualization.framework |
+| Container | ☐ Yes / ☐ N/A | Docker / Podman |
+| Sandbox | ☐ Yes / ☐ N/A | User-space isolation |
 
 ## Project Structure
 
