@@ -56,7 +56,7 @@ This document defines the non‑negotiable principles, governance rules, and qua
 - **PROJECT_NAME**: NOA (Autonomous Agentic Project Management OS)
 - **PROJECT_MANIFESTO**: Multi-Platform Autonomous Self-Modifying Agentic OS
 - **SCOPE**: Local-first, agentic full-stack operating system that unifies and orchestrates multiple underlying tools, services, and codebases as one OS-like experience—a "seed application" that uses Agentic AI to autonomously grow and accomplish complex goals
-- **RATIFICATION_DATE**: TODO(RATIFICATION_DATE): Set the original adoption date
+- **RATIFICATION_DATE**: 2025-12-08
 - **LAST_AMENDED_DATE**: 2025-12-08
 - **CONSTITUTION_VERSION**: 2.1.0
 
