@@ -172,14 +172,14 @@
 
 | Category | Items | Passed | Notes |
 |----------|-------|--------|-------|
-| NOA Kernels First Policy | CHK001-CHK012 | ✅ 6/12 | FR-159, FR-160 resolve high-priority gaps |
-| Self-Contained Requirements | CHK013-CHK024 | ✅ 2/12 | FR-161 resolves boundary definition |
-| Host Kernel Usage | CHK025-CHK036 | ✅ 2/12 | FR-164 resolves state persistence |
+| NOA Kernels First Policy | CHK001-CHK012 | ✅ **12/12** | FR-159, FR-160 + T846-T851 resolve all gaps |
+| Self-Contained Requirements | CHK013-CHK024 | ✅ **5/12** | FR-161 + T852-T855 resolve priority gaps |
+| Host Kernel Usage | CHK025-CHK036 | ✅ **5/12** | FR-164 + T856-T858 resolve priority gaps |
 | Internal Global Installs | CHK037-CHK053 | ✅ 4/17 | FR-162, FR-163 resolve isolation & upgrades |
 | Cross-Cutting | CHK054-CHK060 | ✅ 2/7 | FR-165 resolves trust boundary |
 | **Host vs NOA Usage** | **CHK061-CHK070** | ✅ **7/10** | **FR-166 resolves host/NOA boundary** |
 
-**Overall**: 23/70 items explicitly resolved via new FRs. Remaining items are either:
+**Overall**: 35/70 items explicitly resolved via FRs or tasks. Remaining items are either:
 - Already addressed in existing requirements
 - Low-priority consistency checks that pass review
 - Require implementation verification (will be confirmed during testing)
@@ -207,13 +207,17 @@
 
 ### Resolution Summary
 
-**All 8 high-priority and medium-priority gaps have been resolved:**
+**All high-priority and medium-priority gaps have been resolved:**
 
 - **Spec.md Clarifications Section**: Added 8 new Q&A entries defining kernel precedence, external boundaries, tool isolation, upgrades, state persistence, trust boundaries, and host vs NOA usage policy
 - **Plan.md FR-159 to FR-166**: Added 8 new functional requirements
-- **Plan.md Tasks T827-T845**: Added 19 new implementation tasks
+- **Tasks.md Tasks B153-B160 + T835-T858**: Added 32 new implementation tasks
+  - B153-B160: Kernel Selection Policy **(Phase 0 Bootstrap)**
+  - T835-T842: NKAL Trust Boundary (Phase 18)
+  - T843-T845: Documentation & Verification (Phase 18)
+  - T846-T858: Checklist Gap Resolution (CHK005-CHK033) (Phase 18)
 - **Total New Requirements**: 8 FRs (FR-159 to FR-166)
-- **Total New Tasks**: 19 tasks (T827 to T845)
+- **Total New Tasks**: 32 tasks (B153-B160 in Phase 0, T835-T858 in Phase 18)
 
 ### Session 2025-12-09 Additions
 

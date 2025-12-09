@@ -1,0 +1,93 @@
+# NOA AI Provider Configuration Template
+# Use this template when adding new AI providers
+
+# Metadata
+metadata:
+  version: "1.0.0"
+  created_at: "${TIMESTAMP}"
+  description: "Configuration for AI provider"
+  tags:
+    - provider
+    - ai
+
+# Provider Definition
+provider:
+  # Unique provider name
+  name: "example-provider"
+  
+  # Type: local | cloud | hybrid | ide
+  type: "local"
+  
+  # Interface: cli | api | ide | cloud
+  interface: "api"
+  
+  # Enable/disable provider
+  enabled: true
+  
+  # Selection priority (higher = preferred, 0-100)
+  priority: 50
+  
+  # Capabilities provided
+  capabilities:
+    - "inference"
+    - "embeddings"
+    # - "code_completion"
+    # - "reasoning"
+  
+  # Status tracking
+  status: "active"  # active | inactive | error | rate_limited
+
+# Connection Settings
+connection:
+  # For local providers
+  endpoint: "http://localhost:8080"
+  
+  # For cloud providers
+  # api_key_env: "PROVIDER_API_KEY"  # Environment variable name
+  # base_url: "https://api.example.com/v1"
+  
+  # Timeouts
+  timeout_ms: 30000
+  connect_timeout_ms: 5000
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay_ms: 1000
+
+# Rate Limiting
+rate_limits:
+  requests_per_minute: 60
+  tokens_per_minute: 100000
+  concurrent_requests: 5
+
+# Model Configuration (for inference providers)
+models:
+  default: "model-name"
+  available:
+    - name: "model-name"
+      context_length: 4096
+      parameters: "7B"
+      type: "llm"
+
+# Shared Resources Integration
+shared_resources:
+  path: "${NOA_ROOT}/ai/shared"
+  use_shared_prompts: true
+  use_shared_agents: true
+  use_shared_tools: true
+  
+  # Execution memory for context sharing
+  execution_memory:
+    enabled: true
+    path: "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+
+# Health Check
+health_check:
+  enabled: true
+  interval_seconds: 60
+  timeout_ms: 5000
+  endpoint: "/health"  # or null for CLI check
+
+
+
+

@@ -1,20 +1,26 @@
 <#
 .SYNOPSIS
-    Detect and configure ChatGPT Desktop for NOA integration.
+    Install ChatGPT Desktop to NOA opt directory.
 
 .DESCRIPTION
-    Detects ChatGPT Desktop installation and creates configuration notes.
-    ChatGPT Desktop must be manually installed from OpenAI.
+    Downloads and installs ChatGPT Desktop to noa_root/opt/chatgpt-desktop/.
+    Creates wrapper script in noa_root/bin/ for easy access.
+    Note: Requires ChatGPT Plus subscription.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
 
+.PARAMETER Force
+    Force reinstall even if already installed
+
 .EXAMPLE
     .\chatgpt-desktop.ps1
+    .\chatgpt-desktop.ps1 -Force
 #>
 [CmdletBinding()]
 param(
-    [string]$NoaRoot
+    [string]$NoaRoot,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,45 +32,140 @@ if (-not $NoaRoot) {
     }
 }
 
-Write-Host "Checking ChatGPT Desktop installation..." -ForegroundColor Cyan
+$OPT_DIR = Join-Path $NoaRoot "opt"
+$BIN_DIR = Join-Path $NoaRoot "bin"
+$INSTALL_DIR = Join-Path $OPT_DIR "chatgpt-desktop"
+$INSTALLER_PATH = Join-Path $OPT_DIR "ChatGPTSetup-latest.exe"
+$WRAPPER_PATH = Join-Path $BIN_DIR "chatgpt-desktop.cmd"
+$DOWNLOAD_URL = "https://persistent.oaistatic.com/sidekick/public/ChatGPT_Desktop_public_latest.exe"
 
-# Common ChatGPT Desktop installation paths
-$chatgptPaths = @(
-    "$env:LOCALAPPDATA\Programs\chatgpt\ChatGPT.exe"
-    "$env:LOCALAPPDATA\ChatGPT\ChatGPT.exe"
-    "C:\Program Files\ChatGPT\ChatGPT.exe"
-    "$env:USERPROFILE\AppData\Local\Programs\chatgpt\ChatGPT.exe"
-)
+Write-Host "NOA ChatGPT Desktop Installer" -ForegroundColor Cyan
+Write-Host "NOA_ROOT: $NoaRoot" -ForegroundColor Gray
+Write-Host ""
 
-$chatgptExe = $null
-foreach ($path in $chatgptPaths) {
-    if (Test-Path $path) {
-        $chatgptExe = $path
-        break
+# Create directories
+New-Item -ItemType Directory -Path $OPT_DIR -Force -ErrorAction SilentlyContinue | Out-Null
+New-Item -ItemType Directory -Path $BIN_DIR -Force -ErrorAction SilentlyContinue | Out-Null
+
+# Check if already installed
+$existingExe = Join-Path $INSTALL_DIR "ChatGPT.exe"
+if ((Test-Path $existingExe) -and -not $Force) {
+    try {
+        $version = (Get-Item $existingExe).VersionInfo.ProductVersion
+        Write-Host "  [OK] ChatGPT Desktop already installed: v$version" -ForegroundColor Green
+        Write-Host "  Location: $INSTALL_DIR" -ForegroundColor Gray
+        Write-Host "  Use -Force to reinstall" -ForegroundColor Gray
+        exit 0
+    } catch {
+        Write-Host "  [INFO] Existing installation found" -ForegroundColor Yellow
     }
 }
 
-if ($chatgptExe) {
-    Write-Host "  [OK] ChatGPT Desktop found: $chatgptExe" -ForegroundColor Green
+# Download installer
+if (-not (Test-Path $INSTALLER_PATH)) {
+    Write-Host "  [INFO] Downloading ChatGPT Desktop installer..." -ForegroundColor Yellow
+    Write-Host "  URL: $DOWNLOAD_URL" -ForegroundColor Gray
 
-    # Check if it's running
-    $process = Get-Process -Name "ChatGPT" -ErrorAction SilentlyContinue
-    if ($process) {
-        Write-Host "  [OK] ChatGPT Desktop is running" -ForegroundColor Green
-    } else {
-        Write-Host "  [INFO] ChatGPT Desktop is not currently running" -ForegroundColor Gray
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($DOWNLOAD_URL, $INSTALLER_PATH)
+        Write-Host "  [OK] Downloaded: $INSTALLER_PATH" -ForegroundColor Green
+    } catch {
+        Write-Host "  [ERROR] Download failed: $_" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "  Manual installation:" -ForegroundColor Yellow
+        Write-Host "    1. Download from: https://openai.com/chatgpt/desktop/" -ForegroundColor Gray
+        Write-Host "    2. Save to: $INSTALLER_PATH" -ForegroundColor Gray
+        Write-Host "    3. Run this script again" -ForegroundColor Gray
+        exit 1
     }
 } else {
-    Write-Host "  [SKIP] ChatGPT Desktop not found" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  To install ChatGPT Desktop:" -ForegroundColor Gray
-    Write-Host "    1. Visit https://openai.com/chatgpt/desktop/" -ForegroundColor Gray
-    Write-Host "    2. Download the Windows installer" -ForegroundColor Gray
-    Write-Host "    3. Run the installer" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  Note: ChatGPT Desktop requires a ChatGPT Plus subscription" -ForegroundColor Yellow
+    Write-Host "  [OK] Installer already downloaded" -ForegroundColor Green
+}
+
+# Install ChatGPT Desktop
+Write-Host "  [INFO] Installing ChatGPT Desktop to NOA opt directory..." -ForegroundColor Yellow
+Write-Host "  Target: $INSTALL_DIR" -ForegroundColor Gray
+
+try {
+    $installArgs = @(
+        "/S",                    # Silent install
+        "/D=$INSTALL_DIR"        # Installation directory
+    )
+
+    $process = Start-Process -FilePath $INSTALLER_PATH -ArgumentList $installArgs -Wait -PassThru -NoNewWindow
+
+    if ($process.ExitCode -eq 0) {
+        Write-Host "  [OK] ChatGPT Desktop installed successfully" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] Installer exited with code: $($process.ExitCode)" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "  [ERROR] Installation failed: $_" -ForegroundColor Red
+    exit 1
+}
+
+# Verify installation
+$chatgptExe = Get-ChildItem -Path $INSTALL_DIR -Filter "ChatGPT.exe" -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -First 1
+
+if (-not $chatgptExe) {
+    Write-Host "  [ERROR] Installation verification failed - ChatGPT.exe not found" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  [OK] Found: $($chatgptExe.FullName)" -ForegroundColor Green
+
+# Create wrapper script
+Write-Host "  [INFO] Creating wrapper script..." -ForegroundColor Yellow
+
+$wrapperContent = @"
+@echo off
+REM ChatGPT Desktop Wrapper - Generated by NOA bootstrap
+REM Launches ChatGPT Desktop from NOA opt directory
+
+"$($chatgptExe.FullName)" %*
+"@
+
+$wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
+Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
+
+# Update provider config if exists
+$providerConfig = Join-Path $NoaRoot "ai\providers\cloud\chatgpt\config.json"
+if (Test-Path $providerConfig) {
+    try {
+        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+
+        if (-not $config.PSObject.Properties['desktop']) {
+            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        }
+
+        $config.desktop = @{
+            binaryPath = @{
+                windows = "`${NOA_ROOT}/opt/chatgpt-desktop/$($chatgptExe.Name)"
+                unix = "`${NOA_ROOT}/opt/chatgpt-desktop/bin/chatgpt"
+            }
+            wrapper = @{
+                windows = "`${NOA_ROOT}/bin/chatgpt-desktop.cmd"
+                unix = "`${NOA_ROOT}/bin/chatgpt-desktop"
+            }
+        }
+
+        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
+        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+    } catch {
+        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
-Write-Host "ChatGPT Desktop check complete." -ForegroundColor Green
+Write-Host "ChatGPT Desktop installation complete!" -ForegroundColor Green
+Write-Host ""
+Write-Host "Location: $INSTALL_DIR" -ForegroundColor Gray
+Write-Host "Wrapper:  $WRAPPER_PATH" -ForegroundColor Gray
+Write-Host ""
+Write-Host "Usage:" -ForegroundColor Cyan
+Write-Host "  chatgpt-desktop        # Launch ChatGPT Desktop" -ForegroundColor Gray
+Write-Host ""
+Write-Host "Note: ChatGPT Desktop requires a ChatGPT Plus subscription" -ForegroundColor Yellow
 
