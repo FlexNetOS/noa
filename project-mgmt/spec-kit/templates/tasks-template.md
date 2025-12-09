@@ -34,7 +34,11 @@ Use these tags to link tasks to constitution principles:
 | §3.7 | Total Memory Sovereignty |
 | §3.8 | P2P Hive-Mind |
 | §3.12 | Test Everything, Trust Nothing |
+| §3.13 | Shared Provider Resource Unification |
 | §4.6 | Goals-Policy-Rules Flow |
+| §4.9 | Provider Orchestration & Execution Memory |
+| §4.10 | Resource Name Refactoring |
+| §4.11 | Kernel Independence |
 
 ## Path Conventions
 
@@ -269,6 +273,25 @@ With multiple developers:
 - [ ] TXXX [§3.7] Verify memory persistence and instant recall capability
 - [ ] TXXX [§3.12] Run full test suite and verify all validations pass
 - [ ] TXXX [§4.6] Verify goals → policy → rules → spec → plan → tasks traceability
+- [ ] TXXX [§3.13] Verify provider resources are unified in ai/shared/
+- [ ] TXXX [§4.9] Verify shared execution memory integration
+- [ ] TXXX [§4.10] Verify resource name refactoring completed (resource-mapping.json)
+- [ ] TXXX [§4.11] Verify kernel independence mode support
+
+---
+
+## Phase N+2: Provider Resource Validation
+
+**Purpose**: Validate AI provider integration and resource unification (§3.13, §4.9, §4.10)
+
+- [ ] TXXX [§3.13] Scan downloaded repos for provider-specific resources
+- [ ] TXXX [§3.13] Create unified resource mappings in ai/shared/resources/resource-mapping.json
+- [ ] TXXX [§4.10] Refactor provider-specific agents to ai/shared/agents/
+- [ ] TXXX [§4.10] Refactor provider-specific tools to ai/shared/tools/
+- [ ] TXXX [§4.10] Create alias mappings in ai/shared/resources/resource-aliases.json
+- [ ] TXXX [§4.9] Verify execution memory bus at ai/shared/resources/execution-memory.db
+- [ ] TXXX [§4.9] Test cross-provider context sharing
+- [ ] TXXX [§4.9] Verify provider state synchronization
 
 ---
 
