@@ -233,7 +233,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Via pip (in venv)
 
-- [ ] B044 [BOOT] Create `scripts/bootstrap/installers/pip-tools.ps1` (ruff, semgrep)
+- [X] B044 [BOOT] Create `scripts/bootstrap/installers/pip-tools.ps1` (ruff, semgrep)
 - [ ] B045 [BOOT] Create `scripts/bootstrap/installers/pip-tools.sh`
 
 #### Direct Binary Downloads (Security Tools → bin/)
@@ -285,7 +285,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Cursor CLI (Priority 2 - Hybrid/IDE/CLI)
 
-- [ ] B057c [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.ps1`
+- [X] B057c [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.ps1`
   - Download cursor CLI from cursor.com/docs/cli/headless
   - Install to opt/cursor-cli/
   - Create symlink: bin/cursor → opt/cursor-cli/cursor
@@ -306,7 +306,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### VS Code with Copilot (Priority 5 - IDE)
 
-- [ ] B057g [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.ps1`
+- [X] B057g [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.ps1`
   - Download VS Code portable to opt/dev-tools/vscode/
   - Create portable mode marker (data/ directory)
   - Install GitHub.copilot and GitHub.copilot-chat extensions
@@ -328,7 +328,7 @@ setup-noa.ps1 / setup-noa.sh
 
 #### Abacus CLI (Priority 7 - Cloud/CLI)
 
-- [ ] B057k [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.ps1`
+- [X] B057k [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.ps1`
   - Install @abacus-ai/cli via npm to opt/node/node_modules/
   - Create symlink: bin/abacus → opt/node/node_modules/.bin/abacus
   - Create provider config at ai/providers/cloud/abacus/config.json
