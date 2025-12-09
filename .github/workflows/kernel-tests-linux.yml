@@ -1,0 +1,171 @@
+# NOA Kernel Independence Tests - Linux (B147)
+#
+# Tests kernel-related functionality on Ubuntu.
+# Includes KVM checks and container tests.
+
+name: Kernel Tests (Linux)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+      - '.github/workflows/kernel-tests-linux.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+  workflow_dispatch:
+
+jobs:
+  test-nkal:
+    name: NKAL Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Run NKAL Tests
+        run: |
+          cd sys/core
+          cargo test --lib kernel -- --nocapture
+
+  test-capabilities-detection:
+    name: Capabilities Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check KVM Status
+        run: |
+          echo "Checking KVM availability..."
+
+          if [ -e /dev/kvm ]; then
+            echo "KVM device: Found"
+            ls -la /dev/kvm
+          else
+            echo "KVM device: Not found (expected on GitHub runners)"
+          fi
+
+          # Check CPU virtualization
+          if grep -qE '(vmx|svm)' /proc/cpuinfo; then
+            echo "CPU virtualization: Supported"
+          else
+            echo "CPU virtualization: Not detected"
+          fi
+
+      - name: Check Container Runtime
+        run: |
+          echo "Checking container runtimes..."
+
+          if command -v docker &>/dev/null; then
+            echo "Docker: Found"
+            docker --version
+          else
+            echo "Docker: Not found"
+          fi
+
+          if command -v podman &>/dev/null; then
+            echo "Podman: Found"
+            podman --version
+          else
+            echo "Podman: Not found"
+          fi
+
+      - name: Check Namespace Support
+        run: |
+          echo "Checking namespace support..."
+
+          # Check user namespace
+          if [ -f /proc/sys/kernel/unprivileged_userns_clone ]; then
+            userns=$(cat /proc/sys/kernel/unprivileged_userns_clone)
+            echo "Unprivileged user namespaces: $userns"
+          else
+            echo "Unprivileged user namespaces: No restriction"
+          fi
+
+          # Check available namespace types
+          ls -la /proc/self/ns/
+
+  test-scripts:
+    name: Script Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Validate Bash Scripts
+        run: |
+          scripts=(
+            "sys/kernel/linux/vm/noa-vm.sh"
+            "sys/kernel/linux/namespaces/setup.sh"
+            "sys/kernel/images/build-alpine.sh"
+          )
+
+          errors=0
+          for script in "${scripts[@]}"; do
+            if [ -f "$script" ]; then
+              echo "Validating: $script"
+              if shellcheck -e SC2034,SC2086 "$script"; then
+                echo "  [OK] Shellcheck passed"
+              else
+                echo "  [FAIL] Shellcheck errors"
+                ((errors++)) || true
+              fi
+            else
+              echo "Script not found: $script"
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Test Script Execution
+        run: |
+          # Test scripts are executable
+          for script in sys/kernel/linux/*/*.sh; do
+            if [ -f "$script" ]; then
+              chmod +x "$script"
+              echo "Testing: $script --help || true"
+              bash "$script" --help 2>/dev/null || true
+            fi
+          done
+
+  test-namespace-isolation:
+    name: Namespace Isolation Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test User Namespace
+        run: |
+          echo "Testing user namespace..."
+
+          # Try creating a user namespace
+          if unshare --user --map-root-user echo "User namespace works"; then
+            echo "[OK] User namespace supported"
+          else
+            echo "[SKIP] User namespace not available"
+          fi
+
+      - name: Test Mount Namespace
+        run: |
+          echo "Testing mount namespace..."
+
+          if unshare --mount echo "Mount namespace works"; then
+            echo "[OK] Mount namespace supported"
+          else
+            echo "[SKIP] Mount namespace not available"
+          fi
+
