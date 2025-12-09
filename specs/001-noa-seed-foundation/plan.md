@@ -210,10 +210,17 @@ pwsh -File scripts/setup/check-prereqs.ps1 -Json
 ## Executive Summary
 
 This plan implements the NOA Seed Foundation - a **100% autonomous agentic operating system** with:
-- **75 Functional Requirements** (FR-001 to FR-075)
+- **136 Functional Requirements** (FR-001 to FR-136, including 19 bootstrap + 42 from clarifications)
 - **12 Success Criteria** (SC-001 to SC-012)
 - **10 User Stories** (US1 to US10)
-- **747 Tasks** (T001 to T747)
+- **812 Tasks** (T001 to T812)
+
+### Recent Additions (Session 2025-12-08 /clarify)
+- **FR-095-099**: Rate Limiting & Throttling (per-provider limits, adaptive backoff)
+- **FR-100-109**: Authentication & Identity (device-bound keys, P2P trust chain)
+- **FR-110-119**: Accessibility & i18n (WCAG 2.1 AAA, full multi-language)
+- **FR-120-127**: UI States & Feedback (skeleton loaders, status indicators)
+- **FR-128-136**: Multi-Modal Interaction (voice STT/TTS, vision, camera - MVP for glasses)
 
 **Key Features**:
 - Always-on continuous loop (FR-051-055)
@@ -343,20 +350,25 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - Project initialization (workspaces, modules)
 - Build scripts, CI pipeline
 
-### Phase 2: Foundation (T022-T081)
+### Phase 2: Foundation (T022-T081, T776-T785)
 - Database schema (14 entities)
 - API foundation (axum)
 - CLI foundation (clap)
+- **Authentication & Identity** (FR-100-109): Device keypair generation, pairing flows, P2P TLS
 
 ### Phase 2.5: 3-Plane Control Fabric (T545-T651)
 - Coordinator/Sandbox/Deployed planes
 - Promotion policy engine
 - Self-healing loop
 
-### Phase 2.6: Shared Providers (T417-T477)
-- 8 provider integrations
-- Shared execution memory
-- Parallel task distribution
+### Phase 2.6: Shared Providers (T417-T477, T771-T775)
+- 8 provider integrations (llama.cpp, Claude Code, Codex, Cursor, VS Code Copilot, Git CLI, Abacus, Ollama)
+- Shared execution memory bus (FR-037)
+- Parallel task distribution (FR-041)
+- **Rate Limiting & Throttling** (FR-095-099, T771-T775): Per-provider limits, adaptive backoff, goal rate-limiting
+- **Cursor as Provider Orchestrator** (T446a-T446b): Coordinates ALL providers for parallel task execution
+  - Task-to-provider routing (reasoning → Claude, code → Codex, local → llama.cpp)
+  - Result aggregation via Shared Provider Execution Memory bus
 
 ### Phases 3-5: MVP User Stories (T082-T191)
 - US1: Initialize environment
@@ -365,7 +377,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ### Phases 6-9: P2 User Stories (Parallel)
 - US4: Digest pipeline
-- US5: Dynamic UI
+- US5: Dynamic UI + **Accessibility** (FR-110-119) + **UI States** (FR-120-127) + **Multi-Modal** (FR-128-136 - MVP for glasses)
 - US6: P2P federation
 - US7: Agent orchestration
 
@@ -379,8 +391,10 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ## Advanced Learning Techniques (FR-043 to FR-046)
 
+> **⚠️ POST-MVP**: These techniques are marked SHOULD (not MUST). Implement ONLY after MVP (US1-US3) is complete and stable. Tasks T657-T672 are deferred to Phase 10+.
+
 ### FR-043: ToolkenGPT (SHOULD)
-**Tasks**: T657-T660
+**Tasks**: T657-T660 *(post-MVP)*
 - Pre-trained tool tokens as small neural modules
 - Pluggable architecture for extending model capabilities
 - Token registry for tool discovery
@@ -430,21 +444,87 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ---
 
+## New Functional Requirements (from /clarify Session 2025-12-08)
+
+### FR-095 to FR-099: Rate Limiting & Throttling
+**Phase**: 2.6 (Shared Providers)
+**Tasks**: T771-T775
+
+- Per-provider rate limits with configurable token/request budgets
+- Exponential backoff on HTTP 429 (initial 1s, max 60s, factor 2x)
+- P2P throttling based on peer-reported capacity
+- Self-generated goal rate-limit (max 10 new goals/hour)
+- Rate limit state in Shared Provider Execution Memory
+
+### FR-100 to FR-109: Authentication & Identity
+**Phase**: 2 (Foundation)
+**Tasks**: T776-T785
+
+- Ed25519 keypair per device, encrypted with Argon2id-derived key
+- Device pairing: QR code, 6-digit PIN, Bluetooth/NFC, encrypted file
+- P2P mutual TLS authentication with device keys
+- Device revocation and key rotation
+- Optional browser password manager integration
+
+### FR-110 to FR-119: Accessibility & Internationalization
+**Phase**: 7 (US5 - Dynamic UI)
+**Tasks**: T786-T795
+
+- WCAG 2.1 Level AAA compliance
+- Full keyboard navigation with visible focus (7:1 contrast)
+- Screen reader compatibility with ARIA labels
+- High contrast mode and OS accessibility preferences
+- i18n with externalized strings (`config/i18n/{locale}.json`)
+- Bundled translations: English, Spanish, Chinese, Arabic, Hebrew
+- RTL layout support
+
+### FR-120 to FR-127: UI States & Feedback
+**Phase**: 7 (US5 - Dynamic UI)
+**Tasks**: T796-T803
+
+- Skeleton loaders for content areas
+- Persistent status bar for background operations
+- Toast notifications with retry actions
+- Cached/partial data display during sync
+- Meaningful empty states with suggested actions
+- Offline mode indicators
+- Progress indicators for long-running operations (>2s)
+
+### FR-128 to FR-136: Multi-Modal Interaction
+**Phase**: 7 (US5 - Dynamic UI) - Elevated to MVP for glasses testing
+**Tasks**: T804-T812
+
+- Speech-to-text via local Whisper (<500ms latency)
+- Text-to-speech via Piper/Coqui with voice selection
+- Camera input for real-time visual context
+- Screen capture for screenshot-based queries
+- Image file analysis (PNG, JPEG, WebP) via LLaVA/multimodal
+- Graceful degradation when hardware unavailable
+- Input method switching without restart
+- Privacy controls for camera/mic
+- Multi-modal session persistence
+
+---
+
 ## Task Summary
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | 907 |
-| **Phase 0: Bootstrap** | 160 (B001-B150 + B057a-B057j AI Providers) |
+| **Total Tasks** | **963** |
+| **Phase 0: Bootstrap** | 169 (B001-B150 + B057a-B058t AI/Shared) |
 | Phase 1-2 | 81 |
 | 3-Plane Architecture | 107 |
-| Shared Providers | 48 |
+| Shared Providers | 53 (48 + 5 rate limiting) |
 | Advanced Learning | 16 (T657-T672) |
+| Authentication & Identity | 10 (T776-T785) |
+| Accessibility & i18n | 10 (T786-T795) |
+| UI States & Feedback | 8 (T796-T803) |
+| Multi-Modal | 9 (T804-T812) |
 | MVP (US1-3) | 99 |
 | P2 Stories | 193 |
 | P3 Stories | 93 |
 | Integration & Polish | 100 |
-| **Parallelizable** | 611 (67%) |
+| **Parallelizable** | 658 (68%) |
 
 ### Bootstrap Task Categories (Phase 0)
 
@@ -518,7 +598,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 ---
 
 **Plan Updated**: 2025-12-08
-**Total FRs**: 94 (75 core + 19 bootstrap)
-**Total Tasks**: 897 (150 bootstrap + 747 core)
-**Estimated Duration**: 28-32 weeks (2-4 developers)
+**Total FRs**: 136 (75 core + 19 bootstrap + 42 clarifications)
+**Total Tasks**: 963 (169 bootstrap + 794 core)
+**Estimated Duration**: 30-34 weeks (2-4 developers)
 **Cross-Platform Parity**: 100% (all scripts mirrored)

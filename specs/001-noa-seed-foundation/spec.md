@@ -215,6 +215,63 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 - **FR-041**: System MUST implement parallel task distribution across all active providers
 - **FR-042**: System MUST synchronize provider state to enable coordinated multi-model workflows
 
+### Functional Requirements - Rate Limiting & Throttling
+
+- **FR-095**: System MUST implement per-provider rate limits with configurable token/request budgets stored in `config/rate-limits.json`
+- **FR-096**: System MUST use exponential backoff (initial 1s, max 60s, factor 2x) when receiving HTTP 429 responses from cloud providers
+- **FR-097**: System MUST throttle P2P requests based on peer-reported capacity and network conditions
+- **FR-098**: System MUST rate-limit self-generated goals to maximum 10 new goals per hour to prevent runaway task creation
+- **FR-099**: System MUST track rate limit state in Shared Provider Execution Memory for coordinated multi-provider operations
+
+### Functional Requirements - Authentication & Identity
+
+- **FR-100**: System MUST generate an Ed25519 keypair per device on initialization, stored encrypted in `noa_root/config/device-identity.enc`
+- **FR-101**: System MUST encrypt device keys with a user-provided master passphrase using Argon2id key derivation
+- **FR-102**: System MUST support device pairing via QR code (time-limited encrypted token, expires in 5 minutes)
+- **FR-103**: System MUST support device pairing via 6-digit PIN displayed on new device, entered on existing device
+- **FR-104**: System MUST support device pairing via Bluetooth/NFC proximity verification when hardware available
+- **FR-105**: System MUST support device pairing via encrypted trust bundle file transfer (USB/shared folder)
+- **FR-106**: System MUST maintain a device trust registry in `noa_root/config/trusted-devices.json` with device public keys and approval timestamps
+- **FR-107**: System MUST require all agents to sign actions with the device key for audit trail verification
+- **FR-108**: System MUST use mutual TLS with device keys for all P2P connections between user's devices
+- **FR-109**: System SHOULD support optional browser password manager integration for master passphrase (web UI convenience only)
+
+### Functional Requirements - Accessibility & Internationalization
+
+- **FR-110**: System MUST comply with WCAG 2.1 Level AAA for all UI components
+- **FR-111**: System MUST support full keyboard navigation with visible focus indicators (contrast ratio ≥7:1)
+- **FR-112**: System MUST provide screen reader compatibility with ARIA labels for all interactive elements
+- **FR-113**: System MUST support high contrast mode and respect OS accessibility preferences
+- **FR-114**: System MUST externalize all UI strings to `noa_root/config/i18n/{locale}.json` files
+- **FR-115**: System MUST bundle translations locally (no cloud translation service dependency)
+- **FR-116**: System MUST support RTL (right-to-left) layout for Arabic, Hebrew, and other RTL languages
+- **FR-117**: System MUST provide locale detection from OS settings with manual override option
+- **FR-118**: System MUST support dynamic locale switching without restart
+- **FR-119**: System SHOULD include English, Spanish, Chinese (Simplified), Arabic, and Hebrew translations at launch
+
+### Functional Requirements - UI States & Feedback
+
+- **FR-120**: System MUST display skeleton loaders (animated placeholders) for content areas during data fetch operations
+- **FR-121**: System MUST provide a persistent status bar showing background operation status (P2P sync, model loading, AI processing)
+- **FR-122**: System MUST use toast notifications for transient errors with "retry" action when applicable
+- **FR-123**: System MUST always display cached/partial data when available, with visual indicator that sync is in progress
+- **FR-124**: System MUST show meaningful empty states with suggested actions (e.g., "No memories yet. Start a conversation to create your first memory.")
+- **FR-125**: System MUST indicate offline status clearly in the status bar with automatic reconnection attempts
+- **FR-126**: System MUST queue failed operations for retry when connection is restored
+- **FR-127**: System MUST provide progress indicators for long-running operations (>2s) showing estimated time remaining when calculable
+
+### Functional Requirements - Multi-Modal Interaction
+
+- **FR-128**: System MUST support speech-to-text via local Whisper model with <500ms latency on standard hardware
+- **FR-129**: System MUST support text-to-speech via local TTS (Piper/Coqui) with voice selection and speed control
+- **FR-130**: System MUST support camera input for real-time visual context when hardware available
+- **FR-131**: System MUST support screen capture for screenshot-based queries and context sharing
+- **FR-132**: System MUST support image file analysis (PNG, JPEG, WebP) via local multimodal models (LLaVA or similar)
+- **FR-133**: System MUST gracefully degrade when multi-modal hardware is unavailable (fall back to text)
+- **FR-134**: System MUST store multi-modal models in `noa_root/ai/models/multimodal/` with lazy loading
+- **FR-135**: System MUST support voice activation wake word detection for hands-free operation
+- **FR-136**: System SHOULD support XR/AR glasses integration via camera stream and spatial audio output
+
 ### Functional Requirements - Advanced Learning Techniques
 
 - **FR-043**: System SHOULD implement ToolkenGPT for pre-trained tool tokens that plug into larger models
@@ -229,7 +286,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 - **FR-047**: System MUST enumerate all available CUDA GPUs and distribute model layers across devices when multiple GPUs are present
 - **FR-048**: System MUST support tensor parallelism across multiple GPUs for models exceeding single GPU memory
-- **FR-049**: System SHOULD leverage NVLink when available for high-bandwidth inter-GPU communication
+- **FR-049**: System SHOULD leverage NVLink when available for high-bandwidth inter-GPU communication *(Development Hardware tier only - 2x RTX 5090+ with NVLink bridge)*
 - **FR-050**: System MUST implement CUDA 13.1+ tiles for optimized tensor operations on supported hardware
 
 ### Functional Requirements - Autonomous Continuous Operation
@@ -316,7 +373,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 - **FR-021**: System MUST provide a dynamic, context-aware UI that reconfigures based on current task
 - **FR-022**: System MUST display a live, scrollable activity log of agent actions and decisions
-- **FR-023**: System MUST support multi-modal interaction (text, voice, vision) where hardware permits
+- **FR-023**: System SHOULD support multi-modal interaction (text, voice, vision) where hardware permits *(P3+ scope - text interaction is MVP; voice/vision deferred to US5 Dynamic UI phase)*
 - **FR-024**: System MUST function with full UI capability offline
 
 ### Functional Requirements - Governance & Safety
@@ -400,9 +457,9 @@ When multiple providers are available, NOA uses this priority order:
 | 2 | **Cursor** (IDE/CLI/Cloud) | Hybrid | <1s | Code-aware tasks when IDE context available |
 | 3 | **Claude Code** (CLI/Cloud/IDE) | Cloud | <2s | Complex reasoning, long context |
 | 4 | **Codex** (CLI/Cloud/IDE) | Cloud | <2s | Code generation, completion |
-| 5 | **VS Code Copilot** (IDE) | IDE | <1s | Inline completions when VS Code active |
-| 6 | **Git CLI** | Local | <100ms | Version control operations |
-| 7 | **Abacus** (CLI/Cloud) | Cloud | <3s | Specialized numerical/analytical tasks |
+| 4 | **VS Code Copilot** (IDE) | IDE | <1s | Inline completions when VS Code active |
+| 5 | **Git CLI** | Local | <100ms | Version control operations |
+| 6 | **Abacus** (CLI/Cloud) | Cloud | <3s | Specialized numerical/analytical tasks |
 
 **Provider Orchestration Mode**:
 - **Cursor as Orchestrator**: When operating in IDE context, Cursor agent MUST be capable of coordinating ALL available providers for parallel task execution
@@ -814,12 +871,13 @@ The script will output:
 
 ## Out of Scope (for this foundation release)
 
-- Full mobile companion apps (stub implementation only: P2P connectivity to desktop NOA, no native mobile UI/features)
-- XR/AR/VR interfaces (architecture support but no implementation)
-- Enterprise multi-tenant deployment
-- Cloud-native distributed deployment
-- Full CRM strangler implementation (shadow mode only)
-- Complete biblical text ML transformation (reference implementation only)
+- Full mobile companion apps *(P3+ / Future)* - stub implementation only: P2P connectivity to desktop NOA, no native mobile UI/features
+- XR/AR/VR interfaces *(Future)* - architecture support but no implementation
+- Enterprise multi-tenant deployment *(Future)*
+- Cloud-native distributed deployment *(Future)*
+- Full CRM strangler implementation *(P2+ / Shadow mode only)*
+- Complete biblical text ML transformation *(P2+ / Reference implementation only)* - lexical analysis → embedding pipeline placeholder tasks in Phase 2.5
+- Multi-modal voice/vision interaction *(P3+ / US5)* - text interaction is MVP scope
 
 ---
 
@@ -834,3 +892,8 @@ The script will output:
 - Q: What self-healing mechanism should NOA use for autonomous operation? → A: Full self-healing loop. Proactive detection → diagnosis → auto-fix → validation → escalation-to-user ONLY if all auto-fix attempts fail. Maintains always-on operation.
 - Q: What is the role of each plane in the 3-plane system? → A: **Coordinator** is the constant plane for long-term memory, backups, archives, analytics, and promotion decisions. **Sandbox** is for testing/staging new capabilities. **Deployed** is production serving live traffic with canary deployments and auto-rollback on SLO violation.
 - Q: How should providers coordinate for complex tasks? → A: **Cursor as orchestrator**. When operating in IDE context, Cursor agent MUST coordinate ALL available providers for parallel task execution. Cursor distributes sub-tasks to optimal providers (reasoning → Claude, code → Codex, local → llama.cpp), executes in parallel, and aggregates results via Shared Provider Execution Memory bus.
+- Q: How should rate limiting work for AI providers and P2P? → A: **Per-provider rate limits with adaptive backoff**. Each cloud provider has configurable token/request limits; system uses exponential backoff on 429 responses. P2P throttles based on peer capacity. Self-generated goals are rate-limited to prevent runaway task creation.
+- Q: How do users and agents authenticate to NOA? → A: **Device-bound keys with P2P trust chain**. Each device generates Ed25519 keypair on init; user sets local master passphrase (optionally saved in browser password managers). New device pairing via: (1) QR code scan, (2) 6-digit PIN approval, (3) Bluetooth/NFC proximity, or (4) encrypted file transfer. Agents sign actions with device key; P2P uses mutual TLS with user's device keys.
+- Q: What are the accessibility and localization requirements? → A: **WCAG 2.1 AAA with full i18n from day one**. Maximum accessibility compliance; multi-language support with RTL (Arabic, Hebrew); all UI strings externalized; local-first translations bundled (no cloud dependency).
+- Q: How should the UI handle loading, empty, and error states? → A: **Skeleton + status indicators**. Use skeleton loaders for content areas; persistent status bar for background operations (sync, AI processing); toast notifications for errors; always display cached/partial data when available during sync.
+- Q: What is the scope of multi-modal interaction (FR-023)? → A: **Full multi-modal in MVP** for glasses testing. Voice: STT (Whisper) + TTS (Piper/Coqui) bidirectional. Vision: camera input, screen capture, image file analysis via local multimodal models. All capabilities in foundation release to enable XR/glasses device testing.
