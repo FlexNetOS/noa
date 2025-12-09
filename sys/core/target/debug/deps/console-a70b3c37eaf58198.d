@@ -1,0 +1,11 @@
+N:\noa\sys\core\target\debug\deps\console-a70b3c37eaf58198.d: N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\lib.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\common_term.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\kb.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\term.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\utils.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\windows_term\mod.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\ansi.rs
+
+N:\noa\sys\core\target\debug\deps\libconsole-a70b3c37eaf58198.rmeta: N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\lib.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\common_term.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\kb.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\term.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\utils.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\windows_term\mod.rs N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\ansi.rs
+
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\lib.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\common_term.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\kb.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\term.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\utils.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\windows_term\mod.rs:
+N:\noa\opt\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\console-0.15.11\src\ansi.rs:
