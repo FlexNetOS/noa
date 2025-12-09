@@ -72,6 +72,8 @@ All scripts in `scripts/` follow the naming convention:
 | npm packages | `noa_root/opt/node/node_modules/` | Local npm install |
 | pip packages | `noa_root/opt/venv/` | Local venv install |
 | Go modules | `noa_root/opt/go/workspace/` | go install to GOBIN |
+| Desktop apps | `noa_root/opt/apps/{app}/` | Portable/redirected install |
+| Desktop app data | `noa_root/data/apps/{app}/` | Redirected from system paths |
 
 ---
 
@@ -160,6 +162,41 @@ UPDATE_EXISTING=1 ./scripts/setup/install-all-tools.sh ai-providers
 - VS Code Copilot: `noa_root/ai/providers/ide/vscode-copilot/config.json`
 - Git CLI: `noa_root/ai/providers/local/git-cli/config.json`
 - Abacus CLI: `noa_root/ai/providers/cloud/abacus/config.json`
+
+### Dev Tools / IDEs (B059-B067b, gitignored)
+
+| Tool | Type | Install Script | Location | Notes |
+|------|------|----------------|----------|-------|
+| **Cursor IDE** | IDE | `scripts/bootstrap/installers/dev-tools/cursor.ps1/.sh` | System install | Kernel-required (FR-174), primary IDE |
+| **VS Code IDE** | IDE | `scripts/bootstrap/installers/dev-tools/vscode.ps1/.sh` | System install | Kernel-required (FR-174), secondary IDE |
+| **Docker Desktop** | Container | `scripts/bootstrap/installers/dev-tools/docker.ps1/.sh` | System install | Kernel-required (FR-174), virtualization |
+| **ChatGPT Desktop** | AI App | `scripts/bootstrap/installers/dev-tools/chatgpt-desktop.ps1` | `noa_root/opt/apps/chatgpt/` | NDCL contained (FR-168) |
+| **Claude Desktop** | AI App | `scripts/bootstrap/installers/dev-tools/claude-desktop.ps1` | `noa_root/opt/apps/claude/` | NDCL contained (FR-168) |
+| **GitHub Desktop** | Dev Tool | `scripts/bootstrap/installers/dev-tools/github-desktop.ps1` | `noa_root/opt/apps/github-desktop/` | NDCL contained (FR-168) |
+| **DBeaver** | Database | `scripts/bootstrap/installers/dev-tools/dbeaver.ps1` | `noa_root/opt/dev-tools/dbeaver/` | Portable |
+| **Postman** | API Testing | `scripts/bootstrap/installers/dev-tools/postman.ps1` | `noa_root/opt/dev-tools/postman/` | Portable |
+
+**Dev Tools Installation Commands**:
+
+```powershell
+# Install ALL dev tools (Windows)
+.\scripts\bootstrap\bootstrap.ps1 -InstallDevTools
+
+# Or install individually
+.\scripts\bootstrap\installers\dev-tools\cursor.ps1      # Cursor IDE
+.\scripts\bootstrap\installers\dev-tools\vscode.ps1      # VS Code IDE
+.\scripts\bootstrap\installers\dev-tools\docker.ps1      # Docker Desktop
+```
+
+```bash
+# Install ALL dev tools (Unix)
+./scripts/bootstrap/bootstrap.sh --install-dev-tools
+
+# Or individually
+./scripts/bootstrap/installers/dev-tools/cursor.sh
+./scripts/bootstrap/installers/dev-tools/vscode.sh
+./scripts/bootstrap/installers/dev-tools/docker.sh
+```
 
 **Shared Resources Path**: `noa_root/ai/shared/`
 
@@ -333,13 +370,14 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - **B024-B037**: Portable toolchains (Rust, Go, Node, Python, protoc to `noa_root/opt/`)
 - **B038-B055**: Quality & security tools
 - **B057a-B057j**: AI Provider CLIs (Claude Code, Cursor, Codex, Abacus - FR-039)
-- **B058-B067**: Dev tools (Cursor IDE, VS Code, Docker, AI apps - gitignored)
+- **B058-B067**: Dev tools (**Cursor IDE**, **VS Code IDE**, Docker, AI apps - gitignored)
 - **B068-B077**: Cache & log configuration, environment generation
 - **B078-B090**: Main orchestrator & verification
 - **B091-B100**: Documentation & constitutional verification
 - **B101-B120**: Cross-platform script parity (all scripts mirrored)
 - **B121-B145**: Kernel independence layer (NKAL, VM images, mode switching)
 - **B146-B150**: Platform testing matrix
+- **B153-B160**: Kernel selection policy (FR-159-163) - precedence rules, tool isolation, upgrades
 
 **Bootstrap Entry Points:**
 - Windows: `.\scripts\bootstrap\bootstrap.ps1`
@@ -379,7 +417,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - US4: Digest pipeline
 - US5: Dynamic UI + **Accessibility** (FR-110-119) + **UI States** (FR-120-127) + **Multi-Modal** (FR-128-136 - MVP for glasses)
 - US6: P2P federation
-- US7: Agent orchestration
+- US7: Agent orchestration + **Agent Hierarchy** (Executive Agents FR-142-144, Board Agents FR-184-190)
 
 ### Phases 10-12: Advanced
 - US8: Self-improvement
@@ -606,24 +644,122 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 - **Platform Coverage**: ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware (x64, ARM, GPU)
 - **Independence Guarantee**: NOA achieves 100% independent functionality by bundling portable dependencies
 
+### FR-167 to FR-175: Desktop Application Hosting (NDCL) (from /clarify 2025-12-09)
+**Phase**: 19 (Desktop App Hosting)
+**Tasks**: T859-T877
+
+**FR-167: NOA Desktop Containment Layer (NDCL)**
+- NOA MUST provide a Desktop Containment Layer for hosting Electron-based apps
+- NDCL provides: environment redirection, network isolation, process sandboxing, OAuth proxy
+- Directory structure: `sys/desktop/ndcl/`, `sys/desktop/proxy/`, `sys/desktop/auth/`
+
+**FR-168: Hosted Desktop Applications**
+- NOA MUST host: ChatGPT Desktop, Claude Desktop, GitHub Desktop
+- Apps installed to `noa_root/opt/apps/{app}/`
+- App data redirected to `noa_root/data/apps/{app}/`
+- Launch via NOA wrappers: `noa_root/bin/{app}.cmd` (Windows) / `noa_root/bin/{app}` (Unix)
+
+**FR-169: Environment Redirection**
+- Windows: Override `APPDATA`, `LOCALAPPDATA`, `USERPROFILE` to `noa_root` paths
+- Unix: Override `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `HOME` to `noa_root` paths
+- Bind mounts (container mode) for data directory isolation
+
+**FR-170: Network Isolation**
+- Desktop app traffic MAY route through NOA proxy service
+- Proxy provides: traffic inspection, rate limiting, logging, P2P routing
+- Configuration: per-app allowlist/blocklist in `config/desktop-apps.json`
+
+**FR-171: OAuth Proxy Service**
+- NDCL MUST intercept OAuth redirects from hosted apps
+- Tokens stored in NOA credential vault (`noa_root/data/secrets/`)
+- Automatic token refresh before expiry
+- Per-app token isolation
+
+**FR-172: Display Forwarding (VM/Container Mode)**
+- Linux: X11/Wayland socket forwarding, GPU passthrough via NVIDIA Container Toolkit
+- Windows: RDP/VNC forwarding, GPU-PV for Hyper-V
+- macOS: VNC forwarding for VM mode
+
+**FR-173: Installation Scripts**
+- Portable installers for each hosted app
+- Extract to `noa_root/opt/apps/{app}/`
+- Register in `config/desktop-apps.json`
+- Create launch wrappers in `noa_root/bin/`
+
+**FR-174: Kernel-Required Exceptions (IDE & Virtualization)**
+- **Cursor IDE**: Approved exception (kernel-level integration for IDE hosting, primary NOA development environment)
+- **VS Code IDE**: Approved exception (kernel-level integration for IDE hosting, secondary/alternative development environment)
+- **Docker Desktop**: Approved exception (kernel-level virtualization required)
+- These apps may remain system-installed but data CAN be redirected to `noa_root`
+- Installation scripts: `scripts/bootstrap/installers/dev-tools/cursor.ps1`, `vscode.ps1` (Windows) / `.sh` (Unix)
+
+**FR-175: Desktop App Data Isolation Verification**
+- All app data MUST stay in `noa_root/data/apps/`
+- No data leakage to system paths (verified by test T877)
+- Network isolation verified (proxy enforcement)
+
+### FR-176 to FR-180: Module Abstraction (from /clarify 2025-12-09)
+**Phase**: 20 (Module Registry)
+**Tasks**: T882-T893
+
+**FR-176: Unified Module Abstraction**
+- ALL artifacts (binaries, packages, libraries, tools, services, agents, microkernels) MUST be content-addressable, immutable, versioned entities
+- Module types: `binary`, `package`, `library`, `tool`, `service`, `agent`, `microkernel`
+
+**FR-177: Module Registry**
+- Registry database at `noa_root/data/modules/registry.db`
+- Schema: module_id (SHA-256), name, version, type, dependencies[], capabilities[], metadata{}
+- Indexes: by name, by type, by capability
+
+**FR-178: Content-Addressable Storage (CAS)**
+- Module content stored at `noa_root/data/modules/cas/{hash[0:2]}/{hash[2:4]}/{hash}`
+- SHA-256 content hashing
+- Deduplication: identical content stored once
+
+**FR-179: Module Lifecycle**
+- Register → Verify (checksum) → Load → Execute → Unload → Archive
+- Hot-reload support for service and agent modules
+- Graceful shutdown for modules with state
+
+**FR-180: Dependency Resolution**
+- Semantic versioning (semver) for all modules
+- Conflict detection before loading
+- Optional dependency support
+
+### FR-181 to FR-182: IDE Data Containment (from /clarify 2025-12-09)
+**Phase**: 19 (Desktop App Hosting) - Extension
+**Tasks**: T878-T881
+
+**FR-181: Cursor IDE Data Containment**
+- Redirect all Cursor data to `noa_root/data/apps/cursor/`
+- Environment overrides: `CURSOR_EXTENSIONS`, `CURSOR_USER_DATA_DIR`
+- Launcher wrapper in `bin/cursor.cmd` / `bin/cursor` (Unix)
+
+**FR-182: VS Code Data Containment**
+- Redirect all VS Code data to `noa_root/data/apps/vscode/`
+- Environment overrides: `VSCODE_EXTENSIONS`, `VSCODE_USER_DATA_DIR`
+- Launcher wrapper in `bin/code.cmd` / `bin/code` (Unix)
+
 ---
 
-## Kernel Independence & Self-Containment Tasks (T827-T845)
+## Kernel Independence & Self-Containment Tasks
 
-### Phase 0: Bootstrap Integration
+### Phase 0: Bootstrap Integration (B153-B160) - MOVED FROM T827-T834
+
+> **Note**: These tasks are now Phase 0 Bootstrap tasks (B153-B160) since they only depend on B tasks.
 
 | Task | Description | Dependencies |
 |------|-------------|--------------|
-| **T827** | Add `config/kernel-selection-policy.json` schema with precedence rules | B121 |
-| **T828** | Implement kernel selection logic in `noa-kernel-params.ps1` based on FR-160 | T827 |
-| **T829** | Implement kernel selection logic in `noa-kernel-params` (bash) | T828 |
-| **T830** | Add `--allow-global` flag to all tool detection scripts | B078 |
-| **T831** | Create `config/bootstrap-tools.json` with version pinning schema | B014 |
-| **T832** | Implement `-UpdateExisting` flag in `install-all-tools.ps1` | T831 |
-| **T833** | Implement tool archival to `noa_root/opt/archive/` before upgrade | T832 |
-| **T834** | Add upgrade rollback via `install-all-tools.ps1 -Rollback -Tool <name>` | T833 |
+| **B153** | Add `config/kernel-selection-policy.json` schema with precedence rules | B121 |
+| **B154** | Implement kernel selection logic in `noa-kernel-params.ps1` based on FR-160 | B153 |
+| **B155** | Implement kernel selection logic in `noa-kernel-params` (bash) | B154 |
+| **B156** | Add `--allow-global` flag to all tool detection scripts | B078 |
+| **B157** | Create `config/bootstrap-tools.json` with version pinning schema | B014 |
+| **B158** | Implement `-UpdateExisting` flag in `install-all-tools.ps1` | B157 |
+| **B159** | Implement tool archival to `noa_root/opt/archive/` before upgrade | B158 |
+| **B160** | Add upgrade rollback via `install-all-tools.ps1 -Rollback -Tool <name>` | B159 |
 
-### Phase 2: Foundation - NKAL & State Management
+### Phase 18: Foundation - NKAL & State Management (T835-T842)
 
 | Task | Description | Dependencies |
 |------|-------------|--------------|
@@ -640,9 +776,27 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 | Task | Description | Dependencies |
 |------|-------------|--------------|
-| **T843** | Document kernel selection precedence in `docs/architecture/kernel-independence.md` | T828 |
-| **T844** | Document external vs internal dependency boundary in `docs/architecture/self-containment.md` | T830 |
+| **T843** | Document kernel selection precedence in `docs/architecture/kernel-independence.md` | B154 |
+| **T844** | Document external vs internal dependency boundary in `docs/architecture/self-containment.md` | B156 |
 | **T845** | Add kernel mode and tool version to `noa status` output | T842 |
+
+### Checklist Gap Resolution (T846-T858)
+
+| Task | Description | Resolves |
+|------|-------------|----------|
+| **T846** | Document kernel initialization startup sequence in `docs/architecture/kernel-startup.md` | CHK005 |
+| **T847** | Add "NOA kernel" vs "host kernel" terminology to spec.md Glossary | CHK006 |
+| **T848** | Document performance trade-offs between kernel modes | CHK007 |
+| **T849** | Verify kernel-independence.md alignment with §3.1 | CHK010 |
+| **T850** | Verify FR-091 to FR-094 alignment with kernel-independence.md | CHK011 |
+| **T851** | Ensure kernel mode naming consistency across documentation | CHK012 |
+| **T852** | Document all required tools with internal installation paths | CHK013 |
+| **T853** | Document permitted host OS interactions explicitly | CHK020 |
+| **T854** | Define measurable criteria for "self-contained" | CHK021 |
+| **T855** | Verify spec.md and CONSTITUTION.md consistency | CHK022 |
+| **T856** | Document NKAL interface contracts | CHK031 |
+| **T857** | Define acceptable performance overhead per kernel mode | CHK032 |
+| **T858** | Document host kernel features that CAN be leveraged | CHK033 |
 
 ---
 
@@ -650,13 +804,13 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | **1034** |
-| **Phase 0: Bootstrap (B tasks)** | 187 |
-| **Phase 1+ Core (T tasks)** | 837 |
+| **Total Tasks** | **1070** |
+| **Phase 0: Bootstrap (B tasks)** | 195 |
+| **Phase 1+ Core (T tasks)** | 865 |
 | **Spec-Kit Integration (SK tasks)** | 10 |
 | Completed [X] | 172 |
-| Pending [ ] | 862 |
-| **Parallelizable** | ~680 (66%) |
+| Pending [ ] | 898 |
+| **Parallelizable** | ~703 (66%) |
 
 ### Task Breakdown by Phase
 
@@ -672,15 +826,17 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | Phase 6: US4 (Digest) | 55 | T153-T191, T509-T541 |
 | Phase 7: US5 (Dynamic UI) | 85 | T192-T229, T760-T764, T786-T812 |
 | Phase 8: US6 (P2P) | 42 | T230-T271, T652-T656 |
-| Phase 9: US7 (Orchestration) | 65 | T272-T336 |
+| Phase 9: US7 (Orchestration) | 72 | T258-T306j (includes Executive + Board Agents) |
 | Phase 10: US8 (Self-Improvement) | 32 | T337-T368 |
 | Phase 11: US9-10 (Cross-Platform) | 48 | T369-T416 |
 | Phase 15: Governance | 16 | T690-T705 |
 | Phase 16: Verification | 25 | T706-T730 |
 | Phase 17: Polish | 15 | T731-T745 |
-| **Kernel Independence** | **19** | **T827-T845** |
+| **Phase 18: Kernel Independence** | **24** | **T835-T858** (NKAL + Docs + Checklist; B153-B160 moved to Phase 0) |
+| **Phase 19: Desktop App Hosting** | **23** | **T859-T881** (NDCL + IDE Containment) |
+| **Phase 20: Module Abstraction** | **12** | **T882-T893** (Registry + CAS + Lifecycle + Dependencies) |
 
-### Bootstrap Task Categories (Phase 0) - 186 Tasks
+### Bootstrap Task Categories (Phase 0) - 195 Tasks
 
 | Subcategory | Tasks | Count | Description |
 |-------------|-------|-------|-------------|
@@ -691,7 +847,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | Quality Tools | B038-B056 | 19 | Linters, formatters, security scanners, CLI utils |
 | **AI Provider CLIs** | **B057a-B057n** | **14** | **Claude Code, Cursor, Codex, VS Code Copilot, Git CLI, Abacus CLIs (FR-039)** |
 | **Shared Resources** | **B058a-B058t** | **20** | **Shared execution memory, provider state sync (FR-037-042)** |
-| Dev Tools | B059-B067b | 12 | IDEs, Docker, AI apps (gitignored) |
+| Dev Tools | B059-B067b | 12 | **Cursor IDE, VS Code IDE**, Docker, AI apps (gitignored) |
 | Configuration | B068-B077 | 10 | Cache, logs, environment files |
 | Orchestrator | B078-B090 | 13 | Main bootstrap script, verification |
 | Documentation | B091-B094 | 4 | README, guides, tool docs |
@@ -699,6 +855,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | Cross-Platform | B101-B120 | 20 | Script parity (PS1 ↔ Bash mirroring) |
 | Kernel Independence | B121-B145 | 25 | NKAL, VM images, mode switching |
 | Testing Matrix | B146-B150 | 5 | Platform-specific CI tests |
+| **Kernel Selection Policy** | **B153-B160** | **8** | **Precedence rules, tool isolation, upgrades (FR-159-163)** |
 
 ---
 
@@ -889,10 +1046,13 @@ The spec-kit integration uses these existing shared resource paths:
 ---
 
 **Plan Updated**: 2025-12-09
-**Total FRs**: 166 (FR-001 to FR-166)
-**Total Tasks**: 1034 (187 Bootstrap + 837 Core + 10 Spec-Kit)
-**Completed**: 172 tasks (16.6%)
-**Pending**: 862 tasks
-**Estimated Duration**: 32-36 weeks (2-4 developers)
+**Total FRs**: 190 (FR-001 to FR-190)
+**Total Tasks**: 1070 (195 Bootstrap + 865 Core + 10 Spec-Kit)
+**Completed**: 172 tasks (16.1%)
+**Pending**: 898 tasks
+**Estimated Duration**: 34-38 weeks (2-4 developers)
 **Cross-Platform Parity**: 100% (all scripts mirrored)
-**Kernel Independence**: FR-159 to FR-166 (8 new requirements)
+**Kernel Independence**: FR-159 to FR-166 (8 requirements)
+**Module Abstraction**: FR-176 to FR-180 (5 requirements - AER spec integration)
+**IDE Data Containment**: FR-181 to FR-182 (2 requirements)
+**Agent Hierarchy**: FR-142 to FR-144, FR-183 (Executive), FR-184 to FR-190 (Board)

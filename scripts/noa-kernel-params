@@ -1,47 +1,372 @@
 #!/bin/bash
+#
 # NOA Kernel Parameter Management
 # Sets kernel parameters for P2P and networking
+# Implements FR-159, FR-160: Kernel selection policy with precedence rules
+#
+# Usage:
+#   noa-kernel-params set <param> <value>
+#   noa-kernel-params get <param>
+#   noa-kernel-params list
+#   noa-kernel-params list-modes
+#   noa-kernel-params check-availability
+#   noa-kernel-params select-mode <mode|auto|auto-isolated>
 
-NOA_ROOT="${HOME}"
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NOA_ROOT="${NOA_ROOT:-$(dirname "$SCRIPT_DIR")}"
 NOA_KERNEL="$NOA_ROOT/sys/kernel"
-PARAMS_FILE="$NOA_KERNEL/params/current"
+PARAMS_DIR="$NOA_KERNEL/params"
+PARAMS_FILE="$PARAMS_DIR/current.json"
+POLICY_FILE="$NOA_ROOT/config/kernel-selection-policy.json"
 
-case "$1" in
-  set)
-    param=$2
-    value=$3
-    if [ -z "$param" ] || [ -z "$value" ]; then
-      echo "Usage: noa-kernel-params set <param> <value>"
-      exit 1
-    fi
+# Ensure directories exist
+mkdir -p "$PARAMS_DIR"
 
-    # Set kernel parameter (requires appropriate permissions)
-    if sysctl -w "$param=$value" >/dev/null 2>&1; then
-      echo "Set $param = $value"
-      echo "$param=$value" >> "$PARAMS_FILE"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+GRAY='\033[0;90m'
+NC='\033[0m' # No Color
+
+# Load current parameters
+get_params() {
+    if [[ -f "$PARAMS_FILE" ]]; then
+        cat "$PARAMS_FILE"
     else
-      echo "Failed to set parameter (may require root)"
+        echo "{}"
     fi
-    ;;
-  get)
-    param=$2
-    if [ -z "$param" ]; then
-      echo "Usage: noa-kernel-params get <param>"
-      exit 1
+}
+
+# Save parameters
+save_params() {
+    echo "$1" > "$PARAMS_FILE"
+}
+
+# Get a specific parameter
+get_param() {
+    local param="$1"
+    if [[ -f "$PARAMS_FILE" ]]; then
+        jq -r ".$param // empty" "$PARAMS_FILE" 2>/dev/null || echo ""
+    fi
+}
+
+# Set a specific parameter
+set_param() {
+    local param="$1"
+    local value="$2"
+    local params
+    params=$(get_params)
+    params=$(echo "$params" | jq --arg p "$param" --arg v "$value" '. + {($p): $v}')
+    save_params "$params"
+}
+
+# Check if a command exists
+command_exists() {
+    command -v "$1" &>/dev/null
+}
+
+# Check availability of kernel modes (FR-160)
+check_mode_availability() {
+    local mode="$1"
+
+    case "$mode" in
+        native)
+            echo "available:Always available"
+            ;;
+        vm)
+            # Check KVM availability on Linux
+            if [[ -c /dev/kvm ]]; then
+                echo "available:KVM enabled"
+            elif command_exists kvm-ok && kvm-ok &>/dev/null; then
+                echo "available:KVM available"
+            else
+                echo "unavailable:KVM not available"
+            fi
+            ;;
+        container)
+            # Check Docker or Podman
+            if command_exists docker && docker info &>/dev/null; then
+                echo "available:Docker running"
+            elif command_exists podman && podman info &>/dev/null; then
+                echo "available:Podman available"
+            else
+                echo "unavailable:Docker/Podman not available"
+            fi
+            ;;
+        sandbox)
+            # Check bubblewrap
+            if command_exists bwrap; then
+                echo "available:bubblewrap installed"
+            elif command_exists firejail; then
+                echo "available:firejail available"
+            else
+                echo "unavailable:No sandbox runtime found"
+            fi
+            ;;
+        *)
+            echo "unavailable:Unknown mode"
+            ;;
+    esac
+}
+
+# Get all available modes
+get_available_modes() {
+    local modes=("native" "vm" "container" "sandbox")
+    for mode in "${modes[@]}"; do
+        local result
+        result=$(check_mode_availability "$mode")
+        local status="${result%%:*}"
+        local reason="${result#*:}"
+        echo "$mode:$status:$reason"
+    done
+}
+
+# Select kernel mode based on policy (FR-159, FR-160)
+select_kernel_mode() {
+    local requested_mode="${1:-}"
+    local prefer_isolated="${2:-false}"
+
+    # If specific mode requested, validate it
+    if [[ -n "$requested_mode" && "$requested_mode" != "auto" && "$requested_mode" != "auto-isolated" ]]; then
+        local result
+        result=$(check_mode_availability "$requested_mode")
+        local status="${result%%:*}"
+        if [[ "$status" == "available" ]]; then
+            echo "$requested_mode:User requested:true"
+            return 0
+        else
+            echo -e "${YELLOW}Requested mode '$requested_mode' not available: ${result#*:}${NC}" >&2
+        fi
     fi
 
-    sysctl "$param" 2>/dev/null || echo "Parameter not found"
-    ;;
-  list)
-    echo "NOA kernel parameters:"
-    if [ -f "$PARAMS_FILE" ]; then
-      cat "$PARAMS_FILE"
-    else
-      echo "No parameters set"
+    # Policy-based selection (VM > Container > Sandbox > Native)
+    if [[ "$prefer_isolated" == "true" ]]; then
+        local precedence=("vm" "container" "sandbox" "native")
+        for mode in "${precedence[@]}"; do
+            local result
+            result=$(check_mode_availability "$mode")
+            local status="${result%%:*}"
+            if [[ "$status" == "available" ]]; then
+                echo "$mode:Policy precedence (isolation preferred):true"
+                return 0
+            fi
+        done
     fi
-    ;;
-  *)
-    echo "Usage: noa-kernel-params {set|get|list} [param] [value]"
-    exit 1
-    ;;
+
+    # Default to native
+    echo "native:Default mode (performance):true"
+}
+
+# Apply Linux kernel parameter
+apply_linux_param() {
+    local param="$1"
+    local value="$2"
+
+    case "$param" in
+        ip_forward)
+            if [[ "$value" == "1" ]]; then
+                echo "  Enabling IPv4 forwarding..."
+                sudo sysctl -w net.ipv4.ip_forward=1 &>/dev/null || true
+            else
+                sudo sysctl -w net.ipv4.ip_forward=0 &>/dev/null || true
+            fi
+            ;;
+        ipv6_forward)
+            if [[ "$value" == "1" ]]; then
+                echo "  Enabling IPv6 forwarding..."
+                sudo sysctl -w net.ipv6.conf.all.forwarding=1 &>/dev/null || true
+            fi
+            ;;
+        p2p_firewall)
+            if [[ "$value" == "1" ]]; then
+                echo "  Configuring P2P firewall rules..."
+                # UFW rules for NOA P2P
+                if command_exists ufw; then
+                    sudo ufw allow 4001/tcp &>/dev/null || true
+                    sudo ufw allow 4002/tcp &>/dev/null || true
+                    sudo ufw allow 9000/tcp &>/dev/null || true
+                fi
+            fi
+            ;;
+        *)
+            echo "  Unknown parameter: $param (stored for reference)"
+            ;;
+    esac
+}
+
+# Main command handling
+case "${1:-}" in
+    set)
+        param="${2:-}"
+        value="${3:-}"
+
+        if [[ -z "$param" || -z "$value" ]]; then
+            echo "Usage: noa-kernel-params set <param> <value>"
+            exit 1
+        fi
+
+        echo -e "${CYAN}Setting $param = $value${NC}"
+        set_param "$param" "$value"
+
+        # Apply to Linux kernel if root
+        if [[ $EUID -eq 0 ]]; then
+            apply_linux_param "$param" "$value"
+            echo -e "${GREEN}  Applied to Linux kernel${NC}"
+        else
+            echo -e "${YELLOW}  Stored (run as root to apply to kernel)${NC}"
+        fi
+        ;;
+
+    get)
+        param="${2:-}"
+
+        if [[ -z "$param" ]]; then
+            echo "Usage: noa-kernel-params get <param>"
+            exit 1
+        fi
+
+        value=$(get_param "$param")
+        if [[ -n "$value" ]]; then
+            echo "$param = $value"
+        else
+            echo -e "${YELLOW}Parameter not found: $param${NC}"
+        fi
+        ;;
+
+    list)
+        echo -e "${CYAN}NOA Kernel Parameters:${NC}"
+
+        if [[ -f "$PARAMS_FILE" ]]; then
+            jq -r 'to_entries | .[] | "  \(.key) = \(.value)"' "$PARAMS_FILE" 2>/dev/null || echo "  No parameters set"
+        else
+            echo "  No parameters set"
+        fi
+
+        echo ""
+        echo -e "${YELLOW}Available parameters:${NC}"
+        echo "  ip_forward      - Enable IPv4 forwarding (0/1)"
+        echo "  ipv6_forward    - Enable IPv6 forwarding (0/1)"
+        echo "  p2p_firewall    - Configure P2P firewall rules (0/1)"
+        echo "  kernel_mode     - Kernel isolation mode (native/vm/container/sandbox)"
+        ;;
+
+    apply)
+        echo -e "${CYAN}Applying all stored kernel parameters...${NC}"
+
+        if [[ -f "$PARAMS_FILE" ]]; then
+            while IFS="=" read -r key value; do
+                apply_linux_param "$key" "$value"
+            done < <(jq -r 'to_entries | .[] | "\(.key)=\(.value)"' "$PARAMS_FILE" 2>/dev/null)
+        fi
+
+        echo -e "${GREEN}Parameters applied${NC}"
+        ;;
+
+    list-modes)
+        echo -e "${CYAN}NOA Kernel Modes (FR-160 Precedence Order):${NC}"
+        echo ""
+
+        # Define precedence order
+        declare -A mode_info=(
+            ["vm"]="1:NOA VM:Maximum isolation via dedicated virtual machine"
+            ["container"]="2:Container:Lightweight isolation via containerized runtime"
+            ["sandbox"]="3:Sandbox:Per-operation isolation for ephemeral environments"
+            ["native"]="4:Native/Host:Direct host kernel access for trusted operations"
+        )
+
+        local precedence=("vm" "container" "sandbox" "native")
+        for mode in "${precedence[@]}"; do
+            local info="${mode_info[$mode]}"
+            local priority="${info%%:*}"
+            local rest="${info#*:}"
+            local display="${rest%%:*}"
+            local desc="${rest#*:}"
+
+            local result
+            result=$(check_mode_availability "$mode")
+            local status="${result%%:*}"
+            local reason="${result#*:}"
+
+            if [[ "$status" == "available" ]]; then
+                echo -e "  ${GREEN}Priority $priority: $display ($mode)${NC}"
+            else
+                echo -e "  ${YELLOW}Priority $priority: $display ($mode)${NC}"
+            fi
+            echo -e "    ${GRAY}Description: $desc${NC}"
+            echo -e "    Status: [$status] $reason"
+            echo ""
+        done
+
+        # Show current mode
+        local current_mode
+        current_mode=$(get_param "kernel_mode")
+        current_mode="${current_mode:-native}"
+        echo -e "${CYAN}Current mode: $current_mode${NC}"
+        ;;
+
+    check-availability)
+        echo -e "${CYAN}Checking kernel mode availability...${NC}"
+        echo ""
+
+        while IFS=":" read -r mode status reason; do
+            if [[ "$status" == "available" ]]; then
+                echo -e "  ${GREEN}[OK] $mode: $reason${NC}"
+            else
+                echo -e "  ${YELLOW}[--] $mode: $reason${NC}"
+            fi
+        done < <(get_available_modes)
+        ;;
+
+    select-mode)
+        mode="${2:-}"
+
+        if [[ -z "$mode" ]]; then
+            echo "Usage: noa-kernel-params select-mode <mode|auto|auto-isolated>"
+            echo "  Available modes: native, vm, container, sandbox"
+            echo "  Or use 'auto' for automatic selection based on policy"
+            echo "  Or use 'auto-isolated' to prefer isolated modes"
+            exit 1
+        fi
+
+        local prefer_isolated="false"
+        local requested_mode="$mode"
+
+        if [[ "$mode" == "auto-isolated" ]]; then
+            prefer_isolated="true"
+            requested_mode=""
+        elif [[ "$mode" == "auto" ]]; then
+            requested_mode=""
+        fi
+
+        local result
+        result=$(select_kernel_mode "$requested_mode" "$prefer_isolated")
+        local selected="${result%%:*}"
+        local rest="${result#*:}"
+        local reason="${rest%%:*}"
+
+        echo -e "${CYAN}Selected kernel mode: $selected${NC}"
+        echo -e "  ${GRAY}Reason: $reason${NC}"
+
+        # Store the selected mode
+        set_param "kernel_mode" "$selected"
+        echo -e "  ${GREEN}Stored to kernel parameters${NC}"
+        ;;
+
+    *)
+        echo "Usage: noa-kernel-params {set|get|list|apply|list-modes|check-availability|select-mode} [param] [value]"
+        echo ""
+        echo "Commands:"
+        echo "  set <param> <value>   Set a kernel parameter"
+        echo "  get <param>           Get a kernel parameter"
+        echo "  list                  List all parameters"
+        echo "  apply                 Apply all stored parameters"
+        echo "  list-modes            List kernel modes with precedence (FR-160)"
+        echo "  check-availability    Check which modes are available"
+        echo "  select-mode <mode>    Select a kernel mode (FR-159)"
+        exit 1
+        ;;
 esac

@@ -210,6 +210,40 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 ---
 
+### User Story 11 - Desktop Application Hosting (Priority: P2)
+
+As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude Desktop, GitHub Desktop) within its containment layer, so that all application data is stored in `noa_root` and I have unified control over these apps.
+
+**Why this priority**: Desktop app hosting completes NOA's role as the central hub for all AI-powered tools, providing unified data management and control while maintaining the self-containment principle.
+
+**Constitutional Reference**: §3.1 Self-Contained & Autonomous
+
+**Independent Test**: Can be tested by launching a hosted app and verifying its data writes to `$NOA_DATA/apps/` instead of system paths.
+
+**Hosted Applications**:
+
+| Application | Install Path | Data Path | Notes |
+|-------------|--------------|-----------|-------|
+| ChatGPT Desktop | `$NOA_OPT/apps/chatgpt/` | `$NOA_DATA/apps/chatgpt/` | Electron app |
+| Claude Desktop | `$NOA_OPT/apps/claude/` | `$NOA_DATA/apps/claude/` | Electron app |
+| GitHub Desktop | `$NOA_OPT/apps/github-desktop/` | `$NOA_DATA/apps/github-desktop/` | Electron app |
+
+**Architecture Components**:
+- **NDCL (NOA Desktop Containment Layer)**: Provides environment redirection, network isolation, and process sandboxing
+- **Network Proxy**: Routes desktop app traffic through NOA for inspection and P2P routing
+- **OAuth Proxy**: Captures and manages authentication tokens for all hosted apps
+- **Display Forwarding**: Enables GUI rendering in VM/container modes
+
+**Acceptance Scenarios**:
+
+1. **Given** ChatGPT Desktop is installed via NOA, **When** launched via `noa run chatgpt`, **Then** all data is written to `$NOA_DATA/apps/chatgpt/` not system paths
+2. **Given** Claude Desktop is running in NOA containment, **When** it authenticates via OAuth, **Then** tokens are stored in NOA's credential vault
+3. **Given** GitHub Desktop is hosted by NOA, **When** network proxy is enabled, **Then** all traffic passes through NOA's proxy service
+4. **Given** a desktop app is launched, **When** NOA is running in VM mode, **Then** the app GUI is forwarded to the host display
+5. **Given** a desktop app attempts to write to system paths, **When** NDCL is active, **Then** writes are redirected to `noa_root`
+
+---
+
 ### Edge Cases
 
 - What happens when available storage is exhausted? → System enters resource-scarcity mode (AMPK-mode), pauses non-essential operations, and alerts user
@@ -437,7 +471,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 ### Functional Requirements - Agent Architecture
 
-- **FR-007**: System MUST implement NOA (CECCA) as the root orchestrator that decomposes goals into tasks. CECCA delegation rules: (1) tasks requiring file operations → FileIOAgent, (2) tasks requiring shell execution → TerminalAgent, (3) tasks requiring context retrieval → RAGAgent, (4) tasks requiring service management → MicroserviceManagementAgent, (5) tasks requiring specialized domain knowledge → appropriate Board Agent (see FR-142), (6) complex multi-step tasks → spawn MicroAgentStack
+- **FR-007**: System MUST implement NOA (CECCA) as the root orchestrator that decomposes goals into tasks. CECCA delegation rules: (1) tasks requiring file operations → FileIOAgent, (2) tasks requiring shell execution → TerminalAgent, (3) tasks requiring context retrieval → RAGAgent, (4) tasks requiring service management → MicroserviceManagementAgent, (5) tasks requiring specialized domain execution → appropriate Executive Agent (see FR-142), (6) tasks requiring advisory analysis → consult appropriate Board Agent (see FR-184), (7) complex multi-step tasks → spawn MicroAgentStack
 - **FR-008**: System MUST support specialized permanent agents with these acceptance criteria:
   - **FileIOAgent**: Read/write files within `noa_root` in <100ms for files <10MB. Failure recovery: retry 3x with exponential backoff, then escalate to CECCA with error context
   - **TerminalAgent**: Execute shell commands with timeout (default 30s), capture stdout/stderr. Failure recovery: timeout → kill process, capture partial output, report to CECCA
@@ -447,23 +481,49 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 - **FR-010**: System MUST support agent lifecycle: Bootstrap → Execute → Validate → Package → Archive. Transition conditions: Bootstrap→Execute (all dependencies loaded), Execute→Validate (task output produced), Validate→Package (output passes quality checks), Package→Archive (artifact stored in CAS), any state→Terminated (on failure after 3 retries)
 - **FR-011**: System MUST enforce constitutional principles on all agents (no agent can violate self-contained, local-first, or security constraints)
 
-### Functional Requirements - Board Agents
+### Functional Requirements - Executive Agents (Operational Execution)
 
-- **FR-142**: System MUST implement Board Agents for specialized domain oversight:
-  - **LegalAgent**: Contract review, compliance checking, license analysis. Escalation threshold: any legal ambiguity
-  - **FinanceAgent**: Cost tracking, resource budgeting, ROI analysis. Escalation threshold: budget variance >10%
-  - **SecurityAgent**: Threat assessment, vulnerability triage, access control review. Escalation threshold: any HIGH/CRITICAL finding
-  - **OperationsAgent**: System health monitoring, capacity planning, incident coordination. Escalation threshold: SLO breach
-  - **QAAgent**: Test coverage analysis, quality gate enforcement, regression detection. Escalation threshold: coverage <80%
-  - **ArchitectureAgent**: Design review, dependency analysis, technical debt tracking. Escalation threshold: architectural violation
-- **FR-143**: Board Agents MUST report to CECCA and may delegate to MicroAgentStacks for specialized tasks
-- **FR-144**: Board Agents MUST log all decisions with rationale to audit trail
-- **FR-151**: When Board Agents provide conflicting recommendations, CECCA MUST:
+- **FR-142**: System MUST implement Executive Agents for domain-specific operational execution:
+  - **LegalExecutive**: Contract review, compliance checking, license analysis. Escalation threshold: any legal ambiguity. Authority: delegate legal tasks, enforce compliance.
+  - **FinanceExecutive**: Cost tracking, resource budgeting, ROI analysis. Escalation threshold: budget variance >10%. Authority: delegate financial tasks, enforce budgets.
+  - **SecurityExecutive**: Threat assessment, vulnerability triage, access control review. Escalation threshold: any HIGH/CRITICAL finding. Authority: delegate security tasks, enforce security policies.
+  - **OperationsExecutive**: System health monitoring, capacity planning, incident coordination. Escalation threshold: SLO breach. Authority: delegate ops tasks, manage incidents.
+  - **QAExecutive**: Test coverage analysis, quality gate enforcement, regression detection. Escalation threshold: coverage <80%. Authority: delegate QA tasks, enforce quality gates.
+  - **ArchitectureExecutive**: Design review, dependency analysis, technical debt tracking. Escalation threshold: architectural violation. Authority: delegate design tasks, enforce architecture.
+- **FR-143**: Executive Agents MUST report to CECCA, have execution authority, and MUST delegate task execution to MicroAgentStacks or permanent agents
+- **FR-144**: Executive Agents MUST ensure proper task execution and MUST fix issues when tasks fail
+- **FR-183**: Executive Agents MUST log all delegations, executions, and fixes with rationale to audit trail
+- **FR-151**: When Executive Agents provide conflicting recommendations, CECCA MUST:
   1. Defer to constitutional governance (FR-025, FR-026) for ethical/value conflicts
-  2. Deploy to Sandbox plane first (testing/staging environment)
-  3. Resolve SecurityAgent findings before promotion
-  4. Only promote to Deployed plane after security issues addressed
-  5. Log conflict details, resolution rationale, and staged deployment trace to audit trail
+  2. Consult Board Agents (FR-184) for advisory recommendations
+  3. Deploy to Sandbox plane first (testing/staging environment)
+  4. Resolve SecurityExecutive findings before promotion
+  5. Only promote to Deployed plane after security issues addressed
+  6. Log conflict details, resolution rationale, and staged deployment trace to audit trail
+
+### Functional Requirements - Board Agents (Advisory & Higher Functions)
+
+- **FR-184**: System MUST implement Board Agents as advisory-only agents connected to reasoning models via ModelSelector:
+  - **KnowledgeBoard**: Knowledge synthesis, information retrieval, fact verification. No execution authority - advisory only.
+  - **LearningBoard**: Self-learning strategies, skill acquisition, capability growth. No execution authority - advisory only.
+  - **EvolutionBoard**: Self-upgrading recommendations, capability enhancement proposals. No execution authority - advisory only.
+  - **EnvironmentBoard**: Environment awareness, context sensing, situational analysis. No execution authority - advisory only.
+  - **HealingBoard**: Self-healing strategies, recovery recommendations, fault diagnosis. No execution authority - advisory only.
+  - **StrategyBoard**: Problem solving, decision support, optimization recommendations. No execution authority - advisory only.
+  - **PredictionBoard**: Predictive analysis, trend forecasting, risk anticipation. No execution authority - advisory only.
+- **FR-185**: Board Agents MUST NOT have execution authority - they provide recommendations only
+- **FR-186**: Board Agents MUST be connected to reasoning models via ModelSelector for deep analysis
+- **FR-187**: Board Agents MUST be responsible for stack layer oversight:
+  - **KnowledgeBoard** → Memory & Knowledge Graph layers
+  - **LearningBoard** → Training & Fine-tuning layers
+  - **EvolutionBoard** → Self-modification & Update layers
+  - **EnvironmentBoard** → Perception & Context layers
+  - **HealingBoard** → System health & Recovery layers
+  - **StrategyBoard** → Planning & Orchestration layers
+  - **PredictionBoard** → Analytics & Forecasting layers
+- **FR-188**: Board Agents MUST provide advisory input to Executive Agents before execution
+- **FR-189**: Executive Agents MAY override Board Agent recommendations with logged rationale
+- **FR-190**: Board Agent recommendations MUST be logged to audit trail with model reasoning trace
 
 ### Functional Requirements - Digest Pipeline
 
@@ -552,6 +612,27 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 - **FR-092**: System MUST provide a Kernel Abstraction Layer (NKAL) with unified interface regardless of underlying kernel
 - **FR-093**: System MUST default to host kernel (native mode) for performance, with independence mode available for maximum isolation
 - **FR-094**: System MUST support kernel mode switching via `noa-kernel-params set kernel_mode {native|vm|container}`
+
+### Functional Requirements - Module Abstraction (AER Spec Integration)
+
+- **FR-176**: System MUST implement a unified Module abstraction where ALL artifacts (binaries, packages, libraries, tools, services, agents, microkernels) are content-addressable, immutable, and versioned entities
+- **FR-177**: System MUST maintain a Module Registry at `noa_root/data/modules/registry.db` tracking all modules with: module_id (content hash), name, version, type, dependencies, capabilities, and metadata
+- **FR-178**: System MUST store module content in Content-Addressable Storage (CAS) at `noa_root/data/modules/cas/` using SHA-256 content hashing
+- **FR-179**: System MUST support module lifecycle: Register → Verify → Load → Execute → Unload → Archive
+- **FR-180**: System MUST provide module dependency resolution and version conflict detection before loading
+
+### Functional Requirements - IDE Data Containment (§3.1 Extension)
+
+- **FR-181**: System MUST redirect Cursor IDE data to `noa_root/data/apps/cursor/` including:
+  - Extensions: `noa_root/data/apps/cursor/extensions/`
+  - User settings: `noa_root/data/apps/cursor/User/`
+  - Workspace storage: `noa_root/data/apps/cursor/workspaceStorage/`
+  - Cache: `noa_root/data/apps/cursor/Cache/`
+- **FR-182**: System MUST redirect VS Code data to `noa_root/data/apps/vscode/` including:
+  - Extensions: `noa_root/data/apps/vscode/extensions/`
+  - User settings: `noa_root/data/apps/vscode/User/`
+  - Workspace storage: `noa_root/data/apps/vscode/workspaceStorage/`
+  - Cache: `noa_root/data/apps/vscode/Cache/`
 
 ---
 
@@ -684,6 +765,8 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
 
 - **NOA (CECCA)**: The Chief Executive Commander Chief Agent - root orchestrator that transforms goals into actionable work plans
 - **Agent**: An autonomous unit that performs specific functions (specialized in planning, execution, QA, digestion, etc.)
+- **Executive Agent**: An agent with execution authority that delegates and ensures proper task execution. Responsible for domain-specific operational execution (Legal, Finance, Security, Operations, QA, Architecture). Reports to CECCA.
+- **Board Agent**: An advisory-only agent connected to reasoning models via ModelSelector. Provides recommendations for higher cognitive functions (Knowledge, Learning, Evolution, Environment, Healing, Strategy, Prediction). NO execution authority.
 - **MicroAgentStack**: A deployable cluster of cooperative agents assembled for a bounded objective
 - **Capsule**: A self-contained environment with dependencies, policies, and versioning; supports blue/green deployment
 - **Cell**: An atomic computational unit within a capsule (sensor, parser, router, reasoner, actuator, validator)
@@ -782,10 +865,11 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
   - TerminalAgent - Shell/command execution
   - RAGAgent - Retrieval-augmented generation
   - MicroserviceManagementAgent - Service deployment
-  - All Board Agents (Legal, Finance, Operations, Security, etc.)
+  - All Executive Agents (Legal, Finance, Operations, Security, QA, Architecture)
+  - All Board Agents (Knowledge, Learning, Evolution, Environment, Healing, Strategy, Prediction)
 
 - **Multi-SLM Compatibility**: ☑ Yes - Uses llama.cpp with multiple <3B parameter models
-- **Orchestration Pattern**: Hierarchical with NOA at root, delegating to Board Agents, then to MicroAgentStacks
+- **Orchestration Pattern**: Hierarchical with NOA at root, consulting Board Agents (advisory), delegating to Executive Agents (execution), then to MicroAgentStacks
 
 ### Memory & P2P Considerations
 
@@ -1093,7 +1177,7 @@ The script will output:
 ### Session 2025-12-09
 
 - Q: How does orchestration work during IDE-phase development (before full NOA UI)? → A: **Spec-Kit as IDE Orchestrator**. During development phase, `/speckit.implement` serves as the orchestration entry point. It uses `connect_provider()` (task SK001) to connect multiple providers simultaneously. Tasks are distributed via `execution-memory.db` and results aggregated back to the user's Cursor IDE. This bridges the gap until the full NOA UI is built, enabling immediate parallel provider execution from IDE chat.
-- Q: When Board Agents provide conflicting recommendations, how should CECCA resolve? → A: **Constitutional arbitration with staged deployment**. Conflicts are resolved via constitutional governance (FR-025, FR-026). Additionally, use staged deployment: deploy to Sandbox (testing/staging) first, address SecurityAgent findings, then promote to Deployed plane (production). This leverages the 3-plane architecture for safe conflict resolution.
+- Q: When Executive Agents provide conflicting recommendations, how should CECCA resolve? → A: **Constitutional arbitration with Board consultation and staged deployment**. Conflicts are resolved via: (1) constitutional governance (FR-025, FR-026), (2) Board Agent advisory consultation (FR-184), (3) staged deployment to Sandbox first, (4) address SecurityExecutive findings, (5) promote to Deployed plane. This leverages the 3-plane architecture and Board/Executive separation for safe conflict resolution.
 - Q: Is internet access required or is air-gapped operation mandatory? → A: **Internet required for normal operation; offline mode is optional user choice**. Internet access is mandatory for P2P hive-mind functionality and initial model downloads. "Fully air-gapped" is an OPTIONAL capability, not a requirement. When user chooses offline mode, constraints apply: no cloud provider access, no new model downloads, no P2P sync. USB/file transfer is supported for sideloading models in offline scenarios. Core local operations (inference, memory, agents) continue to work offline.
 - Q: What observability stack should NOA use for metrics and tracing? → A: **OpenTelemetry + Prometheus + local SQLite**. Rust crates: `tracing`, `tracing-subscriber`, `opentelemetry` (OTLP), `opentelemetry-prometheus`. Export to Tempo/Prometheus/Grafana stack. Local SQLite store (`noa_root/data/metrics.db`) for offline analysis. No Docker required for Rust observability components.
 - Q: Which provider handles verification and error fixing during /implement? → A: **Claude Code (claude-code)**. Deep error analysis, long context understanding, agentic iteration with file operations. Interprets linter/compiler errors, proposes fixes, validates fix success.
@@ -1130,3 +1214,20 @@ The script will output:
   - All persistent state and data (under `noa_root/data/`)
 
   **Platform Coverage**: This architecture applies to ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware types (x64, ARM, GPU configurations). NOA achieves 100% independent functionality by bundling portable versions of all dependencies within `noa_root`.
+- Q: What is the difference between Board Agents and Executive Agents? → A: **Executive Agents execute; Board Agents advise**.
+  - **Executive Agents** (FR-142-144, FR-183): Have execution authority and responsibility. They delegate task execution to MicroAgentStacks and permanent agents, ensure proper execution, and fix issues when tasks fail. Examples: LegalExecutive, SecurityExecutive, OperationsExecutive.
+  - **Board Agents** (FR-184-190): Advisory only with NO execution authority. Connected to reasoning models via ModelSelector for deep analysis. Responsible for higher cognitive functions: knowledge synthesis, self-learning, self-upgrading, environment awareness, self-healing, problem solving, predictive analysis. Examples: KnowledgeBoard, LearningBoard, StrategyBoard.
+  - **Hierarchy**: User → CECCA → consults Board Agents → delegates to Executive Agents → delegates to MicroAgentStacks/permanent agents.
+  - **Stack Layer Mapping**: Each Board Agent is responsible for advising on specific stack layers (see FR-187).
+
+### Session 2025-12-09 (continued)
+
+- Q: Should Environment changes (toolchain upgrades, dev tools) go through the 3-plane A/B switching cycle? → A: **Environment outside planes**. Toolchains (`opt/rust/`, `opt/go/`, etc.), dev tools, IDEs, and AI provider CLIs are shared infrastructure that all planes depend on equally. They are NOT subject to A/B switching. The 3-plane system (Coordinator/Sandbox/Deployed) is for NOA's **runtime capabilities and code changes**, not for the development environment itself. Environment changes use the separate bootstrap upgrade mechanism with version pinning and rollback (FR-163).
+- Q: How do IDEs (Cursor, VS Code) interact with the 3-plane system? → A: **IDE drives Sandbox only**. IDEs write code that gets deployed to Sandbox plane. After Coordinator validates (llama.cpp analytics, policy gates), changes are promoted to Deployed plane. IDE never directly modifies Deployed code. This maintains 3-plane integrity: Dev work → Sandbox → Coordinator validation → Deployed promotion.
+- Q: Where does execution-memory.db fit in the 3-plane model? → A: **Single shared DB, Coordinator-owned**. One `ai/shared/resources/execution-memory.db` is used by all providers across all planes. Coordinator is the "owner" with authority to manage the DB, but all providers have equal read/write access for task distribution and context sharing. **Coordinator applies rewards/restrictions to models based on behavior**: models that consistently succeed get priority access; models with repeated failures, SLA violations, or policy violations get restricted task assignments or rate-limited. This enables runtime optimization of provider selection based on empirical performance.
+- Q: What happens during a promotion from Sandbox → Deployed? → A: **Hot swap with canary deployment**. Deployed receives new code while running with zero downtime. Canary deployment: (1) new capability deployed to small cohort (5-10%), (2) SLO monitoring during canary window, (3) gradual traffic shift if SLOs met, (4) automatic rollback if SLOs violated. This aligns with FR-057 (blue-green) and FR-058 (instant rollback). NOA's always-on autonomous operation requires zero downtime.
+- Q: How does P2P synchronization work across devices with the 3-plane system? → A: **Coordinator is P2P leader on device with superior compute/storage**. The user's device with the best compute and storage resources runs as the Coordinator P2P leader. Other devices run Sandbox/Deployed and sync to the leader. This provides: (1) clear authority for conflict resolution, (2) resource-appropriate leader selection, (3) efficient data distribution from central point, (4) failover to next-best device if leader goes offline. P2P syncs include: `data/`, `ai/shared/`, model weights, and execution-memory.db state.
+- Q: What is the noa Core Microkernel and how does it relate to CECCA? → A: **Environment-based subagent under CECCA control**. The noa Core Microkernel is an environment-based operational unit that functions as a subagent/helper to CECCA. It is not a separate top-level entity but operates under/inside CECCA's domain. CECCA also has environment agents that work alongside the microkernel for environment management tasks.
+- Q: How does the EOM/TSM/PSM triad from the AER spec map to the NOA plan? → A: **PSM maps to Executive Agents; EOM/TSM maps to Board Agents**. The Policy & Safety Model (PSM) maps to Executive Agents (LegalExecutive, SecurityExecutive, etc.) which have execution authority to enforce governance. The Environment Orchestration Model (EOM) maps to Board Agents (EnvironmentBoard, EvolutionBoard, HealingBoard) which provide advisory intelligence. The Tool & Code Synthesis Model (TSM) maps to the Advanced Learning techniques (FR-043-046) and StrategyBoard advisory functions.
+- Q: How does Module Abstraction from the AER spec fit into the NOA architecture? → A: **Adopt as new requirement (FR-176-180)**. The AER spec defines "Module" as a unified abstraction for all artifacts (binaries, packages, libraries, tools, services, agents, microkernels). NOA MUST implement this as a Module Registry with content-addressable storage (CAS). All artifacts become content-addressable, immutable, and versioned entities stored under `noa_root/data/modules/`.
+- Q: Should IDE data (Cursor/VS Code) be contained within `noa_root`? → A: **Yes - extend FR-001 containment (FR-181-182)**. IDE configurations and extensions MUST be redirected to `noa_root/data/apps/cursor/` and `noa_root/data/apps/vscode/`. This extends the NDCL (FR-167) to include development IDEs, ensuring complete data sovereignty.

@@ -36,8 +36,8 @@ $PROVIDERS_DIR = Join-Path $NoaRoot "ai/providers"
 # Provider definitions with CLI commands
 $providerChecks = @(
     @{ Name = "git-cli"; Type = "local"; Command = "git"; VersionArg = "--version" },
-    @{ Name = "ollama"; Type = "local"; Command = "ollama"; VersionArg = "--version" },
-    @{ Name = "llama-server"; Type = "local"; Command = "llama-server"; VersionArg = "--version"; BinPath = "bin/llama-server" },
+    @{ Name = "ollama"; Type = "local"; Command = "ollama"; VersionArg = "--version"; Optional = $true },  # Optional - llama.cpp is primary
+    @{ Name = "llama-server"; Type = "local"; Command = "llama-server"; VersionArg = "--version"; BinPath = "bin/llama-server"; Optional = $true },  # Optional - built on demand
     @{ Name = "cursor"; Type = "hybrid"; Command = "cursor"; VersionArg = "--version"; Optional = $true },
     @{ Name = "claude-code"; Type = "cloud"; Command = "claude"; VersionArg = "--version"; Optional = $true },
     @{ Name = "codex"; Type = "cloud"; Command = "codex"; VersionArg = "--version"; Optional = $true },

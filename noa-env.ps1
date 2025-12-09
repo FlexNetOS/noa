@@ -51,6 +51,24 @@ $env:NOA_OPT = Join-Path $env:NOA_ROOT "opt"
 $env:NOA_SYS = Join-Path $env:NOA_ROOT "sys"
 $env:NOA_INIT = Join-Path $env:NOA_ROOT "init"
 
+# Data directories (FR-001: All data within noa_root)
+$env:NOA_DATA = Join-Path $env:NOA_ROOT "data"
+$env:NOA_CACHE = Join-Path $env:NOA_ROOT "data/cache"
+$env:NOA_CONFIG_HOME = Join-Path $env:NOA_ROOT "etc"
+
+# AppData redirection (FR-001: Self-contained operation)
+# Override Windows AppData paths to keep all application data within NOA
+$env:APPDATA = Join-Path $env:NOA_ROOT "data/appdata/roaming"
+$env:LOCALAPPDATA = Join-Path $env:NOA_ROOT "data/appdata/local"
+$env:TEMP = Join-Path $env:NOA_ROOT "tmp"
+$env:TMP = Join-Path $env:NOA_ROOT "tmp"
+
+# XDG Base Directory specification (Unix compatibility)
+$env:XDG_DATA_HOME = Join-Path $env:NOA_ROOT "data"
+$env:XDG_CONFIG_HOME = Join-Path $env:NOA_ROOT "etc"
+$env:XDG_CACHE_HOME = Join-Path $env:NOA_ROOT "data/cache"
+$env:XDG_STATE_HOME = Join-Path $env:NOA_ROOT "data/state"
+
 # Kernel-level isolation paths
 $env:NOA_NAMESPACE = Join-Path $env:NOA_SYS "namespace"
 $env:NOA_CGROUP = Join-Path $env:NOA_SYS "cgroup"
@@ -95,6 +113,16 @@ Add-NoaPath (Join-Path $env:NOA_OPT "python")
 
 # Add protobuf to PATH
 Add-NoaPath (Join-Path $env:NOA_OPT "protobuf\bin")
+
+# Add portable PowerShell to PATH (Constitution §3.1 compliance)
+$env:NOA_PWSH = Join-Path $env:NOA_OPT "powershell"
+Add-NoaPath $env:NOA_PWSH
+
+# Warn if using system PowerShell instead of portable
+if ($PSHOME -notlike "*noa*") {
+    Write-Host "[WARN] Using system PowerShell: $PSHOME" -ForegroundColor Yellow
+    Write-Host "[INFO] For Constitution §3.1 compliance, use: N:\noa\opt\powershell\pwsh.exe" -ForegroundColor Gray
+}
 
 # Navigation aliases
 function cda { Set-Location $env:NOA_ROOT }

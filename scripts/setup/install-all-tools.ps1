@@ -31,7 +31,9 @@ param(
     [string] $NoaRoot,
     [string[]] $Tool,
     [switch] $AllowGlobal,
-    [switch] $UpdateExisting
+    [switch] $UpdateExisting,
+    [switch] $Rollback,
+    [switch] $ListArchived
 )
 
 $ErrorActionPreference = "Stop"
@@ -49,20 +51,248 @@ $BinDir = Join-Path $NoaRoot "bin"
 $OptDir = Join-Path $NoaRoot "opt"
 $DevToolsDir = Join-Path $OptDir "dev-tools"
 
+$ArchiveDir = Join-Path $OptDir "archive"
+
 New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 New-Item -ItemType Directory -Force -Path $DevToolsDir | Out-Null
+New-Item -ItemType Directory -Force -Path $ArchiveDir | Out-Null
 
 function Write-Info($msg) { Write-Host "[INFO] $msg" -ForegroundColor Cyan }
 function Write-Ok($msg)   { Write-Host "[OK]   $msg" -ForegroundColor Green }
 function Write-Warn($msg) { Write-Host "[WARN] $msg" -ForegroundColor Yellow }
 function Write-Err($msg)  { Write-Host "[ERR]  $msg" -ForegroundColor Red }
 
+#region Archive & Rollback Functions (FR-163, B159, B160)
+
+<#
+.SYNOPSIS
+    Archive a tool before upgrade (B159)
+.DESCRIPTION
+    Moves the current tool installation to opt/archive/{tool}-{version}-{timestamp}/
+    This enables rollback if the upgrade fails or has issues.
+#>
+function Archive-Tool {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ToolName,
+        [Parameter(Mandatory)]
+        [string]$SourcePath,
+        [string]$Version = "unknown"
+    )
+
+    if (-not (Test-Path $SourcePath)) {
+        Write-Info "  No existing installation to archive for $ToolName"
+        return $null
+    }
+
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $archiveName = "$ToolName-$Version-$timestamp"
+    $archivePath = Join-Path $ArchiveDir $archiveName
+
+    Write-Info "  Archiving $ToolName to $archivePath"
+
+    try {
+        # Create archive directory
+        New-Item -ItemType Directory -Force -Path $archivePath | Out-Null
+
+        # Move the tool directory/files
+        if (Test-Path $SourcePath -PathType Container) {
+            Copy-Item -Path "$SourcePath\*" -Destination $archivePath -Recurse -Force
+        } else {
+            Copy-Item -Path $SourcePath -Destination $archivePath -Force
+        }
+
+        # Create metadata file
+        $metadata = @{
+            tool = $ToolName
+            version = $Version
+            archivedAt = (Get-Date).ToString("o")
+            sourcePath = $SourcePath
+            archivePath = $archivePath
+        }
+        $metadata | ConvertTo-Json | Set-Content (Join-Path $archivePath "archive-metadata.json")
+
+        Write-Ok "  Archived $ToolName (version: $Version)"
+        return $archivePath
+    } catch {
+        Write-Err "  Failed to archive $ToolName`: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+<#
+.SYNOPSIS
+    Get the version of an installed tool
+#>
+function Get-ToolVersion {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ToolName,
+        [string]$ToolPath
+    )
+
+    switch ($ToolName.ToLower()) {
+        "rust" {
+            $rustc = Join-Path $OptDir "rust/cargo/bin/rustc.exe"
+            if (Test-Path $rustc) { return (& $rustc --version 2>$null | Select-String -Pattern '\d+\.\d+\.\d+' -AllMatches).Matches.Value }
+        }
+        "go" {
+            $go = Join-Path $DevToolsDir "go/bin/go.exe"
+            if (Test-Path $go) { return (& $go version 2>$null | Select-String -Pattern '\d+\.\d+\.\d+' -AllMatches).Matches.Value }
+        }
+        "node" {
+            $node = Join-Path $DevToolsDir "node/node.exe"
+            if (Test-Path $node) { return (& $node --version 2>$null).TrimStart('v') }
+        }
+        "python" {
+            $python = Join-Path $DevToolsDir "python/python.exe"
+            if (Test-Path $python) { return (& $python --version 2>$null | Select-String -Pattern '\d+\.\d+\.\d+' -AllMatches).Matches.Value }
+        }
+        default { return "unknown" }
+    }
+    return "unknown"
+}
+
+<#
+.SYNOPSIS
+    List all archived tool versions (B160 helper)
+#>
+function Get-ArchivedTools {
+    if (-not (Test-Path $ArchiveDir)) {
+        return @()
+    }
+
+    $archives = Get-ChildItem -Path $ArchiveDir -Directory | ForEach-Object {
+        $metadataPath = Join-Path $_.FullName "archive-metadata.json"
+        if (Test-Path $metadataPath) {
+            $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+            [PSCustomObject]@{
+                Name = $_.Name
+                Tool = $metadata.tool
+                Version = $metadata.version
+                ArchivedAt = $metadata.archivedAt
+                SourcePath = $metadata.sourcePath
+                ArchivePath = $_.FullName
+            }
+        } else {
+            # Parse from directory name
+            $parts = $_.Name -split '-'
+            [PSCustomObject]@{
+                Name = $_.Name
+                Tool = $parts[0]
+                Version = if ($parts.Count -gt 1) { $parts[1] } else { "unknown" }
+                ArchivedAt = $_.CreationTime.ToString("o")
+                SourcePath = $null
+                ArchivePath = $_.FullName
+            }
+        }
+    }
+    return $archives | Sort-Object ArchivedAt -Descending
+}
+
+<#
+.SYNOPSIS
+    Rollback a tool to a previously archived version (B160)
+.DESCRIPTION
+    Restores the most recent archived version of a tool, removing the current installation.
+#>
+function Restore-ArchivedTool {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ToolName
+    )
+
+    $archives = Get-ArchivedTools | Where-Object { $_.Tool -eq $ToolName }
+
+    if (-not $archives -or $archives.Count -eq 0) {
+        Write-Err "No archived versions found for $ToolName"
+        return $false
+    }
+
+    $mostRecent = $archives | Select-Object -First 1
+    Write-Info "Rolling back $ToolName to version $($mostRecent.Version) from $($mostRecent.ArchivedAt)"
+
+    try {
+        $sourcePath = $mostRecent.SourcePath
+        if (-not $sourcePath) {
+            # Determine source path based on tool name
+            switch ($ToolName.ToLower()) {
+                "rust" { $sourcePath = Join-Path $OptDir "rust" }
+                "go" { $sourcePath = Join-Path $DevToolsDir "go" }
+                "node" { $sourcePath = Join-Path $DevToolsDir "node" }
+                "python" { $sourcePath = Join-Path $DevToolsDir "python" }
+                default { $sourcePath = Join-Path $DevToolsDir $ToolName }
+            }
+        }
+
+        # Remove current installation if exists
+        if (Test-Path $sourcePath) {
+            Write-Info "  Removing current installation at $sourcePath"
+            Remove-Item -Path $sourcePath -Recurse -Force
+        }
+
+        # Restore from archive
+        Write-Info "  Restoring from $($mostRecent.ArchivePath)"
+        $parentDir = Split-Path $sourcePath -Parent
+        if (-not (Test-Path $parentDir)) {
+            New-Item -ItemType Directory -Force -Path $parentDir | Out-Null
+        }
+
+        Copy-Item -Path "$($mostRecent.ArchivePath)\*" -Destination $sourcePath -Recurse -Force -Exclude "archive-metadata.json"
+
+        Write-Ok "Successfully rolled back $ToolName to version $($mostRecent.Version)"
+
+        # Optionally remove the archive after successful rollback
+        # Remove-Item -Path $mostRecent.ArchivePath -Recurse -Force
+
+        return $true
+    } catch {
+        Write-Err "Failed to rollback $ToolName`: $($_.Exception.Message)"
+        return $false
+    }
+}
+
+<#
+.SYNOPSIS
+    Clean old archives beyond retention period
+#>
+function Remove-OldArchives {
+    param([int]$RetentionDays = 7)
+
+    $cutoffDate = (Get-Date).AddDays(-$RetentionDays)
+    $oldArchives = Get-ArchivedTools | Where-Object {
+        try { [DateTime]::Parse($_.ArchivedAt) -lt $cutoffDate } catch { $false }
+    }
+
+    foreach ($archive in $oldArchives) {
+        Write-Info "Removing old archive: $($archive.Name)"
+        Remove-Item -Path $archive.ArchivePath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($oldArchives.Count -gt 0) {
+        Write-Ok "Removed $($oldArchives.Count) old archives"
+    }
+}
+
+#endregion
+
 function Should-Install {
-    param([string[]] $Names)
+    param(
+        [string[]] $Names,
+        [string] $ToolName = ""
+    )
     foreach ($n in $Names) {
         $p = Join-Path $BinDir $n
         if (Test-Path $p) {
-            return $UpdateExisting.IsPresent
+            if ($UpdateExisting.IsPresent) {
+                # Archive before update if tool exists
+                if ($ToolName) {
+                    $version = Get-ToolVersion -ToolName $ToolName -ToolPath $p
+                    Archive-Tool -ToolName $ToolName -SourcePath (Split-Path $p -Parent) -Version $version
+                }
+                return $true
+            }
+            return $false
         }
     }
     return $true
@@ -104,11 +334,20 @@ function Add-Link {
 }
 
 function Install-Rust {
-    if (-not (Should-Install @("rustc.exe","cargo.exe"))) {
-        Write-Info "rust/cargo already present; skipping (use -UpdateExisting to force)"
-        return
-    }
     $rustHome = Join-Path $OptDir "rust"
+    $cargoBin = Join-Path $rustHome "cargo/bin"
+
+    # Check if already installed
+    if (Test-Path (Join-Path $cargoBin "rustc.exe")) {
+        if (-not $UpdateExisting.IsPresent) {
+            Write-Info "rust/cargo already present; skipping (use -UpdateExisting to force)"
+            return
+        }
+        # Archive before update (B159)
+        $version = Get-ToolVersion -ToolName "rust" -ToolPath $cargoBin
+        Write-Info "Archiving existing Rust installation (v$version) before update..."
+        Archive-Tool -ToolName "rust" -SourcePath $rustHome -Version $version
+    }
     $env:RUSTUP_HOME = Join-Path $rustHome "rustup"
     $env:CARGO_HOME  = Join-Path $rustHome "cargo"
     New-Item -ItemType Directory -Force -Path $env:RUSTUP_HOME | Out-Null
@@ -127,11 +366,21 @@ function Install-Rust {
 }
 
 function Install-Go {
-    if (-not (Should-Install @("go.exe","go"))) {
-        Write-Info "go already present; skipping (use -UpdateExisting to force)"
-        return
-    }
     $goDir = Join-Path $DevToolsDir "go"
+    $goBin = Join-Path $goDir "bin/go.exe"
+
+    # Check if already installed
+    if (Test-Path $goBin) {
+        if (-not $UpdateExisting.IsPresent) {
+            Write-Info "go already present; skipping (use -UpdateExisting to force)"
+            return
+        }
+        # Archive before update (B159)
+        $version = Get-ToolVersion -ToolName "go" -ToolPath $goBin
+        Write-Info "Archiving existing Go installation (v$version) before update..."
+        Archive-Tool -ToolName "go" -SourcePath $goDir -Version $version
+    }
+
     Download-And-ExtractZip -Url "https://go.dev/dl/go1.23.0.windows-amd64.zip" -DestDir $DevToolsDir
     $goBin = Join-Path $goDir "bin"
     Add-Link (Join-Path $goBin "go.exe") "go.exe"
@@ -645,12 +894,58 @@ function Install-SharedResources {
 
 #endregion
 
+#region Main Entry Point
+
+# Handle -ListArchived switch (B160)
+if ($ListArchived) {
+    Write-Info "Archived tool versions in ${ArchiveDir}:"
+    $archives = Get-ArchivedTools
+    if ($archives.Count -eq 0) {
+        Write-Host "  No archived tools found" -ForegroundColor Gray
+    } else {
+        $archives | ForEach-Object {
+            Write-Host "  $($_.Tool) v$($_.Version) - archived $($_.ArchivedAt)" -ForegroundColor Cyan
+            Write-Host "    Path: $($_.ArchivePath)" -ForegroundColor Gray
+        }
+    }
+    exit 0
+}
+
+# Handle -Rollback switch (B160)
+if ($Rollback) {
+    if (-not $Tool -or $Tool.Count -eq 0) {
+        Write-Err "Usage: install-all-tools.ps1 -Rollback -Tool <toolname>"
+        Write-Info "Use -ListArchived to see available archived versions"
+        exit 1
+    }
+
+    $success = $true
+    foreach ($t in $Tool) {
+        if (-not (Restore-ArchivedTool -ToolName $t)) {
+            $success = $false
+        }
+    }
+
+    if ($success) {
+        Write-Ok "Rollback complete"
+        exit 0
+    } else {
+        Write-Err "Some rollbacks failed"
+        exit 1
+    }
+}
+
+# Clean old archives on regular runs
+Remove-OldArchives -RetentionDays 7
+
 $allTools = @(
     "rust","go","protoc","golangci-lint","eslint","ruff",
     "gitleaks","trivy","grype","semgrep","gh","git","gitlfs","node","python",
     "claude-code","codex-cli","cursor-cli","abacus-cli","vscode-copilot","git-cli","ai-providers","shared-resources"
 )
 $targets = if ($Tool -and $Tool.Count -gt 0) { $Tool } else { $allTools }
+
+#endregion
 
 foreach ($t in $targets) {
     switch ($t.ToLower()) {
