@@ -1,203 +1,414 @@
 <#
 .SYNOPSIS
-    Install NOA prerequisites on Windows
+    NOA Portable Prerequisites Installer
 
 .DESCRIPTION
-    Checks for and installs required software:
-    - PowerShell 7.4+
-    - Git
-    - 7-Zip (optional)
-    
-    Uses winget when available. Handles non-admin scenarios gracefully.
+    Installs all missing prerequisites using portable installers.
+    This script:
+    1. Runs check-prereqs.ps1 to identify missing tools
+    2. Invokes the appropriate portable installer for each missing tool
+    3. Updates noa-env.ps1 with portable toolchain paths
+    4. Re-verifies installation
 
-.PARAMETER SkipOptional
-    Skip installation of optional components (7-Zip)
+    All tools are installed to noa_root/opt/ per Constitution §3.1 (Self-Contained).
+
+.PARAMETER NoaRoot
+    NOA root directory (default: auto-detect)
+
+.PARAMETER All
+    Install all portable toolchains, even if system versions exist
+
+.PARAMETER Force
+    Force reinstall even if already installed
 
 .EXAMPLE
     .\install-prereqs.ps1
-    Check and install all prerequisites
-
-.EXAMPLE
-    .\install-prereqs.ps1 -SkipOptional
-    Install only required prerequisites
+    .\install-prereqs.ps1 -All -Force
 #>
 
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false)]
-    [switch]$SkipOptional = $false
+    [string]$NoaRoot,
+    [switch]$All,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
 
-function Write-Status {
-    param(
-        [string]$Message,
-        [ValidateSet('Info', 'Success', 'Warning', 'Error')]
-        [string]$Level = 'Info'
-    )
-    
+# Auto-detect NOA_ROOT
+if (-not $NoaRoot) {
+    $NoaRoot = if ($env:NOA_ROOT) {
+        $env:NOA_ROOT
+    } else {
+        Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    }
+}
+
+$NOA_OPT = Join-Path $NoaRoot "opt"
+$InstallerDir = Join-Path $NoaRoot "scripts/bootstrap/installers"
+
+function Write-Log {
+    param([string]$Message, [string]$Level = "Info")
     $color = switch ($Level) {
-        'Success' { 'Green' }
-        'Warning' { 'Yellow' }
-        'Error'   { 'Red' }
-        default   { 'Cyan' }
+        "Success" { "Green" }
+        "Warning" { "Yellow" }
+        "Error" { "Red" }
+        default { "White" }
     }
-    
     $prefix = switch ($Level) {
-        'Success' { '[✓]' }
-        'Warning' { '[!]' }
-        'Error'   { '[✗]' }
-        default   { '[i]' }
+        "Success" { "[✓]" }
+        "Warning" { "[!]" }
+        "Error" { "[✗]" }
+        default { "[i]" }
     }
-    
     Write-Host "$prefix $Message" -ForegroundColor $color
 }
 
-function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+# Define all portable installers
+$PortableInstallers = [ordered]@{
+    "Rust"   = @{
+        Script     = "rust-portable.ps1"
+        CheckPath  = "rust/cargo/bin/rustc.exe"
+        Priority   = 1
+    }
+    "Go"     = @{
+        Script     = "go-portable.ps1"
+        CheckPath  = "go/bin/go.exe"
+        Priority   = 2
+    }
+    "Node"   = @{
+        Script     = "node-portable.ps1"
+        CheckPath  = "node/node.exe"
+        Priority   = 3
+    }
+    "Python" = @{
+        Script     = "python-portable.ps1"
+        CheckPath  = "python/python.exe"
+        Priority   = 4
+    }
+    "protoc" = @{
+        Script     = "protoc-portable.ps1"
+        CheckPath  = "protobuf/bin/protoc.exe"
+        Priority   = 5
+    }
 }
 
-try {
-    Write-Host ""
-    Write-Host "=== NOA Prerequisites Check ===" -ForegroundColor Cyan
-    Write-Host ""
-    
-    $isAdmin = Test-Administrator
-    if ($isAdmin) {
-        Write-Status "Running with administrator privileges" -Level Success
-    } else {
-        Write-Status "Running without administrator privileges" -Level Warning
-        Write-Status "Some installations may require elevation" -Level Warning
-    }
-    
-    Write-Host ""
-    
-    # Check PowerShell version
-    Write-Status "Checking PowerShell version..." -Level Info
-    $psVersion = $PSVersionTable.PSVersion
-    
-    if ($psVersion.Major -lt 7 -or ($psVersion.Major -eq 7 -and $psVersion.Minor -lt 4)) {
-        Write-Status "PowerShell 7.4+ required. Current: $psVersion" -Level Error
-        Write-Status "Download from: https://aka.ms/powershell" -Level Info
-        Write-Status "Or install via winget: winget install Microsoft.PowerShell" -Level Info
-        $allOk = $false
-    } else {
-        Write-Status "PowerShell $psVersion" -Level Success
-    }
-    
-    Write-Host ""
-    
-    # Check for winget
-    Write-Status "Checking for winget..." -Level Info
-    $winget = Get-Command winget -ErrorAction SilentlyContinue
-    
-    if (-not $winget) {
-        Write-Status "winget not found" -Level Error
-        Write-Status "Install App Installer from Microsoft Store to enable automated installations" -Level Info
-        Write-Host ""
-        Write-Host "Manual installation required for remaining prerequisites:" -ForegroundColor Yellow
-        Write-Host "  Git: https://git-scm.com/download/win" -ForegroundColor White
-        exit 1
-    }
-    
-    Write-Status "winget detected: $($winget.Version)" -Level Success
-    Write-Host ""
-    
-    # Check and install Git
-    Write-Status "Checking for Git..." -Level Info
-    $git = Get-Command git -ErrorAction SilentlyContinue
-    
-    if (-not $git) {
-        Write-Status "Git not found. Installing..." -Level Warning
-        
-        if (-not $isAdmin) {
-            Write-Status "Administrator rights required for installation" -Level Warning
-            Write-Host ""
-            Write-Host "Please run one of the following as Administrator:" -ForegroundColor Yellow
-            Write-Host "  winget install Git.Git" -ForegroundColor Cyan
-            Write-Host "  Or download from: https://git-scm.com/download/win" -ForegroundColor Cyan
-            exit 1
+function Test-PortableInstalled {
+    param([string]$CheckPath)
+    $fullPath = Join-Path $NOA_OPT $CheckPath
+    return Test-Path $fullPath
+}
+
+function Get-MissingToolchains {
+    $missing = @()
+    foreach ($name in $PortableInstallers.Keys) {
+        $info = $PortableInstallers[$name]
+        if (-not (Test-PortableInstalled $info.CheckPath)) {
+            $missing += $name
         }
-        
-        try {
-            Write-Status "Installing Git via winget..." -Level Info
-            & winget install Git.Git --silent --accept-source-agreements --accept-package-agreements
-            
-            # Refresh PATH to detect newly installed Git
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-            
-            # Verify installation
-            $git = Get-Command git -ErrorAction SilentlyContinue
-            if ($git) {
-                Write-Status "Git installed successfully" -Level Success
-            } else {
-                Write-Status "Git installation completed but not detected in PATH" -Level Warning
-                Write-Status "You may need to restart your terminal" -Level Info
-            }
-        } catch {
-            Write-Status "Failed to install Git: $_" -Level Error
-            Write-Status "Manual installation: https://git-scm.com/download/win" -Level Info
-            exit 1
-        }
-    } else {
-        $gitVersion = & git --version
-        Write-Status "Git detected: $gitVersion" -Level Success
     }
-    
-    Write-Host ""
-    
-    # Check and install 7-Zip (optional)
-    if (-not $SkipOptional) {
-        Write-Status "Checking for 7-Zip (optional)..." -Level Info
-        $sevenZip = Get-Command 7z -ErrorAction SilentlyContinue
-        
-        if (-not $sevenZip) {
-            Write-Status "7-Zip not found" -Level Warning
-            
-            if ($isAdmin) {
-                try {
-                    Write-Status "Installing 7-Zip via winget..." -Level Info
-                    & winget install 7zip.7zip --silent --accept-source-agreements --accept-package-agreements
-                    
-                    # Refresh PATH
-                    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-                    
-                    $sevenZip = Get-Command 7z -ErrorAction SilentlyContinue
-                    if ($sevenZip) {
-                        Write-Status "7-Zip installed successfully" -Level Success
-                    } else {
-                        Write-Status "7-Zip installation completed but not detected in PATH" -Level Warning
-                    }
-                } catch {
-                    Write-Status "Failed to install 7-Zip (optional): $_" -Level Warning
-                }
-            } else {
-                Write-Status "Skipping 7-Zip installation (requires admin)" -Level Info
-                Write-Status "Install manually: winget install 7zip.7zip" -Level Info
-            }
+    return $missing
+}
+
+function Install-PortableToolchain {
+    param(
+        [string]$Name,
+        [hashtable]$Info,
+        [switch]$Force
+    )
+
+    $scriptPath = Join-Path $InstallerDir $Info.Script
+
+    if (-not (Test-Path $scriptPath)) {
+        Write-Log "Installer not found: $scriptPath" -Level Error
+        return $false
+    }
+
+    Write-Log "Installing $Name to $NOA_OPT..." -Level Info
+
+    $args = @("-NoaRoot", $NoaRoot)
+    if ($Force) { $args += "-Force" }
+
+    try {
+        & $scriptPath @args
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "$Name installed successfully" -Level Success
+            return $true
         } else {
-            Write-Status "7-Zip detected" -Level Success
+            Write-Log "$Name installer exited with code $LASTEXITCODE" -Level Warning
+            return $false
         }
-        
-        Write-Host ""
+    } catch {
+        Write-Log "Failed to install $Name : $_" -Level Error
+        return $false
     }
-    
-    # Summary
-    Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "║                                                            ║" -ForegroundColor Green
-    Write-Host "║        Prerequisites Check Complete                        ║" -ForegroundColor Green
-    Write-Host "║                                                            ║" -ForegroundColor Green
-    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+}
+
+function Update-NoaEnv {
+    <#
+    .SYNOPSIS
+        Updates noa-env.ps1 with all portable toolchain environment variables
+    #>
+
+    $envPath = Join-Path $NoaRoot "noa-env.ps1"
+
+    Write-Log "Generating noa-env.ps1 with portable toolchain configuration..." -Level Info
+
+    $pathAdditions = @()
+    $envVars = @()
+
+    # Rust
+    $rustCargoHome = Join-Path $NOA_OPT "rust/cargo"
+    $rustupHome = Join-Path $NOA_OPT "rust/rustup"
+    if (Test-Path (Join-Path $rustCargoHome "bin/rustc.exe")) {
+        $envVars += "`$env:RUSTUP_HOME = `"$rustupHome`""
+        $envVars += "`$env:CARGO_HOME = `"$rustCargoHome`""
+        $pathAdditions += "$rustCargoHome\bin"
+    }
+
+    # Go
+    $goRoot = Join-Path $NOA_OPT "go"
+    $goPath = Join-Path $NOA_OPT "go/workspace"
+    $goBin = Join-Path $goPath "bin"
+    $goCache = Join-Path $NOA_OPT "go/cache"
+    $goModCache = Join-Path $NOA_OPT "go/pkg/mod"
+    if (Test-Path (Join-Path $goRoot "bin/go.exe")) {
+        $envVars += "`$env:GOROOT = `"$goRoot`""
+        $envVars += "`$env:GOPATH = `"$goPath`""
+        $envVars += "`$env:GOBIN = `"$goBin`""
+        $envVars += "`$env:GOCACHE = `"$goCache`""
+        $envVars += "`$env:GOMODCACHE = `"$goModCache`""
+        $pathAdditions += "$goRoot\bin"
+        $pathAdditions += $goBin
+    }
+
+    # Node.js
+    $nodeRoot = Join-Path $NOA_OPT "node"
+    $npmCache = Join-Path $NOA_OPT "npm-cache"
+    if (Test-Path (Join-Path $nodeRoot "node.exe")) {
+        $envVars += "`$env:npm_config_prefix = `"$nodeRoot`""
+        $envVars += "`$env:npm_config_cache = `"$npmCache`""
+        $pathAdditions += $nodeRoot
+    }
+
+    # Python
+    $pythonRoot = Join-Path $NOA_OPT "python"
+    $venvPath = Join-Path $NOA_OPT "venv"
+    if (Test-Path (Join-Path $pythonRoot "python.exe")) {
+        $pathAdditions += $pythonRoot
+        $pathAdditions += "$pythonRoot\Scripts"
+        if (Test-Path $venvPath) {
+            $envVars += "# To activate Python venv: & `"$venvPath\Scripts\Activate.ps1`""
+        }
+    }
+
+    # protoc
+    $protobufBin = Join-Path $NOA_OPT "protobuf/bin"
+    if (Test-Path (Join-Path $protobufBin "protoc.exe")) {
+        $pathAdditions += $protobufBin
+    }
+
+    # NOA bin directory (self-contained utilities like jq, rg, fd, bat)
+    $noaBin = Join-Path $NoaRoot "bin"
+    $pathAdditions += $noaBin
+
+    # Build the noa-env.ps1 content
+    $content = @(
+        "# NOA Environment Configuration"
+        "# Auto-generated by install-prereqs.ps1"
+        "# Portable Toolchains per Constitution §3.1 (Self-Contained)"
+        "# Last Updated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+        ""
+        "# NOA Root Directory"
+        "`$env:NOA_ROOT = `"$NoaRoot`""
+        ""
+        "# NOA Directory Shortcuts"
+        "`$env:NOA_BIN = `"$(Join-Path $NoaRoot 'bin')`""
+        "`$env:NOA_OPT = `"$NOA_OPT`""
+        "`$env:NOA_CONFIG = `"$(Join-Path $NoaRoot 'config')`""
+        "`$env:NOA_LOGS = `"$(Join-Path $NoaRoot 'logs')`""
+        "`$env:NOA_TMP = `"$(Join-Path $NoaRoot 'tmp')`""
+        ""
+        "# ============================================"
+        "# Portable Toolchain Environment Variables"
+        "# ============================================"
+    )
+
+    if ($envVars.Count -gt 0) {
+        $content += $envVars
+    }
+
+    $content += @(
+        ""
+        "# ============================================"
+        "# PATH Configuration (prepend portable tools)"
+        "# ============================================"
+    )
+
+    if ($pathAdditions.Count -gt 0) {
+        $pathString = ($pathAdditions -join ";")
+        $content += "`$env:PATH = `"$pathString;`$env:PATH`""
+    }
+
+    $content += @(
+        ""
+        "# ============================================"
+        "# Helper Functions"
+        "# ============================================"
+        ""
+        "# Navigation"
+        "function cda { Set-Location `$env:NOA_ROOT }"
+        "function cdopt { Set-Location `$env:NOA_OPT }"
+        "function cdbin { Set-Location `$env:NOA_BIN }"
+        ""
+        "# Toolchain status"
+        "function Get-NoaToolchains {"
+        "    Write-Host 'NOA Portable Toolchains:' -ForegroundColor Cyan"
+        "    @("
+        "        @{ Name = 'Rust'; Path = `"`$env:NOA_OPT/rust/cargo/bin/rustc.exe`" },"
+        "        @{ Name = 'Go'; Path = `"`$env:NOA_OPT/go/bin/go.exe`" },"
+        "        @{ Name = 'Node'; Path = `"`$env:NOA_OPT/node/node.exe`" },"
+        "        @{ Name = 'Python'; Path = `"`$env:NOA_OPT/python/python.exe`" },"
+        "        @{ Name = 'protoc'; Path = `"`$env:NOA_OPT/protobuf/bin/protoc.exe`" }"
+        "    ) | ForEach-Object {"
+        "        `$exists = Test-Path `$_.Path"
+        "        `$status = if (`$exists) { '[OK]' } else { '[--]' }"
+        "        `$color = if (`$exists) { 'Green' } else { 'Yellow' }"
+        "        Write-Host `"  `$status `$(`$_.Name)`" -ForegroundColor `$color"
+        "    }"
+        "}"
+        ""
+        "# Activation message"
+        "Write-Host 'NOA environment loaded (portable toolchains)' -ForegroundColor Green"
+        "Write-Host `"  NOA_ROOT: `$env:NOA_ROOT`" -ForegroundColor Gray"
+    )
+
+    $content -join "`r`n" | Set-Content -Path $envPath -Encoding UTF8
+    Write-Log "Created: $envPath" -Level Success
+}
+
+# ============================================
+# Main Execution
+# ============================================
+
+Write-Host ""
+Write-Host "=" * 60 -ForegroundColor Cyan
+Write-Host "NOA Portable Prerequisites Installer" -ForegroundColor Cyan
+Write-Host "Constitution §3.1 Compliant - Self-Contained" -ForegroundColor Gray
+Write-Host "=" * 60 -ForegroundColor Cyan
+Write-Host ""
+Write-Host "NOA_ROOT:     $NoaRoot" -ForegroundColor White
+Write-Host "Installer Dir: $InstallerDir" -ForegroundColor White
+Write-Host ""
+
+# Ensure installer directory exists
+if (-not (Test-Path $InstallerDir)) {
+    Write-Log "Installer directory not found: $InstallerDir" -Level Error
+    exit 1
+}
+
+# Determine what to install
+$toInstall = @()
+
+if ($All) {
+    Write-Log "Installing ALL portable toolchains (--All specified)..." -Level Info
+    $toInstall = $PortableInstallers.Keys
+} else {
+    Write-Log "Checking for missing portable toolchains..." -Level Info
+    $toInstall = Get-MissingToolchains
+
+    if ($toInstall.Count -eq 0) {
+        Write-Log "All portable toolchains are already installed!" -Level Success
+        Write-Host ""
+        Write-Host "Installed toolchains:" -ForegroundColor Green
+        foreach ($name in $PortableInstallers.Keys) {
+            $info = $PortableInstallers[$name]
+            $path = Join-Path $NOA_OPT $info.CheckPath
+            Write-Host "  [✓] $name : $path" -ForegroundColor Green
+        }
+        Write-Host ""
+
+        # Still regenerate noa-env.ps1 to ensure it's up to date
+        Update-NoaEnv
+        exit 0
+    }
+}
+
+Write-Host ""
+Write-Host "Toolchains to install:" -ForegroundColor Yellow
+foreach ($name in $toInstall) {
+    Write-Host "  - $name" -ForegroundColor White
+}
+Write-Host ""
+
+# Install each missing toolchain in priority order
+$installed = 0
+$failed = 0
+
+foreach ($name in $toInstall) {
+    $info = $PortableInstallers[$name]
     Write-Host ""
-    
-    Write-Status "All required prerequisites are installed" -Level Success
-    Write-Status "You can now run the NOA setup script" -Level Info
-    
+    Write-Host "-" * 50 -ForegroundColor Gray
+
+    $forceParam = if ($Force) { @{ Force = $true } } else { @{} }
+
+    if (Install-PortableToolchain -Name $name -Info $info @forceParam) {
+        $installed++
+    } else {
+        $failed++
+    }
+}
+
+Write-Host ""
+Write-Host "=" * 60 -ForegroundColor Cyan
+
+# Update noa-env.ps1 with all installed toolchains
+Update-NoaEnv
+
+# Summary
+Write-Host ""
+Write-Host "=" * 60 -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Yellow" })
+Write-Host "Installation Summary" -ForegroundColor White
+Write-Host "=" * 60 -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Yellow" })
+Write-Host "  Installed: $installed" -ForegroundColor Green
+Write-Host "  Failed:    $failed" -ForegroundColor $(if ($failed -gt 0) { "Red" } else { "Gray" })
+Write-Host ""
+
+# Detect WSL
+$isWSL = $false
+$wslVersion = ""
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "microsoft") {
+        $isWSL = $true
+        $wslVersion = if (Test-Path "/run/WSL") { "WSL2" } else { "WSL1" }
+    }
+}
+
+if ($failed -eq 0) {
+    Write-Host "All prerequisites installed successfully!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Yellow
+    Write-Host "  1. Load environment:  . `"$(Join-Path $NoaRoot 'noa-env.ps1')`"" -ForegroundColor Cyan
+    Write-Host "  2. Verify tools:      Get-NoaToolchains" -ForegroundColor Cyan
+    Write-Host "  3. Check prereqs:     .\scripts\setup\check-prereqs.ps1" -ForegroundColor Cyan
+
+    # WSL/Linux kernel setup guidance
+    if ($isWSL -and $wslVersion -eq "WSL2") {
+        Write-Host ""
+        Write-Host "WSL2 Detected - Kernel Setup:" -ForegroundColor Yellow
+        Write-Host "  For P2P networking, configure kernel modules:" -ForegroundColor White
+        Write-Host "    wsl -d <distro> -u root $NoaRoot/scripts/noa-kmod check" -ForegroundColor Cyan
+        Write-Host "    wsl -d <distro> -u root $NoaRoot/scripts/noa-kernel-params set net.ipv4.ip_forward 1" -ForegroundColor Cyan
+    } elseif ($isWSL -and $wslVersion -eq "WSL1") {
+        Write-Host ""
+        Write-Host "WSL1 Detected - Limited kernel access (P2P may be restricted)" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
     exit 0
-    
-} catch {
-    Write-Status "Prerequisites check failed: $_" -Level Error
+} else {
+    Write-Host "Some installations failed. See output above for details." -ForegroundColor Yellow
+    Write-Host "You may need to run failed installers manually." -ForegroundColor Yellow
     exit 1
 }

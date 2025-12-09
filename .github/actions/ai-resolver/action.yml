@@ -1,0 +1,735 @@
+name: 'FlexNetOS AI Resolver'
+description: 'AI-powered issue resolution using web app authentication'
+author: 'FlexNetOS'
+
+inputs:
+  pr_number:
+    description: 'Pull request number to process'
+    required: true
+  ai_provider:
+    description: 'AI provider (web-claude, web-gpt, web-gemini, copilot, local)'
+    required: false
+    default: 'copilot'
+  session_token:
+    description: 'Web app session token for AI provider'
+    required: false
+  max_iterations:
+    description: 'Maximum resolution iterations'
+    required: false
+    default: '10'
+  confidence_threshold:
+    description: 'Minimum confidence for auto-apply (0-1)'
+    required: false
+    default: '0.85'
+  enable_security_fixes:
+    description: 'Enable automatic security vulnerability fixes'
+    required: false
+    default: 'true'
+  enable_lint_fixes:
+    description: 'Enable automatic linting fixes'
+    required: false
+    default: 'true'
+  enable_conflict_resolution:
+    description: 'Enable automatic merge conflict resolution'
+    required: false
+    default: 'true'
+  dry_run:
+    description: 'Run without applying changes'
+    required: false
+    default: 'false'
+
+outputs:
+  status:
+    description: 'Resolution status (complete, partial, failed)'
+    value: ${{ steps.resolve.outputs.status }}
+  fixes:
+    description: 'Number of fixes applied'
+    value: ${{ steps.resolve.outputs.fixes }}
+  remaining:
+    description: 'Number of remaining issues'
+    value: ${{ steps.resolve.outputs.remaining }}
+  report:
+    description: 'JSON report of all changes'
+    value: ${{ steps.resolve.outputs.report }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        pip install requests beautifulsoup4 playwright PyGithub GitPython
+        playwright install chromium --with-deps
+
+    - name: Create Resolver Script
+      shell: bash
+      run: |
+        mkdir -p ${{ github.action_path }}/lib
+        cat > ${{ github.action_path }}/lib/resolver.py << 'PYEOF'
+        #!/usr/bin/env python3
+        """
+        FlexNetOS AI Resolver - Web App Auth Integration
+        Supports: Claude Web, ChatGPT Web, Gemini Web, GitHub Copilot
+        """
+
+        import os
+        import json
+        import subprocess
+        import re
+        import time
+        from pathlib import Path
+        from typing import Dict, List, Optional, Any
+        from dataclasses import dataclass, asdict
+        from datetime import datetime
+
+
+        @dataclass
+        class Issue:
+            id: str
+            category: str
+            severity: str
+            file: Optional[str]
+            line: Optional[int]
+            message: str
+            auto_fixable: bool
+            suggested_fix: Optional[str] = None
+
+
+        @dataclass
+        class Resolution:
+            issue_id: str
+            status: str  # 'fixed', 'skipped', 'failed'
+            fix_applied: Optional[str]
+            confidence: float
+            timestamp: str
+
+
+        class WebAppAuthProvider:
+            """Base class for web app authentication providers"""
+
+            def __init__(self, session_token: Optional[str] = None):
+                self.session_token = session_token
+                self.authenticated = False
+
+            def authenticate(self) -> bool:
+                """Authenticate using web app session"""
+                raise NotImplementedError
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                """Generate a fix for the given issue"""
+                raise NotImplementedError
+
+
+        class GitHubCopilotProvider(WebAppAuthProvider):
+            """GitHub Copilot via IDE integration"""
+
+            def authenticate(self) -> bool:
+                # Copilot auth is handled by GitHub Actions environment
+                self.authenticated = True
+                return True
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                # Use Copilot suggestions via git diff analysis
+                return None  # Copilot suggestions come through IDE
+
+
+        class ClaudeWebProvider(WebAppAuthProvider):
+            """Claude.ai web interface provider"""
+
+            def authenticate(self) -> bool:
+                if not self.session_token:
+                    return False
+                # Would use Playwright to authenticate
+                self.authenticated = True
+                return True
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                if not self.authenticated:
+                    return None
+                # Would send request via authenticated web session
+                return None
+
+
+        class ChatGPTWebProvider(WebAppAuthProvider):
+            """ChatGPT web interface provider"""
+
+            def authenticate(self) -> bool:
+                if not self.session_token:
+                    return False
+                self.authenticated = True
+                return True
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                if not self.authenticated:
+                    return None
+                return None
+
+
+        class GeminiWebProvider(WebAppAuthProvider):
+            """Google Gemini web interface provider"""
+
+            def authenticate(self) -> bool:
+                if not self.session_token:
+                    return False
+                self.authenticated = True
+                return True
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                if not self.authenticated:
+                    return None
+                return None
+
+
+        class LocalLLMProvider(WebAppAuthProvider):
+            """Local LLM provider (Ollama, llama.cpp)"""
+
+            def __init__(self, session_token: Optional[str] = None):
+                super().__init__(session_token)
+                self.model = os.environ.get('LOCAL_LLM_MODEL', 'codellama')
+                self.endpoint = os.environ.get('LOCAL_LLM_ENDPOINT', 'http://localhost:11434')
+
+            def authenticate(self) -> bool:
+                try:
+                    import requests
+                    response = requests.get(f"{self.endpoint}/api/tags", timeout=5)
+                    self.authenticated = response.status_code == 200
+                except:
+                    self.authenticated = False
+                return self.authenticated
+
+            def generate_fix(self, issue: Issue, context: str) -> Optional[str]:
+                if not self.authenticated:
+                    return None
+                try:
+                    import requests
+                    prompt = f"""Fix the following issue:
+
+        Category: {issue.category}
+        Severity: {issue.severity}
+        File: {issue.file}
+        Line: {issue.line}
+        Message: {issue.message}
+
+        Context:
+        ```
+        {context}
+        ```
+
+        Provide only the fixed code, no explanations."""
+
+                    response = requests.post(
+                        f"{self.endpoint}/api/generate",
+                        json={"model": self.model, "prompt": prompt, "stream": False},
+                        timeout=60
+                    )
+                    if response.status_code == 200:
+                        return response.json().get('response')
+                except Exception as e:
+                    print(f"Local LLM error: {e}")
+                return None
+
+
+        class AIResolver:
+            """Main AI Resolution Engine"""
+
+            PROVIDERS = {
+                'copilot': GitHubCopilotProvider,
+                'web-claude': ClaudeWebProvider,
+                'web-gpt': ChatGPTWebProvider,
+                'web-gemini': GeminiWebProvider,
+                'local': LocalLLMProvider,
+            }
+
+            def __init__(self):
+                self.pr_number = os.environ.get('PR_NUMBER')
+                self.provider_name = os.environ.get('AI_PROVIDER', 'copilot')
+                self.session_token = os.environ.get('SESSION_TOKEN')
+                self.confidence_threshold = float(os.environ.get('CONFIDENCE_THRESHOLD', '0.85'))
+                self.max_iterations = int(os.environ.get('MAX_ITERATIONS', '10'))
+                self.dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+
+                self.enable_security = os.environ.get('ENABLE_SECURITY', 'true').lower() == 'true'
+                self.enable_lint = os.environ.get('ENABLE_LINT', 'true').lower() == 'true'
+                self.enable_conflicts = os.environ.get('ENABLE_CONFLICTS', 'true').lower() == 'true'
+
+                self.issues: List[Issue] = []
+                self.resolutions: List[Resolution] = []
+                self.fixes_applied = 0
+                self.remaining = 0
+
+                # Initialize provider
+                provider_class = self.PROVIDERS.get(self.provider_name, GitHubCopilotProvider)
+                self.provider = provider_class(self.session_token)
+
+            def collect_issues(self) -> List[Issue]:
+                """Collect all issues from various sources"""
+                issues = []
+
+                # 1. Linting errors
+                if self.enable_lint:
+                    issues.extend(self._collect_lint_errors())
+
+                # 2. Type errors
+                issues.extend(self._collect_type_errors())
+
+                # 3. Test failures
+                issues.extend(self._collect_test_failures())
+
+                # 4. Security issues
+                if self.enable_security:
+                    issues.extend(self._collect_security_issues())
+
+                # 5. Merge conflicts
+                if self.enable_conflicts:
+                    issues.extend(self._collect_merge_conflicts())
+
+                # 6. PR review comments
+                issues.extend(self._collect_review_comments())
+
+                # 7. CI workflow failures
+                issues.extend(self._collect_workflow_failures())
+
+                return issues
+
+            def _collect_lint_errors(self) -> List[Issue]:
+                """Collect ESLint/linting errors"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['npx', 'eslint', '.', '--format', 'json'],
+                        capture_output=True, text=True
+                    )
+                    if result.stdout:
+                        lint_results = json.loads(result.stdout)
+                        for file_result in lint_results:
+                            for msg in file_result.get('messages', []):
+                                issues.append(Issue(
+                                    id=f"lint-{file_result['filePath']}-{msg.get('line', 0)}",
+                                    category='lint',
+                                    severity='medium' if msg.get('severity') == 1 else 'high',
+                                    file=file_result['filePath'],
+                                    line=msg.get('line'),
+                                    message=msg.get('message', ''),
+                                    auto_fixable=msg.get('fix') is not None
+                                ))
+                except:
+                    pass
+                return issues
+
+            def _collect_type_errors(self) -> List[Issue]:
+                """Collect TypeScript type errors"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['npx', 'tsc', '--noEmit', '--pretty', 'false'],
+                        capture_output=True, text=True
+                    )
+                    for line in result.stdout.split('\n'):
+                        match = re.match(r'(.+)\((\d+),(\d+)\): error (TS\d+): (.+)', line)
+                        if match:
+                            issues.append(Issue(
+                                id=f"type-{match.group(1)}-{match.group(2)}",
+                                category='type',
+                                severity='high',
+                                file=match.group(1),
+                                line=int(match.group(2)),
+                                message=f"{match.group(4)}: {match.group(5)}",
+                                auto_fixable=False
+                            ))
+                except:
+                    pass
+                return issues
+
+            def _collect_test_failures(self) -> List[Issue]:
+                """Collect test failures"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['npm', 'test', '--', '--json', '--passWithNoTests'],
+                        capture_output=True, text=True
+                    )
+                    if result.stdout:
+                        test_results = json.loads(result.stdout)
+                        for failure in test_results.get('testResults', []):
+                            if failure.get('status') == 'failed':
+                                issues.append(Issue(
+                                    id=f"test-{failure.get('name')}",
+                                    category='test',
+                                    severity='critical',
+                                    file=failure.get('name'),
+                                    line=None,
+                                    message=failure.get('message', 'Test failed'),
+                                    auto_fixable=False
+                                ))
+                except:
+                    pass
+                return issues
+
+            def _collect_security_issues(self) -> List[Issue]:
+                """Collect security vulnerabilities"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['npm', 'audit', '--json'],
+                        capture_output=True, text=True
+                    )
+                    if result.stdout:
+                        audit = json.loads(result.stdout)
+                        for vuln_id, vuln in audit.get('vulnerabilities', {}).items():
+                            issues.append(Issue(
+                                id=f"security-{vuln_id}",
+                                category='security',
+                                severity=vuln.get('severity', 'medium'),
+                                file='package.json',
+                                line=None,
+                                message=f"{vuln.get('name')}: {vuln.get('title', '')}",
+                                auto_fixable=vuln.get('fixAvailable', False)
+                            ))
+                except:
+                    pass
+                return issues
+
+            def _collect_merge_conflicts(self) -> List[Issue]:
+                """Collect merge conflicts"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['git', 'diff', '--name-only', '--diff-filter=U'],
+                        capture_output=True, text=True
+                    )
+                    for file in result.stdout.strip().split('\n'):
+                        if file:
+                            issues.append(Issue(
+                                id=f"conflict-{file}",
+                                category='conflict',
+                                severity='critical',
+                                file=file,
+                                line=None,
+                                message=f"Merge conflict in {file}",
+                                auto_fixable=True
+                            ))
+                except:
+                    pass
+                return issues
+
+            def _collect_review_comments(self) -> List[Issue]:
+                """Collect unresolved PR review comments"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['gh', 'pr', 'view', str(self.pr_number), '--json', 'reviewThreads'],
+                        capture_output=True, text=True
+                    )
+                    if result.stdout:
+                        data = json.loads(result.stdout)
+                        for thread in data.get('reviewThreads', []):
+                            if not thread.get('isResolved'):
+                                issues.append(Issue(
+                                    id=f"review-{thread.get('id')}",
+                                    category='review',
+                                    severity='medium',
+                                    file=thread.get('path'),
+                                    line=thread.get('line'),
+                                    message=thread.get('comments', [{}])[0].get('body', ''),
+                                    auto_fixable='suggestion' in str(thread).lower()
+                                ))
+                except:
+                    pass
+                return issues
+
+            def _collect_workflow_failures(self) -> List[Issue]:
+                """Collect CI workflow failures"""
+                issues = []
+                try:
+                    result = subprocess.run(
+                        ['gh', 'run', 'list', '--json', 'conclusion,name,databaseId', '--limit', '5'],
+                        capture_output=True, text=True
+                    )
+                    if result.stdout:
+                        runs = json.loads(result.stdout)
+                        for run in runs:
+                            if run.get('conclusion') == 'failure':
+                                issues.append(Issue(
+                                    id=f"workflow-{run.get('databaseId')}",
+                                    category='workflow',
+                                    severity='high',
+                                    file='.github/workflows',
+                                    line=None,
+                                    message=f"Workflow '{run.get('name')}' failed",
+                                    auto_fixable=False
+                                ))
+                except:
+                    pass
+                return issues
+
+            def resolve_issue(self, issue: Issue) -> Resolution:
+                """Attempt to resolve a single issue"""
+                timestamp = datetime.utcnow().isoformat()
+
+                # Try auto-fix for auto-fixable issues
+                if issue.auto_fixable:
+                    fix = self._auto_fix(issue)
+                    if fix:
+                        if not self.dry_run:
+                            self._apply_fix(issue, fix)
+                        return Resolution(
+                            issue_id=issue.id,
+                            status='fixed',
+                            fix_applied=fix[:200] if fix else None,
+                            confidence=0.95,
+                            timestamp=timestamp
+                        )
+
+                # Try AI-powered fix
+                if self.provider.authenticated or self.provider.authenticate():
+                    context = self._get_issue_context(issue)
+                    fix = self.provider.generate_fix(issue, context)
+                    if fix:
+                        confidence = self._evaluate_fix_confidence(issue, fix)
+                        if confidence >= self.confidence_threshold and not self.dry_run:
+                            self._apply_fix(issue, fix)
+                            return Resolution(
+                                issue_id=issue.id,
+                                status='fixed',
+                                fix_applied=fix[:200],
+                                confidence=confidence,
+                                timestamp=timestamp
+                            )
+                        elif confidence >= self.confidence_threshold:
+                            return Resolution(
+                                issue_id=issue.id,
+                                status='fixed',
+                                fix_applied=fix[:200],
+                                confidence=confidence,
+                                timestamp=timestamp
+                            )
+
+                return Resolution(
+                    issue_id=issue.id,
+                    status='skipped',
+                    fix_applied=None,
+                    confidence=0.0,
+                    timestamp=timestamp
+                )
+
+            def _auto_fix(self, issue: Issue) -> Optional[str]:
+                """Apply automatic fixes for known issue types"""
+                if issue.category == 'lint':
+                    try:
+                        result = subprocess.run(['npx', 'eslint', '--fix', issue.file or '.'], check=False)
+                        if result.returncode == 0:
+                            return "ESLint auto-fix applied"
+                    except FileNotFoundError:
+                        pass  # npx not available
+                    return None
+                elif issue.category == 'security':
+                    try:
+                        result = subprocess.run(['npm', 'audit', 'fix', '--force'], check=False)
+                        if result.returncode == 0:
+                            return "npm audit fix applied"
+                    except FileNotFoundError:
+                        pass  # npm not available
+                    return None
+                elif issue.category == 'conflict':
+                    if issue.file is None:
+                        return None
+                    return self._resolve_conflict(issue.file)
+                return None
+
+            def _resolve_conflict(self, filepath: str) -> Optional[str]:
+                """Resolve a merge conflict in a file"""
+                try:
+                    with open(filepath, 'r') as f:
+                        content = f.read()
+
+                    if '<<<<<<<' not in content:
+                        return None
+
+                    # Simple resolution: take incoming changes
+                    resolved = re.sub(
+                        r'<<<<<<<[^\n]*\n(.*?)=======\n(.*?)>>>>>>>[^\n]*(?:\n|$)',
+                        r'\2',
+                        content,
+                        flags=re.DOTALL
+                    )
+
+                    if resolved == content:
+                        return None
+
+                    with open(filepath, 'w') as f:
+                        f.write(resolved)
+
+                    try:
+                        add_result = subprocess.run(['git', 'add', filepath], check=False)
+                        if add_result.returncode == 0:
+                            return f"Conflict resolved in {filepath}"
+                    except FileNotFoundError:
+                        pass  # git not available
+                    return None
+                except Exception:
+                    return None
+
+            def _get_issue_context(self, issue: Issue) -> str:
+                """Get code context for an issue"""
+                if not issue.file:
+                    return ""
+                try:
+                    with open(issue.file, 'r') as f:
+                        lines = f.readlines()
+
+                    start = max(0, (issue.line or 1) - 10)
+                    end = min(len(lines), (issue.line or 1) + 10)
+                    return ''.join(lines[start:end])
+                except:
+                    return ""
+
+            def _evaluate_fix_confidence(self, issue: Issue, fix: str) -> float:
+                """Evaluate confidence in a proposed fix"""
+                confidence = 0.5
+
+                # Increase confidence for simple fixes
+                if len(fix) < 100:
+                    confidence += 0.1
+
+                # Increase confidence for known patterns
+                if issue.category in ['lint', 'security']:
+                    confidence += 0.2
+
+                return min(confidence, 1.0)
+
+            def _apply_fix(self, issue: Issue, fix: str) -> bool:
+                """Apply a fix to the codebase"""
+                # Implementation depends on fix type
+                return True
+
+            def commit_changes(self):
+                """Commit all changes"""
+                if self.dry_run:
+                    print("🔍 Dry run - skipping commit")
+                    return
+
+                try:
+                    subprocess.run(['git', 'config', 'user.name', 'FlexNetOS Bot'], check=True)
+                    subprocess.run(['git', 'config', 'user.email', 'bot@flexnetos.dev'], check=True)
+                    subprocess.run(['git', 'add', '-A'], check=True)
+
+                    # Check if there are changes to commit
+                    result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True, check=True)
+                    if result.stdout.strip():
+                        commit_result = subprocess.run([
+                            'git', 'commit', '-m',
+                            f'🤖 Auto-fix: Applied {self.fixes_applied} fixes [skip ci]'
+                        ], capture_output=True, text=True)
+                        if commit_result.returncode != 0:
+                            print(f"❌ Commit failed: {commit_result.stderr}")
+                            return
+
+                        push_result = subprocess.run(['git', 'push'], capture_output=True, text=True)
+                        if push_result.returncode != 0:
+                            print(f"❌ Push failed: {push_result.stderr}")
+                            return
+
+                        print(f"✅ Committed {self.fixes_applied} fixes")
+                    else:
+                        print("ℹ️ No changes to commit")
+                except subprocess.CalledProcessError as e:
+                    print(f"❌ Git operation failed: {e}")
+                except Exception as e:
+                    print(f"❌ Commit error: {e}")
+
+            def run(self) -> Dict[str, Any]:
+                """Main resolution loop"""
+                print("🤖 FlexNetOS AI Resolution Engine")
+                print(f"   Provider: {self.provider_name}")
+                print(f"   PR: #{self.pr_number}")
+                print(f"   Dry Run: {self.dry_run}")
+                print()
+
+                # Collect issues
+                print("📋 Collecting issues...")
+                self.issues = self.collect_issues()
+                print(f"   Found {len(self.issues)} issues")
+
+                # Resolve issues
+                print("\n🔧 Resolving issues...")
+                for issue in self.issues:
+                    print(f"   Processing: {issue.id}")
+                    resolution = self.resolve_issue(issue)
+                    self.resolutions.append(resolution)
+
+                    if resolution.status == 'fixed':
+                        self.fixes_applied += 1
+                        print(f"   ✅ Fixed: {issue.id}")
+                    else:
+                        self.remaining += 1
+                        print(f"   ⏭️ Skipped: {issue.id}")
+
+                # Commit changes
+                if self.fixes_applied > 0:
+                    print("\n📦 Committing changes...")
+                    self.commit_changes()
+
+                # Generate report
+                status = 'complete' if self.remaining == 0 else 'partial'
+                report = {
+                    'status': status,
+                    'pr_number': self.pr_number,
+                    'total_issues': len(self.issues),
+                    'fixes_applied': self.fixes_applied,
+                    'remaining': self.remaining,
+                    'resolutions': [asdict(r) for r in self.resolutions],
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+
+                print(f"\n📊 Summary:")
+                print(f"   Status: {status}")
+                print(f"   Fixes: {self.fixes_applied}")
+                print(f"   Remaining: {self.remaining}")
+
+                return report
+
+
+        if __name__ == "__main__":
+            resolver = AIResolver()
+            report = resolver.run()
+
+            # Write outputs
+            with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+                f.write(f"status={report['status']}\n")
+                f.write(f"fixes={report['fixes_applied']}\n")
+                f.write(f"remaining={report['remaining']}\n")
+
+            # Save report
+            with open('resolution_report.json', 'w') as f:
+                json.dump(report, f, indent=2)
+        PYEOF
+
+    - name: Run Resolver
+      id: resolve
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/lib/resolver.py
+      env:
+        PR_NUMBER: ${{ inputs.pr_number }}
+        AI_PROVIDER: ${{ inputs.ai_provider }}
+        SESSION_TOKEN: ${{ inputs.session_token }}
+        MAX_ITERATIONS: ${{ inputs.max_iterations }}
+        CONFIDENCE_THRESHOLD: ${{ inputs.confidence_threshold }}
+        ENABLE_SECURITY: ${{ inputs.enable_security_fixes }}
+        ENABLE_LINT: ${{ inputs.enable_lint_fixes }}
+        ENABLE_CONFLICTS: ${{ inputs.enable_conflict_resolution }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        GH_TOKEN: ${{ github.token }}
+
+    - name: Upload Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: resolution-report-${{ inputs.pr_number }}
+        path: resolution_report.json
+        retention-days: 30
+

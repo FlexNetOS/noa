@@ -1,0 +1,75 @@
+{
+  "name": "cursor",
+  "type": "hybrid",
+  "priority": 2,
+  "enabled": true,
+  "description": "Cursor IDE CLI - AI-powered code editor with IDE context awareness",
+  "installMethod": "manual",
+  "downloadUrl": "https://cursor.com/docs/cli/headless",
+  "cli": {
+    "command": "cursor",
+    "version": "latest",
+    "installMethods": {
+      "manual": "Download from https://cursor.com",
+      "windows": "Download cursor-cli.exe from cursor.com",
+      "macos": "brew install --cask cursor",
+      "linux": "Download AppImage from cursor.com"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/cursor-cli/cursor.exe",
+      "unix": "${NOA_ROOT}/opt/cursor-cli/cursor"
+    }
+  },
+  "modes": {
+    "cli": {
+      "description": "Headless CLI mode for CI/CD and automation",
+      "command": "cursor",
+      "flags": ["--headless", "--print", "--output-format"],
+      "documentation": "https://cursor.com/docs/cli/headless"
+    },
+    "cloud": {
+      "description": "Cloud API for advanced features",
+      "apiEndpoint": "https://api.cursor.com",
+      "authMethod": "oauth",
+      "documentation": "https://cursor.com/docs/cli/reference/parameters"
+    },
+    "ide": {
+      "description": "Full IDE with AI capabilities",
+      "supportedPlatforms": ["windows", "macos", "linux"],
+      "features": ["code_completion", "chat", "composer", "agent_mode"]
+    }
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "codeGeneration": true,
+    "codeCompletion": true,
+    "codeExplanation": true,
+    "fileOperations": true,
+    "terminalAccess": true,
+    "gitOperations": true,
+    "streaming": true,
+    "contextAware": true,
+    "ideIntegration": true
+  },
+  "latency": {
+    "target": "<1s",
+    "timeout": 30000
+  },
+  "fallbackPriority": 2,
+  "useCases": [
+    "Code completion with IDE context",
+    "Codebase-aware chat",
+    "Multi-file editing",
+    "CI/CD automation",
+    "GitHub Actions integration"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  }
+}
+
