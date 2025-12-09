@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Installs the Protocol Buffers compiler (protoc) as a self-contained binary.
-    Per NOA Constitution §3.1: Self-contained but fully functional.
+    Per NOA Constitution 3.1: Self-contained but fully functional.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect from script location)
@@ -59,9 +59,9 @@ function Write-Log {
         default { "White" }
     }
     $prefix = switch ($Level) {
-        "Success" { "[✓]" }
-        "Warning" { "[!]" }
-        "Error" { "[✗]" }
+        "Success" { "[OK]" }
+        "Warning" { "[!!]" }
+        "Error" { "[XX]" }
         default { "[i]" }
     }
     Write-Host "$prefix $Message" -ForegroundColor $color
@@ -163,7 +163,7 @@ function Get-EnvironmentSetup {
 Write-Host ""
 Write-Host "=" * 60 -ForegroundColor Cyan
 Write-Host "NOA Portable protoc Installer" -ForegroundColor Cyan
-Write-Host "Constitution §3.1 Compliant - Self-Contained" -ForegroundColor Gray
+Write-Host "Constitution 3.1 Compliant - Self-Contained" -ForegroundColor Gray
 Write-Host "=" * 60 -ForegroundColor Cyan
 Write-Host ""
 Write-Host "NOA_ROOT: $NoaRoot" -ForegroundColor White

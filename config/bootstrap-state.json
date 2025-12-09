@@ -1,0 +1,61 @@
+{
+    "$schema": "https://noa.local/schemas/bootstrap-state.json",
+    "version": "1.0.0",
+    "description": "Bootstrap state tracking - records installed tools, versions, and status",
+    "created_at": null,
+    "updated_at": null,
+    "bootstrap_version": "1.0.0",
+    "platform": {
+        "os": null,
+        "arch": null,
+        "shell": null,
+        "is_wsl": false,
+        "wsl_version": 0
+    },
+    "tools": {},
+    "toolchains": {},
+    "providers": {},
+    "_schema": {
+        "tools": {
+            "_example": {
+                "version": "1.0.0",
+                "path": "/path/to/binary",
+                "status": "installed",
+                "installed_at": "2025-01-01T00:00:00Z",
+                "metadata": {}
+            }
+        },
+        "toolchains": {
+            "_example": {
+                "version": "1.0.0",
+                "root_path": "/path/to/toolchain",
+                "status": "installed",
+                "installed_at": "2025-01-01T00:00:00Z",
+                "env_vars": {
+                    "EXAMPLE_HOME": "/path"
+                },
+                "components": [
+                    "component1",
+                    "component2"
+                ]
+            }
+        },
+        "providers": {
+            "_example": {
+                "version": "1.0.0",
+                "config_path": "/path/to/config.json",
+                "status": "configured",
+                "installed_at": "2025-01-01T00:00:00Z",
+                "priority": "medium"
+            }
+        },
+        "status_values": [
+            "pending",
+            "installed",
+            "updated",
+            "failed",
+            "skipped",
+            "configured"
+        ]
+    }
+}

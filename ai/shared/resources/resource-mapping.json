@@ -1,0 +1,91 @@
+{
+  "$schema": "https://noa.local/schemas/resource-mapping.json",
+  "version": "1.0.0",
+  "description": "Maps provider-specific resource names to unified shared names (§3.13, §4.10)",
+  "lastUpdated": "2025-12-08T00:00:00Z",
+  "mappings": {
+    "agents": {
+      "description": "Agent mappings from provider-specific to unified names",
+      "items": [
+        {
+          "original": "claude",
+          "provider": "claude-code",
+          "unified": "reasoning-agent",
+          "location": "ai/shared/agents/reasoning-agent.json",
+          "capabilities": ["reasoning", "analysis", "long-context"],
+          "status": "template"
+        },
+        {
+          "original": "codex",
+          "provider": "codex-cli",
+          "unified": "code-generation-agent",
+          "location": "ai/shared/agents/code-generation-agent.json",
+          "capabilities": ["code-generation", "completion", "refactoring"],
+          "status": "template"
+        },
+        {
+          "original": "copilot-chat",
+          "provider": "vscode-copilot",
+          "unified": "inline-completion-agent",
+          "location": "ai/shared/agents/inline-completion-agent.json",
+          "capabilities": ["inline-completion", "chat", "explanation"],
+          "status": "template"
+        },
+        {
+          "original": "cursor-agent",
+          "provider": "cursor",
+          "unified": "orchestration-agent",
+          "location": "ai/shared/agents/orchestration-agent.json",
+          "capabilities": ["orchestration", "context-aware", "multi-provider"],
+          "status": "template"
+        }
+      ]
+    },
+    "tools": {
+      "description": "Tool mappings from provider-specific to unified names",
+      "items": [
+        {
+          "original": "claude-reasoning",
+          "provider": "claude-code",
+          "unified": "reasoning-tool",
+          "location": "ai/shared/tools/reasoning-tool.json",
+          "capabilities": ["complex-reasoning", "analysis"],
+          "status": "template"
+        },
+        {
+          "original": "codex-generate",
+          "provider": "codex-cli",
+          "unified": "code-generation-tool",
+          "location": "ai/shared/tools/code-generation-tool.json",
+          "capabilities": ["code-generation", "completion"],
+          "status": "template"
+        }
+      ]
+    },
+    "commands": {
+      "description": "Command mappings from provider-specific to unified names",
+      "items": []
+    },
+    "prompts": {
+      "description": "Prompt mappings from provider-specific to unified names",
+      "items": []
+    },
+    "workflows": {
+      "description": "Workflow mappings from provider-specific to unified names",
+      "items": []
+    }
+  },
+  "refactoringRules": {
+    "namingConvention": {
+      "removePrefix": true,
+      "useCapabilityBased": true,
+      "versionSuffix": "-v1"
+    },
+    "triggerEvents": [
+      "repository_clone",
+      "cli_install",
+      "provider_registration"
+    ]
+  }
+}
+

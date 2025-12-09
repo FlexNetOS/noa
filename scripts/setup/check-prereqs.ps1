@@ -10,6 +10,18 @@
 .PARAMETER Json
     Output results in JSON format
 
+.PARAMETER PathsOnly
+    Output only feature directory paths (for spec-kit integration)
+    This mode returns FEATURE_DIR, AVAILABLE_DOCS, etc. for /tasks and /analyze commands
+
+.PARAMETER RequireTasks
+    Fail if tasks.md does not exist (for /analyze command)
+    Only meaningful with -PathsOnly
+
+.PARAMETER IncludeTasks
+    Include tasks.md in output (implied by PathsOnly, kept for compatibility)
+    Only meaningful with -PathsOnly
+
 .PARAMETER NoaRoot
     NOA root directory (default: parent of scripts directory or env:NOA_ROOT)
 
@@ -19,12 +31,17 @@
 .EXAMPLE
     .\check-prereqs.ps1
     .\check-prereqs.ps1 -Json
+    .\check-prereqs.ps1 -Json -PathsOnly
+    .\check-prereqs.ps1 -Json -PathsOnly -RequireTasks
     .\check-prereqs.ps1 -AllowGlobal
 #>
 
 [CmdletBinding()]
 param(
     [switch]$Json,
+    [switch]$PathsOnly,
+    [switch]$RequireTasks,
+    [switch]$IncludeTasks,
     [string]$NoaRoot,
     [switch]$AllowGlobal
 )
@@ -36,10 +53,116 @@ if (-not $NoaRoot) {
 }
 $NOA_BIN = Join-Path $NoaRoot "bin"
 
-$Installed = @()
-$MissingCritical = @()
-$MissingHigh = @()
-$VersionWarnings = @()
+# Ensure required directories exist (auto-create if missing)
+$requiredDirs = @(
+    $NOA_BIN,
+    (Join-Path $NoaRoot "lib"),
+    (Join-Path $NoaRoot "opt"),
+    (Join-Path $NoaRoot "opt/rust/cargo/bin"),
+    (Join-Path $NoaRoot "opt/go/bin"),
+    (Join-Path $NoaRoot "opt/node"),
+    (Join-Path $NoaRoot "opt/node/node_modules/.bin"),
+    (Join-Path $NoaRoot "opt/python"),
+    (Join-Path $NoaRoot "opt/python/Scripts"),
+    (Join-Path $NoaRoot "opt/protobuf/bin"),
+    (Join-Path $NoaRoot "cache"),
+    (Join-Path $NoaRoot "cache/pip"),
+    (Join-Path $NoaRoot "cache/npm"),
+    (Join-Path $NoaRoot "logs"),
+    (Join-Path $NoaRoot "tmp")
+)
+foreach ($dir in $requiredDirs) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+}
+
+# Handle -PathsOnly mode for spec-kit integration (/clarify, /plan, /tasks, /analyze commands)
+if ($PathsOnly) {
+    # Find the active feature directory
+    $specsDir = Join-Path $NoaRoot "specs"
+    $featureDir = $null
+    $featureSpec = $null
+    $implPlan = $null
+    $tasksFile = $null
+    $availableDocs = @()
+    $checklistsDir = $null
+
+    # Look for feature directories (prefer 001-noa-seed-foundation if exists)
+    if (Test-Path $specsDir) {
+        $features = Get-ChildItem -Path $specsDir -Directory | Where-Object { $_.Name -match '^\d{3}-' } | Sort-Object Name
+        foreach ($feature in $features) {
+            $specPath = Join-Path $feature.FullName "spec.md"
+            if (Test-Path $specPath) {
+                $featureDir = $feature.FullName
+                $featureSpec = $specPath
+
+                # Check for optional docs
+                $planPath = Join-Path $feature.FullName "plan.md"
+                $tasksPath = Join-Path $feature.FullName "tasks.md"
+                $dataModelPath = Join-Path $feature.FullName "data-model.md"
+                $researchPath = Join-Path $feature.FullName "research.md"
+                $quickstartPath = Join-Path $feature.FullName "quickstart.md"
+                $contractsDirPath = Join-Path $feature.FullName "contracts"
+                $checklistsDirPath = Join-Path $feature.FullName "checklists"
+
+                if (Test-Path $planPath) { $implPlan = $planPath; $availableDocs += "plan.md" }
+                if (Test-Path $tasksPath) { $tasksFile = $tasksPath; $availableDocs += "tasks.md" }
+                if (Test-Path $dataModelPath) { $availableDocs += "data-model.md" }
+                if (Test-Path $researchPath) { $availableDocs += "research.md" }
+                if (Test-Path $quickstartPath) { $availableDocs += "quickstart.md" }
+                if (Test-Path $contractsDirPath) { $availableDocs += "contracts/" }
+                if (Test-Path $checklistsDirPath) { $checklistsDir = $checklistsDirPath; $availableDocs += "checklists/" }
+
+                break  # Use first valid feature
+            }
+        }
+    }
+
+    # Validate -RequireTasks: fail if tasks.md doesn't exist when required
+    if ($RequireTasks -and (-not $tasksFile -or -not (Test-Path $tasksFile))) {
+        if ($Json) {
+            $errorResult = @{
+                error = "tasks.md not found"
+                message = "The /analyze command requires tasks.md. Run /speckit.tasks first to generate it."
+                FEATURE_DIR = $featureDir
+                AVAILABLE_DOCS = $availableDocs
+            }
+            $errorResult | ConvertTo-Json -Depth 3
+        } else {
+            Write-Error "ERROR: tasks.md not found in $featureDir"
+            Write-Error "The /analyze command requires tasks.md. Run /speckit.tasks first."
+        }
+        exit 1
+    }
+
+    if ($Json) {
+        $result = @{
+            NOA_ROOT = $NoaRoot
+            FEATURE_DIR = $featureDir
+            FEATURE_SPEC = $featureSpec
+            IMPL_PLAN = $implPlan
+            TASKS = $tasksFile
+            CHECKLISTS_DIR = $checklistsDir
+            AVAILABLE_DOCS = $availableDocs
+        }
+        $result | ConvertTo-Json -Depth 3
+    } else {
+        Write-Host "NOA_ROOT=$NoaRoot"
+        Write-Host "FEATURE_DIR=$featureDir"
+        Write-Host "FEATURE_SPEC=$featureSpec"
+        Write-Host "IMPL_PLAN=$implPlan"
+        Write-Host "TASKS=$tasksFile"
+        Write-Host "CHECKLISTS_DIR=$checklistsDir"
+        Write-Host "AVAILABLE_DOCS=$($availableDocs -join ',')"
+    }
+    exit 0
+}
+
+$script:Installed = @()
+$script:MissingCritical = @()
+$script:MissingHigh = @()
+$script:VersionWarnings = @()
 
 function Compare-Version {
     param([string]$Current, [string]$Required)
@@ -58,11 +181,62 @@ function Compare-Version {
 
 function Resolve-InBin {
     param([string[]]$Names)
+    # Check NOA bin first
     foreach ($n in $Names) {
         $p = Join-Path $NOA_BIN $n
         if (Test-Path $p) { return $p }
     }
+    # Check NOA opt directories (contained toolchains)
+    $optPaths = @(
+        (Join-Path $NoaRoot "opt/rust/cargo/bin"),
+        (Join-Path $NoaRoot "opt/go/bin"),
+        (Join-Path $NoaRoot "opt/node"),
+        (Join-Path $NoaRoot "opt/node/node_modules/.bin"),
+        (Join-Path $NoaRoot "opt/python"),
+        (Join-Path $NoaRoot "opt/python/Scripts"),
+        (Join-Path $NoaRoot "opt/protobuf/bin"),
+        # Git tools (NOA contained)
+        (Join-Path $NoaRoot "opt/git/bin"),
+        (Join-Path $NoaRoot "opt/git/cmd"),
+        (Join-Path $NoaRoot "opt/git/gh/bin"),
+        (Join-Path $NoaRoot "opt/git/lfs")
+    )
+    foreach ($optPath in $optPaths) {
+        if (Test-Path $optPath) {
+            foreach ($n in $Names) {
+                $p = Join-Path $optPath $n
+                if (Test-Path $p) { return $p }
+            }
+        }
+    }
     return $null
+}
+
+# Check if a symlink points to external (non-NOA) location
+function Test-ExternalSymlink {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return $false }
+    $item = Get-Item $Path
+    if ($item.LinkTarget) {
+        # Check if target is outside NOA root
+        $target = $item.LinkTarget
+        if ($target -notlike "$NoaRoot*") {
+            return $true
+        }
+    }
+    return $false
+}
+
+# Warn about policy violations (external symlinks)
+function Warn-PolicyViolation {
+    param([string]$ToolName, [string]$Path)
+    $item = Get-Item $Path -ErrorAction SilentlyContinue
+    if ($item -and $item.LinkTarget -and $item.LinkTarget -notlike "$NoaRoot*") {
+        if (-not $Json) {
+            Write-Host "      [POLICY] Symlink points outside NOA: $($item.LinkTarget)" -ForegroundColor Magenta
+            Write-Host "      Fix: Run .\scripts\bootstrap\installers\git-portable.ps1" -ForegroundColor Gray
+        }
+    }
 }
 
 function Check-Tool {
@@ -85,19 +259,29 @@ function Check-Tool {
         $versionOutput = try {
             if ($VersionCmd) { Invoke-Expression $VersionCmd } else { & $cmd --version }
         } catch { "unknown" }
-        $currentVersion = if ($versionOutput -match '(\d+\.\d+(\.\d+)?)') { $Matches[1] } else { "unknown" }
+        # Convert output to single string for regex matching (handles multi-line output)
+        $versionString = if ($versionOutput -is [array]) {
+            ($versionOutput -join "`n").Trim()
+        } else {
+            ($versionOutput | Out-String).Trim()
+        }
+        $currentVersion = if ($versionString -match '(\d+\.\d+(\.\d+)?)') { $Matches[1] } else { "unknown" }
 
         if ($currentVersion -ne "unknown" -and (Compare-Version $currentVersion $MinVersion)) {
-            $Installed += @{
+            $script:Installed += @{
                 Name = $Name
                 Version = $currentVersion
                 Required = $MinVersion
                 Category = $Category
                 Path = $cmd
             }
-            if (-not $Json) { Write-Host "  [OK] $Name $currentVersion ($cmd)" -ForegroundColor Green }
+            if (-not $Json) {
+                Write-Host "  [OK] $Name $currentVersion ($cmd)" -ForegroundColor Green
+                # Check for policy violations (external symlinks)
+                Warn-PolicyViolation -ToolName $Name -Path $cmd
+            }
         } else {
-            $VersionWarnings += @{
+            $script:VersionWarnings += @{
                 Name = $Name
                 Current = $currentVersion
                 Required = $MinVersion
@@ -110,13 +294,13 @@ function Check-Tool {
 
     $entry = @{ Name = $Name; Install = $InstallCmd; Category = $Category }
     if ($Severity -eq "CRITICAL") {
-        $MissingCritical += $entry
+        $script:MissingCritical += $entry
         if (-not $Json) {
             Write-Host "  [X] $Name NOT FOUND (CRITICAL)" -ForegroundColor Red
             Write-Host "      Install: $InstallCmd" -ForegroundColor Gray
         }
     } else {
-        $MissingHigh += $entry
+        $script:MissingHigh += $entry
         if (-not $Json) {
             Write-Host "  [X] $Name NOT FOUND (HIGH)" -ForegroundColor Red
             Write-Host "      Install: $InstallCmd" -ForegroundColor Gray
@@ -132,7 +316,7 @@ function Check-SelfContainedTool {
 
     $toolPath = Join-Path $NOA_BIN $ExeName
     if (Test-Path $toolPath) {
-        $Installed += @{
+        $script:Installed += @{
             Name = $Name
             Version = "self-contained"
             Category = "Self-Contained"
@@ -140,7 +324,7 @@ function Check-SelfContainedTool {
         }
         if (-not $Json) { Write-Host "  [OK] $Name (self-contained: $toolPath)" -ForegroundColor Green }
     } else {
-        $MissingHigh += @{
+        $script:MissingHigh += @{
             Name = $Name
             Install = ".\scripts\setup\install-all-tools.ps1 -Tool $Name"
             Category = "Self-Contained"
@@ -254,29 +438,29 @@ if (-not $Json) {
 }
 
 Check-Tool -Name "Git" -Commands @("git.exe","git") -MinVersion "2.40.0" -Severity "CRITICAL" `
-    -InstallCmd ".\scripts\setup\install-all-tools.ps1 -Tool git" `
+    -InstallCmd ".\scripts\bootstrap\installers\git-portable.ps1" `
     -VersionCmd "git --version" -Category "Basic"
 
 Check-Tool -Name "GitHub CLI" -Commands @("gh.exe","gh") -MinVersion "2.40.0" -Severity "HIGH" `
-    -InstallCmd ".\scripts\setup\install-all-tools.ps1 -Tool gh" `
+    -InstallCmd ".\scripts\bootstrap\installers\git-portable.ps1" `
     -VersionCmd "gh --version" -Category "Basic"
 
 Check-Tool -Name "Git LFS" -Commands @("git-lfs.exe","git-lfs") -MinVersion "3.0.0" -Severity "HIGH" `
-    -InstallCmd ".\scripts\setup\install-all-tools.ps1 -Tool gitlfs" `
+    -InstallCmd ".\scripts\bootstrap\installers\git-portable.ps1" `
     -VersionCmd "git lfs version" -Category "Basic"
 
 if ($Json) {
     $result = @{
         noa_root = $NoaRoot
-        installed = $Installed
-        missing_critical = $MissingCritical
-        missing_high = $MissingHigh
-        version_warnings = $VersionWarnings
+        installed = $script:Installed
+        missing_critical = $script:MissingCritical
+        missing_high = $script:MissingHigh
+        version_warnings = $script:VersionWarnings
         summary = @{
-            installed = $Installed.Count
-            missing_critical = $MissingCritical.Count
-            missing_high = $MissingHigh.Count
-            version_warnings = $VersionWarnings.Count
+            installed = $script:Installed.Count
+            missing_critical = $script:MissingCritical.Count
+            missing_high = $script:MissingHigh.Count
+            version_warnings = $script:VersionWarnings.Count
         }
     }
     $result | ConvertTo-Json -Depth 5
@@ -285,20 +469,20 @@ if ($Json) {
     Write-Host "=" * 60 -ForegroundColor Cyan
     Write-Host "Summary" -ForegroundColor Cyan
     Write-Host "=" * 60 -ForegroundColor Cyan
-    Write-Host "Installed:        $($Installed.Count)" -ForegroundColor Green
-    Write-Host "Missing CRITICAL: $($MissingCritical.Count)" -ForegroundColor $(if ($MissingCritical.Count -gt 0) { "Red" } else { "Green" })
-    Write-Host "Missing HIGH:     $($MissingHigh.Count)" -ForegroundColor $(if ($MissingHigh.Count -gt 0) { "Yellow" } else { "Green" })
-    Write-Host "Version Warnings: $($VersionWarnings.Count)" -ForegroundColor $(if ($VersionWarnings.Count -gt 0) { "Yellow" } else { "Green" })
+    Write-Host "Installed:        $($script:Installed.Count)" -ForegroundColor Green
+    Write-Host "Missing CRITICAL: $($script:MissingCritical.Count)" -ForegroundColor $(if ($script:MissingCritical.Count -gt 0) { "Red" } else { "Green" })
+    Write-Host "Missing HIGH:     $($script:MissingHigh.Count)" -ForegroundColor $(if ($script:MissingHigh.Count -gt 0) { "Yellow" } else { "Green" })
+    Write-Host "Version Warnings: $($script:VersionWarnings.Count)" -ForegroundColor $(if ($script:VersionWarnings.Count -gt 0) { "Yellow" } else { "Green" })
 }
 
-if ($MissingCritical.Count -gt 0) {
+if ($script:MissingCritical.Count -gt 0) {
     if (-not $Json) {
         Write-Host ""
         Write-Host "ERROR: Critical prerequisites missing. Install before building." -ForegroundColor Red
         Write-Host "Run: pwsh -File scripts/setup/install-all-tools.ps1" -ForegroundColor Gray
     }
     exit 1
-} elseif ($MissingHigh.Count -gt 0) {
+} elseif ($script:MissingHigh.Count -gt 0) {
     if (-not $Json) {
         Write-Host ""
         Write-Host "WARNING: High-priority tools missing. Quality gates may fail." -ForegroundColor Yellow

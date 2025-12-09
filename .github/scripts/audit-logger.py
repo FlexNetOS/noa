@@ -336,13 +336,14 @@ class AuditLogger:
             if log_file.exists():
                 with open(log_file) as f:
                     for line in f:
+                        # Check limit after we have enough matching events
                         if len(events) >= limit:
                             break
                         try:
                             data = json.loads(line)
                             event = AuditEvent(**data)
 
-                            # Apply filters
+                            # Apply filters first - only count events that pass all filters
                             if event_types and event.event_type not in [e.value for e in event_types]:
                                 continue
                             if repository and event.repository != repository:
@@ -352,9 +353,14 @@ class AuditLogger:
                             if severity and event.severity != severity.value:
                                 continue
 
+                            # Event passed all filters - add it and check limit
                             events.append(event)
                         except:
                             pass
+
+                # Check if we've reached the limit after processing each file
+                if len(events) >= limit:
+                    break
 
             current_date += timedelta(days=1)
 
