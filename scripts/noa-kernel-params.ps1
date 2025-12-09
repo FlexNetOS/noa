@@ -31,7 +31,7 @@
 
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet("set", "get", "list", "apply")]
+    [ValidateSet("set", "get", "list", "apply", "list-modes", "check-availability", "select-mode")]
     [string]$Action,
 
     [string]$Param,
@@ -66,6 +66,113 @@ function Get-NoaParams {
 function Save-NoaParams {
     param($Params)
     $Params | ConvertTo-Json -Depth 5 | Set-Content -Path $PARAMS_FILE
+}
+
+# Load kernel selection policy
+function Get-KernelSelectionPolicy {
+    $policyPath = Join-Path $NoaRoot "config/kernel-selection-policy.json"
+    if (Test-Path $policyPath) {
+        return Get-Content $policyPath -Raw | ConvertFrom-Json
+    }
+    return $null
+}
+
+# Check availability of kernel modes (FR-160)
+function Get-AvailableModes {
+    $modes = @()
+
+    # Native is always available
+    $modes += @{
+        Mode = "native"
+        Available = $true
+        Reason = "Always available"
+    }
+
+    # Check Hyper-V availability
+    try {
+        $hyperV = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online -ErrorAction SilentlyContinue
+        if ($hyperV -and $hyperV.State -eq "Enabled") {
+            $modes += @{ Mode = "vm"; Available = $true; Reason = "Hyper-V enabled" }
+        } else {
+            $modes += @{ Mode = "vm"; Available = $false; Reason = "Hyper-V not enabled" }
+        }
+    } catch {
+        $modes += @{ Mode = "vm"; Available = $false; Reason = "Cannot check Hyper-V: $_" }
+    }
+
+    # Check Docker availability
+    try {
+        $dockerInfo = docker info 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $modes += @{ Mode = "container"; Available = $true; Reason = "Docker available" }
+        } else {
+            $modes += @{ Mode = "container"; Available = $false; Reason = "Docker not running" }
+        }
+    } catch {
+        $modes += @{ Mode = "container"; Available = $false; Reason = "Docker not installed" }
+    }
+
+    # Check Windows Sandbox availability
+    try {
+        $sandbox = Get-WindowsOptionalFeature -FeatureName Containers-DisposableClientVM -Online -ErrorAction SilentlyContinue
+        if ($sandbox -and $sandbox.State -eq "Enabled") {
+            $modes += @{ Mode = "sandbox"; Available = $true; Reason = "Windows Sandbox enabled" }
+        } else {
+            $modes += @{ Mode = "sandbox"; Available = $false; Reason = "Windows Sandbox not enabled" }
+        }
+    } catch {
+        $modes += @{ Mode = "sandbox"; Available = $false; Reason = "Cannot check Sandbox: $_" }
+    }
+
+    return $modes
+}
+
+# Select kernel mode based on policy (FR-159, FR-160)
+function Select-KernelMode {
+    param(
+        [string]$RequestedMode = "",
+        [switch]$PreferIsolated,
+        [string]$UseCase = ""
+    )
+
+    $policy = Get-KernelSelectionPolicy
+    $availableModes = Get-AvailableModes
+
+    # If specific mode requested, validate and use it
+    if ($RequestedMode) {
+        $modeInfo = $availableModes | Where-Object { $_.Mode -eq $RequestedMode }
+        if ($modeInfo -and $modeInfo.Available) {
+            return @{
+                SelectedMode = $RequestedMode
+                Reason = "User requested"
+                Available = $true
+            }
+        } else {
+            Write-Host "  Requested mode '$RequestedMode' not available: $($modeInfo.Reason)" -ForegroundColor Yellow
+        }
+    }
+
+    # Apply policy precedence (VM > Container > Sandbox > Native)
+    if ($PreferIsolated -and $policy) {
+        foreach ($precedence in $policy.precedenceOrder) {
+            $modeInfo = $availableModes | Where-Object { $_.Mode -eq $precedence.mode }
+            if ($modeInfo -and $modeInfo.Available) {
+                return @{
+                    SelectedMode = $precedence.mode
+                    Reason = "Policy precedence (isolation preferred)"
+                    Available = $true
+                    Priority = $precedence.priority
+                }
+            }
+        }
+    }
+
+    # Default to native mode
+    return @{
+        SelectedMode = "native"
+        Reason = "Default mode (performance)"
+        Available = $true
+    }
 }
 
 # Windows-specific parameter application
@@ -181,6 +288,70 @@ switch ($Action) {
         }
 
         Write-Host "Parameters applied" -ForegroundColor Green
+    }
+
+    "list-modes" {
+        Write-Host "NOA Kernel Modes (FR-160 Precedence Order):" -ForegroundColor Cyan
+        Write-Host ""
+
+        $policy = Get-KernelSelectionPolicy
+        $availableModes = Get-AvailableModes
+
+        if ($policy) {
+            foreach ($precedence in $policy.precedenceOrder) {
+                $modeInfo = $availableModes | Where-Object { $_.Mode -eq $precedence.mode }
+                $status = if ($modeInfo -and $modeInfo.Available) { "[OK]" } else { "[--]" }
+                $color = if ($modeInfo -and $modeInfo.Available) { "Green" } else { "Yellow" }
+
+                Write-Host "  Priority $($precedence.priority): $($precedence.displayName) ($($precedence.mode))" -ForegroundColor $color
+                Write-Host "    Description: $($precedence.description)" -ForegroundColor Gray
+                Write-Host "    Use Cases: $($precedence.useCases -join ', ')" -ForegroundColor Gray
+                Write-Host "    Status: $status $($modeInfo.Reason)" -ForegroundColor $color
+                Write-Host ""
+            }
+        } else {
+            Write-Host "  kernel-selection-policy.json not found" -ForegroundColor Yellow
+            Write-Host "  Default modes: native (always available)" -ForegroundColor Gray
+        }
+
+        # Show current mode
+        $currentParams = Get-NoaParams
+        $currentMode = if ($currentParams.kernel_mode) { $currentParams.kernel_mode } else { "native" }
+        Write-Host "Current mode: $currentMode" -ForegroundColor Cyan
+    }
+
+    "check-availability" {
+        Write-Host "Checking kernel mode availability..." -ForegroundColor Cyan
+        Write-Host ""
+
+        $availableModes = Get-AvailableModes
+        foreach ($mode in $availableModes) {
+            $status = if ($mode.Available) { "[OK]" } else { "[--]" }
+            $color = if ($mode.Available) { "Green" } else { "Yellow" }
+            Write-Host "  $status $($mode.Mode): $($mode.Reason)" -ForegroundColor $color
+        }
+    }
+
+    "select-mode" {
+        if (-not $Value) {
+            Write-Host "Usage: noa-kernel-params.ps1 -Action select-mode -Value <mode>" -ForegroundColor Yellow
+            Write-Host "  Available modes: native, vm, container, sandbox" -ForegroundColor Gray
+            Write-Host "  Or use -Value 'auto' for automatic selection based on policy" -ForegroundColor Gray
+            exit 1
+        }
+
+        $preferIsolated = ($Value -eq "auto-isolated")
+        $requestedMode = if ($Value -eq "auto" -or $Value -eq "auto-isolated") { "" } else { $Value }
+
+        $selection = Select-KernelMode -RequestedMode $requestedMode -PreferIsolated:$preferIsolated
+        Write-Host "Selected kernel mode: $($selection.SelectedMode)" -ForegroundColor Cyan
+        Write-Host "  Reason: $($selection.Reason)" -ForegroundColor Gray
+
+        # Store the selected mode
+        $params = Get-NoaParams
+        $params | Add-Member -NotePropertyName "kernel_mode" -NotePropertyValue $selection.SelectedMode -Force
+        Save-NoaParams $params
+        Write-Host "  Stored to kernel parameters" -ForegroundColor Green
     }
 }
 

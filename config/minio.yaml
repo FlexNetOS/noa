@@ -1,0 +1,72 @@
+# NOA MinIO S3-Compatible Storage Configuration
+# Purpose: Local S3-compatible object storage for artifacts, backups, and large files
+# FR-001: All storage within noa_root
+
+version: "1.0"
+name: noa-minio
+
+server:
+  # Local-only binding (FR-002: Local-first)
+  address: localhost
+  port: 9000
+  console_port: 9001
+
+storage:
+  # All data stored within noa_root
+  root: ${NOA_ROOT}/data/minio
+
+  # Storage pools
+  pools:
+    - name: artifacts
+      path: ${NOA_ROOT}/data/minio/artifacts
+      description: "Build artifacts, SBOMs, digests"
+
+    - name: backups
+      path: ${NOA_ROOT}/data/minio/backups
+      description: "Database backups, state snapshots"
+
+    - name: models
+      path: ${NOA_ROOT}/data/minio/models
+      description: "AI model storage (gguf files)"
+
+    - name: archives
+      path: ${NOA_ROOT}/data/minio/archives
+      description: "Long-term memory archives"
+
+# Default buckets to create on startup
+buckets:
+  - name: noa-artifacts
+    versioning: true
+    lifecycle:
+      expiration_days: 365
+
+  - name: noa-backups
+    versioning: true
+    lifecycle:
+      expiration_days: 90
+
+  - name: noa-models
+    versioning: false
+    lifecycle: null
+
+  - name: noa-archives
+    versioning: false
+    lifecycle: null
+
+# Authentication (local development)
+credentials:
+  root_user: ${NOA_MINIO_ROOT_USER:-noa-admin}
+  root_password: ${NOA_MINIO_ROOT_PASSWORD:-noa-secret-key}
+
+# Encryption at rest (FR-NFR-003)
+encryption:
+  enabled: true
+  key_source: vault
+  key_path: ${NOA_ROOT}/data/secrets/minio.key
+
+# Logging
+logging:
+  level: info
+  output: ${NOA_ROOT}/logs/minio/minio.log
+  format: json
+

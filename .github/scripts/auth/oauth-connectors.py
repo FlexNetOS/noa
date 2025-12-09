@@ -610,10 +610,23 @@ class OAuthManager:
             if token.refresh_token:
                 connector = self.connectors.get(provider)
                 if connector:
-                    token = connector.refresh_token(token.refresh_token)
-                    self._save_token(provider, token, user_id)
+                    try:
+                        refreshed_token = connector.refresh_token(token.refresh_token)
+                        if refreshed_token:
+                            self._save_token(provider, refreshed_token, user_id)
+                            token = refreshed_token
+                        else:
+                            # Refresh returned None -> treat as expired/invalid
+                            return None
+                    except Exception:
+                        # Refresh failed -> treat as expired/invalid
+                        return None
+                else:
+                    # Has refresh_token but connector not found -> cannot refresh
+                    # Return None instead of expired token to maintain API contract
+                    return None
             else:
-                # Expired and cannot refresh -> treat as missing
+                # Expired and no refresh_token -> treat as missing
                 return None
 
         return token

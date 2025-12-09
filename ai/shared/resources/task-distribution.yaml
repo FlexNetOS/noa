@@ -1,0 +1,395 @@
+# Task Distribution Configuration
+# Defines how tasks are distributed across AI providers
+#
+# Constitutional reference: §3.7 (Shared Provider Execution Memory)
+
+$schema: https://noa.local/schemas/task-distribution.yaml
+version: "1.0.0"
+description: Configuration for distributing tasks across AI providers
+
+# Provider capability matrix
+# Used to match tasks to the most capable provider
+provider_capabilities:
+  # Local providers (low latency, private)
+  ollama:
+    type: local
+    strengths:
+      - quick_responses
+      - local_inference
+      - privacy_sensitive
+    weaknesses:
+      - limited_context
+      - no_tool_use
+    max_context_tokens: 8192
+    latency_class: fast
+    cost_class: free
+
+  llama-server:
+    type: local
+    strengths:
+      - low_latency
+      - customizable
+      - multiple_models
+    weaknesses:
+      - setup_complexity
+    max_context_tokens: 32768
+    latency_class: fast
+    cost_class: free
+
+  # Cloud providers (high capability, cost)
+  claude-code:
+    type: cloud
+    strengths:
+      - complex_reasoning
+      - long_context
+      - code_generation
+      - tool_use
+      - agentic_coding
+    weaknesses:
+      - latency
+      - cost
+    max_context_tokens: 200000
+    latency_class: medium
+    cost_class: high
+
+  codex:
+    type: cloud
+    strengths:
+      - code_completion
+      - code_generation
+      - multi_language
+    weaknesses:
+      - reasoning_depth
+    max_context_tokens: 8192
+    latency_class: medium
+    cost_class: medium
+
+  abacus:
+    type: cloud
+    strengths:
+      - enterprise_workflows
+      - data_analysis
+      - custom_agents
+    weaknesses:
+      - setup_complexity
+    max_context_tokens: 128000
+    latency_class: medium
+    cost_class: enterprise
+
+  # Hybrid providers (balance)
+  cursor:
+    type: hybrid
+    strengths:
+      - ide_integration
+      - codebase_context
+      - multi_file_edits
+    weaknesses:
+      - ide_dependency
+    max_context_tokens: 128000
+    latency_class: fast
+    cost_class: subscription
+
+  # IDE providers (inline assistance)
+  vscode-copilot:
+    type: ide
+    strengths:
+      - inline_completion
+      - fast_suggestions
+      - ide_native
+    weaknesses:
+      - limited_reasoning
+    max_context_tokens: 8192
+    latency_class: instant
+    cost_class: subscription
+
+# Task type definitions
+task_types:
+  # === Reasoning & Planning ===
+  reasoning:
+    description: Complex reasoning, planning, and decision making
+    preferred_providers: [cursor]  # Opus 4.5
+    fallback_providers: [claude-code]
+    required_capabilities: [reasoning, long_context]
+
+  # === Code Generation ===
+  code_generation:
+    description: Generate new code from requirements
+    preferred_providers: [codex, abacus]  # Codex 5.1 fastest, Abacus for complex
+    fallback_providers: [cursor, claude-code]
+    required_capabilities: [code_generation]
+
+  fast_code:
+    description: Quick code generation for simple/well-defined tasks
+    preferred_providers: [codex]  # Codex 5.1 - fastest
+    fallback_providers: [cursor, ollama]
+    required_capabilities: [code_generation]
+
+  complex_code:
+    description: Complex code requiring deep understanding
+    preferred_providers: [abacus, claude-code]
+    fallback_providers: [cursor, codex]
+    required_capabilities: [code_generation, reasoning]
+
+  # === Verification & Error Fixing ===
+  verification:
+    description: Run linting, type checking, interpret errors
+    preferred_providers: [claude-code]  # Deep error analysis
+    fallback_providers: [cursor]
+    required_capabilities: [code_analysis, tool_use]
+
+  error_fixing:
+    description: Analyze errors and propose/apply fixes
+    preferred_providers: [claude-code]  # Agentic iteration
+    fallback_providers: [cursor, codex]
+    required_capabilities: [code_analysis, code_generation, tool_use]
+
+  # === Refactoring & Tool Creation ===
+  refactoring:
+    description: Restructure code while preserving behavior
+    preferred_providers: [cursor]  # IDE context for multi-file
+    fallback_providers: [claude-code, codex]
+    required_capabilities: [code_generation, code_analysis, ide_context]
+
+  tool_creation:
+    description: Create reusable utilities and abstractions
+    preferred_providers: [cursor]  # Reasoning + codebase awareness
+    fallback_providers: [claude-code, abacus]
+    required_capabilities: [reasoning, code_generation]
+
+  # === Review & Analysis ===
+  code_review:
+    description: Review and analyze existing code
+    preferred_providers: [claude-code, cursor]
+    fallback_providers: [ollama]
+    required_capabilities: [code_analysis]
+
+  analysis:
+    description: Analyze requirements, architecture, or data
+    preferred_providers: [cursor, abacus]  # Reasoning for architecture
+    fallback_providers: [claude-code, ollama]
+    required_capabilities: [reasoning]
+
+  security_review:
+    description: Security vulnerability analysis
+    preferred_providers: [claude-code]
+    fallback_providers: [cursor]
+    required_capabilities: [security_analysis]
+
+  # === Documentation & Completion ===
+  documentation:
+    description: Generate documentation and comments
+    preferred_providers: [claude-code, ollama]
+    fallback_providers: [cursor]
+    required_capabilities: [text_generation]
+
+  quick_completion:
+    description: Fast inline code completions
+    preferred_providers: [vscode-copilot, cursor]
+    fallback_providers: [ollama]
+    required_capabilities: [code_completion]
+
+  # === Testing ===
+  test_generation:
+    description: Generate unit and integration tests
+    preferred_providers: [cursor, claude-code]
+    fallback_providers: [codex]
+    required_capabilities: [code_generation, test_understanding]
+
+  # === Local/Offline ===
+  local_inference:
+    description: Tasks that must run locally (privacy, offline)
+    preferred_providers: [llama-server, ollama]
+    fallback_providers: []
+    required_capabilities: [local_inference]
+
+  # === Local Code Subagents (llama.cpp SLM pool) ===
+  local_code_impl:
+    description: Code implementation delegated to local SLM coding agents
+    preferred_providers: [llama-server]  # Uses 5 concurrent SLM subagents
+    fallback_providers: [ollama]
+    required_capabilities: [code_generation, local_inference]
+    subagent_pool: true  # Enables parallel subagent execution
+
+# Assignment rules
+assignment:
+  # Primary strategy
+  strategy: capability_match
+
+  # Fallback strategies in order
+  fallback_strategies:
+    - least_loaded
+    - round_robin
+
+  # Provider selection criteria
+  selection_criteria:
+    - capability_score: 0.4    # How well provider matches task
+    - availability: 0.3        # Provider is online and responsive
+    - cost_efficiency: 0.2     # Cost per token/request
+    - historical_success: 0.1  # Past success rate for similar tasks
+
+  # Constraints
+  constraints:
+    max_parallel_assignments: 5
+    assignment_timeout_seconds: 10
+    require_capability_match: true
+    allow_degraded_assignment: true  # Assign even if no perfect match
+
+# Load balancing - Optimized for parallel execution workload distribution
+load_balancing:
+  enabled: true
+  algorithm: capability_aware_round_robin  # Route by task type, balance within type
+
+  # Provider weights - BALANCED for parallel execution (from clarify session 2025-12-09)
+  # Higher weights = more capacity, balanced to prevent bottlenecks
+  # Note: llama-server weight increased to reflect 5-subagent pool capacity
+  weights:
+    cursor: 10       # Orchestrator, reasoning, refactoring
+    claude-code: 10  # Verification, error fixing, complex analysis
+    codex: 10        # Fast code generation (Codex 5.1)
+    abacus: 8        # Complex coding, enterprise workflows
+    llama-server: 25 # 5 SLM coding subagents (5x multiplier for impl tasks)
+    ollama: 6        # Local inference fallback (single model)
+    vscode-copilot: 4  # Inline completions only
+
+  # Role assignments (from clarify session 2025-12-09)
+  role_mapping:
+    reasoning: cursor           # Opus 4.5 - planning, decisions
+    fast_code: codex            # Codex 5.1 - fastest code generation
+    complex_code: abacus        # Abacus AI - enterprise/complex tasks
+    verification: claude-code   # Claude - error analysis & fixing
+    refactoring: cursor         # Cursor - IDE context for multi-file
+    local: llama-server         # llama.cpp - privacy, offline
+    local_code_impl: llama-server  # llama.cpp SLM pool for code tasks
+
+# llama.cpp Subagent Pool Configuration
+# 5 SLM coding agents run in parallel as implementation workers
+llama_subagent_pool:
+  enabled: true
+  pool_size: 5  # 5 concurrent SLM coding agents
+
+  # Each subagent runs a coding-optimized model
+  subagents:
+    - id: slm-coder-1
+      model: deepseek-coder-6.7b-instruct-q4_k_m
+      specialization: general_code
+      max_context: 8192
+
+    - id: slm-coder-2
+      model: codellama-7b-instruct-q4_k_m
+      specialization: code_completion
+      max_context: 16384
+
+    - id: slm-coder-3
+      model: qwen2.5-coder-7b-instruct-q4_k_m
+      specialization: code_generation
+      max_context: 32768
+
+    - id: slm-coder-4
+      model: starcoder2-7b-q4_k_m
+      specialization: multi_language
+      max_context: 16384
+
+    - id: slm-coder-5
+      model: phi-3.5-mini-instruct-q4_k_m
+      specialization: quick_tasks
+      max_context: 128000
+
+  # Task delegation from main providers to SLM pool
+  delegation:
+    enabled: true
+    delegate_from:
+      - cursor       # Can delegate implementation subtasks
+      - codex        # Can delegate parallel code chunks
+      - abacus       # Can delegate sub-implementations
+      - claude-code  # Can delegate fix implementations
+
+    # Task types suitable for SLM delegation
+    delegatable_tasks:
+      - single_function_impl     # Implement a single function
+      - boilerplate_generation   # Generate repetitive code
+      - test_case_impl           # Implement individual test cases
+      - config_file_generation   # Generate config files
+      - type_definition          # Generate type/interface definitions
+      - utility_function         # Small utility functions
+      - documentation_generation # Docstrings and comments
+
+    # Constraints
+    constraints:
+      max_tokens_per_task: 2000      # Keep tasks small for SLMs
+      max_files_per_task: 1          # Single file per subagent
+      require_clear_spec: true       # Task must have clear specification
+      timeout_seconds: 60            # Timeout per subtask
+
+  # Load balancing across the 5 subagents
+  scheduling:
+    algorithm: round_robin_by_specialization
+    queue_depth_per_agent: 3
+    prefer_idle_agent: true
+
+  # Result aggregation
+  aggregation:
+    merge_strategy: sequential      # Merge results in order
+    conflict_resolution: parent     # Parent provider resolves conflicts
+    validation_required: true       # Results validated before merge
+
+  # Health check configuration
+  health_check:
+    interval_seconds: 30
+    timeout_seconds: 5
+    unhealthy_threshold: 3
+    healthy_threshold: 2
+
+# Task decomposition
+decomposition:
+  enabled: true
+
+  # When to decompose tasks
+  triggers:
+    estimated_tokens_exceeded: 50000
+    complexity_score_exceeded: 8
+    multi_file_changes: true
+
+  # Decomposition strategies
+  strategies:
+    by_file:
+      description: Split task by affected files
+      max_files_per_subtask: 3
+
+    by_component:
+      description: Split by logical components
+      component_detection: automatic
+
+    by_phase:
+      description: Split into sequential phases
+      phases: [analyze, implement, test, integrate]
+
+# Queue management
+queues:
+  high_priority:
+    max_size: 100
+    timeout_seconds: 30
+    retry_count: 3
+
+  normal:
+    max_size: 500
+    timeout_seconds: 60
+    retry_count: 2
+
+  background:
+    max_size: 1000
+    timeout_seconds: 300
+    retry_count: 1
+
+# Monitoring and alerting
+monitoring:
+  metrics:
+    - queue_depth
+    - assignment_latency
+    - task_success_rate
+    - provider_utilization
+
+  alerts:
+    queue_depth_threshold: 100
+    assignment_latency_threshold_ms: 5000
+    success_rate_threshold: 0.95
+

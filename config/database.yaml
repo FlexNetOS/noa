@@ -1,0 +1,77 @@
+# NOA Database Configuration
+# Purpose: Local-first database configuration for memory, knowledge, and state
+# FR-003: Local-first database with concurrent modifications
+
+version: "1.0"
+name: noa-database
+
+# Primary database (SQLite for local-first operation)
+primary:
+  driver: sqlite
+
+  # Main database file
+  path: ${NOA_ROOT}/data/noa.db
+
+  # Connection settings
+  settings:
+    journal_mode: WAL
+    synchronous: NORMAL
+    cache_size: -64000  # 64MB cache
+    temp_store: MEMORY
+    mmap_size: 268435456  # 256MB mmap
+    page_size: 4096
+    auto_vacuum: INCREMENTAL
+    foreign_keys: ON
+
+  # Concurrent access
+  max_connections: 10
+  busy_timeout: 30000  # 30s
+
+# Backup configuration (FR-148: Database Corruption Recovery)
+backup:
+  enabled: true
+  path: ${NOA_ROOT}/data/backups/database
+
+  schedule:
+    hourly:
+      enabled: true
+      retention: 24
+    daily:
+      enabled: true
+      retention: 7
+    weekly:
+      enabled: true
+      retention: 4
+
+  # Integrity check before backup
+  verify_integrity: true
+
+# Migration settings
+migrations:
+  path: ${NOA_ROOT}/init/migrations
+  table: schema_migrations
+
+# Metrics database (FR-156)
+metrics:
+  driver: sqlite
+  path: ${NOA_ROOT}/data/metrics.db
+  settings:
+    journal_mode: WAL
+    synchronous: NORMAL
+
+# PostgreSQL configuration (for high-performance deployments)
+postgresql:
+  enabled: false
+  host: localhost
+  port: 5432
+  database: noa
+  username: ${NOA_PG_USER:-noa}
+  password: ${NOA_PG_PASSWORD}
+
+  # pgvector extension for embeddings
+  extensions:
+    - pgvector
+
+  ssl_mode: prefer
+  pool_size: 10
+

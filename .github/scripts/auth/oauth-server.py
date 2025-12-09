@@ -252,6 +252,12 @@ class OAuthHandler(BaseHTTPRequestHandler):
             'microsoft': 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
         }
 
+        # Validate provider has a known auth URL
+        auth_url_base = auth_urls.get(provider)
+        if not auth_url_base:
+            self.send_error(400, f"Provider {provider} does not have a configured auth URL")
+            return
+
         scopes = {
             'google': ['openid', 'email', 'profile'],
             'github': ['repo', 'workflow', 'read:org', 'read:user', 'user:email'],
@@ -276,7 +282,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
             params['access_type'] = 'offline'
             params['prompt'] = 'consent'
 
-        auth_url = f"{auth_urls[provider]}?{urlencode(params)}"
+        auth_url = f"{auth_url_base}?{urlencode(params)}"
 
         self.send_response(302)
         self.send_header('Location', auth_url)
@@ -316,14 +322,21 @@ class OAuthHandler(BaseHTTPRequestHandler):
         """Exchange authorization code for tokens"""
         import requests
 
-        provider_config = self.config.providers[provider]
-
         token_urls = {
             'google': 'https://oauth2.googleapis.com/token',
             'github': 'https://github.com/login/oauth/access_token',
             'openai': 'https://auth.openai.com/oauth/token',
             'microsoft': 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
         }
+
+        # Validate provider before accessing token URL
+        if provider not in token_urls:
+            raise ValueError(f"Unknown OAuth provider: {provider}. Supported providers: {', '.join(token_urls.keys())}")
+
+        if provider not in self.config.providers:
+            raise ValueError(f"Provider '{provider}' not configured. Check your OAuth configuration.")
+
+        provider_config = self.config.providers[provider]
 
         data = {
             'client_id': provider_config['client_id'],

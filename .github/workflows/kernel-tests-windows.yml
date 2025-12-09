@@ -1,0 +1,142 @@
+# NOA Kernel Independence Tests - Windows (B146)
+#
+# Tests kernel-related functionality on Windows.
+# Includes Hyper-V checks and sandbox tests.
+
+name: Kernel Tests (Windows)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+      - '.github/workflows/kernel-tests-windows.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sys/kernel/**'
+      - 'sys/core/src/kernel/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test-nkal:
+    name: NKAL Unit Tests
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Run NKAL Tests
+        run: |
+          cd sys/core
+          cargo test --lib kernel -- --nocapture
+        shell: pwsh
+
+  test-capabilities-detection:
+    name: Capabilities Detection
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Hyper-V Status
+        run: |
+          Write-Host "Checking Hyper-V availability..."
+          $feature = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -ErrorAction SilentlyContinue
+          if ($feature) {
+            Write-Host "Hyper-V State: $($feature.State)"
+          } else {
+            Write-Host "Hyper-V: Not available (expected on GitHub runners)"
+          }
+        shell: pwsh
+
+      - name: Check Windows Sandbox Status
+        run: |
+          Write-Host "Checking Windows Sandbox availability..."
+          $feature = Get-WindowsOptionalFeature -Online -FeatureName Containers-DisposableClientVM -ErrorAction SilentlyContinue
+          if ($feature) {
+            Write-Host "Windows Sandbox State: $($feature.State)"
+          } else {
+            Write-Host "Windows Sandbox: Not available (expected on GitHub runners)"
+          }
+        shell: pwsh
+
+      - name: Check Container Runtime
+        run: |
+          Write-Host "Checking container runtimes..."
+
+          $docker = Get-Command docker -ErrorAction SilentlyContinue
+          if ($docker) {
+            Write-Host "Docker: Found at $($docker.Source)"
+            docker --version
+          } else {
+            Write-Host "Docker: Not found"
+          }
+
+          $podman = Get-Command podman -ErrorAction SilentlyContinue
+          if ($podman) {
+            Write-Host "Podman: Found at $($podman.Source)"
+            podman --version
+          } else {
+            Write-Host "Podman: Not found"
+          }
+        shell: pwsh
+
+  test-scripts:
+    name: Script Validation
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PowerShell Scripts
+        run: |
+          $scripts = @(
+            "sys/kernel/windows/hyperv/noa-vm.ps1",
+            "sys/kernel/images/build-alpine.ps1"
+          )
+
+          $errors = 0
+          foreach ($script in $scripts) {
+            if (Test-Path $script) {
+              Write-Host "Validating: $script"
+              $parseErrors = $null
+              [System.Management.Automation.Language.Parser]::ParseFile($script, [ref]$null, [ref]$parseErrors)
+
+              if ($parseErrors.Count -gt 0) {
+                Write-Host "  [FAIL] Parse errors found" -ForegroundColor Red
+                $parseErrors | ForEach-Object { Write-Host "    $_" }
+                $errors++
+              } else {
+                Write-Host "  [OK] Syntax valid" -ForegroundColor Green
+              }
+            } else {
+              Write-Host "Script not found: $script" -ForegroundColor Yellow
+            }
+          }
+
+          if ($errors -gt 0) {
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Test VM Script Help
+        run: |
+          # Test that scripts have valid help
+          $script = "sys/kernel/windows/hyperv/noa-vm.ps1"
+          if (Test-Path $script) {
+            $help = Get-Help $script -ErrorAction SilentlyContinue
+            if ($help) {
+              Write-Host "Script has help documentation"
+              Write-Host "Synopsis: $($help.Synopsis)"
+            }
+          }
+        shell: pwsh
+
