@@ -170,6 +170,8 @@ Generate the fixed code. Only output the code, no explanations."""
 
     async def analyze_code(self, code: str, analysis_type: str = "review") -> Dict[str, Any]:
         """Analyze code using Abacus AI workflow"""
+        import asyncio
+
         if not self.authenticated:
             raise Exception("Not authenticated")
 
@@ -180,8 +182,9 @@ Generate the fixed code. Only output the code, no explanations."""
             else:
                 workflow = self.create_fix_generation_workflow()
 
-            # Execute workflow
-            result = self.client.execute_workflow(
+            # Execute workflow in thread pool to avoid blocking event loop
+            result = await asyncio.to_thread(
+                self.client.execute_workflow,
                 workflow_graph=workflow,
                 input_data={"input": code}
             )
@@ -201,6 +204,8 @@ Generate the fixed code. Only output the code, no explanations."""
 
     async def generate_fix(self, issue: Dict[str, Any], context: str) -> Optional[str]:
         """Generate a code fix for an issue"""
+        import asyncio
+
         if not self.authenticated:
             raise Exception("Not authenticated")
 
@@ -220,7 +225,9 @@ Code context:
 
 Generate only the fixed code, no explanations."""
 
-            result = self.client.execute_agent(
+            # Execute agent in thread pool to avoid blocking event loop
+            result = await asyncio.to_thread(
+                self.client.execute_agent,
                 agent_id=self.config.agent_id,
                 input_text=prompt
             )

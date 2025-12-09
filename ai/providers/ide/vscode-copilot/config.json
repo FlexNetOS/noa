@@ -1,0 +1,79 @@
+{
+  "name": "vscode-copilot",
+  "type": "ide",
+  "priority": 5,
+  "enabled": true,
+  "description": "VS Code with GitHub Copilot - AI-powered inline code completion and chat",
+  "installMethod": "portable",
+  "cli": {
+    "command": "code",
+    "version": "latest",
+    "installMethods": {
+      "portable": "Download VS Code portable from https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive",
+      "winget": "winget install Microsoft.VisualStudioCode",
+      "brew": "brew install --cask visual-studio-code"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/dev-tools/vscode/bin/code.cmd",
+      "unix": "${NOA_ROOT}/opt/dev-tools/vscode/bin/code"
+    },
+    "extensions": {
+      "required": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "optional": [
+        "GitHub.copilot-labs"
+      ]
+    }
+  },
+  "modes": {
+    "ide": {
+      "description": "Full IDE with Copilot inline completions",
+      "features": ["code_completion", "chat", "code_actions", "inline_suggestions"],
+      "documentation": "https://docs.github.com/copilot"
+    },
+    "cli": {
+      "description": "VS Code CLI for automation",
+      "command": "code",
+      "flags": ["--install-extension", "--list-extensions", "--diff", "--goto"]
+    }
+  },
+  "capabilities": {
+    "textGeneration": false,
+    "codeGeneration": true,
+    "codeCompletion": true,
+    "codeExplanation": true,
+    "inlineSuggestions": true,
+    "chatInterface": true,
+    "streaming": true,
+    "contextAware": true,
+    "multiLanguage": true
+  },
+  "authentication": {
+    "method": "github_oauth",
+    "description": "Requires GitHub account with Copilot subscription",
+    "documentation": "https://github.com/features/copilot"
+  },
+  "latency": {
+    "target": "<1s",
+    "timeout": 10000
+  },
+  "fallbackPriority": 5,
+  "useCases": [
+    "Inline code completions",
+    "Code explanation via chat",
+    "Code refactoring suggestions",
+    "Test generation",
+    "Documentation generation"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  }
+}
+

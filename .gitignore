@@ -22,6 +22,7 @@ opt/rust/
 opt/go/
 opt/node/
 opt/python/
+opt/protobuf/
 
 # Python venv (per-user)
 opt/venv/

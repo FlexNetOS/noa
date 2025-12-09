@@ -268,7 +268,8 @@ class RollbackManager:
                 ['git', 'rev-list', f'{target_commit}..HEAD'],
                 capture_output=True, text=True, check=True
             )
-            commits_to_revert = result.stdout.strip().split('\n')
+            # Filter out empty strings to handle case where no commits to revert
+            commits_to_revert = [c for c in result.stdout.strip().split('\n') if c]
 
             if len(commits_to_revert) > self.config.max_rollback_depth:
                 return {

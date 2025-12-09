@@ -164,7 +164,7 @@ As a user, I want NOA to run on Windows, macOS, Linux, mobile devices, laptops, 
 **Acceptance Scenarios**:
 
 1. **Given** the NOA seed binary, **When** run on Windows 11, macOS, or Ubuntu, **Then** core functionality works identically
-2. **Given** a mobile companion app, **When** connected to the desktop NOA, **Then** it participates in the P2P hive-mind
+2. **Given** a mobile companion app (stub implementation: P2P connectivity only, no full mobile features), **When** connected to the desktop NOA, **Then** it participates in the P2P hive-mind
 3. **Given** different hardware capabilities, **When** NOA initializes, **Then** it adapts its resource usage to available hardware
 
 ---
@@ -322,7 +322,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 ### Functional Requirements - Governance & Safety
 
 - **FR-025**: System MUST implement constitutional governance with audit trail for all decisions
-- **FR-026**: System MUST use biblical texts (original Greek/Hebrew) as source of absolute truth for ethical governance, transformed via lexical analysis → semantic embedding → knowledge graph integration pipeline
+- **FR-026**: System MUST use biblical texts (original Greek NA28/UBS5 New Testament and Hebrew BHS/WLC Old Testament from licensed digital sources) as source of absolute truth for ethical governance, transformed via lexical analysis → semantic embedding → knowledge graph integration pipeline
 - **FR-027**: System MUST implement reward/correction mechanisms for agent compliance (rewards for obedience, testing loops for drift)
 - **FR-028**: System MUST provide rollback capability for all self-modifications
 
@@ -336,6 +336,44 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 - **FR-034**: System MUST create and populate `noa_root/config/` with configuration files
 - **FR-035**: System MUST create and populate `noa_root/bin/` with executable binaries and wrappers
 - **FR-036**: System MUST create and populate `noa_root/ai/` with AI providers, models, and prompts
+
+### Functional Requirements - Unified Bootstrap System
+
+- **FR-076**: System MUST provide a single entry point script for each platform:
+  - Windows: `scripts/bootstrap/bootstrap.ps1`
+  - Unix: `scripts/bootstrap/bootstrap.sh`
+- **FR-077**: System MUST install tools in correct dependency order: Git → Toolchains → Quality tools → Security tools → Utilities
+- **FR-078**: System MUST detect the current platform (Windows native/WSL1/WSL2, macOS Intel/Apple Silicon, Linux Debian/RHEL/Arch)
+- **FR-079**: System MUST validate installed tool versions against minimum requirements
+- **FR-080**: System MUST install portable tools to `noa_root/bin/` (jq, ripgrep, fd, bat, fzf, gitleaks, trivy, grype)
+- **FR-081**: System MUST install portable toolchains to `noa_root/opt/`:
+  - Rust → `noa_root/opt/rust/` (RUSTUP_HOME, CARGO_HOME)
+  - Go → `noa_root/opt/go/` (GOROOT, GOPATH, GOBIN)
+  - Node.js → `noa_root/opt/node/` (NODE_PATH, npm_config_prefix)
+  - Python → `noa_root/opt/python/` + `noa_root/opt/venv/` (VIRTUAL_ENV)
+  - protoc → `noa_root/bin/`
+- **FR-082**: System MUST generate environment files: `noa-env.ps1`, `.noa-env`, `config/noa.json`
+- **FR-083**: System MUST optionally integrate with user shell profiles (PowerShell $PROFILE, .bashrc, .zshrc)
+- **FR-084**: System MUST provide comprehensive verification of all installations
+- **FR-085**: System MUST log all bootstrap actions to `logs/bootstrap-{timestamp}.log`
+- **FR-086**: System MUST be idempotent (safe to run multiple times)
+- **FR-087**: System MUST handle errors gracefully with retry guidance
+
+### Functional Requirements - Cross-Platform Script Parity
+
+- **FR-088**: System MUST provide mirrored scripts for ALL platforms (every Bash script has PowerShell equivalent and vice versa)
+- **FR-089**: System MUST ensure mirrored scripts accept the same arguments and return the same exit codes
+- **FR-090**: System MUST document all scripts in `scripts/README.md` with cross-platform mapping table
+
+### Functional Requirements - Kernel Independence
+
+- **FR-091**: System MUST support operation independent of the host kernel on all platforms:
+  - Windows: Hyper-V VM with custom Linux kernel
+  - Linux: KVM/QEMU VM or container isolation
+  - macOS: Virtualization.framework VM
+- **FR-092**: System MUST provide a Kernel Abstraction Layer (NKAL) with unified interface regardless of underlying kernel
+- **FR-093**: System MUST default to host kernel (native mode) for performance, with independence mode available for maximum isolation
+- **FR-094**: System MUST support kernel mode switching via `noa-kernel-params set kernel_mode {native|vm|container}`
 
 ---
 
@@ -366,11 +404,18 @@ When multiple providers are available, NOA uses this priority order:
 | 6 | **Git CLI** | Local | <100ms | Version control operations |
 | 7 | **Abacus** (CLI/Cloud) | Cloud | <3s | Specialized numerical/analytical tasks |
 
+**Provider Orchestration Mode**:
+- **Cursor as Orchestrator**: When operating in IDE context, Cursor agent MUST be capable of coordinating ALL available providers for parallel task execution
+- Cursor distributes sub-tasks to optimal providers based on task type (reasoning → Claude, code → Codex, local → llama.cpp)
+- Parallel execution across providers with result aggregation
+- Shared context maintained via Shared Provider Execution Memory bus (FR-037)
+
 **Fallback Strategy**:
 1. Always try local providers (llama.cpp) first for offline capability
 2. If local fails/unavailable, try IDE providers if IDE context exists
 3. If IDE unavailable, try cloud providers in priority order
-4. If all fail, queue task and notify user after 3 retry attempts
+4. If Cursor available with IDE context, use orchestration mode for complex multi-step tasks
+5. If all fail, queue task and notify user after 3 retry attempts
 
 ### 3-Plane Self-Update Architecture
 
@@ -769,7 +814,7 @@ The script will output:
 
 ## Out of Scope (for this foundation release)
 
-- Full mobile companion apps (stub implementation only)
+- Full mobile companion apps (stub implementation only: P2P connectivity to desktop NOA, no native mobile UI/features)
 - XR/AR/VR interfaces (architecture support but no implementation)
 - Enterprise multi-tenant deployment
 - Cloud-native distributed deployment
@@ -788,3 +833,4 @@ The script will output:
 - Q: Can NOA generate its own improvement goals or only execute user-provided goals? → A: Full goal autonomy. NOA can generate ANY goal it determines beneficial, including goals unrelated to current user objectives. Constitutional governance (FR-025, FR-026) provides the ethical boundary.
 - Q: What self-healing mechanism should NOA use for autonomous operation? → A: Full self-healing loop. Proactive detection → diagnosis → auto-fix → validation → escalation-to-user ONLY if all auto-fix attempts fail. Maintains always-on operation.
 - Q: What is the role of each plane in the 3-plane system? → A: **Coordinator** is the constant plane for long-term memory, backups, archives, analytics, and promotion decisions. **Sandbox** is for testing/staging new capabilities. **Deployed** is production serving live traffic with canary deployments and auto-rollback on SLO violation.
+- Q: How should providers coordinate for complex tasks? → A: **Cursor as orchestrator**. When operating in IDE context, Cursor agent MUST coordinate ALL available providers for parallel task execution. Cursor distributes sub-tasks to optimal providers (reasoning → Claude, code → Codex, local → llama.cpp), executes in parallel, and aggregates results via Shared Provider Execution Memory bus.

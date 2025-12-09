@@ -149,6 +149,8 @@ class CursorCLIProvider:
 
     async def analyze_code(self, prompt: str) -> Dict[str, Any]:
         """Run code analysis using Cursor CLI"""
+        import asyncio
+
         if not self.authenticated:
             raise Exception("Not authenticated")
 
@@ -162,7 +164,9 @@ class CursorCLIProvider:
             env = os.environ.copy()
             env['CURSOR_API_KEY'] = self.config.api_key
 
-            result = subprocess.run(
+            # Run subprocess in thread pool to avoid blocking event loop
+            result = await asyncio.to_thread(
+                subprocess.run,
                 cmd,
                 capture_output=True,
                 text=True,
