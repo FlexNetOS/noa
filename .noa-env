@@ -30,6 +30,24 @@ export NOA_OPT=$NOA_ROOT/opt
 export NOA_SYS=$NOA_ROOT/sys
 export NOA_INIT=$NOA_ROOT/init
 
+# Data directories (FR-001: All data within noa_root)
+export NOA_DATA=$NOA_ROOT/data
+export NOA_CACHE=$NOA_ROOT/data/cache
+export NOA_CONFIG_HOME=$NOA_ROOT/etc
+
+# XDG Base Directory specification (FR-001: Self-contained operation)
+# Redirect all application data to stay within NOA
+export XDG_DATA_HOME=$NOA_ROOT/data
+export XDG_CONFIG_HOME=$NOA_ROOT/etc
+export XDG_CACHE_HOME=$NOA_ROOT/data/cache
+export XDG_STATE_HOME=$NOA_ROOT/data/state
+export XDG_RUNTIME_DIR=$NOA_ROOT/tmp/runtime
+
+# Temp directories
+export TMPDIR=$NOA_ROOT/tmp
+export TEMP=$NOA_ROOT/tmp
+export TMP=$NOA_ROOT/tmp
+
 # Kernel-level isolation paths
 export NOA_NAMESPACE=$NOA_SYS/namespace
 export NOA_CGROUP=$NOA_SYS/cgroup

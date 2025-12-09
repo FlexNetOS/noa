@@ -1,0 +1,91 @@
+# NOA Core Workspace
+# Rust workspace configuration for all NOA system crates
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/api",
+    "crates/embedder",
+    "crates/trainer",
+    "crates/indexer",
+    "crates/agent",
+    "crates/common",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT"
+repository = "https://github.com/FlexNetOS/noa"
+authors = ["FlexNetOS Team"]
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.42", features = ["full"] }
+tokio-stream = "0.1"
+
+# Web framework
+axum = { version = "0.7", features = ["macros"] }
+tower = "0.5"
+tower-http = { version = "0.5", features = ["cors", "trace", "compression-gzip"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "postgres", "json", "chrono", "uuid"] }
+rusqlite = { version = "0.32", features = ["bundled", "vtab", "functions"] }
+
+# Vector embeddings
+fastembed = "4"
+candle-core = "0.8"
+candle-transformers = "0.8"
+
+# Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# UUID & Time
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# Crypto
+sha2 = "0.10"
+blake3 = "1.5"
+
+# gRPC & Protobuf
+tonic = "0.12"
+prost = "0.13"
+
+# Internal crates
+noa-api = { path = "crates/api" }
+noa-embedder = { path = "crates/embedder" }
+noa-trainer = { path = "crates/trainer" }
+noa-indexer = { path = "crates/indexer" }
+noa-agent = { path = "crates/agent" }
+noa-common = { path = "crates/common" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+

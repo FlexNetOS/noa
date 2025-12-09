@@ -1,20 +1,26 @@
 <#
 .SYNOPSIS
-    Detect and configure Claude Desktop for NOA integration.
+    Install Claude Desktop to NOA opt directory.
 
 .DESCRIPTION
-    Detects Claude Desktop installation and configures MCP integration.
-    Claude Desktop must be manually installed from Anthropic.
+    Downloads and installs Claude Desktop to noa_root/opt/claude-desktop/.
+    Creates wrapper script in noa_root/bin/ for easy access.
+    Configures MCP (Model Context Protocol) integration with NOA.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
 
+.PARAMETER Force
+    Force reinstall even if already installed
+
 .EXAMPLE
     .\claude-desktop.ps1
+    .\claude-desktop.ps1 -Force
 #>
 [CmdletBinding()]
 param(
-    [string]$NoaRoot
+    [string]$NoaRoot,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,68 +32,173 @@ if (-not $NoaRoot) {
     }
 }
 
-Write-Host "Checking Claude Desktop installation..." -ForegroundColor Cyan
+$OPT_DIR = Join-Path $NoaRoot "opt"
+$BIN_DIR = Join-Path $NoaRoot "bin"
+$INSTALL_DIR = Join-Path $OPT_DIR "claude-desktop"
+$INSTALLER_PATH = Join-Path $OPT_DIR "ClaudeSetup-latest.exe"
+$WRAPPER_PATH = Join-Path $BIN_DIR "claude-desktop.cmd"
+$DOWNLOAD_URL = "https://storage.googleapis.com/osprey-downloads-c02f6a0d-347c-492b-a752-3e0651722e97/nest-win-x64/Claude-Setup-x64.exe"
 
-# Common Claude Desktop installation paths
-$claudePaths = @(
-    "$env:LOCALAPPDATA\Programs\claude-desktop\Claude.exe"
-    "$env:LOCALAPPDATA\Claude\Claude.exe"
-    "C:\Program Files\Claude\Claude.exe"
-    "$env:USERPROFILE\AppData\Local\AnthropicClaude\Claude.exe"
-)
+Write-Host "NOA Claude Desktop Installer" -ForegroundColor Cyan
+Write-Host "NOA_ROOT: $NoaRoot" -ForegroundColor Gray
+Write-Host ""
 
-$claudeExe = $null
-foreach ($path in $claudePaths) {
-    if (Test-Path $path) {
-        $claudeExe = $path
-        break
+# Create directories
+New-Item -ItemType Directory -Path $OPT_DIR -Force -ErrorAction SilentlyContinue | Out-Null
+New-Item -ItemType Directory -Path $BIN_DIR -Force -ErrorAction SilentlyContinue | Out-Null
+
+# Check if already installed
+$existingExe = Join-Path $INSTALL_DIR "Claude.exe"
+if ((Test-Path $existingExe) -and -not $Force) {
+    try {
+        $version = (Get-Item $existingExe).VersionInfo.ProductVersion
+        Write-Host "  [OK] Claude Desktop already installed: v$version" -ForegroundColor Green
+        Write-Host "  Location: $INSTALL_DIR" -ForegroundColor Gray
+        Write-Host "  Use -Force to reinstall" -ForegroundColor Gray
+        exit 0
+    } catch {
+        Write-Host "  [INFO] Existing installation found" -ForegroundColor Yellow
     }
 }
 
-if ($claudeExe) {
-    Write-Host "  [OK] Claude Desktop found: $claudeExe" -ForegroundColor Green
+# Download installer
+if (-not (Test-Path $INSTALLER_PATH)) {
+    Write-Host "  [INFO] Downloading Claude Desktop installer..." -ForegroundColor Yellow
+    Write-Host "  URL: $DOWNLOAD_URL" -ForegroundColor Gray
 
-    # Check for MCP config
-    $mcpConfigPath = "$env:APPDATA\Claude\claude_desktop_config.json"
-    if (Test-Path $mcpConfigPath) {
-        Write-Host "  [OK] MCP config found: $mcpConfigPath" -ForegroundColor Green
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($DOWNLOAD_URL, $INSTALLER_PATH)
+        Write-Host "  [OK] Downloaded: $INSTALLER_PATH" -ForegroundColor Green
+    } catch {
+        Write-Host "  [ERROR] Download failed: $_" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "  Manual installation:" -ForegroundColor Yellow
+        Write-Host "    1. Download from: https://claude.ai/download" -ForegroundColor Gray
+        Write-Host "    2. Save to: $INSTALLER_PATH" -ForegroundColor Gray
+        Write-Host "    3. Run this script again" -ForegroundColor Gray
+        exit 1
+    }
+} else {
+    Write-Host "  [OK] Installer already downloaded" -ForegroundColor Green
+}
+
+# Install Claude Desktop
+Write-Host "  [INFO] Installing Claude Desktop to NOA opt directory..." -ForegroundColor Yellow
+Write-Host "  Target: $INSTALL_DIR" -ForegroundColor Gray
+
+try {
+    $installArgs = @(
+        "/S",                    # Silent install
+        "/D=$INSTALL_DIR"        # Installation directory
+    )
+
+    $process = Start-Process -FilePath $INSTALLER_PATH -ArgumentList $installArgs -Wait -PassThru -NoNewWindow
+
+    if ($process.ExitCode -eq 0) {
+        Write-Host "  [OK] Claude Desktop installed successfully" -ForegroundColor Green
     } else {
-        Write-Host "  [INFO] MCP config not found - creating template..." -ForegroundColor Yellow
+        Write-Host "  [WARN] Installer exited with code: $($process.ExitCode)" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "  [ERROR] Installation failed: $_" -ForegroundColor Red
+    exit 1
+}
 
-        # Create MCP config directory
-        $mcpConfigDir = Split-Path -Parent $mcpConfigPath
-        if (-not (Test-Path $mcpConfigDir)) {
-            New-Item -ItemType Directory -Path $mcpConfigDir -Force | Out-Null
-        }
+# Verify installation
+$claudeExe = Get-ChildItem -Path $INSTALL_DIR -Filter "Claude.exe" -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -First 1
 
-        # Create template MCP config
-        $mcpConfig = @{
-            mcpServers = @{
-                "noa-tools" = @{
-                    command = "node"
-                    args = @("$NoaRoot/ai/mcp/server.js")
-                    env = @{
-                        NOA_ROOT = $NoaRoot
-                    }
+if (-not $claudeExe) {
+    Write-Host "  [ERROR] Installation verification failed - Claude.exe not found" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  [OK] Found: $($claudeExe.FullName)" -ForegroundColor Green
+
+# Create wrapper script
+Write-Host "  [INFO] Creating wrapper script..." -ForegroundColor Yellow
+
+$wrapperContent = @"
+@echo off
+REM Claude Desktop Wrapper - Generated by NOA bootstrap
+REM Launches Claude Desktop from NOA opt directory
+
+"$($claudeExe.FullName)" %*
+"@
+
+$wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
+Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
+
+# Configure MCP integration
+# Use NOA AppData (FR-001: Self-contained within noa_root)
+$noaAppData = Join-Path $NoaRoot "data\appdata\roaming"
+$mcpConfigPath = Join-Path $noaAppData "Claude\claude_desktop_config.json"
+Write-Host "  [INFO] Configuring MCP integration..." -ForegroundColor Yellow
+Write-Host "  Config location: $mcpConfigPath" -ForegroundColor Gray
+
+$mcpConfigDir = Split-Path -Parent $mcpConfigPath
+if (-not (Test-Path $mcpConfigDir)) {
+    New-Item -ItemType Directory -Path $mcpConfigDir -Force | Out-Null
+}
+
+if (-not (Test-Path $mcpConfigPath)) {
+    $mcpConfig = @{
+        mcpServers = @{
+            "noa-tools" = @{
+                command = "node"
+                args = @("$NoaRoot/ai/mcp/server.js")
+                env = @{
+                    NOA_ROOT = $NoaRoot
                 }
             }
         }
-
-        $mcpConfig | ConvertTo-Json -Depth 4 | Set-Content -Path $mcpConfigPath -Encoding UTF8
-        Write-Host "  [OK] Created MCP config template: $mcpConfigPath" -ForegroundColor Green
-        Write-Host "  [INFO] Edit the config to customize MCP server settings" -ForegroundColor Gray
     }
+
+    $mcpConfig | ConvertTo-Json -Depth 4 | Set-Content -Path $mcpConfigPath -Encoding UTF8
+    Write-Host "  [OK] Created MCP config: $mcpConfigPath" -ForegroundColor Green
 } else {
-    Write-Host "  [SKIP] Claude Desktop not found" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  To install Claude Desktop:" -ForegroundColor Gray
-    Write-Host "    1. Visit https://claude.ai/download" -ForegroundColor Gray
-    Write-Host "    2. Download the Windows installer" -ForegroundColor Gray
-    Write-Host "    3. Run the installer" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  Claude Desktop supports MCP (Model Context Protocol) for tool integration" -ForegroundColor Yellow
+    Write-Host "  [OK] MCP config already exists: $mcpConfigPath" -ForegroundColor Gray
+}
+
+# Update provider config
+$providerConfig = Join-Path $NoaRoot "ai\providers\cloud\claude-code\config.json"
+if (Test-Path $providerConfig) {
+    try {
+        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+
+        if (-not $config.PSObject.Properties['desktop']) {
+            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        }
+
+        $config.desktop = @{
+            binaryPath = @{
+                windows = "`${NOA_ROOT}/opt/claude-desktop/$($claudeExe.Name)"
+                unix = "`${NOA_ROOT}/opt/claude-desktop/bin/claude"
+            }
+            wrapper = @{
+                windows = "`${NOA_ROOT}/bin/claude-desktop.cmd"
+                unix = "`${NOA_ROOT}/bin/claude-desktop"
+            }
+            mcpConfig = $mcpConfigPath
+        }
+
+        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
+        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+    } catch {
+        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
-Write-Host "Claude Desktop check complete." -ForegroundColor Green
+Write-Host "Claude Desktop installation complete!" -ForegroundColor Green
+Write-Host ""
+Write-Host "Location:   $INSTALL_DIR" -ForegroundColor Gray
+Write-Host "Wrapper:    $WRAPPER_PATH" -ForegroundColor Gray
+Write-Host "MCP Config: $mcpConfigPath" -ForegroundColor Gray
+Write-Host ""
+Write-Host "Usage:" -ForegroundColor Cyan
+Write-Host "  claude-desktop        # Launch Claude Desktop" -ForegroundColor Gray
+Write-Host ""
+Write-Host "MCP (Model Context Protocol) configured for NOA integration" -ForegroundColor Yellow
 

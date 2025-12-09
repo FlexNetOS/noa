@@ -322,14 +322,21 @@ class OAuthHandler(BaseHTTPRequestHandler):
         """Exchange authorization code for tokens"""
         import requests
 
-        provider_config = self.config.providers[provider]
-
         token_urls = {
             'google': 'https://oauth2.googleapis.com/token',
             'github': 'https://github.com/login/oauth/access_token',
             'openai': 'https://auth.openai.com/oauth/token',
             'microsoft': 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
         }
+
+        # Validate provider before accessing token URL
+        if provider not in token_urls:
+            raise ValueError(f"Unknown OAuth provider: {provider}. Supported providers: {', '.join(token_urls.keys())}")
+
+        if provider not in self.config.providers:
+            raise ValueError(f"Provider '{provider}' not configured. Check your OAuth configuration.")
+
+        provider_config = self.config.providers[provider]
 
         data = {
             'client_id': provider_config['client_id'],
