@@ -1,26 +1,67 @@
 {
   "name": "abacus",
   "type": "cloud",
-  "priority": 3,
+  "priority": 7,
   "enabled": true,
+  "description": "Abacus AI CLI - Enterprise AI platform with agents and workflows",
   "cli": {
     "command": "abacusai",
     "package": "@abacus-ai/cli",
-    "version": "1.106.24817",
+    "version": "latest",
+    "installMethods": {
+      "npm": "npm install -g @abacus-ai/cli",
+      "desktop": "Download from https://desktop.abacus.ai/"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/abacusai.cmd",
+      "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/abacusai"
+    },
     "requirements": {
       "desktop": "https://desktop.abacus.ai/",
-      "note": "CLI requires Abacus Desktop app for authentication"
+      "note": "CLI requires Abacus Desktop app for initial authentication"
     }
   },
-  "config": {
-    "apiEndpoint": "https://api.abacus.ai"
+  "modes": {
+    "cli": {
+      "description": "Command-line interface for AI operations",
+      "command": "abacusai",
+      "documentation": "https://abacus.ai/help/python-sdk/github_cicd"
+    },
+    "cloud": {
+      "description": "Cloud API for enterprise AI",
+      "apiEndpoint": "https://api.abacus.ai",
+      "authMethod": "api_key",
+      "envVar": "ABACUS_API_KEY"
+    }
   },
   "capabilities": {
     "textGeneration": true,
+    "codeGeneration": true,
     "embeddings": true,
     "streaming": true,
     "functionCalling": true,
-    "codeGeneration": true,
-    "agents": true
+    "agents": true,
+    "workflows": true,
+    "dataAnalysis": true
+  },
+  "latency": {
+    "target": "<3s",
+    "timeout": 60000
+  },
+  "fallbackPriority": 7,
+  "useCases": [
+    "Enterprise AI workflows",
+    "Data analysis and insights",
+    "Custom agent development",
+    "CI/CD AI integration",
+    "Numerical and analytical tasks"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
   }
 }

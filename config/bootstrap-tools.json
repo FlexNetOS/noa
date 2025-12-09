@@ -467,6 +467,27 @@
         "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/eslint.cmd --version",
         "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/eslint --version"
       }
+    },
+    "claude-code": {
+      "name": "Claude Code CLI",
+      "min_version": "1.0.0",
+      "npm_name": "@anthropic-ai/claude-code",
+      "install_to": "${NOA_ROOT}/opt/node/node_modules",
+      "category": "ai_provider",
+      "repository": "https://github.com/FlexNetOS/claude-code.git",
+      "provider_config": "${NOA_ROOT}/ai/providers/cloud/claude-code/config.json",
+      "alternative_installs": {
+        "windows_native": "irm https://claude.ai/install.ps1 | iex",
+        "unix_native": "curl -fsSL https://claude.ai/install.sh | bash",
+        "homebrew": "brew install --cask claude-code"
+      },
+      "verify_cmd": {
+        "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/claude.cmd --version",
+        "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/claude --version"
+      },
+      "capabilities": ["cli", "cloud", "ide"],
+      "priority": 3,
+      "latency_target": "<2s"
     }
   },
 
@@ -524,6 +545,15 @@
       "description": "Standalone utility binaries",
       "tools": ["protoc", "jq", "rg", "fd", "bat", "fzf"],
       "parallel": true
+    },
+    {
+      "id": 6,
+      "name": "ai_providers",
+      "description": "AI provider CLI tools (depend on toolchains)",
+      "tools": ["claude-code", "cursor-cli", "codex-cli", "abacus-cli"],
+      "depends_on": ["toolchains"],
+      "parallel": true,
+      "note": "Install provider CLIs to noa_root/opt/ for shared execution memory (FR-039)"
     }
   ],
 
@@ -548,7 +578,10 @@
       "opt/protobuf",
       "opt/protobuf/include",
       "opt/cache",
-      "tmp"
+      "opt/claude-code",
+      "tmp",
+      "ai/providers/cloud/claude-code",
+      "ai/shared"
     ]
   }
 }

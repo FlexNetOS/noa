@@ -15,50 +15,193 @@
 **Primary Dependencies**: llama.cpp, tokio, axum, libp2p, React, Next.js
 **Storage**: SQLite/PostgreSQL + pgvector 0.5.0+, Qdrant 1.8+, Redis 7.0+
 
+### Cross-Platform Code Quality Requirement (CRITICAL)
+
+**Every script MUST have platform-mirrored versions:**
+
+| Platform | Extension | Shell | Notes |
+|----------|-----------|-------|-------|
+| Windows | `.ps1` | PowerShell 7.4+ | Primary Windows scripting |
+| Linux | (none) | Bash 5.0+ | POSIX-compatible |
+| macOS | (none) | Bash/Zsh | Same as Linux with macOS adaptations |
+
+All scripts in `scripts/` follow the naming convention:
+- `scripts/my-script` → Bash (Linux/macOS)
+- `scripts/my-script.ps1` → PowerShell (Windows)
+
+### Kernel Independence Architecture
+
+**GOAL**: NOA can operate independently of the host kernel on ALL platforms.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     NOA Applications                            │
+├─────────────────────────────────────────────────────────────────┤
+│           NOA Kernel Abstraction Layer (NKAL)                   │
+├─────────────┬─────────────┬─────────────┬───────────────────────┤
+│   Windows   │    Linux    │   macOS     │        WSL            │
+│   Kernel    │   Kernel    │   Kernel    │      Kernel           │
+│   ────────  │  ────────   │  ────────   │     ────────          │
+│   Native    │   Native    │   Native    │     Native            │
+│   Hyper-V   │   KVM/QEMU  │   Apple VM  │     WSL2 VM           │
+│   Container │   Container │   Container │     Container         │
+└─────────────┴─────────────┴─────────────┴───────────────────────┘
+```
+
+**Kernel Independence Modes:**
+
+| Mode | Windows | Linux | macOS | Description |
+|------|---------|-------|-------|-------------|
+| Native | Windows kernel | Linux kernel | Darwin kernel | Host kernel (default) |
+| VM | Hyper-V | KVM/QEMU | Virtualization.framework | Custom NOA Linux kernel in VM |
+| Container | Docker/WSC | Docker/Podman | Docker | Isolated container |
+| Sandbox | Windows Sandbox | Bubblewrap | App Sandbox | User-space isolation |
+
+### Self-Containment Strategy
+
+**All installations target `noa_root`** with ZERO system-wide modifications:
+
+| Component | Install Location | Source |
+|-----------|-----------------|--------|
+| Rust toolchain | `noa_root/opt/rust/` | Direct download from rust-lang.org |
+| Go toolchain | `noa_root/opt/go/` | Direct download from go.dev |
+| Node.js | `noa_root/opt/node/` | Direct download from nodejs.org |
+| Python | `noa_root/opt/python/` | Embeddable Python / python-build-standalone |
+| protoc | `noa_root/bin/` | GitHub releases |
+| All utilities | `noa_root/bin/` | GitHub releases |
+| npm packages | `noa_root/opt/node/node_modules/` | Local npm install |
+| pip packages | `noa_root/opt/venv/` | Local venv install |
+| Go modules | `noa_root/opt/go/workspace/` | go install to GOBIN |
+
 ---
 
 ## Phase 0: Prerequisites (CRITICAL - Run First)
 
 Before any implementation, verify all CLI tools are installed:
 
-### Build Toolchains (CRITICAL)
+### Build Toolchains (CRITICAL, contained-first)
 
-| Tool | Min Version | Latest Stable | Install (Windows) |
-|------|-------------|---------------|-------------------|
-| **Rust** | 1.75.0 | **1.83.0** | `winget install Rustlang.Rustup && rustup default stable` |
-| **Go** | 1.21.0 | **1.23.4** | `winget install GoLang.Go` |
-| **Node.js** | 20.0.0 | **22.12.0** | `winget install OpenJS.NodeJS.LTS` |
-| **Python** | 3.11.0 | **3.12.8** | `winget install Python.Python.3.12` |
-| **protoc** | 25.0.0 | **28.3** | `winget install Google.Protobuf` |
+| Tool | Min Version | Latest Stable | Install (contained) |
+|------|-------------|---------------|---------------------|
+| **Rust** | 1.83.0 | **1.83.0** | `pwsh -File scripts/setup/install-all-tools.ps1 -Tool rust` / `./scripts/setup/install-all-tools.sh rust` |
+| **Go** | 1.23.0 | **1.23.4** | `... -Tool go` |
+| **Node.js** | 20.0.0 | **22.12.0** | `... -Tool node` |
+| **Python** | 3.12.0 | **3.12.8** | `... -Tool python` |
+| **protoc** | 28.0.0 | **28.3** | `... -Tool protoc` |
 
-### Quality Tools (HIGH)
+### Quality Tools (HIGH, contained-first)
 
-| Tool | Min Version | Install Command |
-|------|-------------|-----------------|
-| **rustfmt** | (bundled) | `rustup component add rustfmt` |
-| **clippy** | (bundled) | `rustup component add clippy` |
-| **golangci-lint** | 1.62.0 | `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest` |
-| **eslint** | 9.0.0 | `npm install -g eslint` |
-| **ruff** | 0.8.0 | `pip install ruff` |
+| Tool | Min Version | Install (contained) |
+|------|-------------|----------------------|
+| **rustfmt** | bundled | `... -Tool rust` (cargo/bin linked to noa_root/bin) |
+| **clippy** | bundled | `... -Tool rust` |
+| **golangci-lint** | 1.62.0 | `... -Tool golangci-lint` |
+| **eslint** | 9.0.0 | `... -Tool eslint` (requires node portable) |
+| **ruff** | 0.8.0 | `... -Tool ruff` |
 
-### Security Tools (HIGH - FR-015)
+### Security Tools (HIGH - FR-015, contained-first)
 
-| Tool | Min Version | Install Command |
-|------|-------------|-----------------|
-| **Gitleaks** | 8.21.0 | `choco install gitleaks` |
-| **Trivy** | 0.57.0 | `choco install trivy` |
-| **Grype** | 0.84.0 | `choco install grype` |
-| **Semgrep** | 1.97.0 | `pip install semgrep` |
+| Tool | Min Version | Install (contained) |
+|------|-------------|----------------------|
+| **Gitleaks** | 8.21.0 | `... -Tool gitleaks` |
+| **Trivy** | 0.57.0 | `... -Tool trivy` |
+| **Grype** | 0.84.0 | `... -Tool grype` |
+| **Semgrep** | 1.97.0 | `... -Tool semgrep` |
 
-### Prerequisite Check Scripts
+### AI Provider CLIs (HIGH - FR-039, contained-first)
+
+| Tool | Priority | Type | Install (contained) | Location |
+|------|----------|------|----------------------|----------|
+| **llama.cpp** | 1 | Local | `... -Tool llama` (submodule) | `noa_root/opt/llama.cpp/` |
+| **Cursor CLI** | 2 | Hybrid/IDE/CLI | manual download (add to `noa_root/bin`) | `noa_root/opt/cursor-cli/` |
+| **Claude Code** | 3 | CLI/Cloud/IDE | `... -Tool claude-code` (npm) | `noa_root/opt/node/node_modules/.bin` |
+| **Codex CLI** | 4 | CLI/Cloud | `... -Tool codex-cli` (npm) | `noa_root/opt/node/node_modules/.bin` |
+| **VS Code Copilot** | 5 | IDE | `... -Tool vscode-copilot` (portable) | `noa_root/opt/dev-tools/vscode/` |
+| **Git CLI** | 6 | Local | `... -Tool git-cli` (portable) | `noa_root/opt/dev-tools/git/` |
+| **Abacus CLI** | 7 | CLI/Cloud | `... -Tool abacus-cli` (npm) | `noa_root/opt/node/node_modules/.bin` |
+
+**Provider Installation Commands**:
+
+```powershell
+# Install ALL AI providers at once (with prerequisite checks)
+.\scripts\setup\install-all-tools.ps1 -Tool ai-providers
+
+# Or install individually
+.\scripts\setup\install-all-tools.ps1 -Tool claude-code
+.\scripts\setup\install-all-tools.ps1 -Tool codex-cli
+.\scripts\setup\install-all-tools.ps1 -Tool vscode-copilot    # VS Code + Copilot extensions
+.\scripts\setup\install-all-tools.ps1 -Tool git-cli           # Git CLI as provider
+.\scripts\setup\install-all-tools.ps1 -Tool abacus-cli
+
+# Force update existing installations
+.\scripts\setup\install-all-tools.ps1 -Tool ai-providers -UpdateExisting
+
+# Install shared resources only
+.\scripts\setup\install-all-tools.ps1 -Tool shared-resources
+```
 
 ```bash
 # Unix/macOS
-./init/check-prereqs.sh
+./scripts/setup/install-all-tools.sh ai-providers
+
+# Or individually
+./scripts/setup/install-all-tools.sh claude-code codex-cli vscode-copilot git-cli abacus-cli
+
+# Force update (set environment variable)
+UPDATE_EXISTING=1 ./scripts/setup/install-all-tools.sh ai-providers
+
+./scripts/setup/install-all-tools.sh shared-resources
+```
+
+**Provider Config Paths**:
+- Claude Code: `noa_root/ai/providers/cloud/claude-code/config.json`
+- Codex CLI: `noa_root/ai/providers/cloud/codex/config.json`
+- Cursor CLI: `noa_root/ai/providers/hybrid/cursor/config.json`
+- VS Code Copilot: `noa_root/ai/providers/ide/vscode-copilot/config.json`
+- Git CLI: `noa_root/ai/providers/local/git-cli/config.json`
+- Abacus CLI: `noa_root/ai/providers/cloud/abacus/config.json`
+
+**Shared Resources Path**: `noa_root/ai/shared/`
+
+### Shared Provider Resources (FR-037 to FR-042)
+
+All providers share execution memory and resources via `noa_root/ai/shared/`:
+
+```
+ai/shared/
+├── agents/           # Shared agent definitions
+├── workflows/        # Shared workflow definitions
+├── prompts/          # Shared prompt templates
+├── skills/           # Shared skill definitions
+├── tools/            # Shared MCP tools and functions
+├── models/           # Shared model configs/adapters
+├── commands/         # Shared command definitions
+└── resources/        # Execution memory and state
+    ├── execution-memory.db   # Shared execution memory bus (SQLite)
+    ├── context/              # Shared context store
+    └── state/                # Provider state sync
+```
+
+**Execution Memory Features** (FR-037):
+- Context sharing between providers
+- Reasoning state persistence
+- Parallel task distribution
+- Provider state synchronization
+
+### Prerequisite Check Scripts (contained-first)
+
+```bash
+# Unix/macOS
+./init/check-prereqs.sh --json
 
 # Windows PowerShell
-.\scripts\setup\check-prereqs.ps1
+pwsh -File scripts/setup/check-prereqs.ps1 -Json
 ```
+
+**Installer entrypoints (contained)**:
+- PowerShell: `pwsh -File scripts/setup/install-all-tools.ps1`
+- Bash/WSL/macOS: `./scripts/setup/install-all-tools.sh`
+- Make target: `make install-tools` (runs contained installer + checker)
 
 **Tasks**: T673-T675 implement these scripts
 
@@ -100,6 +243,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 ### Provider Systems (must implement)
 - Agent provider registry and auto-detection for 17 providers (CLI/IDE) with priority order **Local > Hybrid > Cloud** via provider-detection, provider-priority, ide-detection, shared-access services.
 - Local AI preferred (llama.cpp/Ollama), using ai/shared path resolution and symlinks.
+- **Cursor as Provider Orchestrator**: When in IDE context, Cursor agent coordinates ALL available providers for parallel task execution, distributing sub-tasks to optimal providers and aggregating results via Shared Provider Execution Memory bus.
 
 ### NOA Commands Integration (CLI)
 - `noa ai providers|devices|shared|switch`, `noa start|stop|status|nodes|storage|compute`, `noa device register|list|capabilities`, Git helpers (`git-pr create|list|merge|sync`, `git-conflict detect|resolve`, `git-ci run|status`), self-containment (`bundle-libraries`, `bundle-all-libs`, `download-static-binaries`, `noa-kmod check`).
@@ -173,10 +317,31 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ## Implementation Phases
 
+### Phase 0: Unified Bootstrap (B001-B150) - NEW
+**CRITICAL**: This phase MUST complete before any other implementation.
+
+- **B001-B013**: Bootstrap foundation (logging, platform detection, state management)
+- **B014-B017**: Directory structure & state management
+- **B018-B023**: Prerequisites (Git, Git LFS, GitHub CLI)
+- **B024-B037**: Portable toolchains (Rust, Go, Node, Python, protoc to `noa_root/opt/`)
+- **B038-B055**: Quality & security tools
+- **B057a-B057j**: AI Provider CLIs (Claude Code, Cursor, Codex, Abacus - FR-039)
+- **B058-B067**: Dev tools (Cursor IDE, VS Code, Docker, AI apps - gitignored)
+- **B068-B077**: Cache & log configuration, environment generation
+- **B078-B090**: Main orchestrator & verification
+- **B091-B100**: Documentation & constitutional verification
+- **B101-B120**: Cross-platform script parity (all scripts mirrored)
+- **B121-B145**: Kernel independence layer (NKAL, VM images, mode switching)
+- **B146-B150**: Platform testing matrix
+
+**Bootstrap Entry Points:**
+- Windows: `.\scripts\bootstrap\bootstrap.ps1`
+- Unix: `./scripts/bootstrap/bootstrap.sh`
+
 ### Phase 1: Setup (T001-T021)
-- **Prerequisite checks** (T673-T675) - CRITICAL
-- Directory structure (FR-029-036)
-- Toolchain initialization
+- Directory structure verification (FR-029-036)
+- Project initialization (workspaces, modules)
+- Build scripts, CI pipeline
 
 ### Phase 2: Foundation (T022-T081)
 - Database schema (14 entities)
@@ -269,8 +434,8 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | 747 |
-| Prerequisite Check | 3 (T673-T675) |
+| **Total Tasks** | 907 |
+| **Phase 0: Bootstrap** | 160 (B001-B150 + B057a-B057j AI Providers) |
 | Phase 1-2 | 81 |
 | 3-Plane Architecture | 107 |
 | Shared Providers | 48 |
@@ -279,7 +444,25 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | P2 Stories | 193 |
 | P3 Stories | 93 |
 | Integration & Polish | 100 |
-| **Parallelizable** | 546 (74%) |
+| **Parallelizable** | 611 (67%) |
+
+### Bootstrap Task Categories (Phase 0)
+
+| Subcategory | Tasks | Description |
+|-------------|-------|-------------|
+| Foundation | B001-B013 | Logging, platform detection, state management |
+| Directory Structure | B014-B017 | Create noa_root directories |
+| Prerequisites | B018-B023 | Git, Git LFS, GitHub CLI |
+| Toolchains | B024-B037 | Rust, Go, Node, Python, protoc (portable) |
+| Quality Tools | B038-B055 | Linters, formatters, security scanners |
+| **AI Provider CLIs** | **B057a-B057j** | **Claude Code, Cursor, Codex, Abacus CLIs (FR-039)** |
+| Dev Tools | B058-B067 | IDEs, Docker, AI apps (gitignored) |
+| Configuration | B068-B077 | Cache, logs, environment files |
+| Orchestrator | B078-B090 | Main bootstrap script, verification |
+| Documentation | B091-B100 | README, guides, constitutional checks |
+| Cross-Platform | B101-B120 | Script parity (PS1 ↔ Bash mirroring) |
+| Kernel Independence | B121-B145 | NKAL, VM images, mode switching |
+| Testing Matrix | B146-B150 | Platform-specific CI tests |
 
 ---
 
@@ -292,6 +475,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 | C3: protoc missing | ✅ | Added to Prerequisites |
 | C4: Security tools | ✅ | Added to Prerequisites (Gitleaks, Trivy, Grype, Semgrep) |
 | C5: Lint tools | ✅ | Added to Prerequisites (golangci-lint, eslint, ruff) |
+| **C6: Claude Code CLI** | ✅ | Added AI Provider CLIs section (FR-039), tasks B057a-B057j |
 | A1: Glossary location | ✅ | Forward reference added at first usage |
 | A2: US7 hardware | ✅ | Added "Standard Hardware (16GB, 8-core)" context |
 | A3: Provider priority | ✅ | Added Provider Priority table with fallback order |
@@ -310,7 +494,31 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 
 ---
 
+## Cross-Platform Script Mapping
+
+| Script | Windows (PS1) | Unix (Bash) | Status |
+|--------|--------------|-------------|--------|
+| Bootstrap | bootstrap/bootstrap.ps1 | bootstrap/bootstrap.sh | ✅ |
+| Check Prereqs | setup/check-prereqs.ps1 | init/check-prereqs.sh | ✅ |
+| Install Prereqs | setup/install-prereqs.ps1 | (via bootstrap) | ✅ |
+| Docker Service | docker-service.ps1 | docker-service | ✅ |
+| Ollama Service | ollama-service.ps1 | ollama-service | ✅ |
+| SSH Service | ssh-service.ps1 | ssh-service | ✅ |
+| Gitea Service | gitea-service.ps1 | gitea-service | ✅ |
+| Kernel Params | noa-kernel-params.ps1 | noa-kernel-params | ✅ |
+| Kernel Modules | noa-kmod.ps1 | noa-kmod | ✅ |
+| Namespace | noa-namespace.ps1 | noa-namespace | ✅ |
+| Bundle Libs | bundle-libraries.ps1 | bundle-libraries | ✅ |
+| Bundle All | bundle-all-libs.ps1 | bundle-all-libs | ✅ |
+| Git CI | git-ci.ps1 | git-ci | ✅ |
+| Git Conflict | git-conflict.ps1 | git-conflict | ✅ |
+| Git PR | git-pr.ps1 | git-pr | ✅ |
+| NOA CLI | noa.ps1 | noa | ✅ |
+
+---
+
 **Plan Updated**: 2025-12-08
-**Total FRs**: 75
-**Total Tasks**: 747
-**Estimated Duration**: 24-28 weeks (2-4 developers)
+**Total FRs**: 94 (75 core + 19 bootstrap)
+**Total Tasks**: 897 (150 bootstrap + 747 core)
+**Estimated Duration**: 28-32 weeks (2-4 developers)
+**Cross-Platform Parity**: 100% (all scripts mirrored)

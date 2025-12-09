@@ -1,15 +1,17 @@
-# Tasks: NOA Seed Foundation
+# Tasks: NOA Seed Foundation (Unified)
 
 **Input**: Design documents from `/specs/001-noa-seed-foundation/`
 **Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/ ✅, quickstart.md ✅
+**Includes**: Bootstrap installer (formerly 002-unified-bootstrap) - MERGED
 
-**Organization**: Tasks grouped by user story for independent implementation and testing.
+**Organization**: Tasks grouped by phase, with Phase 0 (Bootstrap) running FIRST.
 
 ## Format: `[ID] [P?] [Story?] [Principle?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: US1-US8 from spec.md
+- **[Story]**: US1-US10 from spec.md (or BOOT for bootstrap-specific)
 - **[Principle]**: Constitutional principle tag (§3.1-§4.6)
+- **Task Prefix**: B = Bootstrap (Phase 0), T = Core (Phase 1+)
 
 ## Constitutional Principle Tags
 
@@ -32,6 +34,7 @@
 
 | Story | Title | Priority | MVP |
 |-------|-------|----------|-----|
+| BOOT | Bootstrap - Unified Environment Setup | P0 | ✅ |
 | US1 | Initialize NOA Seed Environment | P1 | ✅ |
 | US2 | Multi-SLM Neural Runtime | P1 | ✅ |
 | US3 | Total Memory Sovereignty | P1 | ✅ |
@@ -42,6 +45,594 @@
 | US8 | Self-Improvement & Code Modification | P3 | |
 | US9 | Cross-Platform Deployment | P3 | |
 | US10 | Connectors & External Integration | P3 | |
+
+---
+
+## ═══════════════════════════════════════════════════════════════
+## PHASE 0: UNIFIED BOOTSTRAP (CRITICAL - RUN FIRST)
+## ═══════════════════════════════════════════════════════════════
+
+**Purpose**: Complete environment setup - ONE SCRIPT installs EVERYTHING
+
+**Script Chaining Architecture:**
+
+```
+setup-noa.ps1 / setup-noa.sh
+    │
+    ├── Creates directory structure (noa_root/*)
+    │
+    ├── Creates AI provider directories (ai/providers/cloud/*, ai/providers/hybrid/*)
+    │
+    ├── Creates shared resource directories (ai/shared/*)
+    │
+    ├── [--install-all-tools] ──► install-all-tools.ps1 / .sh
+    │       │
+    │       ├── rust, go, protoc, node, python (toolchains)
+    │       ├── golangci-lint, eslint, ruff (quality)
+    │       ├── gitleaks, trivy, grype, semgrep (security)
+    │       │
+    │       └── [ai-providers] ──► Install ALL AI Provider CLIs
+    │               │
+    │               ├── claude-code (npm/@anthropic-ai/claude-code OR git clone)
+    │               ├── codex-cli (npm/@openai/codex OR git clone)
+    │               ├── cursor-cli (manual download from cursor.com)
+    │               └── abacus-cli (npm/@abacus-ai/cli)
+    │               │
+    │               └── Uses bootstrap/installers/ai-providers/*.ps1/.sh
+    │
+    ├── [--install-shared-resources] ──► Initialize ai/shared/ resources
+    │       │
+    │       ├── Create execution-memory.db (shared memory bus)
+    │       ├── Create context store, reasoning state tables
+    │       └── Configure provider state sync
+    │
+    ├── Generates noa-profile.ps1 / .sh
+    │
+    └── Generates config/noa.json + config/shared-resources.json
+```
+
+**Entry Points:**
+- **Quick Setup (directories only)**:
+  - Windows: `.\scripts\setup\setup-noa.ps1`
+  - Unix: `./scripts/setup/setup-noa.sh`
+
+- **Full Setup (with all toolchains + AI providers)**:
+  - Windows: `.\scripts\setup\setup-noa.ps1 -InstallAllTools -InstallAiProviders`
+  - Unix: `./scripts/setup/setup-noa.sh --install-all-tools --install-ai-providers`
+
+- **Bootstrap (alternative full setup)**:
+  - Windows: `.\scripts\bootstrap\bootstrap.ps1`
+  - Unix: `./scripts/bootstrap/bootstrap.sh`
+
+**Features:**
+- ✅ All toolchains portable to `noa_root/opt/`
+- ✅ Cross-platform parity (PS1 ↔ Bash)
+- ✅ Kernel independence (can run without host kernel)
+- ✅ Idempotent (safe to re-run)
+- ✅ Dev tools gitignored
+- ✅ AI Provider CLIs integrated (FR-039): claude-code, codex, cursor, abacus
+- ✅ Shared Provider Resources (FR-037 to FR-042): ai/shared/
+- ✅ Shared Execution Memory Bus for collaborative reasoning
+- ✅ Proper script chaining (setup → install-all → individual installers)
+
+---
+
+### Phase 0.1: Foundation - Core Infrastructure
+
+**Purpose**: Create unified bootstrap script foundation
+
+- [ ] B001 Create `scripts/bootstrap/bootstrap.ps1` - main unified Windows entry point
+- [ ] B002 Create `scripts/bootstrap/bootstrap.sh` - main unified Unix entry point
+- [ ] B003 [P] Create `scripts/bootstrap/lib/logging.ps1` - centralized logging
+- [ ] B004 [P] Create `scripts/bootstrap/lib/logging.sh`
+- [ ] B005 [P] Create `scripts/bootstrap/lib/platform.ps1` - OS, arch, shell detection
+- [ ] B006 [P] Create `scripts/bootstrap/lib/platform.sh`
+- [ ] B007 [P] Create `scripts/bootstrap/lib/state.ps1` - bootstrap-state.json management
+- [ ] B008 [P] Create `scripts/bootstrap/lib/state.sh`
+- [ ] B009 Create `scripts/bootstrap/lib/verification.ps1` - tool verification (SKIP|UPDATE|INSTALL|RELOCATE)
+- [ ] B010 Create `scripts/bootstrap/lib/verification.sh`
+- [ ] B011 [P] Create `scripts/bootstrap/lib/download.ps1` - download with caching
+- [ ] B012 [P] Create `scripts/bootstrap/lib/download.sh`
+- [ ] B013 Create `scripts/bootstrap/config/tools.json` - all tool definitions
+
+---
+
+### Phase 0.2: Directory Structure & State Management
+
+**Purpose**: Create noa_root directory structure and state tracking
+
+- [ ] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
+- [ ] B015 Create `scripts/bootstrap/lib/directories.sh`
+- [ ] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
+- [ ] B017 Create `config/bootstrap-state.json` schema (tool tracking)
+
+---
+
+### Phase 0.3: Prerequisites - Git & GitHub CLI
+
+**Purpose**: Install core prerequisites needed by other tools
+
+- [ ] B018 [BOOT] Create `scripts/bootstrap/installers/git.ps1`
+- [ ] B019 [BOOT] Create `scripts/bootstrap/installers/git.sh`
+- [ ] B020 [BOOT] Create `scripts/bootstrap/installers/git-lfs.ps1`
+- [ ] B021 [BOOT] Create `scripts/bootstrap/installers/git-lfs.sh`
+- [ ] B022 [BOOT] Create `scripts/bootstrap/installers/gh.ps1` - GitHub CLI
+- [ ] B023 [BOOT] Create `scripts/bootstrap/installers/gh.sh`
+
+---
+
+### Phase 0.4: Portable Toolchains (FR-081)
+
+**Purpose**: Install ALL language toolchains to noa_root/opt/ - NO system-wide installs
+
+#### Rust Toolchain → noa_root/opt/rust/
+
+- [ ] B024 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.ps1`
+  - Download rustup-init, install to opt/rust/
+  - Set RUSTUP_HOME, CARGO_HOME
+  - Verify: rustc >= 1.83
+- [ ] B025 [BOOT] [§3.1] Create `scripts/bootstrap/installers/rust-portable.sh`
+- [ ] B026 [BOOT] Create Rust cache symlink: `cache/rust/ → opt/rust/cargo/registry/`
+
+#### Go Toolchain → noa_root/opt/go/
+
+- [ ] B027 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.ps1`
+  - Download go.zip, extract to opt/go/
+  - Set GOROOT, GOPATH, GOBIN, GOCACHE, GOMODCACHE
+  - Verify: go >= 1.23
+- [ ] B028 [BOOT] [§3.1] Create `scripts/bootstrap/installers/go-portable.sh`
+- [ ] B029 [BOOT] Create Go cache symlink: `cache/go/ → opt/go/pkg/mod/`
+
+#### Node.js Toolchain → noa_root/opt/node/
+
+- [ ] B030 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.ps1`
+  - Download node.zip, extract to opt/node/
+  - Set npm_config_prefix, npm_config_cache, NODE_PATH
+  - Verify: node >= 22
+- [ ] B031 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.sh`
+- [ ] B032 [BOOT] Create npm cache symlink: `cache/npm/ → opt/npm-cache/`
+
+#### Python Toolchain → noa_root/opt/python/ + opt/venv/
+
+- [ ] B033 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.ps1`
+  - Download embed zip or use python-build-standalone
+  - Create venv at opt/venv/
+  - Set VIRTUAL_ENV, PIP_CACHE_DIR
+  - Verify: python >= 3.12
+- [ ] B034 [BOOT] [§3.1] Create `scripts/bootstrap/installers/python-portable.sh`
+- [ ] B035 [BOOT] Create pip cache directory: `cache/pip/`
+
+#### Protocol Buffers → noa_root/bin/
+
+- [ ] B036 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.ps1`
+  - Download from GitHub releases
+  - Extract binary to bin/, includes to opt/protobuf/include/
+  - Verify: protoc >= 28
+- [ ] B037 [BOOT] [§3.1] Create `scripts/bootstrap/installers/protoc-portable.sh`
+
+---
+
+### Phase 0.5: Quality & Security Tools
+
+**Purpose**: Install code quality and security tools via package managers
+
+#### Via Rust (rustup/cargo)
+
+- [ ] B038 [BOOT] Create `scripts/bootstrap/installers/rust-tools.ps1` (rustfmt, clippy)
+- [ ] B039 [BOOT] Create `scripts/bootstrap/installers/rust-tools.sh`
+
+#### Via Go (go install)
+
+- [ ] B040 [BOOT] Create `scripts/bootstrap/installers/go-tools.ps1` (golangci-lint)
+- [ ] B041 [BOOT] Create `scripts/bootstrap/installers/go-tools.sh`
+
+#### Via npm (npm install -g)
+
+- [ ] B042 [BOOT] Create `scripts/bootstrap/installers/npm-tools.ps1` (eslint)
+- [ ] B043 [BOOT] Create `scripts/bootstrap/installers/npm-tools.sh`
+
+#### Via pip (in venv)
+
+- [ ] B044 [BOOT] Create `scripts/bootstrap/installers/pip-tools.ps1` (ruff, semgrep)
+- [ ] B045 [BOOT] Create `scripts/bootstrap/installers/pip-tools.sh`
+
+#### Direct Binary Downloads (Security Tools → bin/)
+
+- [ ] B046 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/gitleaks.ps1`
+- [ ] B047 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/trivy.ps1`
+- [ ] B048 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/grype.ps1`
+- [ ] B049 [BOOT] [§3.6] [P] Create `scripts/bootstrap/installers/security-tools.sh` (all Unix)
+
+---
+
+### Phase 0.6: CLI Utilities
+
+**Purpose**: Install standalone CLI utilities to bin/
+
+- [ ] B050 [BOOT] [P] Create `scripts/bootstrap/installers/jq.ps1`
+- [ ] B051 [BOOT] [P] Create `scripts/bootstrap/installers/ripgrep.ps1`
+- [ ] B052 [BOOT] [P] Create `scripts/bootstrap/installers/fd.ps1`
+- [ ] B053 [BOOT] [P] Create `scripts/bootstrap/installers/bat.ps1`
+- [ ] B054 [BOOT] [P] Create `scripts/bootstrap/installers/fzf.ps1`
+- [ ] B055 [BOOT] [P] Create `scripts/bootstrap/installers/delta.ps1` (git-delta)
+- [ ] B056 [BOOT] [P] Create unified `scripts/bootstrap/installers/cli-tools.sh` (all Unix)
+
+---
+
+### Phase 0.6.5: AI Provider CLIs (FR-039)
+
+**Purpose**: Install ALL AI provider CLI tools to opt/ for shared execution memory
+
+**Priority Order (Local > Hybrid > Cloud)**:
+1. llama.cpp (Priority 1 - Local)
+2. Cursor CLI (Priority 2 - Hybrid/IDE)
+3. Claude Code CLI (Priority 3 - Cloud/CLI/IDE)
+4. Codex CLI (Priority 4 - Cloud/CLI)
+5. VS Code Copilot (Priority 5 - IDE only)
+6. Git CLI (Priority 6 - Local)
+7. Abacus CLI (Priority 7 - Cloud/CLI)
+
+#### Claude Code CLI (Priority 3 - Cloud/CLI/IDE)
+
+- [ ] B057a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.ps1`
+  - Install @anthropic-ai/claude-code via npm to opt/node/node_modules/
+  - Alternative: Clone https://github.com/FlexNetOS/claude-code.git to opt/claude-code/
+  - Create symlink: bin/claude → opt/node/node_modules/.bin/claude
+  - Create provider config at ai/providers/cloud/claude-code/config.json
+  - Configure shared resources path: ai/shared/
+  - Verify: claude --version
+- [ ] B057b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.sh`
+
+#### Cursor CLI (Priority 2 - Hybrid/IDE/CLI)
+
+- [ ] B057c [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.ps1`
+  - Download cursor CLI from cursor.com/docs/cli/headless
+  - Install to opt/cursor-cli/
+  - Create symlink: bin/cursor → opt/cursor-cli/cursor
+  - Create provider config at ai/providers/hybrid/cursor/config.json
+  - Configure shared resources path: ai/shared/
+- [ ] B057d [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.sh`
+
+#### Codex CLI (Priority 4 - Cloud/CLI)
+
+- [ ] B057e [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.ps1`
+  - Install @openai/codex via npm to opt/node/node_modules/
+  - Alternative: Clone https://github.com/FlexNetOS/codex.git to opt/codex/
+  - Create symlink: bin/codex → opt/node/node_modules/.bin/codex
+  - Create provider config at ai/providers/cloud/codex/config.json
+  - Configure shared resources path: ai/shared/
+  - Verify: codex --version
+- [ ] B057f [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.sh`
+
+#### VS Code with Copilot (Priority 5 - IDE)
+
+- [ ] B057g [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.ps1`
+  - Download VS Code portable to opt/dev-tools/vscode/
+  - Create portable mode marker (data/ directory)
+  - Install GitHub.copilot and GitHub.copilot-chat extensions
+  - Create symlink: bin/code → opt/dev-tools/vscode/bin/code
+  - Create provider config at ai/providers/ide/vscode-copilot/config.json
+  - Configure shared resources path: ai/shared/
+  - Verify: code --version && code --list-extensions | grep copilot
+- [ ] B057h [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.sh`
+
+#### Git CLI Provider (Priority 6 - Local)
+
+- [ ] B057i [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.ps1`
+  - Ensure PortableGit is installed to opt/dev-tools/git/
+  - Create symlinks: bin/git → opt/dev-tools/git/cmd/git
+  - Create provider config at ai/providers/local/git-cli/config.json
+  - Configure shared resources path: ai/shared/
+  - Verify: git --version
+- [ ] B057j [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.sh`
+
+#### Abacus CLI (Priority 7 - Cloud/CLI)
+
+- [ ] B057k [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.ps1`
+  - Install @abacus-ai/cli via npm to opt/node/node_modules/
+  - Create symlink: bin/abacus → opt/node/node_modules/.bin/abacus
+  - Create provider config at ai/providers/cloud/abacus/config.json
+  - Configure shared resources path: ai/shared/
+  - Note: Requires Abacus Desktop app for initial auth
+  - Verify: abacus --version
+- [ ] B057l [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.sh`
+
+#### Provider Setup Verification
+
+- [ ] B057m [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.ps1` - verify all provider CLIs
+  - Check: claude, codex, cursor, code (vscode), git, abacusai
+  - Verify shared resources access for each provider
+  - Output: JSON report with status for each provider
+- [ ] B057n [BOOT] §3.12 Create `scripts/bootstrap/verify-ai-providers.sh`
+
+---
+
+### Phase 0.6.6: Shared Provider Resources (FR-037 to FR-042)
+
+**Purpose**: Create shared resource directories and execution memory bus for ALL providers
+
+**Shared Resources Architecture:**
+```
+ai/shared/
+├── agents/           # Shared agent definitions
+├── workflows/        # Shared workflow definitions
+├── prompts/          # Shared prompt templates
+├── skills/           # Shared skill definitions
+├── tools/            # Shared MCP tools and functions
+├── models/           # Shared model configs/adapters
+├── commands/         # Shared command definitions
+└── resources/        # Execution memory and state
+    ├── execution-memory.db   # Shared execution memory bus
+    ├── context/              # Shared context store
+    └── state/                # Provider state sync
+```
+
+#### Shared Directory Structure
+
+- [ ] B058a [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.ps1`
+  - Create all ai/shared/ subdirectories
+  - Set appropriate permissions for provider access
+- [ ] B058b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/shared-resources/create-directories.sh`
+
+#### Shared Resource Templates
+
+- [ ] B058c [BOOT] §3.3 [P] Create `ai/shared/agents/README.md` - agent definition template
+- [ ] B058d [BOOT] §3.3 [P] Create `ai/shared/workflows/README.md` - workflow definition template
+- [ ] B058e [BOOT] §3.3 [P] Create `ai/shared/prompts/README.md` - prompt template guide
+- [ ] B058f [BOOT] §3.3 [P] Create `ai/shared/skills/README.md` - skill definition template
+- [ ] B058g [BOOT] §3.3 [P] Create `ai/shared/tools/README.md` - MCP tool definition template
+- [ ] B058h [BOOT] §3.3 [P] Create `ai/shared/models/README.md` - model adapter template
+- [ ] B058i [BOOT] §3.3 [P] Create `ai/shared/commands/README.md` - command definition template
+
+#### Shared Execution Memory (FR-037)
+
+- [ ] B058j [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.ps1`
+  - Initialize execution-memory.db (SQLite)
+  - Create tables: context_store, reasoning_state, task_queue, provider_state
+  - Enable shared access for all providers
+- [ ] B058k [BOOT] §3.7 Create `scripts/bootstrap/installers/shared-resources/execution-memory.sh`
+
+#### Shared Execution Memory Schema
+
+- [ ] B058l [BOOT] §3.7 Create `ai/shared/resources/schema/execution-memory.sql`
+  - context_store: id, provider, context_type, content, metadata, created_at, updated_at
+  - reasoning_state: id, session_id, provider, state_json, checkpoint_at
+  - task_queue: id, task_type, provider, priority, payload, status, created_at
+  - provider_state: id, provider_name, state_key, state_value, synced_at
+
+#### Provider Configuration Integration
+
+- [ ] B058m [BOOT] §3.3 Update all provider configs to reference ai/shared/ path
+- [ ] B058n [BOOT] §3.3 Create `config/shared-resources.json` - centralized shared resource config
+- [ ] B058o [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.ps1`
+- [ ] B058p [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.sh`
+
+#### Collaborative Reasoning Support (FR-038)
+
+- [ ] B058q [BOOT] §3.3 Create `ai/shared/resources/collaborative-reasoning.yaml`
+  - Define collaborative reasoning protocols
+  - Configure multi-provider task distribution
+  - Set up reasoning state synchronization
+
+#### Parallel Task Distribution (FR-041)
+
+- [ ] B058r [BOOT] §3.3 Create `ai/shared/resources/task-distribution.yaml`
+  - Configure parallel task queue
+  - Define provider capability mapping
+  - Set up load balancing rules
+
+#### Provider State Sync (FR-042)
+
+- [ ] B058s [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.ps1`
+  - Initialize provider state sync mechanism
+  - Configure sync intervals and conflict resolution
+- [ ] B058t [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.sh`
+
+---
+
+### Phase 0.7: Dev Tools (Gitignored → opt/dev-tools/)
+
+**Purpose**: Install development applications (gitignored, user-specific)
+
+- [ ] B059 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.ps1`
+- [ ] B060 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.ps1`
+- [ ] B061 [BOOT] Create `scripts/bootstrap/installers/dev-tools/cursor.sh`
+- [ ] B062 [BOOT] Create `scripts/bootstrap/installers/dev-tools/vscode.sh`
+- [ ] B063 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.ps1`
+- [ ] B064 [BOOT] Create `scripts/bootstrap/installers/dev-tools/docker.sh`
+- [ ] B065 [BOOT] Create `scripts/bootstrap/installers/dev-tools/chatgpt-desktop.ps1`
+- [ ] B066 [BOOT] Create `scripts/bootstrap/installers/dev-tools/claude-desktop.ps1`
+- [ ] B067 [BOOT] Create `scripts/bootstrap/installers/dev-tools/ai-apps.sh`
+- [ ] B068 [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/postman.ps1`
+- [ ] B069 [BOOT] [P] Create `scripts/bootstrap/installers/dev-tools/dbeaver.ps1`
+
+---
+
+### Phase 0.8: Cache & Log Configuration
+
+**Purpose**: Centralize all caches and logs in noa_root
+
+- [ ] B068 [BOOT] Create `scripts/bootstrap/config/cache-setup.ps1` (symlinks for tool caches)
+- [ ] B069 [BOOT] Create `scripts/bootstrap/config/cache-setup.sh`
+- [ ] B070 [BOOT] Create `scripts/bootstrap/config/provider-cache.ps1` (Ollama, HuggingFace, llama.cpp)
+- [ ] B071 [BOOT] Create `scripts/bootstrap/config/provider-cache.sh`
+- [ ] B072 [BOOT] Create `scripts/bootstrap/config/log-setup.ps1` (rotation, centralized logs)
+- [ ] B073 [BOOT] Create `scripts/bootstrap/config/log-setup.sh`
+
+---
+
+### Phase 0.9: Environment Configuration
+
+**Purpose**: Generate shell configuration files
+
+- [ ] B074 [BOOT] Create `scripts/bootstrap/generators/noa-env.ps1` - generate noa-env.ps1
+- [ ] B075 [BOOT] Create `scripts/bootstrap/generators/noa-env.sh` - generate .noa-env
+- [ ] B076 [BOOT] Create `scripts/bootstrap/generators/shell-integration.ps1` (add to $PROFILE)
+- [ ] B077 [BOOT] Create `scripts/bootstrap/generators/shell-integration.sh` (add to .bashrc/.zshrc)
+
+---
+
+### Phase 0.10: Main Orchestrator
+
+**Purpose**: Create unified entry point that orchestrates all phases
+
+- [ ] B078 Implement main orchestration in `scripts/bootstrap/bootstrap.ps1`
+- [ ] B079 Implement main orchestration in `scripts/bootstrap/bootstrap.sh`
+- [ ] B080 Implement phase execution order (platform → directories → state → verification → install → verify → report)
+
+---
+
+### Phase 0.11: Verification & Reporting
+
+**Purpose**: Comprehensive verification and installation report
+
+- [ ] B081 [§3.12] Create `scripts/bootstrap/verify/verify-all.ps1`
+- [ ] B082 [§3.12] Create `scripts/bootstrap/verify/verify-all.sh`
+- [ ] B083 [§3.12] Create `scripts/bootstrap/verify/smoke-test.ps1` (compile/run minimal programs)
+- [ ] B084 [§3.12] Create `scripts/bootstrap/verify/smoke-test.sh`
+- [ ] B085 Create `scripts/bootstrap/report/generate-report.ps1`
+
+---
+
+### Phase 0.12: Integration & Migration
+
+**Purpose**: Integrate with existing scripts
+
+- [ ] B086 Update `scripts/setup.ps1` to delegate to bootstrap.ps1
+- [ ] B087 Deprecate old scripts with redirect messages
+- [ ] B088 Create migration script for existing installations
+- [ ] B089 Update `noa-env.ps1` to source generated environment
+- [ ] B090 Update `scripts/noa.ps1` validate command to use bootstrap verification
+
+---
+
+### Phase 0.13: Documentation
+
+**Purpose**: Document the unified bootstrap system
+
+- [ ] B091 [P] Create `scripts/bootstrap/README.md`
+- [ ] B092 [P] Create `docs/setup/bootstrap-complete-guide.md`
+- [ ] B093 [P] Update main `README.md` with bootstrap instructions
+- [ ] B094 [P] Create `scripts/bootstrap/TOOLS.md` - list of all tools with versions
+
+---
+
+### Phase 0.14: Constitutional Verification
+
+**Purpose**: Validate compliance with NOA constitution
+
+- [ ] B095 [§3.1] Verify all paths resolve under noa_root
+- [ ] B096 [§3.2] Test offline functionality with pre-cached archives
+- [ ] B097 [§3.5] Verify all actions logged to logs/bootstrap/
+- [ ] B098 [§3.6] Security review: HTTPS downloads, checksum verification
+- [ ] B099 [§3.12] Run full verification suite
+- [ ] B100 Final sign-off: All tools working, all caches configured
+
+---
+
+### Phase 0.15: Cross-Platform Script Parity (FR-088)
+
+**Purpose**: Ensure ALL scripts have mirrored Windows (PS1) and Unix (Bash) versions
+
+#### Service Scripts (ALL MIRRORED)
+- [x] B101 [P] docker-service.ps1 / docker-service ✅
+- [x] B102 [P] ollama-service.ps1 / ollama-service ✅
+- [x] B103 [P] ssh-service.ps1 / ssh-service ✅
+- [x] B104 [P] gitea-service.ps1 / gitea-service ✅
+
+#### Kernel/System Scripts (ALL MIRRORED)
+- [x] B105 [P] noa-kernel-params.ps1 / noa-kernel-params ✅
+- [x] B106 [P] noa-kmod.ps1 / noa-kmod ✅
+- [x] B107 [P] noa-namespace.ps1 / noa-namespace ✅
+
+#### Library Bundling Scripts (ALL MIRRORED)
+- [x] B108 [P] bundle-libraries.ps1 / bundle-libraries ✅
+- [x] B109 [P] bundle-all-libs.ps1 / bundle-all-libs ✅
+- [ ] B110 [P] patch-binary-libs.ps1 (Windows equivalent for rpath patching)
+
+#### Git Workflow Scripts (ALL MIRRORED)
+- [x] B111 [P] git-ci.ps1 / git-ci ✅
+- [x] B112 [P] git-conflict.ps1 / git-conflict ✅
+- [x] B113 [P] git-pr.ps1 / git-pr ✅
+
+#### Bootstrap Scripts (ALL MIRRORED)
+- [x] B114 [P] bootstrap/bootstrap.ps1 / bootstrap/bootstrap.sh ✅
+- [x] B115 [P] setup/check-prereqs.ps1 / init/check-prereqs.sh ✅
+- [x] B116 [P] setup/install-prereqs.ps1 / (via bootstrap.sh) ✅
+
+#### Verification
+- [ ] B117 Create cross-platform test suite
+- [ ] B118 Verify identical exit codes for all mirrored scripts
+- [ ] B119 Verify identical argument handling
+- [ ] B120 Create scripts/README.md with complete mapping table
+
+---
+
+### Phase 0.16: Kernel Independence Layer (FR-091 to FR-094)
+
+**Purpose**: Enable NOA to operate independently of host kernel on ALL platforms
+
+**Principle**: NOA CAN use host kernel but MUST be able to run independently.
+
+#### Kernel Abstraction Design
+- [ ] B121 Design NKAL (NOA Kernel Abstraction Layer) interface in `sys/core/src/kernel/`
+- [ ] B122 Document kernel independence modes: native, vm, container, sandbox
+
+#### Windows Kernel Independence
+- [ ] B123 Implement Hyper-V VM management in `sys/kernel/windows/hyperv/noa-vm.ps1`
+- [ ] B124 Configure TAP adapter for network isolation
+- [ ] B125 Create Windows Sandbox profile for lightweight isolation
+- [ ] B126 Build Hyper-V VM image (noa-linux.vhdx) with custom kernel
+
+#### Linux Kernel Independence
+- [ ] B127 Implement KVM/QEMU VM launcher in `sys/kernel/linux/vm/`
+- [ ] B128 Configure namespace isolation in `sys/kernel/linux/namespaces/`
+- [ ] B129 Integrate container runtime (rootless Docker/Podman)
+- [ ] B130 Build QCOW2 VM image (noa-linux.qcow2) with custom kernel
+
+#### macOS Kernel Independence
+- [ ] B131 Implement Virtualization.framework wrapper in `sys/kernel/macos/vm/`
+- [ ] B132 Build macOS VM image (noa-linux.dmg)
+- [ ] B133 Document limitations (Darwin kernel differences)
+
+#### VM Image Build System
+- [ ] B134 Create Alpine-based minimal Linux image builder
+- [ ] B135 Include P2P kernel modules (tun, bridge, wireguard, nf_tables)
+- [ ] B136 Configure < 3 second boot time
+- [ ] B137 Package NOA runtime binaries in image
+- [ ] B138 Create image update/sync mechanism
+
+#### Kernel Mode Switching
+- [ ] B139 Implement `noa-kernel-params set kernel_mode {native|vm|container}`
+- [ ] B140 Auto-detect available isolation methods per platform
+- [ ] B141 Graceful fallback when requested mode unavailable
+
+#### Testing
+- [ ] B142 Test VM boot on Windows (Hyper-V)
+- [ ] B143 Test VM boot on Linux (KVM)
+- [ ] B144 Test VM boot on macOS (Virtualization.framework)
+- [ ] B145 Benchmark native vs VM performance overhead
+
+---
+
+### Phase 0.17: Platform Testing Matrix
+
+**Purpose**: Verify all scripts work on all supported platforms
+
+- [ ] B146 Create GitHub Actions workflow for Windows testing
+- [ ] B147 Create GitHub Actions workflow for Ubuntu testing
+- [ ] B148 Create GitHub Actions workflow for macOS testing
+- [ ] B149 Create WSL2 testing in Windows runner
+- [ ] B150 Document manual test procedures for WSL1
+
+---
+
+## ═══════════════════════════════════════════════════════════════
+## PHASE 1+: CORE NOA IMPLEMENTATION
+## ═══════════════════════════════════════════════════════════════
+
+**Prerequisites**: Phase 0 (Bootstrap) must be complete.
+**Entry Point**: After bootstrap, run `noa init` to verify environment.
 
 ---
 
@@ -200,7 +791,7 @@
 
 **⚠️ CRITICAL**: This phase implements FR-056 through FR-060 and FR-071 through FR-075
 
-**Reference**: `E:\dev\dev\workspaces\projects\agentic-homelab-p2p`
+**Reference**: See `project-mgmt/docs/07-plans/autonomous-system.md` for architecture details
 
 ### Autonomous Operation Entity Tables (data-model.md Entities 18-22)
 
@@ -423,6 +1014,8 @@
 - [ ] T444 [P] Implement Cursor CLI wrapper in `sys/core/src/providers/cursor/cli.rs`
 - [ ] T445 [P] Implement Cursor Cloud API client in `sys/core/src/providers/cursor/cloud.rs`
 - [ ] T446 [P] Implement Cursor IDE extension bridge in `sys/core/src/providers/cursor/ide.rs`
+- [ ] T446a §3.3 Implement Cursor provider orchestration mode - coordinate ALL available providers for parallel task execution in `sys/core/src/providers/cursor/orchestrator.rs`
+- [ ] T446b [P] Implement task-to-provider routing (reasoning→Claude, code→Codex, local→llama.cpp) in `sys/core/src/providers/cursor/router.rs`
 
 - [ ] T447 §3.3 Implement Abacus provider (CLI + Cloud) in `sys/core/src/providers/abacus/mod.rs`
 - [ ] T448 [P] Implement Abacus CLI wrapper in `sys/core/src/providers/abacus/cli.rs`
@@ -774,15 +1367,15 @@
 - [ ] T511 [P] [US4] Implement GET /api/v1/digest/sources/{id} endpoint in `sys/core/src/api/routes/digest_sources.rs`
 - [ ] T512 [P] [US4] Implement GET /api/v1/digest/sources/{id}/profile endpoint in `sys/core/src/api/routes/digest_sources.rs`
 - [ ] T513 [P] [US4] Implement GET /api/v1/digest/sources/{id}/system-card endpoint in `sys/core/src/api/routes/digest_sources.rs`
-- [ ] T514 [P] [US4] Implement GET /api/v1/digest/sources/{id}/sbom endpoint in `sys/core/src/api/routes/digest_sources.rs`
-- [ ] T515 [P] [US4] Implement GET /api/v1/digest/sources/{id}/security endpoint in `sys/core/src/api/routes/digest_sources.rs`
+- [ ] T536 [P] [US4] Implement GET /api/v1/digest/sources/{id}/sbom endpoint in `sys/core/src/api/routes/digest_sources.rs`
+- [ ] T537 [P] [US4] Implement GET /api/v1/digest/sources/{id}/security endpoint in `sys/core/src/api/routes/digest_sources.rs`
 
 ### Knowledge Graph Endpoints (US4) - per digest-pipeline.openapi.yaml
 
-- [ ] T516 [US4] Implement GET /api/v1/knowledge/nodes endpoint in `sys/core/src/api/routes/knowledge.rs`
-- [ ] T517 [P] [US4] Implement GET /api/v1/knowledge/nodes/{id} endpoint in `sys/core/src/api/routes/knowledge.rs`
-- [ ] T518 [P] [US4] Implement GET /api/v1/knowledge/edges endpoint in `sys/core/src/api/routes/knowledge.rs`
-- [ ] T519 [P] [US4] Implement POST /api/v1/knowledge/query endpoint in `sys/core/src/api/routes/knowledge.rs`
+- [ ] T538 [US4] Implement GET /api/v1/knowledge/nodes endpoint in `sys/core/src/api/routes/knowledge.rs`
+- [ ] T539 [P] [US4] Implement GET /api/v1/knowledge/nodes/{id} endpoint in `sys/core/src/api/routes/knowledge.rs`
+- [ ] T540 [P] [US4] Implement GET /api/v1/knowledge/edges endpoint in `sys/core/src/api/routes/knowledge.rs`
+- [ ] T541 [P] [US4] Implement POST /api/v1/knowledge/query endpoint in `sys/core/src/api/routes/knowledge.rs`
 
 **US4 Acceptance Criteria**:
 - [ ] Produces profile.json, system_card.md, kg.json, SBOM, security report
@@ -855,6 +1448,14 @@
 - [ ] T227 [P] [US5] Implement markdown rendering in `sys/ui/src/components/MarkdownRenderer.tsx`
 - [ ] T228 [US5] Implement provider abstraction for model switching in `sys/ui/src/services/providerClient.ts`
 - [ ] T229 [P] [US5] Implement context persistence across devices in `sys/ui/src/services/contextPersistence.ts`
+
+### Multi-Modal Interaction (US5) - FR-023 (deferred: voice/vision where hardware permits)
+
+- [ ] T760 [US5] §3.3 Implement multi-modal input abstraction in `sys/ui/src/services/multiModal.ts`
+- [ ] T761 [P] [US5] Implement voice input stub (Web Speech API) in `sys/ui/src/components/VoiceInput.tsx`
+- [ ] T762 [P] [US5] Implement vision input stub (camera/screen capture) in `sys/ui/src/components/VisionInput.tsx`
+- [ ] T763 [P] [US5] Create hardware capability detection for multi-modal in `sys/ui/src/services/hardwareCapabilities.ts`
+- [ ] T764 [P] [US5] Implement graceful degradation when hardware unavailable in `sys/ui/src/services/multiModal.ts`
 
 **US5 Acceptance Criteria**:
 - [ ] UI surfaces relevant tools based on context
@@ -1091,16 +1692,9 @@
 - [ ] T330 [P] [US8] Implement KSNAP_CAP (Snapshot & Restore) in `sys/core/src/knowledge/ksnap.rs`
 - [ ] T331 [P] [US8] Implement KCRASH_CAP (Crash Forensics) in `sys/core/src/knowledge/kcrash.rs`
 
-### Shared Model Provider Techniques (US8)
-
-- [ ] T332 [US8] §3.4 Implement ToolkenGPT (pre-trained tokens for toolken) in `sys/core/src/ml/toolkengpt.rs`
-- [ ] T333 [P] [US8] Implement Replay Memory Cache in `sys/core/src/ml/replay_cache.rs`
-- [ ] T334 [P] [US8] Implement EWC (Elastic Weight Consolidation) in `sys/core/src/ml/ewc.rs`
-- [ ] T335 [P] [US8] Implement Progressive Neural Network adapters in `sys/core/src/ml/progressive_nn.rs`
-- [ ] T336 [P] [US8] Implement Meta-Learning (MAML) wrapper in `sys/core/src/ml/maml.rs`
-- [ ] T337 [P] [US8] Implement Neuromodulation techniques in `sys/core/src/ml/neuromodulation.rs`
-
 ### Self-Analysis (US8)
+
+> **NOTE**: Advanced Learning tasks (ToolkenGPT, Replay Memory, EWC, MAML) are in Phase 4 (US2) as T657-T672 per FR-043-046.
 
 - [ ] T338 [US8] §3.4 Implement performance metrics collection in `sys/core/src/self_improve/metrics.rs`
 - [ ] T339 [P] [US8] Implement efficiency analysis in `sys/core/src/self_improve/analyzer.rs`
@@ -1147,6 +1741,15 @@
 - [ ] T359 [P] [US8] Implement `noa improve propose` command in `sys/core/src/cli/improve.rs`
 - [ ] T360 [P] [US8] Implement `noa improve apply` command in `sys/core/src/cli/improve.rs`
 - [ ] T361 [P] [US8] Implement `noa improve rollback` command in `sys/core/src/cli/improve.rs`
+
+### Predictive Problem Solving (US8) - §3.11 Constitution Principle
+
+- [ ] T765 [US8] §3.11 Implement pattern recognition engine in `sys/core/src/predict/patterns.rs`
+- [ ] T766 [P] [US8] §3.11 Implement failure pattern analysis (own + external) in `sys/core/src/predict/failure_analysis.rs`
+- [ ] T767 [P] [US8] §3.11 Implement input/output value evaluator (max fruit/output) in `sys/core/src/predict/value_evaluator.rs`
+- [ ] T768 [P] [US8] §3.11 Implement resource allocation predictor in `sys/core/src/predict/resource_predictor.rs`
+- [ ] T769 [P] [US8] §3.11 Implement task prioritization predictor in `sys/core/src/predict/priority_predictor.rs`
+- [ ] T770 [P] [US8] §3.11 Implement risk assessment engine in `sys/core/src/predict/risk_assessment.rs`
 
 **US8 Acceptance Criteria**:
 - [ ] 25+ Dynamic Graphs operational
@@ -1208,7 +1811,7 @@
 ### External Connectors (Feature-Flagged)
 
 > **NOTE**: Connector tasks moved to Phase 14 (US10) with full OAuth support and feature flags.
-> See T669-T689 for complete connector implementation.
+> See T739-T759 for complete connector implementation.
 
 ### Secondary Layer Adapters
 
@@ -1305,32 +1908,32 @@ Per [universal_task_execution_policy.md](../../project-mgmt/docs/05-policy/unive
 
 ### Cross-Platform Build Infrastructure (US9)
 
-- [ ] T652 [US9] Create platform detection module in `sys/core/src/platform/detect.rs`
-- [ ] T653 [P] [US9] Implement Windows-specific adaptations in `sys/core/src/platform/windows.rs`
-- [ ] T654 [P] [US9] Implement macOS-specific adaptations in `sys/core/src/platform/macos.rs`
-- [ ] T655 [P] [US9] Implement Linux-specific adaptations in `sys/core/src/platform/linux.rs`
-- [ ] T656 [P] [US9] Create cross-platform path resolver in `sys/core/src/platform/paths.rs`
+- [ ] T722 [US9] Create platform detection module in `sys/core/src/platform/detect.rs`
+- [ ] T723 [P] [US9] Implement Windows-specific adaptations in `sys/core/src/platform/windows.rs`
+- [ ] T724 [P] [US9] Implement macOS-specific adaptations in `sys/core/src/platform/macos.rs`
+- [ ] T725 [P] [US9] Implement Linux-specific adaptations in `sys/core/src/platform/linux.rs`
+- [ ] T726 [P] [US9] Create cross-platform path resolver in `sys/core/src/platform/paths.rs`
 
 ### CI/CD Matrix (US9)
 
-- [ ] T657 [US9] Create cross-platform CI matrix in `.github/workflows/cross-platform.yml`
-- [ ] T658 [P] [US9] Add Windows build job (x64) in `.github/workflows/cross-platform.yml`
-- [ ] T659 [P] [US9] Add macOS build jobs (x64, arm64) in `.github/workflows/cross-platform.yml`
-- [ ] T660 [P] [US9] Add Ubuntu build job (x64) in `.github/workflows/cross-platform.yml`
-- [ ] T661 [P] [US9] Create platform-specific artifact packaging in `scripts/package/`
+- [ ] T727 [US9] Create cross-platform CI matrix in `.github/workflows/cross-platform.yml`
+- [ ] T728 [P] [US9] Add Windows build job (x64) in `.github/workflows/cross-platform.yml`
+- [ ] T729 [P] [US9] Add macOS build jobs (x64, arm64) in `.github/workflows/cross-platform.yml`
+- [ ] T730 [P] [US9] Add Ubuntu build job (x64) in `.github/workflows/cross-platform.yml`
+- [ ] T731 [P] [US9] Create platform-specific artifact packaging in `scripts/package/`
 
 ### Mobile Companion (US9)
 
-- [ ] T662 [US9] Create mobile companion project structure in `sys/mobile/`
-- [ ] T663 [P] [US9] Implement P2P client for mobile in `sys/mobile/src/p2p_client.rs`
-- [ ] T664 [P] [US9] Create minimal mobile UI (companion mode) in `sys/mobile/src/ui/`
-- [ ] T665 [US9] Implement hardware capability detection in `sys/core/src/platform/capabilities.rs`
+- [ ] T732 [US9] Create mobile companion project structure in `sys/mobile/` (stub: connects to P2P only)
+- [ ] T733 [P] [US9] Implement P2P client for mobile in `sys/mobile/src/p2p_client.rs`
+- [ ] T734 [P] [US9] Create minimal mobile UI (companion mode) in `sys/mobile/src/ui/`
+- [ ] T735 [US9] Implement hardware capability detection in `sys/core/src/platform/capabilities.rs`
 
 ### Resource Adaptation (US9)
 
-- [ ] T666 [US9] Implement dynamic resource allocation based on hardware tier in `sys/core/src/resources/allocator.rs`
-- [ ] T667 [P] [US9] Implement model size selection per hardware in `sys/core/src/resources/model_selector.rs`
-- [ ] T668 [P] [US9] Implement graceful degradation on low-resource systems in `sys/core/src/resources/degradation.rs`
+- [ ] T736 [US9] Implement dynamic resource allocation based on hardware tier in `sys/core/src/resources/allocator.rs`
+- [ ] T737 [P] [US9] Implement model size selection per hardware in `sys/core/src/resources/model_selector.rs`
+- [ ] T738 [P] [US9] Implement graceful degradation on low-resource systems in `sys/core/src/resources/degradation.rs`
 
 **US9 Acceptance Criteria**:
 - [ ] CI passes on Windows, macOS (x64+arm64), Ubuntu
@@ -1352,39 +1955,39 @@ Per [universal_task_execution_policy.md](../../project-mgmt/docs/05-policy/unive
 
 ### Feature Flag Framework (US10)
 
-- [ ] T669 [US10] Implement feature flag service in `sys/core/src/features/flags.rs`
-- [ ] T670 [P] [US10] Create feature flag configuration in `config/features.json`
-- [ ] T671 [P] [US10] Implement feature flag CLI commands in `sys/core/src/cli/features.rs`
+- [ ] T739 [US10] Implement feature flag service in `sys/core/src/features/flags.rs`
+- [ ] T740 [P] [US10] Create feature flag configuration in `config/features.json`
+- [ ] T741 [P] [US10] Implement feature flag CLI commands in `sys/core/src/cli/features.rs`
 
 ### OAuth Framework (US10)
 
-- [ ] T672 [US10] Implement OAuth2 base client in `sys/core/src/connectors/oauth/client.rs`
-- [ ] T673 [P] [US10] Implement OAuth callback handler in `sys/core/src/connectors/oauth/callback.rs`
-- [ ] T674 [P] [US10] Implement token exchange flow in `sys/core/src/connectors/oauth/token_exchange.rs`
-- [ ] T675 [P] [US10] Implement token refresh mechanism in `sys/core/src/connectors/oauth/refresh.rs`
-- [ ] T676 [P] [US10] Implement secure token storage in `sys/core/src/connectors/oauth/storage.rs`
+- [ ] T742 [US10] Implement OAuth2 base client in `sys/core/src/connectors/oauth/client.rs`
+- [ ] T743 [P] [US10] Implement OAuth callback handler in `sys/core/src/connectors/oauth/callback.rs`
+- [ ] T744 [P] [US10] Implement token exchange flow in `sys/core/src/connectors/oauth/token_exchange.rs`
+- [ ] T745 [P] [US10] Implement token refresh mechanism in `sys/core/src/connectors/oauth/refresh.rs`
+- [ ] T746 [P] [US10] Implement secure token storage in `sys/core/src/connectors/oauth/storage.rs`
 
 ### Connector Implementations (US10)
 
-- [ ] T677 [US10] Implement connector base trait in `sys/core/src/connectors/base.rs`
-- [ ] T678 [P] [US10] Implement GitHub connector in `sys/core/src/connectors/github.rs`
-- [ ] T679 [P] [US10] Implement Gmail/Google connector in `sys/core/src/connectors/google.rs`
-- [ ] T680 [P] [US10] Implement OpenAI connector in `sys/core/src/connectors/openai.rs`
-- [ ] T681 [P] [US10] Implement Claude connector in `sys/core/src/connectors/claude.rs`
-- [ ] T682 [P] [US10] Implement cloud storage connector (S3/GCS) in `sys/core/src/connectors/cloud_storage.rs`
-- [ ] T683 [P] [US10] Implement Email (SMTP/IMAP) connector in `sys/core/src/connectors/email.rs`
+- [ ] T747 [US10] Implement connector base trait in `sys/core/src/connectors/base.rs`
+- [ ] T748 [P] [US10] Implement GitHub connector in `sys/core/src/connectors/github.rs`
+- [ ] T749 [P] [US10] Implement Gmail/Google connector in `sys/core/src/connectors/google.rs`
+- [ ] T750 [P] [US10] Implement OpenAI connector in `sys/core/src/connectors/openai.rs`
+- [ ] T751 [P] [US10] Implement Claude connector in `sys/core/src/connectors/claude.rs`
+- [ ] T752 [P] [US10] Implement cloud storage connector (S3/GCS) in `sys/core/src/connectors/cloud_storage.rs`
+- [ ] T753 [P] [US10] Implement Email (SMTP/IMAP) connector in `sys/core/src/connectors/email.rs`
 
 ### Connector Graceful Degradation (US10)
 
-- [ ] T684 [US10] Implement offline cache for connectors in `sys/core/src/connectors/cache.rs`
-- [ ] T685 [P] [US10] Implement network availability detection in `sys/core/src/connectors/network.rs`
-- [ ] T686 [P] [US10] Implement connector status reporting in `sys/core/src/connectors/status.rs`
+- [ ] T754 [US10] Implement offline cache for connectors in `sys/core/src/connectors/cache.rs`
+- [ ] T755 [P] [US10] Implement network availability detection in `sys/core/src/connectors/network.rs`
+- [ ] T756 [P] [US10] Implement connector status reporting in `sys/core/src/connectors/status.rs`
 
 ### Connector UI (US10)
 
-- [ ] T687 [US10] Create connector settings page in `sys/ui/src/pages/settings/connectors.tsx`
-- [ ] T688 [P] [US10] Create OAuth authorization flow UI in `sys/ui/src/components/connectors/OAuthFlow.tsx`
-- [ ] T689 [P] [US10] Create connector status dashboard in `sys/ui/src/components/connectors/StatusDashboard.tsx`
+- [ ] T757 [US10] Create connector settings page in `sys/ui/src/pages/settings/connectors.tsx`
+- [ ] T758 [P] [US10] Create OAuth authorization flow UI in `sys/ui/src/components/connectors/OAuthFlow.tsx`
+- [ ] T759 [P] [US10] Create connector status dashboard in `sys/ui/src/components/connectors/StatusDashboard.tsx`
 
 **US10 Acceptance Criteria**:
 - [ ] OAuth authentication completes within 5 seconds
@@ -1650,7 +2253,8 @@ Then implement P3 stories:
 
 | Metric | Count |
 |--------|-------|
-| **Total Tasks** | 740 |
+| **Total Tasks** | **920** (150 Bootstrap + 770 Core) |
+| **Phase 0 (Bootstrap)** | **150** (B001-B150) - NEW UNIFIED |
 | **Phase 1 (Setup)** | 21 (includes FR-029-036 directory structure + 3 prerequisite check tasks) |
 | **Phase 2 (Foundation)** | 60 |
 | **Phase 2.5 (3-Plane Control Fabric)** | 107 (FR-056-060, FR-071-075) |
@@ -1669,7 +2273,27 @@ Then implement P3 stories:
 | **Phase 12 (Polish)** | 48 (includes Execution Policy + Open Questions) |
 | **Phase 15 (Governance)** | 16 (FR-025-028, Biblical Pipeline) |
 | **Phase 16 (SC Verification)** | 16 (SC-001 to SC-012) |
-| **Parallelizable [P]** | 546 (74%) |
+| **Parallelizable [P]** | 601 (65%) |
+
+### Phase 0 Bootstrap Summary (MERGED from 002-unified-bootstrap)
+
+| Subcategory | Tasks | Description |
+|-------------|-------|-------------|
+| Foundation | B001-B013 | Logging, platform detection, state management |
+| Directory Structure | B014-B017 | Create noa_root directories |
+| Prerequisites | B018-B023 | Git, Git LFS, GitHub CLI |
+| Portable Toolchains | B024-B037 | Rust, Go, Node, Python, protoc → noa_root/opt/ |
+| Quality Tools | B038-B049 | Linters, formatters, security scanners |
+| CLI Utilities | B050-B056 | jq, rg, fd, bat, fzf → bin/ |
+| Dev Tools | B057-B067 | IDEs, Docker, AI apps (gitignored) |
+| Configuration | B068-B077 | Cache, logs, environment files |
+| Orchestrator | B078-B085 | Main bootstrap script, verification |
+| Integration | B086-B090 | Migrate from old scripts |
+| Documentation | B091-B094 | README, guides |
+| Constitutional | B095-B100 | Verify §3.1, §3.2, §3.5, §3.6, §3.12 |
+| Cross-Platform | B101-B120 | Script parity (PS1 ↔ Bash mirroring) |
+| Kernel Independence | B121-B145 | NKAL, VM images, mode switching |
+| Testing Matrix | B146-B150 | Platform-specific CI tests |
 
 ### Prerequisite Check Tasks (NEW - CRITICAL)
 - **Prerequisite Scripts**: ✅ T673-T675 (bash, PowerShell, CI integration)
@@ -1732,6 +2356,8 @@ Then implement P3 stories:
 - **Full Autonomy Operation**: ✅ T626-T630 (FR-061-065)
 - **Autonomous Goal Generation**: ✅ T631-T635 (FR-066-070)
 - **Self-Healing Loop**: ✅ T612-T620 (FR-071-075)
+- **Multi-Modal Interaction (FR-023)**: ✅ T760-T764 (voice/vision stubs with graceful degradation)
+- **Predictive Problem Solving (§3.11)**: ✅ T765-T770 (pattern recognition, failure analysis, risk assessment)
 
 ### Contract Coverage (from contracts/)
 - **noa-core.openapi.yaml**: ✅ Health, Memory, Agents, Tasks, Models, System, Planes, Promotions, Healing, Goals, Activity
@@ -1780,17 +2406,17 @@ Then implement P3 stories:
 - **US2 (Neural)**: ✅ 58 tasks (Phase 4)
 - **US3 (Memory)**: ✅ 22 tasks (Phase 5)
 - **US4 (Digest)**: ✅ 50 tasks (Phase 6)
-- **US5 (UI)**: ✅ 38 tasks (Phase 7)
+- **US5 (UI)**: ✅ 43 tasks (Phase 7) (includes FR-023 multi-modal T760-T764)
 - **US6 (P2P)**: ✅ 49 tasks (Phase 8)
 - **US7 (Agents)**: ✅ 56 tasks (Phase 9)
-- **US8 (Self-Improve)**: ✅ 55 tasks (Phase 10)
-- **US9 (Cross-Platform)**: ✅ 17 tasks T652-T668 (Phase 13)
-- **US10 (Connectors)**: ✅ 21 tasks T669-T689 (Phase 14)
+- **US8 (Self-Improve)**: ✅ 55 tasks (Phase 10) (includes §3.11 predictive T765-T770)
+- **US9 (Cross-Platform)**: ✅ 17 tasks T722-T738 (Phase 13)
+- **US10 (Connectors)**: ✅ 21 tasks T739-T759 (Phase 14)
 
 ### MVP Scope (US1 + US2 + US3 + 3-Plane Foundation)
 - **Tasks**: 330 (Foundation + 3-Plane + Providers + 3 stories + Multi-GPU)
 - **Estimated Duration**: 12-14 weeks with 2 developers
 
 ### Full Implementation
-- **Tasks**: 740
+- **Tasks**: 770
 - **Estimated Duration**: 26-30 weeks with 2-4 developers
