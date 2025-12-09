@@ -1,0 +1,247 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "version": "1.0.0",
+    "description": "NOA Kernel Selection Policy - FR-159, FR-160: Defines precedence rules for kernel mode selection",
+    "lastUpdated": "2025-12-09T00:00:00Z",
+    "precedenceOrder": [
+        {
+            "priority": 1,
+            "mode": "vm",
+            "displayName": "NOA VM",
+            "description": "Maximum isolation via dedicated virtual machine with custom NOA Linux kernel",
+            "platforms": {
+                "windows": "hyper-v",
+                "linux": "kvm-qemu",
+                "macos": "virtualization-framework"
+            },
+            "useCases": [
+                "untrusted_code_execution",
+                "external_data_processing",
+                "cross_platform_consistency",
+                "maximum_security_isolation"
+            ],
+            "performanceOverhead": "high",
+            "startupTime": "<3s",
+            "isolationLevel": "maximum"
+        },
+        {
+            "priority": 2,
+            "mode": "container",
+            "displayName": "Container",
+            "description": "Lightweight isolation via containerized runtime (Docker/Podman)",
+            "platforms": {
+                "windows": "docker-desktop",
+                "linux": "docker-rootless",
+                "macos": "docker-desktop"
+            },
+            "useCases": [
+                "service_isolation",
+                "faster_startup_than_vm",
+                "reproducible_environments"
+            ],
+            "performanceOverhead": "medium",
+            "startupTime": "<1s",
+            "isolationLevel": "high"
+        },
+        {
+            "priority": 3,
+            "mode": "sandbox",
+            "displayName": "Sandbox",
+            "description": "Per-operation isolation for ephemeral, single-task environments",
+            "platforms": {
+                "windows": "windows-sandbox",
+                "linux": "bubblewrap",
+                "macos": "app-sandbox"
+            },
+            "useCases": [
+                "per_operation_isolation",
+                "ephemeral_environments",
+                "quick_throwaway_tasks"
+            ],
+            "performanceOverhead": "low",
+            "startupTime": "<500ms",
+            "isolationLevel": "medium"
+        },
+        {
+            "priority": 4,
+            "mode": "native",
+            "displayName": "Native/Host",
+            "description": "Direct host kernel access for trusted environment and performance-critical operations",
+            "platforms": {
+                "windows": "windows-kernel",
+                "linux": "linux-kernel",
+                "macos": "darwin-kernel"
+            },
+            "useCases": [
+                "trusted_environment",
+                "performance_critical",
+                "development_workflow",
+                "default_mode"
+            ],
+            "performanceOverhead": "none",
+            "startupTime": "instant",
+            "isolationLevel": "none"
+        }
+    ],
+    "defaultMode": "native",
+    "defaultModeReason": "Performance - native mode is default for trusted operations; escalation to isolated modes occurs automatically based on triggers",
+    "escalationTriggers": {
+        "description": "Conditions that trigger automatic escalation from native to isolated mode",
+        "triggers": [
+            {
+                "id": "untrusted_code",
+                "condition": "Executing code from external/untrusted sources",
+                "targetMode": "vm",
+                "canOverride": false
+            },
+            {
+                "id": "external_data",
+                "condition": "Processing data from external APIs or untrusted sources",
+                "targetMode": "container",
+                "canOverride": true
+            },
+            {
+                "id": "user_request",
+                "condition": "User explicitly requests isolated mode",
+                "targetMode": "user_specified",
+                "canOverride": false
+            },
+            {
+                "id": "constitutional_requirement",
+                "condition": "Constitutional principle §3.6 (Security) or §3.1 (Self-Contained) requires isolation",
+                "targetMode": "vm",
+                "canOverride": false
+            },
+            {
+                "id": "network_operations",
+                "condition": "P2P network operations or external network access",
+                "targetMode": "container",
+                "canOverride": true
+            }
+        ]
+    },
+    "downgradePolicy": {
+        "description": "Rules for downgrading from isolated to less-isolated modes",
+        "requiresExplicitUserAction": true,
+        "allowedTransitions": [
+            {
+                "from": "vm",
+                "to": "container",
+                "requiresConfirmation": true
+            },
+            {
+                "from": "vm",
+                "to": "native",
+                "requiresConfirmation": true
+            },
+            {
+                "from": "container",
+                "to": "sandbox",
+                "requiresConfirmation": false
+            },
+            {
+                "from": "container",
+                "to": "native",
+                "requiresConfirmation": true
+            },
+            {
+                "from": "sandbox",
+                "to": "native",
+                "requiresConfirmation": false
+            }
+        ],
+        "forbiddenTransitions": [
+            {
+                "from": "vm",
+                "to": "native",
+                "when": "untrusted_code_active",
+                "reason": "Security violation - untrusted code must remain isolated"
+            }
+        ]
+    },
+    "modeAvailability": {
+        "description": "How to detect and verify mode availability per platform",
+        "windows": {
+            "vm": {
+                "check": "Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online",
+                "requirements": [
+                    "Hyper-V enabled",
+                    "64-bit Windows 10/11 Pro or Enterprise"
+                ]
+            },
+            "container": {
+                "check": "docker info",
+                "requirements": [
+                    "Docker Desktop or Docker Engine installed"
+                ]
+            },
+            "sandbox": {
+                "check": "Get-WindowsOptionalFeature -FeatureName Containers-DisposableClientVM -Online",
+                "requirements": [
+                    "Windows Sandbox enabled",
+                    "Windows 10/11 Pro or Enterprise"
+                ]
+            }
+        },
+        "linux": {
+            "vm": {
+                "check": "kvm-ok || [ -c /dev/kvm ]",
+                "requirements": [
+                    "KVM enabled",
+                    "QEMU installed"
+                ]
+            },
+            "container": {
+                "check": "docker info || podman info",
+                "requirements": [
+                    "Docker or Podman installed"
+                ]
+            },
+            "sandbox": {
+                "check": "which bwrap",
+                "requirements": [
+                    "bubblewrap installed"
+                ]
+            }
+        },
+        "macos": {
+            "vm": {
+                "check": "system_profiler SPHardwareDataType | grep 'Apple'",
+                "requirements": [
+                    "macOS 11+ with Virtualization.framework support"
+                ]
+            },
+            "container": {
+                "check": "docker info",
+                "requirements": [
+                    "Docker Desktop installed"
+                ]
+            },
+            "sandbox": {
+                "check": "codesign -d --entitlements :- /Applications/*.app 2>/dev/null",
+                "requirements": [
+                    "App Sandbox available"
+                ]
+            }
+        }
+    },
+    "configurationFiles": {
+        "kernelState": "${NOA_ROOT}/sys/kernel/params/current.json",
+        "vmImages": {
+            "windows": "${NOA_ROOT}/sys/kernel/windows/hyperv/noa-linux.vhdx",
+            "linux": "${NOA_ROOT}/sys/kernel/linux/vm/noa-linux.qcow2",
+            "macos": "${NOA_ROOT}/sys/kernel/macos/vm/noa-linux.dmg"
+        },
+        "containerConfig": "${NOA_ROOT}/containers/oci/noa-runtime.yaml",
+        "sandboxProfiles": {
+            "windows": "${NOA_ROOT}/sys/kernel/windows/sandbox/noa.wsb",
+            "linux": "${NOA_ROOT}/sys/kernel/linux/namespaces/setup.sh"
+        }
+    },
+    "cliCommands": {
+        "setMode": "noa-kernel-params set kernel_mode {native|vm|container|sandbox}",
+        "getMode": "noa-kernel-params get kernel_mode",
+        "listModes": "noa-kernel-params list-modes",
+        "checkAvailability": "noa-kernel-params check-availability"
+    }
+}

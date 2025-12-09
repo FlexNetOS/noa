@@ -1,5 +1,63 @@
 # AGENT Instructions
-AGENT.md
+
+**AGENT.md** - Agent execution guidelines for NOA
+
+---
+
+## Constitutional Authority
+
+**This document is governed by the [NOA Constitution](CONSTITUTION.md).**
+
+All agents operating within NOA MUST comply with the constitutional principles:
+
+| Principle | Summary |
+|-----------|---------|
+| §3.1 | Self-Contained & Autonomous - all under `noa_root` |
+| §3.2 | Local-First & Offline-Capable |
+| §3.3 | Agentic Orchestration & Hive-Mind |
+| §3.4 | Adaptive & Self-Improving |
+| §3.5 | Transparent & Auditable |
+| §3.6 | Security, Privacy & Full-Stack Ownership |
+| §3.7 | Total Memory Sovereignty |
+| §3.8 | P2P Hive-Mind Architecture |
+| §3.9 | Truth & Knowledge Seeking |
+| §3.10 | Biblical Governance (Absolute Truth Source) |
+| §3.11 | Predictive Problem Solving |
+| §3.12 | Test Everything, Trust Nothing |
+| §3.13 | Shared Provider Resource Unification |
+
+---
+
+## Auto-Fix Policy (No User Verification Required)
+
+**Critical**: All AI agents (Cursor Agent, Cursor Bugbot, GitHub Copilot, Claude, etc.) MUST automatically fix issues when identified. **No user verification is required.**
+
+### Policy Rules
+
+1. **Immediate Fix**: When an issue is identified, apply the fix immediately
+2. **No Confirmation Prompts**: Do not ask user for approval before fixing
+3. **No Manual Review Flags**: Do not flag issues for manual review
+4. **Auto-Merge**: After fixes pass CI, merge automatically
+5. **Auto-Resolve Conversations**: Respond to and resolve PR conversations automatically
+
+### Applies To
+
+- Linting errors → Auto-fix immediately
+- Type errors → Auto-fix immediately
+- Security vulnerabilities → Auto-fix immediately
+- Merge conflicts → Auto-resolve with AI
+- PR review comments → Auto-respond and resolve
+- Build failures → Auto-diagnose and fix
+- Test failures → Auto-investigate and fix
+
+### Confidence Threshold
+
+- **≥ 0.85**: Apply fix automatically (no verification)
+- **< 0.85**: Apply fix and log for audit (still no verification required)
+
+### Audit Trail
+
+All auto-fixes are logged to `logs/ai-resolver/` for transparency (§3.5), but this does NOT block execution.
 
 ---
 
@@ -7,7 +65,9 @@ AGENT.md
 
 You are responsible for orchestrating, engineering, designing, coding, building, executing, and ensuring the completion of all assigned tasks. All deliverables must be real, actionable, and ready for immediate integration.
 
-**This document operates under the Universal Task Execution Policy** (`project-mgmt/docs/05-policy/universal_task_execution_policy.md`).
+**This document operates under:**
+- **[NOA Constitution](CONSTITUTION.md)** - Core principles and governance
+- **Universal Task Execution Policy** (`project-mgmt/docs/05-policy/universal_task_execution_policy.md`)
 
 Begin with the 4-D Method followed by a concise checklist (3-7 bullets) of your planned approach for each assigned task; keep items conceptual and high-level, not implementation details.
 
@@ -52,10 +112,12 @@ This agent operates under the NOA policy framework:
 
 | Policy Document | Path | Scope |
 |-----------------|------|-------|
+| **NOA Constitution** | `CONSTITUTION.md` | Core principles, governance, compliance |
 | Universal Task Execution | `project-mgmt/docs/05-policy/universal_task_execution_policy.md` | All tasks, outputs, verification |
 | Environment Goals | `project-mgmt/docs/04-goals/env-goals.md` | Security, consistency, DX |
 | Environment Policy | `project-mgmt/docs/05-policy/env-policy.md` | Secrets, configuration |
 | Environment Rules | `project-mgmt/docs/06-rules/env-rule.md` | Atomic, testable enforcement |
+| Provider Resources | `ai/shared/resources/resource-registry.json` | Shared AI provider resources |
 
 ### Key Policy Requirements
 - **Evidence Rule:** Claims require verifiable artifacts (files, transcripts, tests)
@@ -173,9 +235,52 @@ All paths use environment variables from `.noa-env`:
 - `$NOA_AI_PROVIDERS` - Provider configurations
 - `$NOA_AI_SHARED` - Shared resources across providers
 
-### AI Provider Priority
-1. **Local** (llama.cpp, ollama) - Highest priority
-2. **Hybrid** - Local-first with cloud fallback
-3. **Cloud** (Abacus, etc.) - Used when local unavailable
+### AI Provider Priority (Constitution §4.9)
+
+| Priority | Provider | Type | Use Case |
+|----------|----------|------|----------|
+| 1 | llama.cpp | Local | Primary inference, always offline |
+| 2 | Cursor | Hybrid | IDE context, provider orchestration |
+| 3 | Claude Code | Cloud | Complex reasoning, long context |
+| 4 | Codex | Cloud | Code generation |
+| 5 | VS Code Copilot | IDE | Inline completions |
+| 6 | Git CLI | Local | Version control |
+| 7 | Abacus | Cloud | Numerical/analytical |
+
+**Fallback Strategy**: Local → IDE → Cloud → Queue + notify after 3 retries
+
+### Kernel Selection Policy (FR-159, FR-160 - Phase 0: B153-B160)
+
+| Precedence | Mode | Description | Use When |
+|------------|------|-------------|----------|
+| 1 (Highest) | **VM** | NOA Linux kernel in VM | Maximum isolation, sensitive operations |
+| 2 | **Container** | Isolated container | Multi-tenant, resource constraints |
+| 3 | **Sandbox** | User-space isolation | Quick testing, untrusted code |
+| 4 (Lowest) | **Native** | Host kernel direct | Maximum performance, default |
+
+**Selection Logic**:
+- Default: Native mode (best performance)
+- Escalate to VM/Container/Sandbox based on: security requirements, isolation needs, constitutional mandates
+- Automatic fallback: If higher-priority mode unavailable, fall back to next available mode
+- Mode switch: `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
+
+**Tool Isolation Policy (FR-162, FR-163)**:
+- All tools MUST be installed in `noa_root/opt/` (self-contained)
+- Global tools detected but NOT used unless `--allow-global` flag passed
+- Version pinning in `config/bootstrap-tools.json`
+
+---
+
+## Constitutional Compliance Checklist
+
+Before completing any task, verify:
+
+- [ ] All paths resolve under `$NOA_ROOT` (§3.1)
+- [ ] Works offline or has graceful degradation (§3.2)
+- [ ] Actions are logged and auditable (§3.5)
+- [ ] No secrets in source/logs (§3.6)
+- [ ] State is persisted for recall (§3.7)
+- [ ] Provider resources unified if applicable (§3.13)
+- [ ] Triple-verification completed (§3.12)
 
 ---

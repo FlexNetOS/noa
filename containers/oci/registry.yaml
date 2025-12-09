@@ -1,0 +1,54 @@
+# NOA Private OCI Registry Configuration
+# Purpose: Self-contained container image registry for NOA capsules and artifacts
+# FR-033: noa_root/containers/ with container definitions
+
+version: "1.0"
+name: noa-registry
+
+storage:
+  # Store all images within noa_root (FR-001: Self-contained)
+  root: ${NOA_ROOT}/data/oci-registry
+  filesystem:
+    maxthreads: 100
+
+http:
+  addr: localhost:5050
+  host: http://localhost:5050
+
+  # TLS disabled for local development
+  # Enable for production deployments
+  tls:
+    enabled: false
+    # certificate: ${NOA_ROOT}/config/certs/registry.crt
+    # key: ${NOA_ROOT}/config/certs/registry.key
+
+auth:
+  # Token-based authentication
+  token:
+    realm: http://localhost:5050/auth
+    service: noa-registry
+    issuer: noa
+
+# Garbage collection settings
+gc:
+  enabled: true
+  interval: 24h
+  dryrun: false
+
+# Logging
+log:
+  level: info
+  formatter: json
+  output: ${NOA_ROOT}/logs/registry/registry.log
+
+# Notification webhooks (for build triggers)
+notifications:
+  endpoints: []
+
+# Health check
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+

@@ -1,0 +1,89 @@
+{
+    "$schema": "https://noa.local/schemas/shared-resources.json",
+    "version": "1.0.0",
+    "description": "Centralized configuration for shared AI resources (§3.3)",
+    "lastUpdated": "2025-12-09T00:00:00Z",
+    "basePath": "${NOA_ROOT}/ai/shared",
+    "directories": {
+        "agents": {
+            "path": "${NOA_ROOT}/ai/shared/agents",
+            "description": "AI agent definitions",
+            "format": "json",
+            "schema": "https://noa.local/schemas/agent.json"
+        },
+        "workflows": {
+            "path": "${NOA_ROOT}/ai/shared/workflows",
+            "description": "Orchestration workflows",
+            "format": "yaml",
+            "schema": "https://noa.local/schemas/workflow.yaml"
+        },
+        "prompts": {
+            "path": "${NOA_ROOT}/ai/shared/prompts",
+            "description": "Prompt templates",
+            "format": "markdown",
+            "schema": null
+        },
+        "skills": {
+            "path": "${NOA_ROOT}/ai/shared/skills",
+            "description": "Agent skill modules",
+            "format": "json",
+            "schema": "https://noa.local/schemas/skill.json"
+        },
+        "tools": {
+            "path": "${NOA_ROOT}/ai/shared/tools",
+            "description": "MCP tool definitions",
+            "format": "json",
+            "schema": "https://noa.local/schemas/mcp-tool.json"
+        },
+        "models": {
+            "path": "${NOA_ROOT}/ai/shared/models",
+            "description": "Model adapters and configs",
+            "format": "json",
+            "schema": "https://noa.local/schemas/model-config.json"
+        },
+        "commands": {
+            "path": "${NOA_ROOT}/ai/shared/commands",
+            "description": "Shared command definitions",
+            "format": "json",
+            "schema": "https://noa.local/schemas/command.json"
+        },
+        "resources": {
+            "path": "${NOA_ROOT}/ai/shared/resources",
+            "description": "Configuration and data files",
+            "format": "json",
+            "schema": null
+        }
+    },
+    "registry": {
+        "path": "${NOA_ROOT}/ai/shared/resources/resource-registry.json",
+        "description": "Central registry of all shared resources"
+    },
+    "aliases": {
+        "path": "${NOA_ROOT}/ai/shared/resources/resource-aliases.json",
+        "description": "Provider-specific name mappings"
+    },
+    "executionMemory": {
+        "path": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+        "description": "SQLite database for shared provider memory",
+        "schema": "${NOA_ROOT}/ai/shared/resources/schema/execution-memory.sql",
+        "features": [
+            "context_sharing",
+            "reasoning_state",
+            "parallel_task_distribution",
+            "provider_state_sync",
+            "conversation_history",
+            "audit_logging"
+        ]
+    },
+    "discovery": {
+        "enabled": true,
+        "watchInterval": 5000,
+        "autoRegister": true,
+        "validateOnLoad": true
+    },
+    "caching": {
+        "enabled": true,
+        "ttlSeconds": 300,
+        "maxEntries": 1000
+    }
+}

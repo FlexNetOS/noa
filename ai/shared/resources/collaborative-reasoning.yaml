@@ -1,0 +1,144 @@
+# Collaborative Reasoning Configuration
+# Defines how multiple AI providers collaborate on complex tasks
+#
+# Constitutional reference: §3.7 (Shared Provider Execution Memory)
+
+$schema: https://noa.local/schemas/collaborative-reasoning.yaml
+version: "1.0.0"
+description: Configuration for multi-provider collaborative reasoning
+
+# Reasoning modes define how providers collaborate
+modes:
+  sequential:
+    description: Providers process in order, each building on previous output
+    use_cases:
+      - Complex analysis requiring multiple perspectives
+      - Progressive refinement of solutions
+      - Chain-of-thought reasoning across models
+    flow:
+      - receive_input
+      - first_provider_analyzes
+      - second_provider_refines
+      - final_provider_synthesizes
+
+  parallel:
+    description: Multiple providers process simultaneously, results merged
+    use_cases:
+      - Time-sensitive tasks
+      - Diverse perspective gathering
+      - Redundancy for critical decisions
+    aggregation:
+      strategy: weighted_consensus  # or: first_success, majority_vote, best_confidence
+      weights_source: provider_capabilities
+
+  debate:
+    description: Providers critique each other's outputs iteratively
+    use_cases:
+      - High-stakes decisions
+      - Code review and security analysis
+      - Resolving ambiguous requirements
+    rounds: 3
+    convergence_threshold: 0.85
+    arbitrator: reasoning-agent
+
+# Context sharing rules
+context_sharing:
+  enabled: true
+
+  # What gets shared between providers
+  shareable_types:
+    - code_context      # File contents, diffs
+    - conversation      # Chat history
+    - decisions         # Reasoning steps and conclusions
+    - artifacts         # Generated outputs
+    - tool_results      # Results from tool invocations
+
+  # What stays provider-local
+  private_types:
+    - internal_prompts  # Provider-specific system prompts
+    - raw_tokens        # Token-level data
+    - api_credentials   # Auth tokens
+
+  # Deduplication to reduce context bloat
+  deduplication:
+    enabled: true
+    hash_algorithm: sha256
+    max_duplicates: 1
+
+# Reasoning state persistence
+state_persistence:
+  enabled: true
+  database: "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+
+  # What state to persist
+  persist:
+    - reasoning_chains
+    - intermediate_conclusions
+    - confidence_scores
+    - provider_contributions
+
+  # Retention policy
+  retention:
+    active_sessions: forever
+    completed_sessions: 7d
+    failed_sessions: 30d
+
+# Task distribution configuration
+task_distribution:
+  enabled: true
+
+  # How tasks are assigned to providers
+  assignment_strategy: capability_match  # or: round_robin, least_loaded, random
+
+  # Task decomposition for parallelization
+  decomposition:
+    enabled: true
+    max_subtasks: 10
+    min_subtask_size: 100  # tokens
+
+  # Load balancing
+  load_balancing:
+    enabled: true
+    max_concurrent_per_provider: 3
+    queue_timeout_seconds: 30
+
+# Provider synchronization
+synchronization:
+  enabled: true
+
+  # How often to sync state between providers
+  sync_interval_ms: 1000
+
+  # Conflict resolution
+  conflicts:
+    strategy: last_write_wins  # or: merge, manual_review
+    notify_on_conflict: true
+
+# Quality gates for collaborative output
+quality_gates:
+  min_confidence: 0.7
+  require_consensus: false
+  consensus_threshold: 0.66  # 2/3 agreement
+
+  # Fallback when quality gates fail
+  fallback:
+    strategy: human_escalation  # or: retry, best_effort
+    max_retries: 2
+
+# Audit and observability
+audit:
+  enabled: true
+  log_level: info  # debug, info, warn, error
+
+  # What to log
+  log_events:
+    - session_start
+    - session_end
+    - provider_join
+    - provider_leave
+    - context_shared
+    - task_assigned
+    - task_completed
+    - reasoning_step
+    - quality_gate_result
+

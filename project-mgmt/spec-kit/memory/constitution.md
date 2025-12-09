@@ -1,35 +1,28 @@
 <!--
 Sync Impact Report
-Version change: 1.0.0 → 2.0.0 (MAJOR)
+Version change: 2.0.0 → 2.1.0 (MINOR)
 
 Modified principles:
-- 3.3 Agentic Orchestration → Expanded to include multi-SLM architecture
-- 3.4 Adaptive & Self-Improving → Enhanced with reward/correction loops
+- 3.3 Agentic Orchestration → Enhanced with Provider Orchestration mode (Cursor as coordinator)
+- §4 Project-Management Layer → Added Provider Execution Memory requirements
 
 Added sections:
-- 3.7 Total Memory Sovereignty
-- 3.8 P2P Hive-Mind Architecture
-- 3.9 Truth & Knowledge Seeking
-- 3.10 Biblical Governance (Absolute Truth Source)
-- 3.11 Predictive Problem Solving
-- 3.12 Test Everything, Trust Nothing
-- 4.6 Goals-Policy-Rules-Spec-Plan-Tasks Flow
-- 4.7 Reward & Correction System
-- 4.8 Cross-Platform Adaptive Deployment
-- 5.5 Constitutional Flow Compliance
+- 3.13 Shared Provider Resource Unification
+- 4.9 Provider Orchestration & Execution Memory
+- 4.10 Resource Name Refactoring Policy
+- 4.11 Kernel Independence Policy
 
 Removed sections:
 - N/A
 
 Templates requiring updates:
 - ✅ /memory/constitution.md (this file - updated)
-- ⚠ /templates/plan-template.md (add constitutional flow checks, P2P/memory validation)
-- ⚠ /templates/spec-template.md (add data locality, offline behavior, multi-SLM requirements)
-- ⚠ /templates/tasks-template.md (add reward tracking, constitutional principle tags, goals-flow tracking)
+- ⚠ /templates/plan-template.md (add provider resource policies, kernel independence checks)
+- ⚠ /templates/spec-template.md (add shared provider requirements section)
+- ⚠ /templates/tasks-template.md (add provider resource validation tasks)
 - ⚠ /templates/commands/constitution.md (confirm wording matches this versioned constitution)
-- ⚠ /templates/commands/specify.md (add goals-policy-rules flow requirement)
-- ⚠ /templates/commands/plan.md (enforce constitutional flow checks)
-- ⚠ /templates/commands/tasks.md (ensure tasks are tagged with constitutional principles)
+- ⚠ /templates/commands/specify.md (add provider unification requirements)
+- ⚠ /templates/commands/plan.md (enforce provider resource checks)
 - ⚠ README.md or docs (document new principles)
 
 Deferred items:
@@ -54,6 +47,7 @@ The system MUST:
 - Support adaptive, self-improving behavior driven by real usage
 - Leverage excess hardware resources across all user devices
 - Use original biblical texts as central guidance and governance source
+- Unify provider resources for shared access across all AI providers
 
 This document defines the non‑negotiable principles, governance rules, and quality bars applied to all specifications, plans, tasks, and implementations within this project.
 
@@ -62,9 +56,9 @@ This document defines the non‑negotiable principles, governance rules, and qua
 - **PROJECT_NAME**: NOA (Autonomous Agentic Project Management OS)
 - **PROJECT_MANIFESTO**: Multi-Platform Autonomous Self-Modifying Agentic OS
 - **SCOPE**: Local-first, agentic full-stack operating system that unifies and orchestrates multiple underlying tools, services, and codebases as one OS-like experience—a "seed application" that uses Agentic AI to autonomously grow and accomplish complex goals
-- **RATIFICATION_DATE**: TODO(RATIFICATION_DATE): Set the original adoption date
+- **RATIFICATION_DATE**: 2025-12-08
 - **LAST_AMENDED_DATE**: 2025-12-08
-- **CONSTITUTION_VERSION**: 2.0.0
+- **CONSTITUTION_VERSION**: 2.1.0
 
 ### 2.1 Amendment Policy
 
@@ -144,6 +138,10 @@ The system MUST use a network of specialized agents that collaborate to solve co
   - Record which agents acted, with what inputs and outputs
 - Agents MUST be bound by this constitution—they cannot introduce behavior that violates self-contained, local-first, or security constraints
 - Permanent agents MUST include: File I/O, Terminal, Dynamic RAG, Microservice Management
+- **Provider Orchestration Mode**: When operating in IDE context, Cursor agent MUST coordinate ALL available providers for parallel task execution:
+  - Distribute sub-tasks to optimal providers based on task type
+  - Aggregate results via Shared Provider Execution Memory bus
+  - Route reasoning tasks → Claude, code tasks → Codex/Copilot, local tasks → llama.cpp
 
 **Rationale**: NOA is an agentic OS, not a single tool; the hive-mind pattern with multiple SLMs is a core design invariant.
 
@@ -272,6 +270,27 @@ The system MUST test everything and trust nothing.
 
 **Rationale**: Autonomous systems must maintain integrity through continuous verification.
 
+### 3.13 Shared Provider Resource Unification
+
+**All AI provider resources MUST be unified for shared access across all providers and models.**
+
+The system MUST implement resource unification when external repositories or tools are integrated:
+
+- When a repository is downloaded (e.g., `claude-code`, `codex`, `cursor`), its resources MUST be refactored for shared access:
+  - **Agents**: Provider-specific agent definitions → `ai/shared/agents/` with provider-agnostic naming
+  - **Tools**: Provider-specific tools → `ai/shared/tools/` with unified interface
+  - **Commands**: Provider-specific commands → `ai/shared/commands/` with cross-provider compatibility
+  - **Prompts**: Provider-specific prompts → `ai/shared/prompts/` with template variables
+  - **Workflows**: Provider-specific workflows → `ai/shared/workflows/` with execution adapters
+- Resource naming MUST follow unification rules:
+  - Original name: `claude` (claude-code specific) → Unified name: `reasoning-agent` (all providers)
+  - Original name: `codex` (codex-cli specific) → Unified name: `code-generation-tool` (all providers)
+  - Mapping table MUST be maintained in `ai/shared/resources/resource-mapping.json`
+- Provider-specific capabilities MUST be preserved via capability flags in unified resources
+- All providers MUST be able to use ANY unified resource regardless of origin
+
+**Rationale**: Resource unification prevents siloed capabilities and enables the hive-mind to leverage all available tools regardless of which provider contributed them.
+
 ## 4. Project-Management Layer Principles
 
 ### 4.1 Unified Task & Project Model Across Repos
@@ -369,6 +388,105 @@ The system MUST support cross-platform adaptive automation and compatibility:
 
 **Rationale**: NOA must operate across the user's entire device ecosystem.
 
+### 4.9 Provider Orchestration & Execution Memory
+
+The system MUST implement a Shared Provider Execution Memory bus for coordinated multi-provider operations.
+
+- **Execution Memory Requirements**:
+  - All providers MUST share context via `ai/shared/resources/execution-memory.db`
+  - Reasoning state MUST persist across provider handoffs
+  - Parallel task distribution MUST be coordinated via the shared memory bus
+  - Provider state synchronization MUST enable seamless workflow transitions
+
+- **Provider Priority Order** (Local > Hybrid > Cloud):
+  1. llama.cpp (Local) - Always available offline, primary inference
+  2. Cursor (Hybrid) - IDE context awareness, provider orchestration
+  3. Claude Code (Cloud) - Complex reasoning, long context
+  4. Codex (Cloud) - Code generation, completion
+  5. VS Code Copilot (IDE) - Inline completions
+  6. Git CLI (Local) - Version control operations
+  7. Abacus (Cloud) - Numerical/analytical tasks
+
+- **Fallback Strategy**:
+  - Try local providers first for offline capability
+  - Fall back to IDE providers if IDE context exists
+  - Fall back to cloud providers in priority order
+  - Queue task and notify user after 3 failed attempts
+
+- **Orchestration Mode**:
+  - When Cursor is available with IDE context, it MUST coordinate ALL providers
+  - Task-to-provider routing: reasoning → Claude, code → Codex, local → llama.cpp
+  - Result aggregation via Shared Provider Execution Memory bus
+
+**Rationale**: Unified execution memory enables the hive-mind to leverage all providers as a single coordinated system.
+
+### 4.10 Resource Name Refactoring Policy
+
+When external repositories or AI tool CLIs are downloaded and integrated, their resource names MUST be refactored for universal access.
+
+- **Refactoring Trigger Events**:
+  - Repository clone/download (e.g., `git clone claude-code`)
+  - CLI tool installation (e.g., `npm install @openai/codex`)
+  - Provider registration via bootstrap scripts
+
+- **Refactoring Process**:
+  1. **Discovery**: Scan downloaded repository for agents, tools, commands, prompts
+  2. **Analysis**: Identify provider-specific naming and interfaces
+  3. **Mapping**: Create mapping from original → unified names
+  4. **Adaptation**: Create adapter layer for provider-specific capabilities
+  5. **Registration**: Register unified resources in `ai/shared/resources/resource-registry.json`
+  6. **Validation**: Verify all providers can access the unified resource
+
+- **Naming Convention**:
+  - Provider-specific prefix MUST be removed: `claude-reasoning` → `reasoning`
+  - Capability-based naming MUST be used: `code-gen`, `reasoning`, `analysis`
+  - Version suffix SHOULD be appended for compatibility: `reasoning-v1`
+
+- **Backward Compatibility**:
+  - Original provider-specific names MUST remain as aliases
+  - Alias mapping in `ai/shared/resources/resource-aliases.json`
+  - Deprecation warnings for direct provider-specific access
+
+**Example Refactoring**:
+
+| Original (Provider-Specific) | Unified (Shared) | Alias |
+|------------------------------|------------------|-------|
+| `claude` (claude-code) | `reasoning-agent` | `claude` → `reasoning-agent` |
+| `codex` (codex-cli) | `code-generation-tool` | `codex` → `code-generation-tool` |
+| `copilot-chat` (vscode) | `inline-completion-agent` | `copilot-chat` → `inline-completion-agent` |
+
+**Rationale**: Resource name refactoring ensures that capabilities from any provider become universally available to the entire hive-mind, preventing vendor lock-in and maximizing resource utilization.
+
+### 4.11 Kernel Independence Policy
+
+The system MUST support operation independent of the host operating system kernel.
+
+- **Kernel Independence Modes**:
+  - **Native Mode** (default): Use host kernel for maximum performance
+  - **VM Mode**: Run custom NOA Linux kernel in VM (Hyper-V, KVM, Virtualization.framework)
+  - **Container Mode**: Isolated container with minimal kernel interface
+  - **Sandbox Mode**: User-space isolation (Windows Sandbox, Bubblewrap, App Sandbox)
+
+- **Platform Implementation**:
+  | Platform | Native | VM | Container | Sandbox |
+  |----------|--------|-----|-----------|---------|
+  | Windows | Windows kernel | Hyper-V | Docker/WSC | Windows Sandbox |
+  | Linux | Linux kernel | KVM/QEMU | Docker/Podman | Bubblewrap |
+  | macOS | Darwin kernel | Virtualization.framework | Docker | App Sandbox |
+
+- **Kernel Abstraction Layer (NKAL)**:
+  - Unified interface regardless of underlying kernel
+  - Process isolation, network stack, file system, memory, IPC abstractions
+  - Mode switching via `noa-kernel-params set kernel_mode {native|vm|container|sandbox}`
+
+- **VM Image Requirements**:
+  - Base: Alpine Linux (minimal)
+  - Kernel: 6.6 LTS with P2P modules
+  - Size: <500MB compressed
+  - Boot time: <3 seconds
+
+**Rationale**: Kernel independence ensures NOA can operate with maximum isolation when needed, without being locked to any specific host OS.
+
 ## 5. Governance & Compliance Rules
 
 ### 5.1 Spec Requirements
@@ -381,6 +499,7 @@ All specs produced under `/speckit.specify` MUST:
   - Agent orchestration responsibilities
   - Security and observability considerations
   - P2P and memory sovereignty implications
+  - **Shared provider resource requirements**
 - Avoid vague language—use "MUST", "SHOULD", and "MAY" with clear rationale
 - Reference the goals → policy → rules that govern the spec
 
@@ -396,6 +515,8 @@ All plans produced under `/speckit.plan` MUST:
   - Risk analysis tied to principles (e.g., risk to local-first behavior)
   - An explicit "Constitution compliance" checklist
   - Memory and P2P resource considerations
+  - **Provider resource unification plan** (what resources will be shared)
+  - **Kernel independence mode** (which modes are supported)
 - Pass Constitution Check before Phase 0 research and re-check after Phase 1 design
 
 ### 5.3 Task Requirements
@@ -409,6 +530,7 @@ All task lists produced under `/speckit.tasks` MUST:
   - Security, privacy, and data locality checks
   - Memory persistence validation
   - Offline capability verification
+  - **Provider resource refactoring** (when integrating external repos)
 - Be small enough to execute and review incrementally
 - Be exportable to CSV table format
 
@@ -420,6 +542,7 @@ All implementations under `/speckit.implement` MUST:
 - Provide before/after summaries that link back to specs, plans, and tasks
 - Update this constitution when behavior materially shifts principles or governance rules
 - Validate against the test-everything-trust-nothing principle
+- **Register new resources in shared resource registry**
 
 ### 5.5 Constitutional Flow Compliance
 
@@ -436,8 +559,8 @@ All work MUST demonstrate traceability through the constitutional flow:
 
 ---
 
-**Version**: 2.0.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-08
+**Version**: 2.1.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-08
 
 ---
 
-End of Constitution v2.0.0
+End of Constitution v2.1.0

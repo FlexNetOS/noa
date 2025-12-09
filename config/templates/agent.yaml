@@ -1,0 +1,65 @@
+# NOA Agent Configuration Template
+# Use this template when creating new agents
+
+# Metadata (required)
+metadata:
+  version: "1.0.0"
+  created_at: "${TIMESTAMP}"
+  created_by: "${USER}"
+  description: "Description of the agent's purpose"
+  tags:
+    - agent
+    # Add classification tags
+
+# Agent Definition
+agent:
+  # Name must end with "Agent" (e.g., FileIOAgent, RAGAgent)
+  name: "ExampleAgent"
+  
+  # Type: permanent | board | stack | dynamic
+  type: "permanent"
+  
+  # Status: active | paused | retired
+  status: "active"
+  
+  # Capabilities this agent provides
+  capabilities:
+    - "capability_one"
+    - "capability_two"
+  
+  # Agent-specific configuration
+  config:
+    timeout_ms: 30000
+    max_retries: 3
+    # Add custom config options
+  
+  # Parent agent (optional, for hierarchy)
+  # parent_id: "uuid-of-parent-agent"
+  
+  # Performance metrics thresholds
+  metrics:
+    latency_warning_ms: 500
+    latency_critical_ms: 2000
+    error_rate_warning: 0.05
+    error_rate_critical: 0.10
+
+# Scheduling (optional)
+scheduling:
+  # How often agent should run (if periodic)
+  # cron: "*/5 * * * *"  # Every 5 minutes
+  
+  # Trigger conditions
+  triggers:
+    - event: "file_change"
+      path: "${NOA_ROOT}/data/**"
+    # Add more triggers as needed
+
+# Resource Limits (optional)
+resources:
+  max_memory_mb: 512
+  max_cpu_percent: 50
+  max_concurrent_tasks: 10
+
+
+
+

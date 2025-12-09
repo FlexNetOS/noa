@@ -1,12 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
   "strategy": "All tools downloaded to noa_root. NO winget, choco, brew, or apt.",
-
+  "lastUpdated": "2025-12-09T00:00:00Z",
+  "versionPinning": {
+    "_comment": "FR-163: Explicit version pinning schema for tool upgrades and rollback",
+    "enabled": true,
+    "archiveRetentionDays": 7,
+    "archivePath": "${NOA_ROOT}/opt/archive",
+    "rollbackEnabled": true,
+    "autoUpgrade": false,
+    "upgradeRequiresExplicitFlag": true,
+    "versionCheckOnBootstrap": true,
+    "warnIfOutdated": true
+  },
+  "upgradePolicy": {
+    "_comment": "FR-163: Tool upgrade behavior and archival policy",
+    "commands": {
+      "upgrade": "install-all-tools.ps1 -UpdateExisting -Tool <name>",
+      "rollback": "install-all-tools.ps1 -Rollback -Tool <name>",
+      "listArchived": "install-all-tools.ps1 -ListArchived"
+    },
+    "archivalSteps": [
+      "1. Check if tool exists at current location",
+      "2. If exists, move to opt/archive/{tool}-{version}-{timestamp}/",
+      "3. Download and install new version",
+      "4. Update bootstrap-state.json with new version",
+      "5. Keep archived version for rollbackRetentionDays"
+    ],
+    "rollbackSteps": [
+      "1. Find most recent archived version for tool",
+      "2. Remove current installation",
+      "3. Restore archived version to original location",
+      "4. Update bootstrap-state.json"
+    ]
+  },
   "portable_toolchains": {
     "_comment": "Language toolchains downloaded directly to noa_root/opt/",
-
     "rust": {
       "name": "Rust Toolchain",
       "min_version": "1.83.0",
@@ -15,7 +46,9 @@
         "RUSTUP_HOME": "${NOA_ROOT}/opt/rust/rustup",
         "CARGO_HOME": "${NOA_ROOT}/opt/rust/cargo"
       },
-      "path_additions": ["${NOA_ROOT}/opt/rust/cargo/bin"],
+      "path_additions": [
+        "${NOA_ROOT}/opt/rust/cargo/bin"
+      ],
       "downloads": {
         "windows_x64": {
           "url": "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe",
@@ -43,7 +76,6 @@
         "unix": "${NOA_ROOT}/opt/rust/cargo/bin/rustc --version"
       }
     },
-
     "go": {
       "name": "Go Toolchain",
       "min_version": "1.23.0",
@@ -55,7 +87,10 @@
         "GOBIN": "${NOA_ROOT}/opt/go/workspace/bin",
         "GOCACHE": "${NOA_ROOT}/opt/go/cache"
       },
-      "path_additions": ["${NOA_ROOT}/opt/go/bin", "${NOA_ROOT}/opt/go/workspace/bin"],
+      "path_additions": [
+        "${NOA_ROOT}/opt/go/bin",
+        "${NOA_ROOT}/opt/go/workspace/bin"
+      ],
       "downloads": {
         "windows_x64": {
           "url": "https://go.dev/dl/go1.23.4.windows-amd64.zip",
@@ -84,7 +119,6 @@
         "unix": "${NOA_ROOT}/opt/go/bin/go version"
       }
     },
-
     "node": {
       "name": "Node.js",
       "min_version": "20.0.0",
@@ -95,7 +129,10 @@
         "npm_config_prefix": "${NOA_ROOT}/opt/node",
         "npm_config_cache": "${NOA_ROOT}/opt/npm-cache"
       },
-      "path_additions": ["${NOA_ROOT}/opt/node", "${NOA_ROOT}/opt/node/node_modules/.bin"],
+      "path_additions": [
+        "${NOA_ROOT}/opt/node",
+        "${NOA_ROOT}/opt/node/node_modules/.bin"
+      ],
       "downloads": {
         "windows_x64": {
           "url": "https://nodejs.org/dist/v22.12.0/node-v22.12.0-win-x64.zip",
@@ -125,7 +162,6 @@
         "unix": "${NOA_ROOT}/opt/node/bin/node --version"
       }
     },
-
     "python": {
       "name": "Python",
       "min_version": "3.12.0",
@@ -135,7 +171,11 @@
         "PYTHONHOME": "${NOA_ROOT}/opt/python",
         "VIRTUAL_ENV": "${NOA_ROOT}/opt/venv"
       },
-      "path_additions": ["${NOA_ROOT}/opt/python", "${NOA_ROOT}/opt/venv/Scripts", "${NOA_ROOT}/opt/venv/bin"],
+      "path_additions": [
+        "${NOA_ROOT}/opt/python",
+        "${NOA_ROOT}/opt/venv/Scripts",
+        "${NOA_ROOT}/opt/venv/bin"
+      ],
       "downloads": {
         "windows_x64": {
           "url": "https://www.python.org/ftp/python/3.12.8/python-3.12.8-embed-amd64.zip",
@@ -170,10 +210,8 @@
       }
     }
   },
-
   "standalone_binaries": {
     "_comment": "Single binary tools downloaded directly to noa_root/bin/",
-
     "protoc": {
       "name": "Protocol Buffers Compiler",
       "min_version": "28.0.0",
@@ -202,7 +240,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/protoc --version"
     },
-
     "jq": {
       "name": "jq",
       "min_version": "1.7.0",
@@ -229,7 +266,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/jq --version"
     },
-
     "rg": {
       "name": "ripgrep",
       "min_version": "14.0.0",
@@ -251,7 +287,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/rg --version"
     },
-
     "fd": {
       "name": "fd",
       "min_version": "10.0.0",
@@ -273,7 +308,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/fd --version"
     },
-
     "bat": {
       "name": "bat",
       "min_version": "0.24.0",
@@ -295,7 +329,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/bat --version"
     },
-
     "fzf": {
       "name": "fzf",
       "min_version": "0.55.0",
@@ -321,7 +354,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/fzf --version"
     },
-
     "gitleaks": {
       "name": "Gitleaks",
       "min_version": "8.21.0",
@@ -348,7 +380,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/gitleaks version"
     },
-
     "trivy": {
       "name": "Trivy",
       "min_version": "0.57.0",
@@ -375,7 +406,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/trivy --version"
     },
-
     "grype": {
       "name": "Grype",
       "min_version": "0.84.0",
@@ -402,7 +432,6 @@
       },
       "verify_cmd": "${NOA_ROOT}/bin/grype version"
     },
-
     "golangci-lint": {
       "name": "golangci-lint",
       "min_version": "1.62.0",
@@ -431,7 +460,6 @@
       "verify_cmd": "${NOA_ROOT}/bin/golangci-lint --version"
     }
   },
-
   "pip_packages": {
     "_comment": "Python packages installed to noa_root/opt/venv/ via portable pip",
     "ruff": {
@@ -455,7 +483,6 @@
       }
     }
   },
-
   "npm_packages": {
     "_comment": "Node packages installed to noa_root/opt/node/node_modules/ via portable npm",
     "eslint": {
@@ -485,12 +512,15 @@
         "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/claude.cmd --version",
         "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/claude --version"
       },
-      "capabilities": ["cli", "cloud", "ide"],
+      "capabilities": [
+        "cli",
+        "cloud",
+        "ide"
+      ],
       "priority": 3,
       "latency_target": "<2s"
     }
   },
-
   "rustup_components": {
     "_comment": "Rust components installed via portable rustup",
     "rustfmt": {
@@ -510,7 +540,6 @@
       }
     }
   },
-
   "installation_phases": [
     {
       "id": 1,
@@ -522,41 +551,72 @@
       "id": 2,
       "name": "toolchains",
       "description": "Portable language toolchains",
-      "tools": ["rust", "go", "node", "python"],
+      "tools": [
+        "rust",
+        "go",
+        "node",
+        "python"
+      ],
       "parallel": true
     },
     {
       "id": 3,
       "name": "quality",
       "description": "Code quality tools (depend on toolchains)",
-      "tools": ["rustfmt", "clippy", "golangci-lint", "eslint", "ruff"],
-      "depends_on": ["toolchains"]
+      "tools": [
+        "rustfmt",
+        "clippy",
+        "golangci-lint",
+        "eslint",
+        "ruff"
+      ],
+      "depends_on": [
+        "toolchains"
+      ]
     },
     {
       "id": 4,
       "name": "security",
       "description": "Security scanning tools",
-      "tools": ["gitleaks", "trivy", "grype", "semgrep"],
+      "tools": [
+        "gitleaks",
+        "trivy",
+        "grype",
+        "semgrep"
+      ],
       "parallel": true
     },
     {
       "id": 5,
       "name": "utilities",
       "description": "Standalone utility binaries",
-      "tools": ["protoc", "jq", "rg", "fd", "bat", "fzf"],
+      "tools": [
+        "protoc",
+        "jq",
+        "rg",
+        "fd",
+        "bat",
+        "fzf"
+      ],
       "parallel": true
     },
     {
       "id": 6,
       "name": "ai_providers",
       "description": "AI provider CLI tools (depend on toolchains)",
-      "tools": ["claude-code", "cursor-cli", "codex-cli", "abacus-cli"],
-      "depends_on": ["toolchains"],
+      "tools": [
+        "claude-code",
+        "cursor-cli",
+        "codex-cli",
+        "abacus-cli"
+      ],
+      "depends_on": [
+        "toolchains"
+      ],
       "parallel": true,
       "note": "Install provider CLIs to noa_root/opt/ for shared execution memory (FR-039)"
     }
   ],
-
   "directories": {
     "required": [
       "bin",

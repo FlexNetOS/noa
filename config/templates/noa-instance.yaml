@@ -1,0 +1,127 @@
+# NOA Instance Configuration Template
+# Master configuration for a NOA installation
+
+# Metadata
+metadata:
+  version: "1.0.0"
+  created_at: "${TIMESTAMP}"
+  description: "NOA instance configuration"
+  tags:
+    - instance
+    - configuration
+
+# Instance Identity
+instance:
+  name: "noa-local"
+  id: "${NOA_INSTANCE_ID}"
+  environment: "development"  # development | staging | production
+
+# Directory Structure (FR-001: Self-contained)
+paths:
+  noa_root: "${NOA_ROOT}"
+  bin: "${NOA_ROOT}/bin"
+  config: "${NOA_ROOT}/config"
+  data: "${NOA_ROOT}/data"
+  logs: "${NOA_ROOT}/logs"
+  opt: "${NOA_ROOT}/opt"
+  sys: "${NOA_ROOT}/sys"
+  ai: "${NOA_ROOT}/ai"
+  
+  # XDG-style directories within NOA
+  xdg_data: "${NOA_ROOT}/data"
+  xdg_config: "${NOA_ROOT}/etc"
+  xdg_cache: "${NOA_ROOT}/data/cache"
+  xdg_state: "${NOA_ROOT}/data/state"
+  temp: "${NOA_ROOT}/tmp"
+
+# Database Configuration
+database:
+  primary:
+    driver: "sqlite"
+    path: "${NOA_ROOT}/data/noa.db"
+    settings:
+      journal_mode: "WAL"
+      synchronous: "NORMAL"
+      cache_size: -64000
+      
+  # Optional: PostgreSQL for scale-up
+  # postgresql:
+  #   enabled: false
+  #   host: "localhost"
+  #   port: 5432
+  #   database: "noa"
+
+# AI Provider Priority
+provider_priority:
+  - "local"      # llama.cpp, ollama
+  - "hybrid"     # cursor
+  - "ide"        # vscode-copilot
+  - "cloud"      # claude-code, codex
+
+# Shared Resources
+shared_resources:
+  agents: "${NOA_ROOT}/ai/shared/agents"
+  prompts: "${NOA_ROOT}/ai/shared/prompts"
+  tools: "${NOA_ROOT}/ai/shared/tools"
+  workflows: "${NOA_ROOT}/ai/shared/workflows"
+  models: "${NOA_ROOT}/ai/shared/models"
+  
+  # Execution memory for provider context sharing
+  execution_memory:
+    enabled: true
+    path: "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+
+# Logging Configuration
+logging:
+  level: "info"  # trace | debug | info | warn | error
+  format: "json"  # json | text | pretty
+  output: "${NOA_ROOT}/logs/noa.log"
+  rotate:
+    max_size_mb: 100
+    max_files: 10
+    compress: true
+
+# Feature Flags (FR-144-147)
+feature_flags:
+  - name: "model_sideloading"
+    enabled: true
+    scope: "global"
+    
+  - name: "p2p_federation"
+    enabled: false
+    scope: "global"
+    
+  - name: "autonomous_goal_generation"
+    enabled: false
+    scope: "user"
+
+# Security Settings (FR-NFR-003)
+security:
+  encryption_at_rest: true
+  audit_logging: true
+  
+  # Allowed external connections
+  network:
+    allow_outbound:
+      - "api.anthropic.com"
+      - "api.openai.com"
+      - "*.githubusercontent.com"
+    block_inbound: true  # Local-first by default
+
+# 3-Plane Architecture (FR-056-060)
+planes:
+  sandbox:
+    role: "testing"
+    workspaces_path: "${NOA_ROOT}/workspaces"
+    
+  deployed:
+    role: "production"
+    releases_path: "${NOA_ROOT}/releases"
+    
+  coordinator:
+    role: "memory"
+    registry_path: "${NOA_ROOT}/data/registry.db"
+
+
+
+

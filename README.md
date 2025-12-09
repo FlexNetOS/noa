@@ -166,6 +166,39 @@ Todo: [update]
 
 ## Quick Start
 
+### Bootstrap (Recommended)
+
+The bootstrap script installs all dependencies to `noa_root/opt/` without modifying your system:
+
+```powershell
+# Windows
+.\scripts\bootstrap\bootstrap.ps1 -InstallAllTools -InstallAiProviders
+
+# Unix (Linux/macOS)
+./scripts/bootstrap/bootstrap.sh --install-all-tools --install-ai-providers
+```
+
+### Manual Build
+
+```bash
+# 1. Check prerequisites
+./init/check-prereqs.sh
+
+# 2. Build Rust components
+cd sys/core && cargo build --release
+
+# 3. Build Go P2P node
+cd p2p && go build -o ../bin/noa-p2p ./cmd/p2p-node
+
+# 4. Install UI dependencies
+cd sys/ui && npm install && npm run build
+
+# 5. Install Digest pipeline
+cd sys/digest && pip install -e .
+```
+
+### Navigation
+
 \`\`\`bash
 # Navigate to NOA root
 cda  # or: cd $NOA_ROOT
