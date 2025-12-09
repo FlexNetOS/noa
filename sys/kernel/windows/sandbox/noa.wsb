@@ -1,0 +1,70 @@
+<!--
+  NOA Windows Sandbox Configuration (B125)
+
+  A lightweight sandbox profile for running NOA in an isolated environment.
+  Requires Windows 10/11 Pro or Enterprise with Windows Sandbox feature enabled.
+
+  Enable Windows Sandbox:
+    Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -Online
+
+  Run with:
+    .\noa.wsb
+
+  Or programmatically:
+    Start-Process "WindowsSandbox.exe" -ArgumentList (Resolve-Path "noa.wsb")
+-->
+<Configuration>
+  <!-- Memory settings -->
+  <MemoryInMB>4096</MemoryInMB>
+
+  <!-- Enable virtualized GPU -->
+  <vGPU>Enable</vGPU>
+
+  <!-- Networking -->
+  <Networking>Enable</Networking>
+
+  <!-- Audio input (disabled for security) -->
+  <AudioInput>Disable</AudioInput>
+
+  <!-- Video input (disabled for security) -->
+  <VideoInput>Disable</VideoInput>
+
+  <!-- Clipboard redirection -->
+  <ClipboardRedirection>Enable</ClipboardRedirection>
+
+  <!-- Printer redirection (disabled) -->
+  <PrinterRedirection>Disable</PrinterRedirection>
+
+  <!-- Protected client (prevents screen capture) -->
+  <ProtectedClient>Enable</ProtectedClient>
+
+  <!-- Map NOA directory as read-only -->
+  <MappedFolders>
+    <MappedFolder>
+      <HostFolder>C:\noa</HostFolder>
+      <SandboxFolder>C:\noa-host</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+  </MappedFolders>
+
+  <!-- Startup command -->
+  <LogonCommand>
+    <Command>powershell.exe -ExecutionPolicy Bypass -Command "
+      # Copy NOA to writable location
+      Copy-Item -Path 'C:\noa-host' -Destination 'C:\noa' -Recurse -Force
+
+      # Set environment
+      $env:NOA_ROOT = 'C:\noa'
+
+      # Run bootstrap if available
+      $bootstrap = 'C:\noa\scripts\bootstrap\bootstrap.ps1'
+      if (Test-Path $bootstrap) {
+        & $bootstrap
+      }
+
+      # Open PowerShell
+      Start-Process powershell.exe -ArgumentList '-NoExit', '-Command', 'cd C:\noa; Write-Host \"NOA Sandbox Ready\" -ForegroundColor Green'
+    "</Command>
+  </LogonCommand>
+</Configuration>
+
