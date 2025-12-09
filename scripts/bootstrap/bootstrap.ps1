@@ -4,7 +4,7 @@
     Single entry point for complete NOA environment setup
 
 .DESCRIPTION
-    Per NOA Constitution §3.1: Self-contained installation to noa_root
+    Per NOA Constitution 3.1: Self-contained installation to noa_root
 
     This script:
     1. Creates directory structure
@@ -78,10 +78,10 @@ function Write-Log {
         default { "White" }
     }
     $prefix = switch ($Level) {
-        "Success" { "[✓]" }
-        "Warning" { "[!]" }
-        "Error" { "[✗]" }
-        default { "[i]" }
+        "Success" { "[OK]" }
+        "Warning" { "[!!]" }
+        "Error" { "[XX]" }
+        default { "[..]" }
     }
     Write-Host "$prefix $Message" -ForegroundColor $color
 }
@@ -91,12 +91,12 @@ function Write-Log {
 # ============================================
 
 Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║                                                            ║" -ForegroundColor Cyan
-Write-Host "║           NOA Bootstrap for Windows                        ║" -ForegroundColor Cyan
-Write-Host "║           Constitution §3.1 Compliant                      ║" -ForegroundColor Cyan
-Write-Host "║                                                            ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "+============================================================+" -ForegroundColor Cyan
+Write-Host "|                                                            |" -ForegroundColor Cyan
+Write-Host "|           NOA Bootstrap for Windows                        |" -ForegroundColor Cyan
+Write-Host "|           Constitution 3.1 Compliant                       |" -ForegroundColor Cyan
+Write-Host "|                                                            |" -ForegroundColor Cyan
+Write-Host "+============================================================+" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "NOA_ROOT: $NoaRoot" -ForegroundColor White
 Write-Host "Platform: $Platform" -ForegroundColor White
@@ -329,11 +329,11 @@ Write-Log "Created: .noa" -Level Success
 # ============================================
 
 Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
-Write-Host "║                                                            ║" -ForegroundColor Green
-Write-Host "║              Bootstrap Completed Successfully!             ║" -ForegroundColor Green
-Write-Host "║                                                            ║" -ForegroundColor Green
-Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+Write-Host "+============================================================+" -ForegroundColor Green
+Write-Host "|                                                            |" -ForegroundColor Green
+Write-Host "|              Bootstrap Completed Successfully!             |" -ForegroundColor Green
+Write-Host "|                                                            |" -ForegroundColor Green
+Write-Host "+============================================================+" -ForegroundColor Green
 Write-Host ""
 
 Write-Log "Summary:" -Level Info
@@ -344,15 +344,15 @@ Write-Host ""
 
 Write-Log "Next steps:" -Level Info
 Write-Host "  1. Load environment: " -NoNewline -ForegroundColor White
-Write-Host ". `"$envPath`"" -ForegroundColor Cyan
+Write-Host ('. "{0}"' -f $envPath) -ForegroundColor Cyan
 Write-Host "  2. Verify prereqs:   " -NoNewline -ForegroundColor White
-Write-Host ".\scripts\setup\check-prereqs.ps1" -ForegroundColor Cyan
+Write-Host 'scripts\setup\check-prereqs.ps1' -ForegroundColor Cyan
 Write-Host "  3. Check toolchains: " -NoNewline -ForegroundColor White
 Write-Host "Get-NoaToolchains" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Log "To auto-load NOA, add to your PowerShell profile:" -Level Info
-Write-Host "  . `"$envPath`"" -ForegroundColor Cyan
+Write-Host ('  . "{0}"' -f $envPath) -ForegroundColor Cyan
 Write-Host ""
 
 exit 0

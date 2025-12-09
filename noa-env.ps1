@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
     NOA Environment Configuration for Windows PowerShell
-    
+
 .DESCRIPTION
     Sets up NOA environment variables and aliases for Windows.
     Source this file in your PowerShell profile for persistent configuration.
-    
+
 .EXAMPLE
     . .\noa-env.ps1
 #>
@@ -56,6 +56,13 @@ $env:NOA_NAMESPACE = Join-Path $env:NOA_SYS "namespace"
 $env:NOA_CGROUP = Join-Path $env:NOA_SYS "cgroup"
 $env:NOA_KERNEL = Join-Path $env:NOA_SYS "kernel"
 
+# Go environment (portable installation)
+$env:GOROOT = Join-Path $env:NOA_OPT "go"
+$env:GOPATH = Join-Path $env:NOA_OPT "go\workspace"
+$env:GOBIN = Join-Path $env:NOA_OPT "go\workspace\bin"
+$env:GOCACHE = Join-Path $env:NOA_OPT "go\cache"
+$env:GOMODCACHE = Join-Path $env:NOA_OPT "go\pkg\mod"
+
 # Add NOA directories to PATH
 function Add-NoaPath {
     param([string]$Dir)
@@ -66,6 +73,10 @@ function Add-NoaPath {
 
 Add-NoaPath $env:NOA_BIN
 Add-NoaPath $env:NOA_SCRIPTS
+
+# Add Go to PATH
+Add-NoaPath (Join-Path $env:GOROOT "bin")
+Add-NoaPath $env:GOBIN
 
 # Navigation aliases
 function cda { Set-Location $env:NOA_ROOT }
@@ -107,20 +118,20 @@ function Test-NoaEnv {
         $env:NOA_SCRIPTS,
         $env:NOA_CONFIG
     )
-    
+
     $missing = @()
     foreach ($var in $required) {
         if (-not $var -or -not (Test-Path $var)) {
             $missing += $var
         }
     }
-    
+
     if ($missing.Count -gt 0) {
         Write-Host "Missing or invalid NOA directories:" -ForegroundColor Red
         $missing | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
         return $false
     }
-    
+
     Write-Host "NOA environment validated successfully" -ForegroundColor Green
     Write-Host "  NOA_ROOT: $env:NOA_ROOT" -ForegroundColor Cyan
     return $true
