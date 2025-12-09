@@ -5,7 +5,7 @@
 .Synopsis
     Group Policy tools use administrative template files (.admx, .adml) to populate policy settings in the user interface.
     This allows administrators to manage registry-based policy settings.
-    This script installes PowerShell Core Administrative Templates for Windows.
+    This script installs PowerShell Core Administrative Templates for Windows.
 .Notes
     The PowerShellCoreExecutionPolicy.admx and PowerShellCoreExecutionPolicy.adml files are
     expected to be at the location specified by the Path parameter with default value of the location of this script.

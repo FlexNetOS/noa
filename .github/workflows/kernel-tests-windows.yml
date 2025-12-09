@@ -19,6 +19,9 @@ on:
       - 'sys/core/src/kernel/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test-nkal:
     name: NKAL Unit Tests
