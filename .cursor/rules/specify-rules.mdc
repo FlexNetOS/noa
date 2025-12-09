@@ -1,0 +1,50 @@
+﻿# noa Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-08
+
+## Active Technologies
+
+- Rust 1.83+, Go 1.23+, TypeScript 5.x, Python 3.12+ (001-noa-seed-foundation)
+- llama.cpp, tokio, axum, libp2p, React, Next.js
+- SQLite/PostgreSQL + pgvector 0.5.0+, Qdrant 1.8+, Redis 7.0+
+
+## Project Structure
+
+```text
+noa_root/
+├── sys/          # Core runtime (Rust)
+├── p2p/          # P2P services (Go)
+├── ai/           # AI providers, models, prompts
+├── config/       # Configuration files
+├── bin/          # Executables
+├── opt/          # Optional packages (llama.cpp, etc.)
+└── scripts/      # Setup and utility scripts
+```
+
+## Commands
+
+```bash
+# Bootstrap
+./scripts/bootstrap/bootstrap.ps1   # Windows
+./scripts/bootstrap/bootstrap.sh    # Unix
+
+# Validation
+noa validate                        # Check environment
+./init/check-prereqs.sh             # Check prerequisites
+```
+
+## Code Style
+
+- **Rust**: Use rustfmt, clippy
+- **Go**: Use golangci-lint
+- **TypeScript**: Use eslint
+- **Python**: Use ruff
+
+## Recent Changes
+
+- 001-noa-seed-foundation: Unified bootstrap with Phase 0 (B001-B150)
+- 001-noa-seed-foundation: Added kernel independence architecture
+- 001-noa-seed-foundation: Cross-platform script parity (PS1 ↔ Bash)
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

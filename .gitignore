@@ -13,6 +13,27 @@ __pycache__/
 opt/nodejs/
 opt/*.exe
 
+# Dev tools installed by bootstrap (gitignored, user-specific)
+opt/dev-tools/
+opt/dev-tools/**
+
+# Portable toolchains installed to noa_root
+opt/rust/
+opt/go/
+opt/node/
+opt/python/
+opt/protobuf/
+
+# Python venv (per-user)
+opt/venv/
+
+# Centralized caches (regenerated, per-machine)
+cache/
+cache/**
+
+# npm cache
+opt/npm-cache/
+
 # Large local directories are now tracked as git submodules
 # opt/llama.cpp/ - tracked as submodule pointing to FlexNetOS/llama.cpp
 # opt/llama-cpp-rs/ - tracked as submodule pointing to FlexNetOS/llama-cpp-rs
@@ -63,10 +84,17 @@ Thumbs.db
 *~
 .vs/
 .vscode/
+.cursor/
+.idea/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+
+# IDE workspace files (user-specific)
+*.code-workspace
+.cursor-server/
+.cursor-tuning/
 
 # Generated files (will be created by setup script)
 noa-profile.ps1

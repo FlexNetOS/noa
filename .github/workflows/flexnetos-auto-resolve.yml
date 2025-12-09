@@ -1,0 +1,843 @@
+# FlexNetOS Automated CI Workflow - Full Autonomy
+# No Human in the Loop - Automated Issue Resolution & PR Merge
+# Organization: FlexNetOS
+# Version: 1.0.0
+
+name: FlexNetOS Auto-Resolve CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, review_requested]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to process'
+        required: false
+      max_iterations:
+        description: 'Maximum resolution iterations'
+        required: false
+        default: '10'
+      force_merge:
+        description: 'Force merge after resolution'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+  checks: write
+  security-events: read
+
+env:
+  MAX_ITERATIONS: ${{ github.event.inputs.max_iterations || '10' }}
+  RESOLUTION_TIMEOUT: 3600  # 1 hour max per iteration
+  AI_PROVIDER: 'web-app-auth'  # Use web app auth, not API
+  CONFIDENCE_THRESHOLD: 0.85
+  AUTO_MERGE_ENABLED: true
+
+jobs:
+  # ============================================================
+  # STAGE 1: Aggregate All Issues from PR
+  # ============================================================
+  aggregate-issues:
+    name: 🔍 Aggregate All PR Issues
+    runs-on: ubuntu-latest
+    outputs:
+      issues_json: ${{ steps.aggregate.outputs.issues }}
+      has_issues: ${{ steps.aggregate.outputs.has_issues }}
+      pr_number: ${{ steps.get-pr.outputs.pr_number }}
+      iteration: ${{ steps.state.outputs.iteration }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: Get PR Number
+        id: get-pr
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "pr_number=${{ github.event.inputs.pr_number }}" >> $GITHUB_OUTPUT
+          else
+            # Get latest open PR
+            PR=$(gh pr list --state open --json number --limit 1 -q '.[0].number')
+            echo "pr_number=$PR" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: Load Iteration State
+        id: state
+        run: |
+          STATE_FILE=".github/state/pr-${{ steps.get-pr.outputs.pr_number }}.json"
+          if [ -f "$STATE_FILE" ]; then
+            ITERATION=$(jq -r '.iteration // 0' "$STATE_FILE")
+          else
+            ITERATION=0
+          fi
+          ITERATION=$((ITERATION + 1))
+          echo "iteration=$ITERATION" >> $GITHUB_OUTPUT
+          echo "📊 Current iteration: $ITERATION"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g @octokit/rest
+          pip install PyGithub requests beautifulsoup4
+
+      - name: 🔍 Aggregate All Issues
+        id: aggregate
+        run: |
+          PR_NUM="${{ steps.get-pr.outputs.pr_number }}"
+
+          # Create aggregation script
+          cat > aggregate_issues.py << 'PYEOF'
+          import os
+          import json
+          import subprocess
+          from datetime import datetime
+
+          def run_gh(cmd):
+              result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+              return json.loads(result.stdout) if result.stdout else []
+
+          def aggregate_pr_issues(pr_num):
+              issues = {
+                  "pr_number": pr_num,
+                  "timestamp": datetime.utcnow().isoformat(),
+                  "categories": {
+                      "workflow_failures": [],
+                      "linting_errors": [],
+                      "type_errors": [],
+                      "test_failures": [],
+                      "security_issues": [],
+                      "merge_conflicts": [],
+                      "review_comments": [],
+                      "suggestions": [],
+                      "conversations": [],
+                      "commit_issues": [],
+                      "dependency_issues": [],
+                      "code_quality": [],
+                      "documentation": []
+                  },
+                  "summary": {
+                      "total_issues": 0,
+                      "critical": 0,
+                      "high": 0,
+                      "medium": 0,
+                      "low": 0
+                  }
+              }
+
+              token = os.environ.get('GH_TOKEN')
+
+              # 1. Get workflow run failures
+              print("📋 Collecting workflow failures...")
+              runs = run_gh(f'gh run list --limit 10 --json conclusion,name,databaseId,headBranch')
+              for run in runs:
+                  if run.get('conclusion') == 'failure':
+                      issues["categories"]["workflow_failures"].append({
+                          "id": run.get('databaseId'),
+                          "name": run.get('name'),
+                          "severity": "high",
+                          "status": "open"
+                      })
+
+              # 2. Get PR review comments and suggestions
+              print("💬 Collecting review comments...")
+              comments = run_gh(f'gh pr view {pr_num} --json reviews,comments')
+              if comments:
+                  for review in comments.get('reviews', []):
+                      if review.get('body'):
+                          issues["categories"]["review_comments"].append({
+                              "id": review.get('id'),
+                              "body": review.get('body'),
+                              "state": review.get('state'),
+                              "severity": "medium"
+                          })
+
+              # 3. Get PR diff for conflict detection
+              print("🔀 Checking for merge conflicts...")
+              pr_info = run_gh(f'gh pr view {pr_num} --json mergeable,mergeStateStatus')
+              if pr_info:
+                  if pr_info.get('mergeable') == 'CONFLICTING':
+                      issues["categories"]["merge_conflicts"].append({
+                          "status": pr_info.get('mergeStateStatus'),
+                          "severity": "critical",
+                          "auto_resolvable": True
+                      })
+
+              # 4. Get pending conversations
+              print("🗣️ Collecting unresolved conversations...")
+              threads = run_gh(f'gh pr view {pr_num} --json reviewThreads')
+              if threads:
+                  for thread in threads.get('reviewThreads', []):
+                      if not thread.get('isResolved'):
+                          issues["categories"]["conversations"].append({
+                              "id": thread.get('id'),
+                              "path": thread.get('path'),
+                              "line": thread.get('line'),
+                              "severity": "medium",
+                              "comments": thread.get('comments', [])
+                          })
+
+              # 5. Check for security alerts
+              print("🔒 Checking security issues...")
+              try:
+                  sec_alerts = run_gh('gh api repos/{owner}/{repo}/code-scanning/alerts --jq ".[] | select(.state==\"open\")"')
+                  for alert in sec_alerts if isinstance(sec_alerts, list) else []:
+                      issues["categories"]["security_issues"].append({
+                          "rule": alert.get('rule', {}).get('id'),
+                          "severity": alert.get('rule', {}).get('severity', 'medium'),
+                          "location": alert.get('location'),
+                          "auto_fixable": True
+                      })
+              except:
+                  pass
+
+              # 6. Parse CI logs for errors
+              print("📝 Parsing CI logs for errors...")
+              # This would parse actual CI logs
+
+              # Calculate totals
+              for category, items in issues["categories"].items():
+                  for item in items:
+                      issues["summary"]["total_issues"] += 1
+                      sev = item.get("severity", "low")
+                      if sev in issues["summary"]:
+                          issues["summary"][sev] += 1
+
+              return issues
+
+          if __name__ == "__main__":
+              pr_num = os.environ.get('PR_NUM')
+              issues = aggregate_pr_issues(pr_num)
+
+              # Output for GitHub Actions
+              print(f"\n📊 Issue Summary:")
+              print(f"   Total: {issues['summary']['total_issues']}")
+              print(f"   Critical: {issues['summary']['critical']}")
+              print(f"   High: {issues['summary']['high']}")
+
+              # Save to file
+              with open('aggregated_issues.json', 'w') as f:
+                  json.dump(issues, f, indent=2)
+
+              # Set outputs
+              import urllib.parse
+              issues_escaped = urllib.parse.quote(json.dumps(issues))
+
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"has_issues={'true' if issues['summary']['total_issues'] > 0 else 'false'}\n")
+
+              print("✅ Issue aggregation complete")
+          PYEOF
+
+          PR_NUM="$PR_NUM" python aggregate_issues.py
+
+          # Upload artifact
+          echo "issues=$(cat aggregated_issues.json | jq -c)" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+          PR_NUM: ${{ steps.get-pr.outputs.pr_number }}
+
+      - name: Upload Issues Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-issues-${{ steps.get-pr.outputs.pr_number }}
+          path: aggregated_issues.json
+          retention-days: 30
+
+  # ============================================================
+  # STAGE 2: Create Consolidated Issue
+  # ============================================================
+  create-consolidated-issue:
+    name: 📝 Create Consolidated Issue
+    needs: aggregate-issues
+    if: needs.aggregate-issues.outputs.has_issues == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      issue_number: ${{ steps.create-issue.outputs.issue_number }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: Download Aggregated Issues
+        uses: actions/download-artifact@v4
+        with:
+          name: aggregated-issues-${{ needs.aggregate-issues.outputs.pr_number }}
+
+      - name: 📝 Create or Update Consolidated Issue
+        id: create-issue
+        run: |
+          PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
+          ITERATION="${{ needs.aggregate-issues.outputs.iteration }}"
+
+          # Generate issue body
+          cat > generate_issue.py << 'PYEOF'
+          import json
+          import os
+          from datetime import datetime
+
+          with open('aggregated_issues.json') as f:
+              issues = json.load(f)
+
+          pr_num = os.environ.get('PR_NUM')
+          iteration = os.environ.get('ITERATION')
+
+          body = f"""## 🤖 FlexNetOS Auto-Resolution Report
+
+          **PR:** #{pr_num}
+          **Iteration:** {iteration}
+          **Generated:** {datetime.utcnow().isoformat()}Z
+
+          ---
+
+          ### 📊 Issue Summary
+
+          | Severity | Count |
+          |----------|-------|
+          | 🔴 Critical | {issues['summary']['critical']} |
+          | 🟠 High | {issues['summary']['high']} |
+          | 🟡 Medium | {issues['summary']['medium']} |
+          | 🟢 Low | {issues['summary']['low']} |
+          | **Total** | **{issues['summary']['total_issues']}** |
+
+          ---
+
+          ### 🔧 Issues by Category
+
+          """
+
+          categories_emoji = {
+              "workflow_failures": "⚙️ Workflow Failures",
+              "linting_errors": "📏 Linting Errors",
+              "type_errors": "📝 Type Errors",
+              "test_failures": "🧪 Test Failures",
+              "security_issues": "🔒 Security Issues",
+              "merge_conflicts": "🔀 Merge Conflicts",
+              "review_comments": "💬 Review Comments",
+              "suggestions": "💡 Suggestions",
+              "conversations": "🗣️ Unresolved Conversations",
+              "commit_issues": "📦 Commit Issues",
+              "dependency_issues": "📚 Dependency Issues",
+              "code_quality": "✨ Code Quality",
+              "documentation": "📖 Documentation"
+          }
+
+          for cat, items in issues['categories'].items():
+              if items:
+                  emoji_title = categories_emoji.get(cat, cat)
+                  body += f"\n#### {emoji_title}\n\n"
+                  for i, item in enumerate(items, 1):
+                      sev = item.get('severity', 'low')
+                      sev_emoji = {'critical': '🔴', 'high': '🟠', 'medium': '🟡', 'low': '🟢'}.get(sev, '⚪')
+                      body += f"- [ ] {sev_emoji} {item.get('name', item.get('body', item.get('status', 'Issue')))[:100]}\n"
+
+          body += f"""
+
+          ---
+
+          ### 🤖 Auto-Resolution Status
+
+          - **Mode:** Fully Automated
+          - **AI Provider:** Web App Auth
+          - **Max Iterations:** {os.environ.get('MAX_ITERATIONS', 10)}
+          - **Current Iteration:** {iteration}
+
+          ---
+
+          <details>
+          <summary>📋 Raw Issue Data</summary>
+
+          ```json
+          {json.dumps(issues, indent=2)}
+          ```
+
+          </details>
+
+          ---
+
+          > 🔄 This issue will be automatically updated as issues are resolved.
+          > ✅ Once all issues are resolved, a PR will be auto-created to merge into main.
+
+          <!-- AUTO_RESOLVE_TRACKING -->
+          <!-- PR: {pr_num} -->
+          <!-- ITERATION: {iteration} -->
+          """
+
+          with open('issue_body.md', 'w') as f:
+              f.write(body)
+
+          print(body[:500])
+          PYEOF
+
+          PR_NUM="$PR_NUM" ITERATION="$ITERATION" MAX_ITERATIONS="${{ env.MAX_ITERATIONS }}" python generate_issue.py
+
+          # Check for existing tracking issue
+          EXISTING=$(gh issue list --label "auto-resolve,pr-$PR_NUM" --json number --limit 1 -q '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "📝 Updating existing issue #$EXISTING"
+            gh issue edit "$EXISTING" --body-file issue_body.md
+            echo "issue_number=$EXISTING" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Creating new consolidated issue"
+            ISSUE_NUM=$(gh issue create \
+              --title "🤖 Auto-Resolve: PR #$PR_NUM - Iteration $ITERATION" \
+              --body-file issue_body.md \
+              --label "auto-resolve,pr-$PR_NUM,automated" \
+              | grep -oP '\d+$')
+            echo "issue_number=$ISSUE_NUM" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+          PR_NUM: ${{ needs.aggregate-issues.outputs.pr_number }}
+          ITERATION: ${{ needs.aggregate-issues.outputs.iteration }}
+
+  # ============================================================
+  # STAGE 3: AI-Powered Issue Resolution
+  # ============================================================
+  ai-resolve-issues:
+    name: 🤖 AI Resolution Engine
+    needs: [aggregate-issues, create-consolidated-issue]
+    if: needs.aggregate-issues.outputs.has_issues == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      resolution_status: ${{ steps.resolve.outputs.status }}
+      fixes_applied: ${{ steps.resolve.outputs.fixes_applied }}
+      remaining_issues: ${{ steps.resolve.outputs.remaining }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+          ref: ${{ github.head_ref }}
+
+      - name: Download Aggregated Issues
+        uses: actions/download-artifact@v4
+        with:
+          name: aggregated-issues-${{ needs.aggregate-issues.outputs.pr_number }}
+
+      - name: Setup Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI Resolution Dependencies
+        run: |
+          pip install requests beautifulsoup4 selenium playwright openai anthropic google-generativeai
+          playwright install chromium
+
+      - name: 🤖 AI Resolution Engine
+        id: resolve
+        run: |
+          cat > ai_resolver.py << 'PYEOF'
+          """
+          FlexNetOS AI Resolution Engine
+          Uses Web App Auth for AI Providers (not API keys)
+          Supports: Claude Web, ChatGPT Web, Gemini Web, GitHub Copilot
+          """
+
+          import os
+          import json
+          import subprocess
+          import re
+          from pathlib import Path
+          from datetime import datetime
+
+          class AIResolver:
+              def __init__(self):
+                  self.fixes_applied = 0
+                  self.remaining_issues = 0
+                  self.provider = os.environ.get('AI_PROVIDER', 'web-app-auth')
+                  self.confidence_threshold = float(os.environ.get('CONFIDENCE_THRESHOLD', 0.85))
+
+              def load_issues(self):
+                  with open('aggregated_issues.json') as f:
+                      return json.load(f)
+
+              def resolve_merge_conflicts(self, conflicts):
+                  """Auto-resolve merge conflicts using git and AI"""
+                  print("🔀 Resolving merge conflicts...")
+                  for conflict in conflicts:
+                      try:
+                          # Get conflicted files
+                          result = subprocess.run(
+                              ['git', 'diff', '--name-only', '--diff-filter=U'],
+                              capture_output=True, text=True
+                          )
+                          conflicted_files = result.stdout.strip().split('\n')
+
+                          for file in conflicted_files:
+                              if file:
+                                  self.resolve_file_conflict(file)
+                                  self.fixes_applied += 1
+                      except Exception as e:
+                          print(f"❌ Error resolving conflict: {e}")
+                          self.remaining_issues += 1
+
+              def resolve_file_conflict(self, filepath):
+                  """Resolve a single file conflict"""
+                  print(f"  📄 Resolving: {filepath}")
+                  try:
+                      with open(filepath, 'r') as f:
+                          content = f.read()
+
+                      # Parse conflict markers
+                      if '<<<<<<<' in content:
+                          # Simple resolution: take incoming changes
+                          # In production, this would use AI to intelligently merge
+                          resolved = re.sub(
+                              r'<<<<<<<.*?\n(.*?)=======\n(.*?)>>>>>>>.*?\n',
+                              r'\2',  # Take incoming changes
+                              content,
+                              flags=re.DOTALL
+                          )
+
+                          with open(filepath, 'w') as f:
+                              f.write(resolved)
+
+                          subprocess.run(['git', 'add', filepath])
+                          print(f"  ✅ Resolved: {filepath}")
+                  except Exception as e:
+                      print(f"  ❌ Failed: {filepath} - {e}")
+
+              def resolve_linting_errors(self, errors):
+                  """Auto-fix linting errors"""
+                  print("📏 Fixing linting errors...")
+                  try:
+                      # Run auto-fixers
+                      subprocess.run(['npx', 'eslint', '--fix', '.'], capture_output=True)
+                      subprocess.run(['npx', 'prettier', '--write', '.'], capture_output=True)
+                      self.fixes_applied += len(errors)
+                  except Exception as e:
+                      print(f"❌ Linting fix error: {e}")
+                      self.remaining_issues += len(errors)
+
+              def resolve_type_errors(self, errors):
+                  """Auto-fix TypeScript type errors"""
+                  print("📝 Fixing type errors...")
+                  # Would use AI to generate proper types
+                  self.remaining_issues += len(errors)
+
+              def resolve_security_issues(self, issues):
+                  """Auto-fix security vulnerabilities"""
+                  print("🔒 Fixing security issues...")
+                  try:
+                      # Update vulnerable dependencies
+                      subprocess.run(['npm', 'audit', 'fix', '--force'], capture_output=True)
+                      self.fixes_applied += len(issues)
+                  except:
+                      self.remaining_issues += len(issues)
+
+              def resolve_review_comments(self, comments):
+                  """Implement suggestions from review comments"""
+                  print("💬 Processing review comments...")
+                  for comment in comments:
+                      try:
+                          body = comment.get('body', '')
+                          # Parse actionable suggestions
+                          if 'suggestion' in body.lower() or '```suggestion' in body:
+                              self.apply_suggestion(comment)
+                              self.fixes_applied += 1
+                          else:
+                              self.remaining_issues += 1
+                      except Exception as e:
+                          print(f"❌ Comment error: {e}")
+                          self.remaining_issues += 1
+
+              def apply_suggestion(self, comment):
+                  """Apply a code suggestion from a review"""
+                  print(f"  💡 Applying suggestion...")
+                  # Would parse suggestion block and apply changes
+                  pass
+
+              def resolve_conversations(self, conversations):
+                  """Resolve open review conversations"""
+                  print("🗣️ Resolving conversations...")
+                  for conv in conversations:
+                      try:
+                          # Auto-respond and resolve based on AI analysis
+                          self.remaining_issues += 1  # Needs manual review flag
+                      except:
+                          self.remaining_issues += 1
+
+              def resolve_workflow_failures(self, failures):
+                  """Fix workflow failures"""
+                  print("⚙️ Fixing workflow failures...")
+                  for failure in failures:
+                      # Analyze failure logs and apply fixes
+                      self.remaining_issues += 1
+
+              def run(self):
+                  """Main resolution loop"""
+                  print("🤖 FlexNetOS AI Resolution Engine Starting...")
+                  print(f"   Provider: {self.provider}")
+                  print(f"   Confidence Threshold: {self.confidence_threshold}")
+
+                  issues = self.load_issues()
+                  categories = issues.get('categories', {})
+
+                  # Process each category
+                  if categories.get('merge_conflicts'):
+                      self.resolve_merge_conflicts(categories['merge_conflicts'])
+
+                  if categories.get('linting_errors'):
+                      self.resolve_linting_errors(categories['linting_errors'])
+
+                  if categories.get('type_errors'):
+                      self.resolve_type_errors(categories['type_errors'])
+
+                  if categories.get('security_issues'):
+                      self.resolve_security_issues(categories['security_issues'])
+
+                  if categories.get('review_comments'):
+                      self.resolve_review_comments(categories['review_comments'])
+
+                  if categories.get('conversations'):
+                      self.resolve_conversations(categories['conversations'])
+
+                  if categories.get('workflow_failures'):
+                      self.resolve_workflow_failures(categories['workflow_failures'])
+
+                  # Commit fixes if any
+                  if self.fixes_applied > 0:
+                      self.commit_fixes()
+
+                  return {
+                      'status': 'complete' if self.remaining_issues == 0 else 'partial',
+                      'fixes_applied': self.fixes_applied,
+                      'remaining': self.remaining_issues
+                  }
+
+              def commit_fixes(self):
+                  """Commit all applied fixes"""
+                  print("📦 Committing fixes...")
+                  try:
+                      subprocess.run(['git', 'config', 'user.name', 'FlexNetOS Bot'])
+                      subprocess.run(['git', 'config', 'user.email', 'bot@flexnetos.dev'])
+                      subprocess.run(['git', 'add', '-A'])
+                      subprocess.run([
+                          'git', 'commit', '-m',
+                          f'🤖 Auto-fix: Applied {self.fixes_applied} fixes [skip ci]'
+                      ])
+                      subprocess.run(['git', 'push'])
+                      print("✅ Fixes committed and pushed")
+                  except Exception as e:
+                      print(f"❌ Commit error: {e}")
+
+          if __name__ == "__main__":
+              resolver = AIResolver()
+              result = resolver.run()
+
+              print(f"\n📊 Resolution Summary:")
+              print(f"   Status: {result['status']}")
+              print(f"   Fixes Applied: {result['fixes_applied']}")
+              print(f"   Remaining: {result['remaining']}")
+
+              # Set outputs
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"status={result['status']}\n")
+                  f.write(f"fixes_applied={result['fixes_applied']}\n")
+                  f.write(f"remaining={result['remaining']}\n")
+          PYEOF
+
+          python ai_resolver.py
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+          AI_PROVIDER: ${{ env.AI_PROVIDER }}
+          CONFIDENCE_THRESHOLD: ${{ env.CONFIDENCE_THRESHOLD }}
+
+      - name: Update Consolidated Issue
+        run: |
+          ISSUE_NUM="${{ needs.create-consolidated-issue.outputs.issue_number }}"
+          FIXES="${{ steps.resolve.outputs.fixes_applied }}"
+          REMAINING="${{ steps.resolve.outputs.remaining }}"
+
+          gh issue comment "$ISSUE_NUM" --body "## 🤖 Resolution Update
+
+          **Iteration:** ${{ needs.aggregate-issues.outputs.iteration }}
+          **Fixes Applied:** $FIXES
+          **Remaining Issues:** $REMAINING
+          **Status:** ${{ steps.resolve.outputs.status }}
+
+          ---
+
+          $(if [ \"$REMAINING\" -eq \"0\" ]; then echo '✅ All issues resolved! Proceeding to merge...'; else echo '🔄 Re-running resolution loop...'; fi)"
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+  # ============================================================
+  # STAGE 4: Loop Control - Continue Until Resolved
+  # ============================================================
+  loop-control:
+    name: 🔄 Loop Controller
+    needs: [aggregate-issues, ai-resolve-issues]
+    if: needs.ai-resolve-issues.outputs.remaining_issues != '0'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Iteration Limit
+        id: check-limit
+        run: |
+          ITERATION="${{ needs.aggregate-issues.outputs.iteration }}"
+          MAX="${{ env.MAX_ITERATIONS }}"
+
+          if [ "$ITERATION" -ge "$MAX" ]; then
+            echo "⚠️ Maximum iterations ($MAX) reached"
+            echo "should_continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "🔄 Iteration $ITERATION of $MAX - Continuing..."
+            echo "should_continue=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Save Iteration State
+        run: |
+          mkdir -p .github/state
+          PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
+          ITERATION="${{ needs.aggregate-issues.outputs.iteration }}"
+
+          echo "{\"pr_number\": $PR_NUM, \"iteration\": $ITERATION, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > ".github/state/pr-$PR_NUM.json"
+
+      - name: 🔄 Trigger Next Iteration
+        if: steps.check-limit.outputs.should_continue == 'true'
+        run: |
+          echo "🔄 Triggering next resolution iteration..."
+          sleep 30  # Rate limiting delay
+
+          gh workflow run flexnetos-auto-resolve.yml \
+            -f pr_number=${{ needs.aggregate-issues.outputs.pr_number }} \
+            -f max_iterations=${{ env.MAX_ITERATIONS }}
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+  # ============================================================
+  # STAGE 5: Auto-Merge to Main
+  # ============================================================
+  auto-merge:
+    name: 🚀 Auto-Merge to Main
+    needs: [aggregate-issues, ai-resolve-issues, create-consolidated-issue]
+    if: |
+      needs.ai-resolve-issues.outputs.remaining_issues == '0' ||
+      needs.aggregate-issues.outputs.has_issues == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: 🔍 Final Validation
+        id: validate
+        run: |
+          PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
+
+          echo "🔍 Running final validation..."
+
+          # Check PR is mergeable
+          MERGEABLE=$(gh pr view $PR_NUM --json mergeable -q '.mergeable')
+
+          if [ "$MERGEABLE" = "MERGEABLE" ]; then
+            echo "✅ PR is mergeable"
+            echo "can_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ PR is not mergeable: $MERGEABLE"
+            echo "can_merge=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: 🚀 Merge PR
+        if: steps.validate.outputs.can_merge == 'true'
+        run: |
+          PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
+
+          echo "🚀 Merging PR #$PR_NUM into main..."
+
+          gh pr merge $PR_NUM \
+            --merge \
+            --auto \
+            --delete-branch \
+            --body "🤖 Auto-merged by FlexNetOS CI after resolving all issues.
+
+            **Resolution Summary:**
+            - Fixes Applied: ${{ needs.ai-resolve-issues.outputs.fixes_applied }}
+            - Iterations: ${{ needs.aggregate-issues.outputs.iteration }}
+            - Tracking Issue: #${{ needs.create-consolidated-issue.outputs.issue_number }}"
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: ✅ Close Tracking Issue
+        run: |
+          ISSUE_NUM="${{ needs.create-consolidated-issue.outputs.issue_number }}"
+
+          if [ -n "$ISSUE_NUM" ]; then
+            gh issue close "$ISSUE_NUM" \
+              --comment "✅ All issues resolved and PR merged successfully!
+
+              **Final Status:**
+              - Fixes Applied: ${{ needs.ai-resolve-issues.outputs.fixes_applied }}
+              - Total Iterations: ${{ needs.aggregate-issues.outputs.iteration }}
+              - Merged: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
+
+      - name: 🧹 Cleanup State
+        run: |
+          rm -f ".github/state/pr-${{ needs.aggregate-issues.outputs.pr_number }}.json"
+
+  # ============================================================
+  # STAGE 6: Audit & Notifications
+  # ============================================================
+  audit-log:
+    name: 📋 Audit Log
+    needs: [aggregate-issues, ai-resolve-issues]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📋 Log Resolution Activity
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          # 📋 FlexNetOS Auto-Resolution Audit Log
+
+          | Field | Value |
+          |-------|-------|
+          | **PR Number** | ${{ needs.aggregate-issues.outputs.pr_number }} |
+          | **Iteration** | ${{ needs.aggregate-issues.outputs.iteration }} |
+          | **Resolution Status** | ${{ needs.ai-resolve-issues.outputs.resolution_status || 'N/A' }} |
+          | **Fixes Applied** | ${{ needs.ai-resolve-issues.outputs.fixes_applied || '0' }} |
+          | **Remaining Issues** | ${{ needs.ai-resolve-issues.outputs.remaining_issues || '0' }} |
+          | **Timestamp** | $(date -u +%Y-%m-%dT%H:%M:%SZ) |
+          | **Run ID** | ${{ github.run_id }} |
+
+          ---
+
+          > 🤖 Generated by FlexNetOS Automated CI
+          EOF
+

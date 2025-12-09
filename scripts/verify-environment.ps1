@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Verify NOA environment setup across all platforms
-    
+
 .DESCRIPTION
     Checks that all required directories, tools, and configurations are properly set up.
     Run this after cloning the repo or when troubleshooting environment issues.
@@ -14,10 +14,10 @@ param(
 $ErrorActionPreference = "Continue"
 
 # Detect NOA_ROOT
-$NOA_ROOT = if ($env:NOA_ROOT) { 
-    $env:NOA_ROOT 
-} else { 
-    Split-Path -Parent $PSScriptRoot 
+$NOA_ROOT = if ($env:NOA_ROOT) {
+    $env:NOA_ROOT
+} else {
+    Split-Path -Parent $PSScriptRoot
 }
 
 Write-Host "=" * 60 -ForegroundColor Cyan
@@ -39,7 +39,7 @@ Write-Host "1. Checking Directory Structure..." -ForegroundColor Yellow
 
 $requiredDirs = @(
     "ai", "ai/shared", "ai/providers", "ai/devices", "ai/orchestration",
-    "bin", "config", "containers", "etc", "git", "init", "lib", 
+    "bin", "config", "containers", "etc", "git", "init", "lib",
     "logs", "opt", "p2p", "repos", "scripts", "sys", "tmp", "workspace"
 )
 
@@ -117,33 +117,55 @@ if ($lfsInstalled) {
 }
 
 # ============================================
-# 4. Required Tools
+# 4. Required Tools (calls check-prereqs.ps1)
 # ============================================
 Write-Host ""
 Write-Host "4. Checking Required Tools..." -ForegroundColor Yellow
 
-$tools = @(
-    @{ Name = "git"; Required = $true },
-    @{ Name = "gh"; Required = $true; Install = "winget install GitHub.cli" },
-    @{ Name = "node"; Required = $false; Install = "winget install OpenJS.NodeJS.LTS" },
-    @{ Name = "python"; Required = $false; Install = "winget install Python.Python.3.12" },
-    @{ Name = "jq"; Required = $false },
-    @{ Name = "rg"; Required = $false }
-)
+$shimPrereqs = Join-Path $NOA_ROOT "scripts\powershell\check-prerequisites.ps1"
+$directPrereqs = Join-Path $NOA_ROOT "scripts\setup\check-prereqs.ps1"
+$checkPrereqsScript = if (Test-Path $shimPrereqs) { $shimPrereqs } else { $directPrereqs }
 
-foreach ($tool in $tools) {
-    $cmd = Get-Command $tool.Name -ErrorAction SilentlyContinue
-    if ($cmd) {
-        Write-Host "  [OK] $($tool.Name): $($cmd.Source)" -ForegroundColor Green
-    } elseif ($tool.Required) {
-        Write-Host "  [MISSING] $($tool.Name)" -ForegroundColor Red
-        if ($tool.Install) {
-            Write-Host "           Install with: $($tool.Install)" -ForegroundColor Gray
+if (Test-Path $checkPrereqsScript) {
+    Write-Host "  Running comprehensive prerequisite check..." -ForegroundColor Gray
+    $prereqResult = & $checkPrereqsScript -Json | ConvertFrom-Json
+
+    Write-Host "  Installed: $($prereqResult.summary.installed)" -ForegroundColor Green
+
+    if ($prereqResult.summary.missing_critical -gt 0) {
+        Write-Host "  Missing CRITICAL: $($prereqResult.summary.missing_critical)" -ForegroundColor Red
+        foreach ($tool in $prereqResult.missing_critical) {
+            Write-Host "    - $($tool.Name): $($tool.Install)" -ForegroundColor Red
         }
-        $errors++
-    } else {
-        Write-Host "  [OPTIONAL] $($tool.Name) not found" -ForegroundColor Yellow
-        $warnings++
+        $errors += $prereqResult.summary.missing_critical
+    }
+
+    if ($prereqResult.summary.missing_high -gt 0) {
+        Write-Host "  Missing HIGH: $($prereqResult.summary.missing_high)" -ForegroundColor Yellow
+        $warnings += $prereqResult.summary.missing_high
+    }
+} else {
+    Write-Host "  [SKIP] check-prereqs.ps1 not found, using basic checks" -ForegroundColor Yellow
+
+    # Fallback to basic checks
+    $tools = @(
+        @{ Name = "git"; Required = $true },
+        @{ Name = "gh"; Required = $true; Install = "winget install GitHub.cli" },
+        @{ Name = "node"; Required = $false; Install = "winget install OpenJS.NodeJS.LTS" },
+        @{ Name = "python"; Required = $false; Install = "winget install Python.Python.3.12" }
+    )
+
+    foreach ($tool in $tools) {
+        $cmd = Get-Command $tool.Name -ErrorAction SilentlyContinue
+        if ($cmd) {
+            Write-Host "  [OK] $($tool.Name): $($cmd.Source)" -ForegroundColor Green
+        } elseif ($tool.Required) {
+            Write-Host "  [MISSING] $($tool.Name)" -ForegroundColor Red
+            $errors++
+        } else {
+            Write-Host "  [OPTIONAL] $($tool.Name) not found" -ForegroundColor Yellow
+            $warnings++
+        }
     }
 }
 
