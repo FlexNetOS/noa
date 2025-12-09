@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Shim wrapper to maintain backward-compatible path for prereq checks.
-    
+
 .DESCRIPTION
     Delegates to scripts/setup/check-prereqs.ps1 with all passed arguments.
     Supports: -Json, -PathsOnly, -AllowGlobal, -NoaRoot
