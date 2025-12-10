@@ -18,9 +18,9 @@ use crate::api::server::AppState;
 use crate::db::init_database;
 use crate::db::repositories::{DigestRepository, DigestSource, DigestSourceType};
 use crate::error::Result;
-use axum::response::IntoResponse;
 use crate::init::paths::NoaPaths;
 use crate::services::DigestService;
+use axum::response::IntoResponse;
 use std::path::PathBuf;
 
 /// Create digest API routes
@@ -136,7 +136,13 @@ async fn create_source(
     let db_path = get_db_path(&state);
     let conn = match init_database(&db_path) {
         Ok(conn) => conn,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)).into_response(),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
     };
     let repo = DigestRepository::new(conn);
 
@@ -166,7 +172,13 @@ async fn create_source(
 
     match repo.create(&source) {
         Ok(_) => (),
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create source: {}", e)).into_response(),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to create source: {}", e),
+            )
+                .into_response()
+        }
     }
 
     (
@@ -177,7 +189,8 @@ async fn create_source(
             name: source.name,
             status: source.status.as_str().to_string(),
         }),
-    ).into_response()
+    )
+        .into_response()
 }
 
 /// Get digest source details

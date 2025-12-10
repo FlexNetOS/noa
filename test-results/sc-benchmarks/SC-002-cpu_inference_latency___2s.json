@@ -1,0 +1,8 @@
+{
+  "id": "SC-002",
+  "description": "cpu inference latency (<2s)",
+  "duration_ms": 2,
+  "target_ms": 2000,
+  "status": "Passed",
+  "notes": "iterations=150000 accumulator=81032.0418"
+}

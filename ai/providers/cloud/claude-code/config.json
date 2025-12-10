@@ -1,7 +1,7 @@
 {
   "name": "claude-code",
   "type": "cloud",
-  "priority": 2,
+  "priority": 4,
   "enabled": true,
   "description": "Anthropic Claude Code CLI - agentic coding tool for terminal and IDE integration",
   "repository": "https://github.com/FlexNetOS/claude-code.git",
@@ -24,7 +24,11 @@
     "cli": {
       "description": "Terminal-based agentic coding",
       "command": "claude",
-      "flags": ["--headless", "--print", "--output-format"]
+      "flags": [
+        "--headless",
+        "--print",
+        "--output-format"
+      ]
     },
     "cloud": {
       "description": "Cloud API for complex reasoning",
@@ -34,7 +38,10 @@
     },
     "ide": {
       "description": "IDE extension integration",
-      "supportedIDEs": ["cursor", "vscode"],
+      "supportedIDEs": [
+        "cursor",
+        "vscode"
+      ],
       "extensionId": "anthropic.claude-code"
     }
   },
@@ -70,6 +77,6 @@
     "tools": "${NOA_ROOT}/ai/shared/tools",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-  }
+  },
+  "timeout": 30000
 }
-

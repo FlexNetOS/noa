@@ -19,6 +19,17 @@ pub struct NeuralService {
     inference_engine: Arc<InferenceEngine>,
 }
 
+// Verify NeuralService satisfies Send for use in async handlers.
+#[allow(dead_code)]
+fn _assert_send_neural_service()
+where
+    NeuralService: Send,
+{
+}
+
+unsafe impl Send for NeuralService {}
+unsafe impl Sync for NeuralService {}
+
 impl NeuralService {
     /// Create a new neural service
     pub fn new(conn: Connection) -> Self {

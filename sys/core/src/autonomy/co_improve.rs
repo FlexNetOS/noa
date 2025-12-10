@@ -115,7 +115,12 @@ impl CoImprovementIntake {
     /// Get next pending goal
     pub async fn next_goal(&self) -> Option<CoImprovementGoal> {
         let mut goals = self.pending_goals.write().await;
-        goals.pop()
+        // Goals sorted desc by priority; remove from front to return highest first.
+        if !goals.is_empty() {
+            Some(goals.remove(0))
+        } else {
+            None
+        }
     }
 
     /// Mark goal as processed

@@ -7,7 +7,7 @@
 use crate::error::{NoaError, Result};
 use crate::neural::context::{InferenceContext, MessageRole};
 use crate::neural::llama_backend::LlamaBackend;
-use futures::Stream;
+use futures::{Stream, StreamExt};
 use noa_neural::llama::{CompletionRequest, CompletionResponse};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -139,7 +139,7 @@ impl InferenceEngine {
         });
 
         // Use futures::stream::once for single-item stream
-        Ok(futures::stream::once(async move { chunk }))
+        Ok(futures::stream::once(async move { chunk }).boxed())
     }
 
     /// Create a new inference context

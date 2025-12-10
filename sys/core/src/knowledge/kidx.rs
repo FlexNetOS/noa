@@ -79,3 +79,47 @@ impl Default for CapsuleIndex {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn registers_and_retrieves_capsule() {
+        let mut index = CapsuleIndex::new();
+        let record = index
+            .register(
+                "cap-1",
+                "/tmp/capsule",
+                1024,
+                Some("abc123".into()),
+                serde_json::json!({"kind": "test"}),
+            )
+            .unwrap();
+        assert_eq!(record.id, "cap-1");
+        assert!(index.get("cap-1").is_some());
+    }
+
+    #[test]
+    fn prevents_duplicate_registration() {
+        let mut index = CapsuleIndex::new();
+        index
+            .register("cap-1", "/tmp/c1", 1, None, serde_json::json!({}))
+            .unwrap();
+        let duplicate = index.register("cap-1", "/tmp/c2", 2, None, serde_json::json!({}));
+        assert!(duplicate.is_err());
+    }
+
+    #[test]
+    fn updates_checksum() {
+        let mut index = CapsuleIndex::new();
+        index
+            .register("cap-1", "/tmp/c1", 1, None, serde_json::json!({}))
+            .unwrap();
+        index
+            .update_checksum("cap-1", "newsum".into())
+            .expect("should update checksum");
+        let updated = index.get("cap-1").unwrap();
+        assert_eq!(updated.checksum.as_deref(), Some("newsum"));
+    }
+}

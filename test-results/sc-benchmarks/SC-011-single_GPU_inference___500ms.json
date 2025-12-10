@@ -1,0 +1,8 @@
+{
+  "id": "SC-011",
+  "description": "single GPU inference (<500ms)",
+  "duration_ms": 0,
+  "target_ms": 500,
+  "status": "Skipped",
+  "notes": "GPU not detected (set NOA_GPU_AVAILABLE=1 to exercise path)"
+}

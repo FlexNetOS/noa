@@ -391,19 +391,19 @@ impl DigestRepository {
         })?;
 
         let last_digest_str: Option<String> = row.get(5)?;
-        let last_digest = last_digest_str
-            .map(|s| {
-                DateTime::parse_from_rfc3339(&s)
-                    .map_err(|_| {
-                        rusqlite::Error::InvalidColumnType(
-                            5,
-                            "timestamp".to_string(),
-                            rusqlite::types::Type::Text,
-                        )
-                    })?
-                    .with_timezone(&Utc)
-            })
-            .transpose()?;
+        let last_digest: Option<DateTime<Utc>> = match last_digest_str {
+            Some(s) => match DateTime::parse_from_rfc3339(&s) {
+                Ok(dt) => Some(dt.with_timezone(&Utc)),
+                Err(_) => {
+                    return Err(rusqlite::Error::InvalidColumnType(
+                        5,
+                        "timestamp".to_string(),
+                        rusqlite::types::Type::Text,
+                    ));
+                }
+            },
+            None => None,
+        };
 
         let version: Option<String> = row.get(6)?;
 

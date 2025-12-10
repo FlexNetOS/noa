@@ -110,11 +110,7 @@ pub async fn execute(args: DigestArgs) -> Result<()> {
 /// - Source type is invalid
 /// - Database connection fails
 /// - Digest pipeline fails at any stage
-async fn execute_digest(
-    uri: String,
-    source_type: String,
-    output: PathBuf,
-) -> Result<()> {
+async fn execute_digest(uri: String, source_type: String, output: PathBuf) -> Result<()> {
     // Validate URI is not empty
     if uri.trim().is_empty() {
         return Err(NoaError::Validation(ValidationError::new(
@@ -161,17 +157,7 @@ async fn execute_digest(
         }
     }
 
-    let digest_service = DigestService::new(&db_path)
-        .map_err(|e| {
-            NoaError::Validation(ValidationError::new(
-                "digest_service",
-                format!(
-                    "Failed to initialize digest service: {}. Check database path and permissions.",
-                    e
-                ),
-                "SERVICE_INIT_FAILED",
-            ))
-        })?;
+    let digest_service = DigestService::new(&db_path);
 
     // Convert source_type string to enum with validation
     let source_type_enum = match source_type.as_str() {
@@ -203,7 +189,10 @@ async fn execute_digest(
         }
         Err(e) => {
             eprintln!("✗ Digest failed: {}", e);
-            eprintln!("  What: Failed to complete digest pipeline for source '{}'", uri);
+            eprintln!(
+                "  What: Failed to complete digest pipeline for source '{}'",
+                uri
+            );
             eprintln!("  Why: {}", e);
             eprintln!("  How to fix: Check that the source is accessible, database is operational, and all required tools are installed.");
             Err(e)
@@ -311,4 +300,3 @@ async fn execute_knowledge_search(query: String, limit: u64) -> Result<()> {
     println!("Limit: {}", limit);
     Ok(())
 }
-

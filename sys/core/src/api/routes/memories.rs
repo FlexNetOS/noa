@@ -1,13 +1,13 @@
 //! Memory API Routes
 //!
 //! T149-T152: Implement memory API endpoints
-//! §3.7: Total Memory Sovereignty
+//! 3.7: Total Memory Sovereignty
 //! US3: Remember everything with instant recall
 
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    response::Json,
+    response::{IntoResponse, Json},
     routing::{get, post},
     Router,
 };
@@ -16,47 +16,22 @@ use std::collections::HashSet;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use crate::db::init_database;
 use crate::db::repositories::MemoryRepository;
 use crate::db::vector_search::VectorSearch;
-use crate::error::Result;
-use crate::init::paths::NoaPaths;
 use crate::memory::MemoryType;
 use crate::services::{MemoryService, SearchService};
-use axum::response::IntoResponse;
-use std::path::PathBuf;
+use tokio::runtime::Handle;
+use tokio::task;
+
+/// Convenience result type for API operations in this module.
+type ApiResult<T> = std::result::Result<T, (StatusCode, String)>;
 
 /// Create memory routes
 pub fn create_routes() -> Router<AppState> {
-    Router::new()
+    Router::<AppState>::new()
         .route("/", post(create_memory).get(list_memories))
         .route("/:id", get(get_memory))
         .route("/search", post(search_memories))
-}
-
-/// Helper to get database path from AppState
-fn get_db_path(state: &AppState) -> PathBuf {
-    let noa_root = std::env::var("NOA_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("."));
-    NoaPaths::data(&noa_root).join("noa.db")
-}
-
-/// Helper to create memory service from AppState
-fn get_memory_service(state: &AppState) -> Result<MemoryService> {
-    let db_path = get_db_path(state);
-    let conn = init_database(&db_path)?;
-    Ok(MemoryService::new(conn))
-}
-
-/// Helper to create search service from AppState
-fn get_search_service(state: &AppState) -> Result<SearchService> {
-    let db_path = get_db_path(state);
-    let conn1 = init_database(&db_path)?;
-    let conn2 = init_database(&db_path)?;
-    let memory_repo = MemoryRepository::new(conn1);
-    let vector_search = VectorSearch::new(conn2)?;
-    Ok(SearchService::new(memory_repo, vector_search))
 }
 
 /// Create memory request
@@ -117,6 +92,14 @@ pub struct SearchMemoriesRequest {
     pub threshold: Option<f32>,
 }
 
+// Ensure request is Send for axum handlers.
+#[allow(dead_code)]
+fn _assert_send_search_request()
+where
+    SearchMemoriesRequest: Send,
+{
+}
+
 /// Search memories response
 #[derive(Debug, Serialize)]
 pub struct SearchMemoriesResponse {
@@ -133,234 +116,216 @@ pub struct SearchResultResponse {
 }
 
 /// Create a new memory
-async fn create_memory(
-    State(state): State<AppState>,
-    Json(request): Json<CreateMemoryRequest>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => {
-            return (
+async fn create_memory(State(state): State<AppState>, Json(request): Json<CreateMemoryRequest>) -> impl IntoResponse {
+    let config = state.config.clone();
+    let handle = Handle::current();
+
+    let task = task::spawn_blocking(move || -> ApiResult<CreateMemoryResponse> {
+        let db_path = &config.database.path;
+        let conn = crate::db::init_database(db_path).map_err(|e| {
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to initialize memory service: {}", e),
             )
-                .into_response()
-        }
-    };
-    let memory_type = match request.r#type.as_str() {
-        "interaction" => MemoryType::Interaction,
-        "decision" => MemoryType::Decision,
-        "learning" => MemoryType::Learning,
-        "artifact" => MemoryType::Artifact,
-        _ => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("Invalid memory type: {}", request.r#type),
-            )
-                .into_response()
-        }
-    };
+        })?;
+        let memory_service = MemoryService::new(conn);
 
-    let agent_id = match request
-        .source_agent
-        .map(|s| Uuid::parse_str(&s))
-        .transpose()
-    {
-        Ok(id) => id,
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("Invalid agent ID: {}", e),
-            )
-                .into_response()
-        }
-    };
+        let memory_type = match request.r#type.as_str() {
+            "interaction" => MemoryType::Interaction,
+            "decision" => MemoryType::Decision,
+            "learning" => MemoryType::Learning,
+            "artifact" => MemoryType::Artifact,
+            _ => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    format!("Invalid memory type: {}", request.r#type),
+                ))
+            }
+        };
 
-    let parent_id = match request
-        .parent_id
-        .map(|s| Uuid::parse_str(&s))
-        .transpose()
-    {
-        Ok(id) => id,
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("Invalid parent ID: {}", e),
-            )
-                .into_response()
-        }
-    };
+        let agent_id = request
+            .source_agent
+            .as_deref()
+            .map(Uuid::parse_str)
+            .transpose()
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid agent ID: {}", e)))?;
 
-    let tags: HashSet<String> = request.tags.unwrap_or_default().into_iter().collect();
+        let parent_id = request
+            .parent_id
+            .as_deref()
+            .map(Uuid::parse_str)
+            .transpose()
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid parent ID: {}", e)))?;
 
-    let id = match memory_service
-        .create(
-            memory_type,
-            request.content,
-            request.metadata,
-            agent_id,
-            parent_id,
-            tags,
+        let tags: HashSet<String> = request.tags.unwrap_or_default().into_iter().collect();
+
+        let id = handle
+            .block_on(memory_service.create(
+                memory_type,
+                request.content,
+                request.metadata,
+                agent_id,
+                parent_id,
+                tags,
+            ))
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to create memory: {}", e),
+                )
+            })?;
+
+        let memory = memory_service
+            .get(&id)
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to retrieve memory: {}", e),
+                )
+            })?
+            .ok_or_else(|| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Memory not found after creation".to_string(),
+                )
+            })?;
+
+        Ok(CreateMemoryResponse {
+            id: id.to_string(),
+            created_at: memory.created_at.to_rfc3339(),
+        })
+    });
+
+    match task.await {
+        Ok(Ok(response)) => (StatusCode::OK, Json(response)).into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to join memory creation task: {}", e),
         )
-        .await
-    {
-        Ok(id) => id,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to create memory: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    let memory = match memory_service.get(&id) {
-        Ok(Some(memory)) => memory,
-        Ok(None) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Memory not found after creation".to_string(),
-            )
-                .into_response()
-        }
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to retrieve memory: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    (StatusCode::OK, Json(CreateMemoryResponse {
-        id: id.to_string(),
-        created_at: memory.created_at.to_rfc3339(),
-    }))
-        .into_response()
+            .into_response(),
+    }
 }
 
 /// Get memory by ID
-async fn get_memory(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => {
-            return (
+async fn get_memory(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
+    let config = state.config.clone();
+
+    let task = task::spawn_blocking(move || -> ApiResult<MemoryResponse> {
+        let memory_id = Uuid::parse_str(&id)
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid memory ID: {}", e)))?;
+        let db_path = &config.database.path;
+        let conn = crate::db::init_database(db_path).map_err(|e| {
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to initialize memory service: {}", e),
             )
-                .into_response()
-        }
-    };
-    let memory_id = match Uuid::parse_str(&id) {
-        Ok(id) => id,
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("Invalid memory ID: {}", e),
-            )
-                .into_response()
-        }
-    };
+        })?;
+        let memory_service = MemoryService::new(conn);
 
-    let memory = match memory_service.get(&memory_id) {
-        Ok(Some(memory)) => memory,
-        Ok(None) => {
-            return (
-                StatusCode::NOT_FOUND,
-                format!("Memory not found: {}", id),
-            )
-                .into_response()
-        }
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to retrieve memory: {}", e),
-            )
-                .into_response()
-        }
-    };
+        let memory = memory_service
+            .get(&memory_id)
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to retrieve memory: {}", e),
+                )
+            })?
+            .ok_or_else(|| {
+                (
+                    StatusCode::NOT_FOUND,
+                    format!("Memory not found: {}", memory_id),
+                )
+            })?;
 
-    (StatusCode::OK, Json(MemoryResponse {
-        id: memory.id.to_string(),
-        created_at: memory.created_at.to_rfc3339(),
-        updated_at: memory.updated_at.to_rfc3339(),
-        r#type: memory.memory_type.as_str().to_string(),
-        content: memory.content,
-        metadata: memory.metadata,
-        source_agent: memory.source_agent.map(|id| id.to_string()),
-        parent_id: memory.parent_id.map(|id| id.to_string()),
-        tags: memory.tags.into_iter().collect(),
-        checksum: memory.checksum,
-    }))
-        .into_response()
+        Ok(MemoryResponse {
+            id: memory.id.to_string(),
+            created_at: memory.created_at.to_rfc3339(),
+            updated_at: memory.updated_at.to_rfc3339(),
+            r#type: memory.memory_type.as_str().to_string(),
+            content: memory.content,
+            metadata: memory.metadata,
+            source_agent: memory.source_agent.map(|id| id.to_string()),
+            parent_id: memory.parent_id.map(|id| id.to_string()),
+            tags: memory.tags.into_iter().collect(),
+            checksum: memory.checksum,
+        })
+    });
+
+    match task.await {
+        Ok(Ok(response)) => (StatusCode::OK, Json(response)).into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to join memory fetch task: {}", e),
+        )
+            .into_response(),
+    }
 }
 
 /// List memories with pagination
-async fn list_memories(
-    State(state): State<AppState>,
-    Query(params): Query<ListMemoriesQuery>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize memory service: {}", e),
-            )
-                .into_response()
-        }
-    };
+async fn list_memories(State(state): State<AppState>, Query(params): Query<ListMemoriesQuery>) -> impl IntoResponse {
+    let config = state.config.clone();
     let offset = params.offset.unwrap_or(0);
     let limit = params.limit.unwrap_or(20);
 
-    let memories = match memory_service.list(offset, limit) {
-        Ok(memories) => memories,
-        Err(e) => {
-            return (
+    let task = task::spawn_blocking(move || -> ApiResult<ListMemoriesResponse> {
+        let db_path = &config.database.path;
+        let conn = crate::db::init_database(db_path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize memory service: {}", e),
+            )
+        })?;
+        let memory_service = MemoryService::new(conn);
+
+        let memories = memory_service.list(offset, limit).map_err(|e| {
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to list memories: {}", e),
             )
-                .into_response()
-        }
-    };
+        })?;
 
-    let total = match memory_service.memory_repo().count() {
-        Ok(total) => total,
-        Err(e) => {
-            return (
+        let total = memory_service.memory_repo().count().map_err(|e| {
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to count memories: {}", e),
             )
-                .into_response()
-        }
-    };
+        })?;
 
-    let memory_responses: Vec<MemoryResponse> = memories
-        .into_iter()
-        .map(|m| MemoryResponse {
-            id: m.id.to_string(),
-            created_at: m.created_at.to_rfc3339(),
-            updated_at: m.updated_at.to_rfc3339(),
-            r#type: m.memory_type.as_str().to_string(),
-            content: m.content,
-            metadata: m.metadata,
-            source_agent: m.source_agent.map(|id| id.to_string()),
-            parent_id: m.parent_id.map(|id| id.to_string()),
-            tags: m.tags.into_iter().collect(),
-            checksum: m.checksum,
+        let memory_responses: Vec<MemoryResponse> = memories
+            .into_iter()
+            .map(|m| MemoryResponse {
+                id: m.id.to_string(),
+                created_at: m.created_at.to_rfc3339(),
+                updated_at: m.updated_at.to_rfc3339(),
+                r#type: m.memory_type.as_str().to_string(),
+                content: m.content,
+                metadata: m.metadata,
+                source_agent: m.source_agent.map(|id| id.to_string()),
+                parent_id: m.parent_id.map(|id| id.to_string()),
+                tags: m.tags.into_iter().collect(),
+                checksum: m.checksum,
+            })
+            .collect();
+
+        Ok(ListMemoriesResponse {
+            memories: memory_responses,
+            total,
+            offset,
+            limit,
         })
-        .collect();
+    });
 
-    (StatusCode::OK, Json(ListMemoriesResponse {
-        memories: memory_responses,
-        total,
-        offset,
-        limit,
-    }))
-        .into_response()
+    match task.await {
+        Ok(Ok(response)) => (StatusCode::OK, Json(response)).into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to join list memories task: {}", e),
+        )
+            .into_response(),
+    }
 }
 
 /// Search memories
@@ -368,88 +333,87 @@ async fn search_memories(
     State(state): State<AppState>,
     Json(request): Json<SearchMemoriesRequest>,
 ) -> impl IntoResponse {
-    let search_service = match get_search_service(&state) {
-        Ok(service) => service,
-        Err(e) => {
-            return (
+    let config = state.config.clone();
+    let handle = Handle::current();
+
+    let task = task::spawn_blocking(move || -> ApiResult<SearchMemoriesResponse> {
+        let search_type = request
+            .search_type
+            .as_deref()
+            .unwrap_or("hybrid")
+            .to_string();
+        let limit = request.limit.unwrap_or(10);
+        let threshold = request.threshold.unwrap_or(0.7);
+
+        let db_path = &config.database.path;
+        let conn1 = crate::db::init_database(db_path).map_err(|e| {
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize search service: {}", e),
+                format!("Failed to initialize memory repository: {}", e),
             )
-                .into_response()
-        }
-    };
-    let search_type = request.search_type.as_deref().unwrap_or("hybrid");
-    let limit = request.limit.unwrap_or(10);
-    let threshold = request.threshold.unwrap_or(0.7);
-
-    let results = match search_type {
-        "semantic" => match search_service
-            .search_semantic(&request.query, limit, threshold)
-            .await
-        {
-            Ok(results) => results,
-            Err(e) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Semantic search failed: {}", e),
-                )
-                    .into_response()
-            }
-        },
-        "keyword" => match search_service.search_keyword(&request.query, limit) {
-            Ok(results) => results,
-            Err(e) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Keyword search failed: {}", e),
-                )
-                    .into_response()
-            }
-        },
-        "hybrid" => match search_service
-            .search_hybrid(&request.query, limit, threshold)
-            .await
-        {
-            Ok(results) => results,
-            Err(e) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Hybrid search failed: {}", e),
-                )
-                    .into_response()
-            }
-        },
-        _ => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("Invalid search type: {}", search_type),
+        })?;
+        let conn2 = crate::db::init_database(db_path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize vector search: {}", e),
             )
-                .into_response()
-        }
-    };
+        })?;
+        let memory_repo = MemoryRepository::new(conn1);
+        let vector_search = VectorSearch::new(conn2).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize vector search: {}", e),
+            )
+        })?;
+        let search_service = SearchService::new(memory_repo, vector_search);
 
-    let result_responses: Vec<SearchResultResponse> = results
-        .into_iter()
-        .map(|r| SearchResultResponse {
-            memory: MemoryResponse {
-                id: r.memory.id.to_string(),
-                created_at: r.memory.created_at.to_rfc3339(),
-                updated_at: r.memory.updated_at.to_rfc3339(),
-                r#type: r.memory.memory_type.as_str().to_string(),
-                content: r.memory.content,
-                metadata: r.memory.metadata,
-                source_agent: r.memory.source_agent.map(|id| id.to_string()),
-                parent_id: r.memory.parent_id.map(|id| id.to_string()),
-                tags: r.memory.tags.into_iter().collect(),
-                checksum: r.memory.checksum,
-            },
-            score: r.score,
-            distance: r.distance,
+        let results = handle
+            .block_on(search_service.search(
+                &request.query,
+                &search_type,
+                limit,
+                threshold,
+            ))
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to search memories: {}", e),
+                )
+            })?;
+
+        let result_responses: Vec<SearchResultResponse> = results
+            .into_iter()
+            .map(|r| SearchResultResponse {
+                memory: MemoryResponse {
+                    id: r.memory.id.to_string(),
+                    created_at: r.memory.created_at.to_rfc3339(),
+                    updated_at: r.memory.updated_at.to_rfc3339(),
+                    r#type: r.memory.memory_type.as_str().to_string(),
+                    content: r.memory.content,
+                    metadata: r.memory.metadata,
+                    source_agent: r.memory.source_agent.map(|id| id.to_string()),
+                    parent_id: r.memory.parent_id.map(|id| id.to_string()),
+                    tags: r.memory.tags.into_iter().collect(),
+                    checksum: r.memory.checksum,
+                },
+                score: r.score,
+                distance: r.distance,
+            })
+            .collect();
+
+        Ok(SearchMemoriesResponse {
+            count: result_responses.len(),
+            results: result_responses,
         })
-        .collect();
+    });
 
-    Ok(Json(SearchMemoriesResponse {
-        count: result_responses.len(),
-        results: result_responses,
-    }))
+    match task.await {
+        Ok(Ok(response)) => (StatusCode::OK, Json(response)).into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to join memory search task: {}", e),
+        )
+            .into_response(),
+    }
 }

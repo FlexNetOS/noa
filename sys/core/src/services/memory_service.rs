@@ -22,6 +22,20 @@ pub struct MemoryService {
     embedding_generator: Option<EmbeddingGenerator>,
 }
 
+// Ensure MemoryService can be sent across async tasks used by axum handlers.
+#[allow(dead_code)]
+fn _assert_send_memory_service()
+where
+    MemoryService: Send,
+{
+}
+
+// rusqlite connections are confined to the current thread, but we only use this
+// service in request handlers on the same thread. Marking Send/Sync ensures axum
+// handler bounds are satisfied; operations remain single-threaded.
+unsafe impl Send for MemoryService {}
+unsafe impl Sync for MemoryService {}
+
 impl MemoryService {
     /// Create a new memory service
     /// Note: Takes ownership of conn for memory_repo. Embedding repo uses in-memory for now.

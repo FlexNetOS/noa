@@ -6,13 +6,13 @@
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{sse::Event, IntoResponse, Json, Sse},
+    response::{sse::Event, IntoResponse, Json, Response, Sse},
     routing::post,
     Router,
 };
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
-use tokio_stream::Stream;
+use tokio_stream::StreamExt;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
@@ -119,7 +119,7 @@ async fn infer(
 async fn infer_stream(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> impl IntoResponse {
+) -> Response {
     let db_path = &state.config.database.path;
     let conn = match crate::db::init_database(db_path) {
         Ok(conn) => conn,
@@ -168,7 +168,7 @@ async fn infer_stream(
     };
 
     // Convert to SSE events
-    let sse_stream = tokio_stream::StreamExt::map(stream, |chunk_result| match chunk_result {
+    let sse_stream = stream.map(|chunk_result| match chunk_result {
         Ok(chunk) => {
             let data = serde_json::json!({
                 "content": chunk.content,

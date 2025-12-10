@@ -17,6 +17,54 @@ path = "src/main.rs"
 name = "noa_core"
 path = "src/lib.rs"
 
+[[test]]
+name = "sc001_init"
+path = "../../tests/benchmarks/sc001_init.rs"
+
+[[test]]
+name = "sc002_cpu_inference"
+path = "../../tests/benchmarks/sc002_cpu_inference.rs"
+
+[[test]]
+name = "sc003_memory_recall"
+path = "../../tests/benchmarks/sc003_memory_recall.rs"
+
+[[test]]
+name = "sc004_digest_pipeline"
+path = "../../tests/benchmarks/sc004_digest.rs"
+
+[[test]]
+name = "sc005_concurrent_tasks"
+path = "../../tests/benchmarks/sc005_concurrent_tasks.rs"
+
+[[test]]
+name = "sc006_p2p_sync"
+path = "../../tests/benchmarks/sc006_p2p_sync.rs"
+
+[[test]]
+name = "sc007_ui_switch"
+path = "../../tests/benchmarks/sc007_ui_switch.rs"
+
+[[test]]
+name = "sc008_long_running"
+path = "../../tests/stability/sc008_long_running.rs"
+
+[[test]]
+name = "sc009_consistency"
+path = "../../tests/cross_platform/sc009_consistency.rs"
+
+[[test]]
+name = "sc010_rollback"
+path = "../../tests/stability/sc010_rollback.rs"
+
+[[test]]
+name = "sc011_gpu_inference"
+path = "../../tests/benchmarks/sc011_gpu_inference.rs"
+
+[[test]]
+name = "sc012_multi_gpu"
+path = "../../tests/benchmarks/sc012_multi_gpu.rs"
+
 [workspace]
 resolver = "2"
 members = [
@@ -151,6 +199,8 @@ reqwest = { version = "0.12", features = ["json"] }
 prometheus = "0.13"
 lazy_static = "1.5"
 base64 = "0.22"
+argon2 = { version = "0.5", features = ["std"] }
+ring = "0.17.14"
 
 # Internal crates
 noa-api = { workspace = true }

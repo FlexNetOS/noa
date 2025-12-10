@@ -11,14 +11,24 @@ export default function SecuritySettings() {
       <div className="space-y-4">
         <div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" defaultChecked />
+            <input
+              type="checkbox"
+              className="rounded"
+              defaultChecked
+              aria-label="Enable two-factor authentication"
+            />
             <span className="text-sm text-slate-300">Enable two-factor authentication</span>
           </label>
         </div>
 
         <div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" defaultChecked />
+            <input
+              type="checkbox"
+              className="rounded"
+              defaultChecked
+              aria-label="Encrypt data at rest"
+            />
             <span className="text-sm text-slate-300">Encrypt data at rest</span>
           </label>
         </div>
@@ -32,6 +42,7 @@ export default function SecuritySettings() {
             min="5"
             max="1440"
             defaultValue="60"
+            aria-label="Session timeout in minutes"
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
           />
         </div>
@@ -39,4 +50,3 @@ export default function SecuritySettings() {
     </div>
   );
 }
-

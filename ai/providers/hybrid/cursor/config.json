@@ -1,7 +1,7 @@
 {
   "name": "cursor",
   "type": "hybrid",
-  "priority": 2,
+  "priority": 3,
   "enabled": true,
   "description": "Cursor IDE CLI - AI-powered code editor with IDE context awareness",
   "installMethod": "manual",
@@ -24,7 +24,11 @@
     "cli": {
       "description": "Headless CLI mode for CI/CD and automation",
       "command": "cursor",
-      "flags": ["--headless", "--print", "--output-format"],
+      "flags": [
+        "--headless",
+        "--print",
+        "--output-format"
+      ],
       "documentation": "https://cursor.com/docs/cli/headless"
     },
     "cloud": {
@@ -35,8 +39,17 @@
     },
     "ide": {
       "description": "Full IDE with AI capabilities",
-      "supportedPlatforms": ["windows", "macos", "linux"],
-      "features": ["code_completion", "chat", "composer", "agent_mode"]
+      "supportedPlatforms": [
+        "windows",
+        "macos",
+        "linux"
+      ],
+      "features": [
+        "code_completion",
+        "chat",
+        "composer",
+        "agent_mode"
+      ]
     }
   },
   "capabilities": {
@@ -70,6 +83,6 @@
     "tools": "${NOA_ROOT}/ai/shared/tools",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-  }
+  },
+  "timeout": 30000
 }
-

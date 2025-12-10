@@ -4,8 +4,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use crate::error::Result;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SharedContext {
     pub provider: String,
     pub context_type: String,

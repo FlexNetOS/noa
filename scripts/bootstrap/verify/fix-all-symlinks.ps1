@@ -110,11 +110,11 @@ $rustTools = @(
 foreach ($tool in $rustTools) {
     $rustPortable = Join-Path $NOA_OPT "rust\cargo\bin\$tool"
     $linkPath = Join-Path $NOA_BIN $tool
-    
+
     if (-not (Test-Path $rustPortable)) {
         continue  # Skip if portable version doesn't exist
     }
-    
+
     if (Test-Path $linkPath) {
         $link = Get-Item $linkPath -Force -ErrorAction SilentlyContinue
         if ($link.LinkType -eq "SymbolicLink") {

@@ -359,8 +359,8 @@ impl From<serde_yaml::Error> for NoaError {
     }
 }
 
-impl From<prometheus::Error> for NoaError {
-    fn from(err: prometheus::Error) -> Self {
+impl From<anyhow::Error> for NoaError {
+    fn from(err: anyhow::Error) -> Self {
         NoaError::Internal {
             message: err.to_string(),
             source: None,
@@ -368,17 +368,20 @@ impl From<prometheus::Error> for NoaError {
     }
 }
 
-impl From<std::string::FromUtf8Error> for NoaError {
-    fn from(err: std::string::FromUtf8Error) -> Self {
-        NoaError::Serialization(err.to_string())
+impl From<prometheus::Error> for NoaError {
+    fn from(err: prometheus::Error) -> Self {
+        NoaError::Internal {
+            message: err.to_string(),
+            source: Some(Box::new(err)),
+        }
     }
 }
 
-impl From<anyhow::Error> for NoaError {
-    fn from(err: anyhow::Error) -> Self {
+impl From<std::string::FromUtf8Error> for NoaError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
         NoaError::Internal {
             message: err.to_string(),
-            source: None,
+            source: Some(Box::new(err)),
         }
     }
 }

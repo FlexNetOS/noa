@@ -1,0 +1,8 @@
+{
+  "id": "SC-010",
+  "description": "rollback path validation (100% coverage)",
+  "duration_ms": 0,
+  "target_ms": 1000,
+  "status": "Passed",
+  "notes": "restored_id=912ab8c8-f3b5-419d-a986-df888dc171a3 message=State restored from snapshot"
+}

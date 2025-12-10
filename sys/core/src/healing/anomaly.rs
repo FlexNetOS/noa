@@ -4,12 +4,12 @@
 //! FR-072: System MUST detect anomalies in health metrics
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot, HealthMetric};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{debug, warn};
+use tokio::sync::Mutex;
 
 /// Anomaly type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -84,7 +84,7 @@ impl Default for AnomalyDetectorConfig {
 /// Anomaly detector
 pub struct AnomalyDetector {
     config: AnomalyDetectorConfig,
-    metric_history: HashMap<String, Vec<(DateTime<Utc>, f64)>>,
+    metric_history: Mutex<HashMap<String, Vec<(DateTime<Utc>, f64)>>>,
 }
 
 impl AnomalyDetector {
@@ -92,13 +92,13 @@ impl AnomalyDetector {
     pub fn new(config: AnomalyDetectorConfig) -> Self {
         Self {
             config,
-            metric_history: HashMap::new(),
+            metric_history: Mutex::new(HashMap::new()),
         }
     }
 
     /// Detect anomalies in health metrics
     pub async fn detect(
-        &mut self,
+        &self,
         snapshots: &[ComponentHealthSnapshot],
     ) -> Result<Option<Anomaly>> {
         for snapshot in snapshots {
@@ -121,7 +121,7 @@ impl AnomalyDetector {
 
     /// Analyze a single metric for anomalies
     async fn analyze_metric(
-        &mut self,
+        &self,
         metric: &HealthMetric,
         snapshot: &ComponentHealthSnapshot,
     ) -> Result<Option<Anomaly>> {
@@ -133,8 +133,9 @@ impl AnomalyDetector {
 
         // Update history
         let history = {
+            let mut history_guard = self.metric_history.lock().await;
             let history_entry =
-                self.metric_history.entry(metric_key.clone()).or_insert_with(Vec::new);
+                history_guard.entry(metric_key.clone()).or_insert_with(Vec::new);
             history_entry.push((metric.timestamp, metric.value));
 
             // Keep only recent history
@@ -204,15 +205,6 @@ impl AnomalyDetector {
         }
 
         Ok(None)
-    }
-
-    /// Count consecutive threshold violations
-    fn count_consecutive_violations(&self, metric_key: &str, threshold: f64) -> u32 {
-        let history = match self.metric_history.get(metric_key) {
-            Some(h) => h,
-            None => return 0,
-        };
-        Self::count_consecutive_in_history(history, threshold)
     }
 
     fn count_consecutive_in_history(history: &[(DateTime<Utc>, f64)], threshold: f64) -> u32 {
@@ -307,7 +299,8 @@ mod tests {
     async fn test_anomaly_detector_creation() {
         let config = AnomalyDetectorConfig::default();
         let detector = AnomalyDetector::new(config);
-        assert!(detector.metric_history.is_empty());
+        let guard = detector.metric_history.lock().await;
+        assert!(guard.is_empty());
     }
 
     #[test]

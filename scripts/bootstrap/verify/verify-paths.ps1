@@ -151,7 +151,7 @@ foreach ($link in $symlinks) {
             $link.Target
         }
     }
-    
+
     if ($target -and -not $target.StartsWith($NoaRoot)) {
         # Check if portable version exists (graceful degradation)
         $linkName = $link.Name
@@ -163,7 +163,7 @@ foreach ($link in $symlinks) {
             "cargo.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/cargo.exe"
             "rustfmt.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/rustfmt.exe"
         }
-        
+
         if ($portablePaths.ContainsKey($linkName) -and (Test-Path $portablePaths[$linkName])) {
             Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE, but portable version available)" -ForegroundColor Yellow
             Write-Host "       Run: .\scripts\bootstrap\verify\fix-symlinks.ps1" -ForegroundColor Gray

@@ -22,12 +22,12 @@ use axum::Router;
 
 /// Create the v1 API router with all routes
 pub fn api_v1() -> Router<AppState> {
-    Router::new().nest("/api/v1", v1_routes())
+    Router::<AppState>::new().nest("/api/v1", v1_routes())
 }
 
 /// V1 API routes
 fn v1_routes() -> Router<AppState> {
-    Router::new()
+    Router::<AppState>::new()
         .merge(health::routes())
         .merge(system::routes())
         .merge(providers::routes())

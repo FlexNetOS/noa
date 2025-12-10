@@ -30,7 +30,7 @@ pub use plane_swap::PlaneSwapExecutor;
 pub use retry::RetryCounter;
 pub use validate::FixValidator;
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -123,22 +123,26 @@ impl SelfHealingOrchestrator {
             let health_snapshots = self.monitor.get_all_health_snapshots().await;
 
             // Stage 2: Detect - anomaly detection
-            if let Some(anomaly) = self.anomaly_detector.detect(&health_snapshots).await? {
+            let anomaly = self.anomaly_detector.detect(&health_snapshots).await?;
+
+            if let Some(anomaly) = anomaly {
+                let anomaly_for_event = anomaly.clone();
                 let event = HealingEvent {
                     id: Uuid::new_v4(),
-                    component_id: anomaly.component_id.clone(),
-                    component_type: anomaly.component_type.clone(),
+                    component_id: anomaly_for_event.component_id.clone(),
+                    component_type: anomaly_for_event.component_type.clone(),
                     detected_at: Utc::now(),
                     status: HealingStatus::Detected,
-                    health_before: anomaly.health_status,
-                    anomaly_type: Some(anomaly.anomaly_type),
+                    health_before: anomaly_for_event.health_status.clone(),
+                    anomaly_type: Some(anomaly_for_event.anomaly_type.clone()),
                     root_cause: None,
                     fix_applied: None,
                     fix_attempts: 0,
                     validated: false,
                     escalated: false,
                     resolved_at: None,
-                    metadata: anomaly.metadata.clone(),
+                    metadata: serde_json::to_value(&anomaly_for_event.metadata)
+                        .unwrap_or(serde_json::Value::Null),
                 };
 
                 // Log detection
@@ -151,8 +155,10 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 3: Diagnose - root cause analysis
-                let root_cause =
-                    self.root_cause_analyzer.analyze(&anomaly, &health_snapshots).await?;
+                let root_cause = self
+                    .root_cause_analyzer
+                    .analyze(&anomaly, &health_snapshots)
+                    .await?;
 
                 // Update event with root cause
                 {
@@ -164,7 +170,10 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 4: Fix - auto-fix executor
-                let fix_result = self.fix_executor.apply_fix(&anomaly, &root_cause).await?;
+                let fix_result = self
+                    .fix_executor
+                    .apply_fix(&anomaly, &root_cause)
+                    .await?;
 
                 // Update event with fix
                 {
@@ -177,7 +186,10 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 5: Validate - fix validation
-                let validation_result = self.fix_validator.validate(&anomaly, &fix_result).await?;
+                let validation_result = self
+                    .fix_validator
+                    .validate(&anomaly, &fix_result)
+                    .await?;
 
                 if validation_result.success {
                     // Fix successful

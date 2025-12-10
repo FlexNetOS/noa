@@ -38,9 +38,9 @@ impl PartialOrd for PriorityEntry {
 impl Ord for PriorityEntry {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         // Higher priority first, then by ID for stability
-        match other.priority.cmp(&self.priority) {
+        match self.priority.cmp(&other.priority) {
             std::cmp::Ordering::Equal => self.id.cmp(&other.id),
-            other => other,
+            ordering => ordering,
         }
     }
 }

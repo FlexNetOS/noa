@@ -52,3 +52,40 @@ impl CeccaCell for ConstitutionCell {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn ctx_with_principles(principles: Vec<&str>) -> CeccaContext {
+        CeccaContext::new(
+            "subject",
+            "content",
+            json!({ "principles": principles }),
+        )
+    }
+
+    #[test]
+    fn approves_when_all_principles_present() {
+        let cell = ConstitutionCell::default();
+        let ctx = ctx_with_principles(vec!["3.1", "3.5", "3.12"]);
+        let decision = cell.evaluate(&ctx);
+        assert!(decision.approved);
+        assert!(decision.actions.contains(&"record_constitutional_ack".to_string()));
+        assert_eq!(decision.score, 1.0);
+    }
+
+    #[test]
+    fn rejects_when_principles_missing() {
+        let cell = ConstitutionCell::default();
+        let ctx = ctx_with_principles(vec!["3.1"]);
+        let decision = cell.evaluate(&ctx);
+        assert!(!decision.approved);
+        assert!(
+            decision
+                .rationale
+                .contains("Missing constitutional principles")
+        );
+    }
+}
