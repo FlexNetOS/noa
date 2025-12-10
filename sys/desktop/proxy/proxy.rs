@@ -142,9 +142,60 @@ fn rewrite_uri(original: &hyper::Uri, upstream: &Uri) -> Uri {
 }
 
 /// Helper to reload rule files without restarting the proxy
-pub async fn reload_rules(state: &SharedState, rules_dir: PathBuf) -> Result<()> {
+#[allow(dead_code)]
+async fn reload_rules(state: &SharedState, rules_dir: PathBuf) -> Result<()> {
     let loaded = load_rules(&rules_dir)?;
     let mut guard = state.rules.write().await;
     *guard = loaded;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proxy_config::{ProxyConfig, ProxyRule};
+
+    fn state_with_rules(rules: Vec<ProxyRule>) -> SharedState {
+        SharedState {
+            client: Client::new(),
+            config: ProxyConfig {
+                host: "127.0.0.1".to_string(),
+                port: 0,
+                rules_directory: None,
+                default_upstream: Some("http://example.org".to_string()),
+                max_body_bytes: None,
+            },
+            rules: Arc::new(RwLock::new(rules)),
+        }
+    }
+
+    #[tokio::test]
+    async fn blocks_hosts_in_rule() {
+        let rules = vec![ProxyRule {
+            id: "block-test".into(),
+            allowlist: vec![],
+            blocklist: vec!["example.com".into()],
+            rate_limit_rps: None,
+            notes: None,
+        }];
+        let state = state_with_rules(rules);
+        assert!(is_blocked("api.example.com", &state).await);
+        assert!(!is_blocked("safe.local", &state).await);
+    }
+
+    #[test]
+    fn rewrites_uri_to_upstream() {
+        let original = Uri::from_static("http://localhost:3000/path?x=1");
+        let upstream = Uri::from_static("https://api.example.com");
+        let rewritten = rewrite_uri(&original, &upstream);
+        assert_eq!(rewritten.scheme_str(), Some("https"));
+        assert_eq!(
+            rewritten.authority().map(|a| a.as_str()),
+            upstream.authority().map(|a| a.as_str())
+        );
+        assert_eq!(
+            rewritten.path_and_query().map(|pq| pq.as_str()),
+            Some("/path?x=1")
+        );
+    }
 }

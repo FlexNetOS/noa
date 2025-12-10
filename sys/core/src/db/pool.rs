@@ -121,6 +121,10 @@ pub struct ConnectionPool {
     inner: Arc<ConnectionPoolInner>,
 }
 
+// SQLite connections are used in a pooled, mutex-protected manner; mark pool as Send/Sync.
+unsafe impl Send for ConnectionPool {}
+unsafe impl Sync for ConnectionPool {}
+
 impl ConnectionPool {
     /// Create a new connection pool
     pub fn new(db_path: &Path, config: PoolConfig) -> Result<Self> {

@@ -4,10 +4,10 @@
 //! US2: CLI commands for model management
 
 use crate::db::init_database;
-use crate::db::repositories::{ModelRepository, Model, ModelStatus};
+use crate::db::repositories::{Model, ModelRepository, ModelStatus};
 use crate::error::Result;
-use crate::services::{NeuralService, ModelDownloadService};
-use crate::neural::benchmark::{ModelBenchmark, BenchmarkConfig};
+use crate::neural::benchmark::{BenchmarkConfig, ModelBenchmark};
+use crate::services::{ModelDownloadService, NeuralService};
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -78,9 +78,8 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
             Ok(())
         }
         ModelCommands::Download { name, url, output } => {
-            let output_path = output.unwrap_or_else(|| {
-                PathBuf::from("models").join(format!("{}.gguf", name))
-            });
+            let output_path =
+                output.unwrap_or_else(|| PathBuf::from("models").join(format!("{}.gguf", name)));
 
             println!("Starting download: {} -> {:?}", url, output_path);
             let download_id = download_service.download_model(name, url, output_path).await?;
@@ -107,21 +106,24 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
             }
             Ok(())
         }
-        ModelCommands::Benchmark { model_id, iterations } => {
-            let model_uuid = Uuid::parse_str(&model_id)
-                .map_err(|_| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new(
-                        "model_id",
-                        "Invalid UUID format",
-                        "INVALID_UUID",
-                    ),
-                ))?;
+        ModelCommands::Benchmark {
+            model_id,
+            iterations,
+        } => {
+            let model_uuid = Uuid::parse_str(&model_id).map_err(|_| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "model_id",
+                    "Invalid UUID format",
+                    "INVALID_UUID",
+                ))
+            })?;
 
-            let model = neural_service.get_model(&model_uuid)?
-                .ok_or_else(|| crate::error::NoaError::NotFound {
+            let model = neural_service.get_model(&model_uuid)?.ok_or_else(|| {
+                crate::error::NoaError::NotFound {
                     resource: "Model".to_string(),
-                    id: model_id,
-                })?;
+                    id: model_id.clone(),
+                }
+            })?;
 
             println!("Benchmarking model: {}", model.name);
             println!("Iterations: {}", iterations);
@@ -154,7 +156,10 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
             println!("Min Latency: {:.2} ms", results.min_latency_ms);
             println!("Max Latency: {:.2} ms", results.max_latency_ms);
             println!("Tokens/Second: {:.2}", results.tokens_per_second);
-            println!("Successful: {}/{}", results.successful_iterations, results.total_iterations);
+            println!(
+                "Successful: {}/{}",
+                results.successful_iterations, results.total_iterations
+            );
             if results.failed_iterations > 0 {
                 println!("Failed: {}", results.failed_iterations);
             }
@@ -163,4 +168,3 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
         }
     }
 }
-

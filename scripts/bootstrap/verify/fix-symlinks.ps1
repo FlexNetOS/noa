@@ -86,11 +86,11 @@ function Fix-Symlink {
                 } else {
                     & pwsh -NoLogo -NoProfile -File $InstallerScript -Force:$Force 2>&1 | Out-Null
                 }
-                
+
                 # Recheck if portable now exists
                 Start-Sleep -Milliseconds 500
                 $portableExists = Test-Path $PortablePath
-                
+
                 if ($portableExists) {
                     Write-Host "  [OK] Portable $LinkName installed" -ForegroundColor Green
                 } else {

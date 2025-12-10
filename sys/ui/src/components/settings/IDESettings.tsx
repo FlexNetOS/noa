@@ -13,7 +13,10 @@ export default function IDESettings() {
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Default Editor
           </label>
-          <select className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100">
+          <select
+            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
+            aria-label="Select default editor"
+          >
             <option>VS Code</option>
             <option>Cursor</option>
             <option>Neovim</option>
@@ -22,7 +25,12 @@ export default function IDESettings() {
 
         <div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" defaultChecked />
+            <input
+              type="checkbox"
+              className="rounded"
+              defaultChecked
+              aria-label="Auto-sync settings with IDE"
+            />
             <span className="text-sm text-slate-300">Auto-sync settings with IDE</span>
           </label>
         </div>
@@ -30,4 +38,3 @@ export default function IDESettings() {
     </div>
   );
 }
-

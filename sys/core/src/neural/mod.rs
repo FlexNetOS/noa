@@ -26,6 +26,8 @@ mod context_test;
 mod inference_test;
 #[cfg(test)]
 mod model_loader_test;
+#[cfg(test)]
+mod phase10_verification_test;
 
 pub use benchmark::ModelBenchmark;
 pub use context::InferenceContext;

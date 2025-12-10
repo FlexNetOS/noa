@@ -301,6 +301,50 @@ impl ConfigLoader {
             }
         }
 
+        // Fallback: load feature flags from config/features.json
+        if flags.is_empty() {
+            let feature_path = self.noa_root.join("config/features.json");
+            if feature_path.exists() {
+                let features = self.load_file(&feature_path)?;
+                collect_feature_flags_from_value(&features, &mut flags);
+            }
+        }
+
+        if flags.is_empty() {
+            // Minimal defaults to avoid empty configuration
+            flags.insert("connectors.enabled".to_string(), true);
+            flags.insert("connectors.offline_cache".to_string(), true);
+        }
+
         Ok(flags)
+    }
+}
+
+fn collect_feature_flags_from_value(value: &serde_json::Value, flags: &mut HashMap<String, bool>) {
+    if let Some(arr) = value.get("feature_flags").and_then(|v| v.as_array()) {
+        for flag in arr {
+            if let (Some(name), Some(enabled)) = (
+                flag.get("name").and_then(|v| v.as_str()),
+                flag.get("enabled").and_then(|v| v.as_bool()),
+            ) {
+                flags.insert(name.to_string(), enabled);
+            }
+        }
+    }
+
+    if let Some(connectors) = value.get("connectors").and_then(|v| v.as_object()) {
+        for (name, enabled) in connectors {
+            if let Some(enabled_bool) = enabled.as_bool() {
+                flags.insert(format!("connectors.{}", name), enabled_bool);
+            }
+        }
+    }
+
+    if let Some(providers) = value.get("providers").and_then(|v| v.as_object()) {
+        for (name, enabled) in providers {
+            if let Some(enabled_bool) = enabled.as_bool() {
+                flags.insert(format!("providers.{}", name), enabled_bool);
+            }
+        }
     }
 }

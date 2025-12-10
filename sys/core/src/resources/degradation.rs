@@ -38,7 +38,7 @@ impl DegradationAdvisor {
                 allow_gpu: false,
                 fallback_model: Some(ModelSelection {
                     size: ModelSizeClass::Small,
-                    preferred_quantization: "q4_0",
+                    preferred_quantization: "q4_0".to_string(),
                 }),
                 notes: vec!["Low tier: reduce concurrency and use small model".to_string()],
             },
@@ -47,7 +47,7 @@ impl DegradationAdvisor {
                 allow_gpu: false,
                 fallback_model: Some(ModelSelection {
                     size: ModelSizeClass::Tiny,
-                    preferred_quantization: "q4_0",
+                    preferred_quantization: "q4_0".to_string(),
                 }),
                 notes: vec!["Unknown tier: enable defensive defaults".to_string()],
             },

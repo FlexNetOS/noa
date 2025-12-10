@@ -1,0 +1,25 @@
+name: release
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+      - name: Build (release)
+        run: |
+          cd sys/core
+          cargo build --release
+      - name: Package
+        run: |
+          bash scripts/bash/release.sh linux
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: noa-linux-release
+          path: dist/linux/noa-linux.tar.gz

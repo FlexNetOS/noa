@@ -33,7 +33,7 @@ impl PlatformPaths {
     }
 
     /// Resolve paths for the current platform using NOA_ROOT when provided.
-    pub fn resolve(noa_root: Option<impl AsRef<Path>>) -> Self {
+    pub fn resolve(noa_root: Option<PathBuf>) -> Self {
         match noa_root {
             Some(root) => Self::from_root(root),
             None => Self::default_for(platform_info()),
@@ -72,7 +72,7 @@ pub struct RootedPaths {
 impl RootedPaths {
     pub fn new(noa_root: Option<impl AsRef<Path>>) -> Self {
         let platform = platform_info();
-        let paths = PlatformPaths::resolve(noa_root);
+        let paths = PlatformPaths::resolve(noa_root.map(|p| p.as_ref().to_path_buf()));
         Self { platform, paths }
     }
 }

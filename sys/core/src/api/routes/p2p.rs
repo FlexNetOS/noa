@@ -73,14 +73,18 @@ pub fn routes() -> Router<AppState> {
 async fn get_p2p_info(State(_state): State<AppState>) -> impl IntoResponse {
     // TODO: Get device service from AppState
     // For now, return placeholder
-    (StatusCode::OK, Json(P2PInfoResponse {
-        device_id: "placeholder".to_string(),
-        name: "NOA Device".to_string(),
-        peer_id: "placeholder".to_string(),
-        status: "online".to_string(),
-        platform: "unknown".to_string(),
-        device_type: "server".to_string(),
-    })).into_response()
+    (
+        StatusCode::OK,
+        Json(P2PInfoResponse {
+            device_id: "placeholder".to_string(),
+            name: "NOA Device".to_string(),
+            peer_id: "placeholder".to_string(),
+            status: "online".to_string(),
+            platform: "unknown".to_string(),
+            device_type: "server".to_string(),
+        }),
+    )
+        .into_response()
 }
 
 /// GET /api/v1/p2p/peers
@@ -89,11 +93,15 @@ async fn get_p2p_info(State(_state): State<AppState>) -> impl IntoResponse {
 async fn get_peers(State(_state): State<AppState>) -> impl IntoResponse {
     // TODO: Get device service from AppState
     // For now, return empty list
-    (StatusCode::OK, Json(PeersResponse {
-        peers: Vec::new(),
-        total: 0,
-        online: 0,
-    })).into_response()
+    (
+        StatusCode::OK,
+        Json(PeersResponse {
+            peers: Vec::new(),
+            total: 0,
+            online: 0,
+        }),
+    )
+        .into_response()
 }
 
 /// POST /api/v1/p2p/connect
@@ -104,12 +112,16 @@ async fn connect_peer(
     Json(req): Json<ConnectRequest>,
 ) -> impl IntoResponse {
     // TODO: Implement actual connection via P2P node
-    (StatusCode::OK, Json(ConnectResponse {
-        success: true,
-        peer_id: None,
-        message: format!(
-            "Connection to {} initiated (P2P node integration pending)",
-            req.address
-        ),
-    })).into_response()
+    (
+        StatusCode::OK,
+        Json(ConnectResponse {
+            success: true,
+            peer_id: None,
+            message: format!(
+                "Connection to {} initiated (P2P node integration pending)",
+                req.address
+            ),
+        }),
+    )
+        .into_response()
 }

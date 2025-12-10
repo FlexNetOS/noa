@@ -132,6 +132,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
           <button
             onClick={startCamera}
             disabled={disabled}
+            aria-label="Start camera capture"
             className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Camera className="w-4 h-4" />
@@ -140,6 +141,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
           <button
             onClick={startScreenCapture}
             disabled={disabled}
+            aria-label="Start screen capture"
             className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Monitor className="w-4 h-4" />
@@ -174,6 +176,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
               <>
                 <button
                   onClick={captureImage}
+                  aria-label="Capture current frame"
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <Check className="w-4 h-4" />
@@ -181,6 +184,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
                 </button>
                 <button
                   onClick={stopCapture}
+                  aria-label="Cancel capture"
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -191,6 +195,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
               <>
                 <button
                   onClick={handleCancel}
+                  aria-label="Confirm captured image"
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
                 >
                   <Check className="w-4 h-4" />
@@ -201,6 +206,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
                     setCapturedImage(null);
                     stopCapture();
                   }}
+                  aria-label="Retake image"
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -214,4 +220,3 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
     </div>
   );
 }
-

@@ -18,6 +18,7 @@ use crate::db::repositories::model_repository::Model as RepoModel;
 use crate::services::NeuralService;
 use axum::response::IntoResponse;
 use noa_neural::{Model as NeuralModel, ModelStatus};
+use tokio::{runtime::Handle, task};
 
 /// Model list response
 #[derive(Serialize)]
@@ -122,7 +123,7 @@ pub struct IngestModelRequest {
 
 /// Create routes for model management
 pub fn routes() -> Router<AppState> {
-    Router::new()
+    Router::<AppState>::new()
         .route("/models", get(list_models))
         .route("/models/download", post(download_model))
         .route("/models/benchmark", post(benchmark_model))
@@ -199,24 +200,25 @@ async fn download_model(
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("models").join(format!("{}.gguf", request.name)));
 
-    let download_id = match download_service
-        .download_model(request.name, request.url, output_path)
-        .await
-    {
-        Ok(id) => id,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to download model: {}", e),
-            )
-                .into_response()
-        }
-    };
+    let download_id =
+        match download_service.download_model(request.name, request.url, output_path).await {
+            Ok(id) => id,
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to download model: {}", e),
+                )
+                    .into_response()
+            }
+        };
 
-    (StatusCode::OK, Json(DownloadModelResponse {
-        download_id: download_id.to_string(),
-        status: "started".to_string(),
-    }))
+    (
+        StatusCode::OK,
+        Json(DownloadModelResponse {
+            download_id: download_id.to_string(),
+            status: "started".to_string(),
+        }),
+    )
         .into_response()
 }
 
@@ -305,81 +307,91 @@ async fn ingest_model(
 }
 
 /// POST /api/v1/models/:id/load - Load a model
-async fn load_model(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let db_path = &state.config.database.path;
-    let conn = match crate::db::init_database(db_path) {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize database: {}", e),
-            )
-                .into_response()
-        }
-    };
-    let service = NeuralService::new(conn);
-    let model_id = match Uuid::parse_str(&id) {
-        Ok(id) => id,
-        Err(_) => {
-            return (
+async fn load_model(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
+    let config = state.config.clone();
+    let handle = Handle::current();
+
+    let task = task::spawn_blocking(move || -> Result<(), (StatusCode, String)> {
+        let model_id = Uuid::parse_str(&id).map_err(|_| {
+            (
                 StatusCode::BAD_REQUEST,
                 format!("Invalid UUID format: {}", id),
             )
-                .into_response()
-        }
-    };
+        })?;
 
-    if let Err(e) = service.load_model(&model_id).await {
-        return (
+        let conn = crate::db::init_database(&config.database.path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+        })?;
+        let service = NeuralService::new(conn);
+
+        handle
+            .block_on(service.load_model(&model_id))
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to load model: {}", e),
+                )
+            })?;
+
+        Ok(())
+    });
+
+    match task.await {
+        Ok(Ok(())) => StatusCode::OK.into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Failed to load model: {}", e),
+            format!("Failed to join load model task: {}", e),
         )
-            .into_response();
+            .into_response(),
     }
-
-    StatusCode::OK.into_response()
 }
 
 /// POST /api/v1/models/:id/unload - Unload a model
-async fn unload_model(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let db_path = &state.config.database.path;
-    let conn = match crate::db::init_database(db_path) {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize database: {}", e),
-            )
-                .into_response()
-        }
-    };
-    let service = NeuralService::new(conn);
-    let model_id = match Uuid::parse_str(&id) {
-        Ok(id) => id,
-        Err(_) => {
-            return (
+async fn unload_model(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
+    let config = state.config.clone();
+    let handle = Handle::current();
+
+    let task = task::spawn_blocking(move || -> Result<(), (StatusCode, String)> {
+        let model_id = Uuid::parse_str(&id).map_err(|_| {
+            (
                 StatusCode::BAD_REQUEST,
                 format!("Invalid UUID format: {}", id),
             )
-                .into_response()
-        }
-    };
+        })?;
 
-    if let Err(e) = service.unload_model(&model_id).await {
-        return (
+        let conn = crate::db::init_database(&config.database.path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+        })?;
+        let service = NeuralService::new(conn);
+
+        handle
+            .block_on(service.unload_model(&model_id))
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to unload model: {}", e),
+                )
+            })?;
+
+        Ok(())
+    });
+
+    match task.await {
+        Ok(Ok(())) => StatusCode::OK.into_response(),
+        Ok(Err((status, message))) => (status, message).into_response(),
+        Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Failed to unload model: {}", e),
+            format!("Failed to join unload model task: {}", e),
         )
-            .into_response();
+            .into_response(),
     }
-
-    StatusCode::OK.into_response()
 }
 
 /// GET /api/v1/models/:id/status - Get model status
@@ -413,11 +425,7 @@ async fn get_model_status(
     let model = match service.get_model(&model_id) {
         Ok(Some(model)) => model,
         Ok(None) => {
-            return (
-                StatusCode::NOT_FOUND,
-                format!("Model not found: {}", id),
-            )
-                .into_response()
+            return (StatusCode::NOT_FOUND, format!("Model not found: {}", id)).into_response()
         }
         Err(e) => {
             return (

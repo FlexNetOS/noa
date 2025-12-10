@@ -1,7 +1,7 @@
 {
   "name": "ollama",
   "type": "local",
-  "priority": 1,
+  "priority": 2,
   "enabled": true,
   "config": {
     "baseUrl": "http://localhost:11434",
@@ -37,5 +37,6 @@
     "target": "<2s",
     "timeout": 60000
   },
-  "timeout": 60000
+  "timeout": 60000,
+  "description": "AI provider: ollama"
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/focus.css";
 
 export const metadata: Metadata = {
     title: "NOA - Autonomous AI Assistant",
@@ -17,4 +18,3 @@ export default function RootLayout({
         </html>
     );
 }
-

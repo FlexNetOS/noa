@@ -14,7 +14,7 @@ use prometheus::{
     IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder,
 };
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 
 lazy_static! {
     /// Global metrics registry
@@ -117,25 +117,30 @@ lazy_static! {
 
 /// Initialize the metrics system
 pub fn init_metrics() -> Result<()> {
+    let to_err = |e: prometheus::Error| NoaError::Internal {
+        message: e.to_string(),
+        source: None,
+    };
+
     // Register all metrics with the registry
-    REGISTRY.register(Box::new(HTTP_REQUESTS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(HTTP_REQUEST_DURATION.clone()))?;
-    REGISTRY.register(Box::new(DB_QUERIES_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(DB_QUERY_DURATION.clone()))?;
-    REGISTRY.register(Box::new(DB_CONNECTIONS_ACTIVE.clone()))?;
-    REGISTRY.register(Box::new(DB_CONNECTIONS_IDLE.clone()))?;
-    REGISTRY.register(Box::new(AGENT_ACTIONS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(AGENT_ACTION_DURATION.clone()))?;
-    REGISTRY.register(Box::new(AGENTS_ACTIVE.clone()))?;
-    REGISTRY.register(Box::new(PROVIDER_REQUESTS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(PROVIDER_TOKENS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(PROVIDER_LATENCY.clone()))?;
-    REGISTRY.register(Box::new(TASKS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(TASKS_QUEUE_SIZE.clone()))?;
-    REGISTRY.register(Box::new(MEMORY_ENTRIES.clone()))?;
-    REGISTRY.register(Box::new(EMBEDDINGS_TOTAL.clone()))?;
-    REGISTRY.register(Box::new(UPTIME_SECONDS.clone()))?;
-    REGISTRY.register(Box::new(BUILD_INFO.clone()))?;
+    REGISTRY.register(Box::new(HTTP_REQUESTS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(HTTP_REQUEST_DURATION.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(DB_QUERIES_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(DB_QUERY_DURATION.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(DB_CONNECTIONS_ACTIVE.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(DB_CONNECTIONS_IDLE.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(AGENT_ACTIONS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(AGENT_ACTION_DURATION.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(AGENTS_ACTIVE.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(PROVIDER_REQUESTS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(PROVIDER_TOKENS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(PROVIDER_LATENCY.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(TASKS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(TASKS_QUEUE_SIZE.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(MEMORY_ENTRIES.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(EMBEDDINGS_TOTAL.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(UPTIME_SECONDS.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(BUILD_INFO.clone())).map_err(&to_err)?;
 
     // Set build info
     BUILD_INFO
@@ -155,8 +160,11 @@ pub fn get_metrics() -> Result<String> {
     let encoder = TextEncoder::new();
     let metric_families = REGISTRY.gather();
     let mut buffer = Vec::new();
-    encoder.encode(&metric_families, &mut buffer)?;
-    Ok(String::from_utf8(buffer)?)
+    encoder.encode(&metric_families, &mut buffer).map_err(|e| NoaError::Internal {
+        message: e.to_string(),
+        source: None,
+    })?;
+    String::from_utf8(buffer).map_err(|e| NoaError::Serialization(e.to_string()))
 }
 
 /// Record an HTTP request

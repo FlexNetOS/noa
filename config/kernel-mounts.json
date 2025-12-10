@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kernel Mount Configuration",
+  "description": "Shared volume mount configuration for VM and container modes (T841).",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "mounts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "hostPath": { "type": "string" },
+          "guestPath": { "type": "string" },
+          "mode": { "type": "string", "enum": ["ro", "rw"], "default": "ro" },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "hostPath", "guestPath"]
+      }
+    }
+  },
+  "required": ["mounts"],
+  "examples": [
+    {
+      "version": "1.0.0",
+      "mounts": [
+        {
+          "name": "config",
+          "hostPath": "config/",
+          "guestPath": "/noa/config",
+          "mode": "ro",
+          "description": "Configuration files shared into VM/container"
+        },
+        {
+          "name": "data",
+          "hostPath": "data/",
+          "guestPath": "/noa/data",
+          "mode": "rw",
+          "description": "Shared data directory"
+        }
+      ]
+    }
+  ]
+}

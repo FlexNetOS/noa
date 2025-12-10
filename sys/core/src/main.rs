@@ -6,9 +6,9 @@
 use clap::{Parser, Subcommand};
 use tracing::info;
 
-// Modules are declared in lib.rs
-// Access via crate:: paths
-use crate::error::Result;
+// Bring library modules into scope for CLI entrypoint
+use noa_core::{cli, config, logging};
+use noa_core::error::Result;
 
 /// NOA - Autonomous Agentic Operating System
 #[derive(Parser)]
@@ -140,6 +140,12 @@ enum Commands {
 
     /// Config commands
     Config(cli::config::ConfigArgs),
+
+    /// Connector commands
+    Connectors(cli::connectors::ConnectorArgs),
+
+    /// Feature flag commands
+    Features(cli::features::FeatureArgs),
 
     /// Self-improvement lifecycle
     Improve {
@@ -318,6 +324,8 @@ async fn main() -> Result<()> {
         Commands::Capsule { command } => handle_capsule_command(command).await,
         Commands::Crm { command } => handle_crm_command(command).await,
         Commands::Config(args) => cli::config::execute(args).await,
+        Commands::Connectors(args) => cli::connectors::execute(args).await,
+        Commands::Features(args) => cli::features::execute(args).await,
         Commands::Improve { command } => handle_improve_command(command).await,
         Commands::Speckit { command } => {
             cli::speckit::execute(cli::speckit::SpeckitArgs { command }).await

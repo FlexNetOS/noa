@@ -1,0 +1,8 @@
+{
+  "id": "SC-012",
+  "description": "multi-GPU inference (<300ms)",
+  "duration_ms": 0,
+  "target_ms": 300,
+  "status": "Skipped",
+  "notes": "GPU not detected (set NOA_GPU_AVAILABLE=1 to exercise path)"
+}

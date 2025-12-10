@@ -13,7 +13,12 @@ export default function ProvidersSettings() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-slate-100">llama.cpp</h3>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" defaultChecked />
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                defaultChecked
+                aria-label="Toggle llama.cpp provider"
+              />
               <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
@@ -24,7 +29,11 @@ export default function ProvidersSettings() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-slate-100">Claude Code</h3>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" />
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                aria-label="Toggle Claude Code provider"
+              />
               <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
@@ -34,4 +43,3 @@ export default function ProvidersSettings() {
     </div>
   );
 }
-

@@ -3,13 +3,7 @@
 //! T095-T096: System info and health endpoints
 //! US1: Initialize NOA Seed Environment
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::get,
-    Router,
-};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
