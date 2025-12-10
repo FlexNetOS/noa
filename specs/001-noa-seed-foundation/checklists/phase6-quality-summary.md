@@ -12,7 +12,7 @@
 - ✅ **CHK040**: Enhanced error handling paths with actionable context
   - Added detailed error messages with "what, why, how to fix" format
   - Files: `sys/core/src/cli/digest.rs`, `sys/core/src/services/digest/intake.rs`
-  
+
 - ✅ **CHK041**: Errors now include actionable context
   - All error messages provide:
     - **What**: What operation failed
@@ -132,7 +132,7 @@
 - Complete function documentation
 - Consistent error types and codes
 
-**NEXT**: 
+**NEXT**:
 1. Continue with Phase 6 testing
 2. Implement retry mechanisms for external calls (future)
 3. Add timeout wrappers for external tools (future)

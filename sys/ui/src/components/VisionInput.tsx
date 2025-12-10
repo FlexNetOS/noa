@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Monitor, X, Check } from 'lucide-react';
 import { hardwareCapabilities } from '@/services/hardwareCapabilities';
-import { multiModalService } from '@/services/multiModal';
 import { cn } from '@/lib/utils';
 
 interface VisionInputProps {
@@ -160,6 +159,7 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
               )}
             />
             {capturedImage && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={capturedImage}
                 alt="Captured"

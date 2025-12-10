@@ -138,6 +138,12 @@ enum Commands {
         command: CrmCommands,
     },
 
+    /// Self-improvement lifecycle
+    Improve {
+        #[command(subcommand)]
+        command: ImproveCommands,
+    },
+
     /// Spec-Kit commands
     Speckit {
         #[command(subcommand)]
@@ -210,6 +216,18 @@ enum CrmCommands {
     Toggle { mode: String },
     /// Roll back CRM
     Rollback,
+}
+
+#[derive(Subcommand)]
+enum ImproveCommands {
+    /// Analyze current performance signals
+    Analyze,
+    /// Generate improvement proposals
+    Propose,
+    /// Apply improvements with safety checks
+    Apply,
+    /// Roll back to a prior snapshot
+    Rollback { snapshot_id: Option<String> },
 }
 
 #[derive(Subcommand)]
@@ -301,6 +319,7 @@ async fn main() -> Result<()> {
         Commands::Logs { command } => handle_logs_command(command).await,
         Commands::Capsule { command } => handle_capsule_command(command).await,
         Commands::Crm { command } => handle_crm_command(command).await,
+        Commands::Improve { command } => handle_improve_command(command).await,
         Commands::Speckit { command } => cli::speckit::execute(cli::speckit::SpeckitArgs { command }).await,
         Commands::Digest(args) => cli::digest::execute(args).await,
     }
@@ -407,6 +426,18 @@ async fn handle_capsule_command(command: CapsuleCommands) -> Result<()> {
     use cli::capsule::CapsuleCmd;
     match command {
         CapsuleCommands::Spawn { name } => cli::capsule::execute(CapsuleCmd::Spawn { name }).await,
+    }
+}
+
+async fn handle_improve_command(command: ImproveCommands) -> Result<()> {
+    use cli::improve::ImproveCmd;
+    match command {
+        ImproveCommands::Analyze => cli::improve::execute(ImproveCmd::Analyze).await,
+        ImproveCommands::Propose => cli::improve::execute(ImproveCmd::Propose).await,
+        ImproveCommands::Apply => cli::improve::execute(ImproveCmd::Apply).await,
+        ImproveCommands::Rollback { snapshot_id } => {
+            cli::improve::execute(ImproveCmd::Rollback { snapshot_id }).await
+        }
     }
 }
 

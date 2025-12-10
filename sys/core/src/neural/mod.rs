@@ -20,6 +20,13 @@ pub mod cuda_tiles;
 pub mod gpu_scheduler;
 pub mod gpu_health;
 
+#[cfg(test)]
+mod model_loader_test;
+#[cfg(test)]
+mod inference_test;
+#[cfg(test)]
+mod context_test;
+
 pub use model_loader::ModelLoader;
 pub use llama_backend::LlamaBackend;
 pub use context::InferenceContext;

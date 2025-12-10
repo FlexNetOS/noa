@@ -5,6 +5,9 @@
 // Module declarations for library crate
 pub mod api;
 pub mod autonomy;
+pub mod graphs;
+pub mod cecca;
+pub mod knowledge;
 pub mod cli;
 pub mod config;
 pub mod db;
@@ -20,6 +23,10 @@ pub mod adapters;
 pub mod providers;
 pub mod neural;
 pub mod learning;
+pub mod self_improve;
+pub mod policy;
+pub mod vhdx;
+pub mod predict;
 pub mod observability;
 pub mod services;
 pub mod vector;

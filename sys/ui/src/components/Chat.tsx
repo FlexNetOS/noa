@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { apiClient } from '@/lib/api';
 import { Send, Loader } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import { providerClient } from '@/services/providerClient';

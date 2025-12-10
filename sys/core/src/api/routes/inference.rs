@@ -16,8 +16,7 @@ use tokio_stream::Stream;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use crate::neural::inference::{InferenceRequest, InferenceResponse, StreamChunk};
-use crate::error::{Result, NoaError};
+use crate::neural::inference::{InferenceRequest, InferenceResponse};
 use crate::services::NeuralService;
 
 /// Inference request

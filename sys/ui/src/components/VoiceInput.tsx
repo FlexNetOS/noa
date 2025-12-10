@@ -29,7 +29,14 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
 
     // Initialize Web Speech API
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      interface SpeechRecognitionConstructor {
+        new (): SpeechRecognition;
+      }
+      
+      const SpeechRecognition = 
+        (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition ||
+        (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition;
+      
       if (SpeechRecognition) {
         const rec = new SpeechRecognition();
         rec.continuous = false;
@@ -42,7 +49,7 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
           setIsListening(false);
         };
 
-        rec.onerror = (event: any) => {
+        rec.onerror = (event: SpeechRecognitionErrorEvent) => {
           console.error('Speech recognition error:', event.error);
           setIsListening(false);
         };

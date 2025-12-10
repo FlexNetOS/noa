@@ -20,6 +20,7 @@ pub mod goal;
 pub mod logs;
 pub mod capsule;
 pub mod crm;
+pub mod improve;
 pub mod speckit;
 
 pub use memory::{MemoryArgs, execute_memory};
