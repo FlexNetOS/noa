@@ -19,11 +19,10 @@ mod tests {
         // Test that invalid model paths are handled
         let _loader = ModelLoader::new();
         let _invalid_path = PathBuf::from("/nonexistent/model.gguf");
-        
+
         // This should return an error
         // Note: Actual implementation needed
         // let result = loader.load_model(&invalid_path).await;
         // assert!(result.is_err());
     }
 }
-
