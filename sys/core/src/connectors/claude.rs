@@ -1,16 +1,16 @@
 use crate::connectors::base::Connector;
 use crate::connectors::ConnectorState;
 
-/// Stub email connector (SMTP/IMAP placeholder).
+/// Stub Claude connector used for placeholder integration.
 #[derive(Debug, Default)]
-pub struct EmailConnector;
+pub struct ClaudeConnector;
 
-impl Connector for EmailConnector {
+impl Connector for ClaudeConnector {
     fn name(&self) -> &str {
-        "email"
+        "claude"
     }
 
     fn state(&self) -> ConnectorState {
-        ConnectorState::ready("email")
+        ConnectorState::ready("claude")
     }
 }

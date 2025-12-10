@@ -106,13 +106,39 @@ pub async fn collect_states(ctx: &ConnectorContext) -> Result<Vec<ConnectorState
 
     let mut states: Vec<ConnectorState> = Vec::new();
 
-    // Use lightweight placeholder connectors; real integrations can extend Connector trait.
-    states.push(GithubConnector::default().state());
-    states.push(GoogleConnector::default().state());
-    states.push(OpenAIConnector::default().state());
-    states.push(ClaudeConnector::default().state());
-    states.push(CloudStorageConnector::default().state());
-    states.push(EmailConnector::default().state());
+    // GitHub (requires client id/secret)
+    states.push(match github_from_env() {
+        Some(conn) => conn.status(ctx).await?,
+        None => ConnectorState::degraded(
+            "github",
+            "Missing GITHUB_CLIENT_ID/GITHUB_CLIENT_SECRET for OAuth",
+        ),
+    });
+
+    // Google (requires client id/secret)
+    states.push(match google_from_env() {
+        Some(conn) => conn.status(ctx).await?,
+        None => ConnectorState::degraded(
+            "google",
+            "Missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET for OAuth",
+        ),
+    });
+
+    // OpenAI (API key)
+    let openai = OpenAIConnector::new(None);
+    states.push(openai.status(ctx).await?);
+
+    // Claude (API key)
+    let claude = ClaudeConnector::new(None);
+    states.push(claude.status(ctx).await?);
+
+    // Cloud storage (S3/GCS/MinIO)
+    let cloud = CloudStorageConnector::new();
+    states.push(cloud.status(ctx).await?);
+
+    // Email (SMTP/IMAP)
+    let email = EmailConnector::new();
+    states.push(email.status(ctx).await?);
 
     Ok(states)
 }
@@ -120,4 +146,46 @@ pub async fn collect_states(ctx: &ConnectorContext) -> Result<Vec<ConnectorState
 /// Known connector identifiers used for defaults
 pub fn default_connector_ids() -> Vec<&'static str> {
     vec!["github", "google", "openai", "claude", "cloud_storage", "email"]
+}
+
+fn github_from_env() -> Option<GithubConnector> {
+    let client_id = std::env::var("GITHUB_CLIENT_ID").ok()?;
+    let client_secret = std::env::var("GITHUB_CLIENT_SECRET").ok()?;
+    let redirect_uri = std::env::var("GITHUB_REDIRECT_URI")
+        .unwrap_or_else(|_| "http://localhost:3000/api/oauth/github/callback".to_string());
+
+    let cfg = oauth::client::OAuthClientConfig {
+        provider: "github".to_string(),
+        auth_url: "https://github.com/login/oauth/authorize".to_string(),
+        token_url: "https://github.com/login/oauth/access_token".to_string(),
+        client_id,
+        client_secret,
+        redirect_uri,
+        scopes: vec!["repo".into(), "read:org".into(), "workflow".into()],
+    };
+
+    GithubConnector::new(cfg).ok()
+}
+
+fn google_from_env() -> Option<GoogleConnector> {
+    let client_id = std::env::var("GOOGLE_CLIENT_ID").ok()?;
+    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok()?;
+    let redirect_uri = std::env::var("GOOGLE_REDIRECT_URI")
+        .unwrap_or_else(|_| "http://localhost:3000/api/oauth/google/callback".to_string());
+
+    let cfg = oauth::client::OAuthClientConfig {
+        provider: "google".to_string(),
+        auth_url: "https://accounts.google.com/o/oauth2/v2/auth".to_string(),
+        token_url: "https://oauth2.googleapis.com/token".to_string(),
+        client_id,
+        client_secret,
+        redirect_uri,
+        scopes: vec![
+            "openid".into(),
+            "email".into(),
+            "https://www.googleapis.com/auth/gmail.readonly".into(),
+        ],
+    };
+
+    GoogleConnector::new(cfg).ok()
 }
