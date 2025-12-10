@@ -63,4 +63,3 @@ mod tests {
         assert_eq!(request.temperature, None);
     }
 }
-

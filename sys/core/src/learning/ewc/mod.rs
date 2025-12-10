@@ -2,11 +2,10 @@
 //!
 //! Prevent catastrophic forgetting
 
-pub mod fisher;
-pub mod consolidate;
 pub mod adapters;
+pub mod consolidate;
+pub mod fisher;
 
-pub use fisher::{FisherInfo, FisherComputer};
-pub use consolidate::{EwcTrainer, EwcConfig};
 pub use adapters::{AdapterManager, TaskAdapter};
-
+pub use consolidate::{EwcConfig, EwcTrainer};
+pub use fisher::{FisherComputer, FisherInfo};

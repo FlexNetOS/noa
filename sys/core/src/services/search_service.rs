@@ -7,8 +7,8 @@
 use crate::db::repositories::MemoryRepository;
 use crate::db::vector_search::VectorSearch;
 use crate::error::{NoaError, Result};
-use crate::memory::semantic_search::SemanticSearch;
 use crate::memory::embeddings::EmbeddingGenerator;
+use crate::memory::semantic_search::SemanticSearch;
 use uuid::Uuid;
 
 /// Search service for semantic and keyword search
@@ -62,10 +62,8 @@ impl SearchService {
         };
 
         // Perform semantic search
-        let results = self
-            .semantic_search
-            .search(None, Some(&query_vector), limit, threshold)
-            .await?;
+        let results =
+            self.semantic_search.search(None, Some(&query_vector), limit, threshold).await?;
 
         // Fetch full memory records
         let mut search_results = Vec::new();
@@ -83,14 +81,10 @@ impl SearchService {
     }
 
     /// Perform keyword search
-    pub fn search_keyword(
-        &self,
-        query: &str,
-        limit: u32,
-    ) -> Result<Vec<SearchResult>> {
+    pub fn search_keyword(&self, query: &str, limit: u32) -> Result<Vec<SearchResult>> {
         // Simple keyword search in content and tags
         // In a real implementation, this would use full-text search
-        let all_memories = self.memory_repo.list(0, limit * 2)?; // Get more to filter
+        let all_memories = self.memory_repo.list(0, (limit * 2).into())?; // Get more to filter
 
         let query_lower = query.to_lowercase();
         let mut results: Vec<_> = all_memories
@@ -121,10 +115,8 @@ impl SearchService {
         semantic_threshold: f32,
     ) -> Result<Vec<SearchResult>> {
         // Get results from both methods
-        let semantic_results = self
-            .search_semantic(query, limit, semantic_threshold)
-            .await
-            .unwrap_or_default();
+        let semantic_results =
+            self.search_semantic(query, limit, semantic_threshold).await.unwrap_or_default();
 
         let keyword_results = self.search_keyword(query, limit).unwrap_or_default();
 
@@ -162,4 +154,3 @@ pub struct SearchResult {
     pub score: f32,
     pub distance: f32,
 }
-

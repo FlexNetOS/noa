@@ -29,10 +29,14 @@ impl DynamicResourceGraph {
     }
 
     pub fn allocate(&mut self, resource: &str, consumer: &str, amount: f64) {
-        self.graph
-            .upsert_node(consumer, "consumer", serde_json::json!({}));
-        self.graph
-            .link(resource, consumer, "allocates", amount, serde_json::json!({ "amount": amount }));
+        self.graph.upsert_node(consumer, "consumer", serde_json::json!({}));
+        self.graph.link(
+            resource,
+            consumer,
+            "allocates",
+            amount,
+            serde_json::json!({ "amount": amount }),
+        );
     }
 }
 

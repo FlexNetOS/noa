@@ -28,9 +28,7 @@ impl CeccaCell for StemReplicatorCell {
         CeccaDecision {
             approved: true,
             rationale: format!("Replicating stem {} time(s)", requested),
-            actions: (0..requested)
-                .map(|i| format!("replicate_stem_copy_{}", i + 1))
-                .collect(),
+            actions: (0..requested).map(|i| format!("replicate_stem_copy_{}", i + 1)).collect(),
             score: 1.0,
         }
     }

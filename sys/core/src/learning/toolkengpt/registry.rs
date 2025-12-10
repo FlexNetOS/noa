@@ -22,6 +22,7 @@ pub struct ToolToken {
 }
 
 /// ToolkenGPT token registry
+#[derive(Clone)]
 pub struct ToolkenGptRegistry {
     tokens: Arc<RwLock<HashMap<String, ToolToken>>>,
     token_id_counter: Arc<RwLock<u32>>,
@@ -37,7 +38,13 @@ impl ToolkenGptRegistry {
     }
 
     /// Register a tool token
-    pub async fn register_tool(&self, tool_name: String, description: String, capabilities: Vec<String>, embedding: Vec<f32>) -> Result<Uuid> {
+    pub async fn register_tool(
+        &self,
+        tool_name: String,
+        description: String,
+        capabilities: Vec<String>,
+        embedding: Vec<f32>,
+    ) -> Result<Uuid> {
         let mut counter = self.token_id_counter.write().await;
         let token_id = *counter;
         *counter += 1;
@@ -72,7 +79,8 @@ impl ToolkenGptRegistry {
     /// Find tools by capability
     pub async fn find_by_capability(&self, capability: &str) -> Vec<ToolToken> {
         let tokens = self.tokens.read().await;
-        tokens.values()
+        tokens
+            .values()
             .filter(|token| token.capabilities.contains(&capability.to_string()))
             .cloned()
             .collect()
@@ -93,13 +101,15 @@ mod tests {
     async fn test_register_tool() {
         let registry = ToolkenGptRegistry::new();
         let embedding = vec![0.1; 384];
-        let id = registry.register_tool(
-            "test_tool".to_string(),
-            "Test tool".to_string(),
-            vec!["test".to_string()],
-            embedding,
-        ).await.unwrap();
+        let id = registry
+            .register_tool(
+                "test_tool".to_string(),
+                "Test tool".to_string(),
+                vec!["test".to_string()],
+                embedding,
+            )
+            .await
+            .unwrap();
         assert!(!id.to_string().is_empty());
     }
 }
-

@@ -16,7 +16,12 @@ impl ResourcePredictor {
         Self { window }
     }
 
-    pub fn forecast(&self, cpu_history: &[f64], mem_history: &[f64], horizon_minutes: u64) -> ResourceForecast {
+    pub fn forecast(
+        &self,
+        cpu_history: &[f64],
+        mem_history: &[f64],
+        horizon_minutes: u64,
+    ) -> ResourceForecast {
         let cpu_avg = Self::avg(cpu_history, self.window);
         let mem_avg = Self::avg(mem_history, self.window);
         ResourceForecast {

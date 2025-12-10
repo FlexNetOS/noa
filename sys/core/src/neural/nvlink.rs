@@ -59,8 +59,8 @@ impl NvLinkDetector {
         });
 
         topology.links.iter().any(|link| {
-            (link.device_a == device_a && link.device_b == device_b) ||
-            (link.device_a == device_b && link.device_b == device_a)
+            (link.device_a == device_a && link.device_b == device_b)
+                || (link.device_a == device_b && link.device_b == device_a)
         })
     }
 
@@ -91,8 +91,9 @@ impl NvLinkDetector {
         let topology = self.detect_topology().await?;
 
         for link in &topology.links {
-            if (link.device_a == device_a && link.device_b == device_b) ||
-               (link.device_a == device_b && link.device_b == device_a) {
+            if (link.device_a == device_a && link.device_b == device_b)
+                || (link.device_a == device_b && link.device_b == device_a)
+            {
                 return Ok(link.bandwidth_gbps);
             }
         }
@@ -119,4 +120,3 @@ mod tests {
         assert!(topology.devices.len() >= 0);
     }
 }
-

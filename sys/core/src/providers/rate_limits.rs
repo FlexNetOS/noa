@@ -14,10 +14,34 @@ static LIMITS: OnceLock<Mutex<HashMap<String, RateLimit>>> = OnceLock::new();
 fn registry() -> &'static Mutex<HashMap<String, RateLimit>> {
     LIMITS.get_or_init(|| {
         let mut map = HashMap::new();
-        map.insert("claude".into(), RateLimit { max_rps: 5, burst: 10 });
-        map.insert("codex".into(), RateLimit { max_rps: 5, burst: 10 });
-        map.insert("cursor".into(), RateLimit { max_rps: 10, burst: 20 });
-        map.insert("llama.cpp".into(), RateLimit { max_rps: 20, burst: 40 });
+        map.insert(
+            "claude".into(),
+            RateLimit {
+                max_rps: 5,
+                burst: 10,
+            },
+        );
+        map.insert(
+            "codex".into(),
+            RateLimit {
+                max_rps: 5,
+                burst: 10,
+            },
+        );
+        map.insert(
+            "cursor".into(),
+            RateLimit {
+                max_rps: 10,
+                burst: 20,
+            },
+        );
+        map.insert(
+            "llama.cpp".into(),
+            RateLimit {
+                max_rps: 20,
+                burst: 40,
+            },
+        );
         Mutex::new(map)
     })
 }

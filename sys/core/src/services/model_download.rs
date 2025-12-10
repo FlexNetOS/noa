@@ -3,7 +3,7 @@
 //! T119: Implement model download with progress
 //! US2: Model download with progress tracking
 
-use crate::error::{Result, NoaError};
+use crate::error::{NoaError, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -83,7 +83,8 @@ impl ModelDownloadService {
                 url_clone,
                 output_path_clone,
                 downloads,
-            ).await;
+            )
+            .await;
         });
 
         Ok(download_id)
@@ -152,7 +153,9 @@ impl ModelDownloadService {
                 while let Some(item) = stream.next().await {
                     match item {
                         Ok(chunk) => {
-                            if let Err(e) = tokio::io::AsyncWriteExt::write_all(&mut file, &chunk).await {
+                            if let Err(e) =
+                                tokio::io::AsyncWriteExt::write_all(&mut file, &chunk).await
+                            {
                                 let mut downloads = downloads.write().await;
                                 if let Some(progress) = downloads.get_mut(&download_id) {
                                     progress.status = DownloadStatus::Failed;
@@ -169,7 +172,8 @@ impl ModelDownloadService {
                                 if let Some(progress) = downloads.get_mut(&download_id) {
                                     progress.bytes_downloaded = bytes_downloaded;
                                     if let Some(total) = total_bytes {
-                                        progress.progress_percent = (bytes_downloaded as f64 / total as f64) * 100.0;
+                                        progress.progress_percent =
+                                            (bytes_downloaded as f64 / total as f64) * 100.0;
                                     }
                                 }
                             }
@@ -231,4 +235,3 @@ impl Default for ModelDownloadService {
         Self::new()
     }
 }
-

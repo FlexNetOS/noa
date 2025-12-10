@@ -78,4 +78,3 @@ pub struct Embedding {
     /// The model used
     pub model: EmbeddingModel,
 }
-

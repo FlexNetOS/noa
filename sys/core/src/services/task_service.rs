@@ -1,5 +1,5 @@
 //! TaskService (Phase 9 - T292)
-use crate::db::repositories::{TaskRepository, TaskEventRepository};
+use crate::db::repositories::{TaskEventRepository, TaskRepository};
 use crate::db::ConnectionPool;
 use crate::error::Result;
 

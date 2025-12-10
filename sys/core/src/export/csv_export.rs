@@ -17,17 +17,17 @@ impl CsvExporter {
     /// Export a table to CSV
     pub fn export_table(conn: &Connection, table: &str, output_path: &Path) -> Result<()> {
         let mut file = fs::File::create(output_path)?;
-        
+
         // Get column names
-        let mut stmt = conn.prepare(&format!("SELECT * FROM {} LIMIT 0", table))?;
+        let stmt = conn.prepare(&format!("SELECT * FROM {} LIMIT 0", table))?;
         let column_count = stmt.column_count();
         let columns: Vec<String> = (0..column_count)
             .map(|i| stmt.column_name(i).unwrap_or("").to_string())
             .collect();
-        
+
         // Write header
         writeln!(file, "{}", columns.join(","))?;
-        
+
         // Write rows
         let mut stmt = conn.prepare(&format!("SELECT * FROM {}", table))?;
         let rows = stmt.query_map([], |row| {
@@ -38,46 +38,46 @@ impl CsvExporter {
                         rusqlite::types::Value::Null => String::new(),
                         rusqlite::types::Value::Integer(i) => i.to_string(),
                         rusqlite::types::Value::Real(f) => f.to_string(),
-                        rusqlite::types::Value::Text(s) => format!("\"{}\"", s.replace("\"", "\"\"")),
+                        rusqlite::types::Value::Text(s) => {
+                            format!("\"{}\"", s.replace("\"", "\"\""))
+                        }
                         rusqlite::types::Value::Blob(_) => "BLOB".to_string(),
                     }
                 })
                 .collect();
             Ok(values)
         })?;
-        
+
         for row in rows {
             let values = row?;
             writeln!(file, "{}", values.join(","))?;
         }
-        
+
         Ok(())
     }
-    
+
     /// Export all tables to CSV files in a directory
     pub fn export_all(conn: &Connection, output_dir: &Path) -> Result<()> {
         fs::create_dir_all(output_dir)?;
-        
+
         let tables = Self::get_all_tables(conn)?;
         for table in tables {
             let output_path = output_dir.join(format!("{}.csv", table));
             Self::export_table(conn, &table, &output_path)?;
         }
-        
+
         Ok(())
     }
-    
+
     fn get_all_tables(conn: &Connection) -> Result<Vec<String>> {
         let mut stmt = conn.prepare(
             "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
         )?;
-        
-        let tables = stmt.query_map([], |row| {
-            Ok(row.get::<_, String>(0)?)
-        })?
-        .collect::<std::result::Result<Vec<_>, _>>()?;
-        
+
+        let tables = stmt
+            .query_map([], |row| Ok(row.get::<_, String>(0)?))?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
         Ok(tables)
     }
 }
-

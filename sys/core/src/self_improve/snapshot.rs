@@ -23,7 +23,11 @@ impl SnapshotManager {
         Self { root: root.into() }
     }
 
-    pub fn create(&self, label: impl Into<String>, state: serde_json::Value) -> Result<SnapshotDescriptor> {
+    pub fn create(
+        &self,
+        label: impl Into<String>,
+        state: serde_json::Value,
+    ) -> Result<SnapshotDescriptor> {
         fs::create_dir_all(&self.root)?;
         let id = uuid::Uuid::new_v4().to_string();
         let path = self.root.join(format!("{}.json", id));

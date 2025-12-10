@@ -18,8 +18,9 @@ use crate::api::server::AppState;
 use crate::db::init_database;
 use crate::db::repositories::{DigestRepository, DigestSource, DigestSourceType};
 use crate::error::Result;
-use crate::services::DigestService;
+use axum::response::IntoResponse;
 use crate::init::paths::NoaPaths;
+use crate::services::DigestService;
 use std::path::PathBuf;
 
 /// Create digest API routes
@@ -32,7 +33,10 @@ pub fn routes() -> Router<AppState> {
         .route("/digest/sources", post(create_source))
         .route("/digest/sources/:id", get(get_source))
         .route("/digest/sources/:id/profile", get(get_source_profile))
-        .route("/digest/sources/:id/system-card", get(get_source_system_card))
+        .route(
+            "/digest/sources/:id/system-card",
+            get(get_source_system_card),
+        )
         .route("/digest/sources/:id/sbom", get(get_source_sbom))
         .route("/digest/sources/:id/security", get(get_source_security))
         .route("/knowledge/nodes", get(list_knowledge_nodes))
@@ -61,12 +65,13 @@ async fn get_digest_job(
     Path(job_id): Path<String>,
 ) -> Result<Json<DigestJobResponse>> {
     // TODO: Implement job status retrieval
-    let job_uuid = Uuid::parse_str(&job_id)
-        .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+    let job_uuid = Uuid::parse_str(&job_id).map_err(|_| {
+        crate::error::NoaError::Validation(crate::error::ValidationError::new(
             "job_id",
             "Invalid job ID format",
             "INVALID_UUID",
-        )))?;
+        ))
+    })?;
 
     Ok(Json(DigestJobResponse {
         job_id: job_uuid,
@@ -127,9 +132,12 @@ async fn list_sources(
 async fn create_source(
     State(state): State<AppState>,
     Json(payload): Json<CreateSourceRequest>,
-) -> Result<(StatusCode, Json<SourceResponse>)> {
+) -> impl IntoResponse {
     let db_path = get_db_path(&state);
-    let conn = init_database(&db_path)?;
+    let conn = match init_database(&db_path) {
+        Ok(conn) => conn,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)).into_response(),
+    };
     let repo = DigestRepository::new(conn);
 
     let source_type = match payload.source_type.as_str() {
@@ -138,13 +146,7 @@ async fn create_source(
         "api" => DigestSourceType::Api,
         "document" => DigestSourceType::Document,
         _ => {
-            return Err(crate::error::NoaError::Validation(
-                crate::error::ValidationError::new(
-                    "source_type",
-                    "Invalid source type",
-                    "INVALID_TYPE",
-                ),
-            ));
+            return (StatusCode::BAD_REQUEST, "Invalid source type".to_string()).into_response();
         }
     };
 
@@ -162,9 +164,12 @@ async fn create_source(
         stats: None,
     };
 
-    repo.create(&source)?;
+    match repo.create(&source) {
+        Ok(_) => (),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create source: {}", e)).into_response(),
+    }
 
-    Ok((
+    (
         StatusCode::CREATED,
         Json(SourceResponse {
             id: source.id,
@@ -172,7 +177,7 @@ async fn create_source(
             name: source.name,
             status: source.status.as_str().to_string(),
         }),
-    ))
+    ).into_response()
 }
 
 /// Get digest source details
@@ -184,19 +189,18 @@ async fn get_source(
     let conn = init_database(&db_path)?;
     let repo = DigestRepository::new(conn);
 
-    let source_id = Uuid::parse_str(&id)
-        .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+    let source_id = Uuid::parse_str(&id).map_err(|_| {
+        crate::error::NoaError::Validation(crate::error::ValidationError::new(
             "id",
             "Invalid source ID format",
             "INVALID_UUID",
-        )))?;
+        ))
+    })?;
 
-    let source = repo
-        .find_by_id(&source_id)?
-        .ok_or_else(|| crate::error::NoaError::NotFound {
-            resource: "digest_source".to_string(),
-            id: id.clone(),
-        })?;
+    let source = repo.find_by_id(&source_id)?.ok_or_else(|| crate::error::NoaError::NotFound {
+        resource: "digest_source".to_string(),
+        id: id.clone(),
+    })?;
 
     Ok(Json(SourceResponse {
         id: source.id,
@@ -376,4 +380,3 @@ struct KnowledgeQueryResponse {
     nodes: Vec<KnowledgeNodeResponse>,
     edges: Vec<KnowledgeEdgeResponse>,
 }
-

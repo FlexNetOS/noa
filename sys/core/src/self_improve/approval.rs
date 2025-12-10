@@ -33,7 +33,11 @@ impl ImprovementApprovalWorkflow {
         }
     }
 
-    pub fn submit(&mut self, summary: impl Into<String>, rationale: impl Into<String>) -> ApprovalRequest {
+    pub fn submit(
+        &mut self,
+        summary: impl Into<String>,
+        rationale: impl Into<String>,
+    ) -> ApprovalRequest {
         let req = ApprovalRequest {
             id: uuid::Uuid::new_v4().to_string(),
             summary: summary.into(),
@@ -58,7 +62,12 @@ impl ImprovementApprovalWorkflow {
         Ok(())
     }
 
-    pub fn reject(&mut self, id: &str, approver: impl Into<String>, rationale: impl Into<String>) -> Result<()> {
+    pub fn reject(
+        &mut self,
+        id: &str,
+        approver: impl Into<String>,
+        rationale: impl Into<String>,
+    ) -> Result<()> {
         let req = self.requests.get_mut(id).ok_or_else(|| NoaError::NotFound {
             resource: "approval_request".to_string(),
             id: id.to_string(),

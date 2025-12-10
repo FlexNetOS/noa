@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 use crate::api::server::AppState;
 use crate::db::init_database;
-use crate::db::repositories::{KnowledgeNodeRepository, KnowledgeEdgeRepository};
+use crate::db::repositories::{KnowledgeEdgeRepository, KnowledgeNodeRepository};
 use crate::error::Result;
 use crate::init::paths::NoaPaths;
 use std::path::PathBuf;
@@ -47,20 +47,23 @@ async fn list_knowledge_nodes(
     let repo = KnowledgeNodeRepository::new(conn);
 
     let nodes = if let Some(source_id) = params.source_id {
-        let source_uuid = Uuid::parse_str(&source_id)
-            .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+        let source_uuid = Uuid::parse_str(&source_id).map_err(|_| {
+            crate::error::NoaError::Validation(crate::error::ValidationError::new(
                 "source_id",
                 "Invalid source ID format",
                 "INVALID_UUID",
-            )))?;
+            ))
+        })?;
         repo.find_by_source_digest(&source_uuid)?
     } else if let Some(node_type) = params.node_type {
         let node_type_enum = crate::db::repositories::KnowledgeNodeType::from_str(&node_type)
-            .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
-                "node_type",
-                format!("Invalid node type: {}", node_type),
-                "INVALID_TYPE",
-            )))?;
+            .map_err(|_| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "node_type",
+                    format!("Invalid node type: {}", node_type),
+                    "INVALID_TYPE",
+                ))
+            })?;
         repo.find_by_type(node_type_enum)?
     } else {
         // TODO: Implement list_all method
@@ -90,19 +93,18 @@ async fn get_knowledge_node(
     let conn = init_database(&db_path)?;
     let repo = KnowledgeNodeRepository::new(conn);
 
-    let node_id = Uuid::parse_str(&id)
-        .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+    let node_id = Uuid::parse_str(&id).map_err(|_| {
+        crate::error::NoaError::Validation(crate::error::ValidationError::new(
             "id",
             "Invalid node ID format",
             "INVALID_UUID",
-        )))?;
+        ))
+    })?;
 
-    let node = repo
-        .find_by_id(&node_id)?
-        .ok_or_else(|| crate::error::NoaError::NotFound {
-            resource: "knowledge_node".to_string(),
-            id: id.clone(),
-        })?;
+    let node = repo.find_by_id(&node_id)?.ok_or_else(|| crate::error::NoaError::NotFound {
+        resource: "knowledge_node".to_string(),
+        id: id.clone(),
+    })?;
 
     Ok(Json(KnowledgeNodeResponse {
         id: node.id,
@@ -123,20 +125,22 @@ async fn list_knowledge_edges(
     let repo = KnowledgeEdgeRepository::new(conn);
 
     let edges = if let Some(source_id) = params.source_node {
-        let source_uuid = Uuid::parse_str(&source_id)
-            .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+        let source_uuid = Uuid::parse_str(&source_id).map_err(|_| {
+            crate::error::NoaError::Validation(crate::error::ValidationError::new(
                 "source_node",
                 "Invalid source node ID format",
                 "INVALID_UUID",
-            )))?;
+            ))
+        })?;
         repo.find_by_source_node(&source_uuid)?
     } else if let Some(target_id) = params.target_node {
-        let target_uuid = Uuid::parse_str(&target_id)
-            .map_err(|_| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+        let target_uuid = Uuid::parse_str(&target_id).map_err(|_| {
+            crate::error::NoaError::Validation(crate::error::ValidationError::new(
                 "target_node",
                 "Invalid target node ID format",
                 "INVALID_UUID",
-            )))?;
+            ))
+        })?;
         repo.find_by_target_node(&target_uuid)?
     } else {
         // TODO: Implement list_all method
@@ -225,4 +229,3 @@ struct KnowledgeQueryResponse {
     nodes: Vec<KnowledgeNodeResponse>,
     edges: Vec<KnowledgeEdgeResponse>,
 }
-

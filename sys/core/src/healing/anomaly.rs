@@ -125,15 +125,24 @@ impl AnomalyDetector {
         metric: &HealthMetric,
         snapshot: &ComponentHealthSnapshot,
     ) -> Result<Option<Anomaly>> {
-        let metric_key = format!("{}:{}", metric.component_id, format!("{:?}", metric.metric_type));
+        let metric_key = format!(
+            "{}:{}",
+            metric.component_id,
+            format!("{:?}", metric.metric_type)
+        );
 
         // Update history
-        let history = self.metric_history.entry(metric_key.clone()).or_insert_with(Vec::new);
-        history.push((metric.timestamp, metric.value));
+        let history = {
+            let history_entry =
+                self.metric_history.entry(metric_key.clone()).or_insert_with(Vec::new);
+            history_entry.push((metric.timestamp, metric.value));
 
-        // Keep only recent history
-        let cutoff = Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
-        history.retain(|(ts, _)| *ts >= cutoff);
+            // Keep only recent history
+            let cutoff =
+                Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
+            history_entry.retain(|(ts, _)| *ts >= cutoff);
+            history_entry.clone()
+        };
 
         // Check threshold violations
         if let Some(critical_threshold) = metric.threshold_critical {
@@ -162,7 +171,7 @@ impl AnomalyDetector {
         if let Some(warning_threshold) = metric.threshold_warning {
             if metric.value >= warning_threshold {
                 // Check for consecutive violations
-                let consecutive = self.count_consecutive_violations(&metric_key, warning_threshold);
+                let consecutive = Self::count_consecutive_in_history(&history, warning_threshold);
                 if consecutive >= self.config.consecutive_violations {
                     return Ok(Some(Anomaly {
                         component_id: metric.component_id.clone(),
@@ -189,7 +198,7 @@ impl AnomalyDetector {
 
         // Statistical anomaly detection
         if self.config.enable_statistical && history.len() >= 10 {
-            if let Some(anomaly) = self.detect_statistical_anomaly(metric, history)? {
+            if let Some(anomaly) = self.detect_statistical_anomaly(metric, &history)? {
                 return Ok(Some(anomaly));
             }
         }
@@ -203,7 +212,10 @@ impl AnomalyDetector {
             Some(h) => h,
             None => return 0,
         };
+        Self::count_consecutive_in_history(history, threshold)
+    }
 
+    fn count_consecutive_in_history(history: &[(DateTime<Utc>, f64)], threshold: f64) -> u32 {
         let mut count = 0;
         for (_, value) in history.iter().rev() {
             if *value >= threshold {
@@ -228,11 +240,7 @@ impl AnomalyDetector {
         // Calculate mean and standard deviation
         let values: Vec<f64> = history.iter().map(|(_, v)| *v).collect();
         let mean = values.iter().sum::<f64>() / values.len() as f64;
-        let variance = values
-            .iter()
-            .map(|v| (v - mean).powi(2))
-            .sum::<f64>()
-            / values.len() as f64;
+        let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
         let std_dev = variance.sqrt();
 
         // Check for spike (value > mean + 2*std_dev)
@@ -309,4 +317,3 @@ mod tests {
         assert!(AnomalySeverity::Medium > AnomalySeverity::Low);
     }
 }
-

@@ -4,8 +4,8 @@
 //! §3.4: Digest Everything Pipeline - Stage 1: Discover
 //! US4: Digest Everything Pipeline
 
-use crate::db::Connection;
 use crate::db::repositories::DigestRepository;
+use crate::db::Connection;
 use crate::error::{NoaError, Result, ValidationError};
 use uuid::Uuid;
 
@@ -115,11 +115,7 @@ impl IntakeService {
         // Try to extract name from common URI patterns
         if uri.starts_with(GITHUB_HTTPS_PREFIX) || uri.starts_with(GITHUB_HTTP_PREFIX) {
             // Extract repo name from GitHub URL
-            uri.split('/')
-                .last()
-                .unwrap_or(uri)
-                .trim_end_matches(".git")
-                .to_string()
+            uri.split('/').last().unwrap_or(uri).trim_end_matches(".git").to_string()
         } else if uri.starts_with(HTTPS_PREFIX) || uri.starts_with(HTTP_PREFIX) {
             // Extract domain or path component
             uri.split('/')
@@ -137,5 +133,3 @@ impl IntakeService {
         }
     }
 }
-
-

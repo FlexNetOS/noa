@@ -4,20 +4,20 @@
 //! §3.2: SQLite/PostgreSQL database management
 //! FR-003: Local-first database with concurrent modifications
 
-mod pool;
-mod repository;
 mod migrations;
-pub mod vector_search;
+mod pool;
 pub mod repositories;
+mod repository;
+pub mod vector_search;
 
+pub use migrations::{Migration, MigrationRunner};
 pub use pool::{ConnectionPool, PoolConfig};
+pub use repositories::{EmbeddingRepository, MemoryRepository};
 pub use repository::{Repository, RepositoryError};
-pub use migrations::{MigrationRunner, Migration};
-pub use vector_search::{VectorSearch, VectorSearchResult, VectorSearchConfig};
-pub use repositories::{MemoryRepository, EmbeddingRepository};
+pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
 
-use std::path::Path;
 use crate::error::Result;
+use std::path::Path;
 
 /// Database connection type alias
 pub type Connection = rusqlite::Connection;
@@ -29,9 +29,8 @@ pub fn init_database(path: &Path) -> Result<Connection> {
         std::fs::create_dir_all(parent)?;
     }
 
-    let conn = Connection::open(path).map_err(|e| {
-        crate::error::DatabaseError::ConnectionFailed(e.to_string())
-    })?;
+    let conn = Connection::open(path)
+        .map_err(|e| crate::error::DatabaseError::ConnectionFailed(e.to_string()))?;
 
     // Configure SQLite for optimal NOA operation
     configure_connection(&conn)?;
@@ -53,11 +52,10 @@ fn configure_connection(conn: &Connection) -> Result<()> {
         PRAGMA auto_vacuum = INCREMENTAL;
         PRAGMA foreign_keys = ON;
         "#,
-    ).map_err(|e| {
-        crate::error::DatabaseError::QueryFailed {
-            query: "PRAGMA configuration".to_string(),
-            error: e.to_string(),
-        }
+    )
+    .map_err(|e| crate::error::DatabaseError::QueryFailed {
+        query: "PRAGMA configuration".to_string(),
+        error: e.to_string(),
     })?;
 
     Ok(())
@@ -65,9 +63,8 @@ fn configure_connection(conn: &Connection) -> Result<()> {
 
 /// Check database integrity
 pub fn check_integrity(conn: &Connection) -> Result<bool> {
-    let result: String = conn
-        .query_row("PRAGMA integrity_check", [], |row| row.get(0))
-        .map_err(|e| {
+    let result: String =
+        conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(|e| {
             crate::error::DatabaseError::QueryFailed {
                 query: "PRAGMA integrity_check".to_string(),
                 error: e.to_string(),
@@ -79,17 +76,12 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
 
 /// Get database statistics
 pub fn get_stats(conn: &Connection) -> Result<DatabaseStats> {
-    let page_count: i64 = conn
-        .query_row("PRAGMA page_count", [], |row| row.get(0))
-        .unwrap_or(0);
+    let page_count: i64 = conn.query_row("PRAGMA page_count", [], |row| row.get(0)).unwrap_or(0);
 
-    let page_size: i64 = conn
-        .query_row("PRAGMA page_size", [], |row| row.get(0))
-        .unwrap_or(4096);
+    let page_size: i64 = conn.query_row("PRAGMA page_size", [], |row| row.get(0)).unwrap_or(4096);
 
-    let freelist_count: i64 = conn
-        .query_row("PRAGMA freelist_count", [], |row| row.get(0))
-        .unwrap_or(0);
+    let freelist_count: i64 =
+        conn.query_row("PRAGMA freelist_count", [], |row| row.get(0)).unwrap_or(0);
 
     Ok(DatabaseStats {
         total_pages: page_count as u64,
@@ -124,9 +116,8 @@ mod tests {
         assert!(db_path.exists());
 
         // Verify settings
-        let journal_mode: String = conn
-            .query_row("PRAGMA journal_mode", [], |row| row.get(0))
-            .unwrap();
+        let journal_mode: String =
+            conn.query_row("PRAGMA journal_mode", [], |row| row.get(0)).unwrap();
         assert_eq!(journal_mode, "wal");
     }
 
@@ -139,4 +130,3 @@ mod tests {
         assert!(check_integrity(&conn).unwrap());
     }
 }
-

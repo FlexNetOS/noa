@@ -15,7 +15,9 @@ pub struct DockerAdapter {
 impl DockerAdapter {
     /// Create a Docker adapter with an optional required version hint.
     pub fn new(required_version_hint: Option<String>) -> Self {
-        Self { required_version_hint }
+        Self {
+            required_version_hint,
+        }
     }
 
     fn check_docker_binary(&self) -> AdapterHealth {

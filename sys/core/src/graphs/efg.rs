@@ -20,20 +20,25 @@ impl EnvironmentFunctionGraph {
     /// Record a function and the component providing it.
     pub fn observe_function(&mut self, function: &str, component: &str, metadata: Value) {
         self.graph.upsert_node(function, "function", metadata.clone());
-        self.graph
-            .upsert_node(component, "component", serde_json::json!({ "role": "provider" }));
-        self.graph
-            .link(component, function, "provides", 1.0, metadata);
+        self.graph.upsert_node(
+            component,
+            "component",
+            serde_json::json!({ "role": "provider" }),
+        );
+        self.graph.link(component, function, "provides", 1.0, metadata);
     }
 
     /// Relate two functions through a dependency edge.
     pub fn relate_functions(&mut self, from: &str, to: &str, weight: f64) {
-        self.graph
-            .upsert_node(from, "function", serde_json::json!({}));
-        self.graph
-            .upsert_node(to, "function", serde_json::json!({}));
-        self.graph
-            .link(from, to, "depends_on", weight, serde_json::json!({ "type": "dependency" }));
+        self.graph.upsert_node(from, "function", serde_json::json!({}));
+        self.graph.upsert_node(to, "function", serde_json::json!({}));
+        self.graph.link(
+            from,
+            to,
+            "depends_on",
+            weight,
+            serde_json::json!({ "type": "dependency" }),
+        );
     }
 }
 

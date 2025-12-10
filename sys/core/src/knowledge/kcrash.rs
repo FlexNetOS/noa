@@ -18,10 +18,17 @@ pub struct CrashForensics {
 
 impl CrashForensics {
     pub fn new() -> Self {
-        Self { reports: Vec::new() }
+        Self {
+            reports: Vec::new(),
+        }
     }
 
-    pub fn record(&mut self, component: &str, reason: &str, metadata: serde_json::Value) -> CrashReport {
+    pub fn record(
+        &mut self,
+        component: &str,
+        reason: &str,
+        metadata: serde_json::Value,
+    ) -> CrashReport {
         let report = CrashReport {
             id: uuid::Uuid::new_v4().to_string(),
             component: component.to_string(),

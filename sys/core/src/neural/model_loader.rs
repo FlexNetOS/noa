@@ -4,9 +4,9 @@
 //! §3.2: Local-First & Offline-Capable
 //! US2: Model loading with GPU layer auto-detection
 
-use crate::error::{Result, NoaError};
-use std::path::{Path, PathBuf};
+use crate::error::{NoaError, Result};
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 
 /// Model loader configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -117,13 +117,8 @@ impl ModelLoader {
         // TODO: Implement actual GGUF metadata extraction
         // For now, return basic metadata
         Ok(ModelMetadata {
-            name: path.file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown")
-                .to_string(),
-            size_bytes: std::fs::metadata(path)
-                .map(|m| m.len() as i64)
-                .unwrap_or(0),
+            name: path.file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string(),
+            size_bytes: std::fs::metadata(path).map(|m| m.len() as i64).unwrap_or(0),
             format: "gguf".to_string(),
             quantization: None,
             architecture: None,
@@ -186,4 +181,3 @@ mod tests {
         assert!(!valid);
     }
 }
-

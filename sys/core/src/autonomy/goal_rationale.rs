@@ -7,11 +7,11 @@
 //! T633: Implement goal rationale logger
 
 use crate::error::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 /// Rationale entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,7 +72,9 @@ impl GoalRationaleLogger {
 
     /// Get rationale for a goal
     pub async fn get_rationale(&self, goal_id: Uuid) -> Vec<RationaleEntry> {
-        self.entries.read().await
+        self.entries
+            .read()
+            .await
             .iter()
             .filter(|e| e.goal_id == goal_id)
             .cloned()
@@ -86,7 +88,9 @@ impl GoalRationaleLogger {
 
     /// Get entries by creator
     pub async fn entries_by_creator(&self, created_by: &str) -> Vec<RationaleEntry> {
-        self.entries.read().await
+        self.entries
+            .read()
+            .await
             .iter()
             .filter(|e| e.created_by == created_by)
             .cloned()
@@ -95,7 +99,9 @@ impl GoalRationaleLogger {
 
     /// Get entries since timestamp
     pub async fn entries_since(&self, since: DateTime<Utc>) -> Vec<RationaleEntry> {
-        self.entries.read().await
+        self.entries
+            .read()
+            .await
             .iter()
             .filter(|e| e.created_at >= since)
             .cloned()
@@ -123,12 +129,15 @@ mod tests {
         let logger = GoalRationaleLogger::new();
         let goal_id = Uuid::new_v4();
 
-        let entry_id = logger.log_rationale(
-            goal_id,
-            "Performance degradation detected".to_string(),
-            serde_json::json!({"latency_increase": "50%"}),
-            "GoalGenerator".to_string(),
-        ).await.unwrap();
+        let entry_id = logger
+            .log_rationale(
+                goal_id,
+                "Performance degradation detected".to_string(),
+                serde_json::json!({"latency_increase": "50%"}),
+                "GoalGenerator".to_string(),
+            )
+            .await
+            .unwrap();
 
         let entries = logger.get_rationale(goal_id).await;
         assert_eq!(entries.len(), 1);
@@ -140,12 +149,15 @@ mod tests {
         let logger = GoalRationaleLogger::new();
         let goal_id = Uuid::new_v4();
 
-        assert!(logger.log_rationale(
-            goal_id,
-            "".to_string(),
-            serde_json::json!({}),
-            "Test".to_string(),
-        ).await.is_err());
+        assert!(logger
+            .log_rationale(
+                goal_id,
+                "".to_string(),
+                serde_json::json!({}),
+                "Test".to_string(),
+            )
+            .await
+            .is_err());
     }
 
     #[tokio::test]
@@ -153,22 +165,27 @@ mod tests {
         let logger = GoalRationaleLogger::new();
         let goal_id = Uuid::new_v4();
 
-        logger.log_rationale(
-            goal_id,
-            "Rationale 1".to_string(),
-            serde_json::json!({}),
-            "Agent1".to_string(),
-        ).await.unwrap();
+        logger
+            .log_rationale(
+                goal_id,
+                "Rationale 1".to_string(),
+                serde_json::json!({}),
+                "Agent1".to_string(),
+            )
+            .await
+            .unwrap();
 
-        logger.log_rationale(
-            goal_id,
-            "Rationale 2".to_string(),
-            serde_json::json!({}),
-            "Agent2".to_string(),
-        ).await.unwrap();
+        logger
+            .log_rationale(
+                goal_id,
+                "Rationale 2".to_string(),
+                serde_json::json!({}),
+                "Agent2".to_string(),
+            )
+            .await
+            .unwrap();
 
         let agent1_entries = logger.entries_by_creator("Agent1").await;
         assert_eq!(agent1_entries.len(), 1);
     }
 }
-

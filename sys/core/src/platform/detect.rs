@@ -3,11 +3,12 @@
 //! T722: Create platform detection module.
 //! Provides lightweight detection of OS/architecture for cross-platform coordination.
 
-use crate::platform::{PlatformAdaptation};
+use crate::platform::PlatformAdaptation;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Supported platform variants.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Platform {
     Windows,
     MacOS,
@@ -16,7 +17,7 @@ pub enum Platform {
 }
 
 /// CPU architecture for platform targeting.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Architecture {
     X86_64,
     AArch64,
@@ -26,7 +27,7 @@ pub enum Architecture {
 }
 
 /// Snapshot of detected platform metadata.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PlatformInfo {
     pub platform: Platform,
     pub architecture: Architecture,

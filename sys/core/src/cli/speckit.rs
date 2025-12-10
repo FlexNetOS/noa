@@ -75,7 +75,10 @@ fn run_command(target: &str, action: &str, provider: Option<&str>) -> Result<()>
 
     match cmd.status() {
         Ok(status) if status.success() => {
-            println!("Spec-Kit command succeeded: {} {} {}", binary, action, target);
+            println!(
+                "Spec-Kit command succeeded: {} {} {}",
+                binary, action, target
+            );
         }
         Ok(status) => {
             eprintln!(

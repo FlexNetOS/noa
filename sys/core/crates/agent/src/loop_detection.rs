@@ -2,10 +2,10 @@
 //!
 //! VER050: Verify agent infinite loop detection and termination [Edge Case]
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use serde::{Deserialize, Serialize};
 
 /// Loop detection configuration
 #[derive(Debug, Clone)]
@@ -86,10 +86,7 @@ impl LoopDetector {
         });
 
         // Count repetitions of this signature
-        let repetitions = history
-            .iter()
-            .filter(|entry| entry.signature == signature)
-            .count();
+        let repetitions = history.iter().filter(|entry| entry.signature == signature).count();
 
         if repetitions > self.config.max_repetitions {
             return Err(LoopDetectedError {
@@ -167,4 +164,3 @@ impl std::fmt::Display for LoopDetectedError {
 }
 
 impl std::error::Error for LoopDetectedError {}
-

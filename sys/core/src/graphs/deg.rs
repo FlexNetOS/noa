@@ -29,8 +29,13 @@ impl DynamicErrorGraph {
     }
 
     pub fn propagate(&mut self, from: &str, to: &str, severity: f64) {
-        self.graph
-            .link(from, to, "impacts", severity, serde_json::json!({ "severity": severity }));
+        self.graph.link(
+            from,
+            to,
+            "impacts",
+            severity,
+            serde_json::json!({ "severity": severity }),
+        );
     }
 }
 

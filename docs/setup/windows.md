@@ -2,6 +2,13 @@
 
 Complete guide for setting up NOA on Windows 11.
 
+## Quickstart
+```powershell
+.\scripts\setup\setup-noa.ps1 -InstallAllTools -InstallAiProviders
+.\noa-profile.ps1
+```
+Use the flags for full toolchain + provider installs; omit them to scaffold directories only.
+
 ## Table of Contents
 
 - [Overview](#overview)

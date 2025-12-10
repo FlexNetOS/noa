@@ -29,8 +29,13 @@ impl DynamicProcessGraph {
     }
 
     pub fn link_processes(&mut self, parent: &str, child: &str) {
-        self.graph
-            .link(parent, child, "spawns", 1.0, serde_json::json!({ "type": "spawn" }));
+        self.graph.link(
+            parent,
+            child,
+            "spawns",
+            1.0,
+            serde_json::json!({ "type": "spawn" }),
+        );
     }
 }
 

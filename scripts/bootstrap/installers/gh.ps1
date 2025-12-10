@@ -155,12 +155,13 @@ if (Test-Path $ghBin) {
 
     # Create symlink in bin/ (preferred) or copy if symlink fails
     $binGh = Join-Path $BinDir "gh.exe"
+    $absGhBin = (Resolve-Path $ghBin).Path
     try {
         if (Test-Path $binGh) {
             Remove-Item $binGh -Force -ErrorAction SilentlyContinue
         }
-        New-Item -ItemType SymbolicLink -Path $binGh -Target $ghBin -Force | Out-Null
-        Write-Log "Created symlink: bin/gh.exe -> $ghBin" -Level Success
+        New-Item -ItemType SymbolicLink -Path $binGh -Target $absGhBin -Force | Out-Null
+        Write-Log "Created symlink: bin/gh.exe -> $absGhBin" -Level Success
     } catch {
         # Fallback to copy if symlink creation fails (permissions, etc.)
         Copy-Item -Path $ghBin -Destination $binGh -Force

@@ -4,9 +4,9 @@
 //! §3.3: Agentic Orchestration
 //! US2: Model selection for optimal task routing
 
-use crate::error::{Result, NoaError};
-use crate::db::repositories::{ModelRepository, Model as DbModel, ModelType, ModelStatus};
+use crate::db::repositories::{Model as DbModel, ModelRepository, ModelStatus};
 use crate::db::Connection;
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
@@ -126,7 +126,11 @@ impl ModelSelectorAgent {
             }
             TaskType::Reasoning => {
                 // Prefer larger models for reasoning
-                model.parameters.as_ref().map(|p| p.contains("7B") || p.contains("13B")).unwrap_or(false)
+                model
+                    .parameters
+                    .as_ref()
+                    .map(|p| p.contains("7B") || p.contains("13B"))
+                    .unwrap_or(false)
             }
             TaskType::Summarization => {
                 // General models work well
@@ -140,9 +144,7 @@ impl ModelSelectorAgent {
                 // Multilingual models
                 model.name.to_lowercase().contains("multilingual")
             }
-            TaskType::General => {
-                true
-            }
+            TaskType::General => true,
         };
 
         if task_match {
@@ -152,24 +154,32 @@ impl ModelSelectorAgent {
         // Context length matching
         if let Some(required) = criteria.required_context_length {
             if let Some(available) = model.context_length {
-                if available >= required {
-                    score += 20.0;
+                if let Ok(required_i32) = i32::try_from(required) {
+                    if available >= required_i32 {
+                        score += 20.0;
+                    } else {
+                        score -= 10.0; // Penalty for insufficient context
+                    }
                 } else {
-                    score -= 10.0; // Penalty for insufficient context
+                    score -= 5.0;
                 }
             }
         }
 
         // Resource constraints
         if criteria.available_resources.gpu_available {
-            if let JsonValue::Number(n) = &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
+            if let JsonValue::Number(n) =
+                &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null)
+            {
                 if n.as_i64().unwrap_or(0) > 0 {
                     score += 15.0;
                 }
             }
         } else {
             // CPU-only models preferred when no GPU
-            if let JsonValue::Number(n) = &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
+            if let JsonValue::Number(n) =
+                &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null)
+            {
                 if n.as_i64().unwrap_or(0) == 0 {
                     score += 10.0;
                 }
@@ -251,4 +261,3 @@ mod tests {
         assert_eq!(criteria.required_context_length, Some(4096));
     }
 }
-

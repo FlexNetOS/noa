@@ -32,11 +32,11 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
       interface SpeechRecognitionConstructor {
         new (): SpeechRecognition;
       }
-      
-      const SpeechRecognition = 
+
+      const SpeechRecognition =
         (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition ||
         (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition;
-      
+
       if (SpeechRecognition) {
         const rec = new SpeechRecognition();
         rec.continuous = false;

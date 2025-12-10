@@ -45,15 +45,20 @@ impl<'a> TaskEventRepository<'a> {
                 })
             })
             .map_err(to_db_err("query task events"))?;
-        Ok(rows.filter_map(Result::ok).collect())
+        let events = rows
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(to_db_err("map task events"))?;
+        Ok(events)
     }
 }
 
 fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
-    move |err| NoaError::Database(DatabaseError::QueryFailed {
-        query: context.into(),
-        error: err.to_string(),
-    })
+    move |err| {
+        NoaError::Database(DatabaseError::QueryFailed {
+            query: context.into(),
+            error: err.to_string(),
+        })
+    }
 }
 
 // TODO: Implement Repository trait when needed

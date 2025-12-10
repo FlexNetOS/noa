@@ -28,7 +28,8 @@ impl PriorityPredictor {
             })
             .collect();
 
-        predictions.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        predictions
+            .sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
         predictions
     }
 }

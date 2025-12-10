@@ -29,8 +29,7 @@ impl DynamicSecurityGraph {
     }
 
     pub fn attach_asset(&mut self, control: &str, asset: &str) {
-        self.graph
-            .upsert_node(asset, "asset", serde_json::json!({}));
+        self.graph.upsert_node(asset, "asset", serde_json::json!({}));
         self.graph.link(control, asset, "protects", 1.0, serde_json::json!({}));
     }
 }

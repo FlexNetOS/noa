@@ -2,13 +2,14 @@
 //!
 //! Database management commands for NOA.
 
-use std::path::PathBuf;
 use std::fs;
 use std::io::Write;
+use std::path::PathBuf;
 
+use base64::engine::general_purpose;
+use base64::Engine;
 use clap::Subcommand;
 use tracing::{info, warn};
-use base64::engine::general_purpose;
 
 use crate::config::NoaConfig;
 use crate::db::{self, ConnectionPool, MigrationRunner};
@@ -78,9 +79,11 @@ pub async fn execute(command: DbCommands) -> Result<()> {
 
     match command {
         DbCommands::Check { fix } => check_database(&db_path, fix),
-        DbCommands::Export { output, format, tables } => {
-            export_database(&db_path, &output, &format, &tables)
-        }
+        DbCommands::Export {
+            output,
+            format,
+            tables,
+        } => export_database(&db_path, &output, &format, &tables),
         DbCommands::Import { input } => import_database(&db_path, &input),
         DbCommands::Migrate { apply, rollback } => {
             migrate_database(&config.noa_root, &db_path, apply, rollback)
@@ -89,7 +92,7 @@ pub async fn execute(command: DbCommands) -> Result<()> {
         DbCommands::Backup { output } => {
             let output_path = output.map(PathBuf::from);
             backup_database(&db_path, output_path.as_ref())
-        },
+        }
         DbCommands::Vacuum => vacuum_database(&db_path),
     }
 }
@@ -121,8 +124,8 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
     }
 
     // Check foreign keys
-    let fk_result: i64 = conn.query_row("PRAGMA foreign_key_check", [], |row| row.get(0))
-        .unwrap_or(0);
+    let fk_result: i64 =
+        conn.query_row("PRAGMA foreign_key_check", [], |row| row.get(0)).unwrap_or(0);
 
     if fk_result == 0 {
         println!("✓ Foreign key check: PASSED");
@@ -135,7 +138,11 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
 
 /// Export database
 fn export_database(db_path: &PathBuf, output: &PathBuf, format: &str, tables: &str) -> Result<()> {
-    println!("Exporting database to {} (format: {})", output.display(), format);
+    println!(
+        "Exporting database to {} (format: {})",
+        output.display(),
+        format
+    );
 
     let conn = db::init_database(db_path)?;
 
@@ -166,11 +173,13 @@ fn export_sql(conn: &rusqlite::Connection, output: &PathBuf, tables: &str) -> Re
 
     for table in table_list {
         // Get CREATE TABLE statement
-        let sql: String = conn.query_row(
-            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
-            [&table],
-            |row| row.get(0),
-        ).unwrap_or_default();
+        let sql: String = conn
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                [&table],
+                |row| row.get(0),
+            )
+            .unwrap_or_default();
 
         if !sql.is_empty() {
             writeln!(file, "{};\n", sql)?;
@@ -320,20 +329,22 @@ fn export_json(conn: &rusqlite::Connection, output: &PathBuf, tables: &str) -> R
 
 fn get_all_tables(conn: &rusqlite::Connection) -> Result<Vec<String>> {
     let mut stmt = conn.prepare(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
     )?;
 
-    let tables: Vec<String> = stmt
-        .query_map([], |row| row.get(0))?
-        .filter_map(|r| r.ok())
-        .collect();
+    let tables: Vec<String> =
+        stmt.query_map([], |row| row.get(0))?.filter_map(|r| r.ok()).collect();
 
     Ok(tables)
 }
 
 /// Import database
 fn import_database(db_path: &PathBuf, input: &PathBuf) -> Result<()> {
-    println!("Importing from {} to {}", input.display(), db_path.display());
+    println!(
+        "Importing from {} to {}",
+        input.display(),
+        db_path.display()
+    );
 
     let content = fs::read_to_string(input)?;
     let conn = db::init_database(db_path)?;
@@ -345,7 +356,12 @@ fn import_database(db_path: &PathBuf, input: &PathBuf) -> Result<()> {
 }
 
 /// Migrate database
-fn migrate_database(noa_root: &PathBuf, db_path: &PathBuf, apply: bool, rollback: bool) -> Result<()> {
+fn migrate_database(
+    noa_root: &PathBuf,
+    db_path: &PathBuf,
+    apply: bool,
+    rollback: bool,
+) -> Result<()> {
     let migrations_dir = noa_root.join("init/migrations");
     let conn = db::init_database(db_path)?;
     let runner = MigrationRunner::new(&migrations_dir);
@@ -397,12 +413,16 @@ fn show_stats(db_path: &PathBuf) -> Result<()> {
     let conn = db::init_database(db_path)?;
     let stats = db::get_stats(&conn)?;
 
-    println!("Total size: {} bytes ({:.2} MB)",
+    println!(
+        "Total size: {} bytes ({:.2} MB)",
         stats.total_size_bytes,
-        stats.total_size_bytes as f64 / 1024.0 / 1024.0);
-    println!("Used size: {} bytes ({:.2} MB)",
+        stats.total_size_bytes as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "Used size: {} bytes ({:.2} MB)",
         stats.used_size_bytes,
-        stats.used_size_bytes as f64 / 1024.0 / 1024.0);
+        stats.used_size_bytes as f64 / 1024.0 / 1024.0
+    );
     println!("Total pages: {}", stats.total_pages);
     println!("Page size: {} bytes", stats.page_size);
     println!("Free pages: {}", stats.free_pages);
@@ -411,11 +431,11 @@ fn show_stats(db_path: &PathBuf) -> Result<()> {
     println!("\nTable Sizes:");
     let tables = get_all_tables(&conn)?;
     for table in tables {
-        let count: i64 = conn.query_row(
-            &format!("SELECT COUNT(*) FROM {}", table),
-            [],
-            |row| row.get(0),
-        ).unwrap_or(0);
+        let count: i64 = conn
+            .query_row(&format!("SELECT COUNT(*) FROM {}", table), [], |row| {
+                row.get(0)
+            })
+            .unwrap_or(0);
         println!("  {}: {} rows", table, count);
     }
 

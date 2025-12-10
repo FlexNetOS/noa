@@ -11,7 +11,11 @@ pub struct Backoff {
 
 impl Backoff {
     pub fn new(initial: Duration, max: Duration, factor: f64) -> Self {
-        Self { current: initial, max, factor }
+        Self {
+            current: initial,
+            max,
+            factor,
+        }
     }
 
     pub fn next_delay(&mut self) -> Duration {

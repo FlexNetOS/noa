@@ -6,12 +6,12 @@
 //!
 //! T628: Implement 3-plane rollback safety net
 
-use crate::error::{Result, NoaError};
+use crate::error::{NoaError, Result};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 /// Plane type in 3-plane architecture
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -135,11 +135,12 @@ impl SafetyNet {
     /// Execute rollback
     pub async fn execute_rollback(&self, operation_id: Uuid) -> Result<()> {
         let mut history = self.rollback_history.write().await;
-        let operation = history.iter_mut().find(|op| op.id == operation_id)
-            .ok_or_else(|| NoaError::NotFound {
+        let operation = history.iter_mut().find(|op| op.id == operation_id).ok_or_else(|| {
+            NoaError::NotFound {
                 resource: "RollbackOperation".to_string(),
                 id: operation_id.to_string(),
-            })?;
+            }
+        })?;
 
         if operation.status != RollbackStatus::Pending {
             return Err(NoaError::Internal {
@@ -168,11 +169,12 @@ impl SafetyNet {
     /// Mark rollback as failed
     pub async fn mark_rollback_failed(&self, operation_id: Uuid, error: String) -> Result<()> {
         let mut history = self.rollback_history.write().await;
-        let operation = history.iter_mut().find(|op| op.id == operation_id)
-            .ok_or_else(|| NoaError::NotFound {
+        let operation = history.iter_mut().find(|op| op.id == operation_id).ok_or_else(|| {
+            NoaError::NotFound {
                 resource: "RollbackOperation".to_string(),
                 id: operation_id.to_string(),
-            })?;
+            }
+        })?;
 
         operation.status = RollbackStatus::Failed;
         operation.error = Some(error);
@@ -200,7 +202,9 @@ impl SafetyNet {
 
     /// Get rollback operation by ID
     pub async fn get_operation(&self, operation_id: Uuid) -> Option<RollbackOperation> {
-        self.rollback_history.read().await
+        self.rollback_history
+            .read()
+            .await
             .iter()
             .find(|op| op.id == operation_id)
             .cloned()
@@ -221,14 +225,17 @@ mod tests {
     async fn test_initiate_rollback() {
         let safety_net = SafetyNet::new();
 
-        let operation_id = safety_net.initiate_rollback(
-            RollbackTrigger::TestFailure,
-            RollbackScope::Single {
-                modification_id: Uuid::new_v4(),
-            },
-            PlaneType::Deployed,
-            PlaneType::Sandbox,
-        ).await.unwrap();
+        let operation_id = safety_net
+            .initiate_rollback(
+                RollbackTrigger::TestFailure,
+                RollbackScope::Single {
+                    modification_id: Uuid::new_v4(),
+                },
+                PlaneType::Deployed,
+                PlaneType::Sandbox,
+            )
+            .await
+            .unwrap();
 
         assert!(safety_net.is_rollback_active(operation_id).await);
         assert_eq!(safety_net.active_rollbacks().await.len(), 1);
@@ -239,38 +246,47 @@ mod tests {
         let safety_net = SafetyNet::new();
 
         // Cannot rollback from coordinator
-        assert!(safety_net.initiate_rollback(
-            RollbackTrigger::Emergency,
-            RollbackScope::Checkpoint {
-                checkpoint_id: Uuid::new_v4(),
-            },
-            PlaneType::Coordinator,
-            PlaneType::Sandbox,
-        ).await.is_err());
+        assert!(safety_net
+            .initiate_rollback(
+                RollbackTrigger::Emergency,
+                RollbackScope::Checkpoint {
+                    checkpoint_id: Uuid::new_v4(),
+                },
+                PlaneType::Coordinator,
+                PlaneType::Sandbox,
+            )
+            .await
+            .is_err());
 
         // Cannot rollback to coordinator
-        assert!(safety_net.initiate_rollback(
-            RollbackTrigger::Emergency,
-            RollbackScope::Checkpoint {
-                checkpoint_id: Uuid::new_v4(),
-            },
-            PlaneType::Deployed,
-            PlaneType::Coordinator,
-        ).await.is_err());
+        assert!(safety_net
+            .initiate_rollback(
+                RollbackTrigger::Emergency,
+                RollbackScope::Checkpoint {
+                    checkpoint_id: Uuid::new_v4(),
+                },
+                PlaneType::Deployed,
+                PlaneType::Coordinator,
+            )
+            .await
+            .is_err());
     }
 
     #[tokio::test]
     async fn test_execute_rollback() {
         let safety_net = SafetyNet::new();
 
-        let operation_id = safety_net.initiate_rollback(
-            RollbackTrigger::SloViolation,
-            RollbackScope::Batch {
-                modification_ids: vec![Uuid::new_v4()],
-            },
-            PlaneType::Deployed,
-            PlaneType::Sandbox,
-        ).await.unwrap();
+        let operation_id = safety_net
+            .initiate_rollback(
+                RollbackTrigger::SloViolation,
+                RollbackScope::Batch {
+                    modification_ids: vec![Uuid::new_v4()],
+                },
+                PlaneType::Deployed,
+                PlaneType::Sandbox,
+            )
+            .await
+            .unwrap();
 
         safety_net.execute_rollback(operation_id).await.unwrap();
 
@@ -279,4 +295,3 @@ mod tests {
         assert!(!safety_net.is_rollback_active(operation_id).await);
     }
 }
-

@@ -51,10 +51,15 @@ impl DigestService {
         source_type: crate::db::repositories::DigestSourceType,
     ) -> Result<Uuid> {
         // Stage 1: Intake - Discover and register source
-        let conn = init_database(&self.db_path)
-            .map_err(|e| crate::error::NoaError::Database(crate::error::DatabaseError::ConnectionFailed {
-                error: format!("Failed to initialize database at {}: {}", self.db_path.display(), e),
-            }))?;
+        let conn = init_database(&self.db_path).map_err(|e| {
+            crate::error::NoaError::Database(crate::error::DatabaseError::ConnectionFailed(
+                format!(
+                    "Failed to initialize database at {}: {}",
+                    self.db_path.display(),
+                    e
+                ),
+            ))
+        })?;
         let intake = IntakeService::new(conn);
         let source_id = intake.discover_source(uri, source_type).await
             .map_err(|e| crate::error::NoaError::Validation(crate::error::ValidationError::new(
@@ -64,17 +69,22 @@ impl DigestService {
             )))?;
 
         // Stage 2: Classifier - Identify languages and licenses
-        let conn = init_database(&self.db_path)
-            .map_err(|e| crate::error::NoaError::Database(crate::error::DatabaseError::ConnectionFailed {
-                error: format!("Failed to initialize database for Stage 2: {}", e),
-            }))?;
+        let conn = init_database(&self.db_path).map_err(|e| {
+            crate::error::NoaError::Database(crate::error::DatabaseError::ConnectionFailed(
+                format!("Failed to initialize database for Stage 2: {}", e),
+            ))
+        })?;
         let classifier = ClassifierService::new(conn);
-        classifier.classify(&source_id).await
-            .map_err(|e| crate::error::NoaError::Validation(crate::error::ValidationError::new(
+        classifier.classify(&source_id).await.map_err(|e| {
+            crate::error::NoaError::Validation(crate::error::ValidationError::new(
                 "classifier",
-                format!("Stage 2 (Classifier) failed for source {}: {}. Check source accessibility.", source_id, e),
+                format!(
+                    "Stage 2 (Classifier) failed for source {}: {}. Check source accessibility.",
+                    source_id, e
+                ),
                 "CLASSIFIER_STAGE_FAILED",
-            )))?;
+            ))
+        })?;
 
         // Stage 3: Graph Extract - Build knowledge graph
         let conn = init_database(&self.db_path)?;
@@ -114,4 +124,3 @@ impl DigestService {
         Ok(source_id)
     }
 }
-

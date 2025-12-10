@@ -18,7 +18,9 @@ pub struct PerformanceMetrics {
 
 impl PerformanceMetrics {
     pub fn new() -> Self {
-        Self { samples: Vec::new() }
+        Self {
+            samples: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, name: impl Into<String>, value: f64, metadata: serde_json::Value) {
@@ -43,12 +45,8 @@ impl PerformanceMetrics {
     }
 
     pub fn average(&self, metric: &str) -> Option<f64> {
-        let values: Vec<f64> = self
-            .samples
-            .iter()
-            .filter(|s| s.name == metric)
-            .map(|s| s.value)
-            .collect();
+        let values: Vec<f64> =
+            self.samples.iter().filter(|s| s.name == metric).map(|s| s.value).collect();
         if values.is_empty() {
             None
         } else {
@@ -57,11 +55,7 @@ impl PerformanceMetrics {
     }
 
     pub fn latest(&self, metric: &str) -> Option<MetricSample> {
-        self.samples
-            .iter()
-            .filter(|s| s.name == metric)
-            .cloned()
-            .last()
+        self.samples.iter().filter(|s| s.name == metric).cloned().last()
     }
 
     pub fn all(&self) -> &[MetricSample] {
