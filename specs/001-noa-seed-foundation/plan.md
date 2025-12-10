@@ -383,7 +383,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 ## Implementation Phases
 
-### Phase 0: Unified Bootstrap (B001-B150) - NEW
+### Phase 0: Unified Bootstrap (B001-B175) - NEW
 **CRITICAL**: This phase MUST complete before any other implementation.
 
 - **B001-B013**: Bootstrap foundation (logging, platform detection, state management)
@@ -400,6 +400,8 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - **B121-B145**: Kernel independence layer (NKAL, VM images, mode switching)
 - **B146-B150**: Platform testing matrix
 - **B153-B160**: Kernel selection policy (FR-159-163) - precedence rules, tool isolation, upgrades
+- **B161-B170**: Native build tools (CMake, Ninja, Make, MinGW/LLVM - required for llama.cpp)
+- **B171-B175**: llama.cpp build (Priority 1 local provider, GPU support)
 
 **Bootstrap Entry Points:**
 - Windows: `.\scripts\bootstrap\bootstrap.ps1`
@@ -781,6 +783,35 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 | **B159** | Implement tool archival to `noa_root/opt/archive/` before upgrade | B158 |
 | **B160** | Add upgrade rollback via `install-all-tools.ps1 -Rollback -Tool <name>` | B159 |
 
+### Phase 0: Native Build Tools (B161-B170) - REQUIRED FOR llama.cpp
+
+> **Note**: These tools are required to build llama.cpp (Priority 1 local provider). CMake and a C++ compiler are mandatory.
+
+| Task | Description | Dependencies |
+|------|-------------|--------------|
+| **B161** | Create `scripts/bootstrap/installers/cmake-portable.ps1` to install CMake to `opt/cmake/` | B024 |
+| **B162** | Create `scripts/bootstrap/installers/cmake-portable.sh` (Unix mirror) | B161 |
+| **B163** | Create `scripts/bootstrap/installers/ninja-portable.ps1` to install Ninja to `opt/ninja/` | B161 |
+| **B164** | Create `scripts/bootstrap/installers/ninja-portable.sh` (Unix mirror) | B163 |
+| **B165** | Create `scripts/bootstrap/installers/make-portable.ps1` (Windows Make/nmake) | B161 |
+| **B166** | Create `scripts/bootstrap/installers/mingw-portable.ps1` to install MinGW-w64 to `opt/mingw/` | B161 |
+| **B167** | Create `scripts/bootstrap/installers/llvm-portable.ps1` to install LLVM/Clang to `opt/llvm/` | B161 |
+| **B168** | Create `bin/cmake.cmd` and `bin/ninja.cmd` wrappers | B161, B163 |
+| **B169** | Add CMake, Ninja, Make to `config/bootstrap-tools.json` version registry | B157, B161 |
+| **B170** | Update `install-all-tools.ps1` to support `-Tool cmake`, `-Tool ninja`, `-Tool mingw` | B161-B167 |
+
+### Phase 0: llama.cpp Build (B171-B175) - PRIORITY 1 LOCAL PROVIDER
+
+> **Note**: llama.cpp is the mandatory Priority 1 local inference provider. It must be built from the `opt/llama.cpp/` submodule.
+
+| Task | Description | Dependencies |
+|------|-------------|--------------|
+| **B171** | Create `scripts/bootstrap/installers/llama-cpp-build.ps1` (build from submodule) | B161, B024 |
+| **B172** | Create `scripts/bootstrap/installers/llama-cpp-build.sh` (Unix mirror) | B171 |
+| **B173** | Add `-GpuLayers` flag for CUDA GPU acceleration in llama-cpp-build | B171 |
+| **B174** | Update `bin/llama-server.cmd` and `bin/llama-cli.cmd` to point to built binaries | B171 |
+| **B175** | Add llama.cpp build verification to `check-prereqs.ps1` | B171 |
+
 ### Phase 18: Foundation - NKAL & State Management (T835-T842)
 
 | Task | Description | Dependencies |
@@ -826,13 +857,13 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 | Category | Count |
 |----------|-------|
-| **Total Tasks** | **1070** |
-| **Phase 0: Bootstrap (B tasks)** | 195 |
+| **Total Tasks** | **1085** |
+| **Phase 0: Bootstrap (B tasks)** | 210 |
 | **Phase 1+ Core (T tasks)** | 865 |
 | **Spec-Kit Integration (SK tasks)** | 10 |
 | Completed [X] | 172 |
-| Pending [ ] | 898 |
-| **Parallelizable** | ~703 (66%) |
+| Pending [ ] | 913 |
+| **Parallelizable** | ~718 (66%) |
 
 ### Task Breakdown by Phase
 
@@ -1069,12 +1100,13 @@ The spec-kit integration uses these existing shared resource paths:
 
 **Plan Updated**: 2025-12-09
 **Total FRs**: 190 (FR-001 to FR-190)
-**Total Tasks**: 1070 (195 Bootstrap + 865 Core + 10 Spec-Kit)
-**Completed**: 172 tasks (16.1%)
-**Pending**: 898 tasks
-**Estimated Duration**: 34-38 weeks (2-4 developers)
+**Total Tasks**: 1085 (210 Bootstrap + 865 Core + 10 Spec-Kit)
+**Completed**: 172 tasks (15.9%)
+**Pending**: 913 tasks
+**Estimated Duration**: 35-40 weeks (2-4 developers)
 **Cross-Platform Parity**: 100% (all scripts mirrored)
 **Kernel Independence**: FR-159 to FR-166 (8 requirements)
+**Native Build Tools**: B161-B175 (CMake, Ninja, Make, MinGW/LLVM, llama.cpp build)
 **Module Abstraction**: FR-176 to FR-180 (5 requirements - AER spec integration)
 **IDE Data Containment**: FR-181 to FR-182 (2 requirements)
 **Agent Hierarchy**: FR-142 to FR-144, FR-183 (Executive), FR-184 to FR-190 (Board)
