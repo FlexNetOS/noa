@@ -460,6 +460,105 @@
       "verify_cmd": "${NOA_ROOT}/bin/golangci-lint --version"
     }
   },
+  "build_tools": {
+    "_comment": "Build system tools installed to noa_root/opt/",
+    "cmake": {
+      "name": "CMake",
+      "min_version": "3.28.0",
+      "latest_version": "3.31.3",
+      "install_to": "${NOA_ROOT}/opt/cmake",
+      "install_script": "scripts/bootstrap/installers/cmake-portable.ps1",
+      "path_additions": [
+        "${NOA_ROOT}/opt/cmake/bin"
+      ],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://github.com/Kitware/CMake/releases/download/v3.31.3/cmake-3.31.3-windows-x86_64.zip",
+          "type": "zip",
+          "extract_to": "${NOA_ROOT}/opt"
+        },
+        "linux_x64": {
+          "url": "https://github.com/Kitware/CMake/releases/download/v3.31.3/cmake-3.31.3-linux-x86_64.tar.gz",
+          "type": "tar.gz"
+        },
+        "macos_universal": {
+          "url": "https://github.com/Kitware/CMake/releases/download/v3.31.3/cmake-3.31.3-macos-universal.tar.gz",
+          "type": "tar.gz"
+        }
+      },
+      "symlinks": ["cmake.exe", "ctest.exe", "cpack.exe"],
+      "verify_cmd": "${NOA_ROOT}/opt/cmake/bin/cmake --version"
+    },
+    "ninja": {
+      "name": "Ninja",
+      "min_version": "1.11.0",
+      "latest_version": "1.12.1",
+      "install_to": "${NOA_ROOT}/opt/ninja",
+      "install_script": "scripts/bootstrap/installers/ninja-portable.ps1",
+      "downloads": {
+        "windows_x64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip",
+          "type": "zip"
+        },
+        "linux_x64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip",
+          "type": "zip"
+        },
+        "macos_x64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-mac.zip",
+          "type": "zip"
+        }
+      },
+      "symlinks": ["ninja.exe"],
+      "verify_cmd": "${NOA_ROOT}/opt/ninja/ninja --version"
+    },
+    "llvm": {
+      "name": "LLVM/Clang",
+      "min_version": "18.0.0",
+      "latest_version": "19.1.6",
+      "install_to": "${NOA_ROOT}/opt/llvm",
+      "install_script": "scripts/bootstrap/installers/llvm-portable.ps1",
+      "path_additions": [
+        "${NOA_ROOT}/opt/llvm/bin"
+      ],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/LLVM-19.1.6-win64.exe",
+          "type": "nsis",
+          "note": "Use 7-Zip to extract or run installer with /S /D=path"
+        },
+        "linux_x64": {
+          "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/clang+llvm-19.1.6-x86_64-linux-gnu-ubuntu-22.04.tar.xz",
+          "type": "tar.xz"
+        },
+        "macos_arm64": {
+          "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/clang+llvm-19.1.6-arm64-apple-darwin23.0.tar.xz",
+          "type": "tar.xz"
+        }
+      },
+      "symlinks": ["clang.exe", "clang++.exe", "clang-cl.exe", "lld.exe", "lld-link.exe", "clang-format.exe"],
+      "verify_cmd": "${NOA_ROOT}/opt/llvm/bin/clang --version"
+    },
+    "mingw": {
+      "name": "MinGW-w64",
+      "min_version": "13.0.0",
+      "latest_version": "14.2.0",
+      "install_to": "${NOA_ROOT}/opt/mingw",
+      "install_script": "scripts/bootstrap/installers/mingw-portable.ps1",
+      "platform": "windows",
+      "path_additions": [
+        "${NOA_ROOT}/opt/mingw/bin"
+      ],
+      "downloads": {
+        "windows_x64": {
+          "url": "https://github.com/niXman/mingw-builds-binaries/releases/download/14.2.0-rt_v12-rev0/x86_64-14.2.0-release-posix-seh-ucrt-rt_v12-rev0.7z",
+          "type": "7z"
+        }
+      },
+      "symlinks": ["gcc.exe", "g++.exe", "mingw32-make.exe"],
+      "verify_cmd": "${NOA_ROOT}/opt/mingw/bin/gcc --version"
+    }
+  },
   "pip_packages": {
     "_comment": "Python packages installed to noa_root/opt/venv/ via portable pip",
     "ruff": {
@@ -623,6 +722,10 @@
       "config",
       "logs",
       "opt",
+      "opt/cmake",
+      "opt/ninja",
+      "opt/llvm",
+      "opt/mingw",
       "opt/rust",
       "opt/rust/rustup",
       "opt/rust/cargo",

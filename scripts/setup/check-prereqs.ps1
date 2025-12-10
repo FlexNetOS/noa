@@ -372,6 +372,56 @@ Check-Tool -Name "protoc" -Commands @("protoc.exe","protoc") -MinVersion "28.0.0
     -InstallCmd ".\scripts\setup\install-all-tools.ps1 -Tool protoc" `
     -VersionCmd "protoc --version" -Category "Build"
 
+# Check llama.cpp build (B175) - Priority 1 Local Provider
+$llamaBuildDir = Join-Path $NoaRoot "opt\llama.cpp\build"
+$llamaFound = $false
+$llamaPath = $null
+
+# Check multiple possible locations (Windows paths)
+$llamaPaths = @(
+    (Join-Path $llamaBuildDir "bin\Release\llama-server.exe"),
+    (Join-Path $llamaBuildDir "bin\Release\llama-cli.exe"),
+    (Join-Path $llamaBuildDir "bin\llama-server.exe"),
+    (Join-Path $llamaBuildDir "bin\llama-cli.exe"),
+    (Join-Path $llamaBuildDir "Release\llama-server.exe"),
+    (Join-Path $llamaBuildDir "Release\llama-cli.exe"),
+    (Join-Path $NOA_BIN "llama-server.exe"),
+    (Join-Path $NOA_BIN "llama-cli.exe")
+)
+
+foreach ($path in $llamaPaths) {
+    if (Test-Path $path) {
+        $llamaFound = $true
+        $llamaPath = $path
+        break
+    }
+}
+
+if ($llamaFound) {
+    $script:Installed += [PSCustomObject]@{
+        Name = "llama.cpp"
+        Version = "built"
+        Path = $llamaPath
+        Category = "Runtime"
+        Required = "built from source"
+    }
+    if (-not $Json) {
+        Write-Host "  [OK] llama.cpp (built)" -ForegroundColor Green
+        Write-Host "      Path: $llamaPath" -ForegroundColor Gray
+    }
+} else {
+    $script:MissingHigh += [PSCustomObject]@{
+        Name = "llama.cpp"
+        Install = ".\scripts\bootstrap\installers\llama-cpp-build.ps1"
+        Category = "Runtime"
+    }
+    if (-not $Json) {
+        Write-Host "  [X] llama.cpp NOT FOUND (HIGH)" -ForegroundColor Red
+        Write-Host "      Install: .\scripts\bootstrap\installers\llama-cpp-build.ps1" -ForegroundColor Gray
+        Write-Host "      Note: llama.cpp is Priority 1 local inference provider (FR-004)" -ForegroundColor Gray
+    }
+}
+
 if (-not $Json) {
     Write-Host ""
     Write-Host "2. Code Quality Tools (HIGH)" -ForegroundColor Yellow
