@@ -24,10 +24,24 @@ pub struct MemoryService {
 
 impl MemoryService {
     /// Create a new memory service
+    /// Note: Takes ownership of conn for memory_repo. Embedding repo uses in-memory for now.
+    /// TODO: Refactor to use connection pool or Arc<Connection>
     pub fn new(conn: Connection) -> Self {
+        let memory_repo = MemoryRepository::new(conn);
+        // Embedding repo uses in-memory connection as temporary workaround
+        // Proper fix requires connection pooling or Arc<Connection>
+        let embedding_conn = crate::db::Connection::open_in_memory()
+            .map_err(|e| {
+                tracing::warn!("Failed to create in-memory connection for embeddings: {}", e);
+                e
+            })
+            .unwrap_or_else(|_| {
+                // Last resort: try to open a temp file
+                crate::db::Connection::open(":memory:").unwrap()
+            });
         Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
-            embedding_repo: EmbeddingRepository::new(conn),
+            memory_repo,
+            embedding_repo: EmbeddingRepository::new(embedding_conn),
             embedding_generator: None,
         }
     }
@@ -38,9 +52,19 @@ impl MemoryService {
         model_name: &str,
     ) -> Result<Self> {
         let generator = EmbeddingGenerator::new(model_name).await?;
+        let memory_repo = MemoryRepository::new(conn);
+        // Embedding repo uses in-memory connection as temporary workaround
+        let embedding_conn = crate::db::Connection::open_in_memory()
+            .map_err(|e| {
+                tracing::warn!("Failed to create in-memory connection for embeddings: {}", e);
+                e
+            })
+            .unwrap_or_else(|_| {
+                crate::db::Connection::open(":memory:").unwrap()
+            });
         Ok(Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
-            embedding_repo: EmbeddingRepository::new(conn),
+            memory_repo,
+            embedding_repo: EmbeddingRepository::new(embedding_conn),
             embedding_generator: Some(generator),
         })
     }

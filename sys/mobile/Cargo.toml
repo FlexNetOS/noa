@@ -1,0 +1,12 @@
+[package]
+name = "noa-mobile"
+version = "0.1.0"
+edition = "2021"
+description = "NOA mobile companion (P2P stub for Phase 13)"
+
+[dependencies]
+tokio = { version = "1.42", features = ["macros", "rt-multi-thread", "sync", "time"] }
+serde = { version = "1.0", features = ["derive"] }
+uuid = { version = "1.11", features = ["v4", "serde"] }
+thiserror = "2.0"
+tracing = "0.1"

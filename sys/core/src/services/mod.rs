@@ -3,6 +3,7 @@
 //! Business logic services for NOA core functionality.
 
 pub mod digest;
+pub mod digest_service;
 pub mod memory_service;
 pub mod search_service;
 pub mod device_service;
@@ -14,6 +15,7 @@ pub mod task_service;
 pub mod orchestration_service;
 pub mod crm_strangler;
 
+pub use digest_service::DigestService;
 pub use memory_service::MemoryService;
 pub use device_service::DeviceService;
 pub use search_service::{SearchService, SearchResult};

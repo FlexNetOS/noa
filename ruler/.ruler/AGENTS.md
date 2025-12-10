@@ -1,27 +1,18 @@
-# Ruler
+# Ruler Agents (Unified)
 
-## Development Process
+Scope: Claude Code, Codex, Cursor, VS Code Copilot, Abacus, Git CLI, and any agent using Ruler in NOA.
 
-### Testing
+## Operating Rules
+- Follow TDD and verification steps in `ruler/rules/tdd.md`; never land untested code.
+- Apply quality and security guidance in `ruler/rules/quality.md` before review.
+- Enforce CI gates defined in `ruler/rules/ci.md`.
+- Attribute AI-authored commits per `ruler/rules/attribution.md` (`--author="AI <ruler+ai@okigu.com>"`).
 
-- Always follow TDD where possible - first adding or adjusting tests, verifying that they fail, then making the minimal changes to pass the tests.
-- Everything in this repository should be covered by tests. That always includes:
-  - Unit tests
-  - Integration tests
-  - End-to-end tests
+## Protocol
+- Request missing context once, then proceed with safe defaults.
+- Tag outputs with `[provider:agent-id]`.
+- Log decisions, risks, and mitigations alongside changes.
 
-### Code Formatting
-
-- Always ensure that the code is formatted correctly by running prettier before committing changes.
-
-### Branches and Pull Requests
-
-- Unless specifically instructed otherwise, all changes should be made in a feature branch and submitted as a pull request for review.
-- Pull requests should be descriptive and clearly explain the changes being made, including the rationale behind the change, the functional changes, the specific files and modules affected.
-- Before declaring a pull request ready for review, you must ensure that all the CI tests pass. These include:
-  - `npm ci`
-  - `npm run lint`
-  - `npm test`
-  - `npm run build`
-- IMPORTANT: Before committing, always use Prettier to ensure that the code is formatted correctly.
-- IMPORTANT: When committing yourself with `git commit`, always pass `--author="AI <ruler+ai@okigu.com>"` so that your commits can be easily identified.
+## Deliverables
+- Include repro commands and affected file list for every change.
+- Surface blockers early with proposed mitigations.

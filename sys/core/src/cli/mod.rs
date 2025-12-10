@@ -20,6 +20,7 @@ pub mod goal;
 pub mod logs;
 pub mod capsule;
 pub mod crm;
+pub mod speckit;
 
 pub use memory::{MemoryArgs, execute_memory};
 pub use p2p::{P2PArgs, execute_p2p};

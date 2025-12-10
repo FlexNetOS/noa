@@ -238,11 +238,21 @@ function Set-ProviderState {
 function Save-BootstrapState {
     <#
     .SYNOPSIS
-        Save the current state to disk
+        Save the current state to disk with schema validation
     #>
 
     if (-not $script:StateFile -or -not $script:State) {
         throw "Bootstrap state not initialized."
+    }
+
+    # Validate state against schema if schema library is available
+    $schemaLib = Join-Path (Split-Path $PSScriptRoot -Parent) "lib\schema.ps1"
+    if (Test-Path $schemaLib) {
+        . $schemaLib
+        $validation = Test-BootstrapStateSchema -StateFilePath $script:StateFile
+        if (-not $validation.IsValid) {
+            Write-Warning "State validation warnings: $($validation.Errors -join ', ')"
+        }
     }
 
     $script:State | ConvertTo-Json -Depth 10 | Set-Content -Path $script:StateFile -Encoding UTF8

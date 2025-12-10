@@ -17,6 +17,9 @@ pub mod decompose;
 pub mod goal_queue;
 pub mod resource_optimizer;
 pub mod self_monitor;
+pub mod ampk;
+pub mod autonomy_loop;
+pub mod scheduler;
 
 // Full autonomy operation modules (FR-061-065)
 pub mod autonomous_mode;
@@ -42,6 +45,9 @@ pub use decompose::GoalDecomposer;
 pub use goal_queue::GoalQueueManager;
 pub use resource_optimizer::ResourceOptimizer;
 pub use self_monitor::PerformanceSelfMonitor;
+pub use ampk::{AMPKAction, AMPKMode, ResourceSnapshot};
+pub use autonomy_loop::{AutonomyLoop, DecideOutcome, SenseInput};
+pub use scheduler::SelfReinventionScheduler;
 
 pub use autonomous_mode::AutonomousMode;
 pub use co_improve::CoImprovementIntake;

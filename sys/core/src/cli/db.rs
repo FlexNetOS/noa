@@ -8,6 +8,7 @@ use std::io::Write;
 
 use clap::Subcommand;
 use tracing::{info, warn};
+use base64::engine::general_purpose;
 
 use crate::config::NoaConfig;
 use crate::db::{self, ConnectionPool, MigrationRunner};
@@ -85,7 +86,10 @@ pub async fn execute(command: DbCommands) -> Result<()> {
             migrate_database(&config.noa_root, &db_path, apply, rollback)
         }
         DbCommands::Stats => show_stats(&db_path),
-        DbCommands::Backup { output } => backup_database(&db_path, output.as_deref()),
+        DbCommands::Backup { output } => {
+            let output_path = output.map(PathBuf::from);
+            backup_database(&db_path, output_path.as_ref())
+        },
         DbCommands::Vacuum => vacuum_database(&db_path),
     }
 }
@@ -294,7 +298,7 @@ fn export_json(conn: &rusqlite::Connection, output: &PathBuf, tables: &str) -> R
                         rusqlite::types::Value::Real(f) => serde_json::json!(f),
                         rusqlite::types::Value::Text(s) => serde_json::json!(s),
                         rusqlite::types::Value::Blob(b) => {
-                            serde_json::json!(base64::encode(&b))
+                            serde_json::json!(base64::engine::general_purpose::STANDARD.encode(&b))
                         }
                     };
                     obj.insert(col.clone(), json_value);
@@ -460,4 +464,3 @@ fn vacuum_database(db_path: &PathBuf) -> Result<()> {
 
     Ok(())
 }
-

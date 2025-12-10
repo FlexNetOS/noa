@@ -49,7 +49,7 @@ impl KnowledgeNodeType {
         }
     }
 
-    fn from_str(s: &str) -> Result<Self> {
+    pub fn from_str(s: &str) -> Result<Self> {
         match s {
             "function" => Ok(KnowledgeNodeType::Function),
             "class" => Ok(KnowledgeNodeType::Class),

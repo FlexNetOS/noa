@@ -22,7 +22,7 @@ pub use device_repository::{DeviceRepository, Device, DeviceType, Platform, Devi
 pub use sync_repository::SyncRepository;
 pub use model_repository::{ModelRepository, Model, ModelStatus, ModelType};
 pub use digest_repository::{DigestRepository, DigestSourceType, DigestStatus, DigestSource};
-pub use knowledge_node_repository::KnowledgeNodeRepository;
+pub use knowledge_node_repository::{KnowledgeNodeRepository, KnowledgeNodeType};
 pub use knowledge_edge_repository::KnowledgeEdgeRepository;
 pub use agent_repository::{AgentRepository, Agent};
 pub use agentlog_repository::{AgentLogRepository, AgentLog};

@@ -51,9 +51,10 @@ fn get_memory_service(state: &AppState) -> Result<MemoryService> {
 /// Helper to create search service from AppState
 fn get_search_service(state: &AppState) -> Result<SearchService> {
     let db_path = get_db_path(state);
-    let conn = init_database(&db_path)?;
-    let memory_repo = MemoryRepository::new(conn.clone());
-    let vector_search = VectorSearch::new(conn)?;
+    let conn1 = init_database(&db_path)?;
+    let conn2 = init_database(&db_path)?;
+    let memory_repo = MemoryRepository::new(conn1);
+    let vector_search = VectorSearch::new(conn2)?;
     Ok(SearchService::new(memory_repo, vector_search))
 }
 
@@ -134,7 +135,7 @@ pub struct SearchResultResponse {
 async fn create_memory(
     State(state): State<AppState>,
     Json(request): Json<CreateMemoryRequest>,
-) -> Result<Json<CreateMemoryResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<CreateMemoryResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let memory_type = match request.r#type.as_str() {
@@ -196,7 +197,7 @@ async fn create_memory(
 async fn get_memory(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<Json<MemoryResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<MemoryResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let memory_id = Uuid::parse_str(&id)
@@ -225,7 +226,7 @@ async fn get_memory(
 async fn list_memories(
     State(state): State<AppState>,
     Query(params): Query<ListMemoriesQuery>,
-) -> Result<Json<ListMemoriesResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<ListMemoriesResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let offset = params.offset.unwrap_or(0);
@@ -268,7 +269,7 @@ async fn list_memories(
 async fn search_memories(
     State(state): State<AppState>,
     Json(request): Json<SearchMemoriesRequest>,
-) -> Result<Json<SearchMemoriesResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<SearchMemoriesResponse>, (StatusCode, String)> {
     let search_service = get_search_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize search service: {}", e)))?;
     let search_type = request.search_type.as_deref().unwrap_or("hybrid");

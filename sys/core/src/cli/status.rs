@@ -2,8 +2,6 @@
 //!
 //! Shows the status of NOA services and system health.
 
-use std::path::PathBuf;
-
 use clap::Args;
 use tracing::info;
 

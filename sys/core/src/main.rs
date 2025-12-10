@@ -137,6 +137,15 @@ enum Commands {
         #[command(subcommand)]
         command: CrmCommands,
     },
+
+    /// Spec-Kit commands
+    Speckit {
+        #[command(subcommand)]
+        command: cli::speckit::SpeckitCommands,
+    },
+
+    /// Digest pipeline commands
+    Digest(cli::digest::DigestArgs),
 }
 
 #[derive(Subcommand)]
@@ -292,6 +301,8 @@ async fn main() -> Result<()> {
         Commands::Logs { command } => handle_logs_command(command).await,
         Commands::Capsule { command } => handle_capsule_command(command).await,
         Commands::Crm { command } => handle_crm_command(command).await,
+        Commands::Speckit { command } => cli::speckit::execute(cli::speckit::SpeckitArgs { command }).await,
+        Commands::Digest(args) => cli::digest::execute(args).await,
     }
 }
 

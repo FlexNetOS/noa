@@ -48,4 +48,5 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
     })
 }
 
-impl<'a> Repository for TaskRepository<'a> {}
+// TODO: Implement Repository trait when needed
+// impl<'a> Repository<Task, i64> for TaskRepository<'a> {}
