@@ -646,26 +646,26 @@ ai/shared/
 
 **Purpose**: Install CMake, Ninja, and C++ compilers required to build llama.cpp (Priority 1 local provider)
 
-- [ ] B161 §3.1 Create `scripts/bootstrap/installers/cmake-portable.ps1` to install CMake to `opt/cmake/`
-- [ ] B162 [P] §3.1 Create `scripts/bootstrap/installers/cmake-portable.sh` (Unix mirror)
-- [ ] B163 [P] §3.1 Create `scripts/bootstrap/installers/ninja-portable.ps1` to install Ninja to `opt/ninja/`
-- [ ] B164 [P] §3.1 Create `scripts/bootstrap/installers/ninja-portable.sh` (Unix mirror)
-- [ ] B165 [P] §3.1 Create `scripts/bootstrap/installers/make-portable.ps1` (Windows Make/nmake)
-- [ ] B166 [P] §3.1 Create `scripts/bootstrap/installers/mingw-portable.ps1` to install MinGW-w64 to `opt/mingw/`
-- [ ] B167 [P] §3.1 Create `scripts/bootstrap/installers/llvm-portable.ps1` to install LLVM/Clang to `opt/llvm/`
-- [ ] B168 §3.1 Create `bin/cmake.cmd` and `bin/ninja.cmd` wrappers pointing to portable installations
-- [ ] B169 §3.1 Add CMake, Ninja, Make to `config/bootstrap-tools.json` version registry
-- [ ] B170 §3.1 Update `install-all-tools.ps1` to support `-Tool cmake`, `-Tool ninja`, `-Tool mingw`, `-Tool llvm`
+- [X] B161 §3.1 Create `scripts/bootstrap/installers/cmake-portable.ps1` to install CMake to `opt/cmake/`
+- [X] B162 [P] §3.1 Create `scripts/bootstrap/installers/cmake-portable.sh` (Unix mirror)
+- [X] B163 [P] §3.1 Create `scripts/bootstrap/installers/ninja-portable.ps1` to install Ninja to `opt/ninja/`
+- [X] B164 [P] §3.1 Create `scripts/bootstrap/installers/ninja-portable.sh` (Unix mirror)
+- [X] B165 [P] §3.1 Create `scripts/bootstrap/installers/make-portable.ps1` (Windows Make/nmake)
+- [X] B166 [P] §3.1 Create `scripts/bootstrap/installers/mingw-portable.ps1` to install MinGW-w64 to `opt/mingw/`
+- [X] B167 [P] §3.1 Create `scripts/bootstrap/installers/llvm-portable.ps1` to install LLVM/Clang to `opt/llvm/`
+- [X] B168 §3.1 Create `bin/cmake.cmd` and `bin/ninja.cmd` wrappers pointing to portable installations
+- [X] B169 §3.1 Add CMake, Ninja, Make to `config/bootstrap-tools.json` version registry
+- [X] B170 §3.1 Update `install-all-tools.ps1` to support `-Tool cmake`, `-Tool ninja`, `-Tool mingw`, `-Tool llvm`
 
 ### llama.cpp Build (B171-B175) - Priority 1 Local Provider
 
 **Purpose**: Build llama.cpp from `opt/llama.cpp/` submodule - this is the mandatory Priority 1 local inference engine
 
 - [X] B171 §3.1 Create `scripts/bootstrap/installers/llama-cpp-build.ps1` to build llama.cpp from submodule
-- [ ] B172 [P] §3.1 Create `scripts/bootstrap/installers/llama-cpp-build.sh` (Unix mirror)
+- [X] B172 [P] §3.1 Create `scripts/bootstrap/installers/llama-cpp-build.sh` (Unix mirror)
 - [X] B173 §3.1 Add `-GpuLayers` flag for CUDA GPU acceleration in llama-cpp-build.ps1
 - [X] B174 §3.1 Update `bin/llama-server.cmd` and `bin/llama-cli.cmd` to point to built binaries
-- [ ] B175 §3.1 Add llama.cpp build verification to `scripts/setup/check-prereqs.ps1`
+- [X] B175 §3.1 Add llama.cpp build verification to `scripts/setup/check-prereqs.ps1` and `init/check-prereqs.sh`
 
 ---
 

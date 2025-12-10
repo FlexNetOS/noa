@@ -10,6 +10,7 @@ members = [
     "crates/indexer",
     "crates/agent",
     "crates/common",
+    "crates/neural",
 ]
 
 [workspace.package]
