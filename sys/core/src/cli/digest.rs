@@ -143,7 +143,7 @@ async fn execute_digest(
 
     // Get database path from config or use default
     let db_path = PathBuf::from(DEFAULT_DB_PATH);
-    
+
     // Validate database path exists or can be created
     if let Some(parent) = db_path.parent() {
         if !parent.exists() {

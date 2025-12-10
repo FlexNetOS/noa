@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use tracing::{debug, info, warn};
 
 /// Resource type
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ResourceType {
     Cpu,
     Memory,

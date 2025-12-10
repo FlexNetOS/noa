@@ -5,7 +5,6 @@
  * and user productivity improvements.
  */
 
-import { apiClient } from '../lib/api';
 import { contextDetector } from './contextDetector';
 
 export interface Insight {
@@ -58,7 +57,7 @@ export class InsightsService {
             label: 'Show Code Editor',
             handler: async () => {
               // Implementation would show code editor widget
-              console.log('Showing code editor widget');
+              // Widget display logic would go here
             },
           },
           timestamp: new Date().toISOString(),
@@ -78,7 +77,7 @@ export class InsightsService {
             label: 'Optimize Widgets',
             handler: async () => {
               // Implementation would optimize widgets
-              console.log('Optimizing widgets');
+              // Widget optimization logic would go here
             },
           },
           timestamp: new Date().toISOString(),

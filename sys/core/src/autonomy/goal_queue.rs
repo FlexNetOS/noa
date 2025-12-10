@@ -80,7 +80,7 @@ impl GoalQueueManager {
         let mut inserted = false;
         for (idx, existing) in queue.iter().enumerate() {
             if priority > existing.priority {
-                queue.insert(idx, goal);
+                queue.insert(idx, goal.clone());
                 inserted = true;
                 break;
             }

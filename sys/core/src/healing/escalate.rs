@@ -35,12 +35,12 @@ pub enum EscalationUrgency {
 
 /// Escalation notifier
 pub struct EscalationNotifier {
-    notification_channels: Vec<NotificationChannel>,
+    notification_channels: Vec<Box<dyn NotificationChannel>>,
 }
 
 /// Notification channel trait
 #[async_trait::async_trait]
-trait NotificationChannel: Send + Sync {
+pub trait NotificationChannel: Send + Sync {
     async fn send(&self, notification: &EscalationNotification) -> Result<()>;
 }
 

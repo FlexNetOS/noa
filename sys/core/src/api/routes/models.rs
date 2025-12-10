@@ -17,7 +17,7 @@ use crate::api::server::AppState;
 use noa_neural::{Model as NeuralModel, ModelStatus};
 use crate::db::repositories::model_repository::Model as RepoModel;
 use crate::services::NeuralService;
-use crate::error::{Result, NoaError};
+use axum::response::IntoResponse;
 
 /// Model list response
 #[derive(Serialize)]
@@ -133,18 +133,39 @@ pub fn routes() -> Router<AppState> {
 }
 
 /// GET /api/v1/models - List all models
-async fn list_models(State(state): State<AppState>) -> std::result::Result<Json<ModelListResponse>, (StatusCode, String)> {
+async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
     // Use database path from config
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
+    let conn = match crate::db::init_database(db_path) {
+        Ok(conn) => conn,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)).into_response(),
+    };
     let service = NeuralService::new(conn);
-    let models = service.list_models()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list models: {}", e)))?;
+    let models = match service.list_models() {
+        Ok(models) => models,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list models: {}", e)).into_response(),
+    };
 
-    Ok(Json(ModelListResponse {
-        models: models.into_iter().map(ModelResponse::from).collect(),
-    }))
+    // Convert model_repository::Model to ModelResponse
+    let model_responses: Vec<ModelResponse> = models.into_iter().map(|m| {
+        ModelResponse {
+            id: m.id.to_string(),
+            name: m.name,
+            model_type: m.model_type.as_str().to_string(),
+            provider: m.provider,
+            path: m.path,
+            uri: m.uri,
+            size_bytes: m.size_bytes,
+            parameters: m.parameters,
+            context_length: m.context_length,
+            license: m.license,
+            status: m.status.as_str().to_string(),
+        }
+    }).collect();
+
+    (StatusCode::OK, Json(ModelListResponse {
+        models: model_responses,
+    })).into_response()
 }
 
 /// POST /api/v1/models/download - Download a model
@@ -215,7 +236,7 @@ async fn ingest_model(
         noa_neural::ModelType::Vision => RepoModelType::Vision,
         noa_neural::ModelType::Audio => RepoModelType::Audio,
     };
-    
+
     let model = RepoModel {
         id: Uuid::new_v4(),
         name: request.name.clone(),

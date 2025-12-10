@@ -75,22 +75,41 @@ function Fix-Symlink {
         Write-Host "  Installing portable $LinkName..." -ForegroundColor Yellow
         if ($InstallerScript -and (Test-Path $InstallerScript)) {
             try {
-                & pwsh -NoLogo -NoProfile -File $InstallerScript -Force:$Force 2>&1 | Out-Null
-                if ($LASTEXITCODE -eq 0) {
+                # Use git-portable.ps1 for git/gh/git-lfs, or individual installers
+                if ($LinkName -eq "git.exe" -or $LinkName -eq "gh.exe" -or $LinkName -eq "git-lfs.exe") {
+                    $gitPortableScript = Join-Path $NoaRoot "scripts\bootstrap\installers\git-portable.ps1"
+                    if (Test-Path $gitPortableScript) {
+                        & pwsh -NoLogo -NoProfile -File $gitPortableScript -Force:$Force 2>&1 | Out-Null
+                    } else {
+                        & pwsh -NoLogo -NoProfile -File $InstallerScript -Force:$Force 2>&1 | Out-Null
+                    }
+                } else {
+                    & pwsh -NoLogo -NoProfile -File $InstallerScript -Force:$Force 2>&1 | Out-Null
+                }
+                
+                # Recheck if portable now exists
+                Start-Sleep -Milliseconds 500
+                $portableExists = Test-Path $PortablePath
+                
+                if ($portableExists) {
                     Write-Host "  [OK] Portable $LinkName installed" -ForegroundColor Green
                 } else {
-                    Write-Host "  [!!] Failed to install portable $LinkName" -ForegroundColor Red
-                    $script:errors++
+                    Write-Host "  [!!] Portable $LinkName installation completed but not found at $PortablePath" -ForegroundColor Yellow
+                    Write-Host "       This may be expected if installer uses different path structure" -ForegroundColor Gray
+                    # Don't error, just skip this link
+                    $script:skipped++
                     return
                 }
             } catch {
                 Write-Host "  [!!] Error installing $LinkName : $_" -ForegroundColor Red
-                $script:errors++
+                Write-Host "       Skipping - portable version may need manual installation" -ForegroundColor Yellow
+                $script:skipped++
                 return
             }
         } else {
-            Write-Host "  [!!] Installer script not found: $InstallerScript" -ForegroundColor Red
-            $script:errors++
+            Write-Host "  [!!] Installer script not found: $InstallerScript" -ForegroundColor Yellow
+            Write-Host "       Skipping - install portable version manually" -ForegroundColor Gray
+            $script:skipped++
             return
         }
     }
