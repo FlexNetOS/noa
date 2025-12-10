@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import ChatInterface from '@/components/ChatInterface';
 
 /**
@@ -66,9 +67,9 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-            <div className="container mx-auto px-4 py-8">
-                <header className="text-center mb-12">
+        <MainLayout>
+            <div className="space-y-6">
+                <header className="text-center">
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-3">
                         NOA
                     </h1>
@@ -77,7 +78,7 @@ export default function Home() {
                     </p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1">
                         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
                             <div className="flex items-center gap-3 mb-6">
@@ -132,7 +133,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-        </main>
+        </MainLayout>
     );
 }
-

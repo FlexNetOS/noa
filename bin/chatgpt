@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# ChatGPT Desktop launcher with NOA containment (Phase 19 T865)
+set -euo pipefail
+
+NOA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+NOA_DATA="${NOA_ROOT}/data"
+APP_ID="chatgpt"
+APP_DATA="${NOA_DATA}/apps/${APP_ID}"
+
+mkdir -p "${APP_DATA}"
+
+export XDG_DATA_HOME="${APP_DATA}"
+export XDG_CONFIG_HOME="${APP_DATA}"
+export APPDATA="${APP_DATA}"
+export LOCALAPPDATA="${APP_DATA}"
+
+export HTTP_PROXY="http://127.0.0.1:8085"
+export HTTPS_PROXY="${HTTP_PROXY}"
+
+run_app() {
+  local candidate="$1"
+  if [[ -x "${candidate}" ]]; then
+    exec "${candidate}" "$@"
+  fi
+}
+
+run_app "${NOA_ROOT}/opt/apps/chatgpt/ChatGPT" "$@" || \
+run_app "${NOA_ROOT}/opt/apps/chatgpt/ChatGPT.AppImage" "$@" || \
+run_app "/usr/bin/chatgpt" "$@" || \
+run_app "/opt/chatgpt/ChatGPT" "$@"
+
+echo "[WARN] ChatGPT Desktop not found."
+echo "Looked in:"
+printf '  - %s\n' \
+  "${NOA_ROOT}/opt/apps/chatgpt/ChatGPT" \
+  "${NOA_ROOT}/opt/apps/chatgpt/ChatGPT.AppImage" \
+  "/usr/bin/chatgpt" \
+  "/opt/chatgpt/ChatGPT"
+exit 1

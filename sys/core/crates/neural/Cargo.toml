@@ -11,3 +11,7 @@ tracing = "0.1"
 reqwest = { version = "0.11", features = ["json"] }
 anyhow = "1"
 noa-common = { path = "../common" }
+
+# Phase 4 dependencies
+tokenizers = "0.19"
+qdrant-client = "1.9"

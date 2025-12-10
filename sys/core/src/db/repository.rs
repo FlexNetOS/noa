@@ -274,7 +274,7 @@ pub struct PaginatedResult<T> {
 
 impl<T> PaginatedResult<T> {
     pub fn new(items: Vec<T>, total: u64, offset: u64, limit: u64) -> Self {
-        let has_more = offset + items.len() as u64 < total;
+        let has_more = offset + (items.len() as u64) < total;
         Self {
             items,
             total,

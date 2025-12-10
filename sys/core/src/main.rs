@@ -6,15 +6,9 @@
 use clap::{Parser, Subcommand};
 use tracing::info;
 
-mod api;
-mod cli;
-mod config;
-mod db;
-mod error;
-mod logging;
-mod observability;
-
-use error::Result;
+// Modules are declared in lib.rs
+// Access via crate:: paths
+use crate::error::Result;
 
 /// NOA - Autonomous Agentic Operating System
 #[derive(Parser)]
@@ -71,6 +65,78 @@ enum Commands {
         #[command(subcommand)]
         command: ProviderCommands,
     },
+
+    /// Module registry and CAS operations
+    Modules {
+        #[command(subcommand)]
+        command: ModuleCommands,
+    },
+
+    /// 3-Plane commands
+    Plane {
+        #[command(subcommand)]
+        command: PlaneCommands,
+    },
+
+    /// Promotion commands
+    Promotion {
+        #[command(subcommand)]
+        command: PromotionCommands,
+    },
+
+    /// Healing commands
+    Healing {
+        #[command(subcommand)]
+        command: HealingCommands,
+    },
+
+    /// Model management commands
+    Models {
+        #[command(subcommand)]
+        command: cli::models::ModelCommands,
+    },
+
+    /// Ask a question to the model
+    Ask(cli::ask::AskArgs),
+
+    /// P2P network management commands
+    P2P(cli::p2p::P2PArgs),
+
+    /// Agents command group
+    Agents {
+        #[command(subcommand)]
+        command: AgentsCommands,
+    },
+
+    /// Tasks command group
+    Tasks {
+        #[command(subcommand)]
+        command: TasksCommands,
+    },
+
+    /// Goal commands
+    Goal {
+        #[command(subcommand)]
+        command: GoalCommands,
+    },
+
+    /// Logs commands
+    Logs {
+        #[command(subcommand)]
+        command: LogsCommands,
+    },
+
+    /// Capsule commands
+    Capsule {
+        #[command(subcommand)]
+        command: CapsuleCommands,
+    },
+
+    /// CRM commands
+    Crm {
+        #[command(subcommand)]
+        command: CrmCommands,
+    },
 }
 
 #[derive(Subcommand)]
@@ -91,8 +157,86 @@ enum ProviderCommands {
     List,
     /// Show provider status
     Status { name: String },
+    /// Enable a provider
+    Enable { name: String },
+    /// Disable a provider
+    Disable { name: String },
     /// Test provider connectivity
     Test { name: String },
+}
+
+#[derive(Subcommand)]
+enum AgentsCommands {
+    /// List agents
+    List,
+}
+
+#[derive(Subcommand)]
+enum TasksCommands {
+    /// List tasks
+    List,
+}
+
+#[derive(Subcommand)]
+enum GoalCommands {
+    /// Submit a goal
+    Submit { title: String },
+}
+
+#[derive(Subcommand)]
+enum LogsCommands {
+    /// Tail logs
+    Tail,
+}
+
+#[derive(Subcommand)]
+enum CapsuleCommands {
+    /// Spawn a capsule
+    Spawn { name: String },
+}
+
+#[derive(Subcommand)]
+enum CrmCommands {
+    /// Toggle CRM strangler mode
+    Toggle { mode: String },
+    /// Roll back CRM
+    Rollback,
+}
+
+#[derive(Subcommand)]
+enum ModuleCommands {
+    /// List registered modules
+    List,
+    /// Show module details
+    Info { name: String },
+    /// Verify a module's stored hash
+    Verify { name: String },
+    /// Show dependency graph
+    Deps { name: String },
+}
+
+#[derive(Subcommand)]
+enum PlaneCommands {
+    /// Show plane status
+    Status,
+    /// Switch active plane (emergency)
+    Switch { name: String },
+    /// Rollback to a plane
+    Rollback { name: String },
+}
+
+#[derive(Subcommand)]
+enum PromotionCommands {
+    /// Show promotion status
+    Status,
+    /// Approve a promotion
+    Approve { id: String },
+}
+
+#[derive(Subcommand)]
+enum HealingCommands {
+    /// Show healing status
+    Status,
 }
 
 #[tokio::main]
@@ -126,6 +270,28 @@ async fn main() -> Result<()> {
         Commands::Db { command } => cli::db::execute(command).await,
         Commands::Agent { command } => handle_agent_command(command).await,
         Commands::Provider { command } => handle_provider_command(command).await,
+        Commands::Modules { command } => handle_module_command(command, cli.noa_root.clone()).await,
+        Commands::Plane { command } => handle_plane_command(command).await,
+        Commands::Promotion { command } => handle_promotion_command(command).await,
+        Commands::Healing { command } => handle_healing_command(command).await,
+        Commands::Models { command } => {
+            cli::models::execute(cli::models::ModelArgs { command }, cli.noa_root.clone()).await
+        }
+        Commands::Ask(args) => cli::ask::execute(args, cli.noa_root.clone()).await,
+        Commands::P2P(args) => {
+            let db_path = std::path::PathBuf::from(
+                cli.noa_root
+                    .clone()
+                    .unwrap_or_else(|| ".".to_string())
+            ).join("data/noa.db");
+            cli::p2p::execute_p2p(args, db_path).await
+        }
+        Commands::Agents { command } => handle_agents_command(command).await,
+        Commands::Tasks { command } => handle_tasks_command(command).await,
+        Commands::Goal { command } => handle_goal_command(command).await,
+        Commands::Logs { command } => handle_logs_command(command).await,
+        Commands::Capsule { command } => handle_capsule_command(command).await,
+        Commands::Crm { command } => handle_crm_command(command).await,
     }
 }
 
@@ -154,23 +320,89 @@ async fn handle_agent_command(command: AgentCommands) -> Result<()> {
     }
 }
 
-async fn handle_provider_command(command: ProviderCommands) -> Result<()> {
+async fn handle_module_command(command: ModuleCommands, noa_root: Option<String>) -> Result<()> {
+    use cli::modules::ModuleCmd;
     match command {
-        ProviderCommands::List => {
-            println!("Listing providers...");
-            // TODO: Implement provider listing
-            Ok(())
-        }
-        ProviderCommands::Status { name } => {
-            println!("Provider status: {}", name);
-            // TODO: Implement provider status
-            Ok(())
-        }
-        ProviderCommands::Test { name } => {
-            println!("Testing provider: {}", name);
-            // TODO: Implement provider test
-            Ok(())
-        }
+        ModuleCommands::List => cli::modules::execute(ModuleCmd::List, noa_root).await,
+        ModuleCommands::Info { name } => cli::modules::execute(ModuleCmd::Info { name }, noa_root).await,
+        ModuleCommands::Verify { name } => cli::modules::execute(ModuleCmd::Verify { name }, noa_root).await,
+        ModuleCommands::Deps { name } => cli::modules::execute(ModuleCmd::Deps { name }, noa_root).await,
     }
 }
 
+async fn handle_provider_command(command: ProviderCommands) -> Result<()> {
+    match command {
+        ProviderCommands::List => cli::providers::list().await,
+        ProviderCommands::Status { name } => cli::providers::status(name).await,
+        ProviderCommands::Enable { name } => cli::providers::enable(name).await,
+        ProviderCommands::Disable { name } => cli::providers::disable(name).await,
+        ProviderCommands::Test { name } => cli::providers::test(name).await,
+    }
+}
+
+async fn handle_plane_command(command: PlaneCommands) -> Result<()> {
+    use cli::plane::PlaneCmd;
+    match command {
+        PlaneCommands::Status => cli::plane::execute(PlaneCmd::Status).await,
+        PlaneCommands::Switch { name } => cli::plane::execute(PlaneCmd::Switch { name }).await,
+        PlaneCommands::Rollback { name } => cli::plane::execute(PlaneCmd::Rollback { name }).await,
+    }
+}
+
+async fn handle_promotion_command(command: PromotionCommands) -> Result<()> {
+    use cli::promotion::PromotionCmd;
+    match command {
+        PromotionCommands::Status => cli::promotion::execute(PromotionCmd::Status).await,
+        PromotionCommands::Approve { id } => cli::promotion::execute(PromotionCmd::Approve { id }).await,
+    }
+}
+
+async fn handle_healing_command(command: HealingCommands) -> Result<()> {
+    use cli::healing::HealingCmd;
+    match command {
+        HealingCommands::Status => cli::healing::execute(HealingCmd::Status).await,
+    }
+}
+
+async fn handle_agents_command(command: AgentsCommands) -> Result<()> {
+    use cli::agents::AgentsCmd;
+    match command {
+        AgentsCommands::List => cli::agents::execute(AgentsCmd::List).await,
+    }
+}
+
+async fn handle_tasks_command(command: TasksCommands) -> Result<()> {
+    use cli::tasks::TasksCmd;
+    match command {
+        TasksCommands::List => cli::tasks::execute(TasksCmd::List).await,
+    }
+}
+
+async fn handle_goal_command(command: GoalCommands) -> Result<()> {
+    use cli::goal::GoalCmd;
+    match command {
+        GoalCommands::Submit { title } => cli::goal::execute(GoalCmd::Submit { title }).await,
+    }
+}
+
+async fn handle_logs_command(command: LogsCommands) -> Result<()> {
+    use cli::logs::LogsCmd;
+    match command {
+        LogsCommands::Tail => cli::logs::execute(LogsCmd::Tail).await,
+    }
+}
+
+async fn handle_capsule_command(command: CapsuleCommands) -> Result<()> {
+    use cli::capsule::CapsuleCmd;
+    match command {
+        CapsuleCommands::Spawn { name } => cli::capsule::execute(CapsuleCmd::Spawn { name }).await,
+    }
+}
+
+async fn handle_crm_command(command: CrmCommands) -> Result<()> {
+    use cli::crm::CrmCmd;
+    match command {
+        CrmCommands::Toggle { mode } => cli::crm::execute(CrmCmd::Toggle { mode }).await,
+        CrmCommands::Rollback => cli::crm::execute(CrmCmd::Rollback).await,
+    }
+}

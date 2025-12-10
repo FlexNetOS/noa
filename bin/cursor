@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Cursor IDE containment launcher (Phase 19 T879)
+set -euo pipefail
+
+NOA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+NOA_DATA="${NOA_ROOT}/data"
+APP_ID="cursor"
+APP_DATA="${NOA_DATA}/apps/${APP_ID}"
+
+mkdir -p "${APP_DATA}/User" "${APP_DATA}/extensions"
+
+export CURSOR_USER_DATA_DIR="${APP_DATA}/User"
+export CURSOR_EXTENSIONS="${APP_DATA}/extensions"
+export XDG_DATA_HOME="${APP_DATA}"
+export XDG_CONFIG_HOME="${APP_DATA}"
+export APPDATA="${APP_DATA}"
+export LOCALAPPDATA="${APP_DATA}"
+
+export HTTP_PROXY="http://127.0.0.1:8085"
+export HTTPS_PROXY="${HTTP_PROXY}"
+
+run_app() {
+  local candidate="$1"
+  if [[ -x "${candidate}" ]]; then
+    exec "${candidate}" "$@"
+  fi
+}
+
+run_app "${NOA_ROOT}/opt/apps/cursor/cursor" "$@" || \
+run_app "${NOA_ROOT}/opt/apps/cursor/Cursor" "$@" || \
+run_app "/usr/bin/cursor" "$@" || \
+run_app "/opt/cursor/Cursor" "$@"
+
+echo "[WARN] Cursor binary not found under NOA containment."
+exit 1

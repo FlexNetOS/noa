@@ -7,4 +7,4 @@ pub mod model;
 pub mod runtime;
 
 pub use runtime::NeuralRuntime;
-pub use model::{Model, ModelConfig, ModelType};
+pub use model::{Model, ModelConfig, ModelStatus, ModelType};

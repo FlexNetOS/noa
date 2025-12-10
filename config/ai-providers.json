@@ -70,6 +70,23 @@
       "provider_state_sync"
     ]
   },
+  "models": {
+    "defaultContextLength": 2048,
+    "defaultTemperature": 0.7,
+    "defaultTopP": 0.9,
+    "defaultTopK": 40,
+    "defaultRepeatPenalty": 1.1,
+    "supportedFormats": ["gguf", "safetensors"],
+    "modelPaths": {
+      "llama.cpp": "${NOA_ROOT}/opt/llama.cpp/models",
+      "ollama": "${NOA_ROOT}/opt/ollama/models",
+      "local": "${NOA_ROOT}/ai/shared/models"
+    },
+    "downloadSources": {
+      "huggingface": "https://huggingface.co",
+      "modelscope": "https://modelscope.cn"
+    }
+  },
   "providerSwitching": {
     "enabled": true,
     "preserveConfigs": true,
