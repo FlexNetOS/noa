@@ -1,0 +1,7 @@
+id: claude
+allowlist:
+  - "claude.ai"
+  - "anthropic.com"
+blocklist: []
+rate_limit_rps: 5
+notes: "Allow only Claude Desktop endpoints."

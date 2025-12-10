@@ -4,6 +4,12 @@
 
 **OPERATIONAL** - Full stack application running successfully!
 
+### Supported Platforms
+- **Windows**: Windows 10/11 (build 19041+) or Windows Server 2019+
+- **Linux**: Ubuntu 20.04+, Debian 11+, or RHEL 8+
+- **macOS**: macOS 11.0+ (Big Sur or later)
+- **WSL**: WSL2 on Windows (Ubuntu 20.04+ recommended)
+
 ### Running Services
 - ✅ **API Server**: http://localhost:3001
 - ✅ **UI Dashboard**: http://localhost:3000
@@ -22,22 +28,22 @@ Located in `sys/core/`, the backend consists of 6 crates:
    - Health checks: `/health`
    - System status: `/api/v1/status`
    - Task management: `/api/v1/tasks` (GET, POST)
-   
+
 2. **noa-common** - Shared types and utilities
    - Entity IDs, timestamps
    - Agent types and states
    - Knowledge graph types
-   
+
 3. **noa-embedder** - Vector embedding service
    - FastEmbed integration (pending)
    - Text-to-vector conversion
-   
+
 4. **noa-trainer** - Model training pipeline
    - Fine-tuning capabilities
-   
+
 5. **noa-indexer** - Repository indexing
    - Code analysis and digestion
-   
+
 6. **noa-agent** - Autonomous agent system
    - CECCA orchestrator
    - MicroAgentStack framework
@@ -50,12 +56,12 @@ Located in `sys/ui/`, the UI provides:
   - Component status dashboard
   - Health indicators
   - Version tracking
-  
+
 - **Chat Interface**
   - Natural language task creation
   - Real-time API integration
   - Message history
-  
+
 - **Modern Design**
   - Gradient backgrounds
   - Glassmorphism effects

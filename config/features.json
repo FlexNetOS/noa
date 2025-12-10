@@ -1,0 +1,10 @@
+{
+    "$schema": "https://noa.local/schemas/features.json",
+    "version": "1.0.0",
+    "providers": {
+        "sharedExecutionMemory": true,
+        "collaborativeReasoning": true,
+        "rateLimiting": true,
+        "backoff": true
+    }
+}

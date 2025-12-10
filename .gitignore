@@ -87,3 +87,12 @@ noa-profile.ps1
 .noa
 Z:/
 tmp/
+
+# Rust build artifacts
+target/
+**/target/
+
+# Next.js build artifacts
+.next/
+**/.next/
+tsconfig.tsbuildinfo
