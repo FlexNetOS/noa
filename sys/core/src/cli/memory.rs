@@ -72,11 +72,13 @@ pub enum MemoryCommand {
 
 /// Execute memory command
 pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
-    let conn = init_database(&db_path)?;
-    let memory_repo = MemoryRepository::new(conn.clone());
-    let vector_search = VectorSearch::new(conn.clone())?;
+    let conn1 = init_database(&db_path)?;
+    let conn2 = init_database(&db_path)?;
+    let conn3 = init_database(&db_path)?;
+    let memory_repo = MemoryRepository::new(conn1);
+    let vector_search = VectorSearch::new(conn2)?;
 
-    let memory_service = MemoryService::new(conn.clone());
+    let memory_service = MemoryService::new(conn3);
     let search_service = SearchService::new(memory_repo, vector_search);
 
     match args.command {
@@ -187,7 +189,8 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
                     println!("Updated: {}", memory.updated_at);
                     println!("Content: {}", memory.content);
                     if let Some(ref metadata) = memory.metadata {
-                        println!("Metadata: {}", serde_json::to_string_pretty(metadata)?);
+                        println!("Metadata: {}", serde_json::to_string_pretty(metadata)
+                            .map_err(|e| crate::error::NoaError::Serialization(e.to_string()))?);
                     }
                     if !memory.tags.is_empty() {
                         println!("Tags: {:?}", memory.tags);

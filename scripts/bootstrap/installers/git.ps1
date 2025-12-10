@@ -58,13 +58,19 @@ function Test-GitInstalled {
     return Test-Path $gitBin
 }
 
-# Check if system git is available
+# Check if portable git is already installed
+if ((Test-GitInstalled) -and -not $Force) {
+    Write-Log "Portable Git already installed in noa_root" -Level Success
+    exit 0
+}
+
+# Check if system git is available (informational only)
 $systemGit = Get-Command git -ErrorAction SilentlyContinue
 if ($systemGit -and -not $Force) {
     $version = & git --version 2>&1
-    Write-Log "Git already available (system): $version" -Level Success
-    Write-Log "Use -Force to install portable version to noa_root" -Level Info
-    exit 0
+    Write-Log "System Git available: $version" -Level Info
+    Write-Log "Installing portable version to noa_root for §3.1 compliance..." -Level Info
+    # Continue with installation instead of exiting
 }
 
 Write-Host ""

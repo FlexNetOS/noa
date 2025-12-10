@@ -65,20 +65,17 @@ pub fn routes() -> Router<AppState> {
 async fn infer(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> Result<Json<InferenceApiResponse>> {
+) -> std::result::Result<Json<InferenceApiResponse>, (StatusCode, String)> {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)?;
+    let conn = crate::db::init_database(db_path)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
     let service = NeuralService::new(conn);
     let engine = service.inference_engine();
 
     let context_id = request.context_id
         .map(|c| Uuid::parse_str(&c))
         .transpose()
-        .map_err(|_| NoaError::Validation(crate::error::ValidationError::new(
-            "context_id",
-            "Invalid UUID format",
-            "INVALID_UUID",
-        )))?;
+        .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid UUID format for context_id".to_string()))?;
 
     let inference_request = InferenceRequest {
         model_id: request.model_id,
@@ -91,7 +88,8 @@ async fn infer(
         stream: false,
     };
 
-    let response = engine.infer(inference_request).await?;
+    let response = engine.infer(inference_request).await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Inference failed: {}", e)))?;
 
     Ok(Json(InferenceApiResponse::from(response)))
 }
@@ -100,20 +98,17 @@ async fn infer(
 async fn infer_stream(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> Result<Sse<impl Stream<Item = Result<Event, Infallible>>>> {
+) -> std::result::Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>, (StatusCode, String)> {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)?;
+    let conn = crate::db::init_database(db_path)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
     let service = NeuralService::new(conn);
     let engine = service.inference_engine();
 
     let context_id = request.context_id
         .map(|c| Uuid::parse_str(&c))
         .transpose()
-        .map_err(|_| NoaError::Validation(crate::error::ValidationError::new(
-            "context_id",
-            "Invalid UUID format",
-            "INVALID_UUID",
-        )))?;
+        .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid UUID format for context_id".to_string()))?;
 
     let inference_request = InferenceRequest {
         model_id: request.model_id,
@@ -126,7 +121,8 @@ async fn infer_stream(
         stream: true,
     };
 
-    let stream = engine.infer_stream(inference_request).await?;
+    let stream = engine.infer_stream(inference_request).await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Inference stream failed: {}", e)))?;
 
     // Convert to SSE events
     let sse_stream = tokio_stream::StreamExt::map(stream, |chunk_result| {

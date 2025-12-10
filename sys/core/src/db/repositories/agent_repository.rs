@@ -46,4 +46,5 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
     })
 }
 
-impl<'a> Repository for AgentRepository<'a> {}
+// TODO: Implement Repository<Agent, i64> trait when needed
+// impl<'a> Repository<Agent, i64> for AgentRepository<'a> {}

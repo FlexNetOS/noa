@@ -116,8 +116,25 @@ $symlinks = Get-ChildItem -Path $NoaRoot -Recurse -Force -ErrorAction SilentlyCo
 foreach ($link in $symlinks) {
     $target = $link.Target
     if ($target -and -not $target.StartsWith($NoaRoot)) {
-        Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE)" -ForegroundColor Red
-        $violations += "SYMLINK: $($link.Name) points to $target"
+        # Check if portable version exists (graceful degradation)
+        $linkName = $link.Name
+        $portablePaths = @{
+            "git.exe" = Join-Path $NoaRoot "opt/git/cmd/git.exe"
+            "gh.exe" = Join-Path $NoaRoot "opt/gh/bin/gh.exe"
+            "git-lfs.exe" = Join-Path $NoaRoot "opt/git-lfs/git-lfs.exe"
+            "rustc.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/rustc.exe"
+            "cargo.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/cargo.exe"
+            "rustfmt.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/rustfmt.exe"
+        }
+        
+        if ($portablePaths.ContainsKey($linkName) -and (Test-Path $portablePaths[$linkName])) {
+            Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE, but portable version available)" -ForegroundColor Yellow
+            Write-Host "       Run: .\scripts\bootstrap\verify\fix-symlinks.ps1" -ForegroundColor Gray
+            $violations += "SYMLINK: $($link.Name) points to $target (portable available at $($portablePaths[$linkName]))"
+        } else {
+            Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE)" -ForegroundColor Red
+            $violations += "SYMLINK: $($link.Name) points to $target"
+        }
     }
 }
 

@@ -107,24 +107,35 @@ if (Test-Path $mingwMake) {
 Write-Log "MinGW not found. Installing standalone GnuWin32 Make..." -Level Info
 
 $makeVersion = "3.81"
+# Source download library for checksum support
+$downloadLib = Join-Path $PSScriptRoot "..\lib\download.ps1"
+if (Test-Path $downloadLib) {
+    . $downloadLib
+}
+
 $downloadUrl = "https://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81-bin.zip/download"
-$zipFile = Join-Path $NOA_CACHE "make-3.81-bin.zip"
+$zipFileName = "make-3.81-bin.zip"
 
 Write-Log "Downloading GnuWin32 Make $makeVersion..." -Level Info
 try {
-    if (-not (Test-Path $zipFile)) {
-        # SourceForge redirects, so we need to follow redirects
-        $response = Invoke-WebRequest -Uri $downloadUrl -MaximumRedirection 0 -ErrorAction SilentlyContinue
-        if ($response.StatusCode -eq 302 -or $response.StatusCode -eq 301) {
-            $actualUrl = $response.Headers.Location
-            Invoke-WebRequest -Uri $actualUrl -OutFile $zipFile -UseBasicParsing
-        } else {
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
-        }
-        Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1KB, 1)) KB" -Level Success
+    if (Test-Path $downloadLib) {
+        # Use Get-NoaDownload for checksum support (when available)
+        # Note: SourceForge redirects are handled by Get-NoaDownload
+        $zipFile = Get-NoaDownload -Url $downloadUrl -DestinationName $zipFileName -UseCache
     } else {
-        Write-Log "Using cached download" -Level Info
+        # Fallback to direct download with redirect handling
+        $zipFile = Join-Path $NOA_CACHE $zipFileName
+        if (-not (Test-Path $zipFile)) {
+            $response = Invoke-WebRequest -Uri $downloadUrl -MaximumRedirection 0 -ErrorAction SilentlyContinue
+            if ($response.StatusCode -eq 302 -or $response.StatusCode -eq 301) {
+                $actualUrl = $response.Headers.Location
+                Invoke-WebRequest -Uri $actualUrl -OutFile $zipFile -UseBasicParsing
+            } else {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
+            }
+        }
     }
+    Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1KB, 1)) KB" -Level Success
 } catch {
     Write-Log "Download failed: $_" -Level Error
     Write-Log "Alternative: Install MinGW-w64 first (provides mingw32-make)" -Level Info

@@ -87,18 +87,29 @@ New-Item -ItemType Directory -Path $NOA_CACHE -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_OPT -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_BIN -Force | Out-Null
 
+# Source download library for checksum support
+$downloadLib = Join-Path $PSScriptRoot "..\lib\download.ps1"
+if (Test-Path $downloadLib) {
+    . $downloadLib
+}
+
 # Download LLVM - Windows uses NSIS installer (.exe)
 $downloadUrl = "https://github.com/llvm/llvm-project/releases/download/llvmorg-$Version/LLVM-$Version-win64.exe"
-$installerFile = Join-Path $NOA_CACHE "LLVM-$Version-win64.exe"
+$installerFileName = "LLVM-$Version-win64.exe"
 
 Write-Log "Downloading LLVM $Version (this is ~500MB)..." -Level Info
 try {
-    if (-not (Test-Path $installerFile)) {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $installerFile -UseBasicParsing
-        Write-Log "Downloaded: $([math]::Round((Get-Item $installerFile).Length / 1MB, 1)) MB" -Level Success
+    if (Test-Path $downloadLib) {
+        # Use Get-NoaDownload for checksum support (when available)
+        $installerFile = Get-NoaDownload -Url $downloadUrl -DestinationName $installerFileName -UseCache
     } else {
-        Write-Log "Using cached download: $([math]::Round((Get-Item $installerFile).Length / 1MB, 1)) MB" -Level Info
+        # Fallback to direct download
+        $installerFile = Join-Path $NOA_CACHE $installerFileName
+        if (-not (Test-Path $installerFile)) {
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $installerFile -UseBasicParsing
+        }
     }
+    Write-Log "Downloaded: $([math]::Round((Get-Item $installerFile).Length / 1MB, 1)) MB" -Level Success
 } catch {
     Write-Log "Download failed: $_" -Level Error
     exit 1

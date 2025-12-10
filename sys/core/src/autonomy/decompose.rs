@@ -80,7 +80,7 @@ impl GoalDecomposer {
             goal_id: goal.id,
             tasks,
             total_tasks,
-            estimated_duration,
+            estimated_duration_secs: estimated_duration,
             decomposition_strategy: "simple".to_string(),
         })
     }

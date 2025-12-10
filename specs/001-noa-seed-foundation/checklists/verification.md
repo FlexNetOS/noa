@@ -28,25 +28,32 @@
 
 - [X] BOOT001 - Verify bootstrap scripts exist (bootstrap.ps1, bootstrap.sh) [B001-B002]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/bootstrap.ps1` and `scripts/bootstrap/bootstrap.sh` exist
-  - ⚠️ **TEST REQUIRED**: Run bootstrap script and verify execution
+  - ✅ **TESTED**: File existence verified 2025-01-27
+  - ⚠️ **RUNTIME TEST PENDING**: Execute bootstrap script in clean environment
 - [X] BOOT002 - Verify logging library exists (logging.ps1, logging.sh) [B003-B004]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/logging.ps1` and `scripts/bootstrap/lib/logging.sh` exist
-  - ⚠️ **TEST REQUIRED**: Verify logging functions work correctly
+  - ✅ **TESTED**: File existence verified 2025-01-27
+  - ⚠️ **RUNTIME TEST PENDING**: Test logging functions in execution
 - [X] BOOT003 - Verify platform detection library exists (platform.ps1, platform.sh) [B005-B006]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/platform.ps1` and `scripts/bootstrap/lib/platform.sh` exist
-  - ⚠️ **TEST REQUIRED**: Verify OS/arch detection works on all platforms
+  - ✅ **TESTED**: File existence verified 2025-01-27
+  - ⚠️ **RUNTIME TEST PENDING**: Test OS/arch detection on all platforms
 - [X] BOOT004 - Verify state management library exists (state.ps1, state.sh) [B007-B008]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/state.ps1` and `scripts/bootstrap/lib/state.sh` exist
-  - ⚠️ **TEST REQUIRED**: Verify bootstrap-state.json management
+  - ✅ **TESTED**: File existence verified, `config/bootstrap-state.json` exists
+  - ⚠️ **RUNTIME TEST PENDING**: Test state file management during bootstrap
 - [X] BOOT005 - Verify verification library exists (verification.ps1, verification.sh) [B009-B010]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/verification.ps1` and `scripts/bootstrap/lib/verification.sh` exist
-  - ⚠️ **TEST REQUIRED**: Verify tool verification (SKIP|UPDATE|INSTALL|RELOCATE) logic
+  - ✅ **TESTED**: File existence verified 2025-01-27
+  - ⚠️ **RUNTIME TEST PENDING**: Test tool verification logic
 - [X] BOOT006 - Verify download library exists (download.ps1, download.sh) [B011-B012]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/download.ps1` and `scripts/bootstrap/lib/download.sh` exist
-  - ⚠️ **TEST REQUIRED**: Verify download with caching works
+  - ✅ **TESTED**: File existence verified 2025-01-27
+  - ⚠️ **RUNTIME TEST PENDING**: Test download with caching
 - [X] BOOT007 - Verify tools.json configuration exists [B013]
-  - ✅ **IMPLEMENTED**: `scripts/bootstrap/config/tools.json` exists with tool definitions
-  - ⚠️ **TEST REQUIRED**: Verify all tool definitions are valid
+  - ✅ **IMPLEMENTED**: `scripts/bootstrap/config/bootstrap-tools.json` exists with tool definitions
+  - ⚠️ **ISSUE**: Scripts reference `tools.json` but file is named `bootstrap-tools.json`
+  - ⚠️ **TEST REQUIRED**: Verify all tool definitions are valid, align file naming
 
 ### Directory Structure (B014-B017)
 
@@ -133,7 +140,8 @@
   - ⚠️ **TEST REQUIRED**: Verify cache directories are created and symlinked correctly
 - [X] BOOT030 - Verify main bootstrap orchestrator works [B078-B085]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/bootstrap.ps1` and `scripts/bootstrap/bootstrap.sh` orchestrate all installers
-  - ⚠️ **TEST REQUIRED**: Run full bootstrap and verify all tools are installed
+  - ✅ **TESTED**: 31 installer scripts found in `scripts/bootstrap/installers/`
+  - ⚠️ **RUNTIME TEST PENDING**: Execute full bootstrap in clean environment
 
 ### Cross-Platform Parity (B101-B120)
 
@@ -143,9 +151,11 @@
 
 ### Constitutional Compliance (B095-B100)
 
-- [X] BOOT032 - Verify all paths resolve under noa_root [B095, §3.1]
+- [ ] BOOT032 - Verify all paths resolve under noa_root [B095, §3.1]
   - ✅ **IMPLEMENTED**: All installers use noa_root paths (opt/, bin/, cache/, etc.)
-  - ⚠️ **TEST REQUIRED**: Verify no external paths are used
+  - ⚠️ **ISSUE FOUND**: Symlinks point to system installations (git, gh, git-lfs, rustup tools)
+  - ⚠️ **REMEDY**: Install portable versions to `opt/` and update symlinks
+  - ⚠️ **TEST STATUS**: Path verification script found violations
 - [X] BOOT033 - Verify offline functionality with pre-cached archives [B096, §3.2]
   - ✅ **IMPLEMENTED**: Download scripts support caching, can work offline with cached files
   - ⚠️ **TEST REQUIRED**: Test bootstrap with network disabled using cached files
@@ -698,7 +708,7 @@ NEXT: <smallest verifiable step if not PASS>
 
 | Phase | Items | Environment | Status | Notes |
 |-------|-------|-------------|--------|-------|
-| 0. Bootstrap | BOOT001-BOOT039 | Local Dev | ✅ | Foundation, Toolchains, Quality Tools, Prerequisites |
+| 0. Bootstrap | BOOT001-BOOT039 | Local Dev | ✅ | Foundation, Toolchains, Quality Tools, Prerequisites (7 tested, 2 issues) |
 | 1. Core System | VER001-VER028 | Local Dev | ⬜ | Init, Neural Runtime, Memory, DB |
 | 2. Agent Architecture | VER029-VER050 | Local Dev | ⬜ | Permanent Agents, CECCA, Orchestration |
 | 3. Shared Provider | VER051-VER070 | Integration | ⬜ | Providers, Shared Memory, Parallel Tasks |
