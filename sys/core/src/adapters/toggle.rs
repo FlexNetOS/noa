@@ -146,9 +146,7 @@ impl AdapterRegistry {
     /// List the current status for all registered adapters.
     pub fn list(&mut self) -> Vec<AdapterStatus> {
         let ids: Vec<String> = self.entries.keys().cloned().collect();
-        ids.into_iter()
-            .filter_map(|id| self.status(&id).ok())
-            .collect()
+        ids.into_iter().filter_map(|id| self.status(&id).ok()).collect()
     }
 }
 

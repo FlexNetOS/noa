@@ -77,4 +77,3 @@ impl NoaError {
         Self::Validation(msg.into())
     }
 }
-

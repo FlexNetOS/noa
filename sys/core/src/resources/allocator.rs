@@ -57,7 +57,7 @@ impl ResourceAllocator {
         if !degradation.allow_gpu {
             adjusted.use_gpu = false;
         }
-        adjusted.model = degradation.fallback_model.unwrap_or(plan.model);
+        adjusted.model = degradation.fallback_model.clone().unwrap_or_else(|| plan.model.clone());
         adjusted.notes.extend(degradation.notes.clone());
         adjusted
     }
@@ -72,7 +72,10 @@ mod tests {
     fn snapshot(tier: HardwareTier) -> CapabilitySnapshot {
         CapabilitySnapshot {
             platform: crate::platform::detect::platform_info(),
-            cpu: CpuInfo { cores: 4, threads: 8 },
+            cpu: CpuInfo {
+                cores: 4,
+                threads: 8,
+            },
             memory_bytes: 16 * 1024 * 1024 * 1024,
             gpus: vec![],
             tier,

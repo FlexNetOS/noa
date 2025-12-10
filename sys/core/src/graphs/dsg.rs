@@ -29,8 +29,13 @@ impl DynamicSoftwareGraph {
     }
 
     pub fn connect(&mut self, caller: &str, callee: &str, latency_ms: f64) {
-        self.graph
-            .link(caller, callee, "calls", latency_ms, serde_json::json!({ "latency_ms": latency_ms }));
+        self.graph.link(
+            caller,
+            callee,
+            "calls",
+            latency_ms,
+            serde_json::json!({ "latency_ms": latency_ms }),
+        );
     }
 }
 

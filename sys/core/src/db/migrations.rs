@@ -3,11 +3,11 @@
 //! Applies and tracks database migrations.
 //! §3.2: Database schema management
 
-use std::path::{Path, PathBuf};
 use std::fs;
+use std::path::{Path, PathBuf};
 
-use crate::error::{DatabaseError, Result};
 use super::Connection;
+use crate::error::{DatabaseError, Result};
 
 /// Database migration
 #[derive(Debug, Clone)]
@@ -18,7 +18,11 @@ pub struct Migration {
 }
 
 impl Migration {
-    pub fn new(version: impl Into<String>, description: impl Into<String>, sql: impl Into<String>) -> Self {
+    pub fn new(
+        version: impl Into<String>,
+        description: impl Into<String>,
+        sql: impl Into<String>,
+    ) -> Self {
         Self {
             version: version.into(),
             description: description.into(),
@@ -54,12 +58,7 @@ impl MigrationRunner {
                 error: e.to_string(),
             })?
             .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.path()
-                    .extension()
-                    .map(|ext| ext == "sql")
-                    .unwrap_or(false)
-            })
+            .filter(|e| e.path().extension().map(|ext| ext == "sql").unwrap_or(false))
             .collect();
 
         entries.sort_by_key(|e| e.file_name());
@@ -274,9 +273,12 @@ mod tests {
 
         // Verify table was created
         let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM sqlite_master WHERE name = 'test'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master WHERE name = 'test'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(count, 1);
     }
 }
-

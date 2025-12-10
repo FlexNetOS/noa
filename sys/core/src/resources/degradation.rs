@@ -64,7 +64,10 @@ mod tests {
     fn snapshot(tier: HardwareTier) -> CapabilitySnapshot {
         CapabilitySnapshot {
             platform: crate::platform::detect::platform_info(),
-            cpu: CpuInfo { cores: 2, threads: 4 },
+            cpu: CpuInfo {
+                cores: 2,
+                threads: 4,
+            },
             memory_bytes: 4 * 1024 * 1024 * 1024,
             gpus: vec![],
             tier,

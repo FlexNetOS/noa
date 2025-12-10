@@ -41,7 +41,10 @@ async fn list_providers() -> Json<ProviderListResponse> {
     Json(ProviderListResponse { providers: list })
 }
 
-async fn enable(Path(id): Path<String>, State(_state): State<AppState>) -> Json<ProviderListResponse> {
+async fn enable(
+    Path(id): Path<String>,
+    State(_state): State<AppState>,
+) -> Json<ProviderListResponse> {
     let _ = enable_provider(&id);
     let list = providers().unwrap_or_default();
     Json(ProviderListResponse { providers: list })
@@ -58,9 +61,7 @@ async fn get_context() -> Json<Vec<String>> {
     Json(contexts)
 }
 
-async fn execute_task(
-    Json(body): Json<ExecuteRequest>,
-) -> Json<ExecuteResponse> {
+async fn execute_task(Json(body): Json<ExecuteRequest>) -> Json<ExecuteResponse> {
     let result = format!("executed '{}' via {}", body.task, body.provider);
     Json(ExecuteResponse {
         provider: body.provider,

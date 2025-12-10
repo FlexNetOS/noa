@@ -35,11 +35,8 @@ impl EmbeddingRepository {
     /// Create a new embedding entry
     pub fn create(&self, embedding: &Embedding) -> Result<Uuid> {
         // Serialize vector as BLOB (f32 array)
-        let vector_bytes: Vec<u8> = embedding
-            .vector
-            .iter()
-            .flat_map(|f| f.to_le_bytes().to_vec())
-            .collect();
+        let vector_bytes: Vec<u8> =
+            embedding.vector.iter().flat_map(|f| f.to_le_bytes().to_vec()).collect();
 
         self.conn
             .execute(
@@ -123,10 +120,9 @@ impl EmbeddingRepository {
             })?;
 
         let rows = stmt
-            .query_map(
-                params![source_type, source_id.to_string()],
-                |row| self.row_to_embedding(row),
-            )
+            .query_map(params![source_type, source_id.to_string()], |row| {
+                self.row_to_embedding(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM embedding".to_string(),
@@ -146,7 +142,10 @@ impl EmbeddingRepository {
     pub fn delete(&self, id: &Uuid) -> Result<bool> {
         let rows_affected = self
             .conn
-            .execute("DELETE FROM embedding WHERE id = ?1", params![id.to_string()])
+            .execute(
+                "DELETE FROM embedding WHERE id = ?1",
+                params![id.to_string()],
+            )
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "DELETE FROM embedding".to_string(),
@@ -224,11 +223,7 @@ impl EmbeddingRepository {
 
         let source_id_str: String = row.get(5)?;
         let source_id = Uuid::parse_str(&source_id_str).map_err(|_| {
-            rusqlite::Error::InvalidColumnType(
-                5,
-                "uuid".to_string(),
-                rusqlite::types::Type::Text,
-            )
+            rusqlite::Error::InvalidColumnType(5, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 
         Ok(Embedding {
@@ -293,4 +288,3 @@ mod tests {
         assert!(repo.find_by_id(&embedding.id).unwrap().is_none());
     }
 }
-

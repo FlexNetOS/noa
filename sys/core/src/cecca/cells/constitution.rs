@@ -7,7 +7,9 @@ pub struct ConstitutionCell {
 
 impl ConstitutionCell {
     pub fn new(required_principles: Vec<String>) -> Self {
-        Self { required_principles }
+        Self {
+            required_principles,
+        }
     }
 }
 
@@ -27,11 +29,7 @@ impl CeccaCell for ConstitutionCell {
             .metadata
             .get("principles")
             .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|s| s.as_str().map(|s| s.to_string()))
-                    .collect()
-            })
+            .map(|arr| arr.iter().filter_map(|s| s.as_str().map(|s| s.to_string())).collect())
             .unwrap_or_default();
 
         let missing: Vec<String> = self

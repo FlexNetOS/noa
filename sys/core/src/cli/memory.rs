@@ -5,10 +5,10 @@
 //! US3: Remember everything with instant recall
 
 use crate::db::init_database;
+use crate::db::repositories::MemoryRepository;
 use crate::db::vector_search::VectorSearch;
 use crate::error::Result;
 use crate::services::{MemoryService, SearchService};
-use crate::db::repositories::MemoryRepository;
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -100,19 +100,21 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
                 }
             };
 
-            let agent_id = agent
-                .map(|s| Uuid::parse_str(&s))
-                .transpose()
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("agent", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+            let agent_id = agent.map(|s| Uuid::parse_str(&s)).transpose().map_err(|e| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "agent",
+                    format!("Invalid UUID: {}", e),
+                    "INVALID_UUID",
+                ))
+            })?;
 
-            let parent_id = parent
-                .map(|s| Uuid::parse_str(&s))
-                .transpose()
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("parent", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+            let parent_id = parent.map(|s| Uuid::parse_str(&s)).transpose().map_err(|e| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "parent",
+                    format!("Invalid UUID: {}", e),
+                    "INVALID_UUID",
+                ))
+            })?;
 
             let tags_set: std::collections::HashSet<String> = tags
                 .map(|s| s.split(',').map(|t| t.trim().to_string()).collect())
@@ -132,31 +134,35 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
             threshold,
         } => {
             let results = match search_type.as_str() {
-                "semantic" => {
-                    search_service.search_semantic(&query, limit, threshold).await?
-                }
-                "keyword" => {
-                    search_service.search_keyword(&query, limit)?
-                }
-                "hybrid" => {
-                    search_service.search_hybrid(&query, limit, threshold).await?
-                }
+                "semantic" => search_service.search_semantic(&query, limit, threshold).await?,
+                "keyword" => search_service.search_keyword(&query, limit)?,
+                "hybrid" => search_service.search_hybrid(&query, limit, threshold).await?,
                 _ => {
-                    eprintln!("Invalid search type: {}. Must be: semantic, keyword, or hybrid", search_type);
+                    eprintln!(
+                        "Invalid search type: {}. Must be: semantic, keyword, or hybrid",
+                        search_type
+                    );
                     return Ok(());
                 }
             };
 
             println!("Found {} results:", results.len());
             for (i, result) in results.iter().enumerate() {
-                println!("\n{}. Memory {} (score: {:.3})", i + 1, result.memory.id, result.score);
+                println!(
+                    "\n{}. Memory {} (score: {:.3})",
+                    i + 1,
+                    result.memory.id,
+                    result.score
+                );
                 println!("   Type: {:?}", result.memory.memory_type);
-                println!("   Content: {}",
+                println!(
+                    "   Content: {}",
                     if result.memory.content.len() > 100 {
                         &result.memory.content[..100]
                     } else {
                         &result.memory.content
-                    });
+                    }
+                );
             }
             Ok(())
         }
@@ -166,20 +172,25 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
             for memory in memories {
                 println!("\nMemory {} ({:?})", memory.id, memory.memory_type);
                 println!("  Created: {}", memory.created_at);
-                println!("  Content: {}",
+                println!(
+                    "  Content: {}",
                     if memory.content.len() > 80 {
                         &memory.content[..80]
                     } else {
                         &memory.content
-                    });
+                    }
+                );
             }
             Ok(())
         }
         MemoryCommand::Get { id } => {
-            let memory_id = Uuid::parse_str(&id)
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("id", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+            let memory_id = Uuid::parse_str(&id).map_err(|e| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "id",
+                    format!("Invalid UUID: {}", e),
+                    "INVALID_UUID",
+                ))
+            })?;
 
             match memory_service.get(&memory_id)? {
                 Some(memory) => {
@@ -189,8 +200,12 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
                     println!("Updated: {}", memory.updated_at);
                     println!("Content: {}", memory.content);
                     if let Some(ref metadata) = memory.metadata {
-                        println!("Metadata: {}", serde_json::to_string_pretty(metadata)
-                            .map_err(|e| crate::error::NoaError::Serialization(e.to_string()))?);
+                        println!(
+                            "Metadata: {}",
+                            serde_json::to_string_pretty(metadata).map_err(|e| {
+                                crate::error::NoaError::Serialization(e.to_string())
+                            })?
+                        );
                     }
                     if !memory.tags.is_empty() {
                         println!("Tags: {:?}", memory.tags);
@@ -212,4 +227,3 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
         }
     }
 }
-

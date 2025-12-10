@@ -14,10 +14,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use noa_neural::{Model as NeuralModel, ModelStatus};
 use crate::db::repositories::model_repository::Model as RepoModel;
 use crate::services::NeuralService;
 use axum::response::IntoResponse;
+use noa_neural::{Model as NeuralModel, ModelStatus};
 
 /// Model list response
 #[derive(Serialize)]
@@ -138,17 +138,30 @@ async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
     let db_path = &state.config.database.path;
     let conn = match crate::db::init_database(db_path) {
         Ok(conn) => conn,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)).into_response(),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
     };
     let service = NeuralService::new(conn);
     let models = match service.list_models() {
         Ok(models) => models,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list models: {}", e)).into_response(),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to list models: {}", e),
+            )
+                .into_response()
+        }
     };
 
     // Convert model_repository::Model to ModelResponse
-    let model_responses: Vec<ModelResponse> = models.into_iter().map(|m| {
-        ModelResponse {
+    let model_responses: Vec<ModelResponse> = models
+        .into_iter()
+        .map(|m| ModelResponse {
             id: m.id.to_string(),
             name: m.name,
             model_type: m.model_type.as_str().to_string(),
@@ -160,61 +173,83 @@ async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
             context_length: m.context_length,
             license: m.license,
             status: m.status.as_str().to_string(),
-        }
-    }).collect();
+        })
+        .collect();
 
-    (StatusCode::OK, Json(ModelListResponse {
-        models: model_responses,
-    })).into_response()
+    (
+        StatusCode::OK,
+        Json(ModelListResponse {
+            models: model_responses,
+        }),
+    )
+        .into_response()
 }
 
 /// POST /api/v1/models/download - Download a model
 async fn download_model(
     State(state): State<AppState>,
     Json(request): Json<DownloadModelRequest>,
-) -> std::result::Result<Json<DownloadModelResponse>, (StatusCode, String)> {
+) -> impl IntoResponse {
     use crate::services::ModelDownloadService;
     use std::path::PathBuf;
 
     let download_service = ModelDownloadService::new();
-    let output_path = request.output_path
+    let output_path = request
+        .output_path
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("models").join(format!("{}.gguf", request.name)));
 
-    let download_id = download_service.download_model(
-        request.name,
-        request.url,
-        output_path,
-    ).await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to download model: {}", e)))?;
+    let download_id = match download_service
+        .download_model(request.name, request.url, output_path)
+        .await
+    {
+        Ok(id) => id,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to download model: {}", e),
+            )
+                .into_response()
+        }
+    };
 
-    Ok(Json(DownloadModelResponse {
+    (StatusCode::OK, Json(DownloadModelResponse {
         download_id: download_id.to_string(),
         status: "started".to_string(),
     }))
+        .into_response()
 }
 
 /// POST /api/v1/models/benchmark - Benchmark a model
 async fn benchmark_model(
     State(state): State<AppState>,
     Json(request): Json<BenchmarkRequest>,
-) -> std::result::Result<Json<BenchmarkResponse>, (StatusCode, String)> {
+) -> impl IntoResponse {
     // TODO: Implement actual benchmarking
     // This requires model ID in request
-    Err((
+    (
         StatusCode::BAD_REQUEST,
         "Benchmark endpoint requires model_id".to_string(),
-    ))
+    )
+        .into_response()
 }
 
 /// POST /api/v1/models/ingest - Ingest a local model
 async fn ingest_model(
     State(state): State<AppState>,
     Json(request): Json<IngestModelRequest>,
-) -> std::result::Result<Json<ModelResponse>, (StatusCode, String)> {
+) -> impl IntoResponse {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
+    let conn = match crate::db::init_database(db_path) {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
+    };
     let service = NeuralService::new(conn);
 
     use noa_neural::ModelType;
@@ -223,13 +258,18 @@ async fn ingest_model(
         "embedding" => ModelType::Embedding,
         "vision" => ModelType::Vision,
         "audio" => ModelType::Audio,
-        _ => return Err((
-            StatusCode::BAD_REQUEST,
-            "Invalid model type. Must be: llm, embedding, vision, or audio".to_string(),
-        )),
+        _ => {
+            return (
+                StatusCode::BAD_REQUEST,
+                "Invalid model type. Must be: llm, embedding, vision, or audio".to_string(),
+            )
+                .into_response()
+        }
     };
 
-    use crate::db::repositories::model_repository::{ModelType as RepoModelType, ModelStatus as RepoModelStatus};
+    use crate::db::repositories::model_repository::{
+        ModelStatus as RepoModelStatus, ModelType as RepoModelType,
+    };
     let repo_model_type = match model_type {
         noa_neural::ModelType::LLM => RepoModelType::LLM,
         noa_neural::ModelType::Embedding => RepoModelType::Embedding,
@@ -253,64 +293,140 @@ async fn ingest_model(
         metrics: None,
     };
 
-    service.register_model(model.clone())
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to register model: {}", e)))?;
+    if let Err(e) = service.register_model(model.clone()) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to register model: {}", e),
+        )
+            .into_response();
+    }
 
-    Ok(Json(ModelResponse::from(model)))
+    (StatusCode::OK, Json(ModelResponse::from(model))).into_response()
 }
 
 /// POST /api/v1/models/:id/load - Load a model
 async fn load_model(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> std::result::Result<StatusCode, (StatusCode, String)> {
+) -> impl IntoResponse {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
+    let conn = match crate::db::init_database(db_path) {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
+    };
     let service = NeuralService::new(conn);
-    let model_id = Uuid::parse_str(&id)
-        .map_err(|_| (StatusCode::BAD_REQUEST, format!("Invalid UUID format: {}", id)))?;
+    let model_id = match Uuid::parse_str(&id) {
+        Ok(id) => id,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!("Invalid UUID format: {}", id),
+            )
+                .into_response()
+        }
+    };
 
-    service.load_model(&model_id).await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to load model: {}", e)))?;
+    if let Err(e) = service.load_model(&model_id).await {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to load model: {}", e),
+        )
+            .into_response();
+    }
 
-    Ok(StatusCode::OK)
+    StatusCode::OK.into_response()
 }
 
 /// POST /api/v1/models/:id/unload - Unload a model
 async fn unload_model(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> std::result::Result<StatusCode, (StatusCode, String)> {
+) -> impl IntoResponse {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
+    let conn = match crate::db::init_database(db_path) {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
+    };
     let service = NeuralService::new(conn);
-    let model_id = Uuid::parse_str(&id)
-        .map_err(|_| (StatusCode::BAD_REQUEST, format!("Invalid UUID format: {}", id)))?;
+    let model_id = match Uuid::parse_str(&id) {
+        Ok(id) => id,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!("Invalid UUID format: {}", id),
+            )
+                .into_response()
+        }
+    };
 
-    service.unload_model(&model_id).await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to unload model: {}", e)))?;
+    if let Err(e) = service.unload_model(&model_id).await {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to unload model: {}", e),
+        )
+            .into_response();
+    }
 
-    Ok(StatusCode::OK)
+    StatusCode::OK.into_response()
 }
 
 /// GET /api/v1/models/:id/status - Get model status
 async fn get_model_status(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> std::result::Result<Json<ModelResponse>, (StatusCode, String)> {
+) -> impl IntoResponse {
     let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
+    let conn = match crate::db::init_database(db_path) {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize database: {}", e),
+            )
+                .into_response()
+        }
+    };
     let service = NeuralService::new(conn);
-    let model_id = Uuid::parse_str(&id)
-        .map_err(|_| (StatusCode::BAD_REQUEST, format!("Invalid UUID format: {}", id)))?;
+    let model_id = match Uuid::parse_str(&id) {
+        Ok(id) => id,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!("Invalid UUID format: {}", id),
+            )
+                .into_response()
+        }
+    };
 
-    let model = service.get_model(&model_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to get model: {}", e)))?
-        .ok_or_else(|| (StatusCode::NOT_FOUND, format!("Model not found: {}", id)))?;
+    let model = match service.get_model(&model_id) {
+        Ok(Some(model)) => model,
+        Ok(None) => {
+            return (
+                StatusCode::NOT_FOUND,
+                format!("Model not found: {}", id),
+            )
+                .into_response()
+        }
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to get model: {}", e),
+            )
+                .into_response()
+        }
+    };
 
-    Ok(Json(ModelResponse::from(model)))
+    (StatusCode::OK, Json(ModelResponse::from(model))).into_response()
 }
-

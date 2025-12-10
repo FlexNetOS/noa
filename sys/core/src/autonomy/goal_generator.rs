@@ -6,12 +6,12 @@
 //!
 //! T631: Implement self-generated goal engine
 
-use crate::error::{Result, NoaError};
+use crate::error::{NoaError, Result};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 /// Goal source
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -143,7 +143,9 @@ impl GoalGenerator {
 
     /// Get goals by status
     pub async fn goals_by_status(&self, status: GoalStatus) -> Vec<GeneratedGoal> {
-        self.generated_goals.read().await
+        self.generated_goals
+            .read()
+            .await
             .iter()
             .filter(|g| g.status == status)
             .cloned()
@@ -152,17 +154,14 @@ impl GoalGenerator {
 
     /// Get goal by ID
     pub async fn get_goal(&self, goal_id: Uuid) -> Option<GeneratedGoal> {
-        self.generated_goals.read().await
-            .iter()
-            .find(|g| g.id == goal_id)
-            .cloned()
+        self.generated_goals.read().await.iter().find(|g| g.id == goal_id).cloned()
     }
 
     /// Update goal status
     pub async fn update_status(&self, goal_id: Uuid, status: GoalStatus) -> Result<()> {
         let mut goals = self.generated_goals.write().await;
-        let goal = goals.iter_mut().find(|g| g.id == goal_id)
-            .ok_or_else(|| NoaError::NotFound {
+        let goal =
+            goals.iter_mut().find(|g| g.id == goal_id).ok_or_else(|| NoaError::NotFound {
                 resource: "GeneratedGoal".to_string(),
                 id: goal_id.to_string(),
             })?;
@@ -194,21 +193,29 @@ impl GoalGenerator {
         let history = self.generation_history.read().await;
         let goal_ids: Vec<Uuid> = history
             .iter()
-            .filter(|(t, _)| {
-                match (t, trigger) {
-                    (GenerationTrigger::PerformanceDegradation, GenerationTrigger::PerformanceDegradation) => true,
-                    (GenerationTrigger::ErrorRateIncrease, GenerationTrigger::ErrorRateIncrease) => true,
-                    (GenerationTrigger::ResourceInefficiency, GenerationTrigger::ResourceInefficiency) => true,
-                    (GenerationTrigger::PatternAnalysis, GenerationTrigger::PatternAnalysis) => true,
-                    (GenerationTrigger::UserFeedback, GenerationTrigger::UserFeedback) => true,
-                    (GenerationTrigger::DependencyUpdate, GenerationTrigger::DependencyUpdate) => true,
-                    _ => false,
+            .filter(|(t, _)| match (t, trigger) {
+                (
+                    GenerationTrigger::PerformanceDegradation,
+                    GenerationTrigger::PerformanceDegradation,
+                ) => true,
+                (GenerationTrigger::ErrorRateIncrease, GenerationTrigger::ErrorRateIncrease) => {
+                    true
                 }
+                (
+                    GenerationTrigger::ResourceInefficiency,
+                    GenerationTrigger::ResourceInefficiency,
+                ) => true,
+                (GenerationTrigger::PatternAnalysis, GenerationTrigger::PatternAnalysis) => true,
+                (GenerationTrigger::UserFeedback, GenerationTrigger::UserFeedback) => true,
+                (GenerationTrigger::DependencyUpdate, GenerationTrigger::DependencyUpdate) => true,
+                _ => false,
             })
             .map(|(_, id)| *id)
             .collect();
 
-        self.generated_goals.read().await
+        self.generated_goals
+            .read()
+            .await
             .iter()
             .filter(|g| goal_ids.contains(&g.id))
             .cloned()
@@ -230,15 +237,18 @@ mod tests {
     async fn test_generate_goal() {
         let generator = GoalGenerator::new();
 
-        let goal_id = generator.generate_goal(
-            GenerationTrigger::PerformanceDegradation,
-            "Optimize database queries".to_string(),
-            "Improve query performance".to_string(),
-            10,
-            "Query latency increased by 50%".to_string(),
-            None,
-            serde_json::json!({}),
-        ).await.unwrap();
+        let goal_id = generator
+            .generate_goal(
+                GenerationTrigger::PerformanceDegradation,
+                "Optimize database queries".to_string(),
+                "Improve query performance".to_string(),
+                10,
+                "Query latency increased by 50%".to_string(),
+                None,
+                serde_json::json!({}),
+            )
+            .await
+            .unwrap();
 
         let goal = generator.get_goal(goal_id).await.unwrap();
         assert_eq!(goal.title, "Optimize database queries");
@@ -249,15 +259,18 @@ mod tests {
     async fn test_update_status() {
         let generator = GoalGenerator::new();
 
-        let goal_id = generator.generate_goal(
-            GenerationTrigger::ErrorRateIncrease,
-            "Fix error handling".to_string(),
-            "Description".to_string(),
-            5,
-            "Error rate increased".to_string(),
-            None,
-            serde_json::json!({}),
-        ).await.unwrap();
+        let goal_id = generator
+            .generate_goal(
+                GenerationTrigger::ErrorRateIncrease,
+                "Fix error handling".to_string(),
+                "Description".to_string(),
+                5,
+                "Error rate increased".to_string(),
+                None,
+                serde_json::json!({}),
+            )
+            .await
+            .unwrap();
 
         generator.update_status(goal_id, GoalStatus::Active).await.unwrap();
         let goal = generator.get_goal(goal_id).await.unwrap();
@@ -270,15 +283,17 @@ mod tests {
         let generator = GoalGenerator::new();
 
         // Empty title should fail
-        assert!(generator.generate_goal(
-            GenerationTrigger::PatternAnalysis,
-            "".to_string(),
-            "Description".to_string(),
-            5,
-            "Rationale".to_string(),
-            None,
-            serde_json::json!({}),
-        ).await.is_err());
+        assert!(generator
+            .generate_goal(
+                GenerationTrigger::PatternAnalysis,
+                "".to_string(),
+                "Description".to_string(),
+                5,
+                "Rationale".to_string(),
+                None,
+                serde_json::json!({}),
+            )
+            .await
+            .is_err());
     }
 }
-

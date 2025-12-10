@@ -338,4 +338,3 @@ mod tests {
         assert!(NoaPaths::config(root).join("models.json").exists());
     }
 }
-

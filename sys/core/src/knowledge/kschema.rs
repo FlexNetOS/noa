@@ -43,7 +43,12 @@ impl SchemaRegistry {
         Ok(())
     }
 
-    pub fn validate(&self, schema_name: &str, version: &str, payload: &serde_json::Value) -> Result<()> {
+    pub fn validate(
+        &self,
+        schema_name: &str,
+        version: &str,
+        payload: &serde_json::Value,
+    ) -> Result<()> {
         let key = format!("{}:{}", schema_name, version);
         let schema = self.schemas.get(&key).ok_or_else(|| NoaError::NotFound {
             resource: "schema".to_string(),
@@ -52,9 +57,7 @@ impl SchemaRegistry {
 
         for field in &schema.fields {
             if field.required {
-                let missing = payload
-                    .get(&field.name)
-                    .is_none();
+                let missing = payload.get(&field.name).is_none();
                 if missing {
                     return Err(NoaError::Validation(ValidationError::new(
                         &field.name,

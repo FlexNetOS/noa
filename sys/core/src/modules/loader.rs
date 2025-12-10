@@ -1,7 +1,7 @@
+use crate::error::{NoaError, Result, ValidationError};
 use crate::modules::cas::ContentAddressableStore;
-use crate::modules::types::{ModuleLifecycleState, ModuleMetadata};
 use crate::modules::lifecycle::transition;
-use crate::error::{Result, NoaError, ValidationError};
+use crate::modules::types::{ModuleLifecycleState, ModuleMetadata};
 use std::path::{Path, PathBuf};
 
 pub struct ModuleLoader {
@@ -19,15 +19,10 @@ impl ModuleLoader {
 
     /// Resolve the module location, downloading from CAS if necessary.
     pub fn load(&self, meta: &ModuleMetadata) -> Result<(ModuleLifecycleState, PathBuf)> {
-        let state = transition(
-            ModuleLifecycleState::Verified,
-            ModuleLifecycleState::Loaded,
-        )
-        .map_err(|e| NoaError::Validation(ValidationError::new(
-            "module.lifecycle",
-            e,
-            "INVALID_STATE",
-        )))?;
+        let state = transition(ModuleLifecycleState::Verified, ModuleLifecycleState::Loaded)
+            .map_err(|e| {
+                NoaError::Validation(ValidationError::new("module.lifecycle", e, "INVALID_STATE"))
+            })?;
 
         let path = if let Some(path) = &meta.path {
             path.clone()
@@ -46,12 +41,12 @@ impl ModuleLoader {
     }
 
     pub fn unload(&self, _meta: &ModuleMetadata) -> Result<ModuleLifecycleState> {
-        transition(ModuleLifecycleState::Loaded, ModuleLifecycleState::Unloading).map_err(|e| {
-            NoaError::Validation(ValidationError::new(
-                "module.lifecycle",
-                e,
-                "INVALID_STATE",
-            ))
+        transition(
+            ModuleLifecycleState::Loaded,
+            ModuleLifecycleState::Unloading,
+        )
+        .map_err(|e| {
+            NoaError::Validation(ValidationError::new("module.lifecycle", e, "INVALID_STATE"))
         })
     }
 }

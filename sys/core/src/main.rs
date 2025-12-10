@@ -138,6 +138,9 @@ enum Commands {
         command: CrmCommands,
     },
 
+    /// Config commands
+    Config(cli::config::ConfigArgs),
+
     /// Self-improvement lifecycle
     Improve {
         #[command(subcommand)]
@@ -283,10 +286,7 @@ async fn main() -> Result<()> {
     };
     logging::init(&log_config)?;
 
-    info!(
-        version = env!("CARGO_PKG_VERSION"),
-        "NOA starting"
-    );
+    info!(version = env!("CARGO_PKG_VERSION"), "NOA starting");
 
     // Execute command
     match cli.command {
@@ -306,11 +306,9 @@ async fn main() -> Result<()> {
         }
         Commands::Ask(args) => cli::ask::execute(args, cli.noa_root.clone()).await,
         Commands::P2P(args) => {
-            let db_path = std::path::PathBuf::from(
-                cli.noa_root
-                    .clone()
-                    .unwrap_or_else(|| ".".to_string())
-            ).join("data/noa.db");
+            let db_path =
+                std::path::PathBuf::from(cli.noa_root.clone().unwrap_or_else(|| ".".to_string()))
+                    .join("data/noa.db");
             cli::p2p::execute_p2p(args, db_path).await
         }
         Commands::Agents { command } => handle_agents_command(command).await,
@@ -319,8 +317,11 @@ async fn main() -> Result<()> {
         Commands::Logs { command } => handle_logs_command(command).await,
         Commands::Capsule { command } => handle_capsule_command(command).await,
         Commands::Crm { command } => handle_crm_command(command).await,
+        Commands::Config(args) => cli::config::execute(args).await,
         Commands::Improve { command } => handle_improve_command(command).await,
-        Commands::Speckit { command } => cli::speckit::execute(cli::speckit::SpeckitArgs { command }).await,
+        Commands::Speckit { command } => {
+            cli::speckit::execute(cli::speckit::SpeckitArgs { command }).await
+        }
         Commands::Digest(args) => cli::digest::execute(args).await,
     }
 }
@@ -354,9 +355,15 @@ async fn handle_module_command(command: ModuleCommands, noa_root: Option<String>
     use cli::modules::ModuleCmd;
     match command {
         ModuleCommands::List => cli::modules::execute(ModuleCmd::List, noa_root).await,
-        ModuleCommands::Info { name } => cli::modules::execute(ModuleCmd::Info { name }, noa_root).await,
-        ModuleCommands::Verify { name } => cli::modules::execute(ModuleCmd::Verify { name }, noa_root).await,
-        ModuleCommands::Deps { name } => cli::modules::execute(ModuleCmd::Deps { name }, noa_root).await,
+        ModuleCommands::Info { name } => {
+            cli::modules::execute(ModuleCmd::Info { name }, noa_root).await
+        }
+        ModuleCommands::Verify { name } => {
+            cli::modules::execute(ModuleCmd::Verify { name }, noa_root).await
+        }
+        ModuleCommands::Deps { name } => {
+            cli::modules::execute(ModuleCmd::Deps { name }, noa_root).await
+        }
     }
 }
 
@@ -383,7 +390,9 @@ async fn handle_promotion_command(command: PromotionCommands) -> Result<()> {
     use cli::promotion::PromotionCmd;
     match command {
         PromotionCommands::Status => cli::promotion::execute(PromotionCmd::Status).await,
-        PromotionCommands::Approve { id } => cli::promotion::execute(PromotionCmd::Approve { id }).await,
+        PromotionCommands::Approve { id } => {
+            cli::promotion::execute(PromotionCmd::Approve { id }).await
+        }
     }
 }
 

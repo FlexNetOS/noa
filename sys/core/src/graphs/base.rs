@@ -101,16 +101,17 @@ impl DomainGraph {
         metadata: serde_json::Value,
     ) {
         let id = id.into();
+        let label: String = label.into();
         let now = Utc::now();
         let entry = self.nodes.entry(id.clone()).or_insert(GraphNode {
             id: id.clone(),
-            label: label.into(),
+            label: label.clone(),
             kind: self.kind,
             metadata: serde_json::json!({}),
             last_seen: now,
         });
 
-        entry.label = label.into();
+        entry.label = label;
         entry.metadata = metadata;
         entry.last_seen = now;
 
@@ -140,7 +141,12 @@ impl DomainGraph {
         self.events.push(GraphEvent::EdgeUpsert(edge));
     }
 
-    pub fn record_metric(&mut self, node_id: impl Into<String>, key: impl Into<String>, value: f64) {
+    pub fn record_metric(
+        &mut self,
+        node_id: impl Into<String>,
+        key: impl Into<String>,
+        value: f64,
+    ) {
         self.events.push(GraphEvent::Metric {
             node_id: node_id.into(),
             key: key.into(),
@@ -215,8 +221,7 @@ impl DynamicGraph for DomainGraph {
 
     fn prune_stale(&mut self, max_age: Duration) {
         let cutoff = Utc::now() - max_age;
-        self.nodes
-            .retain(|_, node| node.last_seen >= cutoff);
+        self.nodes.retain(|_, node| node.last_seen >= cutoff);
         self.edges.retain(|edge| {
             self.nodes.contains_key(&edge.from) && self.nodes.contains_key(&edge.to)
         });
@@ -239,9 +244,23 @@ mod tests {
     #[test]
     fn snapshot_contains_edges_and_nodes() {
         let mut graph = DomainGraph::new("dsg", GraphKind::Software);
-        graph.upsert_node("service-a", "Service A", serde_json::json!({"version": "1.0"}));
-        graph.upsert_node("service-b", "Service B", serde_json::json!({"version": "1.1"}));
-        graph.link("service-a", "service-b", "calls", 1.0, serde_json::json!({}));
+        graph.upsert_node(
+            "service-a",
+            "Service A",
+            serde_json::json!({"version": "1.0"}),
+        );
+        graph.upsert_node(
+            "service-b",
+            "Service B",
+            serde_json::json!({"version": "1.1"}),
+        );
+        graph.link(
+            "service-a",
+            "service-b",
+            "calls",
+            1.0,
+            serde_json::json!({}),
+        );
 
         let snap = graph.snapshot();
         assert_eq!(snap.nodes.len(), 2);

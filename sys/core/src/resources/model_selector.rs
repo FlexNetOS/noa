@@ -6,7 +6,7 @@ use crate::platform::capabilities::{CapabilitySnapshot, HardwareTier};
 use serde::{Deserialize, Serialize};
 
 /// Model size tiers used for selection heuristics.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ModelSizeClass {
     Tiny,
     Small,
@@ -15,10 +15,10 @@ pub enum ModelSizeClass {
 }
 
 /// Recommended model configuration.
-#[derive(Debug, Clone, Serialize, Deserialize, Copy)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelSelection {
     pub size: ModelSizeClass,
-    pub preferred_quantization: &'static str,
+    pub preferred_quantization: String,
 }
 
 /// Selector that maps capability snapshot to a model size.
@@ -29,19 +29,19 @@ impl ModelSelector {
         match snapshot.tier {
             HardwareTier::High => ModelSelection {
                 size: ModelSizeClass::Large,
-                preferred_quantization: "f16",
+                preferred_quantization: "f16".to_string(),
             },
             HardwareTier::Medium => ModelSelection {
                 size: ModelSizeClass::Medium,
-                preferred_quantization: "q5_0",
+                preferred_quantization: "q5_0".to_string(),
             },
             HardwareTier::Low => ModelSelection {
                 size: ModelSizeClass::Small,
-                preferred_quantization: "q4_0",
+                preferred_quantization: "q4_0".to_string(),
             },
             HardwareTier::Unknown => ModelSelection {
                 size: ModelSizeClass::Tiny,
-                preferred_quantization: "q4_0",
+                preferred_quantization: "q4_0".to_string(),
             },
         }
     }
@@ -56,7 +56,10 @@ mod tests {
     fn snapshot(tier: HardwareTier) -> CapabilitySnapshot {
         CapabilitySnapshot {
             platform: crate::platform::detect::platform_info(),
-            cpu: CpuInfo { cores: 4, threads: 8 },
+            cpu: CpuInfo {
+                cores: 4,
+                threads: 8,
+            },
             memory_bytes: 8 * 1024 * 1024 * 1024,
             gpus: vec![],
             tier,

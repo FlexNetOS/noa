@@ -10,8 +10,7 @@ pub struct ActivityEvent {
 }
 
 pub fn routes() -> Router<AppState> {
-    Router::new()
-        .route("/activity/stream", get(stream_activity))
+    Router::new().route("/activity/stream", get(stream_activity))
 }
 
 async fn stream_activity() -> Json<Vec<ActivityEvent>> {

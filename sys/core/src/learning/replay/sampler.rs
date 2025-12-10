@@ -4,7 +4,7 @@
 //! US2: Sample experiences for training
 
 use crate::error::Result;
-use crate::learning::replay::{ReplayBuffer, Experience};
+use crate::learning::replay::{Experience, ReplayBuffer};
 use serde::{Deserialize, Serialize};
 
 /// Sampling strategy
@@ -30,9 +30,7 @@ impl ExperienceSampler {
     /// Sample experiences
     pub async fn sample(&self, count: usize) -> Result<Vec<Experience>> {
         match self.strategy {
-            SamplingStrategy::Uniform => {
-                Ok(self.buffer.sample(count).await)
-            }
+            SamplingStrategy::Uniform => Ok(self.buffer.sample(count).await),
             SamplingStrategy::Prioritized => {
                 // Prioritize high-reward experiences
                 let all = self.buffer.sample(self.buffer.len().await).await;
@@ -63,4 +61,3 @@ mod tests {
         assert!(samples.len() <= 5);
     }
 }
-

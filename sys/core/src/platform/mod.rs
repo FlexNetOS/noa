@@ -11,7 +11,7 @@ pub mod paths;
 pub mod windows;
 
 pub use capabilities::{CapabilitySnapshot, HardwareTier};
-pub use detect::{platform_info, Platform, PlatformInfo, Architecture};
+pub use detect::{platform_info, Architecture, Platform, PlatformInfo};
 pub use paths::{PlatformPaths, RootedPaths};
 
 /// Common adaptation hints for each supported platform.

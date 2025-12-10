@@ -8,11 +8,11 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
-use prometheus::{
-    self, Counter, CounterVec, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec,
-    IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder, Encoder,
-};
 use lazy_static::lazy_static;
+use prometheus::{
+    self, Counter, CounterVec, Encoder, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec,
+    IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder,
+};
 
 use crate::error::Result;
 
@@ -172,9 +172,7 @@ pub fn record_http_request(method: &str, path: &str, status: u16, duration: Dura
 
 /// Record a database query
 pub fn record_db_query(operation: &str, table: &str, duration: Duration) {
-    DB_QUERIES_TOTAL
-        .with_label_values(&[operation, table])
-        .inc();
+    DB_QUERIES_TOTAL.with_label_values(&[operation, table]).inc();
 
     DB_QUERY_DURATION
         .with_label_values(&[operation])
@@ -183,9 +181,7 @@ pub fn record_db_query(operation: &str, table: &str, duration: Duration) {
 
 /// Record an agent action
 pub fn record_agent_action(agent: &str, action: &str, status: &str, duration: Duration) {
-    AGENT_ACTIONS_TOTAL
-        .with_label_values(&[agent, action, status])
-        .inc();
+    AGENT_ACTIONS_TOTAL.with_label_values(&[agent, action, status]).inc();
 
     AGENT_ACTION_DURATION
         .with_label_values(&[agent, action])
@@ -201,9 +197,7 @@ pub fn record_provider_request(
     output_tokens: u64,
     duration: Duration,
 ) {
-    PROVIDER_REQUESTS_TOTAL
-        .with_label_values(&[provider, model, status])
-        .inc();
+    PROVIDER_REQUESTS_TOTAL.with_label_values(&[provider, model, status]).inc();
 
     PROVIDER_TOKENS_TOTAL
         .with_label_values(&[provider, model, "input"])
@@ -250,7 +244,10 @@ pub async fn metrics_handler() -> impl axum::response::IntoResponse {
     match get_metrics() {
         Ok(metrics) => (
             axum::http::StatusCode::OK,
-            [(axum::http::header::CONTENT_TYPE, "text/plain; version=0.0.4")],
+            [(
+                axum::http::header::CONTENT_TYPE,
+                "text/plain; version=0.0.4",
+            )],
             metrics,
         ),
         Err(e) => (
@@ -278,4 +275,3 @@ mod tests {
         record_http_request("GET", "/api/v1/health", 200, Duration::from_millis(50));
     }
 }
-

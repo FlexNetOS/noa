@@ -80,8 +80,17 @@ mod tests {
 
     #[test]
     fn classifies_tiers() {
-        assert_eq!(classify_hardware(16, 64 * 1024 * 1024 * 1024, 1), HardwareTier::High);
-        assert_eq!(classify_hardware(8, 16 * 1024 * 1024 * 1024, 0), HardwareTier::Medium);
-        assert_eq!(classify_hardware(4, 4 * 1024 * 1024 * 1024, 0), HardwareTier::Low);
+        assert_eq!(
+            classify_hardware(16, 64 * 1024 * 1024 * 1024, 1),
+            HardwareTier::High
+        );
+        assert_eq!(
+            classify_hardware(8, 16 * 1024 * 1024 * 1024, 0),
+            HardwareTier::Medium
+        );
+        assert_eq!(
+            classify_hardware(4, 4 * 1024 * 1024 * 1024, 0),
+            HardwareTier::Low
+        );
     }
 }

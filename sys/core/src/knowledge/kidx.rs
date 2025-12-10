@@ -65,13 +65,10 @@ impl CapsuleIndex {
     }
 
     pub fn update_checksum(&mut self, id: &str, checksum: String) -> Result<()> {
-        let record = self
-            .records
-            .get_mut(id)
-            .ok_or_else(|| NoaError::NotFound {
-                resource: "capsule".to_string(),
-                id: id.to_string(),
-            })?;
+        let record = self.records.get_mut(id).ok_or_else(|| NoaError::NotFound {
+            resource: "capsule".to_string(),
+            id: id.to_string(),
+        })?;
         record.checksum = Some(checksum);
         Ok(())
     }

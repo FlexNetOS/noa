@@ -20,10 +20,7 @@ impl KnowledgeDirectory {
     }
 
     pub fn list(&self, category: &str) -> Vec<String> {
-        self.entries
-            .get(category)
-            .cloned()
-            .unwrap_or_default()
+        self.entries.get(category).cloned().unwrap_or_default()
     }
 
     pub fn all(&self) -> HashMap<String, Vec<String>> {

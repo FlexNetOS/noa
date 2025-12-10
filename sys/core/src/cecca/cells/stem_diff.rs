@@ -26,16 +26,8 @@ impl Default for StemDifferentiatorCell {
 
 impl CeccaCell for StemDifferentiatorCell {
     fn evaluate(&self, ctx: &CeccaContext) -> CeccaDecision {
-        let baseline = ctx
-            .metadata
-            .get("baseline")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
-        let candidate = ctx
-            .metadata
-            .get("candidate")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let baseline = ctx.metadata.get("baseline").and_then(|v| v.as_str()).unwrap_or("");
+        let candidate = ctx.metadata.get("candidate").and_then(|v| v.as_str()).unwrap_or("");
 
         let ratio = self.diff_ratio(baseline, candidate);
         let rationale = format!("Diff ratio {:.2}", ratio);

@@ -23,11 +23,7 @@ impl Default for LicenseGateCell {
 
 impl CeccaCell for LicenseGateCell {
     fn evaluate(&self, ctx: &CeccaContext) -> CeccaDecision {
-        let license = ctx
-            .metadata
-            .get("license")
-            .and_then(|v| v.as_str())
-            .unwrap_or("UNKNOWN");
+        let license = ctx.metadata.get("license").and_then(|v| v.as_str()).unwrap_or("UNKNOWN");
 
         if self.allowed.iter().any(|l| l == license) {
             CeccaDecision {

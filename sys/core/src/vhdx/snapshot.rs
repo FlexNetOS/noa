@@ -24,7 +24,11 @@ impl VhdxSnapshotManager {
         }
     }
 
-    pub fn create_snapshot(&mut self, parent_id: Option<String>, description: impl Into<String>) -> VhdxSnapshot {
+    pub fn create_snapshot(
+        &mut self,
+        parent_id: Option<String>,
+        description: impl Into<String>,
+    ) -> VhdxSnapshot {
         let snap = VhdxSnapshot {
             id: uuid::Uuid::new_v4().to_string(),
             parent_id,
@@ -36,13 +40,10 @@ impl VhdxSnapshotManager {
     }
 
     pub fn rollback(&self, id: &str) -> Result<VhdxSnapshot> {
-        self.snapshots
-            .get(id)
-            .cloned()
-            .ok_or_else(|| NoaError::NotFound {
-                resource: "vhdx_snapshot".to_string(),
-                id: id.to_string(),
-            })
+        self.snapshots.get(id).cloned().ok_or_else(|| NoaError::NotFound {
+            resource: "vhdx_snapshot".to_string(),
+            id: id.to_string(),
+        })
     }
 
     pub fn list(&self) -> Vec<VhdxSnapshot> {

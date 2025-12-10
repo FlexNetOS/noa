@@ -1,6 +1,6 @@
-use noa_api::{Server, db::Database};
-use std::net::SocketAddr;
+use noa_api::{db::Database, Server};
 use std::env;
+use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]

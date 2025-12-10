@@ -18,7 +18,11 @@ pub struct CeccaContext {
 }
 
 impl CeccaContext {
-    pub fn new(subject: impl Into<String>, content: impl Into<String>, metadata: serde_json::Value) -> Self {
+    pub fn new(
+        subject: impl Into<String>,
+        content: impl Into<String>,
+        metadata: serde_json::Value,
+    ) -> Self {
         Self {
             subject: subject.into(),
             content: content.into(),

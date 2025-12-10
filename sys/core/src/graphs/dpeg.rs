@@ -18,13 +18,17 @@ impl DynamicPerformanceGraph {
     }
 
     pub fn record_latency(&mut self, producer: &str, consumer: &str, latency_ms: f64) {
-        self.graph
-            .link(producer, consumer, "latency", latency_ms, serde_json::json!({ "latency_ms": latency_ms }));
+        self.graph.link(
+            producer,
+            consumer,
+            "latency",
+            latency_ms,
+            serde_json::json!({ "latency_ms": latency_ms }),
+        );
     }
 
     pub fn record_throughput(&mut self, component: &str, value: f64) {
-        self.graph
-            .record_metric(component.to_string(), "throughput", value);
+        self.graph.record_metric(component.to_string(), "throughput", value);
     }
 }
 

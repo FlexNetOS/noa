@@ -4,8 +4,8 @@
 
 use std::path::Path;
 
-use crate::error::{ConfigError, Result, ValidationError};
 use super::NoaConfig;
+use crate::error::{ConfigError, Result, ValidationError};
 
 /// Configuration validator
 pub struct ConfigValidator;
@@ -25,7 +25,8 @@ impl ConfigValidator {
             return Err(ConfigError::ValidationError {
                 field: "noa_root".to_string(),
                 message: format!("Directory does not exist: {}", config.noa_root.display()),
-            }.into());
+            }
+            .into());
         }
 
         // Check for required subdirectories
@@ -36,7 +37,8 @@ impl ConfigValidator {
                 return Err(ConfigError::ValidationError {
                     field: "noa_root".to_string(),
                     message: format!("Required directory missing: {}", dir),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -50,14 +52,16 @@ impl ConfigValidator {
                 field: "database.driver".to_string(),
                 value: config.database.driver.clone(),
                 expected: "sqlite or postgresql".to_string(),
-            }.into());
+            }
+            .into());
         }
 
         if config.database.max_connections == 0 {
             return Err(ConfigError::ValidationError {
                 field: "database.max_connections".to_string(),
                 message: "Must be greater than 0".to_string(),
-            }.into());
+            }
+            .into());
         }
 
         // For SQLite, ensure parent directory exists
@@ -66,11 +70,9 @@ impl ConfigValidator {
                 if !parent.exists() {
                     return Err(ConfigError::ValidationError {
                         field: "database.path".to_string(),
-                        message: format!(
-                            "Parent directory does not exist: {}",
-                            parent.display()
-                        ),
-                    }.into());
+                        message: format!("Parent directory does not exist: {}", parent.display()),
+                    }
+                    .into());
                 }
             }
         }
@@ -84,11 +86,9 @@ impl ConfigValidator {
             if !parent.exists() {
                 return Err(ConfigError::ValidationError {
                     field: "logging.output".to_string(),
-                    message: format!(
-                        "Parent directory does not exist: {}",
-                        parent.display()
-                    ),
-                }.into());
+                    message: format!("Parent directory does not exist: {}", parent.display()),
+                }
+                .into());
             }
         }
 
@@ -96,7 +96,8 @@ impl ConfigValidator {
             return Err(ConfigError::ValidationError {
                 field: "logging.max_size_mb".to_string(),
                 message: "Must be greater than 0".to_string(),
-            }.into());
+            }
+            .into());
         }
 
         Ok(())
@@ -133,7 +134,8 @@ pub fn validate_path(path: &Path, must_exist: bool, must_be_dir: bool) -> Result
             "path",
             format!("Path does not exist: {}", path.display()),
             "PATH_NOT_FOUND",
-        ).into());
+        )
+        .into());
     }
 
     if must_be_dir && path.exists() && !path.is_dir() {
@@ -141,7 +143,8 @@ pub fn validate_path(path: &Path, must_exist: bool, must_be_dir: bool) -> Result
             "path",
             format!("Path is not a directory: {}", path.display()),
             "NOT_A_DIRECTORY",
-        ).into());
+        )
+        .into());
     }
 
     Ok(())
@@ -150,11 +153,7 @@ pub fn validate_path(path: &Path, must_exist: bool, must_be_dir: bool) -> Result
 /// Validate a string is not empty
 pub fn validate_not_empty(value: &str, field: &str) -> Result<()> {
     if value.trim().is_empty() {
-        return Err(ValidationError::new(
-            field,
-            "Value cannot be empty",
-            "EMPTY_VALUE",
-        ).into());
+        return Err(ValidationError::new(field, "Value cannot be empty", "EMPTY_VALUE").into());
     }
     Ok(())
 }
@@ -171,7 +170,8 @@ pub fn validate_range<T: PartialOrd + std::fmt::Display>(
             field,
             format!("Value {} is out of range [{}, {}]", value, min, max),
             "OUT_OF_RANGE",
-        ).into());
+        )
+        .into());
     }
     Ok(())
 }
@@ -194,4 +194,3 @@ mod tests {
         assert!(validate_range(11, 1, 10, "field").is_err());
     }
 }
-

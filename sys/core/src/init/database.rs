@@ -5,7 +5,7 @@
 
 use crate::error::{NoaError, Result};
 use crate::init::paths::NoaPaths;
-use rusqlite::{Connection, params};
+use rusqlite::{params, Connection};
 use std::fs;
 use std::path::Path;
 use tracing::{debug, info, warn};
@@ -31,15 +31,17 @@ impl DatabaseInitializer {
         }
 
         // Create database connection
-        let conn = Connection::open(&db_path)
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::ConnectionFailed(e.to_string())))?;
+        let conn = Connection::open(&db_path).map_err(|e| {
+            NoaError::Database(crate::error::DatabaseError::ConnectionFailed(e.to_string()))
+        })?;
 
         // Enable foreign keys
-        conn.execute("PRAGMA foreign_keys = ON", [])
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
+        conn.execute("PRAGMA foreign_keys = ON", []).map_err(|e| {
+            NoaError::Database(crate::error::DatabaseError::QueryFailed {
                 query: "PRAGMA foreign_keys".to_string(),
                 error: e.to_string(),
-            }))?;
+            })
+        })?;
 
         // Run migrations if they exist
         let migrations_dir = NoaPaths::init_migrations(noa_root);
@@ -65,30 +67,38 @@ impl DatabaseInitializer {
             )",
             [],
         )
-        .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
-            query: "CREATE TABLE schema_migrations".to_string(),
-            error: e.to_string(),
-        }))?;
+        .map_err(|e| {
+            NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                query: "CREATE TABLE schema_migrations".to_string(),
+                error: e.to_string(),
+            })
+        })?;
 
         // Get applied migrations
         let mut stmt = conn
             .prepare("SELECT version FROM schema_migrations ORDER BY version")
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
-                query: "SELECT version".to_string(),
-                error: e.to_string(),
-            }))?;
+            .map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                    query: "SELECT version".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
         let applied: Vec<String> = stmt
             .query_map([], |row| row.get(0))
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
-                query: "SELECT version".to_string(),
-                error: e.to_string(),
-            }))?
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
-                query: "SELECT version".to_string(),
-                error: e.to_string(),
-            }))?;
+            .map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                    query: "SELECT version".to_string(),
+                    error: e.to_string(),
+                })
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                    query: "SELECT version".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
         // Find migration files
         let migration_files = std::fs::read_dir(migrations_dir)
@@ -106,13 +116,12 @@ impl DatabaseInitializer {
 
         // Apply pending migrations
         for migration_file in migration_files {
-            let version = migration_file
-                .file_stem()
-                .and_then(|s| s.to_str())
-                .ok_or_else(|| NoaError::Internal {
+            let version = migration_file.file_stem().and_then(|s| s.to_str()).ok_or_else(|| {
+                NoaError::Internal {
                     message: "Invalid migration filename".to_string(),
                     source: None,
-                })?;
+                }
+            })?;
 
             if applied.contains(&version.to_string()) {
                 debug!(version = %version, "Migration already applied");
@@ -121,13 +130,14 @@ impl DatabaseInitializer {
 
             info!(version = %version, "Applying migration");
 
-            let sql = std::fs::read_to_string(&migration_file)
-                .map_err(|e| NoaError::Io(e))?;
+            let sql = std::fs::read_to_string(&migration_file).map_err(|e| NoaError::Io(e))?;
 
             // Execute migration in a transaction
-            let tx = conn
-                .unchecked_transaction()
-                .map_err(|e| NoaError::Database(crate::error::DatabaseError::TransactionFailed(e.to_string())))?;
+            let tx = conn.unchecked_transaction().map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::TransactionFailed(
+                    e.to_string(),
+                ))
+            })?;
 
             // Split SQL by semicolons and execute each statement
             for statement in sql.split(';') {
@@ -136,11 +146,12 @@ impl DatabaseInitializer {
                     continue;
                 }
 
-                tx.execute(statement, [])
-                    .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                tx.execute(statement, []).map_err(|e| {
+                    NoaError::Database(crate::error::DatabaseError::QueryFailed {
                         query: statement.to_string(),
                         error: e.to_string(),
-                    }))?;
+                    })
+                })?;
             }
 
             // Record migration
@@ -148,13 +159,18 @@ impl DatabaseInitializer {
                 "INSERT INTO schema_migrations (version) VALUES (?1)",
                 params![version],
             )
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
-                query: "INSERT INTO schema_migrations".to_string(),
-                error: e.to_string(),
-            }))?;
+            .map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::QueryFailed {
+                    query: "INSERT INTO schema_migrations".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
-            tx.commit()
-                .map_err(|e| NoaError::Database(crate::error::DatabaseError::TransactionFailed(e.to_string())))?;
+            tx.commit().map_err(|e| {
+                NoaError::Database(crate::error::DatabaseError::TransactionFailed(
+                    e.to_string(),
+                ))
+            })?;
 
             info!(version = %version, "Migration applied successfully");
         }
@@ -170,18 +186,19 @@ impl DatabaseInitializer {
             return Ok(false);
         }
 
-        let conn = Connection::open(&db_path)
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::ConnectionFailed(e.to_string())))?;
+        let conn = Connection::open(&db_path).map_err(|e| {
+            NoaError::Database(crate::error::DatabaseError::ConnectionFailed(e.to_string()))
+        })?;
 
         // Test query
-        let mut stmt = conn
-            .prepare("SELECT 1")
-            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
+        let mut stmt = conn.prepare("SELECT 1").map_err(|e| {
+            NoaError::Database(crate::error::DatabaseError::QueryFailed {
                 query: "SELECT 1".to_string(),
                 error: e.to_string(),
-            }))?;
+            })
+        })?;
 
-        let result: Result<i32, _> = stmt.query_row([], |row| row.get(0));
+        let result: std::result::Result<i32, _> = stmt.query_row([], |row| row.get(0));
         Ok(result.is_ok())
     }
 }
@@ -201,4 +218,3 @@ mod tests {
         assert!(NoaPaths::data(root).join("noa.db").exists());
     }
 }
-

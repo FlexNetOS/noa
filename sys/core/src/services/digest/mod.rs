@@ -4,24 +4,22 @@
 //! §3.4: Digest Everything Pipeline
 //! US4: Digest Everything Pipeline
 
-pub mod intake;
 pub mod classifier;
-pub mod graph_extract;
 pub mod embeddings;
 pub mod env_synthesis;
-pub mod safety;
-pub mod runner;
+pub mod graph_extract;
+pub mod intake;
 pub mod integrator;
 pub mod registrar;
+pub mod runner;
+pub mod safety;
 
-pub use intake::IntakeService;
 pub use classifier::ClassifierService;
-pub use graph_extract::GraphExtractService;
 pub use embeddings::EmbeddingsService;
 pub use env_synthesis::EnvSynthesisService;
-pub use safety::SafetyService;
-pub use runner::RunnerService;
+pub use graph_extract::GraphExtractService;
+pub use intake::IntakeService;
 pub use integrator::IntegratorService;
 pub use registrar::RegistrarService;
-
-
+pub use runner::RunnerService;
+pub use safety::SafetyService;

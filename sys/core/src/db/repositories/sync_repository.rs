@@ -112,11 +112,11 @@ impl SyncRepository {
         let mut rows = stmt
             .query_map(params![id.to_string()], |row| self.row_to_sync_state(row))
             .map_err(|e| {
-                NoaError::Database(DatabaseError::QueryFailed {
-                    query: "SELECT FROM sync_state".to_string(),
-                    error: e.to_string(),
-                })
-            })?;
+            NoaError::Database(DatabaseError::QueryFailed {
+                query: "SELECT FROM sync_state".to_string(),
+                error: e.to_string(),
+            })
+        })?;
 
         match rows.next() {
             Some(Ok(sync_state)) => Ok(Some(sync_state)),
@@ -152,10 +152,9 @@ impl SyncRepository {
             })?;
 
         let mut rows = stmt
-            .query_map(
-                params![device_id.to_string(), entity_type],
-                |row| self.row_to_sync_state(row),
-            )
+            .query_map(params![device_id.to_string(), entity_type], |row| {
+                self.row_to_sync_state(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM sync_state".to_string(),
@@ -194,7 +193,9 @@ impl SyncRepository {
             })?;
 
         let rows = stmt
-            .query_map(params![device_id.to_string()], |row| self.row_to_sync_state(row))
+            .query_map(params![device_id.to_string()], |row| {
+                self.row_to_sync_state(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM sync_state".to_string(),
@@ -297,7 +298,10 @@ impl SyncRepository {
     /// Delete sync state
     pub fn delete(&self, id: &Uuid) -> Result<()> {
         self.conn
-            .execute("DELETE FROM sync_state WHERE id = ?1", params![id.to_string()])
+            .execute(
+                "DELETE FROM sync_state WHERE id = ?1",
+                params![id.to_string()],
+            )
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "DELETE FROM sync_state".to_string(),
@@ -326,7 +330,11 @@ impl SyncRepository {
             .map(|s| DateTime::parse_from_rfc3339(&s).map(|d| d.with_timezone(&Utc)))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(3, "timestamp".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    3,
+                    "timestamp".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let local_version: i64 = row.get(4)?;
@@ -337,7 +345,11 @@ impl SyncRepository {
             .map(|json| serde_json::from_str(&json))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(6, "JSON".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    6,
+                    "JSON".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let conflicts_json: Option<String> = row.get(7)?;
@@ -345,7 +357,11 @@ impl SyncRepository {
             .map(|json| serde_json::from_str(&json))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(7, "JSON".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    7,
+                    "JSON".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         Ok(SyncState {
@@ -360,4 +376,3 @@ impl SyncRepository {
         })
     }
 }
-

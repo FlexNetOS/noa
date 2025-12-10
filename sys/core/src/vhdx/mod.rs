@@ -2,10 +2,10 @@
 //!
 //! Provides portable stack packaging, nested support, and snapshot/rollback.
 
-pub mod packaging;
 pub mod nested;
+pub mod packaging;
 pub mod snapshot;
 
-pub use packaging::{VhdxPackager, VhdxPackage};
-pub use nested::{NestedVhdxManager, MountedChild};
+pub use nested::{MountedChild, NestedVhdxManager};
+pub use packaging::{VhdxPackage, VhdxPackager};
 pub use snapshot::{VhdxSnapshot, VhdxSnapshotManager};

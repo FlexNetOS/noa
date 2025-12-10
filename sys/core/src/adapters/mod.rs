@@ -4,10 +4,10 @@
 //! Docker, GitHub, and MinIO along with a toggle registry to enable or disable
 //! adapters at runtime.
 
-pub mod toggle;
 pub mod docker;
 pub mod github;
 pub mod minio;
+pub mod toggle;
 
 pub use docker::DockerAdapter;
 pub use github::GithubAdapter;

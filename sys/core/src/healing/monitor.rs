@@ -195,9 +195,7 @@ impl HealthMonitor {
     }
 
     /// Internal metric collection
-    async fn collect_metrics_internal(
-        config: &HealthMonitorConfig,
-    ) -> Result<Vec<HealthMetric>> {
+    async fn collect_metrics_internal(config: &HealthMonitorConfig) -> Result<Vec<HealthMetric>> {
         let mut metrics = Vec::new();
         let timestamp = Utc::now();
 
@@ -215,14 +213,8 @@ impl HealthMonitor {
             metric_type: MetricType::CpuUsage,
             value: 0.0, // TODO: Get actual CPU usage
             unit: "percent".to_string(),
-            threshold_warning: config
-                .metric_thresholds
-                .get("cpu")
-                .and_then(|t| t.warning),
-            threshold_critical: config
-                .metric_thresholds
-                .get("cpu")
-                .and_then(|t| t.critical),
+            threshold_warning: config.metric_thresholds.get("cpu").and_then(|t| t.warning),
+            threshold_critical: config.metric_thresholds.get("cpu").and_then(|t| t.critical),
             timestamp,
             metadata: HashMap::new(),
         });
@@ -276,14 +268,8 @@ impl HealthMonitor {
         let mut count = 0;
 
         for metric in metrics {
-            let is_critical = metric
-                .threshold_critical
-                .map(|t| metric.value >= t)
-                .unwrap_or(false);
-            let is_warning = metric
-                .threshold_warning
-                .map(|t| metric.value >= t)
-                .unwrap_or(false);
+            let is_critical = metric.threshold_critical.map(|t| metric.value >= t).unwrap_or(false);
+            let is_warning = metric.threshold_warning.map(|t| metric.value >= t).unwrap_or(false);
 
             if is_critical {
                 critical_count += 1;
@@ -340,4 +326,3 @@ mod tests {
         assert_eq!(score, 1.0);
     }
 }
-

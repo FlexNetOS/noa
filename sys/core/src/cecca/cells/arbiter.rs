@@ -19,16 +19,9 @@ impl Default for PromotionArbiterCell {
 
 impl CeccaCell for PromotionArbiterCell {
     fn evaluate(&self, ctx: &CeccaContext) -> CeccaDecision {
-        let risk = ctx
-            .metadata
-            .get("risk_score")
-            .and_then(|v| v.as_f64())
-            .unwrap_or(0.0);
-        let tests_passed = ctx
-            .metadata
-            .get("tests_passed")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
+        let risk = ctx.metadata.get("risk_score").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let tests_passed =
+            ctx.metadata.get("tests_passed").and_then(|v| v.as_bool()).unwrap_or(false);
 
         if risk > self.max_risk {
             return CeccaDecision::rejected(format!(

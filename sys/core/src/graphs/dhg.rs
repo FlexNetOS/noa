@@ -29,8 +29,7 @@ impl DynamicHardwareGraph {
     }
 
     pub fn attach(&mut self, parent: &str, child: &str) {
-        self.graph
-            .link(parent, child, "attached", 1.0, serde_json::json!({}));
+        self.graph.link(parent, child, "attached", 1.0, serde_json::json!({}));
     }
 }
 

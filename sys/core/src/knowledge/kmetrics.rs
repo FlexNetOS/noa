@@ -18,7 +18,9 @@ pub struct KnowledgeMetrics {
 
 impl KnowledgeMetrics {
     pub fn new() -> Self {
-        Self { metrics: Vec::new() }
+        Self {
+            metrics: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, name: impl Into<String>, value: f64, metadata: serde_json::Value) {

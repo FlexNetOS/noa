@@ -120,10 +120,10 @@ impl SelfHealingOrchestrator {
     pub async fn run_healing_loop(&self) -> Result<()> {
         loop {
             // Stage 1: Monitor - continuous health monitoring
-            let health_metrics = self.monitor.collect_metrics().await?;
+            let health_snapshots = self.monitor.get_all_health_snapshots().await;
 
             // Stage 2: Detect - anomaly detection
-            if let Some(anomaly) = self.anomaly_detector.detect(&health_metrics).await? {
+            if let Some(anomaly) = self.anomaly_detector.detect(&health_snapshots).await? {
                 let event = HealingEvent {
                     id: Uuid::new_v4(),
                     component_id: anomaly.component_id.clone(),
@@ -151,10 +151,8 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 3: Diagnose - root cause analysis
-                let root_cause = self
-                    .root_cause_analyzer
-                    .analyze(&anomaly, &health_metrics)
-                    .await?;
+                let root_cause =
+                    self.root_cause_analyzer.analyze(&anomaly, &health_snapshots).await?;
 
                 // Update event with root cause
                 {
@@ -166,10 +164,7 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 4: Fix - auto-fix executor
-                let fix_result = self
-                    .fix_executor
-                    .apply_fix(&anomaly, &root_cause)
-                    .await?;
+                let fix_result = self.fix_executor.apply_fix(&anomaly, &root_cause).await?;
 
                 // Update event with fix
                 {
@@ -182,10 +177,7 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 5: Validate - fix validation
-                let validation_result = self
-                    .fix_validator
-                    .validate(&anomaly, &fix_result)
-                    .await?;
+                let validation_result = self.fix_validator.validate(&anomaly, &fix_result).await?;
 
                 if validation_result.success {
                     // Fix successful
@@ -204,9 +196,7 @@ impl SelfHealingOrchestrator {
 
                     if retry_count >= 3 {
                         // Escalate to user
-                        self.escalation_notifier
-                            .notify(&event, &root_cause, retry_count)
-                            .await?;
+                        self.escalation_notifier.notify(&event, &root_cause, retry_count).await?;
 
                         {
                             let mut events = self.active_events.write().await;
@@ -232,4 +222,3 @@ impl SelfHealingOrchestrator {
         self.active_events.read().await.clone()
     }
 }
-

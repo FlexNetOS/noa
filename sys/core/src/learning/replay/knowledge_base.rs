@@ -27,7 +27,11 @@ impl KnowledgeBaseConnector {
     }
 
     /// Retrieve similar experiences
-    pub async fn retrieve_similar(&self, query: &serde_json::Value, limit: usize) -> Result<Vec<Experience>> {
+    pub async fn retrieve_similar(
+        &self,
+        query: &serde_json::Value,
+        limit: usize,
+    ) -> Result<Vec<Experience>> {
         // TODO: Implement similarity search
         Ok(vec![])
     }
@@ -59,4 +63,3 @@ mod tests {
         connector.store_experience(&exp).await.unwrap();
     }
 }
-

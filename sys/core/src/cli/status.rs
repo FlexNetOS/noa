@@ -59,21 +59,19 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     let db_path = config.noa_root.join(&config.database.path);
     if db_path.exists() {
         match db::init_database(&db_path) {
-            Ok(conn) => {
-                match db::check_integrity(&conn) {
-                    Ok(true) => {
-                        println!("  [✓] Database: OK");
-                        if detailed {
-                            if let Ok(stats) = db::get_stats(&conn) {
-                                println!("      Size: {} bytes", stats.total_size_bytes);
-                                println!("      Pages: {}", stats.total_pages);
-                            }
+            Ok(conn) => match db::check_integrity(&conn) {
+                Ok(true) => {
+                    println!("  [✓] Database: OK");
+                    if detailed {
+                        if let Ok(stats) = db::get_stats(&conn) {
+                            println!("      Size: {} bytes", stats.total_size_bytes);
+                            println!("      Pages: {}", stats.total_pages);
                         }
                     }
-                    Ok(false) => println!("  [✗] Database: INTEGRITY CHECK FAILED"),
-                    Err(e) => println!("  [!] Database: Error - {}", e),
                 }
-            }
+                Ok(false) => println!("  [✗] Database: INTEGRITY CHECK FAILED"),
+                Err(e) => println!("  [!] Database: Error - {}", e),
+            },
             Err(e) => println!("  [✗] Database: Connection failed - {}", e),
         }
     } else {
@@ -90,7 +88,11 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     println!();
     println!("AI Providers:");
     for (name, settings) in &config.providers.providers {
-        let status = if settings.enabled { "enabled" } else { "disabled" };
+        let status = if settings.enabled {
+            "enabled"
+        } else {
+            "disabled"
+        };
         println!("  {} ({}): {}", name, settings.provider_type, status);
     }
 
@@ -148,4 +150,3 @@ fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&status).unwrap());
     Ok(())
 }
-

@@ -64,9 +64,10 @@ impl EfficiencyAnalyzer {
 
         if let Some(utilization) = metrics.latest("resource_utilization").map(|s| s.value) {
             if utilization > self.resource_threshold {
-                report
-                    .bottlenecks
-                    .push(format!("Resource utilization {:.0}% saturated", utilization * 100.0));
+                report.bottlenecks.push(format!(
+                    "Resource utilization {:.0}% saturated",
+                    utilization * 100.0
+                ));
                 report.score -= 0.2;
             } else {
                 report.opportunities.push("Resource headroom available".to_string());

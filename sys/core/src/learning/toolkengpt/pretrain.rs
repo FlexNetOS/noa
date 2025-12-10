@@ -46,13 +46,18 @@ impl ToolTokenPretrainer {
         }
 
         // Register tool
-        self.registry.register_tool(tool_name, description, capabilities, embedding.clone()).await?;
+        self.registry
+            .register_tool(tool_name, description, capabilities, embedding.clone())
+            .await?;
 
         Ok(embedding)
     }
 
     /// Batch pre-train multiple tools
-    pub async fn pretrain_batch(&self, tools: Vec<(String, String, Vec<String>)>) -> Result<Vec<Vec<f32>>> {
+    pub async fn pretrain_batch(
+        &self,
+        tools: Vec<(String, String, Vec<String>)>,
+    ) -> Result<Vec<Vec<f32>>> {
         let mut embeddings = Vec::new();
         for (name, desc, caps) in tools {
             let embedding = self.pretrain_tool(name, desc, caps).await?;
@@ -70,12 +75,14 @@ mod tests {
     async fn test_pretrain_tool() {
         let registry = ToolkenGptRegistry::new();
         let trainer = ToolTokenPretrainer::new(registry);
-        let embedding = trainer.pretrain_tool(
-            "test_tool".to_string(),
-            "Test".to_string(),
-            vec!["test".to_string()],
-        ).await.unwrap();
+        let embedding = trainer
+            .pretrain_tool(
+                "test_tool".to_string(),
+                "Test".to_string(),
+                vec!["test".to_string()],
+            )
+            .await
+            .unwrap();
         assert_eq!(embedding.len(), 384);
     }
 }
-

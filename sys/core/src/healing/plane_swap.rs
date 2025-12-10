@@ -111,4 +111,3 @@ mod tests {
         assert_eq!(result.to_plane, Plane::Deployed);
     }
 }
-

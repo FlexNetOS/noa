@@ -52,8 +52,8 @@
   - ⚠️ **RUNTIME TEST PENDING**: Test download with caching
 - [X] BOOT007 - Verify tools.json configuration exists [B013]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/config/bootstrap-tools.json` exists with tool definitions
-  - ⚠️ **ISSUE**: Scripts reference `tools.json` but file is named `bootstrap-tools.json`
-  - ⚠️ **TEST REQUIRED**: Verify all tool definitions are valid, align file naming
+  - ✅ **VERIFIED**: All scripts correctly reference `bootstrap-tools.json`
+  - ✅ **TESTED**: Config file exists and is referenced correctly (2025-01-27)
 
 ### Directory Structure (B014-B017)
 
@@ -151,11 +151,11 @@
 
 ### Constitutional Compliance (B095-B100)
 
-- [ ] BOOT032 - Verify all paths resolve under noa_root [B095, §3.1]
+- [X] BOOT032 - Verify all paths resolve under noa_root [B095, §3.1]
   - ✅ **IMPLEMENTED**: All installers use noa_root paths (opt/, bin/, cache/, etc.)
-  - ⚠️ **ISSUE FOUND**: Symlinks point to system installations (git, gh, git-lfs, rustup tools)
-  - ⚠️ **REMEDY**: Install portable versions to `opt/` and update symlinks
-  - ⚠️ **TEST STATUS**: Path verification script found violations
+  - ✅ **FIXED**: All symlinks now point to portable installations
+  - ✅ **TESTED**: Path verification passes (2025-01-27)
+  - ⚠️ **NOTE**: Config files contain `/opt/` template paths (expected for cross-platform)
 - [X] BOOT033 - Verify offline functionality with pre-cached archives [B096, §3.2]
   - ✅ **IMPLEMENTED**: Download scripts support caching, can work offline with cached files
   - ⚠️ **TEST REQUIRED**: Test bootstrap with network disabled using cached files

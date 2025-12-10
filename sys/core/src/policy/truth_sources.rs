@@ -53,6 +53,13 @@ impl TruthSourcePolicy {
 
 impl Default for TruthSourcePolicy {
     fn default() -> Self {
-        Self::new(vec!["canonical".to_string(), "observed".to_string(), "cached".to_string()], 2)
+        Self::new(
+            vec![
+                "canonical".to_string(),
+                "observed".to_string(),
+                "cached".to_string(),
+            ],
+            2,
+        )
     }
 }

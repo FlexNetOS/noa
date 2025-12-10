@@ -44,9 +44,7 @@ impl SemanticSearch {
         })?;
 
         // Perform vector search
-        let results = self
-            .vector_search
-            .search_memory(vector, limit, threshold)?;
+        let results = self.vector_search.search_memory(vector, limit, threshold)?;
 
         // Convert to SearchResult
         Ok(results
@@ -67,4 +65,3 @@ pub struct SearchResult {
     pub score: f32,
     pub distance: f32,
 }
-

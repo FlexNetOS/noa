@@ -28,7 +28,11 @@ impl SnapshotStore {
         }
     }
 
-    pub fn create(&mut self, description: impl Into<String>, payload: serde_json::Value) -> Result<KnowledgeSnapshot> {
+    pub fn create(
+        &mut self,
+        description: impl Into<String>,
+        payload: serde_json::Value,
+    ) -> Result<KnowledgeSnapshot> {
         fs::create_dir_all(&self.root)?;
         let id = uuid::Uuid::new_v4().to_string();
         let snapshot = KnowledgeSnapshot {

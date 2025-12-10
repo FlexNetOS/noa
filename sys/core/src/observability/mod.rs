@@ -9,6 +9,5 @@ pub mod metrics;
 pub mod telemetry;
 
 pub use logging::init_logging;
-pub use metrics::{init_metrics, get_metrics, metrics_handler};
+pub use metrics::{get_metrics, init_metrics, metrics_handler};
 pub use telemetry::{init_telemetry, shutdown_telemetry};
-

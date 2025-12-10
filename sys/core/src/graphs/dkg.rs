@@ -18,13 +18,17 @@ impl DynamicKnowledgeGraph {
     }
 
     pub fn upsert_concept(&mut self, id: &str, label: &str, metadata: Value) {
-        self.graph
-            .upsert_node(id, label, metadata);
+        self.graph.upsert_node(id, label, metadata);
     }
 
     pub fn relate(&mut self, source: &str, target: &str, relation: &str) {
-        self.graph
-            .link(source, target, relation, 1.0, serde_json::json!({ "relation": relation }));
+        self.graph.link(
+            source,
+            target,
+            relation,
+            1.0,
+            serde_json::json!({ "relation": relation }),
+        );
     }
 }
 

@@ -34,11 +34,7 @@ impl CeccaCell for TruthGateCell {
             .metadata
             .get("sources")
             .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|s| s.as_str().map(|s| s.to_string()))
-                    .collect()
-            })
+            .map(|arr| arr.iter().filter_map(|s| s.as_str().map(|s| s.to_string())).collect())
             .unwrap_or_default();
 
         if sources.len() < self.minimum_sources {

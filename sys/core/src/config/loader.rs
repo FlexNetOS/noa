@@ -6,11 +6,11 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::error::{ConfigError, Result};
 use super::{
-    expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig,
-    NoaConfig, ProviderConfig, ProviderSettings,
+    expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig, NoaConfig,
+    ProviderConfig, ProviderSettings,
 };
+use crate::error::{ConfigError, Result};
 
 /// Configuration loader for NOA
 pub struct ConfigLoader {
@@ -52,35 +52,33 @@ impl ConfigLoader {
 
     /// Load a single configuration file
     fn load_file(&self, path: &Path) -> Result<serde_json::Value> {
-        let content = fs::read_to_string(path).map_err(|_| {
-            ConfigError::FileNotFound(path.display().to_string())
-        })?;
+        let content = fs::read_to_string(path)
+            .map_err(|_| ConfigError::FileNotFound(path.display().to_string()))?;
 
         let expanded = expand_env_vars(&content);
 
         let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
         match extension {
-            "yaml" | "yml" => {
-                serde_yaml::from_str(&expanded).map_err(|e| {
-                    ConfigError::ParseError {
-                        path: path.display().to_string(),
-                        error: e.to_string(),
-                    }.into()
-                })
-            }
-            "json" => {
-                serde_json::from_str(&expanded).map_err(|e| {
-                    ConfigError::ParseError {
-                        path: path.display().to_string(),
-                        error: e.to_string(),
-                    }.into()
-                })
-            }
+            "yaml" | "yml" => serde_yaml::from_str(&expanded).map_err(|e| {
+                ConfigError::ParseError {
+                    path: path.display().to_string(),
+                    error: e.to_string(),
+                }
+                .into()
+            }),
+            "json" => serde_json::from_str(&expanded).map_err(|e| {
+                ConfigError::ParseError {
+                    path: path.display().to_string(),
+                    error: e.to_string(),
+                }
+                .into()
+            }),
             _ => Err(ConfigError::ParseError {
                 path: path.display().to_string(),
                 error: "Unsupported file format".to_string(),
-            }.into()),
+            }
+            .into()),
         }
     }
 
@@ -199,15 +197,12 @@ impl ConfigLoader {
             .parse()
             .unwrap_or_default();
 
-        let format = match log
-            .and_then(|v| v.get("format"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("json")
-        {
-            "text" => LogFormat::Text,
-            "pretty" => LogFormat::Pretty,
-            _ => LogFormat::Json,
-        };
+        let format =
+            match log.and_then(|v| v.get("format")).and_then(|v| v.as_str()).unwrap_or("json") {
+                "text" => LogFormat::Text,
+                "pretty" => LogFormat::Pretty,
+                _ => LogFormat::Json,
+            };
 
         let output_str = log
             .and_then(|v| v.get("output"))
@@ -250,29 +245,28 @@ impl ConfigLoader {
         let priority = prov
             .and_then(|v| v.get("providerPriority"))
             .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|v| v.as_str().map(String::from))
-                    .collect()
-            })
-            .unwrap_or_else(|| vec!["local".to_string(), "hybrid".to_string(), "cloud".to_string()]);
+            .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+            .unwrap_or_else(|| {
+                vec![
+                    "local".to_string(),
+                    "hybrid".to_string(),
+                    "cloud".to_string(),
+                ]
+            });
 
         let mut providers = HashMap::new();
 
-        if let Some(providers_obj) = prov.and_then(|v| v.get("providers")).and_then(|v| v.as_object())
+        if let Some(providers_obj) =
+            prov.and_then(|v| v.get("providers")).and_then(|v| v.as_object())
         {
             for (name, settings) in providers_obj {
                 let enabled = settings.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true);
-                let priority_val = settings.get("priority").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
-                let provider_type = settings
-                    .get("type")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("unknown")
-                    .to_string();
-                let config_path_str = settings
-                    .get("configPath")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
+                let priority_val =
+                    settings.get("priority").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+                let provider_type =
+                    settings.get("type").and_then(|v| v.as_str()).unwrap_or("unknown").to_string();
+                let config_path_str =
+                    settings.get("configPath").and_then(|v| v.as_str()).unwrap_or("");
                 let config_path = PathBuf::from(expand_env_vars(config_path_str));
 
                 providers.insert(
@@ -287,7 +281,10 @@ impl ConfigLoader {
             }
         }
 
-        Ok(ProviderConfig { priority, providers })
+        Ok(ProviderConfig {
+            priority,
+            providers,
+        })
     }
 
     fn build_feature_flags(&self, raw: &serde_json::Value) -> Result<HashMap<String, bool>> {
@@ -307,4 +304,3 @@ impl ConfigLoader {
         Ok(flags)
     }
 }
-

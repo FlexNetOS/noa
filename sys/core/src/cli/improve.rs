@@ -38,18 +38,29 @@ pub async fn execute(command: ImproveCmd) -> Result<()> {
             let proposals = generator.from_report(&report);
             println!("Generated {} proposal(s)", proposals.len());
             for proposal in proposals {
-                println!("- {} ({:.0}% gain)", proposal.summary, proposal.estimated_gain * 100.0);
+                println!(
+                    "- {} ({:.0}% gain)",
+                    proposal.summary,
+                    proposal.estimated_gain * 100.0
+                );
             }
         }
         ImproveCmd::Apply => {
             let snapshot_mgr = SnapshotManager::default();
-            let snapshot = snapshot_mgr.create("pre-apply", serde_json::json!({"state": "baseline"}))?;
+            let snapshot =
+                snapshot_mgr.create("pre-apply", serde_json::json!({"state": "baseline"}))?;
             println!("Snapshot {} captured", snapshot.id);
 
             let runner = TestRunner::new();
             let suite = vec![
-                TestCase { name: "unit".to_string(), command: "cargo test".to_string() },
-                TestCase { name: "lint".to_string(), command: "cargo fmt -- --check".to_string() },
+                TestCase {
+                    name: "unit".to_string(),
+                    command: "cargo test".to_string(),
+                },
+                TestCase {
+                    name: "lint".to_string(),
+                    command: "cargo fmt -- --check".to_string(),
+                },
             ];
             let result = runner.run_suite(&suite);
             println!("Tests passed: {}, failed: {}", result.passed, result.failed);

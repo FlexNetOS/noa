@@ -25,5 +25,3 @@ impl IntegratorService {
         Ok(())
     }
 }
-
-

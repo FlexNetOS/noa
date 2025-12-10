@@ -1,24 +1,24 @@
 //! Provider framework (Phase 2.6 - Shared Provider Execution Memory)
 //! Implements provider registry, shared memory bus, and collaborative orchestration stubs.
 
+pub mod backoff;
 pub mod base;
-pub mod registry;
-pub mod health;
-pub mod selector;
-pub mod shared_memory;
 pub mod context_manager;
-pub mod sync;
+pub mod health;
 pub mod persistence;
 pub mod rate_limits;
-pub mod backoff;
+pub mod registry;
+pub mod selector;
+pub mod shared_memory;
+pub mod sync;
 
-pub mod llama;
+pub mod abacus;
 pub mod claude;
 pub mod codex;
 pub mod copilot;
-pub mod git;
 pub mod cursor;
-pub mod abacus;
+pub mod git;
+pub mod llama;
 
 pub mod collaborative;
 

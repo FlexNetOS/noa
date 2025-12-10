@@ -161,11 +161,7 @@ mod tests {
     #[test]
     fn test_determine_urgency() {
         let notifier = EscalationNotifier::new();
-        let urgency = notifier.determine_urgency(
-            &crate::healing::ComponentHealth::Critical,
-            &None,
-        );
+        let urgency = notifier.determine_urgency(&crate::healing::ComponentHealth::Critical, &None);
         assert_eq!(urgency, EscalationUrgency::Critical);
     }
 }
-
