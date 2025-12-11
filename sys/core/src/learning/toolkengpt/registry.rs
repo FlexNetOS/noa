@@ -28,15 +28,6 @@ pub struct ToolkenGptRegistry {
     token_id_counter: Arc<RwLock<u32>>,
 }
 
-impl Clone for ToolkenGptRegistry {
-    fn clone(&self) -> Self {
-        Self {
-            tokens: Arc::clone(&self.tokens),
-            token_id_counter: Arc::clone(&self.token_id_counter),
-        }
-    }
-}
-
 impl ToolkenGptRegistry {
     /// Create a new registry
     pub fn new() -> Self {
