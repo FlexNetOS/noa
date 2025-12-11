@@ -139,7 +139,15 @@
 	],
 	"overrides": {
 		"node-fetch": "^2.6.12",
-		"whatwg-url": "^11.0.0"
+		"whatwg-url": "^11.0.0",
+		"axios": "^1.7.9",
+		"body-parser": "^1.20.3",
+		"cookie": "^0.7.2",
+		"js-yaml": "^4.1.1",
+		"path-to-regexp": "^0.1.12",
+		"send": "^0.19.1",
+		"tar": "^6.2.1",
+		"@modelcontextprotocol/sdk": "^1.24.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
