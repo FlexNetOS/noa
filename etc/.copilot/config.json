@@ -1,0 +1,10 @@
+{
+  "theme": "auto",
+  "banner": "never",
+  "trusted_folders": [
+    "N:\\noa"
+  ],
+  "asked_setup_terminals": [
+    "vscode"
+  ]
+}
