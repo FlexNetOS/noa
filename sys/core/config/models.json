@@ -1,0 +1,36 @@
+{
+  "$schema": "https://noa.local/schemas/models.json",
+  "models": [
+    {
+      "context_length": 128000,
+      "enabled": true,
+      "format": "gguf",
+      "id": "llama-3.2-1b",
+      "name": "Llama 3.2 1B",
+      "path": "${NOA_ROOT}/opt/models/llama-3.2-1b-instruct-q4_k_m.gguf",
+      "size_gb": 0.7,
+      "type": "llm"
+    },
+    {
+      "context_length": 128000,
+      "enabled": true,
+      "format": "gguf",
+      "id": "llama-3.2-3b",
+      "name": "Llama 3.2 3B",
+      "path": "${NOA_ROOT}/opt/models/llama-3.2-3b-instruct-q4_k_m.gguf",
+      "size_gb": 2.0,
+      "type": "llm"
+    },
+    {
+      "context_length": 4096,
+      "enabled": true,
+      "format": "gguf",
+      "id": "phi-3-mini",
+      "name": "Phi-3 Mini",
+      "path": "${NOA_ROOT}/opt/models/phi-3-mini-4k-instruct-q4_k_m.gguf",
+      "size_gb": 2.3,
+      "type": "llm"
+    }
+  ],
+  "version": "1.0.0"
+}

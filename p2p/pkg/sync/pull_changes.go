@@ -29,7 +29,7 @@ func (s *SyncService) PullChanges(ctx context.Context, req *protocol.PullChanges
 			Id:          delta.ID,
 			EntityId:    delta.EntityID,
 			EntityType:  delta.EntityType,
-			Type:        protocol.ChangeType(delta.Type),
+			Type:        changeTypeToString(delta.Type),
 			Data:        delta.Data,
 			Timestamp:   delta.Timestamp,
 			SourceDevice: delta.SourceDevice,
