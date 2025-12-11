@@ -91,7 +91,7 @@ pub async fn execute(command: DbCommands) -> Result<()> {
         DbCommands::Stats => show_stats(&db_path),
         DbCommands::Backup { output } => {
             let output_path = output.map(PathBuf::from);
-            backup_database(&db_path, output_path.as_ref())
+            backup_database(&db_path, output_path.as_ref().map(|p| p.as_path()))
         }
         DbCommands::Vacuum => vacuum_database(&db_path),
     }
