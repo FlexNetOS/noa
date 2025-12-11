@@ -1,0 +1,85 @@
+{
+  "$schema": "https://noa.local/schemas/command.json",
+  "name": "sync-resource",
+  "version": "1.0.0",
+  "description": "Synchronize shared resources (agents, tools, workflows, prompts, skills, models, commands) across all providers so slash commands stay consistent.",
+  "aliases": [
+    "sync",
+    "sync-shared",
+    "sync-shared-resource"
+  ],
+  "category": "system",
+  "inputs": [
+    {
+      "name": "resourceType",
+      "type": "string",
+      "enum": [
+        "all",
+        "agents",
+        "tools",
+        "workflows",
+        "prompts",
+        "skills",
+        "models",
+        "commands",
+        "resources"
+      ],
+      "default": "all",
+      "description": "Which shared resource category to sync. Default: all."
+    },
+    {
+      "name": "targetProviders",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Provider identifiers to sync (default: all)."
+    },
+    {
+      "name": "dryRun",
+      "type": "boolean",
+      "default": false,
+      "description": "Validate and show planned changes without writing."
+    },
+    {
+      "name": "force",
+      "type": "boolean",
+      "default": false,
+      "description": "Override conflicts and re-sync even if checksums match."
+    }
+  ],
+  "workflow": "shared-resource-sync",
+  "agent": "resource-sync-agent",
+  "output_format": {
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "synced": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "skipped": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "errors": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "invocation": "/sync --resourceType prompts",
+      "description": "Sync shared prompts to all providers."
+    },
+    {
+      "invocation": "/sync --resourceType commands --dryRun true",
+      "description": "Show sync plan for shared slash commands without writing."
+    },
+    {
+      "invocation": "/sync --resourceType all --targetProviders \"local,cloud\"",
+      "description": "Sync every shared resource to local and cloud providers."
+    }
+  ]
+}

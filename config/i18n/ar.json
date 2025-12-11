@@ -1,0 +1,12 @@
+{
+  "app.title": "مساعد NOA الذكي",
+  "nav.dashboard": "لوحة التحكم",
+  "nav.chat": "محادثة",
+  "nav.settings": "الإعدادات",
+  "action.save": "حفظ",
+  "action.cancel": "إلغاء",
+  "action.refresh": "تحديث",
+  "status.ready": "جاهز",
+  "status.loading": "جار التحميل",
+  "status.error": "حدث خطأ"
+}

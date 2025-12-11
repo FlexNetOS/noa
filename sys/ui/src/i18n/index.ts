@@ -8,17 +8,18 @@ import { detectLocale, normalizeLocale, type SupportedLocale } from './locale-de
 type Dictionary = Record<string, string>;
 
 const dictionaries: Record<SupportedLocale, Dictionary> = {
-  en,
-  es,
-  zh,
-  ar,
-  he,
+  en: en as Dictionary,
+  es: es as Dictionary,
+  zh: zh as Dictionary,
+  ar: ar as Dictionary,
+  he: he as Dictionary,
 };
 
 export function getTranslations(locale?: string): { locale: SupportedLocale; t: (key: string) => string } {
   const normalized = normalizeLocale(locale ?? (typeof window !== 'undefined' ? detectLocale() : 'en'));
-  const dict = dictionaries[normalized] ?? en;
+  const dict: Dictionary = dictionaries[normalized] ?? (en as Dictionary);
 
-  const translate = (key: string) => dict[key] ?? en[key] ?? key;
+  const translate = (key: string) =>
+    (dict as Dictionary)[key] ?? (en as Dictionary)[key] ?? key;
   return { locale: normalized, t: translate };
 }

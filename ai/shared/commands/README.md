@@ -66,6 +66,15 @@ Commands can be invoked:
 2. Via IDE: `/analyze-code src/`
 3. Via Workflow: `{ "command": "analyze-code", "inputs": {...} }`
 
+## Sync Command (Shared Across Providers)
+
+- `sync-resource` (`/sync`, `/sync-shared`): Synchronize shared resources (agents, tools, workflows, prompts, skills, models, commands) across all providers.
+  - Inputs:
+    - `resourceType`: one of `all`, `agents`, `tools`, `workflows`, `prompts`, `skills`, `models`, `commands`, `resources` (default `all`)
+    - `targetProviders`: list of provider identifiers (default all)
+    - `dryRun`: validate without writing (default `false`)
+    - `force`: override checksum matches and re-sync (default `false`)
+
 ## Creating a New Command
 
 1. Create a new JSON file: `my-command.json`

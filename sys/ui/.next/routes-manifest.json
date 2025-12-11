@@ -69,6 +69,12 @@
       "namedRegex": "^/admin/models(?:/)?$"
     },
     {
+      "page": "/admin/sc-dashboard",
+      "regex": "^/admin/sc\\-dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/sc\\-dashboard(?:/)?$"
+    },
+    {
       "page": "/admin/security",
       "regex": "^/admin/security(?:/)?$",
       "routeKeys": {},
@@ -85,6 +91,12 @@
       "regex": "^/settings(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/settings(?:/)?$"
+    },
+    {
+      "page": "/settings/connectors",
+      "regex": "^/settings/connectors(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings/connectors(?:/)?$"
     }
   ],
   "dataRoutes": [],
