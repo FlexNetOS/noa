@@ -56,10 +56,7 @@ impl DriftDetector {
             return DriftStatus::Healthy;
         }
 
-        let over_threshold = signals
-            .iter()
-            .filter(|s| s.value > s.threshold)
-            .count() as f64;
+        let over_threshold = signals.iter().filter(|s| s.value > s.threshold).count() as f64;
         let ratio = over_threshold / (signals.len() as f64);
 
         if ratio >= self.critical_ratio {
@@ -85,9 +82,15 @@ impl DriftDetector {
 
         let status = self.evaluate().await;
         match status {
-            DriftStatus::Healthy => info!(target: "governance::drift", "Drift testing loop: healthy"),
-            DriftStatus::Warning => warn!(target: "governance::drift", "Drift testing loop: warning"),
-            DriftStatus::Critical => warn!(target: "governance::drift", "Drift testing loop: critical"),
+            DriftStatus::Healthy => {
+                info!(target: "governance::drift", "Drift testing loop: healthy")
+            }
+            DriftStatus::Warning => {
+                warn!(target: "governance::drift", "Drift testing loop: warning")
+            }
+            DriftStatus::Critical => {
+                warn!(target: "governance::drift", "Drift testing loop: critical")
+            }
         }
         status
     }

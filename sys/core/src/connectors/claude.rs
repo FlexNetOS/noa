@@ -1,10 +1,10 @@
 // Claude API Connector
 // Implements integration with Anthropic Claude API
 
+use crate::connectors::{ConnectorHealth, ConnectorState};
 use crate::error::Result;
-use crate::connectors::{ConnectorState, ConnectorHealth};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClaudeConnector {
@@ -58,4 +58,3 @@ impl Default for ClaudeConnector {
         Self::new().expect("Failed to create ClaudeConnector")
     }
 }
-

@@ -55,12 +55,7 @@ impl EmbeddingPipeline {
 
     /// Compute a basic cosine similarity between two embeddings.
     pub fn similarity(&self, a: &PassageEmbedding, b: &PassageEmbedding) -> Result<f32> {
-        let dot = a
-            .vector
-            .iter()
-            .zip(&b.vector)
-            .map(|(x, y)| x * y)
-            .sum::<f32>();
+        let dot = a.vector.iter().zip(&b.vector).map(|(x, y)| x * y).sum::<f32>();
         let norm_a = (a.vector.iter().map(|v| v * v).sum::<f32>()).sqrt();
         let norm_b = (b.vector.iter().map(|v| v * v).sum::<f32>()).sqrt();
 

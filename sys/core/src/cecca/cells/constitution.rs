@@ -59,11 +59,7 @@ mod tests {
     use serde_json::json;
 
     fn ctx_with_principles(principles: Vec<&str>) -> CeccaContext {
-        CeccaContext::new(
-            "subject",
-            "content",
-            json!({ "principles": principles }),
-        )
+        CeccaContext::new("subject", "content", json!({ "principles": principles }))
     }
 
     #[test]
@@ -82,10 +78,6 @@ mod tests {
         let ctx = ctx_with_principles(vec!["3.1"]);
         let decision = cell.evaluate(&ctx);
         assert!(!decision.approved);
-        assert!(
-            decision
-                .rationale
-                .contains("Missing constitutional principles")
-        );
+        assert!(decision.rationale.contains("Missing constitutional principles"));
     }
 }
