@@ -23,10 +23,7 @@ pub struct ProcessOps;
 impl ProcessOps {
     /// Run a command and capture output.
     pub fn run(&self, program: &str, args: &[&str]) -> Result<ProcessResult> {
-        let output = Command::new(program)
-            .args(args)
-            .output()
-            .map_err(NoaError::from)?;
+        let output = Command::new(program).args(args).output().map_err(NoaError::from)?;
 
         Ok(ProcessResult {
             status: output.status.code().unwrap_or(-1),
