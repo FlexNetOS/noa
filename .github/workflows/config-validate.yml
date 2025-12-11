@@ -1,0 +1,41 @@
+name: config-validate
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install python validators
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml jsonschema
+
+      - name: Validate configs (parse + schema when available)
+        env:
+          NOA_ROOT: ${{ github.workspace }}
+        run: |
+          bash scripts/validate/validate-configs.sh
+
+      - name: Validate provider configs (policy checks)
+        shell: pwsh
+        env:
+          NOA_ROOT: ${{ github.workspace }}
+        run: |
+          pwsh -NoLogo -NoProfile -File scripts/bootstrap/verify/validate-provider-configs.ps1 -NoaRoot "$env:NOA_ROOT"
+
+
