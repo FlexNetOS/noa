@@ -1,7 +1,7 @@
 {
     "$schema": "https://noa.local/schemas/resource-registry.json",
     "version": "1.0.0",
-    "description": "Central registry of all unified shared resources (§3.13)",
+    "description": "Central registry of all unified shared resources (3.13)",
     "lastUpdated": "2025-12-09T00:00:00Z",
     "registry": {
         "agents": {
@@ -17,7 +17,15 @@
         "commands": {
             "path": "ai/shared/commands/",
             "description": "Shared command definitions",
-            "resources": []
+            "resources": [
+                {
+                    "name": "sync-resource",
+                    "file": "sync-resource.json",
+                    "type": "system",
+                    "providers": ["all"],
+                    "description": "Synchronize shared resources and slash commands across all providers"
+                }
+            ]
         },
         "prompts": {
             "path": "ai/shared/prompts/",
@@ -34,6 +42,13 @@
                     "file": "startup-prmt.md",
                     "type": "system",
                     "providers": ["all"]
+                },
+                {
+                    "name": "ultrathink",
+                    "file": "ultrathink.md",
+                    "type": "system",
+                    "providers": ["all"],
+                    "description": "Shared ultrathink prompt for high-bar planning and execution"
                 }
             ]
         },

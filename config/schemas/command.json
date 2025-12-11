@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noa.local/schemas/command.json",
+  "title": "NOA Shared Command",
+  "description": "Schema for shared command definitions and slash commands",
+  "type": "object",
+  "required": ["name", "version", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9._:-]+$",
+      "description": "Command identifier (used as slash command name)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$"
+    },
+    "description": { "type": "string" },
+    "aliases": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "category": { "type": "string" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "integer", "boolean", "array", "object"]
+          },
+          "description": { "type": "string" },
+          "required": { "type": "boolean" },
+          "enum": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "default": {},
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "workflow": { "type": "string" },
+    "agent": { "type": "string" },
+    "output_format": {
+      "type": "object",
+      "description": "Optional output contract",
+      "additionalProperties": true
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["invocation"],
+        "additionalProperties": false,
+        "properties": {
+          "invocation": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}
