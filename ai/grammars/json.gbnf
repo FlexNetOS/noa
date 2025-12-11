@@ -1,0 +1,21 @@
+# Minimal JSON grammar for structured responses.
+
+root ::= ws value ws
+value ::= object | array | string | number | "true" | "false" | "null"
+object ::= "{" ws members? ws "}"
+members ::= pair (ws "," ws pair)*
+pair ::= string ws ":" ws value
+array ::= "[" ws elements? ws "]"
+elements ::= value (ws "," ws value)*
+string ::= "\"" characters "\""
+characters ::= character*
+character ::= unescaped | escape
+unescaped ::= [^"\\\u0000-\u001F]
+escape ::= "\\\"" | "\\\\" | "\\/" | "\\b" | "\\f" | "\\n" | "\\r" | "\\t"
+number ::= integer fraction? exponent?
+integer ::= "-"? ("0" | digit1_9 digit*)
+fraction ::= "." digit+
+exponent ::= ("e" | "E") ("+" | "-")? digit+
+digit ::= [0-9]
+digit1_9 ::= [1-9]
+ws ::= [ \t\n\r]*

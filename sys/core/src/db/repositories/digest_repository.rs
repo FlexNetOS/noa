@@ -233,9 +233,8 @@ impl DigestRepository {
                 })
             })?;
 
-        let mut rows = stmt
-            .query_map(params![uri], |row| self.row_to_source(row))
-            .map_err(|e| {
+        let mut rows =
+            stmt.query_map(params![uri], |row| self.row_to_source(row)).map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM digest_source".to_string(),
                     error: e.to_string(),
@@ -392,19 +391,19 @@ impl DigestRepository {
         })?;
 
         let last_digest_str: Option<String> = row.get(5)?;
-        let last_digest = last_digest_str
-            .map(|s| {
-                DateTime::parse_from_rfc3339(&s)
-                    .map_err(|_| {
-                        rusqlite::Error::InvalidColumnType(
-                            5,
-                            "timestamp".to_string(),
-                            rusqlite::types::Type::Text,
-                        )
-                    })?
-                    .with_timezone(&Utc)
-            })
-            .transpose()?;
+        let last_digest: Option<DateTime<Utc>> = match last_digest_str {
+            Some(s) => match DateTime::parse_from_rfc3339(&s) {
+                Ok(dt) => Some(dt.with_timezone(&Utc)),
+                Err(_) => {
+                    return Err(rusqlite::Error::InvalidColumnType(
+                        5,
+                        "timestamp".to_string(),
+                        rusqlite::types::Type::Text,
+                    ));
+                }
+            },
+            None => None,
+        };
 
         let version: Option<String> = row.get(6)?;
 
@@ -413,7 +412,11 @@ impl DigestRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(7, "json".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    7,
+                    "json".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let sbom_str: Option<String> = row.get(8)?;
@@ -421,7 +424,11 @@ impl DigestRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(8, "json".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    8,
+                    "json".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let security_report_str: Option<String> = row.get(9)?;
@@ -441,8 +448,8 @@ impl DigestRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(10, "json".to_string(), rusqlite::types::Type::Text)
-            })?;
+            rusqlite::Error::InvalidColumnType(10, "json".to_string(), rusqlite::types::Type::Text)
+        })?;
 
         Ok(DigestSource {
             id,
@@ -459,4 +466,3 @@ impl DigestRepository {
         })
     }
 }
-

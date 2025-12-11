@@ -18,6 +18,7 @@ export default function MemorySettings() {
             min="1"
             max="365"
             defaultValue="90"
+            aria-label="Retention period in days"
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
           />
         </div>
@@ -31,6 +32,7 @@ export default function MemorySettings() {
             min="1"
             max="100"
             defaultValue="10"
+            aria-label="Maximum memory size in gigabytes"
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
           />
         </div>
@@ -38,4 +40,3 @@ export default function MemorySettings() {
     </div>
   );
 }
-

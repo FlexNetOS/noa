@@ -74,14 +74,10 @@ impl KnowledgeEdgeRepository {
 
     /// Create a new knowledge edge
     pub fn create(&self, edge: &KnowledgeEdge) -> Result<Uuid> {
-        let properties_json = edge
-            .properties
-            .as_ref()
-            .map(|p| serde_json::to_string(p))
-            .transpose()
-            .map_err(|e| {
-                NoaError::Serialization(format!("Failed to serialize properties: {}", e))
-            })?;
+        let properties_json =
+            edge.properties.as_ref().map(|p| serde_json::to_string(p)).transpose().map_err(
+                |e| NoaError::Serialization(format!("Failed to serialize properties: {}", e)),
+            )?;
 
         self.conn
             .execute(
@@ -166,7 +162,9 @@ impl KnowledgeEdgeRepository {
             })?;
 
         let rows = stmt
-            .query_map(params![source_node.to_string()], |row| self.row_to_edge(row))
+            .query_map(params![source_node.to_string()], |row| {
+                self.row_to_edge(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM knowledge_edge".to_string(),
@@ -202,7 +200,9 @@ impl KnowledgeEdgeRepository {
             })?;
 
         let rows = stmt
-            .query_map(params![target_node.to_string()], |row| self.row_to_edge(row))
+            .query_map(params![target_node.to_string()], |row| {
+                self.row_to_edge(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM knowledge_edge".to_string(),
@@ -266,20 +266,12 @@ impl KnowledgeEdgeRepository {
 
         let source_node_str: String = row.get(1)?;
         let source_node = Uuid::parse_str(&source_node_str).map_err(|_| {
-            rusqlite::Error::InvalidColumnType(
-                1,
-                "uuid".to_string(),
-                rusqlite::types::Type::Text,
-            )
+            rusqlite::Error::InvalidColumnType(1, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let target_node_str: String = row.get(2)?;
         let target_node = Uuid::parse_str(&target_node_str).map_err(|_| {
-            rusqlite::Error::InvalidColumnType(
-                2,
-                "uuid".to_string(),
-                rusqlite::types::Type::Text,
-            )
+            rusqlite::Error::InvalidColumnType(2, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let relationship_str: String = row.get(3)?;
@@ -298,7 +290,11 @@ impl KnowledgeEdgeRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(5, "json".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    5,
+                    "json".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         Ok(KnowledgeEdge {
@@ -311,4 +307,3 @@ impl KnowledgeEdgeRepository {
         })
     }
 }
-

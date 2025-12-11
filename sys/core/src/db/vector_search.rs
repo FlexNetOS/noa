@@ -176,7 +176,8 @@ impl VectorSearch {
         let mut results = Vec::new();
         for row in rows {
             let (id_str, vector, memory_id_str) = row?;
-            let id = Uuid::parse_str(&memory_id_str).unwrap_or_else(|_| Uuid::parse_str(&id_str).unwrap());
+            let id = Uuid::parse_str(&memory_id_str)
+                .unwrap_or_else(|_| Uuid::parse_str(&id_str).unwrap());
 
             // Compute cosine similarity
             let similarity = cosine_similarity(query_vector, &vector);
@@ -237,4 +238,3 @@ mod tests {
         assert!((cosine_similarity(&a, &b) - 0.0).abs() < 0.001);
     }
 }
-

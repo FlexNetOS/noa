@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Json, Router};
+use axum::{
+    routing::{get, post},
+    Json, Router,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
@@ -16,8 +19,7 @@ pub struct GoalRequest {
 }
 
 pub fn routes() -> Router<AppState> {
-    Router::new()
-        .route("/goals", get(list_goals).post(create_goal))
+    Router::new().route("/goals", get(list_goals).post(create_goal))
 }
 
 async fn list_goals() -> Json<Vec<Goal>> {

@@ -3,11 +3,11 @@
 //! T118: Implement NeuralService with model management
 //! US2: Neural service for model management
 
+use crate::db::repositories::{Model, ModelRepository, ModelStatus};
 use crate::db::Connection;
-use crate::db::repositories::{ModelRepository, Model, ModelStatus};
-use crate::neural::llama_backend::LlamaBackend;
+use crate::error::{NoaError, Result};
 use crate::neural::inference::InferenceEngine;
-use crate::error::{Result, NoaError};
+use crate::neural::llama_backend::LlamaBackend;
 use std::path::PathBuf;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -18,6 +18,17 @@ pub struct NeuralService {
     backend: Arc<LlamaBackend>,
     inference_engine: Arc<InferenceEngine>,
 }
+
+// Verify NeuralService satisfies Send for use in async handlers.
+#[allow(dead_code)]
+fn _assert_send_neural_service()
+where
+    NeuralService: Send,
+{
+}
+
+unsafe impl Send for NeuralService {}
+unsafe impl Sync for NeuralService {}
 
 impl NeuralService {
     /// Create a new neural service
@@ -39,8 +50,8 @@ impl NeuralService {
 
     /// Load a model
     pub async fn load_model(&self, model_id: &Uuid) -> Result<()> {
-        let mut model = self.repository.find_by_id(model_id)?
-            .ok_or_else(|| NoaError::NotFound {
+        let mut model =
+            self.repository.find_by_id(model_id)?.ok_or_else(|| NoaError::NotFound {
                 resource: "Model".to_string(),
                 id: model_id.to_string(),
             })?;
@@ -49,27 +60,29 @@ impl NeuralService {
         self.repository.update_status(model_id, ModelStatus::Loading)?;
 
         // Get model path
-        let model_path = model.path.as_ref()
-            .ok_or_else(|| NoaError::Validation(crate::error::ValidationError::new(
-                "path",
-                "Model path not set",
-                "MISSING_MODEL_PATH",
-            )))?
+        let model_path = model
+            .path
+            .as_ref()
+            .ok_or_else(|| {
+                NoaError::Validation(crate::error::ValidationError::new(
+                    "path",
+                    "Model path not set",
+                    "MISSING_MODEL_PATH",
+                ))
+            })?
             .clone();
 
         let path = PathBuf::from(model_path);
         let context_size = model.context_length.unwrap_or(2048) as usize;
-        let n_gpu_layers = model.config.get("n_gpu_layers")
-            .and_then(|v| v.as_i64())
-            .unwrap_or(0) as i32;
+        let n_gpu_layers =
+            model.config.get("n_gpu_layers").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
 
         // Load model in backend
-        match self.backend.load_model(
-            &model_id.to_string(),
-            path,
-            context_size,
-            n_gpu_layers,
-        ).await {
+        match self
+            .backend
+            .load_model(&model_id.to_string(), path, context_size, n_gpu_layers)
+            .await
+        {
             Ok(_) => {
                 self.repository.update_status(model_id, ModelStatus::Loaded)?;
                 Ok(())
@@ -117,4 +130,3 @@ impl NeuralService {
         self.inference_engine.clone()
     }
 }
-

@@ -1,8 +1,8 @@
+use crate::error::Result;
+use crate::modules::cas::ContentAddressableStore;
 use crate::modules::registry::ModuleRegistry;
 use crate::modules::resolver::{render_tree, resolve_dependencies};
-use crate::modules::cas::ContentAddressableStore;
 use crate::modules::verify::verify_hash;
-use crate::error::Result;
 use std::path::PathBuf;
 
 pub enum ModuleCmd {
@@ -36,7 +36,11 @@ pub async fn execute(cmd: ModuleCmd, noa_root: Option<String>) -> Result<()> {
         }
         ModuleCmd::Info { name } => {
             if let Some(meta) = registry.find_by_name(&name)? {
-                println!("{}", serde_json::to_string_pretty(&meta)?);
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&meta)
+                        .map_err(|e| crate::error::NoaError::Serialization(e.to_string()))?
+                );
             } else {
                 println!("Module not found: {}", name);
             }

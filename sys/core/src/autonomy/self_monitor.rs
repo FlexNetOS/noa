@@ -92,16 +92,13 @@ impl PerformanceSelfMonitor {
 
     /// Record a performance metric
     pub async fn record_metric(&mut self, metric: PerformanceMetric) -> Result<()> {
-        let history = self
-            .metrics_history
-            .entry(metric.name.clone())
-            .or_insert_with(Vec::new);
+        let history = self.metrics_history.entry(metric.name.clone()).or_insert_with(Vec::new);
 
         history.push(metric.clone());
 
         // Trim old metrics
-        let cutoff = Utc::now()
-            - chrono::Duration::seconds(self.config.baseline_window_secs as i64);
+        let cutoff =
+            Utc::now() - chrono::Duration::seconds(self.config.baseline_window_secs as i64);
         history.retain(|m| m.timestamp >= cutoff);
 
         // Update baseline if needed
@@ -123,7 +120,8 @@ impl PerformanceSelfMonitor {
         for (metric_name, history) in &self.metrics_history {
             if let Some(baseline) = self.baselines.get(metric_name) {
                 if let Some(latest) = history.last() {
-                    let degradation = ((latest.value - baseline.average) / baseline.average) * 100.0;
+                    let degradation =
+                        ((latest.value - baseline.average) / baseline.average) * 100.0;
 
                     if degradation.abs() > self.config.degradation_threshold_percent {
                         let severity = if degradation.abs() > 50.0 {
@@ -150,10 +148,7 @@ impl PerformanceSelfMonitor {
         }
 
         if !alerts.is_empty() {
-            warn!(
-                alerts = alerts.len(),
-                "Performance degradation detected"
-            );
+            warn!(alerts = alerts.len(), "Performance degradation detected");
         }
 
         Ok(alerts)
@@ -245,4 +240,3 @@ mod tests {
         assert!(baseline.is_some());
     }
 }
-

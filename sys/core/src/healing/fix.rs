@@ -95,7 +95,8 @@ impl AutoFixExecutor {
 
         if root_cause_lower.contains("resource") || root_cause_lower.contains("exhaustion") {
             "restart".to_string()
-        } else if root_cause_lower.contains("config") || root_cause_lower.contains("configuration") {
+        } else if root_cause_lower.contains("config") || root_cause_lower.contains("configuration")
+        {
             "reconfigure".to_string()
         } else if root_cause_lower.contains("dependency") || root_cause_lower.contains("service") {
             "redistribute".to_string()
@@ -111,28 +112,18 @@ impl AutoFixExecutor {
     /// Register default fix handlers
     fn register_default_handlers(&mut self) {
         // Restart handler
-        self.fix_handlers.insert(
-            "restart".to_string(),
-            Box::new(RestartFixHandler),
-        );
+        self.fix_handlers.insert("restart".to_string(), Box::new(RestartFixHandler));
 
         // Reconfigure handler
-        self.fix_handlers.insert(
-            "reconfigure".to_string(),
-            Box::new(ReconfigureFixHandler),
-        );
+        self.fix_handlers
+            .insert("reconfigure".to_string(), Box::new(ReconfigureFixHandler));
 
         // Rollback handler
-        self.fix_handlers.insert(
-            "rollback".to_string(),
-            Box::new(RollbackFixHandler),
-        );
+        self.fix_handlers.insert("rollback".to_string(), Box::new(RollbackFixHandler));
 
         // Redistribute handler
-        self.fix_handlers.insert(
-            "redistribute".to_string(),
-            Box::new(RedistributeFixHandler),
-        );
+        self.fix_handlers
+            .insert("redistribute".to_string(), Box::new(RedistributeFixHandler));
     }
 
     /// Execute restart fix
@@ -287,4 +278,3 @@ mod tests {
         assert_eq!(fix_type, "restart");
     }
 }
-

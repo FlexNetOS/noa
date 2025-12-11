@@ -45,7 +45,7 @@ impl FisherComputer {
     pub fn get_importance(&self, parameter_name: &str) -> f64 {
         if let Some(fisher) = self.get_fisher(parameter_name) {
             // Normalize by max Fisher value
-            let max_fisher = self.fisher_info.values().fold(0.0, |a, &b| a.max(b));
+            let max_fisher = self.fisher_info.values().fold(0.0_f64, |a, &b| a.max(b));
             if max_fisher > 0.0 {
                 fisher / max_fisher
             } else {
@@ -58,13 +58,18 @@ impl FisherComputer {
 
     /// Get all Fisher Information
     pub fn get_all_fisher(&self) -> Vec<FisherInfo> {
-        let max_fisher = self.fisher_info.values().fold(0.0, |a, &b| a.max(b));
+        let max_fisher = self.fisher_info.values().fold(0.0_f64, |a, &b| a.max(b));
 
-        self.fisher_info.iter()
+        self.fisher_info
+            .iter()
             .map(|(name, &fisher)| FisherInfo {
                 parameter_name: name.clone(),
                 fisher_value: fisher,
-                importance: if max_fisher > 0.0 { fisher / max_fisher } else { 0.0 },
+                importance: if max_fisher > 0.0 {
+                    fisher / max_fisher
+                } else {
+                    0.0
+                },
             })
             .collect()
     }
@@ -87,4 +92,3 @@ mod tests {
         assert!(computer.get_fisher("param1").unwrap() > 0.0);
     }
 }
-

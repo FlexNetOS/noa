@@ -6,9 +6,9 @@
 use crate::error::{NoaError, Result};
 use crate::init::paths::NoaPaths;
 use std::fs;
-use std::path::Path;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
+use std::path::Path;
 use tracing::{debug, info, warn};
 
 /// Directory structure creator
@@ -67,11 +67,7 @@ impl DirectoryStructure {
 
     /// Create sys/ui/ subdirectory structure
     pub fn create_sys_ui(noa_root: &Path, force: bool) -> Result<()> {
-        let ui_dirs = vec![
-            "sys/ui/src",
-            "sys/ui/public",
-            "sys/ui/.next",
-        ];
+        let ui_dirs = vec!["sys/ui/src", "sys/ui/public", "sys/ui/.next"];
 
         for dir in ui_dirs {
             let path = noa_root.join(dir);
@@ -83,10 +79,7 @@ impl DirectoryStructure {
 
     /// Create sys/digest/ subdirectory structure
     pub fn create_sys_digest(noa_root: &Path, force: bool) -> Result<()> {
-        let digest_dirs = vec![
-            "sys/digest/src",
-            "sys/digest/tests",
-        ];
+        let digest_dirs = vec!["sys/digest/src", "sys/digest/tests"];
 
         for dir in digest_dirs {
             let path = noa_root.join(dir);
@@ -166,7 +159,10 @@ impl DirectoryStructure {
         if missing.is_empty() {
             info!("All directories verified");
         } else {
-            warn!(missing_count = missing.len(), "Some directories are missing");
+            warn!(
+                missing_count = missing.len(),
+                "Some directories are missing"
+            );
         }
 
         Ok(missing)
@@ -201,4 +197,3 @@ mod tests {
         assert!(NoaPaths::sys_core(root).join("src").exists());
     }
 }
-

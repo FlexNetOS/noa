@@ -1,0 +1,8 @@
+{
+  "id": "SC-001",
+  "description": "system initialization (<60s)",
+  "duration_ms": 34,
+  "target_ms": 60000,
+  "status": "Passed",
+  "notes": "dirs=32 configs=4 db=true"
+}

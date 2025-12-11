@@ -2,13 +2,13 @@
 //! Stubs for agent orchestration, executive, and board agents.
 
 pub mod base;
-pub mod file_io;
-pub mod terminal;
-pub mod rag;
-pub mod microservice_mgmt;
+pub mod board;
 pub mod commander;
 pub mod executive;
-pub mod board;
+pub mod file_io;
+pub mod microservice_mgmt;
 pub mod model_selector;
+pub mod rag;
+pub mod terminal;
 
 pub use model_selector::ModelSelectorAgent;

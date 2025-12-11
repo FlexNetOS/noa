@@ -80,7 +80,7 @@ impl GoalQueueManager {
         let mut inserted = false;
         for (idx, existing) in queue.iter().enumerate() {
             if priority > existing.priority {
-                queue.insert(idx, goal);
+                queue.insert(idx, goal.clone());
                 inserted = true;
                 break;
             }
@@ -107,11 +107,7 @@ impl GoalQueueManager {
     }
 
     /// Update goal status
-    pub async fn update_goal_status(
-        &self,
-        goal_id: &Uuid,
-        status: GoalStatus,
-    ) -> Result<()> {
+    pub async fn update_goal_status(&self, goal_id: &Uuid, status: GoalStatus) -> Result<()> {
         let mut queue = self.queue.write().await;
 
         // Find goal in queue
@@ -210,4 +206,3 @@ mod tests {
         assert_eq!(manager.queue_size().await, 0);
     }
 }
-

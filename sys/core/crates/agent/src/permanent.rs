@@ -27,9 +27,7 @@ impl FileIOAgent {
                 "Path outside noa_root".into(),
             ));
         }
-        tokio::fs::read(path)
-            .await
-            .map_err(|e| noa_common::NoaError::Io { source: e })
+        tokio::fs::read(path).await.map_err(|e| noa_common::NoaError::Io { source: e })
     }
 
     /// Write a file within noa_root
@@ -64,10 +62,7 @@ impl Default for TerminalAgent {
 impl TerminalAgent {
     /// Execute a shell command with timeout and capture stdout/stderr
     /// FR-008: Execute shell commands with timeout (default 30s), capture stdout/stderr
-    pub async fn execute(
-        &self,
-        command: &str,
-    ) -> noa_common::Result<TerminalExecutionResult> {
+    pub async fn execute(&self, command: &str) -> noa_common::Result<TerminalExecutionResult> {
         use tokio::process::Command;
         use tokio::time::{timeout, Duration};
 
@@ -214,7 +209,7 @@ impl Default for MicroserviceManagementAgent {
     fn default() -> Self {
         Self {
             metadata: Metadata::new(),
-            deploy_timeout_secs: 10,    // FR-008: deploys within 10s
+            deploy_timeout_secs: 10,       // FR-008: deploys within 10s
             health_check_interval_secs: 1, // FR-008: health check <1s
         }
     }
@@ -256,10 +251,7 @@ impl MicroserviceManagementAgent {
 
     /// Perform health check on a service
     /// FR-008: Health check within 1s
-    pub async fn health_check(
-        &self,
-        service_name: &str,
-    ) -> noa_common::Result<HealthCheckResult> {
+    pub async fn health_check(&self, service_name: &str) -> noa_common::Result<HealthCheckResult> {
         use tokio::time::{timeout, Duration, Instant};
 
         let start = Instant::now();
@@ -310,4 +302,3 @@ pub struct HealthCheckResult {
     pub healthy: bool,
     pub response_time_ms: u64,
 }
-

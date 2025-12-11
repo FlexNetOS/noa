@@ -27,6 +27,7 @@ param(
 $NOA_ROOT = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent $PSScriptRoot }
 $NOA_CONFIG = Join-Path $NOA_ROOT "config"
 $NOA_CONFIG_FILE = Join-Path $NOA_CONFIG "noa-server.json"
+$NOA_KERNEL_STATE_FILE = Join-Path $NOA_ROOT ".kernel-switch-state.json"
 $AI_PROVIDERS_CONFIG = Join-Path $NOA_CONFIG "ai-providers.json"
 $DEVICE_CONFIG = Join-Path $NOA_CONFIG "device-orchestration.json"
 
@@ -59,6 +60,40 @@ function Show-Usage {
     Write-Host "  device capabilities      Show device capabilities"
 }
 
+function Get-NoaVersion {
+    $manifest = Join-Path $NOA_ROOT "sys/core/Cargo.toml"
+    if (Test-Path $manifest) {
+        $match = Select-String -Path $manifest -Pattern 'version\s*=\s*\"([^\"]+)\"' |
+            Select-Object -First 1
+        if ($match -and $match.Matches.Count -gt 0) {
+            return $match.Matches[0].Groups[1].Value
+        }
+    }
+    return "unknown"
+}
+
+function Get-KernelMode {
+    if (Test-Path $NOA_KERNEL_STATE_FILE) {
+        try {
+            $state = Get-Content $NOA_KERNEL_STATE_FILE -Raw | ConvertFrom-Json
+            if ($state.target_mode) { return $state.target_mode }
+        } catch {
+            return "unknown"
+        }
+    }
+    if ($env:NOA_KERNEL_MODE) { return $env:NOA_KERNEL_MODE }
+    return "unknown"
+}
+
+function Get-KernelCheckpointInfo {
+    if (-not (Test-Path $NOA_KERNEL_STATE_FILE)) { return $null }
+    try {
+        return Get-Content $NOA_KERNEL_STATE_FILE -Raw | ConvertFrom-Json
+    } catch {
+        return $null
+    }
+}
+
 switch ($Command) {
     "start" {
         Write-Host "Starting NOA P2P server..." -ForegroundColor Cyan
@@ -76,6 +111,18 @@ switch ($Command) {
         Write-Host "NOA P2P Server Status" -ForegroundColor Cyan
         Write-Host "  Root: $NOA_ROOT"
         Write-Host "  Config: $(if (Test-Path $NOA_CONFIG_FILE) { 'Found' } else { 'Not found' })"
+        $version = Get-NoaVersion
+        $kernelMode = Get-KernelMode
+        Write-Host "  Version: $version"
+        Write-Host "  Kernel Mode: $kernelMode"
+        $checkpoint = Get-KernelCheckpointInfo
+        if ($checkpoint) {
+            $status = if ($checkpoint.status) { $checkpoint.status } else { "unknown" }
+            $ts = if ($checkpoint.timestamp) { $checkpoint.timestamp } else { "n/a" }
+            Write-Host "  Kernel Checkpoint: $status @ $ts"
+        } else {
+            Write-Host "  Kernel Checkpoint: not found"
+        }
         # TODO: Implement full status check
     }
 

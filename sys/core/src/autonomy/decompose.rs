@@ -4,8 +4,8 @@
 //! FR-054: System MUST autonomously decompose high-level user goals into executable task chains
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
 use crate::autonomy::goal_queue::Goal;
+use crate::error::{NoaError, Result};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 use uuid::Uuid;
@@ -80,7 +80,7 @@ impl GoalDecomposer {
             goal_id: goal.id,
             tasks,
             total_tasks,
-            estimated_duration,
+            estimated_duration_secs: estimated_duration,
             decomposition_strategy: "simple".to_string(),
         })
     }
@@ -142,4 +142,3 @@ mod tests {
         assert!(!result.tasks.is_empty());
     }
 }
-

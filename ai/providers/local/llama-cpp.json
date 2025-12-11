@@ -7,6 +7,9 @@
   "repository": "https://github.com/ggerganov/llama.cpp",
   "submodule": "${NOA_ROOT}/opt/llama.cpp",
   "cli": {
+    "command": "llama-server",
+    "package": "llama.cpp",
+    "version": "latest",
     "llama-server": {
       "command": "llama-server",
       "binaryPath": {
@@ -58,5 +61,9 @@
     "agents": "${NOA_ROOT}/ai/shared/agents",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "prompts": "${NOA_ROOT}/ai/shared/prompts"
-  }
+  },
+  "latency": {
+    "target": "<2s"
+  },
+  "timeout": 30000
 }

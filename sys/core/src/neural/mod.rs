@@ -4,35 +4,43 @@
 //! §3.2: Local-First & Offline-Capable
 //! US2: Multi-SLM Neural Runtime
 
-pub mod model_loader;
-pub mod llama_backend;
-pub mod context;
-pub mod inference;
-pub mod hardware;
 pub mod benchmark;
-pub mod export;
+pub mod context;
 pub mod cuda_devices;
-pub mod multi_gpu;
-pub mod tensor_parallel;
-pub mod nvlink;
-pub mod gpu_pool;
 pub mod cuda_tiles;
-pub mod gpu_scheduler;
+pub mod export;
 pub mod gpu_health;
+pub mod gpu_pool;
+pub mod gpu_scheduler;
+pub mod hardware;
+pub mod inference;
+pub mod llama_backend;
+pub mod model_loader;
+pub mod multi_gpu;
+pub mod nvlink;
+pub mod tensor_parallel;
 
-pub use model_loader::ModelLoader;
-pub use llama_backend::LlamaBackend;
-pub use context::InferenceContext;
-pub use inference::InferenceEngine;
-pub use hardware::{HardwareDetector, QuantizationDetector};
+#[cfg(test)]
+mod context_test;
+#[cfg(test)]
+mod inference_test;
+#[cfg(test)]
+mod model_loader_test;
+#[cfg(test)]
+mod phase10_verification_test;
+
 pub use benchmark::ModelBenchmark;
+pub use context::InferenceContext;
+pub use cuda_devices::{CudaDevice, CudaDeviceEnumerator};
+pub use cuda_tiles::{CudaTilesConfig, CudaTilesManager};
 pub use export::ModelExporter;
-pub use cuda_devices::{CudaDeviceEnumerator, CudaDevice};
-pub use multi_gpu::{MultiGpuDistributor, DistributionStrategy};
-pub use tensor_parallel::{TensorParallelManager, ShardDimension};
-pub use nvlink::NvLinkDetector;
-pub use gpu_pool::{GpuMemoryPool, MemoryAllocation};
-pub use cuda_tiles::{CudaTilesManager, CudaTilesConfig};
-pub use gpu_scheduler::{GpuScheduler, LoadBalanceStrategy};
 pub use gpu_health::{GpuHealthMonitor, GpuHealthStatus};
-
+pub use gpu_pool::{GpuMemoryPool, MemoryAllocation};
+pub use gpu_scheduler::{GpuScheduler, LoadBalanceStrategy};
+pub use hardware::{HardwareDetector, QuantizationDetector};
+pub use inference::InferenceEngine;
+pub use llama_backend::LlamaBackend;
+pub use model_loader::ModelLoader;
+pub use multi_gpu::{DistributionStrategy, MultiGpuDistributor};
+pub use nvlink::NvLinkDetector;
+pub use tensor_parallel::{ShardDimension, TensorParallelManager};

@@ -4,9 +4,8 @@
 //! §3.2: API server implementation
 //! FR-021-030: Core API endpoints
 
-pub mod server;
-pub mod routes;
 pub mod middleware;
+pub mod routes;
+pub mod server;
 
-pub use server::{ApiServer, ApiConfig};
-
+pub use server::{ApiConfig, ApiServer};

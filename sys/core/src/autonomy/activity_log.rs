@@ -6,12 +6,11 @@
 //!
 //! T629: Implement real-time activity log (observation only)
 
-use crate::error::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 /// Activity type
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -102,21 +101,21 @@ impl ActivityLog {
 
     /// Get entries by type
     pub async fn entries_by_type(&self, activity_type: &ActivityType) -> Vec<ActivityEntry> {
-        self.entries.read().await
+        self.entries
+            .read()
+            .await
             .iter()
-            .filter(|e| {
-                match (&e.activity_type, activity_type) {
-                    (ActivityType::GoalCreated, ActivityType::GoalCreated) => true,
-                    (ActivityType::GoalStarted, ActivityType::GoalStarted) => true,
-                    (ActivityType::GoalCompleted, ActivityType::GoalCompleted) => true,
-                    (ActivityType::GoalFailed, ActivityType::GoalFailed) => true,
-                    (ActivityType::AgentAction, ActivityType::AgentAction) => true,
-                    (ActivityType::PlaneTransition, ActivityType::PlaneTransition) => true,
-                    (ActivityType::RollbackInitiated, ActivityType::RollbackInitiated) => true,
-                    (ActivityType::SafetyCheck, ActivityType::SafetyCheck) => true,
-                    (ActivityType::ResourceUsage, ActivityType::ResourceUsage) => true,
-                    _ => false,
-                }
+            .filter(|e| match (&e.activity_type, activity_type) {
+                (ActivityType::GoalCreated, ActivityType::GoalCreated) => true,
+                (ActivityType::GoalStarted, ActivityType::GoalStarted) => true,
+                (ActivityType::GoalCompleted, ActivityType::GoalCompleted) => true,
+                (ActivityType::GoalFailed, ActivityType::GoalFailed) => true,
+                (ActivityType::AgentAction, ActivityType::AgentAction) => true,
+                (ActivityType::PlaneTransition, ActivityType::PlaneTransition) => true,
+                (ActivityType::RollbackInitiated, ActivityType::RollbackInitiated) => true,
+                (ActivityType::SafetyCheck, ActivityType::SafetyCheck) => true,
+                (ActivityType::ResourceUsage, ActivityType::ResourceUsage) => true,
+                _ => false,
             })
             .cloned()
             .collect()
@@ -124,7 +123,9 @@ impl ActivityLog {
 
     /// Get entries since timestamp
     pub async fn entries_since(&self, since: DateTime<Utc>) -> Vec<ActivityEntry> {
-        self.entries.read().await
+        self.entries
+            .read()
+            .await
             .iter()
             .filter(|e| e.timestamp >= since)
             .cloned()
@@ -162,7 +163,8 @@ mod tests {
             "GoalGenerator".to_string(),
             "New goal created".to_string(),
             serde_json::json!({}),
-        ).await;
+        )
+        .await;
 
         assert_eq!(log.count().await, 1);
     }
@@ -177,7 +179,8 @@ mod tests {
                 "Test".to_string(),
                 format!("Entry {}", i),
                 serde_json::json!({}),
-            ).await;
+            )
+            .await;
         }
 
         assert_eq!(log.count().await, 5);
@@ -196,7 +199,8 @@ mod tests {
                 "Test".to_string(),
                 format!("Entry {}", i),
                 serde_json::json!({}),
-            ).await;
+            )
+            .await;
         }
 
         let recent = log.recent_entries(3).await;
@@ -204,4 +208,3 @@ mod tests {
         assert_eq!(recent[2].message, "Entry 9");
     }
 }
-

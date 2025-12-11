@@ -49,11 +49,23 @@ if ((Test-Path $exePath) -and -not $Force) {
     exit 0
 }
 
+# Source download library for checksum support
+$downloadLib = Join-Path $PSScriptRoot "..\..\lib\download.ps1"
+if (Test-Path $downloadLib) {
+    . $downloadLib
+}
+
 if (-not (Test-Path $installerPath)) {
     if ($DownloadUrl) {
         Write-Host "  [INFO] Downloading installer..." -ForegroundColor Yellow
         try {
-            Invoke-WebRequest -Uri $DownloadUrl -OutFile $installerPath
+            if (Test-Path $downloadLib) {
+                # Use Get-NoaDownload for checksum support (when available)
+                $installerPath = Get-NoaDownload -Url $DownloadUrl -DestinationName (Split-Path $installerPath -Leaf) -UseCache
+            } else {
+                # Fallback to direct download
+                Invoke-WebRequest -Uri $DownloadUrl -OutFile $installerPath
+            }
             Write-Host "  [OK] Downloaded installer to $installerPath" -ForegroundColor Green
         } catch {
             Write-Host "  [ERROR] Download failed: $_" -ForegroundColor Red

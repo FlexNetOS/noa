@@ -2,8 +2,8 @@
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::process::{Child, Command, Stdio};
 use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlamaServerConfig {
@@ -40,38 +40,45 @@ impl LlamaServer {
             process: None,
         }
     }
-    
+
     pub fn start(&mut self) -> Result<()> {
         let llama_server_path = PathBuf::from("opt/llama.cpp/build/bin/llama-server.exe");
-        
+
         if !llama_server_path.exists() {
             anyhow::bail!("llama-server not found at {:?}", llama_server_path);
         }
-        
+
         let mut cmd = Command::new(&llama_server_path);
-        cmd.arg("--host").arg(&self.config.host)
-            .arg("--port").arg(self.config.port.to_string())
-            .arg("--model").arg(&self.config.model_path)
-            .arg("--ctx-size").arg(self.config.context_size.to_string())
-            .arg("--n-gpu-layers").arg(self.config.n_gpu_layers.to_string());
-        
+        cmd.arg("--host")
+            .arg(&self.config.host)
+            .arg("--port")
+            .arg(self.config.port.to_string())
+            .arg("--model")
+            .arg(&self.config.model_path)
+            .arg("--ctx-size")
+            .arg(self.config.context_size.to_string())
+            .arg("--n-gpu-layers")
+            .arg(self.config.n_gpu_layers.to_string());
+
         if let Some(threads) = self.config.threads {
             cmd.arg("--threads").arg(threads.to_string());
         }
-        
-        cmd.stdout(Stdio::piped())
-            .stderr(Stdio::piped());
-        
-        let child = cmd.spawn()
-            .context("Failed to start llama-server")?;
-        
+
+        cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+
+        let child = cmd.spawn().context("Failed to start llama-server")?;
+
         self.process = Some(child);
-        
-        tracing::info!("llama-server started on {}:{}", self.config.host, self.config.port);
-        
+
+        tracing::info!(
+            "llama-server started on {}:{}",
+            self.config.host,
+            self.config.port
+        );
+
         Ok(())
     }
-    
+
     pub fn stop(&mut self) -> Result<()> {
         if let Some(mut process) = self.process.take() {
             process.kill().context("Failed to kill llama-server")?;
@@ -79,11 +86,11 @@ impl LlamaServer {
         }
         Ok(())
     }
-    
+
     pub fn is_running(&self) -> bool {
         self.process.is_some()
     }
-    
+
     pub fn base_url(&self) -> String {
         format!("http://{}:{}", self.config.host, self.config.port)
     }
@@ -125,28 +132,27 @@ impl LlamaClient {
             client: reqwest::Client::new(),
         }
     }
-    
+
     pub async fn complete(&self, request: CompletionRequest) -> Result<CompletionResponse> {
         let url = format!("{}/completion", self.base_url);
-        
-        let response = self.client
+
+        let response = self
+            .client
             .post(&url)
             .json(&request)
             .send()
             .await
             .context("Failed to send completion request")?;
-        
-        let result: CompletionResponse = response
-            .json()
-            .await
-            .context("Failed to parse completion response")?;
-        
+
+        let result: CompletionResponse =
+            response.json().await.context("Failed to parse completion response")?;
+
         Ok(result)
     }
-    
+
     pub async fn health_check(&self) -> Result<bool> {
         let url = format!("{}/health", self.base_url);
-        
+
         match self.client.get(&url).send().await {
             Ok(response) => Ok(response.status().is_success()),
             Err(_) => Ok(false),

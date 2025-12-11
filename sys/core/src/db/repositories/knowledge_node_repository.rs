@@ -49,7 +49,7 @@ impl KnowledgeNodeType {
         }
     }
 
-    fn from_str(s: &str) -> Result<Self> {
+    pub fn from_str(s: &str) -> Result<Self> {
         match s {
             "function" => Ok(KnowledgeNodeType::Function),
             "class" => Ok(KnowledgeNodeType::Class),
@@ -84,18 +84,12 @@ impl KnowledgeNodeRepository {
             .as_ref()
             .map(|l| serde_json::to_string(l))
             .transpose()
-            .map_err(|e| {
-                NoaError::Serialization(format!("Failed to serialize location: {}", e))
-            })?;
+            .map_err(|e| NoaError::Serialization(format!("Failed to serialize location: {}", e)))?;
 
-        let properties_json = node
-            .properties
-            .as_ref()
-            .map(|p| serde_json::to_string(p))
-            .transpose()
-            .map_err(|e| {
-                NoaError::Serialization(format!("Failed to serialize properties: {}", e))
-            })?;
+        let properties_json =
+            node.properties.as_ref().map(|p| serde_json::to_string(p)).transpose().map_err(
+                |e| NoaError::Serialization(format!("Failed to serialize properties: {}", e)),
+            )?;
 
         self.conn
             .execute(
@@ -224,7 +218,9 @@ impl KnowledgeNodeRepository {
             })?;
 
         let rows = stmt
-            .query_map(params![source_digest.to_string()], |row| self.row_to_node(row))
+            .query_map(params![source_digest.to_string()], |row| {
+                self.row_to_node(row)
+            })
             .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM knowledge_node".to_string(),
@@ -257,10 +253,8 @@ impl KnowledgeNodeRepository {
         let description: Option<String> = row.get(4)?;
 
         let source_digest_str: Option<String> = row.get(5)?;
-        let source_digest = source_digest_str
-            .map(|s| Uuid::parse_str(&s))
-            .transpose()
-            .map_err(|_| {
+        let source_digest =
+            source_digest_str.map(|s| Uuid::parse_str(&s)).transpose().map_err(|_| {
                 rusqlite::Error::InvalidColumnType(
                     5,
                     "uuid".to_string(),
@@ -273,7 +267,11 @@ impl KnowledgeNodeRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(6, "json".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    6,
+                    "json".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let properties_str: Option<String> = row.get(7)?;
@@ -281,15 +279,21 @@ impl KnowledgeNodeRepository {
             .map(|s| serde_json::from_str::<Map<String, Value>>(&s))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(7, "json".to_string(), rusqlite::types::Type::Text)
+                rusqlite::Error::InvalidColumnType(
+                    7,
+                    "json".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let embedding_id_str: Option<String> = row.get(8)?;
-        let embedding_id = embedding_id_str
-            .map(|s| Uuid::parse_str(&s))
-            .transpose()
-            .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(8, "uuid".to_string(), rusqlite::types::Type::Text)
+        let embedding_id =
+            embedding_id_str.map(|s| Uuid::parse_str(&s)).transpose().map_err(|_| {
+                rusqlite::Error::InvalidColumnType(
+                    8,
+                    "uuid".to_string(),
+                    rusqlite::types::Type::Text,
+                )
             })?;
 
         let created_at_str: String = row.get(9)?;
@@ -317,4 +321,3 @@ impl KnowledgeNodeRepository {
         })
     }
 }
-

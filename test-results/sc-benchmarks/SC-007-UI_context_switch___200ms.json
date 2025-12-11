@@ -1,0 +1,8 @@
+{
+  "id": "SC-007",
+  "description": "UI context switch (<200ms)",
+  "duration_ms": 35,
+  "target_ms": 200,
+  "status": "Passed",
+  "notes": "states=[\"loading\", \"data-ready\", \"render-complete\"]"
+}

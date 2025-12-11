@@ -27,4 +27,3 @@ pub fn verify_checksum(data: &[u8], expected: &str) -> bool {
 }
 
 // Note: hex crate is needed - add to Cargo.toml
-

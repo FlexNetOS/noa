@@ -5,9 +5,9 @@
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use std::collections::HashMap;
 
 /// GPU health status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -66,7 +66,10 @@ impl GpuHealthMonitor {
             // Determine health based on metrics
             let status = if metric.temperature_celsius > 85.0 || metric.error_count > 100 {
                 GpuHealthStatus::Critical
-            } else if metric.temperature_celsius > 75.0 || metric.utilization_percent > 95.0 || metric.error_count > 10 {
+            } else if metric.temperature_celsius > 75.0
+                || metric.utilization_percent > 95.0
+                || metric.error_count > 10
+            {
                 GpuHealthStatus::Warning
             } else {
                 GpuHealthStatus::Healthy
@@ -154,4 +157,3 @@ mod tests {
         assert_eq!(status, GpuHealthStatus::Critical);
     }
 }
-

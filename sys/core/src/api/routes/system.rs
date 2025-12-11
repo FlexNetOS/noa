@@ -3,13 +3,7 @@
 //! T095-T096: System info and health endpoints
 //! US1: Initialize NOA Seed Environment
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::Json,
-    routing::get,
-    Router,
-};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -50,7 +44,7 @@ pub fn routes() -> Router<AppState> {
 }
 
 /// GET /api/v1/system/info
-async fn get_system_info(State(_state): State<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
+async fn get_system_info(State(_state): State<AppState>) -> impl IntoResponse {
     info!("GET /api/v1/system/info");
 
     // Get NOA_ROOT from environment or use default
@@ -73,11 +67,11 @@ async fn get_system_info(State(_state): State<AppState>) -> Result<Json<SystemIn
         directories,
     };
 
-    Ok(Json(info))
+    (StatusCode::OK, Json(info)).into_response()
 }
 
 /// GET /api/v1/system/health
-async fn get_system_health(State(state): State<AppState>) -> Result<Json<SystemHealth>, StatusCode> {
+async fn get_system_health(State(state): State<AppState>) -> impl IntoResponse {
     info!("GET /api/v1/system/health");
 
     // Get NOA_ROOT from environment or use default
@@ -90,22 +84,20 @@ async fn get_system_health(State(state): State<AppState>) -> Result<Json<SystemH
     // Check database health
     let database = if db_path.exists() {
         match db::init_database(&db_path) {
-            Ok(conn) => {
-                match db::check_integrity(&conn) {
-                    Ok(true) => HealthStatus {
-                        status: "healthy".to_string(),
-                        message: None,
-                    },
-                    Ok(false) => HealthStatus {
-                        status: "degraded".to_string(),
-                        message: Some("Database integrity check failed".to_string()),
-                    },
-                    Err(e) => HealthStatus {
-                        status: "unhealthy".to_string(),
-                        message: Some(format!("Database error: {}", e)),
-                    },
-                }
-            }
+            Ok(conn) => match db::check_integrity(&conn) {
+                Ok(true) => HealthStatus {
+                    status: "healthy".to_string(),
+                    message: None,
+                },
+                Ok(false) => HealthStatus {
+                    status: "degraded".to_string(),
+                    message: Some("Database integrity check failed".to_string()),
+                },
+                Err(e) => HealthStatus {
+                    status: "unhealthy".to_string(),
+                    message: Some(format!("Database error: {}", e)),
+                },
+            },
             Err(e) => HealthStatus {
                 status: "unhealthy".to_string(),
                 message: Some(format!("Database connection failed: {}", e)),
@@ -150,6 +142,5 @@ async fn get_system_health(State(state): State<AppState>) -> Result<Json<SystemH
         timestamp: chrono::Utc::now().to_rfc3339(),
     };
 
-    Ok(Json(health))
+    (StatusCode::OK, Json(health)).into_response()
 }
-

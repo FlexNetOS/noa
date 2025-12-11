@@ -1,0 +1,8 @@
+{
+  "id": "SC-009",
+  "description": "cross-platform consistency (hash + paths)",
+  "duration_ms": 0,
+  "target_ms": 1000,
+  "status": "Passed",
+  "notes": "hash=3e34493d4e8b709bb7fb17dd59bcfcf480c5c2b89404bef8ffb5fcdd4e22e1a3 normalized_path=sandbox/plane/config"
+}

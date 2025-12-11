@@ -41,7 +41,8 @@ impl HealingAuditLogger {
 
         // Trim if over limit
         if events.len() > self.max_events {
-            events.drain(0..events.len() - self.max_events);
+            let excess = events.len() - self.max_events;
+            events.drain(0..excess);
         }
 
         // TODO: Also persist to database (HealingEvent table)
@@ -74,11 +75,7 @@ impl HealingAuditLogger {
     /// Get events for a component
     pub async fn get_component_events(&self, component_id: &str) -> Vec<HealingEvent> {
         let events = self.events.read().await;
-        events
-            .iter()
-            .filter(|e| e.component_id == component_id)
-            .cloned()
-            .collect()
+        events.iter().filter(|e| e.component_id == component_id).cloned().collect()
     }
 }
 
@@ -117,4 +114,3 @@ mod tests {
         assert_eq!(events.len(), 1);
     }
 }
-

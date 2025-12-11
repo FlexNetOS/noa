@@ -25,5 +25,3 @@ impl SafetyService {
         Ok(())
     }
 }
-
-

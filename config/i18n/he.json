@@ -1,0 +1,12 @@
+{
+  "app.title": "עוזר NOA האוטונומי",
+  "nav.dashboard": "לוח מחוונים",
+  "nav.chat": "צ׳אט",
+  "nav.settings": "הגדרות",
+  "action.save": "שמור",
+  "action.cancel": "ביטול",
+  "action.refresh": "רענן",
+  "status.ready": "מוכן",
+  "status.loading": "טוען",
+  "status.error": "אירעה שגיאה"
+}

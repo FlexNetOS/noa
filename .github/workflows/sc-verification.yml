@@ -1,0 +1,44 @@
+name: Success Criteria Verification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sys/core/**'
+      - 'tests/**'
+      - 'scripts/bash/sc-report.sh'
+      - 'scripts/bash/platform-report.sh'
+      - '.github/workflows/sc-verification.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  sc-verification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run SC integration tests
+        working-directory: sys/core
+        run: cargo test --tests
+
+      - name: Generate SC reports
+        run: |
+          bash scripts/bash/sc-report.sh
+          bash scripts/bash/platform-report.sh
+
+      - name: Upload SC artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sc-verification
+          path: |
+            test-results/SC_REPORT.md
+            test-results/PLATFORM_REPORT.md
+            test-results/sc-benchmarks/*.json
+          if-no-files-found: warn

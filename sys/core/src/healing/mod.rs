@@ -30,7 +30,7 @@ pub use plane_swap::PlaneSwapExecutor;
 pub use retry::RetryCounter;
 pub use validate::FixValidator;
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -120,25 +120,29 @@ impl SelfHealingOrchestrator {
     pub async fn run_healing_loop(&self) -> Result<()> {
         loop {
             // Stage 1: Monitor - continuous health monitoring
-            let health_metrics = self.monitor.collect_metrics().await?;
+            let health_snapshots = self.monitor.get_all_health_snapshots().await;
 
             // Stage 2: Detect - anomaly detection
-            if let Some(anomaly) = self.anomaly_detector.detect(&health_metrics).await? {
+            let anomaly = self.anomaly_detector.detect(&health_snapshots).await?;
+
+            if let Some(anomaly) = anomaly {
+                let anomaly_for_event = anomaly.clone();
                 let event = HealingEvent {
                     id: Uuid::new_v4(),
-                    component_id: anomaly.component_id.clone(),
-                    component_type: anomaly.component_type.clone(),
+                    component_id: anomaly_for_event.component_id.clone(),
+                    component_type: anomaly_for_event.component_type.clone(),
                     detected_at: Utc::now(),
                     status: HealingStatus::Detected,
-                    health_before: anomaly.health_status,
-                    anomaly_type: Some(anomaly.anomaly_type),
+                    health_before: anomaly_for_event.health_status.clone(),
+                    anomaly_type: Some(anomaly_for_event.anomaly_type.clone()),
                     root_cause: None,
                     fix_applied: None,
                     fix_attempts: 0,
                     validated: false,
                     escalated: false,
                     resolved_at: None,
-                    metadata: anomaly.metadata.clone(),
+                    metadata: serde_json::to_value(&anomaly_for_event.metadata)
+                        .unwrap_or(serde_json::Value::Null),
                 };
 
                 // Log detection
@@ -153,7 +157,7 @@ impl SelfHealingOrchestrator {
                 // Stage 3: Diagnose - root cause analysis
                 let root_cause = self
                     .root_cause_analyzer
-                    .analyze(&anomaly, &health_metrics)
+                    .analyze(&anomaly, &health_snapshots)
                     .await?;
 
                 // Update event with root cause
@@ -204,9 +208,7 @@ impl SelfHealingOrchestrator {
 
                     if retry_count >= 3 {
                         // Escalate to user
-                        self.escalation_notifier
-                            .notify(&event, &root_cause, retry_count)
-                            .await?;
+                        self.escalation_notifier.notify(&event, &root_cause, retry_count).await?;
 
                         {
                             let mut events = self.active_events.write().await;
@@ -232,4 +234,3 @@ impl SelfHealingOrchestrator {
         self.active_events.read().await.clone()
     }
 }
-

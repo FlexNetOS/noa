@@ -3,14 +3,14 @@
 //! T092-T094: Enhanced init command with --root, --force, progress display, and verification
 //! Initializes a new NOA installation or reinitializes an existing one.
 
-use std::path::PathBuf;
 use std::fs;
+use std::path::PathBuf;
 
 use clap::Args;
 use tracing::{info, warn};
 
-use crate::error::Result;
 use crate::db;
+use crate::error::Result;
 use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure};
 use crate::services::InitService;
 
@@ -55,7 +55,10 @@ pub async fn execute(args: InitArgs) -> Result<()> {
     // Check if already initialized
     let marker_path = target.join(".noa-env");
     if marker_path.exists() && !args.force {
-        warn!("NOA already initialized at {}. Use --force to reinitialize.", target.display());
+        warn!(
+            "NOA already initialized at {}. Use --force to reinitialize.",
+            target.display()
+        );
         return Ok(());
     }
 
@@ -109,7 +112,6 @@ fn display_verification(result: &crate::services::VerificationResult) {
     }
 }
 
-
 /// Create the .noa-env marker file
 fn create_marker_file(target: &PathBuf) -> Result<()> {
     let marker_path = target.join(".noa-env");
@@ -129,5 +131,3 @@ NOA_ENV=development
     fs::write(&marker_path, content)?;
     Ok(())
 }
-
-

@@ -1,7 +1,10 @@
 //! In-memory provider registry
 
 use crate::error::Result;
-use crate::providers::{get_provider, list_providers, set_provider_enabled, ProviderInfo, ProviderStatus, set_provider_status};
+use crate::providers::{
+    get_provider, list_providers, set_provider_enabled, set_provider_status, ProviderInfo,
+    ProviderStatus,
+};
 
 /// Return all providers
 pub fn providers() -> Result<Vec<ProviderInfo>> {

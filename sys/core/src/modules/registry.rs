@@ -16,9 +16,8 @@ impl ModuleRegistry {
         if let Some(parent) = db_path.parent() {
             fs::create_dir_all(parent)?;
         }
-        let conn = Connection::open(&db_path).map_err(|e| {
-            NoaError::Database(DatabaseError::ConnectionFailed(e.to_string()))
-        })?;
+        let conn = Connection::open(&db_path)
+            .map_err(|e| NoaError::Database(DatabaseError::ConnectionFailed(e.to_string())))?;
         Self::apply_pragmas(&conn)?;
         Ok(Self { conn, db_path })
     }
@@ -86,8 +85,10 @@ impl ModuleRegistry {
     }
 
     pub fn list_modules(&self) -> Result<Vec<ModuleMetadata>> {
-        let mut stmt = self.conn.prepare(
-            r#"
+        let mut stmt = self
+            .conn
+            .prepare(
+                r#"
             SELECT m.id, m.name, m.module_type,
                    COALESCE(MAX(v.version), '0.0.0') as version,
                    COALESCE(MAX(v.hash), '') as hash
@@ -95,7 +96,8 @@ impl ModuleRegistry {
             LEFT JOIN module_versions v ON v.module_id = m.id
             GROUP BY m.id
         "#,
-        ).map_err(to_db_err("select modules"))?;
+            )
+            .map_err(to_db_err("select modules"))?;
 
         let rows = stmt
             .query_map([], |row| {
@@ -113,12 +115,18 @@ impl ModuleRegistry {
             })
             .map_err(to_db_err("map modules"))?;
 
-        Ok(rows.filter_map(Result::ok).collect())
+        let modules = rows
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(to_db_err("collect modules"))?;
+
+        Ok(modules)
     }
 
     pub fn find_by_name(&self, name: &str) -> Result<Option<ModuleMetadata>> {
-        let mut stmt = self.conn.prepare(
-            r#"
+        let mut stmt = self
+            .conn
+            .prepare(
+                r#"
             SELECT m.id, m.name, m.module_type,
                    v.id as version_id, v.version, v.hash
             FROM modules m
@@ -127,7 +135,8 @@ impl ModuleRegistry {
             ORDER BY v.id DESC
             LIMIT 1
         "#,
-        ).map_err(to_db_err("select module by name"))?;
+            )
+            .map_err(to_db_err("select module by name"))?;
 
         let row = stmt.query_row(params![name], |row| {
             Ok((
@@ -178,9 +187,10 @@ impl ModuleRegistry {
     }
 
     fn capabilities_for_version(&self, version_id: i64) -> Result<Vec<String>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT capability FROM module_capabilities WHERE module_version_id = ?1",
-        ).map_err(to_db_err("select capabilities"))?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT capability FROM module_capabilities WHERE module_version_id = ?1")
+            .map_err(to_db_err("select capabilities"))?;
         let mut rows = stmt.query(params![version_id]).map_err(to_db_err("query capabilities"))?;
         let mut caps = Vec::new();
         while let Some(row) = rows.next().map_err(to_db_err("cap row"))? {
@@ -208,15 +218,14 @@ fn parse_module_type(value: &str) -> ModuleType {
 }
 
 fn now() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs() as i64
+    SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs() as i64
 }
 
 fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
-    move |err| NoaError::Database(DatabaseError::QueryFailed {
-        query: context.into(),
-        error: err.to_string(),
-    })
+    move |err| {
+        NoaError::Database(DatabaseError::QueryFailed {
+            query: context.into(),
+            error: err.to_string(),
+        })
+    }
 }

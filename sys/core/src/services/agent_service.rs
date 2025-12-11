@@ -1,5 +1,5 @@
 //! AgentService (Phase 9 - T291)
-use crate::db::repositories::{AgentRepository, AgentLogRepository};
+use crate::db::repositories::{AgentLogRepository, AgentRepository};
 use crate::db::ConnectionPool;
 use crate::error::Result;
 

@@ -1,0 +1,12 @@
+{
+  "app.title": "NOA Autonomous Assistant",
+  "nav.dashboard": "Dashboard",
+  "nav.chat": "Chat",
+  "nav.settings": "Settings",
+  "action.save": "Save",
+  "action.cancel": "Cancel",
+  "action.refresh": "Refresh",
+  "status.ready": "Ready",
+  "status.loading": "Loading",
+  "status.error": "Something went wrong"
+}

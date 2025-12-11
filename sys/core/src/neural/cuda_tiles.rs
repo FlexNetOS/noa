@@ -134,4 +134,3 @@ mod tests {
         assert!(layout.k_tiles > 0);
     }
 }
-

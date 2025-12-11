@@ -12,7 +12,9 @@ import {
   Shield,
   Cpu,
   Users,
-  MessageSquare
+  MessageSquare,
+  Gauge,
+  PlugZap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,9 +31,11 @@ const navItems: NavItem[] = [
   { href: '/admin/capsules', label: 'Capsules', icon: Package },
   { href: '/admin/artifacts', label: 'Artifacts', icon: FileText },
   { href: '/admin/security', label: 'Security', icon: Shield },
+  { href: '/admin/sc-dashboard', label: 'SC Dashboard', icon: Gauge },
   { href: '/admin/models', label: 'Models', icon: Cpu },
   { href: '/admin/crm', label: 'CRM', icon: Users },
   { href: '/activity', label: 'Activity Log', icon: Activity },
+  { href: '/settings/connectors', label: 'Connectors', icon: PlugZap },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -66,6 +70,8 @@ export default function Navigation() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                 'hover:bg-slate-700/50',
@@ -91,4 +97,3 @@ export default function Navigation() {
     </nav>
   );
 }
-

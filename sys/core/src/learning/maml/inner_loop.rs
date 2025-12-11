@@ -36,19 +36,26 @@ impl InnerLoopAdapter {
     }
 
     /// Adapt model to task
-    pub async fn adapt(&self, initial_params: &std::collections::HashMap<String, f64>, task_data: &serde_json::Value) -> Result<std::collections::HashMap<String, f64>> {
+    pub async fn adapt(
+        &self,
+        initial_params: &std::collections::HashMap<String, f64>,
+        task_data: &serde_json::Value,
+    ) -> Result<std::collections::HashMap<String, f64>> {
         // TODO: Implement actual gradient-based adaptation
         // For now, return initial parameters
         Ok(initial_params.clone())
     }
 
     /// Perform adaptation step
-    pub fn adaptation_step(&self, params: &mut std::collections::HashMap<String, f64>, gradient: &std::collections::HashMap<String, f64>) {
+    pub fn adaptation_step(
+        &self,
+        params: &mut std::collections::HashMap<String, f64>,
+        gradient: &std::collections::HashMap<String, f64>,
+    ) {
         for (param_name, param_value) in params.iter_mut() {
             if let Some(&grad) = gradient.get(param_name) {
-                let clipped_grad = self.config.gradient_clip
-                    .map(|clip| grad.min(clip).max(-clip))
-                    .unwrap_or(grad);
+                let clipped_grad =
+                    self.config.gradient_clip.map(|clip| grad.min(clip).max(-clip)).unwrap_or(grad);
                 *param_value -= self.config.learning_rate * clipped_grad;
             }
         }
@@ -72,4 +79,3 @@ mod tests {
         assert!(params.get("param1").unwrap() < &1.0);
     }
 }
-

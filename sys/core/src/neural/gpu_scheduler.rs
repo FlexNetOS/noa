@@ -53,13 +53,16 @@ impl GpuScheduler {
     /// Register a device for scheduling
     pub async fn register_device(&self, device: &CudaDevice) -> Result<()> {
         let mut loads = self.loads.write().await;
-        loads.insert(device.id, DeviceLoad {
-            device_id: device.id,
-            active_inferences: 0,
-            memory_used_bytes: device.total_memory_bytes - device.free_memory_bytes,
-            memory_total_bytes: device.total_memory_bytes,
-            utilization_percent: 0.0,
-        });
+        loads.insert(
+            device.id,
+            DeviceLoad {
+                device_id: device.id,
+                active_inferences: 0,
+                memory_used_bytes: device.total_memory_bytes - device.free_memory_bytes,
+                memory_total_bytes: device.total_memory_bytes,
+                utilization_percent: 0.0,
+            },
+        );
         Ok(())
     }
 
@@ -91,7 +94,9 @@ impl GpuScheduler {
                 let device = available_devices
                     .iter()
                     .filter_map(|&id| loads.get(&id))
-                    .min_by(|a, b| a.utilization_percent.partial_cmp(&b.utilization_percent).unwrap())
+                    .min_by(|a, b| {
+                        a.utilization_percent.partial_cmp(&b.utilization_percent).unwrap()
+                    })
                     .map(|load| load.device_id);
                 Ok(device)
             }
@@ -108,12 +113,18 @@ impl GpuScheduler {
     }
 
     /// Update device load
-    pub async fn update_load(&self, device_id: u32, active_inferences: usize, memory_used_bytes: u64) -> Result<()> {
+    pub async fn update_load(
+        &self,
+        device_id: u32,
+        active_inferences: usize,
+        memory_used_bytes: u64,
+    ) -> Result<()> {
         let mut loads = self.loads.write().await;
         if let Some(load) = loads.get_mut(&device_id) {
             load.active_inferences = active_inferences;
             load.memory_used_bytes = memory_used_bytes;
-            load.utilization_percent = (memory_used_bytes as f64 / load.memory_total_bytes as f64) * 100.0;
+            load.utilization_percent =
+                (memory_used_bytes as f64 / load.memory_total_bytes as f64) * 100.0;
         }
         Ok(())
     }
@@ -144,4 +155,3 @@ mod tests {
         assert!(device3.is_some());
     }
 }
-

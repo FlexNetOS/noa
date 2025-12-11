@@ -7,7 +7,7 @@
 use crate::db::Connection;
 use crate::error::{DatabaseError, NoaError, Result};
 use chrono::{DateTime, Utc};
-use rusqlite::{params, Row};
+use rusqlite::{params, OptionalExtension, Row};
 use serde_json::Value as JsonValue;
 use uuid::Uuid;
 
@@ -113,21 +113,22 @@ impl ModelRepository {
 
     /// Create a new model entry
     pub fn create(&self, model: &Model) -> Result<Uuid> {
-        let config_json = serde_json::to_string(&model.config).map_err(|e| {
-            DatabaseError::QueryFailed {
+        let config_json =
+            serde_json::to_string(&model.config).map_err(|e| DatabaseError::QueryFailed {
                 query: "create model".to_string(),
                 error: format!("Failed to serialize config: {}", e),
-            }
-        })?;
+            })?;
 
-        let metrics_json = model.metrics.as_ref().map(|m| {
-            serde_json::to_string(m).map_err(|e| {
-                DatabaseError::QueryFailed {
+        let metrics_json = model
+            .metrics
+            .as_ref()
+            .map(|m| {
+                serde_json::to_string(m).map_err(|e| DatabaseError::QueryFailed {
                     query: "create model".to_string(),
                     error: format!("Failed to serialize metrics: {}", e),
-                }
+                })
             })
-        }).transpose()?;
+            .transpose()?;
 
         self.conn
             .execute(
@@ -154,11 +155,9 @@ impl ModelRepository {
                     metrics_json,
                 ],
             )
-            .map_err(|e| {
-                DatabaseError::QueryFailed {
-                    query: "create model".to_string(),
-                    error: e.to_string(),
-                }
+            .map_err(|e| DatabaseError::QueryFailed {
+                query: "create model".to_string(),
+                error: e.to_string(),
             })?;
 
         Ok(model.id)
@@ -287,21 +286,22 @@ impl ModelRepository {
 
     /// Update model
     pub fn update(&self, model: &Model) -> Result<()> {
-        let config_json = serde_json::to_string(&model.config).map_err(|e| {
-            DatabaseError::QueryFailed {
+        let config_json =
+            serde_json::to_string(&model.config).map_err(|e| DatabaseError::QueryFailed {
                 query: "update model".to_string(),
                 error: format!("Failed to serialize config: {}", e),
-            }
-        })?;
+            })?;
 
-        let metrics_json = model.metrics.as_ref().map(|m| {
-            serde_json::to_string(m).map_err(|e| {
-                DatabaseError::QueryFailed {
+        let metrics_json = model
+            .metrics
+            .as_ref()
+            .map(|m| {
+                serde_json::to_string(m).map_err(|e| DatabaseError::QueryFailed {
                     query: "update model".to_string(),
                     error: format!("Failed to serialize metrics: {}", e),
-                }
+                })
             })
-        }).transpose()?;
+            .transpose()?;
 
         let rows_affected = self
             .conn
@@ -402,18 +402,28 @@ impl ModelRepository {
 
         let model_type_str: String = row.get(2)?;
         let model_type = ModelType::from_str(&model_type_str).map_err(|_| {
-            rusqlite::Error::InvalidColumnType(2, "model_type".to_string(), rusqlite::types::Type::Text)
+            rusqlite::Error::InvalidColumnType(
+                2,
+                "model_type".to_string(),
+                rusqlite::types::Type::Text,
+            )
         })?;
 
         let status_str: String = row.get(11)?;
         let status = ModelStatus::from_str(&status_str).map_err(|_| {
-            rusqlite::Error::InvalidColumnType(11, "status".to_string(), rusqlite::types::Type::Text)
+            rusqlite::Error::InvalidColumnType(
+                11,
+                "status".to_string(),
+                rusqlite::types::Type::Text,
+            )
         })?;
 
         let config_str: String = row.get(10)?;
-        let config: JsonValue = serde_json::from_str(&config_str).unwrap_or(JsonValue::Object(serde_json::Map::new()));
+        let config: JsonValue =
+            serde_json::from_str(&config_str).unwrap_or(JsonValue::Object(serde_json::Map::new()));
 
-        let metrics: Option<JsonValue> = row.get::<_, Option<String>>(12)?
+        let metrics: Option<JsonValue> = row
+            .get::<_, Option<String>>(12)?
             .map(|s| serde_json::from_str(&s).unwrap_or(JsonValue::Null))
             .filter(|v| !v.is_null());
 
@@ -467,7 +477,8 @@ mod tests {
             )
             "#,
             [],
-        ).unwrap();
+        )
+        .unwrap();
 
         let repo = ModelRepository::new(conn);
 
@@ -502,4 +513,3 @@ mod tests {
         assert!(repo.find_by_id(&id).unwrap().is_none());
     }
 }
-
