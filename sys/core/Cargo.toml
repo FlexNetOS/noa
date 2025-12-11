@@ -176,7 +176,6 @@ tower = { workspace = true }
 tower-http = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serde_yaml = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
@@ -198,7 +197,6 @@ regex = "1.12"
 reqwest = { version = "0.12", features = ["json"] }
 prometheus = "0.13"
 lazy_static = "1.5"
-base64 = "0.22"
 argon2 = { version = "0.5", features = ["std"] }
 ring = "0.17.14"
 
