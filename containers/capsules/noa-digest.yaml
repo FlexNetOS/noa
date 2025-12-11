@@ -1,0 +1,8 @@
+name: noa-digest
+description: Digest pipeline capsule (stub)
+services:
+  - name: digest
+    image: noa/digest:latest
+    sidecars:
+      - build-proxy
+      - telemetry

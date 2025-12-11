@@ -79,12 +79,25 @@ if (Test-Path $vsWhere) {
 
 # Check CUDA if GPU requested
 if ($GpuLayers) {
-    $nvcc = Get-Command nvcc -ErrorAction SilentlyContinue
-    if ($nvcc) {
-        Write-Host "  [OK] CUDA: $((nvcc --version | Select-String 'release' | Select-Object -First 1))" -ForegroundColor Green
+    # Check for CUDA in NOA portable location first
+    $cudaPortable = Join-Path $NoaRoot "opt\cuda\toolkit"
+    $nvccPortable = Join-Path $cudaPortable "bin\nvcc.exe"
+
+    if (Test-Path $nvccPortable) {
+        Write-Host "  [OK] CUDA (Portable): $cudaPortable" -ForegroundColor Green
+        $env:CUDA_PATH = $cudaPortable
+        $env:CUDA_HOME = $cudaPortable
+        $env:PATH = "$cudaPortable\bin;$env:PATH"
     } else {
-        Write-Host "  [WARN] CUDA not found - building without GPU support" -ForegroundColor Yellow
-        $GpuLayers = $false
+        # Fall back to system CUDA
+        $nvcc = Get-Command nvcc -ErrorAction SilentlyContinue
+        if ($nvcc) {
+            Write-Host "  [OK] CUDA (System): $((nvcc --version | Select-String 'release' | Select-Object -First 1))" -ForegroundColor Green
+        } else {
+            Write-Host "  [WARN] CUDA not found - building without GPU support" -ForegroundColor Yellow
+            Write-Host "  Install CUDA: powershell scripts/bootstrap/installers/cuda-portable.ps1" -ForegroundColor Gray
+            $GpuLayers = $false
+        }
     }
 }
 
@@ -127,9 +140,37 @@ $cmakeArgs = @(
 
 if ($GpuLayers) {
     $cmakeArgs += "-DGGML_CUDA=ON"
+    $cmakeArgs += "-DCMAKE_CUDA_ARCHITECTURES=native"
     Write-Host "  CUDA GPU support: ENABLED" -ForegroundColor Cyan
 } else {
     Write-Host "  CUDA GPU support: disabled (CPU only)" -ForegroundColor Gray
+}
+
+# Disable CURL dependency (not needed for basic inference)
+$cmakeArgs += "-DLLAMA_CURL=OFF"
+
+# Build only CLI, not server (server has httplib linking issues with MinGW)
+$cmakeArgs += "-DBUILD_SHARED_LIBS=OFF"
+
+# Use MinGW with MinGW Makefiles generator
+$mingwBin = Join-Path $NoaRoot "opt\mingw\bin"
+if (Test-Path $mingwBin) {
+    $env:PATH = "$mingwBin;$env:PATH"
+    $cmakeArgs += "-G", "MinGW Makefiles"
+    $cmakeArgs += "-DCMAKE_C_COMPILER=$mingwBin\gcc.exe"
+    $cmakeArgs += "-DCMAKE_CXX_COMPILER=$mingwBin\g++.exe"
+    Write-Host "  Compiler: MinGW-w64 GCC" -ForegroundColor Cyan
+    Write-Host "  Build system: MinGW Makefiles" -ForegroundColor Cyan
+} else {
+    # Use Ninja if available for faster builds
+    $ninjaExe = Join-Path $NoaRoot "opt\ninja\ninja.exe"
+    if (Test-Path $ninjaExe) {
+        $cmakeArgs += "-G", "Ninja"
+        $cmakeArgs += "-DCMAKE_MAKE_PROGRAM=$ninjaExe"
+        Write-Host "  Build system: Ninja (fast)" -ForegroundColor Cyan
+    } else {
+        Write-Host "  Build system: MSBuild (default)" -ForegroundColor Gray
+    }
 }
 
 Push-Location $LLAMA_DIR
@@ -168,23 +209,23 @@ $releaseDir = Join-Path $BUILD_DIR "bin\Release"
 $binSearchDir = if (Test-Path $releaseDir) { $releaseDir } else { Join-Path $BUILD_DIR "bin" }
 
 if (Test-Path $binSearchDir) {
-    Write-Host "Built binaries in $binSearchDir:" -ForegroundColor Green
-    
+    Write-Host "Built binaries in ${binSearchDir}:" -ForegroundColor Green
+
     $binaries = Get-ChildItem $binSearchDir -Filter "*.exe" -ErrorAction SilentlyContinue
     foreach ($bin in $binaries) {
         Write-Host "  - $($bin.Name)" -ForegroundColor Gray
     }
-    
+
     # Check for key binaries
     $llamaServer = Join-Path $binSearchDir "llama-server.exe"
     $llamaCli = Join-Path $binSearchDir "llama-cli.exe"
-    
+
     if (Test-Path $llamaServer) {
         Write-Host ""
         Write-Host "[OK] llama-server.exe ready" -ForegroundColor Green
         Write-Host "  Wrapper: $BIN_DIR\llama-server.cmd" -ForegroundColor Gray
     }
-    
+
     if (Test-Path $llamaCli) {
         Write-Host "[OK] llama-cli.exe ready" -ForegroundColor Green
         Write-Host "  Wrapper: $BIN_DIR\llama-cli.cmd" -ForegroundColor Gray

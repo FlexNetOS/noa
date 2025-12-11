@@ -1,0 +1,8 @@
+name: noa-core
+description: Core capsule spec (stub)
+services:
+  - name: api
+    image: noa/core:latest
+    sidecars:
+      - policy-agent
+      - telemetry
