@@ -31,42 +31,36 @@ ON agent_log(timestamp DESC, status);
 
 -- Knowledge Graph: Path traversal optimization
 CREATE INDEX IF NOT EXISTS idx_edge_source_rel
-ON knowledge_edge(source_node, relationship);
+ON knowledge_edge(source_node, edge_type);
 
 CREATE INDEX IF NOT EXISTS idx_edge_target_rel
-ON knowledge_edge(target_node, relationship);
+ON knowledge_edge(target_node, edge_type);
 
 -- DigestSource: Processing queue
 CREATE INDEX IF NOT EXISTS idx_digest_status_type
 ON digest_source(status, type);
 
--- Provider: Selection priority
-CREATE INDEX IF NOT EXISTS idx_provider_status_priority
-ON provider(status, priority DESC);
+-- Provider indexes (tables not yet created - TODO: add in future migration)
+-- CREATE INDEX IF NOT EXISTS idx_provider_status_priority
+-- ON provider(status, priority DESC);
 
--- Provider Task: Queue management
-CREATE INDEX IF NOT EXISTS idx_providertask_status_provider
-ON provider_task(status, provider_id);
+-- CREATE INDEX IF NOT EXISTS idx_providertask_status_provider
+-- ON provider_task(status, provider_id);
 
--- Goals: Queue ordering
-CREATE INDEX IF NOT EXISTS idx_goal_queue
-ON goal(status, priority DESC, created_at ASC);
+-- CREATE INDEX IF NOT EXISTS idx_goal_queue
+-- ON goal(status, priority DESC, created_at ASC);
 
--- Plane transitions: Capability history
-CREATE INDEX IF NOT EXISTS idx_transition_cap_time
-ON plane_transition(capability_id, timestamp DESC);
+-- CREATE INDEX IF NOT EXISTS idx_transition_cap_time
+-- ON plane_transition(capability_id, timestamp DESC);
 
--- Healing: Component health history
-CREATE INDEX IF NOT EXISTS idx_healing_comp_time
-ON healing_event(component, timestamp DESC);
+-- CREATE INDEX IF NOT EXISTS idx_healing_comp_time
+-- ON healing_event(component, timestamp DESC);
 
--- Health metrics: Time series queries
-CREATE INDEX IF NOT EXISTS idx_health_time_component
-ON health_metric(timestamp DESC, component);
+-- CREATE INDEX IF NOT EXISTS idx_health_time_component
+-- ON health_metric(timestamp DESC, component);
 
--- Shared context: Session lookups
-CREATE INDEX IF NOT EXISTS idx_context_session_type
-ON shared_execution_context(session_id, context_type);
+-- CREATE INDEX IF NOT EXISTS idx_context_session_type
+-- ON shared_execution_context(session_id, context_type);
 
 -- ============================================================================
 -- Partial Indexes for Filtered Queries
@@ -82,20 +76,21 @@ CREATE INDEX IF NOT EXISTS idx_agent_active
 ON agent(name, type)
 WHERE status = 'active';
 
--- Unverified claims (need attention)
-CREATE INDEX IF NOT EXISTS idx_claims_unverified
-ON claims(timestamp DESC)
-WHERE verified = 0;
+-- Unverified claims (table not yet created - TODO: add in future migration)
+-- CREATE INDEX IF NOT EXISTS idx_claims_unverified
+-- ON claims(timestamp DESC)
+-- WHERE verified = 0;
 
 -- Failed tasks (for retry/investigation)
-CREATE INDEX IF NOT EXISTS idx_task_failed
-ON task(updated_at DESC)
-WHERE status = 'failed' AND retry_count < max_retries;
+-- Note: max_retries and retry_count columns don't exist in task table
+-- CREATE INDEX IF NOT EXISTS idx_task_failed
+-- ON task(updated_at DESC)
+-- WHERE status = 'failed' AND retry_count < max_retries;
 
--- Critical health alerts
-CREATE INDEX IF NOT EXISTS idx_health_critical
-ON health_metric(timestamp DESC, component)
-WHERE status = 'critical';
+-- Critical health alerts (table not yet created)
+-- CREATE INDEX IF NOT EXISTS idx_health_critical
+-- ON health_metric(timestamp DESC, component)
+-- WHERE status = 'critical';
 
 -- ============================================================================
 -- Full-Text Search Indexes (FTS5)
@@ -155,9 +150,7 @@ CREATE TRIGGER IF NOT EXISTS knode_au AFTER UPDATE ON knowledge_node BEGIN
     VALUES (NEW.rowid, NEW.id, NEW.name, NEW.qualified_name, NEW.description);
 END;
 
--- Record this migration
-INSERT OR IGNORE INTO schema_migrations (version, description)
-VALUES ('002_indexes', 'Performance indexes, partial indexes, and FTS5 tables');
+-- Record this migration (handled by the migration system, no need to insert here)
 
 
 

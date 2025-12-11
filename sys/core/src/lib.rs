@@ -32,6 +32,7 @@ pub mod orchestration;
 pub mod platform;
 pub mod policy;
 pub mod predict;
+#[path = "connectors/mod.rs"]
 pub mod connectors;
 pub mod providers;
 pub mod regression;

@@ -1,72 +1,63 @@
-use async_trait::async_trait;
-use chrono::Duration;
+// OpenAI API Connector
+// Implements integration with OpenAI API (GPT, Codex, etc.)
 
-use crate::connectors::base::{Connector, ConnectorContext};
-use crate::connectors::cache::ConnectorCache;
-use crate::connectors::network;
-use crate::connectors::ConnectorState;
 use crate::error::Result;
+use crate::connectors::{ConnectorState, ConnectorHealth};
+use serde::{Deserialize, Serialize};
+use chrono::Utc;
 
-/// OpenAI connector using API key authentication
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenAIConnector {
-    api_key_env: String,
+    api_key: Option<String>,
+    organization_id: Option<String>,
 }
 
 impl OpenAIConnector {
-    pub fn new(api_key_env: Option<String>) -> Self {
-        Self {
-            api_key_env: api_key_env.unwrap_or_else(|| "OPENAI_API_KEY".to_string()),
-        }
-    }
-}
-
-#[async_trait]
-impl Connector for OpenAIConnector {
-    fn name(&self) -> &str {
-        "openai"
+    pub fn new() -> Result<Self> {
+        Ok(Self {
+            api_key: None,
+            organization_id: None,
+        })
     }
 
-    fn feature_flag(&self) -> &str {
-        "connectors.openai"
+    pub async fn connect(&mut self, api_key: String, organization_id: Option<String>) -> Result<()> {
+        self.api_key = Some(api_key);
+        self.organization_id = organization_id;
+        Ok(())
     }
 
-    async fn authorize_url(&self, _ctx: &ConnectorContext) -> Result<Option<String>> {
-        // API key based connector does not need OAuth
-        Ok(None)
+    pub async fn disconnect(&mut self) -> Result<()> {
+        self.api_key = None;
+        self.organization_id = None;
+        Ok(())
     }
 
-    async fn status(&self, ctx: &ConnectorContext) -> Result<ConnectorState> {
-        let cache = ConnectorCache::new(None)?;
-        if !ctx.is_enabled(self.feature_flag()) {
-            let state = ConnectorState::disabled(self.name());
-            cache.store(&state)?;
-            return Ok(state);
-        }
+    pub fn is_connected(&self) -> bool {
+        self.api_key.is_some()
+    }
 
-        let net = network::check_connectivity();
-        if !net.available {
-            if let Some(cached) = cache.get(self.name(), Duration::minutes(10)) {
-                return Ok(cached);
+    pub fn state(&self) -> ConnectorState {
+        if self.is_connected() {
+            ConnectorState {
+                name: "openai".to_string(),
+                health: ConnectorHealth::Ready,
+                last_checked: Utc::now(),
+                message: None,
             }
-            let state = ConnectorState::offline(self.name(), "Network unavailable");
-            cache.store(&state)?;
-            return Ok(state);
-        }
-
-        let has_key = std::env::var(&self.api_key_env)
-            .map(|v| !v.is_empty())
-            .unwrap_or(false);
-
-        let state = if has_key {
-            ConnectorState::ready(self.name())
         } else {
-            ConnectorState::degraded(
-                self.name(),
-                format!("Missing {} environment variable", self.api_key_env),
-            )
-        };
-
-        cache.store(&state)?;
-        Ok(state)
+            ConnectorState {
+                name: "openai".to_string(),
+                health: ConnectorHealth::Offline,
+                last_checked: Utc::now(),
+                message: Some("Not connected".to_string()),
+            }
+        }
     }
 }
+
+impl Default for OpenAIConnector {
+    fn default() -> Self {
+        Self::new().expect("Failed to create OpenAIConnector")
+    }
+}
+

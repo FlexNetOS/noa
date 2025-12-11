@@ -23,7 +23,7 @@ impl GovernanceHarness {
 
     /// Register default governance rules (currently only EthicsGuard).
     pub async fn init_defaults(&self) {
-        let guard = Arc::new(EthicsGuard::default_guard());
+        let guard = Arc::new(EthicsGuard::default());
         self.engine.register_rule(guard).await;
     }
 

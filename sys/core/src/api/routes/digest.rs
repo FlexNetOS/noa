@@ -39,10 +39,7 @@ pub fn routes() -> Router<AppState> {
         )
         .route("/digest/sources/:id/sbom", get(get_source_sbom))
         .route("/digest/sources/:id/security", get(get_source_security))
-        .route("/knowledge/nodes", get(list_knowledge_nodes))
-        .route("/knowledge/nodes/:id", get(get_knowledge_node))
-        .route("/knowledge/edges", get(list_knowledge_edges))
-        .route("/knowledge/query", post(query_knowledge))
+        // Knowledge routes moved to knowledge.rs module
 }
 
 /// Create a new digest job
@@ -259,54 +256,12 @@ async fn get_source_security(
     Ok(Json(serde_json::json!({})))
 }
 
-/// List knowledge nodes
-async fn list_knowledge_nodes(
-    State(_state): State<AppState>,
-    Query(_params): Query<KnowledgeQueryParams>,
-) -> Result<Json<KnowledgeNodesResponse>> {
-    // TODO: Implement knowledge node listing
-    Ok(Json(KnowledgeNodesResponse { nodes: vec![] }))
-}
-
-/// Get knowledge node
-async fn get_knowledge_node(
-    State(_state): State<AppState>,
-    Path(id): Path<String>,
-) -> Result<Json<KnowledgeNodeResponse>> {
-    // TODO: Implement knowledge node retrieval
-    Ok(Json(KnowledgeNodeResponse {
-        id: Uuid::parse_str(&id).unwrap_or_default(),
-        name: "".to_string(),
-        node_type: "".to_string(),
-    }))
-}
-
-/// List knowledge edges
-async fn list_knowledge_edges(
-    State(_state): State<AppState>,
-    Query(_params): Query<KnowledgeQueryParams>,
-) -> Result<Json<KnowledgeEdgesResponse>> {
-    // TODO: Implement knowledge edge listing
-    Ok(Json(KnowledgeEdgesResponse { edges: vec![] }))
-}
-
-/// Query knowledge graph
-async fn query_knowledge(
-    State(_state): State<AppState>,
-    Json(_payload): Json<KnowledgeQueryRequest>,
-) -> Result<Json<KnowledgeQueryResponse>> {
-    // TODO: Implement knowledge graph query
-    Ok(Json(KnowledgeQueryResponse {
-        nodes: vec![],
-        edges: vec![],
-    }))
-}
-
 // Request/Response types
 
 #[derive(Debug, Deserialize)]
 struct CreateDigestRequest {
     uri: String,
+    #[allow(dead_code)]
     source_type: String,
 }
 
@@ -347,49 +302,6 @@ struct SourceResponse {
 struct CreateSourceRequest {
     uri: String,
     name: String,
+    #[allow(dead_code)]
     source_type: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct KnowledgeQueryParams {
-    source_id: Option<String>,
-    node_type: Option<String>,
-    limit: Option<u64>,
-}
-
-#[derive(Debug, Serialize)]
-struct KnowledgeNodesResponse {
-    nodes: Vec<KnowledgeNodeResponse>,
-}
-
-#[derive(Debug, Serialize)]
-struct KnowledgeNodeResponse {
-    id: Uuid,
-    name: String,
-    node_type: String,
-}
-
-#[derive(Debug, Serialize)]
-struct KnowledgeEdgesResponse {
-    edges: Vec<KnowledgeEdgeResponse>,
-}
-
-#[derive(Debug, Serialize)]
-struct KnowledgeEdgeResponse {
-    id: Uuid,
-    source_node: Uuid,
-    target_node: Uuid,
-    relationship: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct KnowledgeQueryRequest {
-    query: String,
-    limit: Option<u64>,
-}
-
-#[derive(Debug, Serialize)]
-struct KnowledgeQueryResponse {
-    nodes: Vec<KnowledgeNodeResponse>,
-    edges: Vec<KnowledgeEdgeResponse>,
 }

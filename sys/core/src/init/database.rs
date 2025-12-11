@@ -139,8 +139,8 @@ impl DatabaseInitializer {
                 ))
             })?;
 
-            // Split SQL by semicolons and execute each statement
-            for statement in sql.split(';') {
+            // Split SQL by semicolons, but handle BEGIN...END blocks (triggers) specially
+            for statement in Self::split_sql_statements(&sql) {
                 let statement = statement.trim();
                 if statement.is_empty() {
                     continue;
@@ -176,6 +176,59 @@ impl DatabaseInitializer {
         }
 
         Ok(())
+    }
+
+    /// Split SQL statements handling BEGIN...END blocks (for triggers).
+    /// This function handles multi-line statements and preserves trigger blocks.
+    fn split_sql_statements(sql: &str) -> Vec<String> {
+        let mut statements = Vec::new();
+        let mut current = String::new();
+        let mut in_begin_block = 0; // Track nested BEGIN blocks
+        
+        for line in sql.lines() {
+            let trimmed = line.trim();
+            let upper = trimmed.to_uppercase();
+            
+            // Skip comment-only lines
+            if trimmed.starts_with("--") {
+                continue;
+            }
+            
+            // Track BEGIN blocks (can be nested in complex triggers)
+            if upper.contains("BEGIN") && !upper.starts_with("--") {
+                in_begin_block += 1;
+            }
+            
+            current.push_str(line);
+            current.push('\n');
+            
+            // Track END statements
+            if (upper.starts_with("END;") || upper.ends_with("END;") || upper == "END") 
+                && in_begin_block > 0 
+            {
+                in_begin_block -= 1;
+            }
+            
+            // If not in a BEGIN block and line ends with semicolon, it's a complete statement
+            if in_begin_block == 0 && trimmed.ends_with(';') {
+                let stmt = current.trim().to_string();
+                // Remove trailing semicolon for SQLite execute()
+                let stmt = stmt.strip_suffix(';').unwrap_or(&stmt).trim().to_string();
+                if !stmt.is_empty() && !stmt.starts_with("--") {
+                    statements.push(stmt);
+                }
+                current.clear();
+            }
+        }
+        
+        // Don't forget any remaining content
+        let remaining = current.trim().to_string();
+        let remaining = remaining.strip_suffix(';').unwrap_or(&remaining).trim().to_string();
+        if !remaining.is_empty() && !remaining.starts_with("--") {
+            statements.push(remaining);
+        }
+        
+        statements
     }
 
     /// Verify database is operational
