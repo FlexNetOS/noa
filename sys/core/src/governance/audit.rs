@@ -55,10 +55,7 @@ impl GovernanceAuditTrail {
                 std::fs::create_dir_all(parent)?;
             }
 
-            let mut file = OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(&path)?;
+            let mut file = OpenOptions::new().create(true).append(true).open(&path)?;
             serde_json::to_writer(&mut file, &event)?;
             file.write_all(b"\n")?;
             Ok(())

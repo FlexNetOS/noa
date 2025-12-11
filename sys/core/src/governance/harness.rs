@@ -28,7 +28,10 @@ impl GovernanceHarness {
     }
 
     /// Evaluate a decision and apply rewards; returns (outcome, new score).
-    pub async fn evaluate(&self, decision: GovernanceDecision) -> Result<(crate::governance::GovernanceOutcome, f32)> {
+    pub async fn evaluate(
+        &self,
+        decision: GovernanceDecision,
+    ) -> Result<(crate::governance::GovernanceOutcome, f32)> {
         let outcome = self.engine.enforce(decision).await?;
         let score = self.rewards.apply_outcome(&outcome).await?;
         Ok((outcome, score))

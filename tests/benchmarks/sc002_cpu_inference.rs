@@ -16,8 +16,7 @@ fn sc002_cpu_inference_under_2s() {
     }
 
     let duration = start.elapsed();
-    let mut result =
-        BenchmarkResult::new("SC-002", "cpu inference latency (<2s)", duration, 2_000);
+    let mut result = BenchmarkResult::new("SC-002", "cpu inference latency (<2s)", duration, 2_000);
     result.notes = Some(format!(
         "iterations={iterations} accumulator={:.4}",
         accumulator

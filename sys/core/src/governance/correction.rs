@@ -56,8 +56,7 @@ impl CorrectionEngine {
                     owner: "governance".to_string(),
                 },
                 CorrectionAction {
-                    description: "Trigger rollback to last known good snapshot"
-                        .to_string(),
+                    description: "Trigger rollback to last known good snapshot".to_string(),
                     severity: status,
                     rollback_required: true,
                     owner: "sre".to_string(),
