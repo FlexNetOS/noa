@@ -1,6 +1,5 @@
 -- Providers and Shared Execution Memory (Phase 2.6, FR-037 to FR-042)
-
-PRAGMA journal_mode = WAL;
+-- Note: WAL mode is set during database initialization
 
 -- Provider registry
 CREATE TABLE IF NOT EXISTS providers (
