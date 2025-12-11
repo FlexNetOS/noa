@@ -1,0 +1,116 @@
+{
+    "$schema": "https://noa.local/schemas/desktop-apps.json",
+    "version": "1.0.0",
+    "proxy": {
+        "host": "127.0.0.1",
+        "port": 8085,
+        "rulesDirectory": "${NOA_ROOT}/sys/desktop/proxy/rules"
+    },
+    "apps": [
+        {
+            "id": "chatgpt",
+            "name": "ChatGPT Desktop",
+            "installPath": "${NOA_ROOT}/opt/apps/chatgpt",
+            "executable": "ChatGPT.exe",
+            "dataPath": "${NOA_DATA}/apps/chatgpt",
+            "networkIsolation": {
+                "enabled": true,
+                "proxyProfile": "default",
+                "rulesFile": "${NOA_ROOT}/sys/desktop/proxy/rules/chatgpt.yaml",
+                "p2pRouting": false,
+                "rateLimitRps": 5
+            },
+            "gpuEnabled": true,
+            "autoUpdate": false,
+            "launchWrapper": "${NOA_ROOT}/bin/chatgpt.cmd",
+            "env": {
+                "ELECTRON_ENABLE_LOGGING": "1"
+            },
+            "notes": "Launches through NDCL wrapper to redirect APPDATA/LOCALAPPDATA to NOA data directory."
+        },
+        {
+            "id": "claude",
+            "name": "Claude Desktop",
+            "installPath": "${NOA_ROOT}/opt/apps/claude",
+            "executable": "Claude.exe",
+            "dataPath": "${NOA_DATA}/apps/claude",
+            "networkIsolation": {
+                "enabled": true,
+                "proxyProfile": "default",
+                "rulesFile": "${NOA_ROOT}/sys/desktop/proxy/rules/claude.yaml",
+                "p2pRouting": false,
+                "rateLimitRps": 5
+            },
+            "gpuEnabled": true,
+            "autoUpdate": false,
+            "launchWrapper": "${NOA_ROOT}/bin/claude-desktop.cmd",
+            "env": {},
+            "notes": "Uses OAuth proxy for token injection when available."
+        },
+        {
+            "id": "github-desktop",
+            "name": "GitHub Desktop",
+            "installPath": "${NOA_ROOT}/opt/apps/github-desktop",
+            "executable": "GitHubDesktop.exe",
+            "dataPath": "${NOA_DATA}/apps/github-desktop",
+            "networkIsolation": {
+                "enabled": true,
+                "proxyProfile": "git",
+                "rulesFile": "${NOA_ROOT}/sys/desktop/proxy/rules/github-desktop.yaml",
+                "p2pRouting": false,
+                "rateLimitRps": 10
+            },
+            "gpuEnabled": true,
+            "autoUpdate": false,
+            "launchWrapper": "${NOA_ROOT}/bin/github-desktop.cmd",
+            "env": {
+                "GIT_ASKPASS": "${NOA_ROOT}/bin/git-credential-noa.cmd"
+            },
+            "notes": "Launch wrapper sets credential helper to NOA vault."
+        },
+        {
+            "id": "cursor",
+            "name": "Cursor IDE",
+            "installPath": "${NOA_ROOT}/opt/apps/cursor",
+            "executable": "Cursor.exe",
+            "dataPath": "${NOA_DATA}/apps/cursor",
+            "networkIsolation": {
+                "enabled": true,
+                "proxyProfile": "default",
+                "rulesFile": "${NOA_ROOT}/sys/desktop/proxy/rules/cursor.yaml",
+                "p2pRouting": false,
+                "rateLimitRps": 10
+            },
+            "gpuEnabled": true,
+            "autoUpdate": false,
+            "launchWrapper": "${NOA_ROOT}/bin/cursor.cmd",
+            "env": {
+                "CURSOR_USER_DATA_DIR": "${NOA_DATA}/apps/cursor/User",
+                "CURSOR_EXTENSIONS": "${NOA_DATA}/apps/cursor/extensions"
+            },
+            "notes": "Data containment wrapper sets CURSOR paths to NOA data."
+        },
+        {
+            "id": "vscode",
+            "name": "Visual Studio Code",
+            "installPath": "${NOA_ROOT}/opt/apps/vscode",
+            "executable": "Code.exe",
+            "dataPath": "${NOA_DATA}/apps/vscode",
+            "networkIsolation": {
+                "enabled": true,
+                "proxyProfile": "default",
+                "rulesFile": "${NOA_ROOT}/sys/desktop/proxy/rules/vscode.yaml",
+                "p2pRouting": false,
+                "rateLimitRps": 10
+            },
+            "gpuEnabled": true,
+            "autoUpdate": false,
+            "launchWrapper": "${NOA_ROOT}/bin/code.cmd",
+            "env": {
+                "VSCODE_USER_DATA_DIR": "${NOA_DATA}/apps/vscode/User",
+                "VSCODE_EXTENSIONS": "${NOA_DATA}/apps/vscode/extensions"
+            },
+            "notes": "Wrapper forces extensions and user data into NOA data volume."
+        }
+    ]
+}

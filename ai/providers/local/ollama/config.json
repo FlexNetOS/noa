@@ -32,5 +32,10 @@
       "unix": "${NOA_ROOT}/bin/ollama",
       "windows": "${NOA_ROOT}/bin/ollama.cmd"
     }
-  }
+  },
+  "latency": {
+    "target": "<2s",
+    "timeout": 60000
+  },
+  "timeout": 60000
 }

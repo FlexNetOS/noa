@@ -28,14 +28,14 @@ pub struct HealthResponse {
     pub uptime_secs: u64,
 
     /// Component health details
-    pub components: ComponentHealth,
+    pub components: ApiComponentHealth,
 
     /// Timestamp of this health check
     pub timestamp: String,
 }
 
 /// Overall health status
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
     Healthy,
@@ -45,7 +45,7 @@ pub enum HealthStatus {
 
 /// Component health details
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ComponentHealth {
+pub struct ApiComponentHealth {
     /// Database health
     pub database: ComponentStatus,
 
@@ -120,7 +120,7 @@ async fn health_check(
         status: overall_status.clone(),
         version: env!("CARGO_PKG_VERSION").to_string(),
         uptime_secs: state.uptime_secs(),
-        components: ComponentHealth {
+        components: ApiComponentHealth {
             database: db_health,
             memory: memory_health,
             providers: None,

@@ -201,6 +201,41 @@ check_tool "Node.js" "20.0.0" "CRITICAL" "./scripts/setup/install-all-tools.sh n
 check_tool "Python" "3.12.0" "CRITICAL" "./scripts/setup/install-all-tools.sh python" "python3 --version" "Build" "python:python.exe"
 check_tool "protoc" "28.0.0" "CRITICAL" "./scripts/setup/install-all-tools.sh protoc" "protoc --version" "Build" "protoc:protoc.exe"
 
+# Check llama.cpp build (B175) - Priority 1 Local Provider
+LLAMA_BUILD_DIR="$NOA_ROOT/opt/llama.cpp/build"
+LLAMA_FOUND=false
+LLAMA_PATH=""
+
+# Check multiple possible locations (Unix paths, no .exe extension)
+LLAMA_PATHS=(
+    "$LLAMA_BUILD_DIR/bin/llama-server"
+    "$LLAMA_BUILD_DIR/bin/llama-cli"
+    "$LLAMA_BUILD_DIR/llama-server"
+    "$LLAMA_BUILD_DIR/llama-cli"
+    "$NOA_BIN/llama-server"
+    "$NOA_BIN/llama-cli"
+)
+
+for path in "${LLAMA_PATHS[@]}"; do
+    if [[ -f "$path" ]] && [[ -x "$path" ]]; then
+        LLAMA_FOUND=true
+        LLAMA_PATH="$path"
+        break
+    fi
+done
+
+if [[ "$LLAMA_FOUND" == "true" ]]; then
+    INSTALLED+=("llama.cpp:built:Runtime")
+    $JSON_OUTPUT || { echo -e "  [OK] llama.cpp (built)"; echo -e "      Path: $LLAMA_PATH"; }
+else
+    MISSING_HIGH+=("llama.cpp:./scripts/bootstrap/installers/llama-cpp-build.sh")
+    $JSON_OUTPUT || {
+        echo -e "  [X] llama.cpp NOT FOUND (HIGH)"
+        echo -e "      Install: ./scripts/bootstrap/installers/llama-cpp-build.sh"
+        echo -e "      Note: llama.cpp is Priority 1 local inference provider (FR-004)"
+    }
+fi
+
 ! $JSON_OUTPUT && { echo ""; echo "2. Code Quality Tools (HIGH)"; echo "------------------------------------------------------------"; }
 check_tool "rustfmt" "1.0.0" "HIGH" "./scripts/setup/install-all-tools.sh rust" "rustfmt --version" "Quality" "rustfmt:rustfmt.exe"
 check_tool "clippy" "0.1.0" "HIGH" "./scripts/setup/install-all-tools.sh rust" "cargo clippy --version" "Quality" "cargo-clippy:cargo-clippy.exe"

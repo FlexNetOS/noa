@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# GitHub Desktop launcher with NOA containment (Phase 19 T867)
+set -euo pipefail
+
+NOA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+NOA_DATA="${NOA_ROOT}/data"
+APP_ID="github-desktop"
+APP_DATA="${NOA_DATA}/apps/${APP_ID}"
+
+mkdir -p "${APP_DATA}"
+
+export XDG_DATA_HOME="${APP_DATA}"
+export XDG_CONFIG_HOME="${APP_DATA}"
+export APPDATA="${APP_DATA}"
+export LOCALAPPDATA="${APP_DATA}"
+
+export HTTP_PROXY="http://127.0.0.1:8085"
+export HTTPS_PROXY="${HTTP_PROXY}"
+
+if [[ -x "${NOA_ROOT}/bin/git-credential-noa" ]]; then
+  export GIT_ASKPASS="${NOA_ROOT}/bin/git-credential-noa"
+fi
+
+run_app() {
+  local candidate="$1"
+  if [[ -x "${candidate}" ]]; then
+    exec "${candidate}" "$@"
+  fi
+}
+
+run_app "${NOA_ROOT}/opt/apps/github-desktop/github-desktop" "$@" || \
+run_app "${NOA_ROOT}/opt/apps/github-desktop/GitHubDesktop" "$@" || \
+run_app "/usr/bin/github-desktop" "$@" || \
+run_app "/opt/github-desktop/GitHubDesktop" "$@"
+
+echo "[WARN] GitHub Desktop not found."
+exit 1

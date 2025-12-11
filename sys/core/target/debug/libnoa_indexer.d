@@ -1,0 +1,1 @@
+N:\noa\sys\core\target\debug\libnoa_indexer.rlib: N:\noa\sys\core\crates\common\src\error.rs N:\noa\sys\core\crates\common\src\hash.rs N:\noa\sys\core\crates\common\src\lib.rs N:\noa\sys\core\crates\common\src\types.rs N:\noa\sys\core\crates\indexer\src\lib.rs

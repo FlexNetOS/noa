@@ -1,5 +1,6 @@
 //! NOA Init Command
 //!
+//! T092-T094: Enhanced init command with --root, --force, progress display, and verification
 //! Initializes a new NOA installation or reinitializes an existing one.
 
 use std::path::PathBuf;
@@ -10,11 +11,17 @@ use tracing::{info, warn};
 
 use crate::error::Result;
 use crate::db;
+use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure};
+use crate::services::InitService;
 
 /// Arguments for the init command
 #[derive(Args, Debug)]
 pub struct InitArgs {
-    /// Target directory for NOA installation
+    /// NOA root directory (defaults to current directory or NOA_ROOT env var)
+    #[arg(long, env = "NOA_ROOT")]
+    pub root: Option<PathBuf>,
+
+    /// Target directory for NOA installation (deprecated, use --root)
     #[arg(short, long, default_value = ".")]
     pub target: PathBuf,
 
@@ -33,9 +40,17 @@ pub struct InitArgs {
 
 /// Execute the init command
 pub async fn execute(args: InitArgs) -> Result<()> {
-    let target = args.target.canonicalize().unwrap_or(args.target.clone());
+    // Determine root directory (--root takes precedence over --target)
+    let target = if let Some(root) = args.root {
+        root
+    } else {
+        args.target.canonicalize().unwrap_or(args.target.clone())
+    };
 
     info!(target = %target.display(), "Initializing NOA");
+
+    // Display progress
+    display_progress("Starting initialization...");
 
     // Check if already initialized
     let marker_path = target.join(".noa-env");
@@ -44,67 +59,56 @@ pub async fn execute(args: InitArgs) -> Result<()> {
         return Ok(());
     }
 
-    // Create directory structure
+    // Use InitService for full initialization
+    display_progress("Creating directory structure...");
     if !args.skip_dirs {
-        create_directory_structure(&target)?;
-        info!("Directory structure created");
+        DirectoryStructure::create_all(&target, args.force)?;
+        display_progress("✓ Directory structure created");
+    }
+
+    display_progress("Generating default configurations...");
+    ConfigGenerator::generate_all(&target)?;
+    display_progress("✓ Default configurations generated");
+
+    display_progress("Initializing database...");
+    if !args.skip_db {
+        DatabaseInitializer::initialize(&target, args.force)?;
+        display_progress("✓ Database initialized");
     }
 
     // Create marker file
     create_marker_file(&target)?;
-    info!("Created .noa-env marker file");
 
-    // Initialize database
-    if !args.skip_db {
-        initialize_database(&target)?;
-        info!("Database initialized");
-    }
+    // Verify initialization
+    display_progress("Verifying initialization...");
+    let verification = InitService::verify(&target)?;
+    display_verification(&verification);
 
-    // Create default configuration
-    create_default_config(&target)?;
-    info!("Default configuration created");
-
-    println!("✓ NOA initialized successfully at {}", target.display());
+    println!("\n✓ NOA initialized successfully at {}", target.display());
     println!("\nNext steps:");
-    println!("  1. Review configuration in config/noa.yaml");
+    println!("  1. Review configuration in config/");
     println!("  2. Configure AI providers in config/ai-providers.json");
     println!("  3. Run 'noa start' to start NOA services");
 
     Ok(())
 }
 
-/// Create the NOA directory structure
-fn create_directory_structure(target: &PathBuf) -> Result<()> {
-    let directories = [
-        "bin",
-        "config",
-        "config/schemas",
-        "config/templates",
-        "data",
-        "data/memory",
-        "data/knowledge",
-        "data/embeddings",
-        "data/artifacts",
-        "data/modules",
-        "data/state",
-        "data/cache",
-        "data/backups",
-        "init/migrations",
-        "logs",
-        "opt",
-        "tmp",
-    ];
+/// Display initialization progress
+fn display_progress(message: &str) {
+    println!("  {}", message);
+}
 
-    for dir in directories {
-        let path = target.join(dir);
-        if !path.exists() {
-            fs::create_dir_all(&path)?;
-            info!(path = %path.display(), "Created directory");
+/// Display verification results
+fn display_verification(result: &crate::services::VerificationResult) {
+    if result.errors.is_empty() {
+        display_progress("✓ All checks passed");
+    } else {
+        for error in &result.errors {
+            warn!("  ✗ {}", error);
         }
     }
-
-    Ok(())
 }
+
 
 /// Create the .noa-env marker file
 fn create_marker_file(target: &PathBuf) -> Result<()> {
@@ -126,92 +130,4 @@ NOA_ENV=development
     Ok(())
 }
 
-/// Initialize the SQLite database
-fn initialize_database(target: &PathBuf) -> Result<()> {
-    let db_path = target.join("data/noa.db");
-
-    // Initialize database with migrations
-    let conn = db::init_database(&db_path)?;
-
-    // Run migrations
-    let migrations_dir = target.join("init/migrations");
-    if migrations_dir.exists() {
-        let runner = db::MigrationRunner::new(&migrations_dir);
-        let applied = runner.apply_pending(&conn)?;
-
-        if !applied.is_empty() {
-            info!(count = applied.len(), "Applied migrations");
-        }
-    }
-
-    Ok(())
-}
-
-/// Create default configuration files
-fn create_default_config(target: &PathBuf) -> Result<()> {
-    // Create noa.yaml if it doesn't exist
-    let config_path = target.join("config/noa.yaml");
-    if !config_path.exists() {
-        let default_config = r#"# NOA Configuration
-# Generated by 'noa init'
-
-instance:
-  name: noa-local
-  environment: development
-
-database:
-  primary:
-    driver: sqlite
-    path: ${NOA_ROOT}/data/noa.db
-    max_connections: 10
-
-logging:
-  level: info
-  format: json
-  output: ${NOA_ROOT}/logs/noa.log
-  rotate:
-    enabled: true
-    max_size_mb: 100
-    max_files: 10
-
-api:
-  host: 127.0.0.1
-  port: 8080
-  timeout_secs: 30
-
-feature_flags:
-  - name: offline_mode
-    enabled: true
-  - name: experimental_agents
-    enabled: false
-"#;
-        fs::write(&config_path, default_config)?;
-    }
-
-    // Create ai-providers.json if it doesn't exist
-    let providers_path = target.join("config/ai-providers.json");
-    if !providers_path.exists() {
-        let default_providers = r#"{
-  "providerPriority": ["local", "hybrid", "cloud"],
-  "providers": {
-    "llama-cpp": {
-      "enabled": true,
-      "type": "local",
-      "priority": 1,
-      "modelPath": "${NOA_ROOT}/opt/models"
-    },
-    "ollama": {
-      "enabled": false,
-      "type": "local",
-      "priority": 2,
-      "endpoint": "http://localhost:11434"
-    }
-  }
-}
-"#;
-        fs::write(&providers_path, default_providers)?;
-    }
-
-    Ok(())
-}
 

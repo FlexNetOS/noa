@@ -13,7 +13,8 @@
 
 .PARAMETER Tool
     One or more tool names to install (default: all).
-    Supported: rust, go, protoc, golangci-lint, eslint, ruff, gitleaks, trivy, grype, semgrep, gh
+    Supported: rust, go, protoc, golangci-lint, eslint, ruff, gitleaks, trivy, grype, semgrep, gh,
+               cmake, ninja, llvm, mingw
 
 .PARAMETER AllowGlobal
     If specified, allows falling back to system-wide installers (winget/choco/apt/brew).
@@ -309,8 +310,8 @@ function Download-And-ExtractZip {
     Invoke-WebRequest -Uri $Url -OutFile $tmp -UseBasicParsing
     Write-Info "Extracting to $DestDir"
     if (-not (Test-Path $DestDir)) { New-Item -ItemType Directory -Force -Path $DestDir | Out-Null }
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($tmp, $DestDir, $true)
+    # Extract with overwrite - use Expand-Archive for better compatibility
+    Expand-Archive -Path $tmp -DestinationPath $DestDir -Force
     Remove-Item $tmp -Force
 
     if ($StripRoot) {
@@ -532,6 +533,95 @@ function Install-PythonPortable {
     Add-Link (Join-Path $toolDir "python.exe") "python.exe"
     Add-Link (Join-Path $toolDir "pythonw.exe") "pythonw.exe"
 }
+
+#region Build Tools (B161-B170)
+
+function Install-CMake {
+    <#
+    .SYNOPSIS
+        Install portable CMake via bootstrap installer
+    #>
+    $cmakeExe = Join-Path $BinDir "cmake.exe"
+    if ((Test-Path $cmakeExe) -and -not $UpdateExisting) {
+        Write-Info "CMake already present; skipping (use -UpdateExisting to force)"
+        return
+    }
+    Write-Info "Installing CMake..."
+
+    $installer = Join-Path $NoaRoot "scripts/bootstrap/installers/cmake-portable.ps1"
+    if (Test-Path $installer) {
+        $force = if ($UpdateExisting) { "-Force" } else { "" }
+        & $installer -NoaRoot $NoaRoot $force
+    } else {
+        Write-Err "CMake installer not found: $installer"
+    }
+}
+
+function Install-Ninja {
+    <#
+    .SYNOPSIS
+        Install portable Ninja via bootstrap installer
+    #>
+    $ninjaExe = Join-Path $BinDir "ninja.exe"
+    if ((Test-Path $ninjaExe) -and -not $UpdateExisting) {
+        Write-Info "Ninja already present; skipping (use -UpdateExisting to force)"
+        return
+    }
+    Write-Info "Installing Ninja..."
+
+    $installer = Join-Path $NoaRoot "scripts/bootstrap/installers/ninja-portable.ps1"
+    if (Test-Path $installer) {
+        $force = if ($UpdateExisting) { "-Force" } else { "" }
+        & $installer -NoaRoot $NoaRoot $force
+    } else {
+        Write-Err "Ninja installer not found: $installer"
+    }
+}
+
+function Install-LLVM {
+    <#
+    .SYNOPSIS
+        Install portable LLVM/Clang via bootstrap installer
+    #>
+    $clangExe = Join-Path $BinDir "clang.exe"
+    if ((Test-Path $clangExe) -and -not $UpdateExisting) {
+        Write-Info "LLVM/Clang already present; skipping (use -UpdateExisting to force)"
+        return
+    }
+    Write-Info "Installing LLVM/Clang..."
+
+    $installer = Join-Path $NoaRoot "scripts/bootstrap/installers/llvm-portable.ps1"
+    if (Test-Path $installer) {
+        $force = if ($UpdateExisting) { "-Force" } else { "" }
+        & $installer -NoaRoot $NoaRoot $force
+    } else {
+        Write-Err "LLVM installer not found: $installer"
+    }
+}
+
+function Install-MinGW {
+    <#
+    .SYNOPSIS
+        Install portable MinGW-w64 via bootstrap installer
+    #>
+    $gccExe = Join-Path $BinDir "gcc.exe"
+    if ((Test-Path $gccExe) -and -not $UpdateExisting) {
+        Write-Info "MinGW already present; skipping (use -UpdateExisting to force)"
+        return
+    }
+    Write-Info "Installing MinGW-w64..."
+
+    $installer = Join-Path $NoaRoot "scripts/bootstrap/installers/mingw-portable.ps1"
+    if (Test-Path $installer) {
+        $force = if ($UpdateExisting) { "-Force" } else { "" }
+        & $installer -NoaRoot $NoaRoot $force
+    } else {
+        Write-Warn "MinGW installer not found: $installer"
+        Write-Warn "Create scripts/bootstrap/installers/mingw-portable.ps1 to enable MinGW installation"
+    }
+}
+
+#endregion
 
 #region AI Provider CLIs (FR-039)
 
@@ -941,6 +1031,7 @@ Remove-OldArchives -RetentionDays 7
 $allTools = @(
     "rust","go","protoc","golangci-lint","eslint","ruff",
     "gitleaks","trivy","grype","semgrep","gh","git","gitlfs","node","python",
+    "cmake","ninja","llvm","mingw",
     "claude-code","codex-cli","cursor-cli","abacus-cli","vscode-copilot","git-cli","ai-providers","shared-resources"
 )
 $targets = if ($Tool -and $Tool.Count -gt 0) { $Tool } else { $allTools }
@@ -964,6 +1055,11 @@ foreach ($t in $targets) {
         "gitlfs"       { Install-GitLfs }
         "node"         { Install-NodePortable }
         "python"       { Install-PythonPortable }
+        # Build tools (B161-B170)
+        "cmake"        { Install-CMake }
+        "ninja"        { Install-Ninja }
+        "llvm"         { Install-LLVM }
+        "mingw"        { Install-MinGW }
         # AI Provider CLIs (FR-039)
         "claude-code"  { Install-ClaudeCode }
         "codex-cli"    { Install-CodexCli }
