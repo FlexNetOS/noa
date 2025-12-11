@@ -41,6 +41,7 @@ type ResourceRequirements struct {
 
 // OffloadProtocol manages task offloading to peers
 type OffloadProtocol struct {
+	mu    sync.RWMutex
 	peers map[peer.ID]*PeerInfo
 }
 

@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use serde::{Deserialize, Serialize};
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
