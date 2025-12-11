@@ -46,7 +46,7 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `ai-providers.json`
 
-**Purpose**: AI provider categories, priorities, shared resources, and model defaults  
+**Purpose**: Grouped provider categories, priorities, shared resources, and model defaults  
 **Type**: JSON  
 **Schema**: `config/schemas/providers.yaml` (grouped categories)  
 **Version**: 1.0.0
@@ -55,14 +55,10 @@ This directory contains all configuration files for the NOA system. All configs 
 - `$schema` (string, recommended): Schema pointer
 - `version` (string, required): Config version
 - `providerPriority` (array, required): Category order (`local`, `hybrid`, `ide`, `cloud`)
-- `providers` (object, required): Category blocks keyed by name  
+- `providers` (object, required): Category blocks keyed by name
   - Each category: `{ enabled, priority, types[], configPath }`
-- `sharedResources` (object): Paths for agents, workflows, prompts, skills, tools, models, commands, resources
-- `executionMemory` (object): `{ enabled, path, features[] }`
-- `models` (object): Defaults (`defaultContextLength`, `defaultTemperature`, `defaultTopP`, `defaultTopK`, `defaultRepeatPenalty`, `supportedFormats[]`, `modelPaths{}`, `downloadSources{}`)`
-- `providerSwitching` (object): `{ enabled, preserveConfigs, migrateState }`
 
-**Default**: Created during bootstrap  
+**Default**: Created during `noa init`  
 **Validation**: Validated against `providers.yaml` on load (additional properties are rejected)
 
 ---
@@ -195,7 +191,7 @@ This directory contains all configuration files for the NOA system. All configs 
 
 **Purpose**: Individual provider configuration (optional, per provider)  
 **Type**: JSON  
-**Schema**: Forthcoming; keep consistent with grouped provider policy  
+**Schema**: Not yet formalized; keep consistent with existing provider metadata files in `ai/providers/**/config.json`  
 **Version**: 1.0.0
 
 **Recommended Fields (camelCase)**:
@@ -213,9 +209,8 @@ This directory contains all configuration files for the NOA system. All configs 
 - `timeout` (integer)
 
 **Notes**:
-- Use camelCase keys and include `$schema` when a per-provider schema is added.  
-- Keep provider files aligned with category entries in `ai-providers.json` (types + priority).  
-- Validation: until the schema is published, run lightweight JSON lint and keep fields in this shape.
+- Provider metadata is referenced by `config/ai-providers.json` via each category’s `configPath`, and the category’s `types[]` list.
+- Keep provider IDs listed in `types[]` aligned with `ai/providers/<category>/<provider>/config.json`.
 
 ---
 

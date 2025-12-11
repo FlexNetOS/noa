@@ -1,21 +1,45 @@
 # Security Policy
 
-## Supported Versions
+This project is committed to **security, privacy, and self-contained operation** (see `CONSTITUTION.md`, esp. §3.1 and §3.6).
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+## Supported versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+NOA is under active development. Security fixes are delivered on the default branch and tagged releases as they happen.
 
-## Reporting a Vulnerability
+- **Default branch (`main`)**: supported
+- **Latest tagged release**: supported (when releases exist)
+- **Older tags**: best-effort; fixes may be backported only for high/critical issues
 
-Use this section to tell people how to report a vulnerability.
+## Reporting a vulnerability
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+### Preferred reporting channel
+
+Please **do not** open a public issue for security-sensitive reports.
+
+- If you have access to GitHub Security Advisories for this repository, submit a report there.
+- Otherwise, contact the maintainers privately using the channel documented in your organization’s security process.
+
+### What to include
+
+- A clear description of the issue and impact
+- Steps to reproduce (proof-of-concept if safe)
+- Affected paths/components (e.g. `sys/core`, `sys/ui`, `scripts/setup`, `config/`)
+- Any relevant logs (please redact secrets)
+
+### Response timeline (targets)
+
+- **Acknowledgement**: within 72 hours
+- **Triage**: within 7 days
+- **Fix ETA**: provided after triage (severity-dependent)
+
+### Responsible disclosure expectations
+
+We ask reporters to keep details private until a fix is available. We will coordinate disclosure timing and credit when desired.
+
+## Security invariants (hard rules)
+
+- **No secrets in source control** (see `AGENT.md` ENV-001/ENV-010 guidance)
+- **No secret logging**
+- **Prefer least privilege + safe defaults**
+- **Configs must allow env substitution** (`${ENV_VAR}`), and sensitive values must be externalized
+
