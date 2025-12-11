@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/libp2p/go-libp2p"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -62,7 +61,7 @@ func NewDHTDiscovery(ctx context.Context, h host.Host, bootstrapPeers []peer.Add
 
 // FindPeers searches for peers using DHT
 func (d *DHTDiscovery) FindPeers(ctx context.Context, limit int) ([]peer.AddrInfo, error) {
-	peerChan, err := d.routing.FindPeers(ctx, "noa-p2p", routing.Limit(limit))
+	peerChan, err := d.routing.FindPeers(ctx, "noa-p2p")
 	if err != nil {
 		return nil, fmt.Errorf("failed to find peers: %w", err)
 	}

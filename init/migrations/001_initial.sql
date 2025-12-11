@@ -243,13 +243,15 @@ CREATE TABLE IF NOT EXISTS model (
     name TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL CHECK(type IN ('llm', 'embedding', 'vision', 'audio')),
     provider TEXT NOT NULL,
-    version TEXT NOT NULL,
-    config TEXT NOT NULL, -- JSON
-    capabilities TEXT, -- JSON array
-    status TEXT NOT NULL CHECK(status IN ('available', 'downloading', 'loading', 'loaded', 'failed')),
-    file_path TEXT,
-    file_size INTEGER,
-    checksum TEXT,
+    path TEXT,           -- Local file path
+    uri TEXT,            -- Remote URI (HuggingFace, etc.)
+    size_bytes INTEGER,  -- Model size in bytes
+    parameters TEXT,     -- Parameter count (e.g., "7B", "13B")
+    context_length INTEGER, -- Max context length
+    license TEXT,        -- Model license
+    config TEXT NOT NULL DEFAULT '{}', -- JSON configuration
+    status TEXT NOT NULL CHECK(status IN ('available', 'downloading', 'loading', 'loaded', 'error')) DEFAULT 'available',
+    metrics TEXT,        -- JSON performance metrics
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_used TIMESTAMP
 );
