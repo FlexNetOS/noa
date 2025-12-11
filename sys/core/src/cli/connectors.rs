@@ -1,9 +1,9 @@
 use clap::{Args, Subcommand};
 use serde_json::json;
 
-use crate::connectors::{collect_states, default_connector_ids};
 use crate::connectors::base::load_context;
 use crate::connectors::status::print_table;
+use crate::connectors::{collect_states, default_connector_ids};
 use crate::error::Result;
 
 /// Arguments for connector commands

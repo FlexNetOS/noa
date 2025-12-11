@@ -327,14 +327,12 @@ async fn load_model(State(state): State<AppState>, Path(id): Path<String>) -> im
         })?;
         let service = NeuralService::new(conn);
 
-        handle
-            .block_on(service.load_model(&model_id))
-            .map_err(|e| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to load model: {}", e),
-                )
-            })?;
+        handle.block_on(service.load_model(&model_id)).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to load model: {}", e),
+            )
+        })?;
 
         Ok(())
     });
@@ -371,14 +369,12 @@ async fn unload_model(State(state): State<AppState>, Path(id): Path<String>) -> 
         })?;
         let service = NeuralService::new(conn);
 
-        handle
-            .block_on(service.unload_model(&model_id))
-            .map_err(|e| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to unload model: {}", e),
-                )
-            })?;
+        handle.block_on(service.unload_model(&model_id)).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to unload model: {}", e),
+            )
+        })?;
 
         Ok(())
     });

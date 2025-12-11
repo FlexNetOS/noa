@@ -35,7 +35,10 @@ fn sc010_rollback_path_validation() {
                 result.status = BenchmarkStatus::Failed;
                 result.notes = Some("missing snapshot did not error".to_string());
             } else {
-                result.notes = Some(format!("restored_id={} message={}", ok.snapshot_id, ok.message));
+                result.notes = Some(format!(
+                    "restored_id={} message={}",
+                    ok.snapshot_id, ok.message
+                ));
             }
         }
         Ok(_) | Err(_) => {

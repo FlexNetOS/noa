@@ -25,19 +25,13 @@ impl StateVerifier {
 
     /// Ensure the last checkpoint matches the expected mode.
     pub fn verify_mode(expected: KernelMode, checkpoint: &KernelCheckpoint) -> Result<()> {
-        let target = checkpoint
-            .target_mode
-            .parse::<KernelMode>()
-            .map_err(|_| {
-                NoaError::Validation(ValidationError::new(
-                    "target_mode",
-                    format!(
-                        "Invalid mode '{}' in checkpoint",
-                        checkpoint.target_mode
-                    ),
-                    "NKAL_STATE_INVALID_MODE",
-                ))
-            })?;
+        let target = checkpoint.target_mode.parse::<KernelMode>().map_err(|_| {
+            NoaError::Validation(ValidationError::new(
+                "target_mode",
+                format!("Invalid mode '{}' in checkpoint", checkpoint.target_mode),
+                "NKAL_STATE_INVALID_MODE",
+            ))
+        })?;
 
         if target != expected {
             return Err(NoaError::Validation(ValidationError::new(
