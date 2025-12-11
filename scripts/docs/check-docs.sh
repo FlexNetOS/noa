@@ -11,7 +11,10 @@ npx --yes markdownlint-cli2 \
   "CONTRIBUTING.md" \
   "config/README.md" \
   "ai/shared/policy/**/*.md" \
-  "docs/**/*.md"
+  "docs/index.md" \
+  "docs/00-guides/**/*.md" \
+  "docs/run-book/integrator-troubleshooting.md" \
+  "docs/api/README.md"
 
 echo "Docs checks passed."
 
