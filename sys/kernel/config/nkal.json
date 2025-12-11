@@ -1,0 +1,121 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "version": "1.0.0",
+    "description": "NOA Kernel Abstraction Layer (NKAL) Configuration",
+    "lastUpdated": "2025-01-01T00:00:00Z",
+    "constitutionalReference": "§4.11 Kernel Independence Policy",
+    
+    "defaultConfig": {
+        "preferredMode": "native",
+        "fallbackMode": "native",
+        "autoDetect": true,
+        "escalationEnabled": true,
+        "downgradePrevention": true
+    },
+
+    "modes": {
+        "native": {
+            "enabled": true,
+            "priority": 4,
+            "description": "Direct host kernel access for trusted operations",
+            "performanceOverhead": "none",
+            "isolationLevel": "none",
+            "startupTime": "instant",
+            "requirements": []
+        },
+        "sandbox": {
+            "enabled": true,
+            "priority": 3,
+            "description": "User-space isolation for ephemeral tasks",
+            "performanceOverhead": "low",
+            "isolationLevel": "medium",
+            "startupTime": "<500ms",
+            "requirements": ["sandbox_runtime"]
+        },
+        "container": {
+            "enabled": true,
+            "priority": 2,
+            "description": "Lightweight container-based isolation",
+            "performanceOverhead": "medium",
+            "isolationLevel": "high",
+            "startupTime": "<1s",
+            "requirements": ["container_runtime"]
+        },
+        "vm": {
+            "enabled": true,
+            "priority": 1,
+            "description": "Maximum isolation via dedicated VM",
+            "performanceOverhead": "high",
+            "isolationLevel": "maximum",
+            "startupTime": "<3s",
+            "requirements": ["hypervisor", "vm_image"]
+        }
+    },
+
+    "platformDefaults": {
+        "windows": {
+            "vmHypervisor": "hyper-v",
+            "containerRuntime": "docker-desktop",
+            "sandboxRuntime": "windows-sandbox",
+            "vmImagePath": "sys/kernel/images/noa-linux.vhdx"
+        },
+        "linux": {
+            "vmHypervisor": "kvm-qemu",
+            "containerRuntime": "docker-rootless",
+            "sandboxRuntime": "bubblewrap",
+            "vmImagePath": "sys/kernel/images/noa-linux.qcow2"
+        },
+        "macos": {
+            "vmHypervisor": "virtualization-framework",
+            "containerRuntime": "docker-desktop",
+            "sandboxRuntime": "app-sandbox",
+            "vmImagePath": "sys/kernel/images/noa-linux.dmg"
+        }
+    },
+
+    "escalationPolicy": {
+        "description": "Automatic escalation from native to isolated modes",
+        "triggers": [
+            {
+                "condition": "untrusted_code_execution",
+                "targetMode": "vm",
+                "canOverride": false
+            },
+            {
+                "condition": "external_data_processing",
+                "targetMode": "container",
+                "canOverride": true
+            },
+            {
+                "condition": "constitutional_requirement",
+                "targetMode": "sandbox",
+                "canOverride": false
+            }
+        ],
+        "fallbackChain": ["vm", "container", "sandbox", "native"]
+    },
+
+    "downgradePolicy": {
+        "description": "Rules for downgrading from isolated to native mode",
+        "requiresExplicitAction": true,
+        "allowedDowngrades": [
+            {
+                "from": "sandbox",
+                "to": "native",
+                "condition": "task_complete"
+            },
+            {
+                "from": "container",
+                "to": "native",
+                "condition": "user_explicit"
+            }
+        ],
+        "preventedDowngrades": [
+            {
+                "from": "vm",
+                "to": "native",
+                "reason": "Security context requires isolation"
+            }
+        ]
+    }
+}

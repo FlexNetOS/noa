@@ -120,6 +120,7 @@ pub struct CompletionResponse {
     pub generation_time_ms: f64,
 }
 
+#[derive(Clone)]
 pub struct LlamaClient {
     base_url: String,
     client: reqwest::Client,

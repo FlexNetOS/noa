@@ -443,7 +443,7 @@ fn show_stats(db_path: &PathBuf) -> Result<()> {
 }
 
 /// Backup database
-fn backup_database(db_path: &PathBuf, output: Option<&PathBuf>) -> Result<()> {
+fn backup_database(db_path: &PathBuf, output: Option<&std::path::Path>) -> Result<()> {
     let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
     let default_output = db_path.with_file_name(format!(
         "{}_backup_{}.db",

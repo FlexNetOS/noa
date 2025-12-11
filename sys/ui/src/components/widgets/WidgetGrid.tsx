@@ -114,7 +114,7 @@ export default function WidgetGrid({ layouts, onLayoutChange, onRemove }: Widget
     }
   }, [items, onLayoutChange]);
 
-  const handleRemove = useCallback((widgetId: string) => {
+  const _handleRemove = useCallback((widgetId: string) => {
     const newItems = items.filter(item => item.widgetId !== widgetId);
     setItems(newItems);
     onLayoutChange?.(newItems);
