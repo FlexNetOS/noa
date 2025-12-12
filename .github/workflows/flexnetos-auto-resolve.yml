@@ -289,7 +289,6 @@ jobs:
       - name: 🏷️ Ensure Required Labels Exist
         run: |
           PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
-          
           # Create auto-resolve label if it doesn't exist
           gh label create "auto-resolve" \
             --description "Issues managed by FlexNetOS auto-resolve system" \
