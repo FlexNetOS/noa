@@ -3,7 +3,9 @@
  * Provides real-time communication with the NOA backend
  */
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws';
+// Use secure protocol in production, fallback to ws for local development
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 
+  (process.env.NODE_ENV === 'production' ? 'wss://localhost:8000/ws' : 'ws://localhost:8000/ws');
 
 export interface WebSocketEvent {
   type: string;
