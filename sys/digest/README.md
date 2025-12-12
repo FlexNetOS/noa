@@ -38,12 +38,6 @@ noa-digest security /path/to/repository
 
 ## Development
 
-### Setup
-
-```bash
-pip install -e ".[dev]"
-```
-
 ### Testing
 
 ```bash
