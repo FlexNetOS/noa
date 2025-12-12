@@ -32,7 +32,7 @@ fn sc009_cross_platform_consistency() {
         result.notes = Some(format!(
             "hash_ok={} path_ok={}",
             hex == expected,
-            normalized
+            normalized == "sandbox/plane/config"
         ));
         result.status = common::BenchmarkStatus::Failed;
     } else {
