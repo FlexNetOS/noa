@@ -10,9 +10,9 @@ pub mod correction;
 pub mod drift_detection;
 pub mod engine;
 pub mod harness;
+pub mod rewards;
 pub mod rollback_executor;
 pub mod rollback_validator;
-pub mod rewards;
 pub mod snapshot;
 
 pub use audit::{AuditEvent, GovernanceAuditTrail};
@@ -28,7 +28,7 @@ pub use engine::{
     RuleVerdict,
 };
 pub use harness::GovernanceHarness;
+pub use rewards::{RewardEvent, RewardSystem};
 pub use rollback_executor::{RollbackExecutor, RollbackResult};
 pub use rollback_validator::{RollbackAssessment, RollbackValidator};
-pub use rewards::{RewardEvent, RewardSystem};
 pub use snapshot::{SnapshotArtifact, SnapshotRecord, SnapshotService};

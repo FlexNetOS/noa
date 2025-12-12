@@ -42,7 +42,11 @@ pub async fn execute(args: FeatureArgs) -> Result<()> {
         FeatureCmd::Status { name } => {
             if let Some(name) = name {
                 let enabled = store.is_enabled(&name);
-                println!("{} => {}", name, if enabled { "enabled" } else { "disabled" });
+                println!(
+                    "{} => {}",
+                    name,
+                    if enabled { "enabled" } else { "disabled" }
+                );
             } else {
                 println!("{:<32} {:<8}", "name", "enabled");
                 for flag in store.list() {

@@ -5,17 +5,17 @@
 
 #[cfg(test)]
 mod regression_tests {
-    use crate::db::{init_database, repositories::MemoryRepository};
     use crate::db::repositories::memory_repository::MemoryType;
+    use crate::db::{init_database, repositories::MemoryRepository};
     use crate::init::{DatabaseInitializer, DirectoryStructure, NoaPaths};
     use crate::services::{InitService, MemoryService, NeuralService};
     use chrono::Utc;
+    use rusqlite::Connection;
     use std::collections::HashSet;
     use std::fs;
     use std::path::Path;
     use tempfile::TempDir;
     use uuid::Uuid;
-    use rusqlite::Connection;
 
     // ============================================================================
     // REG001-REG006: Critical Path Tests (Must Pass)
@@ -83,8 +83,7 @@ mod regression_tests {
         assert!(recalled.is_some(), "Memory should be recallable");
         let memory = recalled.unwrap();
         assert_eq!(
-            memory.content,
-            "Test memory content for regression test",
+            memory.content, "Test memory content for regression test",
             "Recalled memory content should match"
         );
         assert!(
@@ -288,12 +287,8 @@ mod regression_tests {
         let conn = init_database(&db_path).unwrap();
 
         // Verify foreign keys are enabled
-        let mut stmt = conn
-            .prepare("PRAGMA foreign_keys")
-            .unwrap();
-        let foreign_keys_enabled: i32 = stmt
-            .query_row([], |row| row.get(0))
-            .unwrap();
+        let mut stmt = conn.prepare("PRAGMA foreign_keys").unwrap();
+        let foreign_keys_enabled: i32 = stmt.query_row([], |row| row.get(0)).unwrap();
 
         assert_eq!(foreign_keys_enabled, 1, "Foreign keys should be enabled");
 
@@ -434,11 +429,8 @@ mod regression_tests {
                 ))
                 .unwrap();
 
-            let indexes: Vec<String> = stmt
-                .query_map([], |row| row.get(0))
-                .unwrap()
-                .map(|r| r.unwrap())
-                .collect();
+            let indexes: Vec<String> =
+                stmt.query_map([], |row| row.get(0)).unwrap().map(|r| r.unwrap()).collect();
 
             // At minimum, primary key index should exist
             // Additional indexes may be defined in migrations

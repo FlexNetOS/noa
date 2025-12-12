@@ -16,8 +16,7 @@ fn sc007_ui_context_switch_under_200ms() {
     view_state.push("render-complete");
 
     let duration = start.elapsed();
-    let mut result =
-        BenchmarkResult::new("SC-007", "UI context switch (<200ms)", duration, 200);
+    let mut result = BenchmarkResult::new("SC-007", "UI context switch (<200ms)", duration, 200);
     result.notes = Some(format!("states={:?}", view_state));
 
     record_result(&result);

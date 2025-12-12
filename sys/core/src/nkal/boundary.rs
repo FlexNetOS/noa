@@ -78,9 +78,7 @@ impl BoundaryValidator {
 
     /// Check whether an action is allowed for the given mode/provider.
     pub fn allows(&self, mode: KernelMode, action: &str, provider: Option<&str>) -> bool {
-        self.enforce(mode, action, provider)
-            .map(|d| d.allowed)
-            .unwrap_or(false)
+        self.enforce(mode, action, provider).map(|d| d.allowed).unwrap_or(false)
     }
 
     /// Enforce the boundary policy and return a decision.
