@@ -8,7 +8,7 @@ US4: Digest Everything Pipeline
 import json
 import subprocess
 from pathlib import Path
-from typing import , Optional
+from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)

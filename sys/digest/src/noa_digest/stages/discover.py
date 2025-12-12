@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import , Optional
+from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
