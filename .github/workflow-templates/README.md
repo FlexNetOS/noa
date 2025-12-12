@@ -7,12 +7,12 @@ This directory contains workflow templates that can be used as references for se
 ### caller-template.yml
 Template for calling reusable workflows from an organization's `.github` repository. 
 
-**Note**: This template references external organization resources (`FlexNetOS/.github/.github/workflows/flexnetos-reusable-resolver.yml@main`) that must exist in the organization's `.github` repository before use.
+**Note**: This template references external organization resources (`FlexNetOS/.github/workflows/flexnetos-reusable-resolver.yml@main`) that must exist in the organization's `.github` repository before use.
 
 ### flexnetos-reusable-resolver.yml
 Reusable workflow template for organization-wide deployment of FlexNetOS automation.
 
-**Note**: This template references an external action (`FlexNetOS/.github/.github/actions/ai-resolver@main`) that must exist in the organization's `.github` repository before use.
+**Note**: This template references an external action (`FlexNetOS/.github/actions/ai-resolver@main`) that must exist in the organization's `.github` repository before use.
 
 ## Usage
 

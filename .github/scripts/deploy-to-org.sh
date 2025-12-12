@@ -283,7 +283,7 @@ on:
 
 jobs:
   auto-resolve:
-    uses: FlexNetOS/.github/.github/workflows/flexnetos-reusable-resolver.yml@main
+    uses: FlexNetOS/.github/workflows/flexnetos-reusable-resolver.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
       max_iterations: 10
