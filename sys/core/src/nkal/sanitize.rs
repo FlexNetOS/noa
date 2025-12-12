@@ -18,10 +18,8 @@ impl Sanitizer {
         let mut warnings = Vec::new();
         let mut blocked = false;
 
-        let mut sanitized: String = input
-            .chars()
-            .map(|c| if c.is_control() { ' ' } else { c })
-            .collect();
+        let mut sanitized: String =
+            input.chars().map(|c| if c.is_control() { ' ' } else { c }).collect();
 
         if sanitized.contains("..") {
             warnings.push("Path traversal marker detected ('..')".to_string());

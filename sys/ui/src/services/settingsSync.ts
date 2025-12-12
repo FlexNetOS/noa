@@ -5,6 +5,8 @@
  * Supports global, per-device, and per-project sync scopes with conflict resolution.
  */
 
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
+
 export type SyncScope = 'global' | 'per_device' | 'per_project';
 
 export interface SyncConflict {
@@ -77,7 +79,8 @@ export class SettingsSyncService {
     try {
       // In a real implementation, this would call the backend API
       // For now, we'll simulate the sync
-      const response = await fetch('/api/v1/settings/sync', {
+      const url = '/api/v1/settings/sync';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,7 +90,8 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -114,13 +118,15 @@ export class SettingsSyncService {
     }
 
     try {
-      const response = await fetch(`/api/v1/settings/sync?scope=${this.scope}`, {
+      const url = `/api/v1/settings/sync?scope=${this.scope}`;
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -163,7 +169,8 @@ export class SettingsSyncService {
     resolutions: Record<string, unknown>
   ): Promise<SyncResult> {
     try {
-      const response = await fetch('/api/v1/settings/sync/resolve', {
+      const url = '/api/v1/settings/sync/resolve';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -173,7 +180,8 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        throw new Error(`Conflict resolution failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Conflict resolution failed');
+        throw new Error(errorMessage);
       }
 
       return {

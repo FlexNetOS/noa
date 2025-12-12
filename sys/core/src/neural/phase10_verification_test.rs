@@ -16,7 +16,7 @@ use crate::error::Result;
 use crate::neural::{
     cuda_devices::{CudaDevice, CudaDeviceEnumerator, DeviceProperties},
     cuda_tiles::{CudaTilesConfig, CudaTilesManager},
-    gpu_health::{GpuHealthMonitor, GpuHealthMetrics, GpuHealthStatus},
+    gpu_health::{GpuHealthMetrics, GpuHealthMonitor, GpuHealthStatus},
     gpu_pool::{GpuMemoryPool, MemoryAllocation},
     gpu_scheduler::{GpuScheduler, LoadBalanceStrategy},
     multi_gpu::{DistributionStrategy, LayerAssignment, MultiGpuDistributor},
@@ -37,7 +37,10 @@ async fn test_gpu001_device_enumeration() {
     // Verify each device has required fields
     for device in &devices {
         assert!(!device.name.is_empty(), "Device should have a name");
-        assert!(!device.compute_capability.is_empty(), "Device should have compute capability");
+        assert!(
+            !device.compute_capability.is_empty(),
+            "Device should have compute capability"
+        );
         assert!(device.total_memory_bytes > 0, "Device should have memory");
     }
 }
@@ -126,11 +129,17 @@ async fn test_gpu004_graceful_fallback_no_gpu() {
 
         // Verify we can query non-existent device without panic
         let device = enumerator.get_device(0).await.unwrap();
-        assert!(device.is_none(), "Querying non-existent device should return None");
+        assert!(
+            device.is_none(),
+            "Querying non-existent device should return None"
+        );
 
         // Verify properties query handles missing device
         let props = enumerator.get_device_properties(0).await.unwrap();
-        assert!(props.is_none(), "Properties for non-existent device should return None");
+        assert!(
+            props.is_none(),
+            "Properties for non-existent device should return None"
+        );
     }
 }
 
@@ -169,8 +178,7 @@ async fn test_gpu005_layer_distribution() {
         // Verify each assignment has valid layer index
         for (idx, assignment) in assignments.iter().enumerate() {
             assert_eq!(
-                assignment.layer_index,
-                idx,
+                assignment.layer_index, idx,
                 "Layer index should match assignment order"
             );
         }
@@ -195,9 +203,8 @@ async fn test_gpu006_memory_balanced_distribution() {
             std::collections::HashMap::new();
 
         for assignment in &assignments {
-            *memory_per_device
-                .entry(assignment.device_id)
-                .or_insert(0) += assignment.memory_required_bytes;
+            *memory_per_device.entry(assignment.device_id).or_insert(0) +=
+                assignment.memory_required_bytes;
         }
 
         // Verify memory is distributed (not all on one device if multiple available)
@@ -262,9 +269,7 @@ async fn test_gpu009_tensor_sharding_large_model() {
     // Simulate a large tensor that would exceed single GPU memory
     let large_tensor_shape = vec![1024, 4096, 4096]; // Large feature dimension
 
-    let shards = manager
-        .shard_tensor(&large_tensor_shape, ShardDimension::Feature)
-        .unwrap();
+    let shards = manager.shard_tensor(&large_tensor_shape, ShardDimension::Feature).unwrap();
 
     // Verify sharding occurred
     assert_eq!(shards.len(), 4, "Should create 4 shards");
@@ -272,8 +277,7 @@ async fn test_gpu009_tensor_sharding_large_model() {
     // Verify shard sizes sum to original dimension
     let total_shard_size: usize = shards.iter().map(|s| s.size).sum();
     assert_eq!(
-        total_shard_size,
-        large_tensor_shape[2],
+        total_shard_size, large_tensor_shape[2],
         "Shard sizes should sum to original feature dimension"
     );
 
@@ -295,9 +299,7 @@ async fn test_gpu010_inter_gpu_communication() {
     let tensor_shape = vec![100, 200];
 
     // Create shards
-    let shards = manager
-        .shard_tensor(&tensor_shape, ShardDimension::Feature)
-        .unwrap();
+    let shards = manager.shard_tensor(&tensor_shape, ShardDimension::Feature).unwrap();
 
     // Verify we can gather shards back
     let reconstructed_shape = manager.gather_shards(&shards).unwrap();
@@ -313,13 +315,13 @@ async fn test_gpu010_inter_gpu_communication() {
 
     // Verify shards can be distributed across devices
     // In production, this would involve actual GPU-to-GPU communication
-        for shard in &shards {
-            assert!(shard.shard_id < 2, "Shard ID should be valid");
-            assert!(
-                shard.offset < original_elems,
-                "Shard offset should be within tensor size"
-            );
-        }
+    for shard in &shards {
+        assert!(shard.shard_id < 2, "Shard ID should be valid");
+        assert!(
+            shard.offset < original_elems,
+            "Shard offset should be within tensor size"
+        );
+    }
 }
 
 /// GPU011: Verify NVLink detection and utilization when available [FR-049]
@@ -402,9 +404,7 @@ async fn test_gpu013_memory_pooling() {
     let total_memory = 8 * 1024 * 1024 * 1024; // 8 GB
     let chunk_size = 64 * 1024 * 1024; // 64 MB chunks
 
-    pool.initialize_pool(device_id, total_memory, chunk_size)
-        .await
-        .unwrap();
+    pool.initialize_pool(device_id, total_memory, chunk_size).await.unwrap();
 
     // Allocate memory
     let allocation_size = 128 * 1024 * 1024; // 128 MB
@@ -417,8 +417,7 @@ async fn test_gpu013_memory_pooling() {
 
     if let Some(alloc) = allocation {
         assert_eq!(
-            alloc.device_id,
-            device_id,
+            alloc.device_id, device_id,
             "Allocation should be on correct device"
         );
         assert!(
@@ -505,8 +504,7 @@ async fn test_gpu014_load_balancing() {
 
     // Verify round-robin distribution
     let devices_selected = vec![device_a.unwrap(), device_b.unwrap(), device_c.unwrap()];
-    let unique_devices: std::collections::HashSet<u32> =
-        devices_selected.iter().cloned().collect();
+    let unique_devices: std::collections::HashSet<u32> = devices_selected.iter().cloned().collect();
     assert!(
         unique_devices.len() > 1 || devices_selected.len() < 3,
         "Round-robin should distribute across devices"
@@ -518,14 +516,8 @@ async fn test_gpu014_load_balancing() {
     scheduler_ll.register_device(&device1).await.unwrap();
 
     // Update loads
-    scheduler_ll
-        .update_load(0, 5, 2 * 1024 * 1024 * 1024)
-        .await
-        .unwrap();
-    scheduler_ll
-        .update_load(1, 2, 1 * 1024 * 1024 * 1024)
-        .await
-        .unwrap();
+    scheduler_ll.update_load(0, 5, 2 * 1024 * 1024 * 1024).await.unwrap();
+    scheduler_ll.update_load(1, 2, 1 * 1024 * 1024 * 1024).await.unwrap();
 
     let selected = scheduler_ll.select_device(&available_devices).await.unwrap();
     assert_eq!(
@@ -571,7 +563,7 @@ async fn test_gpu015_health_monitoring() {
         memory_used_bytes: 7 * 1024 * 1024 * 1024,
         memory_total_bytes: 8 * 1024 * 1024 * 1024,
         utilization_percent: 96.0, // Above 95% threshold
-        error_count: 15, // Above 10 threshold
+        error_count: 15,           // Above 10 threshold
         last_updated: chrono::Utc::now(),
     };
 
@@ -693,19 +685,15 @@ async fn test_gpu017_cuda_tiles_configuration() {
 
     // Test configuration for different compute capabilities
     let mut manager_hopper = CudaTilesManager::with_defaults();
-    manager_hopper
-        .configure_for_compute_capability("9.0")
-        .unwrap();
+    manager_hopper.configure_for_compute_capability("9.0").unwrap();
 
     let hopper_config = manager_hopper.config();
     assert_eq!(
-        hopper_config.tile_width,
-        32,
+        hopper_config.tile_width, 32,
         "Hopper (9.0) should use 32x32 tiles"
     );
     assert_eq!(
-        hopper_config.tile_height,
-        32,
+        hopper_config.tile_height, 32,
         "Hopper (9.0) should use 32x32 tiles"
     );
 
@@ -715,13 +703,11 @@ async fn test_gpu017_cuda_tiles_configuration() {
 
     let ada_config = manager_ada.config();
     assert_eq!(
-        ada_config.tile_width,
-        16,
+        ada_config.tile_width, 16,
         "Ada (8.9) should use 16x32 tiles"
     );
     assert_eq!(
-        ada_config.tile_height,
-        32,
+        ada_config.tile_height, 32,
         "Ada (8.9) should use 16x32 tiles"
     );
 
@@ -731,13 +717,11 @@ async fn test_gpu017_cuda_tiles_configuration() {
 
     let ampere_config = manager_ampere.config();
     assert_eq!(
-        ampere_config.tile_width,
-        16,
+        ampere_config.tile_width, 16,
         "Ampere (8.0) should use 16x16 tiles"
     );
     assert_eq!(
-        ampere_config.tile_height,
-        16,
+        ampere_config.tile_height, 16,
         "Ampere (8.0) should use 16x16 tiles"
     );
 

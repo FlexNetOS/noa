@@ -1,10 +1,10 @@
 // Google API Connector
 // Implements integration with Google services (Gmail, Drive, etc.)
 
+use crate::connectors::{ConnectorHealth, ConnectorState};
 use crate::error::Result;
-use crate::connectors::{ConnectorState, ConnectorHealth};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoogleConnector {
@@ -60,4 +60,3 @@ impl Default for GoogleConnector {
         Self::new().expect("Failed to create GoogleConnector")
     }
 }
-

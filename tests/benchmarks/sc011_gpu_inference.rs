@@ -25,8 +25,12 @@ fn sc011_single_gpu_inference_under_500ms() {
     std::thread::sleep(Duration::from_millis(50));
 
     let duration = start.elapsed();
-    let mut result =
-        BenchmarkResult::new("SC-011", "single GPU inference (<500ms)", duration, target_ms);
+    let mut result = BenchmarkResult::new(
+        "SC-011",
+        "single GPU inference (<500ms)",
+        duration,
+        target_ms,
+    );
     result.notes = Some("simulated GPU path; replace with real backend timing".to_string());
 
     record_result(&result);
