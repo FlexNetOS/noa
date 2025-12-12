@@ -94,6 +94,10 @@ class WebSocketClient {
     }
   }
 
+  get isConnected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+
   send(eventType: string, data: unknown): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       const event: WebSocketEvent = {

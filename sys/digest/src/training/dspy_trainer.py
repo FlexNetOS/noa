@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 from .modules import ChainOfThoughtModule, ModuleOutput, PredictModule, ReActModule, run_modules
 from .optimizers import OptimizerResult, build_optimizer
@@ -34,7 +33,7 @@ class DSPyTrainer:
         cfg = config or TrainingConfig()
         dataset = load_prd_samples(prd_path)[: cfg.max_examples]
 
-        trials: List[ModuleOutput] = []
+        trials: list[ModuleOutput] = []
         for example in dataset:
             trials.extend(self._run_modules_for_example(example))
 
@@ -44,7 +43,7 @@ class DSPyTrainer:
         self._persist_results(cfg.output_dir, result)
         return result
 
-    def _run_modules_for_example(self, example: PRDExample) -> List[ModuleOutput]:
+    def _run_modules_for_example(self, example: PRDExample) -> list[ModuleOutput]:
         prompt = f"{example.user_story}\nAcceptance: {'; '.join(example.acceptance_criteria)}"
         return run_modules(
             self.modules,
