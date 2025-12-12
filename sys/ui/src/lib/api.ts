@@ -3,7 +3,9 @@
  * Provides methods to interact with the NOA backend API
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Use secure protocol in production, fallback to http for local development
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' ? 'https://localhost:8000' : 'http://localhost:8000');
 
 /**
  * API Client class for making requests to the NOA backend
