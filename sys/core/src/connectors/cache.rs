@@ -1,5 +1,5 @@
-use crate::error::Result;
 use crate::connectors::ConnectorState;
+use crate::error::Result;
 use chrono::{DateTime, Duration, Utc};
 
 /// Placeholder connector cache.

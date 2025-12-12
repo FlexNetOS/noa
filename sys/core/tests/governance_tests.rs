@@ -1,5 +1,5 @@
 use noa_core::governance::{
-    GovernanceDecision, GovernanceHarness, DecisionVerdict, SnapshotService, RollbackValidator,
+    DecisionVerdict, GovernanceDecision, GovernanceHarness, RollbackValidator, SnapshotService,
 };
 use serde_json::json;
 use std::path::PathBuf;
