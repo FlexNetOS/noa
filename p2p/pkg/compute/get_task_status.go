@@ -57,7 +57,7 @@ func (s *ComputeService) GetTaskStatus(ctx context.Context, req *protocol.GetTas
 
 	return &protocol.GetTaskStatusResponse{
 		Status:   status,
-		Progress: progress,
+		Progress: int32(progress * 100), // Convert to percentage
 		Output:   task.Result,
 		Error:    task.Error,
 	}, nil

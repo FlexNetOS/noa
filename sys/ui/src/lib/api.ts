@@ -52,6 +52,33 @@ class APIClient {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
+
+  // Health check
+  async getHealth(): Promise<{ status: string }> {
+    return this.get<{ status: string }>('/health');
+  }
+
+  // Admin endpoints
+  async getArtifacts(): Promise<unknown[]> {
+    return this.get<unknown[]>('/api/artifacts');
+  }
+
+  async getCapsules(): Promise<unknown[]> {
+    return this.get<unknown[]>('/api/capsules');
+  }
+
+  async getJobs(): Promise<unknown[]> {
+    return this.get<unknown[]>('/api/jobs');
+  }
+
+  async getModels(): Promise<unknown[]> {
+    return this.get<unknown[]>('/api/models');
+  }
+
+  async getActivityLog(limit?: number): Promise<unknown[]> {
+    const endpoint = limit ? `/api/activity?limit=${limit}` : '/api/activity';
+    return this.get<unknown[]>(endpoint);
+  }
 }
 
 export const apiClient = new APIClient();

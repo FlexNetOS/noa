@@ -33,11 +33,11 @@ type GetTaskStatusRequest struct {
 
 // GetTaskStatusResponse is the response for task status
 type GetTaskStatusResponse struct {
-	ExecutionId string `json:"execution_id"`
-	Status      string `json:"status"`
-	Progress    int32  `json:"progress"`
-	Output      []byte `json:"output"`
-	Error       string `json:"error"`
+	ExecutionId string     `json:"execution_id"`
+	Status      TaskStatus `json:"status"`
+	Progress    int32      `json:"progress"`
+	Output      []byte     `json:"output"`
+	Error       string     `json:"error"`
 }
 
 // CancelTaskRequest is the request for canceling a task
@@ -76,6 +76,18 @@ type ResourceRequirements struct {
 	NetworkMb           float64 `json:"network_mb"`
 	EstimatedDurationMs int64   `json:"estimated_duration_ms"`
 }
+
+// TaskStatus represents the status of a task
+type TaskStatus int32
+
+const (
+	TaskStatus_TASK_STATUS_UNSPECIFIED TaskStatus = 0
+	TaskStatus_TASK_STATUS_QUEUED      TaskStatus = 1
+	TaskStatus_TASK_STATUS_RUNNING     TaskStatus = 2
+	TaskStatus_TASK_STATUS_COMPLETED   TaskStatus = 3
+	TaskStatus_TASK_STATUS_FAILED      TaskStatus = 4
+	TaskStatus_TASK_STATUS_CANCELLED   TaskStatus = 5
+)
 
 // OutputType represents the type of output
 type OutputType int
@@ -122,9 +134,5 @@ func (UnimplementedComputeServer) CancelTask(ctx context.Context, req *CancelTas
 }
 
 func (UnimplementedComputeServer) StreamOutput(req *StreamOutputRequest, stream Compute_StreamOutputServer) error {
-	return nil
-}
-
-func (UnimplementedComputeServer) StreamOutput(req *StreamOutputRequest, stream grpc.ServerStream) error {
 	return nil
 }
