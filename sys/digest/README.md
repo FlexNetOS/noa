@@ -1,6 +1,6 @@
 # NOA Digest Everything Pipeline
 
-> ⚠️ **Development Status**: This package is currently under active development. CLI commands (`analyze`, `sbom`, `security`) are not yet fully implemented.
+> ⚠️ **Development Status**: This package is currently under active development. CLI commands (`analyze`, `sbom`, `security`) are not yet implemented.
 
 The NOA Digest Everything Pipeline provides code analysis and digestion capabilities for the NOA system.
 
@@ -35,6 +35,8 @@ noa-digest security /path/to/repo
 ```
 
 ### Python API (In Development)
+
+> **Note**: The Python API is currently under development.
 
 ```python
 from noa_digest import DigestPipeline
