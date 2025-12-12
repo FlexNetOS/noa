@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
 use crate::db;
+use crate::db::repair_fts_tables;
 
 /// Health check response
 #[derive(Debug, Serialize, Deserialize)]
@@ -171,8 +172,20 @@ async fn check_database(state: &AppState) -> ComponentStatus {
                     // Check if error is related to FTS tables (non-critical)
                     let error_msg = e.to_string();
                     if error_msg.contains("fts") || error_msg.contains("memory_fts") || error_msg.contains("vtable") {
-                        // FTS table errors are non-critical - database is still functional
-                        ComponentStatus::degraded(format!("FTS index issue (non-critical): {}", e))
+                        // Attempt to repair FTS tables automatically
+                        if let Err(repair_err) = repair_fts_tables(&conn) {
+                            ComponentStatus::degraded(format!(
+                                "FTS index issue (non-critical, repair failed): {} (original: {})",
+                                repair_err, e
+                            ))
+                        } else {
+                            // Repair succeeded, check integrity again
+                            match db::check_integrity(&conn) {
+                                Ok(true) => ComponentStatus::healthy(),
+                                Ok(false) => ComponentStatus::degraded("FTS repair attempted, but integrity still degraded".to_string()),
+                                Err(e2) => ComponentStatus::degraded(format!("FTS repair attempted, but integrity check still fails: {}", e2)),
+                            }
+                        }
                     } else {
                         ComponentStatus::degraded(format!("Integrity check error: {}", e))
                     }
