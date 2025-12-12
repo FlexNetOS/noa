@@ -75,7 +75,8 @@ class APIClient {
   }
 
   async getActivityLog(limit: number): Promise<{ entries: unknown[] }> {
-    return this.get(`/api/activity?limit=${limit}`);
+    const params = new URLSearchParams({ limit: String(limit) });
+    return this.get(`/api/activity?${params.toString()}`);
   }
 }
 
