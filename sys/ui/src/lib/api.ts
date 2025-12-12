@@ -2,6 +2,8 @@
  * API Client for NOA backend services
  */
 
+import { createApiErrorMessage } from './apiErrorUtils';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 class APIClient {
@@ -25,14 +27,8 @@ class APIClient {
     });
 
     if (!response.ok) {
-      let errorBody = '';
-      try {
-        const text = await response.text();
-        errorBody = text ? ` - ${text}` : '';
-      } catch {
-        // If we can't read the response body, just continue without it
-      }
-      throw new Error(`API Error [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+      const errorMessage = await createApiErrorMessage(response, url);
+      throw new Error(errorMessage);
     }
 
     return response.json();

@@ -6,6 +6,7 @@
  */
 
 import { contextDetector } from './contextDetector';
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
 
 export interface Insight {
   id: string;
@@ -182,14 +183,8 @@ export class InsightsService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`AI insights request failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'AI insights request failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
