@@ -6,18 +6,21 @@
 
 mod migrations;
 mod pool;
+pub mod repair;
 pub mod repositories;
 mod repository;
 pub mod vector_search;
 
 pub use migrations::{Migration, MigrationRunner};
 pub use pool::{ConnectionPool, PoolConfig};
+pub use repair::repair_fts_tables;
 pub use repositories::{EmbeddingRepository, MemoryRepository};
 pub use repository::{Repository, RepositoryError};
 pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
 
 use crate::error::Result;
 use std::path::Path;
+use std::io::Write;
 
 /// Database connection type alias
 pub type Connection = rusqlite::Connection;
@@ -62,16 +65,86 @@ fn configure_connection(conn: &Connection) -> Result<()> {
 }
 
 /// Check database integrity
+/// Returns Ok(true) if integrity is good, Ok(false) if there are issues
+/// FTS table errors are treated as non-critical and return Ok(false) rather than Err
 pub fn check_integrity(conn: &Connection) -> Result<bool> {
-    let result: String =
-        conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(|e| {
-            crate::error::DatabaseError::QueryFailed {
-                query: "PRAGMA integrity_check".to_string(),
-                error: e.to_string(),
-            }
-        })?;
+    // #region agent log
+    let log_entry = serde_json::json!({
+        "location": "db/mod.rs:65",
+        "message": "Before integrity check",
+        "data": {},
+        "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+        "sessionId": "debug-session",
+        "runId": "integrity-check",
+        "hypothesisId": "F"
+    });
+    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+        let _ = writeln!(file, "{}", log_entry);
+    }
+    // #endregion
+    
+    let result: String = conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(|e| {
+        // #region agent log
+        let error_msg = e.to_string();
+        let log_entry = serde_json::json!({
+            "location": "db/mod.rs:67",
+            "message": "Integrity check query failed",
+            "data": {"error": error_msg.clone()},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "integrity-check",
+            "hypothesisId": "F"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
+        
+        crate::error::DatabaseError::QueryFailed {
+            query: "PRAGMA integrity_check".to_string(),
+            error: error_msg,
+        }
+    })?;
 
-    Ok(result == "ok")
+    // #region agent log
+    let log_entry = serde_json::json!({
+        "location": "db/mod.rs:74",
+        "message": "After integrity check",
+        "data": {"result": result.clone()},
+        "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+        "sessionId": "debug-session",
+        "runId": "integrity-check",
+        "hypothesisId": "F"
+    });
+    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+        let _ = writeln!(file, "{}", log_entry);
+    }
+    // #endregion
+
+    // Check if result is "ok" or if it only contains FTS-related errors (non-critical)
+    if result == "ok" {
+        Ok(true)
+    } else if result.contains("memory_fts") || result.contains("vtable") || result.contains("fts") {
+        // FTS table errors are non-critical - database is still functional
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "db/mod.rs:85",
+            "message": "FTS table error detected (non-critical)",
+            "data": {"result": result.clone()},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "integrity-check",
+            "hypothesisId": "F"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
+        Ok(false) // Database is functional, just FTS is broken
+    } else {
+        // Other integrity issues are critical
+        Ok(false)
+    }
 }
 
 /// Get database statistics
