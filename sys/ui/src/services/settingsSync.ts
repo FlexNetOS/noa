@@ -77,7 +77,8 @@ export class SettingsSyncService {
     try {
       // In a real implementation, this would call the backend API
       // For now, we'll simulate the sync
-      const response = await fetch('/api/v1/settings/sync', {
+      const url = '/api/v1/settings/sync';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,7 +88,14 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const data = await response.json();
@@ -114,13 +122,21 @@ export class SettingsSyncService {
     }
 
     try {
-      const response = await fetch(`/api/v1/settings/sync?scope=${this.scope}`, {
+      const url = `/api/v1/settings/sync?scope=${this.scope}`;
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const data = await response.json();
@@ -163,7 +179,8 @@ export class SettingsSyncService {
     resolutions: Record<string, unknown>
   ): Promise<SyncResult> {
     try {
-      const response = await fetch('/api/v1/settings/sync/resolve', {
+      const url = '/api/v1/settings/sync/resolve';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -173,7 +190,14 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        throw new Error(`Conflict resolution failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Conflict resolution failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       return {

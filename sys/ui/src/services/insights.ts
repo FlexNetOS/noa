@@ -174,14 +174,22 @@ export class InsightsService {
   async requestAIInsights(prompt: string): Promise<Insight[]> {
     try {
       // In a real implementation, this would call the backend AI service
-      const response = await fetch('/api/v1/insights/generate', {
+      const url = '/api/v1/insights/generate';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
-        throw new Error(`AI insights request failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`AI insights request failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const data = await response.json();

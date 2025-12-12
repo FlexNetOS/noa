@@ -58,7 +58,8 @@ export class ProviderClient {
     history: Array<{ role: string; content: string }> = []
   ): Promise<ProviderResponse> {
     try {
-      const response = await fetch('/api/v1/chat', {
+      const url = '/api/v1/chat';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -69,7 +70,14 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        throw new Error(`Provider request failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Provider request failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const data = await response.json();
@@ -92,7 +100,8 @@ export class ProviderClient {
     history: Array<{ role: string; content: string }> = []
   ): AsyncGenerator<string, void, unknown> {
     try {
-      const response = await fetch('/api/v1/chat/stream', {
+      const url = '/api/v1/chat/stream';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +112,14 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        throw new Error(`Provider stream failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Provider stream failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const reader = response.body?.getReader();
