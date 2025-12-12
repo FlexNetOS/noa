@@ -22,6 +22,10 @@ class WebSocketClient {
     this.url = url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
   }
 
+  get isConnected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+
   connect(): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       return;
@@ -73,11 +77,16 @@ class WebSocketClient {
     }, delay);
   }
 
-  on(eventType: string, callback: EventCallback): void {
+  on(eventType: string, callback: EventCallback): () => void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
     this.listeners.get(eventType)!.add(callback);
+    
+    // Return unsubscribe function
+    return () => {
+      this.off(eventType, callback);
+    };
   }
 
   off(eventType: string, callback: EventCallback): void {
