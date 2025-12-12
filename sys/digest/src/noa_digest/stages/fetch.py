@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class FetchStage:
     """Fetch source material (git clone, file copy, etc.)."""
 
-    def __init__(self, work_dir: Optional[Path] = None):
+    def __init__(self, work_dir: Path | None = None):
         """Initialize fetch stage.
 
         Args:

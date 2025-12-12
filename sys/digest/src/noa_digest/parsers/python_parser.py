@@ -7,7 +7,7 @@ US4: Digest Everything Pipeline
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class PythonParser:
         """Initialize Python parser."""
         pass
 
-    def parse_file(self, file_path: Path) -> Dict[str, Any]:
+    def parse_file(self, file_path: Path) -> dict[str, Any]:
         """Parse a Python file.
 
         Args:
@@ -32,7 +32,7 @@ class PythonParser:
         logger.info(f"Parsing Python file: {file_path}")
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 source = f.read()
 
             tree = ast.parse(source, filename=str(file_path))
@@ -87,7 +87,7 @@ class PythonParser:
                 "imports": [],
             }
 
-    def parse_directory(self, directory: Path) -> List[Dict[str, Any]]:
+    def parse_directory(self, directory: Path) -> list[dict[str, Any]]:
         """Parse all Python files in a directory.
 
         Args:
