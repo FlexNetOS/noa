@@ -60,8 +60,8 @@ config/
 
 ## Provider Policy
 - Priority: lower `priority` = higher preference; `providerPriority` defines category order (`local`, `hybrid`, `ide`, `cloud`).
-- Validation: `config/ai-providers.json` must pass `config/schemas/providers.yaml`; per-provider files should mirror category entries and stay camelCase.
-- Drift detection: ensure `types` in category blocks match installed providers; flag mismatches between `config/ai-providers.json` and `config/providers/{...}`.
+- Validation: `config/ai-providers.json` must pass `config/schemas/providers.yaml`; provider metadata files live in `ai/providers/**/config.json`.
+- Drift detection: ensure `types[]` in each category block matches installed providers under the corresponding `ai/providers/<category>/` directory.
 - Switching: respect `providerSwitching` flags (`enabled`, `preserveConfigs`, `migrateState`); document migration steps when changing priorities.
 - Versioning: increment config `version` on breaking shape or priority changes; include migration notes.
 

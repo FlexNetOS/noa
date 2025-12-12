@@ -1,54 +1,31 @@
 {
   "$schema": "https://noa.local/schemas/providers.yaml",
   "version": "1.0.0",
-  "providerPriority": [
-    "local",
-    "hybrid",
-    "ide",
-    "cloud"
-  ],
+  "providerPriority": ["local", "hybrid", "ide", "cloud"],
   "providers": {
     "local": {
       "enabled": true,
       "priority": 1,
-      "types": [
-        "llama.cpp",
-        "ollama",
-        "local-llm",
-        "git-cli"
-      ],
+      "types": ["llama.cpp", "ollama", "git-cli"],
       "configPath": "${NOA_ROOT}/ai/providers/local"
-    },
-    "cloud": {
-      "enabled": true,
-      "priority": 3,
-      "types": [
-        "openai",
-        "anthropic",
-        "google",
-        "mistral",
-        "claude-code",
-        "codex",
-        "abacus"
-      ],
-      "configPath": "${NOA_ROOT}/ai/providers/cloud"
     },
     "hybrid": {
       "enabled": true,
       "priority": 2,
-      "types": [
-        "cursor",
-        "local-first-with-cloud-fallback"
-      ],
+      "types": ["cursor"],
       "configPath": "${NOA_ROOT}/ai/providers/hybrid"
     },
     "ide": {
       "enabled": true,
       "priority": 4,
-      "types": [
-        "vscode-copilot"
-      ],
+      "types": ["vscode-copilot"],
       "configPath": "${NOA_ROOT}/ai/providers/ide"
+    },
+    "cloud": {
+      "enabled": true,
+      "priority": 3,
+      "types": ["claude-code", "codex", "abacus"],
+      "configPath": "${NOA_ROOT}/ai/providers/cloud"
     }
   },
   "sharedResources": {
@@ -64,12 +41,7 @@
   "executionMemory": {
     "enabled": true,
     "path": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
-    "features": [
-      "context_sharing",
-      "reasoning_state",
-      "parallel_task_distribution",
-      "provider_state_sync"
-    ]
+    "features": ["context_sharing", "reasoning_state", "provider_state_sync"]
   },
   "models": {
     "defaultContextLength": 2048,
