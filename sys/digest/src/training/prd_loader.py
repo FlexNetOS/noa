@@ -8,18 +8,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
 
 
 @dataclass
 class PRDExample:
     user_story: str
-    acceptance_criteria: List[str]
+    acceptance_criteria: list[str]
     priority: str
-    metadata: Dict[str, str]
+    metadata: dict[str, str]
 
 
-def load_prd_samples(path: Path) -> List[PRDExample]:
+def load_prd_samples(path: Path) -> list[PRDExample]:
     if not path.exists():
         # Return a minimal fallback dataset
         return [
@@ -37,7 +36,7 @@ def load_prd_samples(path: Path) -> List[PRDExample]:
     content = path.read_text(encoding="utf-8")
     blocks = [block.strip() for block in content.split("\n\n") if block.strip()]
 
-    examples: List[PRDExample] = []
+    examples: list[PRDExample] = []
     for block in blocks:
         lines = [line.strip() for line in block.splitlines() if line.strip()]
         if not lines:
