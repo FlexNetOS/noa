@@ -97,10 +97,7 @@ impl AnomalyDetector {
     }
 
     /// Detect anomalies in health metrics
-    pub async fn detect(
-        &self,
-        snapshots: &[ComponentHealthSnapshot],
-    ) -> Result<Option<Anomaly>> {
+    pub async fn detect(&self, snapshots: &[ComponentHealthSnapshot]) -> Result<Option<Anomaly>> {
         for snapshot in snapshots {
             // Check if component is already unhealthy
             if matches!(
@@ -134,8 +131,7 @@ impl AnomalyDetector {
         // Update history
         let history = {
             let mut history_guard = self.metric_history.lock().await;
-            let history_entry =
-                history_guard.entry(metric_key.clone()).or_insert_with(Vec::new);
+            let history_entry = history_guard.entry(metric_key.clone()).or_insert_with(Vec::new);
             history_entry.push((metric.timestamp, metric.value));
 
             // Keep only recent history

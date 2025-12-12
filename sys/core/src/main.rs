@@ -7,8 +7,8 @@ use clap::{Parser, Subcommand};
 use tracing::info;
 
 // Bring library modules into scope for CLI entrypoint
-use noa_core::{cli, config, logging};
 use noa_core::error::Result;
+use noa_core::{cli, config, logging};
 
 /// NOA - Autonomous Agentic Operating System
 #[derive(Parser)]

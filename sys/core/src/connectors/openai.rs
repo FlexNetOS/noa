@@ -1,10 +1,10 @@
 // OpenAI API Connector
 // Implements integration with OpenAI API (GPT, Codex, etc.)
 
+use crate::connectors::{ConnectorHealth, ConnectorState};
 use crate::error::Result;
-use crate::connectors::{ConnectorState, ConnectorHealth};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenAIConnector {
@@ -20,7 +20,11 @@ impl OpenAIConnector {
         })
     }
 
-    pub async fn connect(&mut self, api_key: String, organization_id: Option<String>) -> Result<()> {
+    pub async fn connect(
+        &mut self,
+        api_key: String,
+        organization_id: Option<String>,
+    ) -> Result<()> {
         self.api_key = Some(api_key);
         self.organization_id = organization_id;
         Ok(())
@@ -60,4 +64,3 @@ impl Default for OpenAIConnector {
         Self::new().expect("Failed to create OpenAIConnector")
     }
 }
-

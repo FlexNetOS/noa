@@ -1,5 +1,5 @@
-use noa_core::db::{init_database, Connection};
 use noa_core::db::repositories::digest_repository::DigestSourceType;
+use noa_core::db::{init_database, Connection};
 use noa_core::services::DigestService;
 use std::time::Instant;
 use tempfile::tempdir;
@@ -47,7 +47,10 @@ async fn sc004_digest_pipeline_under_30_minutes() {
         duration,
         30 * 60 * 1000, // 30 minutes target in milliseconds
     );
-    result.notes = Some(format!("digest_id={digest_id} duration_ms={}", result.duration_ms));
+    result.notes = Some(format!(
+        "digest_id={digest_id} duration_ms={}",
+        result.duration_ms
+    ));
 
     record_result(&result);
     assert!(
