@@ -4,8 +4,7 @@
  * Tests for the WebSocket client with focus on reconnection logic
  */
 
-// Import the WebSocketClient class by requiring the module
-const websocketModule = require('@/lib/websocket');
+import { wsClient } from '@/lib/websocket';
 
 describe('WebSocket Client', () => {
   let mockWebSocket: any;
@@ -48,7 +47,6 @@ describe('WebSocket Client', () => {
     (global.WebSocket as any).CLOSED = 3;
     
     // Reset the wsClient singleton state by disconnecting and doing a successful connection cycle
-    const wsClient = websocketModule.wsClient;
     wsClient.disconnect();
     
     // Clear any pending mocks from the disconnect
@@ -67,14 +65,12 @@ describe('WebSocket Client', () => {
   });
 
   afterEach(() => {
-    const wsClient = websocketModule.wsClient;
     wsClient.disconnect();
     jest.useRealTimers();
   });
 
   describe('Reconnection Logic', () => {
     it('should prevent multiple concurrent reconnection attempts', () => {
-      const wsClient = websocketModule.wsClient;
       
       // Connect
       wsClient.connect();
@@ -103,7 +99,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should clear pending reconnect timeout when disconnect is called', () => {
-      const wsClient = websocketModule.wsClient;
       
       // Connect
       wsClient.connect();
@@ -129,7 +124,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should clear reconnect timeout on successful connection', () => {
-      const wsClient = websocketModule.wsClient;
       
       // Connect
       wsClient.connect();
@@ -170,7 +164,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should use exponential backoff for reconnection delays', () => {
-      const wsClient = websocketModule.wsClient;
       
       // Connect
       wsClient.connect();
@@ -209,7 +202,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should stop reconnecting after max attempts', () => {
-      const wsClient = websocketModule.wsClient;
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       
       // Connect
@@ -238,7 +230,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should reset reconnecting flag after reconnect attempt', () => {
-      const wsClient = websocketModule.wsClient;
       
       // Connect
       wsClient.connect();
@@ -280,14 +271,12 @@ describe('WebSocket Client', () => {
 
   describe('Basic Functionality', () => {
     it('should connect to WebSocket', () => {
-      const wsClient = websocketModule.wsClient;
       wsClient.connect();
       
       expect(mockWebSocket).toHaveBeenCalled();
     });
 
     it('should not reconnect if already connected', () => {
-      const wsClient = websocketModule.wsClient;
       
       // First connect
       wsClient.connect();
@@ -306,7 +295,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should handle disconnect', () => {
-      const wsClient = websocketModule.wsClient;
       
       wsClient.connect();
       const ws = wsInstances[0];
@@ -317,7 +305,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should send messages when connected', () => {
-      const wsClient = websocketModule.wsClient;
       
       wsClient.connect();
       const ws = wsInstances[0];
@@ -332,7 +319,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should not send messages when not connected', () => {
-      const wsClient = websocketModule.wsClient;
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
       
       wsClient.connect();
@@ -350,7 +336,6 @@ describe('WebSocket Client', () => {
 
   describe('Event Handling', () => {
     it('should register and trigger event listeners', () => {
-      const wsClient = websocketModule.wsClient;
       const callback = jest.fn();
       
       wsClient.on('test-event', callback);
@@ -374,7 +359,6 @@ describe('WebSocket Client', () => {
     });
 
     it('should unregister event listeners', () => {
-      const wsClient = websocketModule.wsClient;
       const callback = jest.fn();
       
       wsClient.on('test-event', callback);
