@@ -13,10 +13,14 @@ type EventCallback = (event: WebSocketEvent) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
+  private listeners = new Map<string, Set<EventCallback>>();
+  
+  // Reconnection state
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private listeners = new Map<string, Set<EventCallback>>();
+  private reconnecting = false;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(url?: string) {
     this.url = url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
@@ -33,6 +37,8 @@ class WebSocketClient {
       this.ws.onopen = () => {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
+        this.reconnecting = false;
+        this.clearReconnectTimeout();
       };
 
       this.ws.onmessage = (event) => {
@@ -58,17 +64,35 @@ class WebSocketClient {
     }
   }
 
+  private clearReconnectTimeout(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
   private reconnect(): void {
+    if (this.reconnecting) {
+      // Prevent overlapping reconnection attempts
+      return;
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('Max reconnect attempts reached');
       return;
     }
 
+    this.reconnecting = true;
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
     
-    setTimeout(() => {
+    // Clear any existing reconnect timeout
+    this.clearReconnectTimeout();
+    
+    this.reconnectTimeout = setTimeout(() => {
       console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+      this.reconnecting = false;
+      this.reconnectTimeout = null;
       this.connect();
     }, delay);
   }
@@ -108,6 +132,10 @@ class WebSocketClient {
   }
 
   disconnect(): void {
+    // Clear any pending reconnect timeout
+    this.clearReconnectTimeout();
+    this.reconnecting = false;
+    
     if (this.ws) {
       this.ws.close();
       this.ws = null;
