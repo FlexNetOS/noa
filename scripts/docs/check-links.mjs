@@ -5,7 +5,18 @@ const repoRoot = path.resolve(process.cwd());
 const docsRoots = [
   path.join(repoRoot, 'README.md'),
   path.join(repoRoot, 'QUICKSTART.md'),
-  path.join(repoRoot, 'docs'),
+  path.join(repoRoot, 'CONTRIBUTING.md'),
+  path.join(repoRoot, 'config', 'README.md'),
+  path.join(repoRoot, 'ai', 'shared', 'policy'),
+  path.join(repoRoot, 'docs', 'index.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'integrators-getting-started.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'integrations-map.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'provider-integration.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'provider-catalog.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'agent-tool-authoring.md'),
+  path.join(repoRoot, 'docs', '00-guides', 'schemas-and-contracts.md'),
+  path.join(repoRoot, 'docs', 'run-book', 'integrator-troubleshooting.md'),
+  path.join(repoRoot, 'docs', 'api', 'README.md'),
 ];
 
 function isMarkdownFile(p) {
@@ -45,6 +56,8 @@ function normalizeLinkTarget(raw) {
 
 function shouldSkipLink(target) {
   if (!target) return true;
+  // Template placeholders (intentionally unresolved)
+  if (target.includes('{') || target.includes('}')) return true;
   if (target.startsWith('http://') || target.startsWith('https://')) return true;
   if (target.startsWith('mailto:')) return true;
   if (target.startsWith('tel:')) return true;
