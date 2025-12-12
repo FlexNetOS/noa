@@ -1,3 +1,57 @@
+version: 2
+updates:
+  # Node / TypeScript
+  - package-ecosystem: "npm"
+    directory: "/sys/ui"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "npm"
+    directory: "/project-mgmt"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "npm"
+    directory: "/project-mgmt/claude-task-master"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Rust
+  - package-ecosystem: "cargo"
+    directory: "/sys/core"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "cargo"
+    directory: "/coordinator-plane"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Go
+  - package-ecosystem: "gomod"
+    directory: "/p2p"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Python (pyproject/requirements)
+  - package-ecosystem: "pip"
+    directory: "/sys/digest"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "pip"
+    directory: "/project-mgmt/spec-kit"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
 # To get started with Dependabot version updates, you'll need to specify which
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
@@ -9,4 +63,4 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
-      
+

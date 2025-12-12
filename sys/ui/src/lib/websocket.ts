@@ -1,4 +1,42 @@
 /**
+ * WebSocket Client for NOA UI
+ * Provides real-time communication with the NOA backend
+ */
+
+// Use secure protocol in production, fallback to ws for local development
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 
+  (process.env.NODE_ENV === 'production' ? 'wss://localhost:8000/ws' : 'ws://localhost:8000/ws');
+
+export interface WebSocketEvent {
+  type: string;
+  data: any;
+  timestamp?: string;
+}
+
+type EventHandler = (event: WebSocketEvent) => void;
+
+/**
+ * WebSocket Client class for real-time communication
+ */
+class WebSocketClient {
+  private ws: WebSocket | null = null;
+  private url: string;
+  private eventHandlers: Map<string, Set<EventHandler>> = new Map();
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000;
+  public isConnected = false;
+
+  constructor(url: string = WS_URL) {
+    this.url = url;
+  }
+
+  /**
+   * Connect to the WebSocket server
+   */
+  connect(): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      console.log('WebSocket already connected');
  * WebSocket Client for NOA real-time events
  */
 
@@ -13,10 +51,14 @@ type EventCallback = (event: WebSocketEvent) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
+  private listeners = new Map<string, Set<EventCallback>>();
+  
+  // Reconnection state
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private listeners = new Map<string, Set<EventCallback>>();
+  private reconnecting = false;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(url?: string) {
     this.url = url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
@@ -36,15 +78,16 @@ class WebSocketClient {
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
+        this.isConnected = true;
         this.reconnectAttempts = 0;
       };
 
       this.ws.onmessage = (event) => {
         try {
           const message: WebSocketEvent = JSON.parse(event.data);
-          this.emit(message.type, message);
+          this.handleEvent(message);
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error('Failed to parse WebSocket message:', error);
         }
       };
 
@@ -54,27 +97,23 @@ class WebSocketClient {
 
       this.ws.onclose = () => {
         console.log('WebSocket disconnected');
-        this.reconnect();
+        this.isConnected = false;
+        this.attemptReconnect();
       };
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
-      this.reconnect();
+      console.error('Failed to create WebSocket connection:', error);
     }
   }
 
-  private reconnect(): void {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnect attempts reached');
-      return;
+  /**
+   * Disconnect from the WebSocket server
+   */
+  disconnect(): void {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+      this.isConnected = false;
     }
-
-    this.reconnectAttempts++;
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    setTimeout(() => {
-      console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      this.connect();
-    }, delay);
   }
 
   on(eventType: string, callback: EventCallback): () => void {
@@ -89,18 +128,26 @@ class WebSocketClient {
     };
   }
 
-  off(eventType: string, callback: EventCallback): void {
-    const callbacks = this.listeners.get(eventType);
-    if (callbacks) {
-      callbacks.delete(callback);
+  /**
+   * Subscribe to a specific event type
+   */
+  on(eventType: string, handler: EventHandler): () => void {
+    if (!this.eventHandlers.has(eventType)) {
+      this.eventHandlers.set(eventType, new Set());
     }
-  }
 
-  private emit(eventType: string, event: WebSocketEvent): void {
-    const callbacks = this.listeners.get(eventType);
-    if (callbacks) {
-      callbacks.forEach(callback => callback(event));
-    }
+    this.eventHandlers.get(eventType)!.add(handler);
+
+    // Return unsubscribe function
+    return () => {
+      const handlers = this.eventHandlers.get(eventType);
+      if (handlers) {
+        handlers.delete(handler);
+        if (handlers.size === 0) {
+          this.eventHandlers.delete(eventType);
+        }
+      }
+    };
   }
 
   get isConnected(): boolean {
@@ -117,16 +164,42 @@ class WebSocketClient {
       this.ws.send(JSON.stringify(event));
     } else {
       console.warn('WebSocket is not connected');
+  /**
+   * Handle incoming events
+   */
+  private handleEvent(event: WebSocketEvent): void {
+    const handlers = this.eventHandlers.get(event.type);
+    if (handlers) {
+      handlers.forEach((handler) => {
+        try {
+          handler(event);
+        } catch (error) {
+          console.error(`Error in event handler for ${event.type}:`, error);
+        }
+      });
     }
   }
 
-  disconnect(): void {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
+  /**
+   * Attempt to reconnect to the WebSocket server
+   */
+  private attemptReconnect(): void {
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+
+      console.log(
+        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`
+      );
+
+      setTimeout(() => {
+        this.connect();
+      }, delay);
+    } else {
+      console.error('Max reconnection attempts reached');
     }
-    this.listeners.clear();
   }
 }
 
+// Export singleton instance
 export const wsClient = new WebSocketClient();
