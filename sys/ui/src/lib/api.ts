@@ -27,7 +27,7 @@ class APIClient {
     });
 
     if (!response.ok) {
-      const errorMessage = await createApiErrorMessage(response, url);
+      const errorMessage = await createApiErrorMessage(response);
       throw new Error(errorMessage);
     }
 
