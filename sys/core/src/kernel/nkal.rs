@@ -190,7 +190,11 @@ impl std::fmt::Display for NkalError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             NkalError::ModeUnavailable(mode) => {
-                write!(f, "Kernel mode '{}' is not available on this platform", mode)
+                write!(
+                    f,
+                    "Kernel mode '{}' is not available on this platform",
+                    mode
+                )
             }
             NkalError::HypervisorNotFound => write!(f, "No hypervisor found or enabled"),
             NkalError::ContainerRuntimeNotFound => write!(f, "No container runtime found"),
@@ -336,20 +340,12 @@ impl Nkal {
     /// Detect available container runtime
     fn detect_container_runtime() -> ContainerRuntime {
         // Check for Podman first (preferred for rootless)
-        if std::process::Command::new("podman")
-            .arg("--version")
-            .output()
-            .is_ok()
-        {
+        if std::process::Command::new("podman").arg("--version").output().is_ok() {
             return ContainerRuntime::Podman;
         }
 
         // Check for Docker
-        if std::process::Command::new("docker")
-            .arg("--version")
-            .output()
-            .is_ok()
-        {
+        if std::process::Command::new("docker").arg("--version").output().is_ok() {
             return ContainerRuntime::Docker;
         }
 
@@ -369,14 +365,8 @@ impl Nkal {
             }
             "linux" => {
                 // Linux: bubblewrap or firejail
-                std::process::Command::new("bwrap")
-                    .arg("--version")
-                    .output()
-                    .is_ok()
-                    || std::process::Command::new("firejail")
-                        .arg("--version")
-                        .output()
-                        .is_ok()
+                std::process::Command::new("bwrap").arg("--version").output().is_ok()
+                    || std::process::Command::new("firejail").arg("--version").output().is_ok()
             }
             _ => false,
         }
@@ -536,12 +526,8 @@ impl Nkal {
         })?;
 
         // Load capability policy and ensure target mode is configured and not explicitly denied.
-        let cap_path = self
-            .capabilities
-            .noa_root
-            .clone()
-            .join("config")
-            .join("nkal-capabilities.json");
+        let cap_path =
+            self.capabilities.noa_root.clone().join("config").join("nkal-capabilities.json");
         let validator = BoundaryValidator::from_file(&cap_path).map_err(|e| {
             NkalError::ConfigError(format!(
                 "Failed to load capability policy {}: {}",

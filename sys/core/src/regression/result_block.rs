@@ -54,12 +54,7 @@ pub struct ResultBlock {
 
 impl ResultBlock {
     /// Create a new Result Block
-    pub fn new(
-        phase: u8,
-        phase_name: String,
-        total_items: usize,
-        completed_items: usize,
-    ) -> Self {
+    pub fn new(phase: u8, phase_name: String, total_items: usize, completed_items: usize) -> Self {
         let incomplete_items = total_items.saturating_sub(completed_items);
 
         // Determine result status
@@ -158,17 +153,13 @@ impl FinalSignOff {
         hashes_verified: bool,
         evidence_ledger_complete: bool,
     ) -> Self {
-        let all_phases_pass = result_blocks
-            .iter()
-            .all(|rb| rb.result == ResultStatus::Pass);
+        let all_phases_pass = result_blocks.iter().all(|rb| rb.result == ResultStatus::Pass);
 
         // Check for unremedied failures
-        let no_unremedied_failures = result_blocks
-            .iter()
-            .all(|rb| {
-                rb.result == ResultStatus::Pass
-                    || (rb.result != ResultStatus::Pass && rb.next.is_some())
-            });
+        let no_unremedied_failures = result_blocks.iter().all(|rb| {
+            rb.result == ResultStatus::Pass
+                || (rb.result != ResultStatus::Pass && rb.next.is_some())
+        });
 
         let overall_status = if all_phases_pass
             && final_report_exists
@@ -219,10 +210,22 @@ impl FinalSignOff {
             status_icon,
             self.overall_status.as_str(),
             if self.all_phases_pass { "✅" } else { "❌" },
-            if self.final_report_complete { "✅" } else { "❌" },
+            if self.final_report_complete {
+                "✅"
+            } else {
+                "❌"
+            },
             if self.hashes_verified { "✅" } else { "❌" },
-            if self.no_unremedied_failures { "✅" } else { "❌" },
-            if self.evidence_ledger_complete { "✅" } else { "❌" },
+            if self.no_unremedied_failures {
+                "✅"
+            } else {
+                "❌"
+            },
+            if self.evidence_ledger_complete {
+                "✅"
+            } else {
+                "❌"
+            },
             self.overall_status.as_str()
         )
     }
@@ -266,7 +269,8 @@ impl ResultBlockManager {
 
         for (phase_num, phase_name, item_range) in phases {
             let (total, completed) = self.count_items_in_range(&checklist_content, item_range)?;
-            let result_block = ResultBlock::new(phase_num, phase_name.to_string(), total, completed);
+            let result_block =
+                ResultBlock::new(phase_num, phase_name.to_string(), total, completed);
             result_blocks.push(result_block);
         }
 
@@ -285,20 +289,11 @@ impl ResultBlockManager {
             return Err("Invalid range format".into());
         }
 
-        let prefix = parts[0]
-            .chars()
-            .take_while(|c| c.is_alphabetic())
-            .collect::<String>();
-        let start_num: usize = parts[0]
-            .chars()
-            .skip_while(|c| c.is_alphabetic())
-            .collect::<String>()
-            .parse()?;
-        let end_num: usize = parts[1]
-            .chars()
-            .skip_while(|c| c.is_alphabetic())
-            .collect::<String>()
-            .parse()?;
+        let prefix = parts[0].chars().take_while(|c| c.is_alphabetic()).collect::<String>();
+        let start_num: usize =
+            parts[0].chars().skip_while(|c| c.is_alphabetic()).collect::<String>().parse()?;
+        let end_num: usize =
+            parts[1].chars().skip_while(|c| c.is_alphabetic()).collect::<String>().parse()?;
 
         let mut total = 0;
         let mut completed = 0;
@@ -380,4 +375,3 @@ mod tests {
         assert!(rb.next.is_some());
     }
 }
-

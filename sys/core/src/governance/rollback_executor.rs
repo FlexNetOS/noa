@@ -41,9 +41,7 @@ impl RollbackExecutor {
         }
 
         fs::create_dir_all(&self.log_dir).await?;
-        let plan_path = self
-            .log_dir
-            .join(format!("rollback-{}.json", assessment.snapshot_id));
+        let plan_path = self.log_dir.join(format!("rollback-{}.json", assessment.snapshot_id));
 
         let mut file = fs::File::create(&plan_path).await?;
         let snapshot_meta = self.snapshots.load(&assessment.snapshot_id)?;

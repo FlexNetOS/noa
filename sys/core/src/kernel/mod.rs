@@ -4,10 +4,10 @@
 
 pub mod abstraction;
 pub mod file;
-pub mod process;
 pub mod network;
-pub mod platform;
 pub mod nkal;
+pub mod platform;
+pub mod process;
 
 pub use abstraction::{DefaultKernel, KernelAbstraction};
 pub use file::{FileOps, FileStat};
