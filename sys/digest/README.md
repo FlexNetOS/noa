@@ -1,8 +1,10 @@
 # NOA Digest Everything Pipeline
 
+> ⚠️ **Development Status**: This package is currently under active development. CLI commands (`analyze`, `sbom`, `security`) are not yet fully implemented.
+
 The NOA Digest Everything Pipeline provides code analysis and digestion capabilities for the NOA system.
 
-## Features
+## Planned Features
 
 - Multi-language code parsing using tree-sitter
 - Support for Python, JavaScript, TypeScript, Go, Rust, and Java
@@ -16,6 +18,23 @@ pip install -e ".[dev]"
 ```
 
 ## Usage
+
+### CLI (In Development)
+
+The CLI provides commands for codebase analysis:
+
+```bash
+# Analyze a codebase (not yet implemented)
+noa-digest analyze /path/to/repo
+
+# Generate SBOM (not yet implemented)
+noa-digest sbom /path/to/repo
+
+# Run security scan (not yet implemented)
+noa-digest security /path/to/repo
+```
+
+### Python API (In Development)
 
 ```python
 from noa_digest import DigestPipeline
