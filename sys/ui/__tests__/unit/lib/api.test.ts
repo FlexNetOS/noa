@@ -20,6 +20,7 @@ describe('API Client', () => {
         ok: false,
         status: 404,
         statusText: 'Not Found',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue(''),
       };
 
@@ -35,6 +36,7 @@ describe('API Client', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Invalid input data'),
       };
 
@@ -50,6 +52,7 @@ describe('API Client', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        bodyUsed: false,
         text: jest.fn().mockRejectedValue(new Error('Cannot read body')),
       };
 
@@ -65,6 +68,7 @@ describe('API Client', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Authentication required'),
       };
 
@@ -80,6 +84,7 @@ describe('API Client', () => {
         ok: false,
         status: 403,
         statusText: 'Forbidden',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Access denied'),
       };
 
@@ -95,6 +100,7 @@ describe('API Client', () => {
         ok: false,
         status: 409,
         statusText: 'Conflict',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Resource is locked'),
       };
 
