@@ -82,7 +82,7 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
-    
+
     let result: String = conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(|e| {
         // #region agent log
         let error_msg = e.to_string();
@@ -99,7 +99,7 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
             let _ = writeln!(file, "{}", log_entry);
         }
         // #endregion
-        
+
         crate::error::DatabaseError::QueryFailed {
             query: "PRAGMA integrity_check".to_string(),
             error: error_msg,

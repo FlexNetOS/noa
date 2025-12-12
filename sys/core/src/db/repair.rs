@@ -60,7 +60,7 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
         // Note: If the table is severely corrupted, DROP may fail
         // In that case, manual database repair may be required
         let drop_result = conn.execute("DROP TABLE IF EXISTS memory_fts", []);
-        
+
         // #region agent log
         let drop_succeeded = drop_result.is_ok();
         let log_entry = serde_json::json!({
@@ -89,7 +89,7 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
                 content_rowid='rowid'
             );",
         );
-        
+
         if let Err(e) = create_result {
             // #region agent log
             let log_entry = serde_json::json!({
@@ -105,7 +105,7 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
                 let _ = writeln!(file, "{}", log_entry);
             }
             // #endregion
-            
+
             // If creation failed, the table may be too corrupted to repair automatically
             // Return error but don't fail completely - the database is still functional
             return Err(crate::error::NoaError::Database(DatabaseError::QueryFailed {
@@ -120,12 +120,12 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
                 INSERT INTO memory_fts(rowid, id, content, tags)
                 VALUES (NEW.rowid, NEW.id, NEW.content, NEW.tags);
             END;
-            
+
             CREATE TRIGGER IF NOT EXISTS memory_ad AFTER DELETE ON memory BEGIN
                 INSERT INTO memory_fts(memory_fts, rowid, id, content, tags)
                 VALUES('delete', OLD.rowid, OLD.id, OLD.content, OLD.tags);
             END;
-            
+
             CREATE TRIGGER IF NOT EXISTS memory_au AFTER UPDATE ON memory BEGIN
                 INSERT INTO memory_fts(memory_fts, rowid, id, content, tags)
                 VALUES('delete', OLD.rowid, OLD.id, OLD.content, OLD.tags);
@@ -133,10 +133,10 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
                 VALUES (NEW.rowid, NEW.id, NEW.content, NEW.tags);
             END;",
         )
-        .map_err(|e| DatabaseError::QueryFailed {
+        .map_err(|e| NoaError::Database(DatabaseError::QueryFailed {
             query: "CREATE TRIGGER memory_fts".to_string(),
             error: e.to_string(),
-        })?;
+        }))?;
 
         // #region agent log
         let log_entry = serde_json::json!({
