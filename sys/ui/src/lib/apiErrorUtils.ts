@@ -6,9 +6,14 @@
 
 /**
  * Extracts the response body from a failed fetch response
- * Returns empty string if body cannot be read
+ * Returns empty string if body cannot be read or has already been consumed
  */
 export async function extractErrorBody(response: Response): Promise<string> {
+  // Check if the body has already been used
+  if (response.bodyUsed) {
+    return '';
+  }
+  
   try {
     const text = await response.text();
     return text ? ` - ${text}` : '';

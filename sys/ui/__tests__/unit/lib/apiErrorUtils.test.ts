@@ -10,6 +10,7 @@ describe('API Error Utils', () => {
   describe('extractErrorBody', () => {
     it('should extract error body from response', async () => {
       const mockResponse = {
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Error details'),
       } as unknown as Response;
 
@@ -19,6 +20,7 @@ describe('API Error Utils', () => {
 
     it('should return empty string when response body is empty', async () => {
       const mockResponse = {
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue(''),
       } as unknown as Response;
 
@@ -28,11 +30,23 @@ describe('API Error Utils', () => {
 
     it('should return empty string when text() throws error', async () => {
       const mockResponse = {
+        bodyUsed: false,
         text: jest.fn().mockRejectedValue(new Error('Cannot read body')),
       } as unknown as Response;
 
       const result = await extractErrorBody(mockResponse);
       expect(result).toBe('');
+    });
+
+    it('should return empty string when body has already been consumed', async () => {
+      const mockResponse = {
+        bodyUsed: true,
+        text: jest.fn(),
+      } as unknown as Response;
+
+      const result = await extractErrorBody(mockResponse);
+      expect(result).toBe('');
+      expect(mockResponse.text).not.toHaveBeenCalled();
     });
   });
 
@@ -41,6 +55,7 @@ describe('API Error Utils', () => {
       const mockResponse = {
         status: 404,
         statusText: 'Not Found',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue('Resource not available'),
       } as unknown as Response;
 
@@ -58,6 +73,7 @@ describe('API Error Utils', () => {
       const mockResponse = {
         status: 500,
         statusText: 'Internal Server Error',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue(''),
       } as unknown as Response;
 
@@ -76,6 +92,7 @@ describe('API Error Utils', () => {
       const mockResponse = {
         status: 401,
         statusText: 'Unauthorized',
+        bodyUsed: false,
         text: jest.fn().mockResolvedValue(''),
       } as unknown as Response;
 
@@ -93,6 +110,7 @@ describe('API Error Utils', () => {
       const mockResponse = {
         status: 503,
         statusText: 'Service Unavailable',
+        bodyUsed: false,
         text: jest.fn().mockRejectedValue(new Error('Cannot read')),
       } as unknown as Response;
 
