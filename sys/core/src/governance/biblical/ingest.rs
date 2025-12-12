@@ -85,9 +85,7 @@ impl BiblicalIngestor {
                     report.ingested.push(source);
                 }
                 Ok(None) => {
-                    report
-                        .skipped
-                        .push(path.file_name().unwrap().to_string_lossy().to_string());
+                    report.skipped.push(path.file_name().unwrap().to_string_lossy().to_string());
                 }
                 Err(err) => {
                     warn!(
@@ -96,9 +94,7 @@ impl BiblicalIngestor {
                         error = %err,
                         "Failed to ingest biblical source"
                     );
-                    report
-                        .skipped
-                        .push(path.file_name().unwrap().to_string_lossy().to_string());
+                    report.skipped.push(path.file_name().unwrap().to_string_lossy().to_string());
                 }
             }
         }
@@ -173,9 +169,7 @@ impl BiblicalIngestor {
         }
 
         // Fallback: use filename stem.
-        path.file_stem()
-            .and_then(|s| s.to_str())
-            .map(|s| s.to_string())
+        path.file_stem().and_then(|s| s.to_str()).map(|s| s.to_string())
     }
 }
 

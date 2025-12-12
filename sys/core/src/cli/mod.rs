@@ -10,6 +10,7 @@ pub mod connectors;
 pub mod crm;
 pub mod db;
 pub mod digest;
+pub mod features;
 pub mod goal;
 pub mod healing;
 pub mod improve;
@@ -27,7 +28,6 @@ pub mod start;
 pub mod status;
 pub mod stop;
 pub mod tasks;
-pub mod features;
 
 pub use memory::{execute_memory, MemoryArgs};
 pub use p2p::{execute_p2p, P2PArgs};

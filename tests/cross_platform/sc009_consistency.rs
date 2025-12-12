@@ -29,19 +29,16 @@ fn sc009_cross_platform_consistency() {
         1_000,
     );
     if hex != expected || normalized != "sandbox/plane/config" {
-        result.notes = Some(format!("hash_ok={} path_ok={}", hex == expected, normalized));
+        result.notes = Some(format!(
+            "hash_ok={} path_ok={}",
+            hex == expected,
+            normalized == "sandbox/plane/config"
+        ));
         result.status = common::BenchmarkStatus::Failed;
     } else {
-        result.notes = Some(format!(
-            "hash={} normalized_path={}",
-            hex, normalized
-        ));
+        result.notes = Some(format!("hash={} normalized_path={}", hex, normalized));
     }
 
     record_result(&result);
-    assert!(
-        result.passed(),
-        "SC-009 failed: {:?}",
-        result.notes
-    );
+    assert!(result.passed(), "SC-009 failed: {:?}", result.notes);
 }

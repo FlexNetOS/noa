@@ -4,6 +4,8 @@
  * Manages persistence of chat context and conversation state across devices.
  */
 
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
+
 export interface ConversationContext {
   id: string;
   messages: Array<{
@@ -89,14 +91,16 @@ export class ContextPersistenceService {
    */
   async syncToRemote(context: ConversationContext): Promise<void> {
     try {
-      const response = await fetch('/api/v1/context/sync', {
+      const url = '/api/v1/context/sync';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(context),
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Failed to sync context:', error);
@@ -109,13 +113,15 @@ export class ContextPersistenceService {
    */
   async syncFromRemote(): Promise<ConversationContext[]> {
     try {
-      const response = await fetch('/api/v1/context/sync', {
+      const url = '/api/v1/context/sync';
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

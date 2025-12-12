@@ -2,7 +2,7 @@
 // Implements ethical decision boundaries from biblical principles
 
 use crate::error::Result;
-use crate::governance::engine::{GovernanceDecision, GovernanceRule, RuleVerdict, DecisionVerdict};
+use crate::governance::engine::{DecisionVerdict, GovernanceDecision, GovernanceRule, RuleVerdict};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -62,7 +62,7 @@ impl GovernanceRule for EthicsGuard {
     async fn evaluate(&self, decision: &GovernanceDecision) -> Result<RuleVerdict> {
         // TODO: Implement proper biblical ethics evaluation
         let is_ethical = self.check_action(&decision.action).await?;
-        
+
         if is_ethical {
             Ok(RuleVerdict {
                 rule: self.name().to_string(),

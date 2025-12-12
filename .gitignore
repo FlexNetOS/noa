@@ -33,6 +33,10 @@ bin/bat
 
 # Local lib directory (bundled libraries)
 lib/
+# Exception: allow sys/ui/src/lib (TypeScript library code)
+!sys/ui/src/lib/
+# Exception: allow sys/ui/__tests__/unit/lib (test files)
+!sys/ui/__tests__/unit/lib/
 
 # Build outputs
 dist/

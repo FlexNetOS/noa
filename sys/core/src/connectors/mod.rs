@@ -4,14 +4,14 @@
 //! such as GitHub, Gmail/Google, OpenAI, Claude, cloud storage, and email.
 
 pub mod base;
-pub mod github;
-pub mod google;
-pub mod openai;
+pub mod cache;
 pub mod claude;
 pub mod cloud_storage;
 pub mod email;
-pub mod cache;
+pub mod github;
+pub mod google;
 pub mod network;
+pub mod openai;
 pub mod status;
 
 use chrono::{DateTime, Utc};
@@ -79,45 +79,42 @@ impl ConnectorState {
 pub async fn collect_states(ctx: &ConnectorContext) -> Result<Vec<ConnectorState>> {
     // Master flag check: if disabled, mark all known connectors as disabled
     if !ctx.is_enabled("connectors.enabled") {
-        return Ok(default_connector_ids()
-            .into_iter()
-            .map(ConnectorState::disabled)
-            .collect());
+        return Ok(default_connector_ids().into_iter().map(ConnectorState::disabled).collect());
     }
 
     let mut states = Vec::new();
-    
+
     // GitHub connector
     states.push(GithubConnector::new().state());
-    
+
     // Google connector
     if let Ok(c) = GoogleConnector::new() {
         states.push(c.state());
     } else {
         states.push(ConnectorState::disabled("google"));
     }
-    
+
     // OpenAI connector
     if let Ok(c) = OpenAIConnector::new() {
         states.push(c.state());
     } else {
         states.push(ConnectorState::disabled("openai"));
     }
-    
+
     // Claude connector
     if let Ok(c) = ClaudeConnector::new() {
         states.push(c.state());
     } else {
         states.push(ConnectorState::disabled("claude"));
     }
-    
+
     // Cloud storage connector
     if let Ok(c) = CloudStorageConnector::new(CloudStorageProvider::S3) {
         states.push(c.state());
     } else {
         states.push(ConnectorState::disabled("cloud_storage"));
     }
-    
+
     // Email connector
     states.push(EmailConnector::new().state());
 
@@ -126,5 +123,12 @@ pub async fn collect_states(ctx: &ConnectorContext) -> Result<Vec<ConnectorState
 
 /// Known connector identifiers used for defaults
 pub fn default_connector_ids() -> Vec<&'static str> {
-    vec!["github", "google", "openai", "claude", "cloud_storage", "email"]
+    vec![
+        "github",
+        "google",
+        "openai",
+        "claude",
+        "cloud_storage",
+        "email",
+    ]
 }

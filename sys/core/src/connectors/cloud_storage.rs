@@ -1,10 +1,10 @@
 // Cloud Storage Connector
 // Implements integration with cloud storage providers (S3, GCS, Azure Blob)
 
+use crate::connectors::{ConnectorHealth, ConnectorState};
 use crate::error::Result;
-use crate::connectors::{ConnectorState, ConnectorHealth};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum CloudStorageProvider {

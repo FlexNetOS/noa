@@ -2,9 +2,9 @@
 //!
 //! Starts NOA services including API server and agents.
 
-use std::path::PathBuf;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::PathBuf;
 
 use clap::Args;
 use tracing::{error, info};
@@ -50,7 +50,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "runId": "startup",
         "hypothesisId": "A"
     });
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+    if let Ok(mut file) =
+        OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+    {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
@@ -72,7 +74,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "runId": "startup",
         "hypothesisId": "A"
     });
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+    if let Ok(mut file) =
+        OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+    {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
@@ -87,7 +91,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "runId": "startup",
         "hypothesisId": "A"
     });
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+    if let Ok(mut file) =
+        OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+    {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
@@ -105,7 +111,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "runId": "startup",
         "hypothesisId": "B"
     });
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+    if let Ok(mut file) =
+        OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+    {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
@@ -121,7 +129,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "runId": "startup",
         "hypothesisId": "B"
     });
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+    if let Ok(mut file) =
+        OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+    {
         let _ = writeln!(file, "{}", log_entry);
     }
     // #endregion
@@ -151,7 +161,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
             "runId": "startup",
             "hypothesisId": "C"
         });
-        if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+        if let Ok(mut file) =
+            OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+        {
             let _ = writeln!(file, "{}", log_entry);
         }
         // #endregion
@@ -170,7 +182,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
             "runId": "startup",
             "hypothesisId": "C"
         });
-        if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+        if let Ok(mut file) =
+            OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+        {
             let _ = writeln!(file, "{}", log_entry);
         }
         // #endregion
@@ -187,7 +201,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
                 "runId": "startup",
                 "hypothesisId": "C"
             });
-            if let Ok(mut file) = OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            if let Ok(mut file) =
+                OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log")
+            {
                 let _ = writeln!(file, "{}", log_entry);
             }
             // #endregion
