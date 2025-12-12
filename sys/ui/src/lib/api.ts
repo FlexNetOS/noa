@@ -53,31 +53,30 @@ class APIClient {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
-  // Health check
-  async getHealth(): Promise<{ status: string }> {
-    return this.get<{ status: string }>('/health');
+  // API endpoint methods
+  async getHealth(): Promise<{ status: string; timestamp: number }> {
+    return this.get('/api/health');
   }
 
-  // Admin endpoints
-  async getArtifacts(): Promise<unknown[]> {
-    return this.get<unknown[]>('/api/artifacts');
+  async getArtifacts(): Promise<{ artifacts: unknown[] }> {
+    return this.get('/api/artifacts');
   }
 
-  async getCapsules(): Promise<unknown[]> {
-    return this.get<unknown[]>('/api/capsules');
+  async getCapsules(): Promise<{ capsules: unknown[] }> {
+    return this.get('/api/capsules');
   }
 
-  async getJobs(): Promise<unknown[]> {
-    return this.get<unknown[]>('/api/jobs');
+  async getJobs(): Promise<{ jobs: unknown[] }> {
+    return this.get('/api/jobs');
   }
 
-  async getModels(): Promise<unknown[]> {
-    return this.get<unknown[]>('/api/models');
+  async getModels(): Promise<{ models: unknown[] }> {
+    return this.get('/api/models');
   }
 
-  async getActivityLog(limit?: number): Promise<unknown[]> {
-    const endpoint = limit ? `/api/activity?limit=${limit}` : '/api/activity';
-    return this.get<unknown[]>(endpoint);
+  async getActivityLog(limit: number): Promise<{ entries: unknown[] }> {
+    const params = new URLSearchParams({ limit: String(limit) });
+    return this.get(`/api/activity?${params.toString()}`);
   }
 }
 
