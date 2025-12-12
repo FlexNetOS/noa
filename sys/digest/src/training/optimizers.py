@@ -8,7 +8,7 @@ the top-ranked prompt variants.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, List
+from typing import Iterable
 
 from .modules import ModuleOutput
 
@@ -17,7 +17,7 @@ from .modules import ModuleOutput
 class OptimizerResult:
     name: str
     best_prompt: str
-    trials: List[ModuleOutput]
+    trials: list[ModuleOutput]
 
 
 class MIPROv2Optimizer:
