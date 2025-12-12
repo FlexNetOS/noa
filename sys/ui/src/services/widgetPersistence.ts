@@ -118,14 +118,22 @@ export class WidgetPersistenceService {
    */
   async syncToRemote(layouts: WidgetLayout[]): Promise<void> {
     try {
-      const response = await fetch('/api/v1/widgets/sync', {
+      const url = '/api/v1/widgets/sync';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ layouts }),
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
     } catch (error) {
       console.error('Failed to sync widget layouts:', error);
@@ -138,13 +146,21 @@ export class WidgetPersistenceService {
    */
   async syncFromRemote(): Promise<WidgetLayout[]> {
     try {
-      const response = await fetch('/api/v1/widgets/sync', {
+      const url = '/api/v1/widgets/sync';
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.statusText}`);
+        let errorBody = '';
+        try {
+          const text = await response.text();
+          errorBody = text ? ` - ${text}` : '';
+        } catch {
+          // If we can't read the response body, just continue without it
+        }
+        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
       }
 
       const data = await response.json();
