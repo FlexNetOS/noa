@@ -124,7 +124,3 @@ func (UnimplementedComputeServer) CancelTask(ctx context.Context, req *CancelTas
 func (UnimplementedComputeServer) StreamOutput(req *StreamOutputRequest, stream Compute_StreamOutputServer) error {
 	return nil
 }
-
-func (UnimplementedComputeServer) StreamOutput(req *StreamOutputRequest, stream grpc.ServerStream) error {
-	return nil
-}

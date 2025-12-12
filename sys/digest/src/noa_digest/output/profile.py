@@ -7,7 +7,7 @@ US4: Digest Everything Pipeline
 
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import , Any
 from datetime import datetime
 import logging
 
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 def generate_profile(
     source_path: Path,
-    parsed_data: Dict[str, Any],
-    analyzed_data: Dict[str, Any],
-) -> Dict[str, Any]:
+    parsed_data: dict[str, Any],
+    analyzed_data: dict[str, Any],
+) -> dict[str, Any]:
     """Generate profile.json with repository metadata and statistics.
 
     Args:
@@ -59,7 +59,7 @@ def generate_profile(
     return profile
 
 
-def write_profile(profile: Dict[str, Any], output_path: Path) -> None:
+def write_profile(profile: dict[str, Any], output_path: Path) -> None:
     """Write profile.json to file.
 
     Args:
