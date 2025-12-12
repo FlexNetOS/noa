@@ -5,6 +5,8 @@
  * Supports global, per-device, and per-project sync scopes with conflict resolution.
  */
 
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
+
 export type SyncScope = 'global' | 'per_device' | 'per_project';
 
 export interface SyncConflict {
@@ -88,14 +90,8 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -129,14 +125,8 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -190,14 +180,8 @@ export class SettingsSyncService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Conflict resolution failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Conflict resolution failed');
+        throw new Error(errorMessage);
       }
 
       return {

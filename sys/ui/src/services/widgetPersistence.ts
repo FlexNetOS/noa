@@ -5,6 +5,7 @@
  */
 
 import type { WidgetLayout } from '../components/widgets/WidgetGrid';
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
 
 export interface WidgetConfig {
   layouts: WidgetLayout[];
@@ -126,14 +127,8 @@ export class WidgetPersistenceService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Failed to sync widget layouts:', error);
@@ -153,14 +148,8 @@ export class WidgetPersistenceService {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Sync failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

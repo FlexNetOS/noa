@@ -5,6 +5,8 @@
  * (llama.cpp, Claude Code, Codex, etc.) with a unified interface.
  */
 
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
+
 export interface ProviderMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -70,14 +72,8 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Provider request failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Provider request failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -112,14 +108,8 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        let errorBody = '';
-        try {
-          const text = await response.text();
-          errorBody = text ? ` - ${text}` : '';
-        } catch {
-          // If we can't read the response body, just continue without it
-        }
-        throw new Error(`Provider stream failed [${response.status}] ${url}: ${response.statusText}${errorBody}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Provider stream failed');
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();
