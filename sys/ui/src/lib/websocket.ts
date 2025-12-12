@@ -37,6 +37,35 @@ class WebSocketClient {
   connect(): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       console.log('WebSocket already connected');
+ * WebSocket Client for NOA real-time events
+ */
+
+export interface WebSocketEvent {
+  type: string;
+  data: unknown;
+  timestamp: number;
+}
+
+type EventCallback = (event: WebSocketEvent) => void;
+
+class WebSocketClient {
+  private ws: WebSocket | null = null;
+  private url: string;
+  private listeners = new Map<string, Set<EventCallback>>();
+  
+  // Reconnection state
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000;
+  private reconnecting = false;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(url?: string) {
+    this.url = url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
+  }
+
+  connect(): void {
+    if (this.ws?.readyState === WebSocket.OPEN) {
       return;
     }
 
