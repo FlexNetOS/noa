@@ -97,12 +97,7 @@ impl RewardSystem {
 
     /// Get the current score for an agent.
     pub async fn score(&self, agent_id: &str) -> f32 {
-        self.scores
-            .read()
-            .await
-            .get(agent_id)
-            .copied()
-            .unwrap_or(0.0)
+        self.scores.read().await.get(agent_id).copied().unwrap_or(0.0)
     }
 
     /// Return recent reward events, optionally filtered by agent.

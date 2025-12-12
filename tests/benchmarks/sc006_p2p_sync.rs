@@ -45,9 +45,10 @@ async fn sc006_p2p_sync_under_5s_for_1mb() {
             .notes
             .replace(format!("incomplete transfer: {} bytes", received));
     } else {
-        result
-            .notes
-            .replace(format!("bytes={} duration_ms={}", received, result.duration_ms));
+        result.notes.replace(format!(
+            "bytes={} duration_ms={}",
+            received, result.duration_ms
+        ));
     }
 
     record_result(&result);

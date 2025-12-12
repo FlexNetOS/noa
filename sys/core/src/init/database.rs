@@ -184,31 +184,31 @@ impl DatabaseInitializer {
         let mut statements = Vec::new();
         let mut current = String::new();
         let mut in_begin_block = 0; // Track nested BEGIN blocks
-        
+
         for line in sql.lines() {
             let trimmed = line.trim();
             let upper = trimmed.to_uppercase();
-            
+
             // Skip comment-only lines
             if trimmed.starts_with("--") {
                 continue;
             }
-            
+
             // Track BEGIN blocks (can be nested in complex triggers)
             if upper.contains("BEGIN") && !upper.starts_with("--") {
                 in_begin_block += 1;
             }
-            
+
             current.push_str(line);
             current.push('\n');
-            
+
             // Track END statements
-            if (upper.starts_with("END;") || upper.ends_with("END;") || upper == "END") 
-                && in_begin_block > 0 
+            if (upper.starts_with("END;") || upper.ends_with("END;") || upper == "END")
+                && in_begin_block > 0
             {
                 in_begin_block -= 1;
             }
-            
+
             // If not in a BEGIN block and line ends with semicolon, it's a complete statement
             if in_begin_block == 0 && trimmed.ends_with(';') {
                 let stmt = current.trim().to_string();
@@ -220,14 +220,14 @@ impl DatabaseInitializer {
                 current.clear();
             }
         }
-        
+
         // Don't forget any remaining content
         let remaining = current.trim().to_string();
         let remaining = remaining.strip_suffix(';').unwrap_or(&remaining).trim().to_string();
         if !remaining.is_empty() && !remaining.starts_with("--") {
             statements.push(remaining);
         }
-        
+
         statements
     }
 

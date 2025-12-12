@@ -30,8 +30,12 @@ fn sc012_multi_gpu_inference_under_300ms() {
     let _ = h2.join();
 
     let duration = start.elapsed();
-    let mut result =
-        BenchmarkResult::new("SC-012", "multi-GPU inference (<300ms)", duration, target_ms);
+    let mut result = BenchmarkResult::new(
+        "SC-012",
+        "multi-GPU inference (<300ms)",
+        duration,
+        target_ms,
+    );
     result.notes = Some("simulated 2-way sharding; replace with real GPU timing".to_string());
 
     record_result(&result);
