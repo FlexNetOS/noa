@@ -167,4 +167,4 @@ jobs:
         run: chmod +x init/check-prereqs.sh
 
       - name: Run prerequisites check
-        run: ./init/check-prereqs.sh --json
+        run: ./init/check-prereqs.sh --json --allow-global

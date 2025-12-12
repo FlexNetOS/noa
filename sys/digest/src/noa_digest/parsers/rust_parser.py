@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import , Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class RustParser:
         # This may require a Rust binary that uses syn crate
         pass
 
-    def parse_file(self, file_path: Path) -> Dict[str, Any]:
+    def parse_file(self, file_path: Path) -> dict[str, Any]:
         """Parse a Rust file.
 
         Args:
@@ -47,7 +47,7 @@ class RustParser:
             "imports": [],
         }
 
-    def parse_directory(self, directory: Path) -> List[Dict[str, Any]]:
+    def parse_directory(self, directory: Path) -> list[dict[str, Any]]:
         """Parse all Rust files in a directory.
 
         Args:
