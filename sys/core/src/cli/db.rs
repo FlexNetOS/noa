@@ -6,13 +6,11 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
-use base64::engine::general_purpose;
 use base64::Engine;
 use clap::Subcommand;
-use tracing::{info, warn};
 
 use crate::config::NoaConfig;
-use crate::db::{self, ConnectionPool, MigrationRunner};
+use crate::db::{self, MigrationRunner};
 use crate::error::Result;
 
 /// Database subcommands
@@ -91,7 +89,7 @@ pub async fn execute(command: DbCommands) -> Result<()> {
         DbCommands::Stats => show_stats(&db_path),
         DbCommands::Backup { output } => {
             let output_path = output.map(PathBuf::from);
-            backup_database(&db_path, output_path.as_ref())
+            backup_database(&db_path, output_path.as_deref())
         }
         DbCommands::Vacuum => vacuum_database(&db_path),
     }

@@ -1,3 +1,14 @@
+---
+name: ultrathink
+version: "1.0.0"
+type: system
+providers: ["all"]
+inject: always
+priority: 1
+description: Shared ultrathink prompt for high-bar planning and execution across all providers
+variables: []
+---
+
 # Ultrathink — Shared Provider Prompt
 
 **Purpose:** Shared prompt for all providers to align on a high-bar execution mindset when generating or reviewing solutions.

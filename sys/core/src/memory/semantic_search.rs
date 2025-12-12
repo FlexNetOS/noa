@@ -27,7 +27,7 @@ impl SemanticSearch {
     /// * `threshold` - Minimum similarity score
     pub async fn search(
         &self,
-        query_text: Option<&str>,
+        _query_text: Option<&str>,
         query_vector: Option<&[f32]>,
         limit: u32,
         threshold: f32,

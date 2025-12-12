@@ -39,7 +39,7 @@ impl InnerLoopAdapter {
     pub async fn adapt(
         &self,
         initial_params: &std::collections::HashMap<String, f64>,
-        task_data: &serde_json::Value,
+        _task_data: &serde_json::Value,
     ) -> Result<std::collections::HashMap<String, f64>> {
         // TODO: Implement actual gradient-based adaptation
         // For now, return initial parameters

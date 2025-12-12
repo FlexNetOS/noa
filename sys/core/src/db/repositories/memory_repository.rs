@@ -337,7 +337,7 @@ impl MemoryRepository {
     /// Convert database row to Memory entity
     fn row_to_memory(&self, row: &Row) -> rusqlite::Result<Memory> {
         let id_str: String = row.get(0)?;
-        let id = Uuid::parse_str(&id_str).map_err(|e| {
+        let id = Uuid::parse_str(&id_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(0, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 

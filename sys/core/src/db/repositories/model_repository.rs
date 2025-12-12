@@ -6,7 +6,6 @@
 
 use crate::db::Connection;
 use crate::error::{DatabaseError, NoaError, Result};
-use chrono::{DateTime, Utc};
 use rusqlite::{params, OptionalExtension, Row};
 use serde_json::Value as JsonValue;
 use uuid::Uuid;
@@ -396,7 +395,7 @@ impl ModelRepository {
     /// Convert database row to Model entity
     fn row_to_model(&self, row: &Row) -> rusqlite::Result<Model> {
         let id_str: String = row.get(0)?;
-        let id = Uuid::parse_str(&id_str).map_err(|e| {
+        let id = Uuid::parse_str(&id_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(0, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 

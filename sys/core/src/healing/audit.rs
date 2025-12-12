@@ -4,10 +4,9 @@
 //! FR-075: System MUST log all healing events for audit trail
 //! §3.5: Transparent & Auditable
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::HealingEvent;
 use chrono::Utc;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info};

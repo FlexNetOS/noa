@@ -6,7 +6,7 @@ use clap::Args;
 use tracing::info;
 
 use crate::config::NoaConfig;
-use crate::db::{self, ConnectionPool};
+use crate::db::{self};
 use crate::error::Result;
 
 /// Arguments for the status command
@@ -108,7 +108,7 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     Ok(())
 }
 
-fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
+fn print_json_status(config: &NoaConfig, _detailed: bool) -> Result<()> {
     let db_path = config.noa_root.join(&config.database.path);
 
     let db_status = if db_path.exists() {

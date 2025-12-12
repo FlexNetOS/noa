@@ -1,5 +1,4 @@
 use chrono::Duration;
-use serde_json::Value;
 
 use crate::graphs::{DomainGraph, DynamicGraph, GraphEvent, GraphKind, GraphSnapshot};
 
