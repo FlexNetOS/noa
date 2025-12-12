@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 
 /// Mount specification persisted with a kernel mode change.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

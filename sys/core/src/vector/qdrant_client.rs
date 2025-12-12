@@ -5,7 +5,7 @@
 //! T141: Implement vector search with filters
 //! §3.7: Total Memory Sovereignty
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -51,9 +51,9 @@ impl QdrantClient {
     /// * `filter` - Optional metadata filter
     pub async fn search(
         &self,
-        query_vector: &[f32],
+        _query_vector: &[f32],
         limit: u32,
-        filter: Option<&Value>,
+        _filter: Option<&Value>,
     ) -> Result<Vec<SearchResult>> {
         // TODO: Implement actual Qdrant search using qdrant-client crate
         // For now, this is a placeholder

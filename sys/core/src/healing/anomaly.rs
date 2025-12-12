@@ -123,7 +123,7 @@ impl AnomalyDetector {
     async fn analyze_metric(
         &self,
         metric: &HealthMetric,
-        snapshot: &ComponentHealthSnapshot,
+        _snapshot: &ComponentHealthSnapshot,
     ) -> Result<Option<Anomaly>> {
         let metric_key = format!(
             "{}:{}",

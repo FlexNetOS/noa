@@ -35,6 +35,24 @@ sharedResources:
   models: "${NOA_ROOT}/ai/shared/models"
   commands: "${NOA_ROOT}/ai/shared/commands"
   resources: "${NOA_ROOT}/ai/shared/resources"
+systemPrompts:
+  enabled: true
+  basePrompts:
+    - name: ultrathink
+      file: ultrathink.md
+      inject: always
+      priority: 1
+      description: "High-bar execution mindset for all providers"
+  contextualPrompts:
+    - name: project-mgmt-prompt
+      file: project-mgmt-prompt.md
+      inject: on-demand
+      priority: 2
+      triggers:
+        - project
+        - task
+        - milestone
+  promptPath: "${NOA_ROOT}/ai/shared/prompts"
 executionMemory:
   enabled: true
   path: "${NOA_ROOT}/ai/shared/resources/execution-memory.db"

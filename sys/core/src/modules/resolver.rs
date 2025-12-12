@@ -1,7 +1,7 @@
 use crate::error::{NoaError, Result};
 use crate::modules::registry::ModuleRegistry;
 use crate::modules::types::ModuleMetadata;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 /// Resolve dependencies depth-first and return an ordered list (parents before children).
 pub fn resolve_dependencies(registry: &ModuleRegistry, root: &str) -> Result<Vec<ModuleMetadata>> {

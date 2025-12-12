@@ -4,7 +4,6 @@
 //! Based on Universal Task Execution Policy §8D.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// Result status for a phase

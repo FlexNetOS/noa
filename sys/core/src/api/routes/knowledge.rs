@@ -30,7 +30,7 @@ pub fn routes() -> Router<AppState> {
 }
 
 /// Helper to get database path from AppState
-fn get_db_path(state: &AppState) -> PathBuf {
+fn get_db_path(_state: &AppState) -> PathBuf {
     let noa_root = std::env::var("NOA_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("."));
@@ -164,7 +164,7 @@ async fn list_knowledge_edges(
 /// Query knowledge graph
 async fn query_knowledge(
     State(_state): State<AppState>,
-    Json(payload): Json<KnowledgeQueryRequest>,
+    Json(_payload): Json<KnowledgeQueryRequest>,
 ) -> Result<Json<KnowledgeQueryResponse>> {
     // TODO: Implement knowledge graph query with semantic search
     Ok(Json(KnowledgeQueryResponse {

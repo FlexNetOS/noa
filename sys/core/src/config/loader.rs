@@ -7,7 +7,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use super::{
-    expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig, NoaConfig,
+    expand_env_vars, DatabaseConfig, LogFormat, LoggingConfig, NoaConfig,
     ProviderConfig, ProviderSettings,
 };
 use crate::error::{ConfigError, Result};

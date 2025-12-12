@@ -75,10 +75,11 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
     let conn1 = init_database(&db_path)?;
     let conn2 = init_database(&db_path)?;
     let conn3 = init_database(&db_path)?;
+    let conn4 = init_database(&db_path)?;
     let memory_repo = MemoryRepository::new(conn1);
     let vector_search = VectorSearch::new(conn2)?;
 
-    let memory_service = MemoryService::new(conn3);
+    let memory_service = MemoryService::new(conn3, conn4);
     let search_service = SearchService::new(memory_repo, vector_search);
 
     match args.command {
