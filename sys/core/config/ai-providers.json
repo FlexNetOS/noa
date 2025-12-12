@@ -1,127 +1,46 @@
 {
-  "$schema": "https://noa.local/schemas/ai-providers.json",
+  "$schema": "https://noa.local/schemas/providers.yaml",
+  "version": "1.0.0",
   "providerPriority": [
     "local",
     "hybrid",
+    "ide",
     "cloud"
   ],
   "providers": {
-    "claude-code": {
-      "capabilities": {
-        "code": true,
-        "reasoning": true,
-        "text": true
-      },
-      "cli": {
-        "command": "claude-code",
-        "package": "@anthropic-ai/claude-code",
-        "version": "latest"
-      },
-      "description": "Anthropic Claude Code via CLI/Cloud/IDE",
-      "enabled": false,
-      "latency": {
-        "target": 2000,
-        "timeout": 10000
-      },
-      "modes": [
-        "cli",
-        "cloud",
-        "ide"
-      ],
-      "name": "Claude Code",
-      "priority": 3,
-      "sharedResources": {
-        "context": "${NOA_ROOT}/ai/shared/resources/context/",
-        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-      },
-      "type": "cloud"
-    },
-    "codex": {
-      "capabilities": {
-        "code": true,
-        "text": true
-      },
-      "cli": {
-        "command": "codex",
-        "package": "@openai/codex",
-        "version": "latest"
-      },
-      "description": "OpenAI Codex via CLI/Cloud",
-      "enabled": false,
-      "latency": {
-        "target": 2000,
-        "timeout": 10000
-      },
-      "modes": [
-        "cli",
-        "cloud"
-      ],
-      "name": "Codex",
-      "priority": 4,
-      "sharedResources": {
-        "context": "${NOA_ROOT}/ai/shared/resources/context/",
-        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-      },
-      "type": "cloud"
-    },
-    "cursor": {
-      "capabilities": {
-        "code": true,
-        "orchestration": true,
-        "reasoning": true
-      },
-      "cli": {
-        "binaryPath": "${NOA_ROOT}/opt/cursor-cli/cursor",
-        "command": "cursor",
-        "version": "latest"
-      },
-      "description": "Cursor IDE/CLI/Cloud provider",
-      "enabled": false,
-      "latency": {
-        "target": 1000,
-        "timeout": 5000
-      },
-      "modes": [
-        "ide",
-        "cli",
-        "cloud"
-      ],
-      "name": "Cursor",
-      "priority": 2,
-      "sharedResources": {
-        "context": "${NOA_ROOT}/ai/shared/resources/context/",
-        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-      },
-      "type": "hybrid"
-    },
-    "llama-cpp": {
-      "capabilities": {
-        "code": true,
-        "reasoning": true,
-        "text": true
-      },
-      "cli": {
-        "binaryPath": "${NOA_ROOT}/opt/llama.cpp/build/bin/llama-server",
-        "command": "llama-server",
-        "version": "built"
-      },
-      "description": "Local inference via llama.cpp",
+    "local": {
       "enabled": true,
-      "latency": {
-        "target": 500,
-        "timeout": 5000
-      },
-      "modes": [
-        "cli"
-      ],
-      "name": "llama.cpp",
       "priority": 1,
-      "sharedResources": {
-        "context": "${NOA_ROOT}/ai/shared/resources/context/",
-        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-      },
-      "type": "local"
+      "types": ["llama.cpp", "ollama", "git-cli"],
+      "configPath": "${NOA_ROOT}/ai/providers/local"
+    },
+    "hybrid": {
+      "enabled": true,
+      "priority": 2,
+      "types": ["cursor"],
+      "configPath": "${NOA_ROOT}/ai/providers/hybrid"
+    },
+    "ide": {
+      "enabled": true,
+      "priority": 4,
+      "types": ["vscode-copilot"],
+      "configPath": "${NOA_ROOT}/ai/providers/ide"
+    },
+    "cloud": {
+      "enabled": true,
+      "priority": 3,
+      "types": ["claude-code", "codex", "abacus"],
+      "configPath": "${NOA_ROOT}/ai/providers/cloud"
     }
   },
-  "version": "1.0.0"
+  "sharedResources": {
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "workflows": "${NOA_ROOT}/ai/shared/workflows",
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "skills": "${NOA_ROOT}/ai/shared/skills",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "models": "${NOA_ROOT}/ai/shared/models",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "resources": "${NOA_ROOT}/ai/shared/resources"
+  }
 }

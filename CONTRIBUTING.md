@@ -18,6 +18,25 @@ Thanks for helping improve NOA. This guide covers the minimal workflow for contr
 5. Run relevant test suites (`cargo test`, `npm test`, targeted scripts under `tests/`).
 6. Update docs when behavior, flags, or CLI surfaces change.
 
+## Documentation requirements (especially for integrators)
+
+If your change touches **providers, agents/tools, config schemas, or contracts**, update at least one of:
+
+- `docs/00-guides/provider-integration.md`
+- `docs/00-guides/provider-catalog.md`
+- `docs/00-guides/agent-tool-authoring.md`
+- `docs/00-guides/schemas-and-contracts.md`
+
+### Run docs checks locally
+
+- Windows (PowerShell): `scripts/docs/check-docs.ps1`
+- macOS/Linux: `scripts/docs/check-docs.sh`
+
+These checks catch:
+
+- Broken relative links between markdown files
+- Basic markdown style issues (via `markdownlint`)
+
 ## Commit and PR Guidelines
 - Use clear commit messages (`feat:`, `fix:`, `docs:`, `chore:`).
 - Include context in PR descriptions: scope, rationale, testing, and risks.

@@ -1,7 +1,7 @@
-# Security Policy
+# Security Policy (Monorepo)
 
-I am a web developer with a frontend focus and no security expert. I tried to follow the best practices as much as possible and I update electron often, but I can offer no guarantees. Any help with this subject by more dedicated experts would be very much appreciated!
+This directory is part of the NOA monorepo. The **authoritative security policy** is:
 
-## Reporting a Vulnerability
+- `SECURITY.md` (repo root)
 
-Please report any vulnerabilities using the [form here on github](https://github.com/johannesjo/super-productivity/security/advisories/new).
+If you find a security issue in `project-mgmt/`, report it using the process described in the root policy.

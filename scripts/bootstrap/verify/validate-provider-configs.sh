@@ -60,13 +60,13 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-# Standard shared resources paths
+# Standard shared resources paths (must remain `${NOA_ROOT}`-based, not expanded)
 declare -A STANDARD_SHARED_RESOURCES=(
-    ["prompts"]="${NOA_ROOT}/ai/shared/prompts"
-    ["agents"]="${NOA_ROOT}/ai/shared/agents"
-    ["tools"]="${NOA_ROOT}/ai/shared/tools"
-    ["commands"]="${NOA_ROOT}/ai/shared/commands"
-    ["executionMemory"]="${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+    ["prompts"]='${NOA_ROOT}/ai/shared/prompts'
+    ["agents"]='${NOA_ROOT}/ai/shared/agents'
+    ["tools"]='${NOA_ROOT}/ai/shared/tools'
+    ["commands"]='${NOA_ROOT}/ai/shared/commands'
+    ["executionMemory"]='${NOA_ROOT}/ai/shared/resources/execution-memory.db'
 )
 
 # Results tracking
@@ -195,15 +195,17 @@ validate_config() {
     fi
 
     # CHK129: binaryPath uses ${NOA_ROOT} syntax
-    local binary_path_str=$(jq -r '.cli.binaryPath // empty' "$config_path" 2>/dev/null || echo "")
-    if [[ -n "$binary_path_str" ]]; then
-        # Handle both string and object binaryPath
-        if echo "$binary_path_str" | jq -e 'type == "object"' &>/dev/null; then
-            binary_path_str=$(echo "$binary_path_str" | jq -r '.[]' | tr '\n' ' ')
-        fi
-        if [[ "$binary_path_str" != *'${NOA_ROOT}'* ]]; then
-            errors+=("binaryPath does not use \${NOA_ROOT} syntax: $binary_path_str")
-        fi
+    local binary_path_str
+    binary_path_str="$(jq -r '
+      .cli.binaryPath
+      | if . == null then ""
+        elif type == "string" then .
+        elif type == "object" then (to_entries | map(.value | tostring) | join(" "))
+        else tostring
+        end
+    ' "$config_path" 2>/dev/null || echo "")"
+    if [[ -n "$binary_path_str" ]] && [[ "$binary_path_str" != *'${NOA_ROOT}'* ]]; then
+        errors+=("binaryPath does not use \${NOA_ROOT} syntax: $binary_path_str")
     fi
 
     # CHK130: sharedResources paths consistent
