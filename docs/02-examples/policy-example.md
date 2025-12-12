@@ -168,6 +168,7 @@ Before marking {phase 3} complete:
 ```
 
 ### 10.2 {Validation Stage 2}
+{% raw %}
 ```typescript
 function validate{Topic}(): void {
   // {Validation logic description}
@@ -178,6 +179,7 @@ function validate{Topic}(): void {
   }
 }
 ```
+{% endraw %}
 
 ### 10.3 {Validation Stage 3}
 - {Runtime or ongoing validation 1.}
