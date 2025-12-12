@@ -49,7 +49,8 @@ This is a comprehensive CI/CD automation system that aggregates issues from pull
 | File | Purpose |
 |------|---------|
 | `workflows/flexnetos-auto-resolve.yml` | Main CI workflow for automated resolution |
-| `workflows/flexnetos-reusable-resolver.yml` | Reusable workflow for organization repos |
+| `workflow-templates/flexnetos-reusable-resolver.yml` | Template for organization-wide reusable workflows |
+| `workflow-templates/caller-template.yml` | Template for calling org-wide reusable workflows |
 
 ### Actions
 
@@ -132,7 +133,11 @@ gh secret set GITHUB_CLIENT_SECRET --org FlexNetOS
 
 ### 3. Use in Individual Repositories
 
-Add this workflow to any repository:
+#### Option A: Self-Contained Workflow (Recommended)
+This repository uses the self-contained `flexnetos-auto-resolve.yml` workflow which doesn't require external dependencies.
+
+#### Option B: Organization-Wide Reusable Workflow
+If you have deployed the reusable workflow to your organization's `.github` repository, you can use this pattern:
 
 ```yaml
 # .github/workflows/auto-resolve.yml
@@ -155,6 +160,8 @@ jobs:
     secrets:
       BOT_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN }}
 ```
+
+**Note**: The templates in `workflow-templates/` are provided for reference only. They require the corresponding files to be deployed to the organization's `.github` repository first.
 
 ## 🧠 AI Provider Support
 

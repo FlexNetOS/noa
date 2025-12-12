@@ -10,7 +10,7 @@ ORG_NAME="${FLEXNETOS_ORG:-FlexNetOS}"
 CONFIG_FILE=".github/org-config/flexnetos-automation.yml"
 WORKFLOW_FILES=(
     ".github/workflows/flexnetos-auto-resolve.yml"
-    ".github/workflows/flexnetos-reusable-resolver.yml"
+    ".github/workflow-templates/flexnetos-reusable-resolver.yml"
 )
 ACTION_DIR=".github/actions/ai-resolver"
 SCRIPT_DIR=".github/scripts"
