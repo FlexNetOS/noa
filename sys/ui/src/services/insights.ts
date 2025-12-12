@@ -6,6 +6,7 @@
  */
 
 import { contextDetector } from './contextDetector';
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
 
 export interface Insight {
   id: string;
@@ -174,14 +175,16 @@ export class InsightsService {
   async requestAIInsights(prompt: string): Promise<Insight[]> {
     try {
       // In a real implementation, this would call the backend AI service
-      const response = await fetch('/api/v1/insights/generate', {
+      const url = '/api/v1/insights/generate';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
-        throw new Error(`AI insights request failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'AI insights request failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
