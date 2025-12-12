@@ -5,6 +5,8 @@
  * (llama.cpp, Claude Code, Codex, etc.) with a unified interface.
  */
 
+import { createApiErrorMessage } from '../lib/apiErrorUtils';
+
 export interface ProviderMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -58,7 +60,8 @@ export class ProviderClient {
     history: Array<{ role: string; content: string }> = []
   ): Promise<ProviderResponse> {
     try {
-      const response = await fetch('/api/v1/chat', {
+      const url = '/api/v1/chat';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -69,7 +72,8 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        throw new Error(`Provider request failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Provider request failed');
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -92,7 +96,8 @@ export class ProviderClient {
     history: Array<{ role: string; content: string }> = []
   ): AsyncGenerator<string, void, unknown> {
     try {
-      const response = await fetch('/api/v1/chat/stream', {
+      const url = '/api/v1/chat/stream';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +108,8 @@ export class ProviderClient {
       });
 
       if (!response.ok) {
-        throw new Error(`Provider stream failed: ${response.statusText}`);
+        const errorMessage = await createApiErrorMessage(response, url, 'Provider stream failed');
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();
