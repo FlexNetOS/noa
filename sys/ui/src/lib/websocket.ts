@@ -13,10 +13,12 @@ type EventCallback = (event: WebSocketEvent) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
+  private listeners = new Map<string, Set<EventCallback>>();
+  
+  // Reconnection state
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private listeners = new Map<string, Set<EventCallback>>();
   private reconnecting = false;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -36,11 +38,7 @@ class WebSocketClient {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
         this.reconnecting = false;
-        // Clear any pending reconnect timeout
-        if (this.reconnectTimeout) {
-          clearTimeout(this.reconnectTimeout);
-          this.reconnectTimeout = null;
-        }
+        this.clearReconnectTimeout();
       };
 
       this.ws.onmessage = (event) => {
@@ -66,6 +64,13 @@ class WebSocketClient {
     }
   }
 
+  private clearReconnectTimeout(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
   private reconnect(): void {
     if (this.reconnecting) {
       // Prevent overlapping reconnection attempts
@@ -82,9 +87,7 @@ class WebSocketClient {
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
     
     // Clear any existing reconnect timeout
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
+    this.clearReconnectTimeout();
     
     this.reconnectTimeout = setTimeout(() => {
       console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
@@ -130,10 +133,7 @@ class WebSocketClient {
 
   disconnect(): void {
     // Clear any pending reconnect timeout
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
+    this.clearReconnectTimeout();
     this.reconnecting = false;
     
     if (this.ws) {
