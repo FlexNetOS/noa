@@ -13,6 +13,23 @@ import {
 
 describe('API Error Utilities', () => {
   /**
+   * Helper to check and consume body
+   * @private
+   */
+  function createBodyConsumer(
+    bodyConsumed: { value: boolean },
+    bodyText: string
+  ): () => Promise<string> {
+    return async () => {
+      if (bodyConsumed.value) {
+        throw new TypeError('Body has already been consumed');
+      }
+      bodyConsumed.value = true;
+      return bodyText;
+    };
+  }
+
+  /**
    * Creates a mock Response object that accurately simulates the real Response API
    * Includes the bodyUsed property to properly track if the body has been consumed
    */
@@ -23,32 +40,24 @@ describe('API Error Utilities', () => {
     body?: string;
     bodyUsed?: boolean;
   }): Response {
-    let bodyConsumed = options.bodyUsed ?? false;
+    const bodyConsumed = { value: options.bodyUsed ?? false };
     const bodyText = options.body ?? '';
+    const consumeBody = createBodyConsumer(bodyConsumed, bodyText);
 
-    // Use Object.defineProperty to create a proper getter for bodyUsed
-    const mockResponse: any = {
+    // Create partial mock Response with proper typing
+    const mockResponse: Partial<Response> = {
       status: options.status,
       statusText: options.statusText,
       url: options.url,
       ok: options.status >= 200 && options.status < 300,
       
       // Mock the text() method to consume the body
-      text: jest.fn(async () => {
-        if (bodyConsumed) {
-          throw new TypeError('Body has already been consumed');
-        }
-        bodyConsumed = true;
-        return bodyText;
-      }),
+      text: jest.fn(consumeBody),
       
       // Mock json() method for completeness
       json: jest.fn(async () => {
-        if (bodyConsumed) {
-          throw new TypeError('Body has already been consumed');
-        }
-        bodyConsumed = true;
-        return JSON.parse(bodyText);
+        const text = await consumeBody();
+        return JSON.parse(text);
       }),
       
       // Other Response properties for completeness
@@ -65,7 +74,7 @@ describe('API Error Utilities', () => {
     // Define bodyUsed as a getter property
     Object.defineProperty(mockResponse, 'bodyUsed', {
       get() {
-        return bodyConsumed;
+        return bodyConsumed.value;
       },
       enumerable: true,
       configurable: true,

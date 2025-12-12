@@ -36,15 +36,16 @@ export async function extractErrorBody(response: Response): Promise<string | und
 }
 
 /**
- * Creates a detailed API error message including status code, URL, and response body
- * 
- * @param response - The Response object from a failed fetch
- * @returns Promise resolving to a formatted error message string
+ * Formats an error message from response details and optional body
+ * @private
  */
-export async function createApiErrorMessage(response: Response): Promise<string> {
-  const body = await extractErrorBody(response);
-  
-  let message = `API Error: ${response.status} ${response.statusText} at ${response.url}`;
+function formatErrorMessage(
+  status: number,
+  statusText: string,
+  url: string,
+  body?: string
+): string {
+  let message = `API Error: ${status} ${statusText} at ${url}`;
   
   if (body) {
     message += `\nResponse body: ${body}`;
@@ -54,21 +55,25 @@ export async function createApiErrorMessage(response: Response): Promise<string>
 }
 
 /**
+ * Creates a detailed API error message including status code, URL, and response body
+ * 
+ * @param response - The Response object from a failed fetch
+ * @returns Promise resolving to a formatted error message string
+ */
+export async function createApiErrorMessage(response: Response): Promise<string> {
+  const body = await extractErrorBody(response);
+  return formatErrorMessage(response.status, response.statusText, response.url, body);
+}
+
+/**
  * Creates an ApiError object from a Response
  * 
  * @param response - The Response object from a failed fetch
  * @returns Promise resolving to an ApiError object
  */
 export async function createApiError(response: Response): Promise<ApiError> {
-  // Extract the body once to avoid consuming it twice
   const body = await extractErrorBody(response);
-  
-  // Manually construct the message since we already have the body
-  let message = `API Error: ${response.status} ${response.statusText} at ${response.url}`;
-  
-  if (body) {
-    message += `\nResponse body: ${body}`;
-  }
+  const message = formatErrorMessage(response.status, response.statusText, response.url, body);
   
   return {
     status: response.status,
