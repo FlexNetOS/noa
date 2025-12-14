@@ -7,6 +7,8 @@ mod integration_tests {
     use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
     use crate::services::InitService;
     use std::fs;
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
     use tempfile::TempDir;
 
