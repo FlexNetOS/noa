@@ -1,85 +1,37 @@
 /**
  * API Error Utilities
  * 
- * Utilities for handling API errors with proper response body extraction
+ * Shared utilities for handling API errors with enhanced context
  */
-
-export interface ApiError {
-  status: number;
-  statusText: string;
-  url: string;
-  body?: string;
-  message: string;
-}
 
 /**
- * Extracts the error body from a Response object
- * Checks response.bodyUsed to avoid attempting to read an already consumed body
- * 
- * @param response - The Response object from a failed fetch
- * @returns Promise resolving to the error body as a string, or undefined if body cannot be read
+ * Extracts the response body from a failed fetch response
+ * Returns empty string if body cannot be read or has already been consumed
  */
-export async function extractErrorBody(response: Response): Promise<string | undefined> {
-  // Check if the body has already been read
+export async function extractErrorBody(response: Response): Promise<string> {
+  // Check if the body has already been used
   if (response.bodyUsed) {
-    return undefined;
+    return '';
   }
-
+  
   try {
-    // Attempt to read the response body as text
     const text = await response.text();
-    return text;
-  } catch (error) {
-    // If reading fails, return undefined
-    return undefined;
+    return text ? ` - ${text}` : '';
+  } catch {
+    // If we can't read the response body, just continue without it
+    return '';
   }
 }
 
 /**
- * Formats an error message from response details and optional body
- * @private
+ * Creates a detailed error message for API errors
+ * Includes status code, URL, statusText, and response body (if available)
  */
-function formatErrorMessage(
-  status: number,
-  statusText: string,
+export async function createApiErrorMessage(
+  response: Response,
   url: string,
-  body?: string
-): string {
-  let message = `API Error: ${status} ${statusText} at ${url}`;
-  
-  if (body) {
-    message += `\nResponse body: ${body}`;
-  }
-  
-  return message;
-}
-
-/**
- * Creates a detailed API error message including status code, URL, and response body
- * 
- * @param response - The Response object from a failed fetch
- * @returns Promise resolving to a formatted error message string
- */
-export async function createApiErrorMessage(response: Response): Promise<string> {
-  const body = await extractErrorBody(response);
-  return formatErrorMessage(response.status, response.statusText, response.url, body);
-}
-
-/**
- * Creates an ApiError object from a Response
- * 
- * @param response - The Response object from a failed fetch
- * @returns Promise resolving to an ApiError object
- */
-export async function createApiError(response: Response): Promise<ApiError> {
-  const body = await extractErrorBody(response);
-  const message = formatErrorMessage(response.status, response.statusText, response.url, body);
-  
-  return {
-    status: response.status,
-    statusText: response.statusText,
-    url: response.url,
-    body,
-    message,
-  };
+  prefix: string = 'API Error'
+): Promise<string> {
+  const errorBody = await extractErrorBody(response);
+  return `${prefix} [${response.status}] ${url}: ${response.statusText}${errorBody}`;
 }

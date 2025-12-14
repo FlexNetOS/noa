@@ -4,7 +4,7 @@
 //! US6: P2P Hive-Mind Device Federation
 //! §3.8: P2P Hive-Mind
 
-use crate::db::repositories::{Device, DeviceRepository, DeviceStatus, DeviceType, Platform};
+use crate::db::repositories::{DeviceRepository, Device, DeviceType, Platform, DeviceStatus};
 use crate::db::Connection;
 use crate::error::{NoaError, Result};
 use chrono::Utc;
@@ -89,6 +89,10 @@ impl DeviceService {
     /// List online devices
     pub fn list_online_devices(&self) -> Result<Vec<Device>> {
         let all = self.repo.list()?;
-        Ok(all.into_iter().filter(|d| matches!(d.status, DeviceStatus::Online)).collect())
+        Ok(all
+            .into_iter()
+            .filter(|d| matches!(d.status, DeviceStatus::Online))
+            .collect())
     }
 }
+

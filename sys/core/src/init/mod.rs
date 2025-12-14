@@ -16,3 +16,4 @@ pub use config::ConfigGenerator;
 pub use database::DatabaseInitializer;
 pub use paths::NoaPaths;
 pub use structure::DirectoryStructure;
+

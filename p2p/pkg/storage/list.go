@@ -44,7 +44,7 @@ func (s *StorageService) List(ctx context.Context, req *protocol.ListRequest) (*
 		}
 
 		// Read file to get metadata
-		_, err = os.ReadFile(path)
+		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
