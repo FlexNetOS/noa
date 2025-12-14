@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noa.local/schemas/models.json",
+  "title": "NOA Models Configuration Schema",
+  "description": "Schema for NOA AI models configuration",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "metadata": {
+      "type": "object",
+      "description": "Standard metadata for configuration",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$",
+          "description": "Semantic version of the configuration"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp (ISO8601)"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator identity (user or agent)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description"
+        }
+      },
+      "required": ["version"]
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "context_length": { "type": "integer" },
+          "enabled": { "type": "boolean" },
+          "format": { "type": "string" },
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "size_gb": { "type": "number" },
+          "type": { "type": "string" }
+        },
+        "required": ["id", "name", "type"]
+      }
+    }
+  },
+  "required": ["models"]
+}

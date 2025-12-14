@@ -3,7 +3,7 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "NOA Provider Configuration"
 description: "Schema for grouped AI provider configuration, priorities, and shared resources"
 type: object
-required: [version, providerPriority, providers]
+required: [metadata, providerPriority, providers]
 properties:
   $schema:
     type: string
@@ -11,10 +11,19 @@ properties:
   schema:
     type: string
     description: "Optional schema reference for YAML consumers"
-  version:
-    type: string
-    pattern: "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
-    description: "Semantic version of the provider configuration"
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
+        description: "Semantic version of the provider configuration"
+      description:
+        type: string
+      updated_at:
+        type: string
+        format: date-time
+    required: [version]
   providerPriority:
     type: array
     description: "Priority order of provider categories"

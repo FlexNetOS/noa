@@ -1,5 +1,8 @@
 {
   "$schema": "https://noa.local/schemas/models.json",
+  "metadata": {
+    "version": "1.0.0"
+  },
   "models": [
     {
       "context_length": 128000,
@@ -31,6 +34,5 @@
       "size_gb": 2.3,
       "type": "llm"
     }
-  ],
-  "version": "1.0.0"
+  ]
 }
