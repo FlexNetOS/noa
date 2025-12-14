@@ -726,7 +726,7 @@ By integrating Branchwise Foresight and Mind Mapping, the system enables robust,
 
 ## Observability: tracing + tracing-subscriber + opentelemetry (otlp) + opentelemetry-prometheus. Export traces/metrics to Tempo/Prometheus/Grafana. No Docker required to run the Rust side.
 
-## Web UI (Rust): Leptos (SSR) or Yew/Dioxus (WASM) for a Rust front‑end; talk to the axum JSON API. If you still want React, you can keep it, but a Rust UI keeps the stack pure.
+## Web UI (Rust): Yew/Dioxus (WASM) for a Rust front‑end; talk to the axum JSON API. 
 
 ## Packaging:
 - Cargo workspace with binaries: api (axum), embedder (Candle), trainer (Burn), indexer (Qdrant/Quickwit ingester), and a UI crate (Leptos/Yew). Everything runs as local binaries.

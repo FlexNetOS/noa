@@ -68,31 +68,22 @@ pub fn repair_fts_tables(conn: &Connection) -> Result<()> {
             }
             Err(e) => {
                 drop_error = Some(e.to_string());
-                // Approach 2: Delete from sqlite_master directly (bypasses virtual table destructor)
-                // This is more aggressive and can remove corrupted virtual tables
-                if let Err(e2) = conn.execute(
-                    "DELETE FROM sqlite_master WHERE type='table' AND name='memory_fts'",
-                    [],
-                ) {
-                    // #region agent log
-                    let log_entry = serde_json::json!({
-                        "location": "db/repair.rs:repair_fts_tables",
-                        "message": "Direct sqlite_master deletion also failed",
-                        "data": {"error": e2.to_string()},
-                        "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
-                        "sessionId": "debug-session",
-                        "runId": "repair",
-                        "hypothesisId": "G"
-                    });
-                    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
-                        let _ = writeln!(file, "{}", log_entry);
-                    }
-                    // #endregion
-                } else {
-                    // Direct deletion succeeded - now try VACUUM to clean up
-                    let _ = conn.execute_batch("VACUUM;");
-                    drop_succeeded = true;
+                // #region agent log
+                let log_entry = serde_json::json!({
+                    "location": "db/repair.rs:repair_fts_tables",
+                    "message": "Normal DROP failed - corrupted FTS table cannot be dropped automatically",
+                    "data": {"error": e.to_string(), "note": "FTS table corruption requires manual database repair or recreation"},
+                    "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                    "sessionId": "debug-session",
+                    "runId": "repair",
+                    "hypothesisId": "H"
+                });
+                if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+                    let _ = writeln!(file, "{}", log_entry);
                 }
+                // #endregion
+                // Cannot drop corrupted virtual table - will attempt to create new one anyway
+                // If CREATE fails, the table is too corrupted and manual intervention is needed
             }
         }
 
