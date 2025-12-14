@@ -1,10 +1,10 @@
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use std::collections::HashMap;
 
 pub struct ContentAddressableStore {
     base: PathBuf,

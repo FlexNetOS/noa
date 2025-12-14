@@ -124,8 +124,7 @@
   },
   "resolutions": {
     "sass": "1.32.6",
-    "@ctrl/tinycolor": "4.1.0",
-    "jira2md/marked": "12.0.2"
+    "@ctrl/tinycolor": "4.1.0"
   },
   "dependencies": {
     "electron-dl": "^3.5.2",

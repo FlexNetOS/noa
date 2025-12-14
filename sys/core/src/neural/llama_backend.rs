@@ -4,9 +4,9 @@
 //! §3.2: Local-First & Offline-Capable
 //! US2: Neural runtime backend
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use crate::neural::model_loader::{ModelLoader, ModelLoaderConfig};
-use noa_neural::llama::{LlamaClient, LlamaServer, LlamaServerConfig};
+use noa_neural::llama::{LlamaServer, LlamaClient, LlamaServerConfig};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -14,7 +14,7 @@ use tokio::sync::RwLock;
 /// llama.cpp backend for model inference
 pub struct LlamaBackend {
     servers: Arc<RwLock<std::collections::HashMap<String, LlamaServer>>>,
-    clients: Arc<RwLock<std::collections::HashMap<String, Arc<LlamaClient>>>>,
+    clients: Arc<RwLock<std::collections::HashMap<String, LlamaClient>>>,
     model_loader: ModelLoader,
 }
 
@@ -60,10 +60,10 @@ impl LlamaBackend {
         let mut server = LlamaServer::new(server_config.clone());
         server.start().map_err(|e| NoaError::Internal {
             message: format!("Failed to start llama server: {}", e),
-            source: None,
+            source: Some(Box::new(e)),
         })?;
 
-        let client = Arc::new(LlamaClient::new(server.base_url()));
+        let client = LlamaClient::new(server.base_url());
 
         // Wait for server to be ready
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
@@ -71,7 +71,7 @@ impl LlamaBackend {
         // Health check
         if !client.health_check().await.map_err(|e| NoaError::Internal {
             message: format!("Health check failed: {}", e),
-            source: None,
+            source: Some(Box::new(e)),
         })? {
             return Err(NoaError::Internal {
                 message: "Model health check failed".to_string(),
@@ -95,7 +95,7 @@ impl LlamaBackend {
         if let Some(mut server) = servers.remove(model_id) {
             server.stop().map_err(|e| NoaError::Internal {
                 message: format!("Failed to stop llama server: {}", e),
-                source: None,
+                source: Some(Box::new(e)),
             })?;
         }
 
@@ -112,12 +112,14 @@ impl LlamaBackend {
     }
 
     /// Get client for a loaded model
-    pub async fn get_client(&self, model_id: &str) -> Result<Arc<LlamaClient>> {
+    pub async fn get_client(&self, model_id: &str) -> Result<LlamaClient> {
         let clients = self.clients.read().await;
-        clients.get(model_id).cloned().ok_or_else(|| NoaError::NotFound {
-            resource: "Model".to_string(),
-            id: model_id.to_string(),
-        })
+        clients.get(model_id)
+            .cloned()
+            .ok_or_else(|| NoaError::NotFound {
+                resource: "Model".to_string(),
+                id: model_id.to_string(),
+            })
     }
 }
 
@@ -126,3 +128,4 @@ impl Default for LlamaBackend {
         Self::new()
     }
 }
+

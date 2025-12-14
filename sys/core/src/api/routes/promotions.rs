@@ -1,4 +1,4 @@
-use axum::{extract::Path, routing::get, Json, Router};
+use axum::{routing::get, Json, Router, extract::Path};
 use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;

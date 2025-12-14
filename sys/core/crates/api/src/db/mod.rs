@@ -1,6 +1,6 @@
 //! Database module for NOA API
 
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use sqlx::{SqlitePool, sqlite::SqliteConnectOptions};
 use std::path::Path;
 use std::str::FromStr;
 
