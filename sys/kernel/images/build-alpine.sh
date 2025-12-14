@@ -89,7 +89,7 @@ fi
 
 # Working directory
 WORK_DIR=$(mktemp -d)
-trap 'rm -rf "$WORK_DIR"' EXIT
+trap "rm -rf $WORK_DIR" EXIT
 
 echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║        NOA Alpine Linux VM Image Builder                  ║${NC}"

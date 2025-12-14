@@ -1,6 +1,6 @@
 use crate::error::Result;
-use crate::providers::list_providers;
 use crate::providers::selector::select_best;
+use crate::providers::list_providers;
 
 /// Coordinate Cursor with other providers for parallel execution.
 pub fn orchestrate(task: &str) -> Result<String> {
@@ -8,7 +8,6 @@ pub fn orchestrate(task: &str) -> Result<String> {
     let chosen = select_best(&providers);
     Ok(format!(
         "orchestrated task '{}' with {:?}",
-        task,
-        chosen.map(|c| c.id)
+        task, chosen.map(|c| c.id)
     ))
 }

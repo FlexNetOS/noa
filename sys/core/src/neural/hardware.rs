@@ -27,7 +27,9 @@ impl HardwareDetector {
     /// Detect CPU capabilities
     pub async fn detect_cpu_info(&self) -> Result<CpuInfo> {
         // Get CPU count using std::thread
-        let cpu_count = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
+        let cpu_count = std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1);
 
         Ok(CpuInfo {
             cores: cpu_count,
@@ -83,7 +85,9 @@ impl QuantizationDetector {
 
         // Extract quantization from filename
         // Common patterns: model-q4_0.gguf, model-q8_0.gguf, etc.
-        let filename = model_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        let filename = model_path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("");
 
         if filename.contains("q4_0") {
             Ok(Some(QuantizationType::Q4_0))
@@ -187,3 +191,4 @@ mod tests {
         assert!(layers > 0);
     }
 }
+

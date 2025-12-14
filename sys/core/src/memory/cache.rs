@@ -23,7 +23,7 @@ impl EmbeddingCache {
             cache: RwLock::new(HashMap::new()),
             access_order: RwLock::new(VecDeque::new()),
             model_version: "all-MiniLM-L6-v2".to_string(), // Default model
-            max_size: 10000,                               // Default max size
+            max_size: 10000, // Default max size
         }
     }
 
@@ -119,3 +119,4 @@ impl Default for EmbeddingCache {
         Self::new()
     }
 }
+

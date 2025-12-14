@@ -4,7 +4,8 @@
  * Automatically adapts UI based on detected context and user activity.
  */
 
-import { contextDetector, type Context } from './contextDetector';
+import { contextDetector, type Context, type ContextSignal } from './contextDetector';
+import { widgetRegistry } from '../components/widgets/WidgetRegistry';
 
 export interface UIAdaptation {
   component: string;

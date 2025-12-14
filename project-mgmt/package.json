@@ -124,8 +124,7 @@
   },
   "resolutions": {
     "sass": "1.32.6",
-    "@ctrl/tinycolor": "4.1.0",
-    "jira2md/marked": "12.0.2"
+    "@ctrl/tinycolor": "4.1.0"
   },
   "dependencies": {
     "electron-dl": "^3.5.2",
@@ -223,7 +222,7 @@
     "jasmine-core": "^5.10.0",
     "jasmine-marbles": "^0.9.2",
     "jasmine-spec-reporter": "~7.0.0",
-    "jira2md": "git+https://github.com/johannesjo/J2M.git",
+    "jira2md": "^3.0.1",
     "karma": "~6.4.2",
     "karma-chrome-launcher": "~3.2.0",
     "karma-cli": "^2.0.0",

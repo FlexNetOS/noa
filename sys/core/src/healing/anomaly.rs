@@ -4,12 +4,12 @@
 //! FR-072: System MUST detect anomalies in health metrics
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot, HealthMetric};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tokio::sync::Mutex;
+use tracing::{debug, warn};
 
 /// Anomaly type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -84,7 +84,7 @@ impl Default for AnomalyDetectorConfig {
 /// Anomaly detector
 pub struct AnomalyDetector {
     config: AnomalyDetectorConfig,
-    metric_history: Mutex<HashMap<String, Vec<(DateTime<Utc>, f64)>>>,
+    metric_history: HashMap<String, Vec<(DateTime<Utc>, f64)>>,
 }
 
 impl AnomalyDetector {
@@ -92,12 +92,15 @@ impl AnomalyDetector {
     pub fn new(config: AnomalyDetectorConfig) -> Self {
         Self {
             config,
-            metric_history: Mutex::new(HashMap::new()),
+            metric_history: HashMap::new(),
         }
     }
 
     /// Detect anomalies in health metrics
-    pub async fn detect(&self, snapshots: &[ComponentHealthSnapshot]) -> Result<Option<Anomaly>> {
+    pub async fn detect(
+        &mut self,
+        snapshots: &[ComponentHealthSnapshot],
+    ) -> Result<Option<Anomaly>> {
         for snapshot in snapshots {
             // Check if component is already unhealthy
             if matches!(
@@ -118,28 +121,19 @@ impl AnomalyDetector {
 
     /// Analyze a single metric for anomalies
     async fn analyze_metric(
-        &self,
+        &mut self,
         metric: &HealthMetric,
         snapshot: &ComponentHealthSnapshot,
     ) -> Result<Option<Anomaly>> {
-        let metric_key = format!(
-            "{}:{}",
-            metric.component_id,
-            format!("{:?}", metric.metric_type)
-        );
+        let metric_key = format!("{}:{}", metric.component_id, format!("{:?}", metric.metric_type));
 
         // Update history
-        let history = {
-            let mut history_guard = self.metric_history.lock().await;
-            let history_entry = history_guard.entry(metric_key.clone()).or_insert_with(Vec::new);
-            history_entry.push((metric.timestamp, metric.value));
+        let history = self.metric_history.entry(metric_key.clone()).or_insert_with(Vec::new);
+        history.push((metric.timestamp, metric.value));
 
-            // Keep only recent history
-            let cutoff =
-                Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
-            history_entry.retain(|(ts, _)| *ts >= cutoff);
-            history_entry.clone()
-        };
+        // Keep only recent history
+        let cutoff = Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
+        history.retain(|(ts, _)| *ts >= cutoff);
 
         // Check threshold violations
         if let Some(critical_threshold) = metric.threshold_critical {
@@ -168,7 +162,7 @@ impl AnomalyDetector {
         if let Some(warning_threshold) = metric.threshold_warning {
             if metric.value >= warning_threshold {
                 // Check for consecutive violations
-                let consecutive = Self::count_consecutive_in_history(&history, warning_threshold);
+                let consecutive = self.count_consecutive_violations(&metric_key, warning_threshold);
                 if consecutive >= self.config.consecutive_violations {
                     return Ok(Some(Anomaly {
                         component_id: metric.component_id.clone(),
@@ -195,7 +189,7 @@ impl AnomalyDetector {
 
         // Statistical anomaly detection
         if self.config.enable_statistical && history.len() >= 10 {
-            if let Some(anomaly) = self.detect_statistical_anomaly(metric, &history)? {
+            if let Some(anomaly) = self.detect_statistical_anomaly(metric, history)? {
                 return Ok(Some(anomaly));
             }
         }
@@ -203,7 +197,13 @@ impl AnomalyDetector {
         Ok(None)
     }
 
-    fn count_consecutive_in_history(history: &[(DateTime<Utc>, f64)], threshold: f64) -> u32 {
+    /// Count consecutive threshold violations
+    fn count_consecutive_violations(&self, metric_key: &str, threshold: f64) -> u32 {
+        let history = match self.metric_history.get(metric_key) {
+            Some(h) => h,
+            None => return 0,
+        };
+
         let mut count = 0;
         for (_, value) in history.iter().rev() {
             if *value >= threshold {
@@ -228,7 +228,11 @@ impl AnomalyDetector {
         // Calculate mean and standard deviation
         let values: Vec<f64> = history.iter().map(|(_, v)| *v).collect();
         let mean = values.iter().sum::<f64>() / values.len() as f64;
-        let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
+        let variance = values
+            .iter()
+            .map(|v| (v - mean).powi(2))
+            .sum::<f64>()
+            / values.len() as f64;
         let std_dev = variance.sqrt();
 
         // Check for spike (value > mean + 2*std_dev)
@@ -295,8 +299,7 @@ mod tests {
     async fn test_anomaly_detector_creation() {
         let config = AnomalyDetectorConfig::default();
         let detector = AnomalyDetector::new(config);
-        let guard = detector.metric_history.lock().await;
-        assert!(guard.is_empty());
+        assert!(detector.metric_history.is_empty());
     }
 
     #[test]
@@ -306,3 +309,4 @@ mod tests {
         assert!(AnomalySeverity::Medium > AnomalySeverity::Low);
     }
 }
+
