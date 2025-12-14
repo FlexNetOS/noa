@@ -152,7 +152,7 @@ impl ModelSelectorAgent {
         // Context length matching
         if let Some(required) = criteria.required_context_length {
             if let Some(available) = model.context_length {
-                if available >= required {
+                if available >= required as i32 {
                     score += 20.0;
                 } else {
                     score -= 10.0; // Penalty for insufficient context

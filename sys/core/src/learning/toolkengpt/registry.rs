@@ -22,6 +22,7 @@ pub struct ToolToken {
 }
 
 /// ToolkenGPT token registry
+#[derive(Clone)]
 pub struct ToolkenGptRegistry {
     tokens: Arc<RwLock<HashMap<String, ToolToken>>>,
     token_id_counter: Arc<RwLock<u32>>,

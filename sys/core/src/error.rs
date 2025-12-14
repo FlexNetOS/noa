@@ -261,6 +261,36 @@ impl From<ValidationError> for NoaError {
     }
 }
 
+impl From<rusqlite::Error> for NoaError {
+    fn from(err: rusqlite::Error) -> Self {
+        NoaError::Database(DatabaseError::QueryFailed {
+            query: "unknown".to_string(),
+            error: err.to_string(),
+        })
+    }
+}
+
+impl From<serde_json::Error> for NoaError {
+    fn from(err: serde_json::Error) -> Self {
+        NoaError::Serialization(err.to_string())
+    }
+}
+
+impl From<prometheus::Error> for NoaError {
+    fn from(err: prometheus::Error) -> Self {
+        NoaError::Internal {
+            message: format!("Prometheus error: {}", err),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<std::string::FromUtf8Error> for NoaError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        NoaError::Serialization(format!("UTF-8 conversion error: {}", err))
+    }
+}
+
 /// Result type alias for NOA operations
 pub type Result<T> = std::result::Result<T, NoaError>;
 

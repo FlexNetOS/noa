@@ -12,12 +12,12 @@ use crate::memory::embeddings::EmbeddingGenerator;
 use crate::db::repositories::memory_repository::MemoryType;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
-use std::collections::HashSet;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 /// Memory service for managing memories
-pub struct MemoryService {
-    memory_repo: MemoryRepository,
+pub struct MemoryService {    conn: Arc<Mutex<Connection>>,    memory_repo: MemoryRepository,
     embedding_repo: EmbeddingRepository,
     embedding_generator: Option<EmbeddingGenerator>,
 }
@@ -25,9 +25,11 @@ pub struct MemoryService {
 impl MemoryService {
     /// Create a new memory service
     pub fn new(conn: Connection) -> Self {
+        let conn_arc = Arc::new(Mutex::new(conn));
         Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
-            embedding_repo: EmbeddingRepository::new(conn),
+            memory_repo: MemoryRepository::new(conn_arc.clone()),
+            embedding_repo: EmbeddingRepository::new(conn_arc.clone()),
+            conn: conn_arc,
             embedding_generator: None,
         }
     }
@@ -37,10 +39,12 @@ impl MemoryService {
         conn: Connection,
         model_name: &str,
     ) -> Result<Self> {
+        let conn_arc = Arc::new(Mutex::new(conn));
         let generator = EmbeddingGenerator::new(model_name).await?;
         Ok(Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
-            embedding_repo: EmbeddingRepository::new(conn),
+            memory_repo: MemoryRepository::new(conn_arc.clone()),
+            embedding_repo: EmbeddingRepository::new(conn_arc.clone()),
+            conn: conn_arc,
             embedding_generator: Some(generator),
         })
     }
