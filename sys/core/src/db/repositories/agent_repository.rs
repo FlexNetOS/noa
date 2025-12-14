@@ -1,7 +1,6 @@
 //! Agent repository (Phase 9 - T258)
-use crate::db::repository::Repository;
 use crate::error::{DatabaseError, NoaError, Result};
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 
 #[derive(Debug, Clone)]
 pub struct Agent {

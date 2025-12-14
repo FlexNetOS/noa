@@ -22,6 +22,11 @@
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "prompts": "${NOA_ROOT}/ai/shared/prompts"
   },
+  "systemPrompts": {
+    "enabled": true,
+    "inherit": ["ultrathink"],
+    "promptPath": "${NOA_ROOT}/ai/shared/prompts"
+  },
   "cli": {
     "binaryPath": {
       "unix": "${NOA_ROOT}/opt/ollama/ollama",

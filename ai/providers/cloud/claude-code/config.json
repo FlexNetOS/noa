@@ -78,5 +78,10 @@
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
   },
+  "systemPrompts": {
+    "enabled": true,
+    "inherit": ["ultrathink"],
+    "promptPath": "${NOA_ROOT}/ai/shared/prompts"
+  },
   "timeout": 30000
 }

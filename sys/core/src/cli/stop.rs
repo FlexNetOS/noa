@@ -163,7 +163,7 @@ fn stop_process_force(pid: u32) -> Result<()> {
 fn is_process_running(pid: u32) -> bool {
     #[cfg(unix)]
     {
-        use nix::sys::signal::{kill, Signal};
+        use nix::sys::signal::kill;
         use nix::unistd::Pid;
 
         let pid = Pid::from_raw(pid as i32);

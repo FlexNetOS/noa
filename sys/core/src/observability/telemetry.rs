@@ -7,7 +7,6 @@
 //! NOTE: OpenTelemetry dependencies are optional - using tracing only for now
 //! TODO: Add opentelemetry dependencies when needed
 
-use std::time::Duration;
 
 use crate::error::Result;
 

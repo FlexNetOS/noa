@@ -4,11 +4,11 @@
 //! FR-055: System MUST self-monitor performance metrics and autonomously adjust execution strategies
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{debug, info, warn};
+use tracing::{debug, warn};
 
 /// Performance metric
 #[derive(Debug, Clone, Serialize, Deserialize)]

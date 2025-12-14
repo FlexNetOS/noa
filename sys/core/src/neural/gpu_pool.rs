@@ -4,7 +4,6 @@
 //! US2: Pool GPU memory across multiple devices
 
 use crate::error::Result;
-use crate::neural::cuda_devices::CudaDevice;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;

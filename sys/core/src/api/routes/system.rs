@@ -71,7 +71,7 @@ async fn get_system_info(State(_state): State<AppState>) -> impl IntoResponse {
 }
 
 /// GET /api/v1/system/health
-async fn get_system_health(State(state): State<AppState>) -> impl IntoResponse {
+async fn get_system_health(State(_state): State<AppState>) -> impl IntoResponse {
     info!("GET /api/v1/system/health");
 
     // Get NOA_ROOT from environment or use default

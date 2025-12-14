@@ -6,7 +6,7 @@
 
 use crate::error::{NoaError, Result};
 use crate::healing::anomaly::Anomaly;
-use crate::healing::monitor::{ComponentHealthSnapshot, HealthMetric};
+use crate::healing::monitor::ComponentHealthSnapshot;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tracing::{debug, info};
@@ -205,7 +205,7 @@ impl RootCauseAnalyzer {
     fn collect_evidence(
         &self,
         anomaly: &Anomaly,
-        snapshots: &[ComponentHealthSnapshot],
+        _snapshots: &[ComponentHealthSnapshot],
     ) -> Vec<String> {
         let mut evidence = Vec::new();
         evidence.push(format!("Anomaly: {}", anomaly.description));

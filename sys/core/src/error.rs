@@ -9,7 +9,6 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use serde_json::json;
 use std::fmt;
 
 /// Core error type for NOA operations
