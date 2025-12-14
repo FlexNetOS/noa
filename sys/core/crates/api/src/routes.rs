@@ -64,7 +64,7 @@ pub struct CreateTaskResponse {
 }
 
 /// Create task endpoint
-pub async fn create_task(Json(_payload): Json<CreateTaskRequest>) -> Json<CreateTaskResponse> {
+pub async fn create_task(Json(payload): Json<CreateTaskRequest>) -> Json<CreateTaskResponse> {
     let task_id = uuid::Uuid::new_v4().to_string();
 
     Json(CreateTaskResponse {

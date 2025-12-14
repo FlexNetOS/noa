@@ -10,7 +10,7 @@ ORG_NAME="${FLEXNETOS_ORG:-FlexNetOS}"
 CONFIG_FILE=".github/org-config/flexnetos-automation.yml"
 WORKFLOW_FILES=(
     ".github/workflows/flexnetos-auto-resolve.yml"
-    ".github/workflow-templates/flexnetos-reusable-resolver.yml"
+    ".github/workflows/flexnetos-reusable-resolver.yml"
 )
 ACTION_DIR=".github/actions/ai-resolver"
 SCRIPT_DIR=".github/scripts"
@@ -283,7 +283,7 @@ on:
 
 jobs:
   auto-resolve:
-    uses: FlexNetOS/.github/workflows/flexnetos-reusable-resolver.yml@main
+    uses: FlexNetOS/.github/.github/workflows/flexnetos-reusable-resolver.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
       max_iterations: 10

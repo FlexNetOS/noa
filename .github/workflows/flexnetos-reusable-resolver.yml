@@ -105,7 +105,7 @@ jobs:
 
       - name: Run Resolution Engine
         id: resolver
-        uses: FlexNetOS/.github/actions/ai-resolver@main
+        uses: FlexNetOS/.github/.github/actions/ai-resolver@main
         with:
           pr_number: ${{ inputs.pr_number }}
           ai_provider: ${{ inputs.ai_provider }}
