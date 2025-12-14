@@ -145,7 +145,6 @@ impl DecisionRecorder {
     }
 
     /// Record a decision rationale
-    ///
     /// Captures the complete reasoning behind a promotion/rollback decision,
     /// including policy gate results, analytics evaluations, and risk assessment
     #[allow(clippy::too_many_arguments)]
