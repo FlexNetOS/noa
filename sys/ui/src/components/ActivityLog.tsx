@@ -33,9 +33,7 @@ export default function ActivityLog() {
     const loadInitialEntries = async () => {
       try {
         const response = await apiClient.getActivityLog(1000);
-        // Type assertion since we know the API returns ActivityEntry[]
-        const typedResponse = response as unknown as { entries: ActivityEntry[] };
-        setEntries(typedResponse.entries.reverse()); // Show newest first
+        setEntries(response.entries.reverse()); // Show newest first
       } catch (error) {
         console.error('Failed to load activity log:', error);
       } finally {
@@ -46,11 +44,10 @@ export default function ActivityLog() {
     loadInitialEntries();
 
     // Subscribe to WebSocket updates
-    const callback = (event: WebSocketEvent) => {
+    const unsubscribe = wsClient.on('activity', (event: WebSocketEvent) => {
       const newEntry = event.data as ActivityEntry;
       setEntries(prev => [newEntry, ...prev].slice(0, 10000)); // Keep last 10k
-    };
-    wsClient.on('activity', callback);
+    });
 
     // Connect WebSocket if not already connected
     if (!wsClient.isConnected) {
@@ -58,7 +55,7 @@ export default function ActivityLog() {
     }
 
     return () => {
-      wsClient.off('activity', callback);
+      unsubscribe();
     };
   }, []);
 
