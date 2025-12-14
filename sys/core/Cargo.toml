@@ -146,7 +146,7 @@ futures = "0.3"
 tracing-appender = "0.2"
 regex = "1.12"
 reqwest = { version = "0.12", features = ["json"] }
-prometheus = "0.13"
+prometheus = "0.14"
 lazy_static = "1.5"
 
 # Internal crates
