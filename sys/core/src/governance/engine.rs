@@ -3,8 +3,8 @@
 //! Evaluates agent decisions against registered governance rules, records
 //! every verdict with rationale, and emits audit-ready outcomes.
 
-use crate::governance::audit::{AuditEvent, GovernanceAuditTrail};
 use crate::error::{NoaError, Result};
+use crate::governance::audit::{AuditEvent, GovernanceAuditTrail};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

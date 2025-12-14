@@ -155,10 +155,8 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 3: Diagnose - root cause analysis
-                let root_cause = self
-                    .root_cause_analyzer
-                    .analyze(&anomaly, &health_snapshots)
-                    .await?;
+                let root_cause =
+                    self.root_cause_analyzer.analyze(&anomaly, &health_snapshots).await?;
 
                 // Update event with root cause
                 {
@@ -170,10 +168,7 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 4: Fix - auto-fix executor
-                let fix_result = self
-                    .fix_executor
-                    .apply_fix(&anomaly, &root_cause)
-                    .await?;
+                let fix_result = self.fix_executor.apply_fix(&anomaly, &root_cause).await?;
 
                 // Update event with fix
                 {
@@ -186,10 +181,7 @@ impl SelfHealingOrchestrator {
                 }
 
                 // Stage 5: Validate - fix validation
-                let validation_result = self
-                    .fix_validator
-                    .validate(&anomaly, &fix_result)
-                    .await?;
+                let validation_result = self.fix_validator.validate(&anomaly, &fix_result).await?;
 
                 if validation_result.success {
                     // Fix successful

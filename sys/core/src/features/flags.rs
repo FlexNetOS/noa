@@ -98,11 +98,7 @@ impl FeatureFlagStore {
 
     /// Check if a flag is enabled
     pub fn is_enabled(&self, name: &str) -> bool {
-        self.flags
-            .iter()
-            .find(|f| f.name == name)
-            .map(|f| f.enabled)
-            .unwrap_or(false)
+        self.flags.iter().find(|f| f.name == name).map(|f| f.enabled).unwrap_or(false)
     }
 
     /// Enable or disable a flag and persist to disk
@@ -207,19 +203,23 @@ fn default_flags() -> Vec<FeatureFlag> {
             true,
             "Enable GitHub connector for repositories and issues",
         ),
-        FeatureFlag::new(
-            "connectors.google",
-            true,
-            "Enable Google/Gmail connector",
-        ),
+        FeatureFlag::new("connectors.google", true, "Enable Google/Gmail connector"),
         FeatureFlag::new("connectors.openai", true, "Enable OpenAI connector"),
-        FeatureFlag::new("connectors.claude", true, "Enable Anthropic Claude connector"),
+        FeatureFlag::new(
+            "connectors.claude",
+            true,
+            "Enable Anthropic Claude connector",
+        ),
         FeatureFlag::new(
             "connectors.cloud_storage",
             true,
             "Enable cloud storage connectors (S3/GCS)",
         ),
-        FeatureFlag::new("connectors.email", false, "Enable SMTP/IMAP email connector"),
+        FeatureFlag::new(
+            "connectors.email",
+            false,
+            "Enable SMTP/IMAP email connector",
+        ),
         FeatureFlag::new(
             "connectors.offline_cache",
             true,

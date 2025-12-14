@@ -39,7 +39,7 @@ pub fn routes() -> Router<AppState> {
         )
         .route("/digest/sources/:id/sbom", get(get_source_sbom))
         .route("/digest/sources/:id/security", get(get_source_security))
-        // Knowledge routes moved to knowledge.rs module
+    // Knowledge routes moved to knowledge.rs module
 }
 
 /// Create a new digest job

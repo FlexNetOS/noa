@@ -20,12 +20,16 @@ async fn sc001_system_initialization_under_60s() {
         Ok(details) => {
             if !details.errors.is_empty() {
                 result.status = BenchmarkStatus::Failed;
-                result.notes =
-                    Some(format!("init completed with {} errors", details.errors.len()));
+                result.notes = Some(format!(
+                    "init completed with {} errors",
+                    details.errors.len()
+                ));
             } else {
                 result.notes = Some(format!(
                     "dirs={} configs={} db={}",
-                    details.directories_created, details.configs_generated, details.database_initialized
+                    details.directories_created,
+                    details.configs_generated,
+                    details.database_initialized
                 ));
             }
         }
