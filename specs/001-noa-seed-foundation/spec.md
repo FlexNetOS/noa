@@ -647,8 +647,6 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 |------|------------|
 | **NOA** | **N**ame **o**f **A**pp - the brand name for the entire autonomous agentic operating system. NOA encompasses all planes, agents, and infrastructure. When referring to "the system," use "NOA." |
 | **CECCA** | **C**hief **E**xecutive **C**ommander **C**hief **A**gent - the root orchestrator agent that lives *inside* NOA. CECCA decomposes goals into tasks and coordinates all other agents. When referring to "the main agent," use "CECCA." |
-| **NOA Kernel** | The portable kernels and abstraction layer managed by NKAL; lives inside NOA, follows capability policy, and can switch between native, container, sandbox, or VM modes. |
-| **Host Kernel** | The underlying OS kernel (Windows/Linux/macOS) treated as an external dependency boundary; access is only allowed through declared NKAL capabilities and mounts. |
 | **MicroAgentStack (MAS)** | A deployable cluster of cooperative agents; code prefix: `mas_*` (reusable) or `gen_mas` (disposable) |
 | **Minimum Hardware** | 8GB RAM, 4-core CPU, no dedicated GPU, 20GB storage - suitable for basic operation with single small model |
 | **Standard Hardware** | 16GB RAM, 8-core CPU (x64/arm64), integrated GPU, 100GB+ storage - recommended for multi-SLM operation, used as baseline for latency targets (e.g., US2 "2 seconds", US7 "200 concurrent tasks") |

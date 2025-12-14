@@ -8,13 +8,13 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
-use lazy_static::lazy_static;
 use prometheus::{
-    self, Counter, CounterVec, Encoder, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec,
-    IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder,
+    self, Counter, CounterVec, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec,
+    IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder, Encoder,
 };
+use lazy_static::lazy_static;
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 
 lazy_static! {
     /// Global metrics registry
@@ -117,30 +117,25 @@ lazy_static! {
 
 /// Initialize the metrics system
 pub fn init_metrics() -> Result<()> {
-    let to_err = |e: prometheus::Error| NoaError::Internal {
-        message: e.to_string(),
-        source: None,
-    };
-
     // Register all metrics with the registry
-    REGISTRY.register(Box::new(HTTP_REQUESTS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(HTTP_REQUEST_DURATION.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(DB_QUERIES_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(DB_QUERY_DURATION.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(DB_CONNECTIONS_ACTIVE.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(DB_CONNECTIONS_IDLE.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(AGENT_ACTIONS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(AGENT_ACTION_DURATION.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(AGENTS_ACTIVE.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(PROVIDER_REQUESTS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(PROVIDER_TOKENS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(PROVIDER_LATENCY.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(TASKS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(TASKS_QUEUE_SIZE.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(MEMORY_ENTRIES.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(EMBEDDINGS_TOTAL.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(UPTIME_SECONDS.clone())).map_err(&to_err)?;
-    REGISTRY.register(Box::new(BUILD_INFO.clone())).map_err(&to_err)?;
+    REGISTRY.register(Box::new(HTTP_REQUESTS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(HTTP_REQUEST_DURATION.clone()))?;
+    REGISTRY.register(Box::new(DB_QUERIES_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(DB_QUERY_DURATION.clone()))?;
+    REGISTRY.register(Box::new(DB_CONNECTIONS_ACTIVE.clone()))?;
+    REGISTRY.register(Box::new(DB_CONNECTIONS_IDLE.clone()))?;
+    REGISTRY.register(Box::new(AGENT_ACTIONS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(AGENT_ACTION_DURATION.clone()))?;
+    REGISTRY.register(Box::new(AGENTS_ACTIVE.clone()))?;
+    REGISTRY.register(Box::new(PROVIDER_REQUESTS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(PROVIDER_TOKENS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(PROVIDER_LATENCY.clone()))?;
+    REGISTRY.register(Box::new(TASKS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(TASKS_QUEUE_SIZE.clone()))?;
+    REGISTRY.register(Box::new(MEMORY_ENTRIES.clone()))?;
+    REGISTRY.register(Box::new(EMBEDDINGS_TOTAL.clone()))?;
+    REGISTRY.register(Box::new(UPTIME_SECONDS.clone()))?;
+    REGISTRY.register(Box::new(BUILD_INFO.clone()))?;
 
     // Set build info
     BUILD_INFO
@@ -160,11 +155,8 @@ pub fn get_metrics() -> Result<String> {
     let encoder = TextEncoder::new();
     let metric_families = REGISTRY.gather();
     let mut buffer = Vec::new();
-    encoder.encode(&metric_families, &mut buffer).map_err(|e| NoaError::Internal {
-        message: e.to_string(),
-        source: None,
-    })?;
-    String::from_utf8(buffer).map_err(|e| NoaError::Serialization(e.to_string()))
+    encoder.encode(&metric_families, &mut buffer)?;
+    Ok(String::from_utf8(buffer)?)
 }
 
 /// Record an HTTP request
@@ -180,7 +172,9 @@ pub fn record_http_request(method: &str, path: &str, status: u16, duration: Dura
 
 /// Record a database query
 pub fn record_db_query(operation: &str, table: &str, duration: Duration) {
-    DB_QUERIES_TOTAL.with_label_values(&[operation, table]).inc();
+    DB_QUERIES_TOTAL
+        .with_label_values(&[operation, table])
+        .inc();
 
     DB_QUERY_DURATION
         .with_label_values(&[operation])
@@ -189,7 +183,9 @@ pub fn record_db_query(operation: &str, table: &str, duration: Duration) {
 
 /// Record an agent action
 pub fn record_agent_action(agent: &str, action: &str, status: &str, duration: Duration) {
-    AGENT_ACTIONS_TOTAL.with_label_values(&[agent, action, status]).inc();
+    AGENT_ACTIONS_TOTAL
+        .with_label_values(&[agent, action, status])
+        .inc();
 
     AGENT_ACTION_DURATION
         .with_label_values(&[agent, action])
@@ -205,7 +201,9 @@ pub fn record_provider_request(
     output_tokens: u64,
     duration: Duration,
 ) {
-    PROVIDER_REQUESTS_TOTAL.with_label_values(&[provider, model, status]).inc();
+    PROVIDER_REQUESTS_TOTAL
+        .with_label_values(&[provider, model, status])
+        .inc();
 
     PROVIDER_TOKENS_TOTAL
         .with_label_values(&[provider, model, "input"])
@@ -252,10 +250,7 @@ pub async fn metrics_handler() -> impl axum::response::IntoResponse {
     match get_metrics() {
         Ok(metrics) => (
             axum::http::StatusCode::OK,
-            [(
-                axum::http::header::CONTENT_TYPE,
-                "text/plain; version=0.0.4",
-            )],
+            [(axum::http::header::CONTENT_TYPE, "text/plain; version=0.0.4")],
             metrics,
         ),
         Err(e) => (
@@ -283,3 +278,4 @@ mod tests {
         record_http_request("GET", "/api/v1/health", 200, Duration::from_millis(50));
     }
 }
+

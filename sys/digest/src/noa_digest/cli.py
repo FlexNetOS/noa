@@ -3,8 +3,9 @@
 Command-line interface for the digest pipeline.
 """
 
-import typer
 from pathlib import Path
+
+import typer
 from rich.console import Console
 
 app = typer.Typer(
@@ -22,7 +23,7 @@ def analyze(
     format: str = typer.Option("all", help="Output format: all, json, markdown"),
 ) -> None:
     """Analyze a codebase and generate digest artifacts."""
-    console.print(f"[bold blue]NOA Digest[/bold blue] v0.1.0")
+    console.print("[bold blue]NOA Digest[/bold blue] v0.1.0")
     console.print(f"Analyzing: {path}")
     console.print(f"Output: {output}")
 

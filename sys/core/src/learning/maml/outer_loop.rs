@@ -36,10 +36,7 @@ impl OuterLoopOptimizer {
     }
 
     /// Meta-optimize model initialization
-    pub async fn meta_optimize(
-        &self,
-        initial_params: &std::collections::HashMap<String, f64>,
-    ) -> Result<std::collections::HashMap<String, f64>> {
+    pub async fn meta_optimize(&self, initial_params: &std::collections::HashMap<String, f64>) -> Result<std::collections::HashMap<String, f64>> {
         // TODO: Implement actual meta-optimization
         // This would:
         // 1. Sample tasks from distribution
@@ -69,3 +66,4 @@ mod tests {
         assert_eq!(meta_grad, 2.0);
     }
 }
+

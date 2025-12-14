@@ -6,7 +6,7 @@
 //!
 //! T630: Implement constitutional decision boundary
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -93,8 +93,7 @@ impl ConstitutionalBoundary {
                 if let Some(scope) = context.parameters.get("scope") {
                     if let Some(scope_str) = scope.as_str() {
                         if scope_str == "critical_system" {
-                            constraints
-                                .push("Critical system modifications require approval".to_string());
+                            constraints.push("Critical system modifications require approval".to_string());
                         }
                     }
                 }
@@ -230,3 +229,4 @@ mod tests {
         assert!(result.allowed); // Should allow when disabled
     }
 }
+

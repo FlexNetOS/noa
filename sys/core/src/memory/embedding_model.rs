@@ -69,3 +69,4 @@ impl EmbeddingModel {
         &self.name
     }
 }
+
