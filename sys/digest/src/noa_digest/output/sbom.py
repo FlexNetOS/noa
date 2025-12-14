@@ -8,7 +8,7 @@ US4: Digest Everything Pipeline
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def generate_sbom(
     source_path: Path,
     format: str = "cyclonedx",
-) -> dict[str, Any]:
+) -> Dict[str, Any]:
     """Generate Software Bill of Materials.
 
     Args:
@@ -59,7 +59,7 @@ def generate_sbom(
         return _generate_minimal_sbom(source_path, format)
 
 
-def _generate_minimal_sbom(source_path: Path, format: str) -> dict[str, Any]:
+def _generate_minimal_sbom(source_path: Path, format: str) -> Dict[str, Any]:
     """Generate a minimal SBOM structure when Syft is not available.
 
     Args:
@@ -96,7 +96,7 @@ def _generate_minimal_sbom(source_path: Path, format: str) -> dict[str, Any]:
         }
 
 
-def write_sbom(sbom: dict[str, Any], output_path: Path) -> None:
+def write_sbom(sbom: Dict[str, Any], output_path: Path) -> None:
     """Write SBOM to file.
 
     Args:

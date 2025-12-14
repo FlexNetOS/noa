@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any, List
 import logging
 import subprocess
 
@@ -20,7 +20,7 @@ class SecureStage:
         """Initialize secure stage."""
         pass
 
-    def secure(self, source_path: Path) -> dict[str, Any]:
+    def secure(self, source_path: Path) -> Dict[str, Any]:
         """Run security scans.
 
         Args:

@@ -5,7 +5,7 @@ T169: Implement Summarize stage
 US4: Digest Everything Pipeline
 """
 
-from typing import Any
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class SummarizeStage:
         """Initialize summarize stage."""
         pass
 
-    def summarize(self, analyzed_data: dict[str, Any]) -> dict[str, Any]:
+    def summarize(self, analyzed_data: Dict[str, Any]) -> Dict[str, Any]:
         """Summarize analyzed code.
 
         Args:

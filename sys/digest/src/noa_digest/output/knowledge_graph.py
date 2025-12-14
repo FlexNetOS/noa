@@ -7,7 +7,7 @@ US4: Digest Everything Pipeline
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any, List
 from datetime import datetime
 import uuid
 import logging
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 def generate_knowledge_graph(
-    parsed_data: dict[str, Any],
-    analyzed_data: dict[str, Any],
-) -> dict[str, Any]:
+    parsed_data: Dict[str, Any],
+    analyzed_data: Dict[str, Any],
+) -> Dict[str, Any]:
     """Generate kg.json knowledge graph.
 
     Args:
@@ -93,7 +93,7 @@ def generate_knowledge_graph(
     return kg
 
 
-def write_knowledge_graph(kg: dict[str, Any], output_path: Path) -> None:
+def write_knowledge_graph(kg: Dict[str, Any], output_path: Path) -> None:
     """Write kg.json to file.
 
     Args:

@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any
 import logging
 
 from ..parsers import (
@@ -33,7 +33,7 @@ class ParseStage:
             "java": JavaParser(),
         }
 
-    def parse(self, source_path: Path) -> dict[str, Any]:
+    def parse(self, source_path: Path) -> Dict[str, Any]:
         """Parse source code.
 
         Args:
