@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# VS Code containment launcher (Phase 19 T881)
+set -euo pipefail
+
+NOA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+NOA_DATA="${NOA_ROOT}/data"
+APP_ID="vscode"
+APP_DATA="${NOA_DATA}/apps/${APP_ID}"
+
+mkdir -p "${APP_DATA}/User" "${APP_DATA}/extensions"
+
+export VSCODE_USER_DATA_DIR="${APP_DATA}/User"
+export VSCODE_EXTENSIONS="${APP_DATA}/extensions"
+export XDG_DATA_HOME="${APP_DATA}"
+export XDG_CONFIG_HOME="${APP_DATA}"
+export APPDATA="${APP_DATA}"
+export LOCALAPPDATA="${APP_DATA}"
+
+export HTTP_PROXY="http://127.0.0.1:8085"
+export HTTPS_PROXY="${HTTP_PROXY}"
+
+run_app() {
+  local candidate="$1"
+  if [[ -x "${candidate}" ]]; then
+    exec "${candidate}" "$@"
+  fi
+}
+
+run_app "${NOA_ROOT}/opt/apps/vscode/bin/code" "$@" || \
+run_app "/usr/bin/code" "$@" || \
+run_app "/opt/vscode/code" "$@"
+
+echo "[WARN] VS Code binary not found under NOA containment."
+exit 1

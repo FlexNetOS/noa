@@ -43,6 +43,15 @@ CREATE TABLE IF NOT EXISTS provider_state (
     current_load REAL DEFAULT 0.0
 );
 
+CREATE TABLE IF NOT EXISTS provider_rate_limits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider TEXT NOT NULL UNIQUE,
+    max_rps INTEGER DEFAULT 0,
+    burst INTEGER DEFAULT 0,
+    backoff_ms INTEGER DEFAULT 1000,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_context_session ON execution_context(session_id);
 CREATE INDEX IF NOT EXISTS idx_reasoning_session ON reasoning_state(session_id);
 CREATE INDEX IF NOT EXISTS idx_task_status ON task_distribution(status);

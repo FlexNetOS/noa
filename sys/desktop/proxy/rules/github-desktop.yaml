@@ -1,0 +1,8 @@
+id: github-desktop
+allowlist:
+  - "api.github.com"
+  - "github.com"
+blocklist:
+  - "npmjs.com"  # prevent unexpected package fetches through desktop
+rate_limit_rps: 10
+notes: "GitHub Desktop traffic scoped to GitHub domains."

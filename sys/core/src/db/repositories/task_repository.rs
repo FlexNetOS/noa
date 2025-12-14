@@ -1,0 +1,51 @@
+//! Task repository (Phase 9 - T260)
+use crate::db::repository::Repository;
+use crate::error::{DatabaseError, NoaError, Result};
+use rusqlite::{params, Connection};
+
+#[derive(Debug, Clone)]
+pub struct Task {
+    pub id: i64,
+    pub agent_id: Option<i64>,
+    pub title: String,
+    pub status: String,
+    pub payload: Option<String>,
+}
+
+pub struct TaskRepository<'a> {
+    conn: &'a Connection,
+}
+
+impl<'a> TaskRepository<'a> {
+    pub fn new(conn: &'a Connection) -> Self {
+        Self { conn }
+    }
+
+    pub fn list(&self) -> Result<Vec<Task>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, agent_id, title, status, payload FROM tasks")
+            .map_err(to_db_err("prepare list tasks"))?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok(Task {
+                    id: row.get(0)?,
+                    agent_id: row.get(1)?,
+                    title: row.get(2)?,
+                    status: row.get(3)?,
+                    payload: row.get(4)?,
+                })
+            })
+            .map_err(to_db_err("query tasks"))?;
+        Ok(rows.filter_map(Result::ok).collect())
+    }
+}
+
+fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
+    move |err| NoaError::Database(DatabaseError::QueryFailed {
+        query: context.into(),
+        error: err.to_string(),
+    })
+}
+
+impl<'a> Repository for TaskRepository<'a> {}

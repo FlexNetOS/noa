@@ -1,0 +1,39 @@
+$id: "https://noa.local/schemas/providers.yaml"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NOA Providers"
+description: "Schema for provider configuration (Phase 2.6)"
+type: object
+properties:
+  providers:
+    type: array
+    items:
+      type: object
+      required: [id, kind, priority, enabled]
+      properties:
+        id:
+          type: string
+          description: "Provider identifier (llama.cpp, claude, codex, cursor, git, abacus, copilot)"
+        kind:
+          type: string
+          enum: [local, cloud, ide, cli]
+        priority:
+          type: integer
+          description: "Lower number = higher priority"
+        enabled:
+          type: boolean
+        capabilities:
+          type: array
+          items: { type: string }
+        endpoints:
+          type: object
+          description: "Optional endpoint configuration"
+          properties:
+            cli: { type: string }
+            cloud: { type: string }
+            ide: { type: string }
+        rateLimit:
+          type: object
+          properties:
+            maxRps: { type: integer }
+            burst: { type: integer }
+additionalProperties: false

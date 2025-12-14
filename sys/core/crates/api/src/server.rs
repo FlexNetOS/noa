@@ -1,6 +1,6 @@
 //! API Server implementation
 
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -28,6 +28,8 @@ impl Server {
         Router::new()
             .route("/health", get(routes::health))
             .route("/api/v1/status", get(routes::status))
+            .route("/api/v1/tasks", get(routes::list_tasks))
+            .route("/api/v1/tasks", post(routes::create_task))
             .layer(cors)
             .layer(TraceLayer::new_for_http())
     }

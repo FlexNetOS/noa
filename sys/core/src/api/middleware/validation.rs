@@ -141,10 +141,10 @@ pub fn validate_json<T: serde::de::DeserializeOwned>(
 }
 
 /// Validate a required string field
-pub fn validate_required_string(
-    value: &Option<String>,
+pub fn validate_required_string<'a>(
+    value: &'a Option<String>,
     field_name: &str,
-) -> Result<&String, ValidationError> {
+) -> Result<&'a String, ValidationError> {
     match value {
         Some(s) if !s.trim().is_empty() => Ok(s),
         Some(_) => Err(ValidationError::new(
