@@ -5,6 +5,7 @@
 
 use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
+use sysinfo::System;
 
 use crate::api::server::AppState;
 use crate::db;
@@ -153,7 +154,7 @@ async fn readiness_check(State(state): State<AppState>) -> StatusCode {
 async fn check_database(state: &AppState) -> ComponentStatus {
     match state.db.get() {
         Ok(conn) => {
-            // Try to run integrity check
+            // Try to run integrity check, but ignore FTS table errors as they're non-critical
             match db::check_integrity(&conn) {
                 Ok(true) => {
                     // Get stats
@@ -167,7 +168,16 @@ async fn check_database(state: &AppState) -> ComponentStatus {
                     }
                 }
                 Ok(false) => ComponentStatus::unhealthy("Database integrity check failed"),
-                Err(e) => ComponentStatus::degraded(format!("Integrity check error: {}", e)),
+                Err(e) => {
+                    // Check if error is related to FTS tables (non-critical)
+                    let error_msg = e.to_string();
+                    if error_msg.contains("fts") || error_msg.contains("memory_fts") || error_msg.contains("vtable") {
+                        // FTS table errors are non-critical - database is still functional
+                        ComponentStatus::degraded(format!("FTS index issue (non-critical): {}", e))
+                    } else {
+                        ComponentStatus::degraded(format!("Integrity check error: {}", e))
+                    }
+                }
             }
         }
         Err(e) => ComponentStatus::unhealthy(format!("Database connection failed: {}", e)),
@@ -176,11 +186,46 @@ async fn check_database(state: &AppState) -> ComponentStatus {
 
 /// Check memory usage
 fn check_memory() -> ComponentStatus {
-    // Basic memory check using sys_info or similar
-    // For now, just report healthy
-    ComponentStatus::healthy_with_details(serde_json::json!({
-        "note": "Memory monitoring not fully implemented"
-    }))
+    let mut sys = System::new_all();
+    sys.refresh_memory();
+
+    let total_memory = sys.total_memory();
+    let used_memory = sys.used_memory();
+    let available_memory = sys.available_memory();
+    let usage_percent = if total_memory > 0 {
+        (used_memory as f64 / total_memory as f64) * 100.0
+    } else {
+        0.0
+    };
+
+    // Determine health based on memory usage
+    let (status, message) = if usage_percent > 95.0 {
+        (
+            HealthStatus::Unhealthy,
+            Some(format!("Critical memory usage: {:.1}%", usage_percent)),
+        )
+    } else if usage_percent > 85.0 {
+        (
+            HealthStatus::Degraded,
+            Some(format!("High memory usage: {:.1}%", usage_percent)),
+        )
+    } else {
+        (HealthStatus::Healthy, None)
+    };
+
+    ComponentStatus {
+        status,
+        message,
+        details: Some(serde_json::json!({
+            "total_bytes": total_memory,
+            "used_bytes": used_memory,
+            "available_bytes": available_memory,
+            "usage_percent": format!("{:.1}", usage_percent),
+            "total_mb": total_memory / 1024 / 1024,
+            "used_mb": used_memory / 1024 / 1024,
+            "available_mb": available_memory / 1024 / 1024
+        })),
+    }
 }
 
 /// Determine overall status from component statuses

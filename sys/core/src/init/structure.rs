@@ -3,7 +3,7 @@
 //! T072, T074-T078: Implement directory structure creation
 //! §3.1: Self-Contained & Autonomous
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::init::paths::NoaPaths;
 use std::fs;
 #[cfg(unix)]

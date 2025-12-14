@@ -3,7 +3,6 @@
 //! T137: Implement embedding cache (model_version + input_hash + params_hash)
 //! §3.7: Total Memory Sovereignty
 
-use crate::error::Result;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, VecDeque};
 use std::sync::RwLock;

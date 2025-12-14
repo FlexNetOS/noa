@@ -4,7 +4,7 @@
 //! US2: Distribute model layers across multiple GPUs
 
 use crate::error::Result;
-use crate::neural::cuda_devices::{CudaDevice, CudaDeviceEnumerator};
+use crate::neural::cuda_devices::CudaDeviceEnumerator;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -123,7 +123,7 @@ impl MultiGpuDistributor {
         &self,
         total_layers: usize,
     ) -> Result<HashMap<u32, usize>> {
-        let devices = self.enumerator.enumerate_devices().await?;
+        let _devices = self.enumerator.enumerate_devices().await?;
         let assignments =
             self.distribute_layers(total_layers, DistributionStrategy::MemoryAware).await?;
 

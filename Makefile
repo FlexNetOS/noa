@@ -4,6 +4,7 @@ SHELL := /bin/bash
 NOA_PWSH := $(shell if [ -f "opt/powershell/pwsh.exe" ]; then echo "opt/powershell/pwsh.exe"; else echo "pwsh"; fi)
 
 .PHONY: install-tools check
+.PHONY: config-validate quality security check-all
 
 install-tools:
 	@echo "Installing contained toolchains into $$NOA_ROOT (default: repo root)..."
@@ -12,4 +13,16 @@ install-tools:
 
 check:
 	@$(NOA_PWSH) -NoLogo -NoProfile -File scripts/setup/check-prereqs.ps1
+
+config-validate:
+	@$(NOA_PWSH) -NoLogo -NoProfile -File scripts/validate/validate-configs.ps1
+
+quality:
+	@$(NOA_PWSH) -NoLogo -NoProfile -File scripts/validate/quality-gates.ps1
+
+security:
+	@$(NOA_PWSH) -NoLogo -NoProfile -File scripts/validate/security-gates.ps1
+
+check-all:
+	@$(NOA_PWSH) -NoLogo -NoProfile -File scripts/check-all.ps1
 

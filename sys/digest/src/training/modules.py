@@ -8,8 +8,8 @@ the trainer can score and feed to optimizers.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List
 
 
 @dataclass
@@ -53,9 +53,9 @@ class ReActModule(PredictModule):
         return ModuleOutput(prompt, response, rationale, score)
 
 
-def run_modules(modules: Iterable[PredictModule], example: dict) -> List[ModuleOutput]:
+def run_modules(modules: Iterable[PredictModule], example: dict) -> list[ModuleOutput]:
     """Execute modules for a single example."""
-    outputs: List[ModuleOutput] = []
+    outputs: list[ModuleOutput] = []
     for module in modules:
         outputs.append(module.generate(example))
     return outputs

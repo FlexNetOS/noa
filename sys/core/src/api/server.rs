@@ -6,6 +6,7 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
+use std::io::Write;
 
 use axum::Router;
 use tokio::net::TcpListener;
@@ -101,10 +102,52 @@ impl ApiServer {
 
     /// Build the router with all routes and middleware
     pub fn build_router(&self) -> Router {
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:103",
+            "message": "Building router",
+            "data": {},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "D"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
         let mut router = Router::new();
 
         // Add API routes
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:107",
+            "message": "Before merging routes",
+            "data": {},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "D"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
         router = router.merge(super::routes::health::routes()).merge(super::routes::api_v1());
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:107",
+            "message": "After merging routes",
+            "data": {},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "D"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
 
         // Timeout layer
         router = router.layer(TimeoutLayer::new(Duration::from_secs(
@@ -137,14 +180,72 @@ impl ApiServer {
 
     /// Start the server
     pub async fn start(self) -> Result<()> {
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:139",
+            "message": "Server start entry",
+            "data": {"host": self.config.host.clone(), "port": self.config.port},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "E"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
         let addr: SocketAddr = format!("{}:{}", self.config.host, self.config.port)
             .parse()
-            .map_err(|e| crate::error::NoaError::Internal {
-                message: format!("Invalid server address: {}", e),
-                source: None,
+            .map_err(|e: std::net::AddrParseError| {
+                // #region agent log
+                let log_entry = serde_json::json!({
+                    "location": "api/server.rs:141",
+                    "message": "Address parse failed",
+                    "data": {"error": e.to_string(), "host": self.config.host.clone(), "port": self.config.port},
+                    "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                    "sessionId": "debug-session",
+                    "runId": "startup",
+                    "hypothesisId": "E"
+                });
+                if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+                    let _ = writeln!(file, "{}", log_entry);
+                }
+                // #endregion
+                crate::error::NoaError::Internal {
+                    message: format!("Invalid server address: {}", e),
+                    source: None,
+                }
             })?;
 
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:147",
+            "message": "Before building router",
+            "data": {"addr": addr.to_string()},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "E"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
         let router = self.build_router();
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:147",
+            "message": "After building router, before bind",
+            "data": {},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "E"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
 
         tracing::info!(
             host = %self.config.host,
@@ -152,11 +253,55 @@ impl ApiServer {
             "Starting NOA API server"
         );
 
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:155",
+            "message": "Before TCP bind",
+            "data": {"addr": addr.to_string()},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "E"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
         let listener =
-            TcpListener::bind(addr).await.map_err(|e| crate::error::NoaError::Internal {
-                message: format!("Failed to bind to {}: {}", addr, e),
-                source: Some(Box::new(e)),
+            TcpListener::bind(addr).await.map_err(|e: std::io::Error| {
+                // #region agent log
+                let log_entry = serde_json::json!({
+                    "location": "api/server.rs:156",
+                    "message": "TCP bind failed",
+                    "data": {"error": e.to_string(), "addr": addr.to_string()},
+                    "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                    "sessionId": "debug-session",
+                    "runId": "startup",
+                    "hypothesisId": "E"
+                });
+                if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+                    let _ = writeln!(file, "{}", log_entry);
+                }
+                // #endregion
+                crate::error::NoaError::Internal {
+                    message: format!("Failed to bind to {}: {}", addr, e),
+                    source: Some(Box::new(e)),
+                }
             })?;
+        // #region agent log
+        let log_entry = serde_json::json!({
+            "location": "api/server.rs:161",
+            "message": "After TCP bind, before serve",
+            "data": {},
+            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+            "sessionId": "debug-session",
+            "runId": "startup",
+            "hypothesisId": "E"
+        });
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
+            let _ = writeln!(file, "{}", log_entry);
+        }
+        // #endregion
 
         axum::serve(listener, router)
             .with_graceful_shutdown(shutdown_signal())

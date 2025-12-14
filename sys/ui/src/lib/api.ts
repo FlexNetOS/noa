@@ -1,6 +1,9 @@
 /**
- * API Client for NOA backend services
+ * API Client for NOA UI
+ * Provides methods to interact with the NOA backend API
  */
+
+import { createApiErrorMessage } from './apiErrorUtils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -25,7 +28,8 @@ class APIClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
+      const errorMessage = await createApiErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     return response.json();

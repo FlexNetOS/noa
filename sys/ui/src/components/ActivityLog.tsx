@@ -33,7 +33,7 @@ export default function ActivityLog() {
     const loadInitialEntries = async () => {
       try {
         const response = await apiClient.getActivityLog(1000);
-        setEntries(response.entries.reverse()); // Show newest first
+        setEntries(response.activities.reverse()); // Show newest first
       } catch (error) {
         console.error('Failed to load activity log:', error);
       } finally {

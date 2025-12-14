@@ -7,7 +7,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use super::{
-    expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig, NoaConfig,
+    expand_env_vars, DatabaseConfig, LogFormat, LoggingConfig, NoaConfig,
     ProviderConfig, ProviderSettings,
 };
 use crate::error::{ConfigError, Result};
@@ -263,8 +263,10 @@ impl ConfigLoader {
                 let enabled = settings.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true);
                 let priority_val =
                     settings.get("priority").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
-                let provider_type =
-                    settings.get("type").and_then(|v| v.as_str()).unwrap_or("unknown").to_string();
+                // Grouped provider config: each entry is a category (local/hybrid/ide/cloud).
+                // The per-category list of provider IDs is stored in `types[]` and can be used by
+                // higher-level selection logic. At this layer we track the category as the type.
+                let provider_type = name.clone();
                 let config_path_str =
                     settings.get("configPath").and_then(|v| v.as_str()).unwrap_or("");
                 let config_path = PathBuf::from(expand_env_vars(config_path_str));

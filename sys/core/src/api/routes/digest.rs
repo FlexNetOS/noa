@@ -19,7 +19,6 @@ use crate::db::init_database;
 use crate::db::repositories::{DigestRepository, DigestSource, DigestSourceType};
 use crate::error::Result;
 use crate::init::paths::NoaPaths;
-use crate::services::DigestService;
 use axum::response::IntoResponse;
 use std::path::PathBuf;
 
@@ -90,7 +89,7 @@ async fn get_digest_artifacts(
 }
 
 /// Helper to get database path from AppState
-fn get_db_path(state: &AppState) -> PathBuf {
+fn get_db_path(_state: &AppState) -> PathBuf {
     let noa_root = std::env::var("NOA_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("."));
@@ -223,7 +222,7 @@ async fn get_source(
 /// Get source profile
 async fn get_source_profile(
     State(_state): State<AppState>,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<Json<serde_json::Value>> {
     // TODO: Implement profile retrieval
     Ok(Json(serde_json::json!({})))
@@ -232,7 +231,7 @@ async fn get_source_profile(
 /// Get source system card
 async fn get_source_system_card(
     State(_state): State<AppState>,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<String> {
     // TODO: Implement system card retrieval
     Ok("# System Card\n\nNot yet implemented".to_string())
@@ -241,7 +240,7 @@ async fn get_source_system_card(
 /// Get source SBOM
 async fn get_source_sbom(
     State(_state): State<AppState>,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<Json<serde_json::Value>> {
     // TODO: Implement SBOM retrieval
     Ok(Json(serde_json::json!({})))
@@ -250,7 +249,7 @@ async fn get_source_sbom(
 /// Get source security report
 async fn get_source_security(
     State(_state): State<AppState>,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<Json<serde_json::Value>> {
     // TODO: Implement security report retrieval
     Ok(Json(serde_json::json!({})))

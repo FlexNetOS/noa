@@ -4,7 +4,7 @@
 //! FR-075: System MUST notify user when fixes fail after 3 attempts
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::HealingEvent;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -104,7 +104,7 @@ impl EscalationNotifier {
     fn determine_urgency(
         &self,
         health: &crate::healing::ComponentHealth,
-        anomaly_type: &Option<String>,
+        _anomaly_type: &Option<String>,
     ) -> EscalationUrgency {
         match health {
             crate::healing::ComponentHealth::Critical => EscalationUrgency::Critical,

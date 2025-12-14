@@ -1,9 +1,11 @@
 {
     "$schema": "https://noa.local/schemas/bootstrap-state.json",
-    "version": "1.0.0",
-    "description": "Bootstrap state tracking - records installed tools, versions, and status",
-    "created_at": null,
-    "updated_at": null,
+    "metadata": {
+        "version": "1.0.0",
+        "created_at": null,
+        "updated_at": null,
+        "description": "Bootstrap state tracking - records installed tools, versions, and status"
+    },
     "bootstrap_version": "1.0.0",
     "platform": {
         "os": null,

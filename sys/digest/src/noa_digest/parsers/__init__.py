@@ -5,11 +5,11 @@ T172-T176: Implement parsers for Python, TypeScript, Rust, Go, Java
 US4: Digest Everything Pipeline
 """
 
-from .python_parser import PythonParser
-from .typescript_parser import TypeScriptParser
-from .rust_parser import RustParser
 from .go_parser import GoParser
 from .java_parser import JavaParser
+from .python_parser import PythonParser
+from .rust_parser import RustParser
+from .typescript_parser import TypeScriptParser
 
 __all__ = [
     "PythonParser",

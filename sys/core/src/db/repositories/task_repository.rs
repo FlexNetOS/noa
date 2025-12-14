@@ -1,7 +1,6 @@
 //! Task repository (Phase 9 - T260)
-use crate::db::repository::Repository;
 use crate::error::{DatabaseError, NoaError, Result};
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 
 #[derive(Debug, Clone)]
 pub struct Task {
