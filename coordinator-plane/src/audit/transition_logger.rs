@@ -12,14 +12,6 @@ use tokio::sync::Mutex;
 use tokio::task;
 use uuid::Uuid;
 
-/// Type alias for transition record database row data
-pub type TransitionRowData = (
-    String, String, String, String, String, String, String, String,
-    Option<String>, Option<String>, Option<i64>, String, String,
-    Option<String>, Option<String>, Option<String>, Option<String>,
-    Option<String>, String, Option<String>, Option<String>, String, Option<String>
-);
-
 /// Transition type enum
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -167,50 +159,54 @@ pub struct TransitionLogger {
 
 impl TransitionLogger {
     /// Create a new TransitionLogger with database connection
-    pub async fn new(conn: Connection) -> anyhow::Result<Self> {
-        let conn = Arc::new(Mutex::new(conn));
-        
+    pub async fn new(conn: Arc<Mutex<Connection>>) -> anyhow::Result<Self> {
         // Ensure the plane_transition table exists
-        {
-            let conn_clone = Arc::clone(&conn);
-            task::spawn_blocking(move || {
-                let conn = conn_clone.blocking_lock();
-                conn.execute(
-                    r#"
-                    CREATE TABLE IF NOT EXISTS plane_transition (
-                        id TEXT PRIMARY KEY,
-                        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                        type TEXT NOT NULL CHECK (type IN ('promotion', 'rollback', 'migration', 'failover')),
-                        source_plane TEXT NOT NULL,
-                        target_plane TEXT NOT NULL,
-                        source_version TEXT NOT NULL,
-                        target_version TEXT NOT NULL,
-                        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (
-                            'pending', 'preparing', 'in_progress', 'validating',
-                            'completed', 'failed', 'rolled_back'
-                        )),
-                        started_at TEXT,
-                        completed_at TEXT,
-                        duration_seconds INTEGER,
-                        pre_checks TEXT,
-                        post_checks TEXT,
-                        validation_status TEXT CHECK (validation_status IN ('passed', 'failed', 'skipped')),
-                        artifacts_transferred TEXT,
-                        outcome TEXT,
-                        error_message TEXT,
-                        rollback_reason TEXT,
-                        initiated_by TEXT NOT NULL,
-                        approved_by TEXT,
-                        metadata TEXT,
-                        checksum TEXT NOT NULL,
-                        before_state TEXT NOT NULL,
-                        after_state TEXT
-                    )
-                    "#,
-                    [],
+        let conn_clone = Arc::clone(&conn);
+        task::spawn_blocking(move || {
+            let conn = conn_clone.blocking_lock();
+            conn.execute(
+                r#"
+                CREATE TABLE IF NOT EXISTS plane_transition (
+                    id TEXT PRIMARY KEY,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    type TEXT NOT NULL CHECK (type IN ('promotion', 'rollback', 'migration', 'failover')),
+                    source_plane TEXT NOT NULL,
+                    target_plane TEXT NOT NULL,
+                    source_version TEXT NOT NULL,
+                    target_version TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (
+                        'pending', 'preparing', 'in_progress', 'validating',
+                        'completed', 'failed', 'rolled_back'
+                    )),
+                    started_at TEXT,
+                    completed_at TEXT,
+                    duration_seconds INTEGER,
+                    pre_checks TEXT,
+                    post_checks TEXT,
+                    validation_status TEXT CHECK (validation_status IN ('passed', 'failed', 'skipped')),
+                    artifacts_transferred TEXT,
+                    outcome TEXT,
+                    error_message TEXT,
+                    rollback_reason TEXT,
+                    initiated_by TEXT NOT NULL,
+                    approved_by TEXT,
+                    metadata TEXT,
+                    checksum TEXT NOT NULL,
+                    before_state TEXT NOT NULL,
+                    after_state TEXT
                 )
-            }).await.map_err(anyhow::Error::from)??;
-        }
+                "#,
+                [],
+            )?;
+
+            // Create index for fast lookup by transition_id
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_transition_id ON plane_transition(id)",
+                [],
+            )?;
+
+            Ok::<(), rusqlite::Error>(())
+        }).await??;
 
         Ok(Self { conn })
     }
@@ -249,12 +245,12 @@ impl TransitionLogger {
         let checksum = self.calculate_checksum(&before_state_json);
 
         let conn = Arc::clone(&self.conn);
+        let transition_type_str = transition_type.as_str().to_string();
         let source_plane_clone = source_plane.to_string();
         let target_plane_clone = target_plane.to_string();
         let source_version_clone = source_version.to_string();
         let target_version_clone = target_version.to_string();
         let initiated_by_clone = initiated_by.to_string();
-        let transition_type_str = transition_type.as_str().to_string();
         let id_clone = id.clone();
         
         task::spawn_blocking(move || {
@@ -275,7 +271,7 @@ impl TransitionLogger {
                     target_plane_clone,
                     source_version_clone,
                     target_version_clone,
-                    TransitionStatus::Pending.as_str(),
+                    "pending",
                     &before_state_json,
                     &pre_checks_json,
                     initiated_by_clone,
@@ -283,7 +279,7 @@ impl TransitionLogger {
                     &checksum
                 ],
             )
-        }).await.map_err(anyhow::Error::from)??;
+        }).await??;
 
         tracing::info!(
             transition_id = %id,
@@ -296,6 +292,7 @@ impl TransitionLogger {
         Ok(id)
     }
 
+    /// Update transition status
     pub async fn update_status(
         &self,
         transition_id: &str,
@@ -317,7 +314,7 @@ impl TransitionLogger {
                 "#,
                 params![status_str, now.to_rfc3339(), transition_id_clone],
             )
-        }).await.map_err(anyhow::Error::from)??;
+        }).await??;
 
         tracing::debug!(
             transition_id = %transition_id,
@@ -328,6 +325,9 @@ impl TransitionLogger {
         Ok(())
     }
 
+    /// Log transition completion with after state
+    ///
+    /// Captures the complete state of the target plane after transition completes
     pub async fn log_transition_complete(
         &self,
         transition_id: &str,
@@ -340,18 +340,25 @@ impl TransitionLogger {
         let now = Utc::now();
 
         // Get started_at to calculate duration
-        let conn_clone = Arc::clone(&self.conn);
+        let conn = Arc::clone(&self.conn);
         let transition_id_clone = transition_id.to_string();
-        let started_at_str: Option<String> = task::spawn_blocking(move || {
-            let conn = conn_clone.blocking_lock();
+        let started_at_str: Result<Option<String>, anyhow::Error> = task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
             let mut stmt = conn.prepare("SELECT started_at FROM plane_transition WHERE id = ?")?;
-            let mut rows = stmt.query_map([transition_id_clone], |row| row.get(0))?;
-            rows.next().transpose()
-        }).await.map_err(anyhow::Error::from)??;
+            let mut rows = stmt.query_map([transition_id_clone], |row| {
+                Ok(row.get::<_, Option<String>>(0)?)
+            })?;
+            
+            match rows.next() {
+                Some(Ok(started_at)) => Ok(started_at),
+                Some(Err(e)) => Err(anyhow::Error::from(e)),
+                None => Ok(None),
+            }
+        }).await.map_err(anyhow::Error::from)?;
 
-        let duration_seconds = started_at_str
+        let duration_seconds = started_at_str?
             .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-            .map(|start| (now - start.with_timezone(&Utc)).num_seconds());
+            .map(|start| (now - start.with_timezone(&Utc)).num_seconds() as i64);
 
         // Serialize state and checks
         let after_state_json = serde_json::to_string(&after_state)
@@ -369,6 +376,8 @@ impl TransitionLogger {
         let transition_id_clone = transition_id.to_string();
         let status_str = status.as_str().to_string();
         let validation_status_str = validation_status.map(|v| v.as_str().to_string());
+        let outcome_clone = outcome.clone();
+        let error_message_clone = error_message.clone();
         
         task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
@@ -386,13 +395,13 @@ impl TransitionLogger {
                     duration_seconds,
                     &after_state_json,
                     &post_checks_json,
-                    validation_status_str,
-                    &outcome,
-                    &error_message,
+                    &validation_status_str,
+                    &outcome_clone,
+                    &error_message_clone,
                     transition_id_clone
                 ],
             )
-        }).await.map_err(anyhow::Error::from)??;
+        }).await??;
 
         tracing::info!(
             transition_id = %transition_id,
@@ -404,13 +413,15 @@ impl TransitionLogger {
         Ok(())
     }
 
+    /// Get transition record by ID
     pub async fn get_transition(
         &self,
         transition_id: &str,
     ) -> anyhow::Result<Option<TransitionRecord>> {
         let conn = Arc::clone(&self.conn);
         let transition_id = transition_id.to_string();
-        let result = task::spawn_blocking(move || {
+        
+        let row_data: Option<(String, String, String, String, String, String, String, String, Option<String>, Option<String>, Option<i64>, String, String, Option<String>, Option<String>, Option<String>, Option<String>, Option<String>, String, Option<String>, Option<String>, String, Option<String>)> = task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             let mut stmt = conn.prepare(
                 r#"
@@ -427,42 +438,38 @@ impl TransitionLogger {
             
             let mut rows = stmt.query_map([transition_id], |row| {
                 Ok((
-                    row.get::<_, String>(0)?,  // id
-                    row.get::<_, String>(1)?,  // created_at
-                    row.get::<_, String>(2)?,  // type
-                    row.get::<_, String>(3)?,  // source_plane
-                    row.get::<_, String>(4)?,  // target_plane
-                    row.get::<_, String>(5)?,  // source_version
-                    row.get::<_, String>(6)?,  // target_version
-                    row.get::<_, String>(7)?,  // status
-                    row.get::<_, Option<String>>(8)?,  // started_at
-                    row.get::<_, Option<String>>(9)?,  // completed_at
-                    row.get::<_, Option<i64>>(10)?,  // duration_seconds
-                    row.get::<_, String>(11)?,  // pre_checks
-                    row.get::<_, String>(12)?,  // post_checks
-                    row.get::<_, Option<String>>(13)?,  // validation_status
-                    row.get::<_, Option<String>>(14)?,  // artifacts_transferred
-                    row.get::<_, Option<String>>(15)?,  // outcome
-                    row.get::<_, Option<String>>(16)?,  // error_message
-                    row.get::<_, Option<String>>(17)?,  // rollback_reason
-                    row.get::<_, String>(18)?,  // initiated_by
-                    row.get::<_, Option<String>>(19)?,  // approved_by
-                    row.get::<_, Option<String>>(20)?,  // metadata
-                    row.get::<_, String>(21)?,  // before_state
-                    row.get::<_, Option<String>>(22)?,  // after_state
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, String>(3)?,
+                    row.get::<_, String>(4)?,
+                    row.get::<_, String>(5)?,
+                    row.get::<_, String>(6)?,
+                    row.get::<_, String>(7)?,
+                    row.get::<_, Option<String>>(8)?,
+                    row.get::<_, Option<String>>(9)?,
+                    row.get::<_, Option<i64>>(10)?,
+                    row.get::<_, String>(11)?,
+                    row.get::<_, String>(12)?,
+                    row.get::<_, Option<String>>(13)?,
+                    row.get::<_, Option<String>>(14)?,
+                    row.get::<_, Option<String>>(15)?,
+                    row.get::<_, Option<String>>(16)?,
+                    row.get::<_, Option<String>>(17)?,
+                    row.get::<_, String>(18)?,
+                    row.get::<_, Option<String>>(19)?,
+                    row.get::<_, Option<String>>(20)?,
+                    row.get::<_, String>(21)?,
+                    row.get::<_, Option<String>>(22)?,
                 ))
             })?;
-
+            
             rows.next().transpose()
-        }).await.map_err(anyhow::Error::from)?;
+        }).await.map_err(anyhow::Error::from)??;
 
-        match result {
-            Ok(Some(row_data)) => {
-                let record = self.row_data_to_transition_record(&row_data)?;
-                Ok(Some(record))
-            }
-            Ok(None) => Ok(None),
-            Err(e) => Err(e.into()),
+        match row_data {
+            Some(row) => Ok(Some(self.row_data_to_transition_record(&row)?)),
+            None => Ok(None),
         }
     }
 
@@ -477,42 +484,33 @@ impl TransitionLogger {
     /// Convert database row data to TransitionRecord
     fn row_data_to_transition_record(
         &self,
-        row_data: &TransitionRowData,
-    ) -> anyhow::Result<TransitionRecord> {
-        let (
-            id, created_at_str, type_str, source_plane, target_plane,
-            source_version, target_version, status_str, started_at_str,
-            completed_at_str, duration_seconds, pre_checks_json, post_checks_json,
-            validation_status_str, artifacts_transferred_json, outcome,
-            error_message, rollback_reason, initiated_by, approved_by,
-            metadata_json, before_state_json, after_state_json
-        ) = row_data;
+        row: &(String, String, String, String, String, String, String, String, Option<String>, Option<String>, Option<i64>, String, String, Option<String>, Option<String>, Option<String>, Option<String>, Option<String>, String, Option<String>, Option<String>, String, Option<String>),
+    ) -> Result<TransitionRecord, rusqlite::Error> {
+        let _ = self; // dummy use to avoid unused parameter warning
+        let before_state: PlaneState = serde_json::from_str(&row.21)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(21, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let before_state: PlaneState = serde_json::from_str(before_state_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
-
-        let after_state: Option<PlaneState> = after_state_json
-            .as_ref()
+        let after_state: Option<PlaneState> = row.22.as_ref()
             .map(|json| {
-                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(22, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let pre_checks: Vec<CheckResult> = serde_json::from_str(pre_checks_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
+        let pre_checks: Vec<CheckResult> = serde_json::from_str(&row.11)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(11, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let post_checks: Vec<CheckResult> = serde_json::from_str(post_checks_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
+        let post_checks: Vec<CheckResult> = serde_json::from_str(&row.12)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(12, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let transition_type = match type_str.as_str() {
+        let transition_type = match row.2.as_str() {
             "promotion" => TransitionType::Promotion,
             "rollback" => TransitionType::Rollback,
             "migration" => TransitionType::Migration,
             "failover" => TransitionType::Failover,
-            _ => return Err(anyhow::anyhow!("Invalid transition type: {}", type_str)),
+            _ => return Err(rusqlite::Error::InvalidColumnType(2, "Invalid transition type".to_string(), rusqlite::types::Type::Text)),
         };
 
-        let status = match status_str.as_str() {
+        let status = match row.7.as_str() {
             "pending" => TransitionStatus::Pending,
             "preparing" => TransitionStatus::Preparing,
             "in_progress" => TransitionStatus::InProgress,
@@ -520,77 +518,73 @@ impl TransitionLogger {
             "completed" => TransitionStatus::Completed,
             "failed" => TransitionStatus::Failed,
             "rolled_back" => TransitionStatus::RolledBack,
-            _ => return Err(anyhow::anyhow!("Invalid transition status: {}", status_str)),
+            _ => return Err(rusqlite::Error::InvalidColumnType(7, "Invalid transition status".to_string(), rusqlite::types::Type::Text)),
         };
 
-        let validation_status = validation_status_str.as_ref().map(|s| match s.as_str() {
+        let validation_status = row.13.as_ref().map(|s| match s.as_str() {
             "passed" => ValidationStatus::Passed,
             "failed" => ValidationStatus::Failed,
             "skipped" => ValidationStatus::Skipped,
             _ => ValidationStatus::Skipped,
         });
 
-        let created_at = DateTime::parse_from_rfc3339(created_at_str)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?
+        let created_at = DateTime::parse_from_rfc3339(&row.1)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(1, rusqlite::types::Type::Text, Box::new(e)))?
             .with_timezone(&Utc);
 
-        let started_at = started_at_str
-            .as_ref()
+        let started_at = row.8.as_ref()
             .map(|s| {
                 DateTime::parse_from_rfc3339(s)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(8, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let completed_at = completed_at_str
-            .as_ref()
+        let completed_at = row.9.as_ref()
             .map(|s| {
                 DateTime::parse_from_rfc3339(s)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(9, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let artifacts_transferred: Vec<String> = artifacts_transferred_json
-            .as_ref()
+        let artifacts_transferred: Vec<String> = row.14.as_ref()
             .map(|json| {
                 serde_json::from_str(json)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(14, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?
             .unwrap_or_default();
 
-        let metadata = metadata_json
-            .as_ref()
+        let metadata = row.20.as_ref()
             .map(|json| {
-                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(20, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
         Ok(TransitionRecord {
-            id: id.clone(),
+            id: row.0.clone(),
             created_at,
             transition_type,
-            source_plane: source_plane.clone(),
-            target_plane: target_plane.clone(),
-            source_version: source_version.clone(),
-            target_version: target_version.clone(),
+            source_plane: row.3.clone(),
+            target_plane: row.4.clone(),
+            source_version: row.5.clone(),
+            target_version: row.6.clone(),
             status,
             started_at,
             completed_at,
-            duration_seconds: *duration_seconds,
+            duration_seconds: row.10,
             before_state,
             after_state,
             pre_checks,
             post_checks,
             validation_status,
             artifacts_transferred,
-            outcome: outcome.clone(),
-            error_message: error_message.clone(),
-            rollback_reason: rollback_reason.clone(),
-            initiated_by: initiated_by.clone(),
-            approved_by: approved_by.clone(),
+            outcome: row.15.clone(),
+            error_message: row.16.clone(),
+            rollback_reason: row.17.clone(),
+            initiated_by: row.18.clone(),
+            approved_by: row.19.clone(),
             metadata,
         })
     }
