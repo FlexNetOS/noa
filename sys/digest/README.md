@@ -9,14 +9,6 @@ NOA Digest provides automated analysis of codebases to generate:
 - Software Bill of Materials (SBOM)
 - Security vulnerability reports
 - Documentation and artifact generation
-The NOA Digest Everything Pipeline provides code analysis and digestion capabilities for the NOA system.
-
-## Features
-
-- Multi-language code parsing using tree-sitter
-- Support for Python, JavaScript, TypeScript, Go, Rust, and Java
-- Code analysis and extraction
-- Database integration for storing analysis results
 
 ## Installation
 
@@ -42,11 +34,6 @@ noa-digest sbom /path/to/repository --format cyclonedx
 
 ```bash
 noa-digest security /path/to/repository
-```python
-from noa_digest import DigestPipeline
-
-# Use the digest pipeline
-pipeline = DigestPipeline()
 ```
 
 ## Development
@@ -67,16 +54,6 @@ ruff check .
 
 ```bash
 mypy src/
-Install development dependencies:
-
-```bash
-pip install -e ".[dev]"
-```
-
-Run tests:
-
-```bash
-pytest
 ```
 
 ## License
