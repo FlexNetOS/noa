@@ -14,7 +14,7 @@ class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
   private listeners = new Map<string, Set<EventCallback>>();
-  
+
   // Reconnection state
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -85,10 +85,10 @@ class WebSocketClient {
     this.reconnecting = true;
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
+
     // Clear any existing reconnect timeout
     this.clearReconnectTimeout();
-    
+
     this.reconnectTimeout = setTimeout(() => {
       console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
       this.reconnecting = false;
@@ -135,7 +135,7 @@ class WebSocketClient {
     // Clear any pending reconnect timeout
     this.clearReconnectTimeout();
     this.reconnecting = false;
-    
+
     if (this.ws) {
       this.ws.close();
       this.ws = null;
