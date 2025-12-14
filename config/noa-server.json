@@ -1,6 +1,8 @@
 {
   "name": "noa-node",
-  "version": "1.0.0",
+  "metadata": {
+    "version": "1.0.0"
+  },
   "p2p": {
     "port": 8080,
     "network": "noa-network",

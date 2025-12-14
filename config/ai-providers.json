@@ -1,6 +1,8 @@
 {
   "$schema": "https://noa.local/schemas/providers.yaml",
-  "version": "1.0.0",
+  "metadata": {
+    "version": "1.0.0"
+  },
   "providerPriority": ["local", "hybrid", "ide", "cloud"],
   "providers": {
     "local": {

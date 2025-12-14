@@ -1,8 +1,10 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "version": "1.0.0",
-    "description": "NOA Kernel Selection Policy - FR-159, FR-160: Defines precedence rules for kernel mode selection",
-    "lastUpdated": "2025-12-09T00:00:00Z",
+    "metadata": {
+        "version": "1.0.0",
+        "description": "NOA Kernel Selection Policy - FR-159, FR-160: Defines precedence rules for kernel mode selection",
+        "updated_at": "2025-12-09T00:00:00Z"
+    },
     "precedenceOrder": [
         {
             "priority": 1,
