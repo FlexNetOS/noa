@@ -72,7 +72,7 @@ if ! $SETUP_NETWORK && ! $SETUP_PID && ! $SETUP_MOUNT && ! $SETUP_USER; then
 
     # Check user namespace support
     if [[ -f /proc/sys/kernel/unprivileged_userns_clone ]]; then
-        local userns=$(cat /proc/sys/kernel/unprivileged_userns_clone)
+        userns=$(cat /proc/sys/kernel/unprivileged_userns_clone)
         if [[ "$userns" == "1" ]]; then
             echo -e "  User namespaces: ${GREEN}ENABLED${NC}"
         else
@@ -196,7 +196,8 @@ setup_user_namespace() {
 
     # Check if user namespaces are enabled
     if [[ -f /proc/sys/kernel/unprivileged_userns_clone ]]; then
-        local userns=$(cat /proc/sys/kernel/unprivileged_userns_clone)
+        local userns
+        userns=$(cat /proc/sys/kernel/unprivileged_userns_clone)
         if [[ "$userns" != "1" ]]; then
             echo -e "  ${YELLOW}[WARN]${NC} Unprivileged user namespaces disabled"
             echo -e "  ${GRAY}Enable with: echo 1 | sudo tee /proc/sys/kernel/unprivileged_userns_clone${NC}"

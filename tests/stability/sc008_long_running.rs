@@ -37,7 +37,10 @@ async fn sc008_seven_day_stability_accelerated() {
     if beats < 7 {
         result.status = BenchmarkStatus::Failed;
     }
-    result.notes = Some(format!("heartbeats={} duration_ms={}", beats, result.duration_ms));
+    result.notes = Some(format!(
+        "heartbeats={} duration_ms={}",
+        beats, result.duration_ms
+    ));
 
     record_result(&result);
     assert!(

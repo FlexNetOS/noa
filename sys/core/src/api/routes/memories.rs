@@ -116,7 +116,10 @@ pub struct SearchResultResponse {
 }
 
 /// Create a new memory
-async fn create_memory(State(state): State<AppState>, Json(request): Json<CreateMemoryRequest>) -> impl IntoResponse {
+async fn create_memory(
+    State(state): State<AppState>,
+    Json(request): Json<CreateMemoryRequest>,
+) -> impl IntoResponse {
     let config = state.config.clone();
     let handle = Handle::current();
 
@@ -264,7 +267,10 @@ async fn get_memory(State(state): State<AppState>, Path(id): Path<String>) -> im
 }
 
 /// List memories with pagination
-async fn list_memories(State(state): State<AppState>, Query(params): Query<ListMemoriesQuery>) -> impl IntoResponse {
+async fn list_memories(
+    State(state): State<AppState>,
+    Query(params): Query<ListMemoriesQuery>,
+) -> impl IntoResponse {
     let config = state.config.clone();
     let offset = params.offset.unwrap_or(0);
     let limit = params.limit.unwrap_or(20);
@@ -337,11 +343,7 @@ async fn search_memories(
     let handle = Handle::current();
 
     let task = task::spawn_blocking(move || -> ApiResult<SearchMemoriesResponse> {
-        let search_type = request
-            .search_type
-            .as_deref()
-            .unwrap_or("hybrid")
-            .to_string();
+        let search_type = request.search_type.as_deref().unwrap_or("hybrid").to_string();
         let limit = request.limit.unwrap_or(10);
         let threshold = request.threshold.unwrap_or(0.7);
 
@@ -368,12 +370,7 @@ async fn search_memories(
         let search_service = SearchService::new(memory_repo, vector_search);
 
         let results = handle
-            .block_on(search_service.search(
-                &request.query,
-                &search_type,
-                limit,
-                threshold,
-            ))
+            .block_on(search_service.search(&request.query, &search_type, limit, threshold))
             .map_err(|e| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,

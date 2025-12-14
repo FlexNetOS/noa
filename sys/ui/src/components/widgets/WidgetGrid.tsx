@@ -139,7 +139,7 @@ export default function WidgetGrid({ layouts, onLayoutChange, onRemove }: Widget
                   key={layout.id}
                   layout={layout}
                   widget={widget}
-                  onRemove={handleRemove}
+                  onRemove={_handleRemove}
                 />
               );
             })
