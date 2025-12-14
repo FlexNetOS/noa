@@ -100,7 +100,7 @@ async fn infer(
 async fn infer_stream(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> Result<Sse<impl Stream<Item = Result<Event, Infallible>>>> {
+) -> std::result::Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>, (StatusCode, String)> {
     let db_path = &state.config.database.path;
     let conn = crate::db::init_database(db_path)?;
     let service = NeuralService::new(conn);

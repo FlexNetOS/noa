@@ -56,4 +56,4 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
     })
 }
 
-impl<'a> Repository for TaskEventRepository<'a> {}
+impl<'a> Repository<TaskEvent, i64> for TaskEventRepository<'a> {}
