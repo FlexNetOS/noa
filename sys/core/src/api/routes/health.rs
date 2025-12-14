@@ -3,7 +3,13 @@
 //! Implements GET /api/v1/health for health monitoring.
 //! FR-155: Observability
 
-use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
+use axum::{
+    Router,
+    Json,
+    extract::State,
+    http::StatusCode,
+    routing::get,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
@@ -102,7 +108,9 @@ pub fn routes() -> Router<AppState> {
 
 /// Full health check endpoint
 /// GET /api/v1/health
-async fn health_check(State(state): State<AppState>) -> (StatusCode, Json<HealthResponse>) {
+async fn health_check(
+    State(state): State<AppState>,
+) -> (StatusCode, Json<HealthResponse>) {
     let db_health = check_database(&state).await;
     let memory_health = check_memory();
 
@@ -138,7 +146,9 @@ async fn liveness_check() -> StatusCode {
 
 /// Kubernetes readiness probe
 /// GET /api/v1/health/ready
-async fn readiness_check(State(state): State<AppState>) -> StatusCode {
+async fn readiness_check(
+    State(state): State<AppState>,
+) -> StatusCode {
     // Check if we can serve requests
     let db_health = check_database(&state).await;
 
@@ -153,7 +163,7 @@ async fn readiness_check(State(state): State<AppState>) -> StatusCode {
 async fn check_database(state: &AppState) -> ComponentStatus {
     match state.db.get() {
         Ok(conn) => {
-            // Try to run integrity check, but ignore FTS table errors as they're non-critical
+            // Try to run integrity check
             match db::check_integrity(&conn) {
                 Ok(true) => {
                     // Get stats
@@ -167,16 +177,7 @@ async fn check_database(state: &AppState) -> ComponentStatus {
                     }
                 }
                 Ok(false) => ComponentStatus::unhealthy("Database integrity check failed"),
-                Err(e) => {
-                    // Check if error is related to FTS tables (non-critical)
-                    let error_msg = e.to_string();
-                    if error_msg.contains("fts") || error_msg.contains("memory_fts") || error_msg.contains("vtable") {
-                        // FTS table errors are non-critical - database is still functional
-                        ComponentStatus::degraded(format!("FTS index issue (non-critical): {}", e))
-                    } else {
-                        ComponentStatus::degraded(format!("Integrity check error: {}", e))
-                    }
-                }
+                Err(e) => ComponentStatus::degraded(format!("Integrity check error: {}", e)),
             }
         }
         Err(e) => ComponentStatus::unhealthy(format!("Database connection failed: {}", e)),
@@ -249,3 +250,4 @@ mod tests {
         );
     }
 }
+

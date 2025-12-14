@@ -5,11 +5,10 @@ T166: Implement Fetch stage with git clone
 US4: Digest Everything Pipeline
 """
 
+import logging
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional
-import logging
 
 logger = logging.getLogger(__name__)
 

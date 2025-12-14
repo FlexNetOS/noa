@@ -161,8 +161,7 @@ start_vm() {
 
     ensure_dirs
 
-    local START_TIME
-    START_TIME=$(date +%s.%N)
+    local START_TIME=$(date +%s.%N)
 
     # Start QEMU with KVM
     qemu-system-x86_64 \
@@ -192,10 +191,8 @@ start_vm() {
         ((ELAPSED++))
     done
 
-    local END_TIME
-    END_TIME=$(date +%s.%N)
-    local BOOT_TIME
-    BOOT_TIME=$(echo "$END_TIME - $START_TIME" | bc)
+    local END_TIME=$(date +%s.%N)
+    local BOOT_TIME=$(echo "$END_TIME - $START_TIME" | bc)
 
     if [[ $ELAPSED -ge $TIMEOUT ]]; then
         echo -e "${YELLOW}  [WARN] Boot timeout - VM may still be starting${NC}"
@@ -234,8 +231,7 @@ status_vm() {
     echo -e "${CYAN}NOA VM Status: $VM_NAME${NC}"
 
     if is_running; then
-        local PID
-        PID=$(cat "$VM_PID")
+        local PID=$(cat "$VM_PID")
         echo -e "  State: ${GREEN}Running${NC}"
         echo -e "  ${GRAY}PID: $PID${NC}"
 
@@ -246,8 +242,7 @@ status_vm() {
 
         # Memory usage
         if [[ -f "/proc/$PID/status" ]]; then
-            local MEM
-            MEM=$(grep VmRSS /proc/$PID/status | awk '{print $2}')
+            local MEM=$(grep VmRSS /proc/$PID/status | awk '{print $2}')
             echo -e "  ${GRAY}Memory: $((MEM / 1024))MB${NC}"
         fi
     else
@@ -255,8 +250,7 @@ status_vm() {
     fi
 
     if [[ -f "$VM_DISK" ]]; then
-        local SIZE
-        SIZE=$(du -h "$VM_DISK" | cut -f1)
+        local SIZE=$(du -h "$VM_DISK" | cut -f1)
         echo -e "  ${GRAY}Disk: $VM_DISK ($SIZE)${NC}"
     fi
 }
@@ -269,8 +263,8 @@ destroy_vm() {
         stop_vm
     fi
 
-    if [[ -d "${VM_DIR:?}/${VM_NAME:?}" ]]; then
-        rm -rf "${VM_DIR:?}/${VM_NAME:?}"
+    if [[ -d "$VM_DIR/$VM_NAME" ]]; then
+        rm -rf "$VM_DIR/$VM_NAME"
     fi
 
     rm -f "$VM_PID" "$VM_MONITOR" "$VM_CONSOLE"
@@ -290,8 +284,7 @@ list_vms() {
 
     for vm_path in "$VM_DIR"/*; do
         if [[ -d "$vm_path" ]]; then
-            local name
-            name=$(basename "$vm_path")
+            local name=$(basename "$vm_path")
             local state="stopped"
             local pid_file="$RUN_DIR/$name.pid"
 

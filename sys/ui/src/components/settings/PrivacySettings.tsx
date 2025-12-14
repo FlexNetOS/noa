@@ -11,19 +11,14 @@ export default function PrivacySettings() {
       <div className="space-y-4">
         <div>
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="rounded"
-              defaultChecked
-              aria-label="Share anonymous usage data"
-            />
+            <input type="checkbox" className="rounded" defaultChecked />
             <span className="text-sm text-slate-300">Share anonymous usage data</span>
           </label>
         </div>
 
         <div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" aria-label="Allow telemetry collection" />
+            <input type="checkbox" className="rounded" />
             <span className="text-sm text-slate-300">Allow telemetry collection</span>
           </label>
         </div>
@@ -31,3 +26,4 @@ export default function PrivacySettings() {
     </div>
   );
 }
+

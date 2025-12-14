@@ -6,17 +6,18 @@
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{sse::Event, IntoResponse, Json, Response, Sse},
+    response::{Json, sse::Event, Sse},
     routing::post,
     Router,
 };
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
-use tokio_stream::StreamExt;
+use tokio_stream::Stream;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use crate::neural::inference::{InferenceRequest, InferenceResponse};
+use crate::neural::inference::{InferenceRequest, InferenceResponse, StreamChunk};
+use crate::error::{Result, NoaError};
 use crate::services::NeuralService;
 
 /// Inference request
@@ -64,31 +65,20 @@ pub fn routes() -> Router<AppState> {
 async fn infer(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> impl IntoResponse {
+) -> Result<Json<InferenceApiResponse>> {
     let db_path = &state.config.database.path;
-    let conn = match crate::db::init_database(db_path) {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize database: {}", e),
-            )
-                .into_response()
-        }
-    };
+    let conn = crate::db::init_database(db_path)?;
     let service = NeuralService::new(conn);
     let engine = service.inference_engine();
 
-    let context_id = match request.context_id.map(|c| Uuid::parse_str(&c)).transpose() {
-        Ok(id) => id,
-        Err(_) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                "Invalid UUID format for context_id".to_string(),
-            )
-                .into_response()
-        }
-    };
+    let context_id = request.context_id
+        .map(|c| Uuid::parse_str(&c))
+        .transpose()
+        .map_err(|_| NoaError::Validation(crate::error::ValidationError::new(
+            "context_id",
+            "Invalid UUID format",
+            "INVALID_UUID",
+        )))?;
 
     let inference_request = InferenceRequest {
         model_id: request.model_id,
@@ -101,49 +91,29 @@ async fn infer(
         stream: false,
     };
 
-    let response = match engine.infer(inference_request).await {
-        Ok(resp) => resp,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Inference failed: {}", e),
-            )
-                .into_response()
-        }
-    };
+    let response = engine.infer(inference_request).await?;
 
-    (StatusCode::OK, Json(InferenceApiResponse::from(response))).into_response()
+    Ok(Json(InferenceApiResponse::from(response)))
 }
 
 /// POST /api/v1/inference/stream - Run inference with streaming
 async fn infer_stream(
     State(state): State<AppState>,
     Json(request): Json<InferenceApiRequest>,
-) -> Response {
+) -> Result<Sse<impl Stream<Item = Result<Event, Infallible>>>> {
     let db_path = &state.config.database.path;
-    let conn = match crate::db::init_database(db_path) {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize database: {}", e),
-            )
-                .into_response()
-        }
-    };
+    let conn = crate::db::init_database(db_path)?;
     let service = NeuralService::new(conn);
     let engine = service.inference_engine();
 
-    let context_id = match request.context_id.map(|c| Uuid::parse_str(&c)).transpose() {
-        Ok(id) => id,
-        Err(_) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                "Invalid UUID format for context_id".to_string(),
-            )
-                .into_response()
-        }
-    };
+    let context_id = request.context_id
+        .map(|c| Uuid::parse_str(&c))
+        .transpose()
+        .map_err(|_| NoaError::Validation(crate::error::ValidationError::new(
+            "context_id",
+            "Invalid UUID format",
+            "INVALID_UUID",
+        )))?;
 
     let inference_request = InferenceRequest {
         model_id: request.model_id,
@@ -156,34 +126,27 @@ async fn infer_stream(
         stream: true,
     };
 
-    let stream = match engine.infer_stream(inference_request).await {
-        Ok(stream) => stream,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Inference stream failed: {}", e),
-            )
-                .into_response()
-        }
-    };
+    let stream = engine.infer_stream(inference_request).await?;
 
     // Convert to SSE events
-    let sse_stream = stream.map(|chunk_result| match chunk_result {
-        Ok(chunk) => {
-            let data = serde_json::json!({
-                "content": chunk.content,
-                "done": chunk.done,
-            });
-            Ok::<Event, Infallible>(Event::default().data(data.to_string()))
+    let sse_stream = tokio_stream::StreamExt::map(stream, |chunk_result| {
+        match chunk_result {
+            Ok(chunk) => {
+                let data = serde_json::json!({
+                    "content": chunk.content,
+                    "done": chunk.done,
+                });
+                Ok(Event::default().data(data.to_string()))
+            }
+            Err(e) => {
+                Ok(Event::default().data(serde_json::json!({
+                    "error": e.to_string(),
+                    "done": true,
+                }).to_string()))
+            }
         }
-        Err(e) => Ok(Event::default().data(
-            serde_json::json!({
-                "error": e.to_string(),
-                "done": true,
-            })
-            .to_string(),
-        )),
     });
 
-    Sse::new(sse_stream).into_response()
+    Ok(Sse::new(sse_stream))
 }
+

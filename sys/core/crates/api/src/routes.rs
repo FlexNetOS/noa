@@ -1,7 +1,7 @@
 //! API route handlers
 
 use axum::Json;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 /// Health check response
 #[derive(Serialize)]
@@ -64,7 +64,7 @@ pub struct CreateTaskResponse {
 }
 
 /// Create task endpoint
-pub async fn create_task(Json(_payload): Json<CreateTaskRequest>) -> Json<CreateTaskResponse> {
+pub async fn create_task(Json(payload): Json<CreateTaskRequest>) -> Json<CreateTaskResponse> {
     let task_id = uuid::Uuid::new_v4().to_string();
 
     Json(CreateTaskResponse {
@@ -90,5 +90,8 @@ pub struct ListTasksResponse {
 
 /// List tasks endpoint
 pub async fn list_tasks() -> Json<ListTasksResponse> {
-    Json(ListTasksResponse { tasks: vec![] })
+    Json(ListTasksResponse {
+        tasks: vec![],
+    })
 }
+

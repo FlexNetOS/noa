@@ -67,7 +67,7 @@ Invoke-WebRequest `
 ```powershell
 Invoke-WebRequest `
     -Uri http://localhost:3001/api/v1/status `
-    -UseBasicParsing |
+    -UseBasicParsing | 
     Select-Object -ExpandProperty Content
 ```
 
@@ -214,11 +214,6 @@ cargo test
 - Check `specs/001-noa-seed-foundation/` for specifications
 - Review `sys/core/crates/` for Rust implementation
 - Explore `sys/ui/src/` for UI components
-
-## ✅ Repo health checks (recommended)
-
-- Run everything (configs + security + quality, staged): `pwsh -File scripts/check-all.ps1`
-- Or via Makefile (if you use `make`): `make check-all`
 
 ---
 
