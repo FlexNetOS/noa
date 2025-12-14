@@ -1,5 +1,6 @@
 //! Shared provider execution memory (in-memory stub)
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
