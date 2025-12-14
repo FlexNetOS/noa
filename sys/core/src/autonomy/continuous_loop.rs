@@ -136,3 +136,4 @@ mod tests {
         assert_ne!(LoopState::Running, LoopState::Stopped);
     }
 }
+

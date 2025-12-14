@@ -2,10 +2,11 @@
 //!
 //! Tool token embedding and registry
 
-pub mod plugin;
-pub mod pretrain;
 pub mod registry;
+pub mod pretrain;
+pub mod plugin;
 
-pub use plugin::ToolPluginLoader;
+pub use registry::{ToolkenGptRegistry, ToolToken};
 pub use pretrain::ToolTokenPretrainer;
-pub use registry::{ToolToken, ToolkenGptRegistry};
+pub use plugin::ToolPluginLoader;
+

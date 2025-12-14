@@ -5,11 +5,9 @@ T175: Implement Go parser with go/ast
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, List, Any
 import logging
-import subprocess
-import json
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +20,7 @@ class GoParser:
         # TODO: Create a Go binary that uses go/ast to parse and output JSON
         pass
 
-    def parse_file(self, file_path: Path) -> Dict[str, Any]:
+    def parse_file(self, file_path: Path) -> dict[str, Any]:
         """Parse a Go file.
 
         Args:
@@ -47,7 +45,7 @@ class GoParser:
             "imports": [],
         }
 
-    def parse_directory(self, directory: Path) -> List[Dict[str, Any]]:
+    def parse_directory(self, directory: Path) -> list[dict[str, Any]]:
         """Parse all Go files in a directory.
 
         Args:

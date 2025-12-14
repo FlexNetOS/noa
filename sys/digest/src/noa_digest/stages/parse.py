@@ -5,16 +5,16 @@ T167: Implement Parse stage with tree-sitter
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, Any
 import logging
+from pathlib import Path
+from typing import Any
 
 from ..parsers import (
-    PythonParser,
-    TypeScriptParser,
-    RustParser,
     GoParser,
     JavaParser,
+    PythonParser,
+    RustParser,
+    TypeScriptParser,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class ParseStage:
             "java": JavaParser(),
         }
 
-    def parse(self, source_path: Path) -> Dict[str, Any]:
+    def parse(self, source_path: Path) -> dict[str, Any]:
         """Parse source code.
 
         Args:

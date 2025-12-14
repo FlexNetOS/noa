@@ -5,19 +5,19 @@ T178: Generate system_card.md output
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, Any
-from datetime import datetime
 import logging
+from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 def generate_system_card(
     source_path: Path,
-    parsed_data: Dict[str, Any],
-    analyzed_data: Dict[str, Any],
-    profile: Dict[str, Any],
+    parsed_data: dict[str, Any],
+    analyzed_data: dict[str, Any],
+    profile: dict[str, Any],
 ) -> str:
     """Generate system_card.md with human-readable documentation.
 

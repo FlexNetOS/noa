@@ -90,3 +90,4 @@ mod tests {
         assert!(manager.get_adapter("test_task").is_some());
     }
 }
+

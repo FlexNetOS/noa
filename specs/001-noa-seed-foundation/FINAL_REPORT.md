@@ -96,8 +96,8 @@ cd ../../p2p && go build
 - ✅ Results re-generated from raw sources match original
 
 **Pass C: Adversarial Check**
-- ✅ Negative tests implemented (insufficient permissions, missing prerequisites, invalid configs)
-- ✅ Boundary cases tested (empty configs, max path length, null values, special characters)
+- ⚠️ Negative tests need expansion (insufficient permissions, missing prerequisites)
+- ⚠️ Boundary cases need testing (empty configs, max path length)
 - ✅ Cross-platform verification performed (CI tests on 3 OS)
 
 **Results Recorded**: 2025-01-27
@@ -109,14 +109,14 @@ cd ../../p2p && go build
 | # | Check | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | All referenced files verified to exist | ✅ PASS | All Phase 1 files exist in repository |
-| 2 | Deterministic smoke test provided | ✅ PASS | Smoke test scripts created: `scripts/test/smoke-test-phase1.sh` and `.ps1` |
+| 2 | Deterministic smoke test provided | ⚠️ PARTIAL | CI pipeline exists, dedicated smoke test script needed |
 | 3 | Requirements mapped to artifacts mapped to tests | ✅ PASS | FR-029 to FR-036 → T001-T009 → test files |
 | 4 | Constraints, supported OS/arch, and known failure modes stated | ✅ PASS | Version constraints in config files, CI tests 3 OS |
 | 5 | SHA-256 hashes provided for key artifacts | ✅ PASS | HASHES.txt generated |
 | 6 | If "unbounded" claimed, scheduler/executor proof provided | ✅ N/A | No "unbounded" claims |
 | 7 | Gap scan checklist completed with coverage confirmed | ✅ PASS | Phase 1 quality verification report completed |
 
-**Overall Truth Gate Status**: ✅ **PASS** (All 7 items complete)
+**Overall Truth Gate Status**: ⚠️ **PARTIAL** (1 item needs completion: smoke test script)
 
 ---
 
@@ -131,19 +131,21 @@ cd ../../p2p && go build
 
 ### Open Gaps
 
-1. ✅ **Smoke Test Script** (CHK018) - COMPLETE
-   - Created `scripts/test/smoke-test-phase1.sh` and `.ps1`
+1. **Smoke Test Script** (CHK018)
+   - **Gap**: Dedicated smoke test script needed
+   - **Remedy**: Create `scripts/test/smoke-test-phase1.sh` and `.ps1`
 
-2. ✅ **Negative Tests** (CHK032) - COMPLETE
-   - Created `scripts/test/negative-tests-phase1.sh` and `.ps1`
-   - Tests cover: insufficient permissions, missing prerequisites, invalid configs
+2. **Negative Tests** (CHK032)
+   - **Gap**: Failure mode tests need expansion
+   - **Remedy**: Add tests for insufficient permissions, missing prerequisites, invalid configs
 
-3. ✅ **Boundary Case Tests** (CHK033) - COMPLETE
-   - Tests cover: empty configs, max path length, null values, special characters
+3. **Boundary Case Tests** (CHK033)
+   - **Gap**: Edge cases need testing
+   - **Remedy**: Test empty configs, max path length, null values
 
-4. ⚠️ **File Headers** (CHK054) - ACCEPTABLE
-   - Most files have headers with purpose and task references
-   - Copyright/license headers can be added incrementally
+4. **File Headers** (CHK054)
+   - **Gap**: Not all source files have header comments
+   - **Remedy**: Add copyright, purpose, license to all source files
 
 5. **Config Documentation** (CHK074, CHK075)
    - **Gap**: Config README and enhanced schema descriptions needed
@@ -169,17 +171,17 @@ See `COVERAGE.md` for detailed requirement-to-artifact mapping.
 
 ## Result Block
 
-**RESULT**: ✅ **PASS**
+**RESULT**: ⚠️ **PARTIAL**
 
 **WHY**:
-Phase 1 implementation is complete with all tasks implemented, core quality requirements met, and all Truth Gate checks passing. All documentation artifacts have been created, verification tests implemented, and quality gates satisfied. The implementation is production-ready.
+Phase 1 implementation is functionally complete with all tasks implemented and core quality requirements met. However, some documentation artifacts and verification tests need completion for full Truth Gate compliance. The implementation is production-ready but documentation needs enhancement.
 
 **NEXT**:
-1. ✅ Smoke test scripts implemented
-2. ✅ Negative and boundary case tests implemented
-3. ✅ Documentation enhanced (config README, script mapping, changelog)
-4. ✅ Provider config latency/timeout fields verified
-5. ⚠️ Runtime config validation (can be verified during integration testing)
+1. Complete smoke test script implementation
+2. Add negative and boundary case tests
+3. Enhance documentation (file headers, config README, script mapping)
+4. Verify runtime config validation
+5. Complete provider config latency/timeout fields
 
 ---
 

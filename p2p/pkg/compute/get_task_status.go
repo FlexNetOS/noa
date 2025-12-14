@@ -55,11 +55,17 @@ func (s *ComputeService) GetTaskStatus(ctx context.Context, req *protocol.GetTas
 		}
 	}
 
+	// Get error message
+	errorMsg := ""
+	if task.Error != nil {
+		errorMsg = task.Error.Error()
+	}
+
 	return &protocol.GetTaskStatusResponse{
 		Status:   status,
 		Progress: progress,
-		Output:   task.Result,
-		Error:    task.Error,
+		Result:   task.Result,
+		Error:    errorMsg,
 	}, nil
 }
 

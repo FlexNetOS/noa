@@ -38,35 +38,36 @@ pub fn init(config: &LoggingConfig) -> Result<()> {
                 .with_file(true)
                 .with_line_number(true);
 
-            subscriber
-                .with(layer)
-                .try_init()
-                .map_err(|e| crate::error::NoaError::Internal {
+            subscriber.with(layer).try_init().map_err(|e| {
+                crate::error::NoaError::Internal {
                     message: format!("Failed to initialize logging: {}", e),
                     source: None,
-                })?;
+                }
+            })?;
         }
         LogFormat::Text => {
-            let layer = fmt::layer().with_span_events(FmtSpan::CLOSE).compact();
+            let layer = fmt::layer()
+                .with_span_events(FmtSpan::CLOSE)
+                .compact();
 
-            subscriber
-                .with(layer)
-                .try_init()
-                .map_err(|e| crate::error::NoaError::Internal {
+            subscriber.with(layer).try_init().map_err(|e| {
+                crate::error::NoaError::Internal {
                     message: format!("Failed to initialize logging: {}", e),
                     source: None,
-                })?;
+                }
+            })?;
         }
         LogFormat::Pretty => {
-            let layer = fmt::layer().with_span_events(FmtSpan::CLOSE).pretty();
+            let layer = fmt::layer()
+                .with_span_events(FmtSpan::CLOSE)
+                .pretty();
 
-            subscriber
-                .with(layer)
-                .try_init()
-                .map_err(|e| crate::error::NoaError::Internal {
+            subscriber.with(layer).try_init().map_err(|e| {
+                crate::error::NoaError::Internal {
                     message: format!("Failed to initialize logging: {}", e),
                     source: None,
-                })?;
+                }
+            })?;
         }
     }
 
@@ -104,16 +105,20 @@ pub fn init_with_file(config: &LoggingConfig) -> Result<()> {
         .with_span_events(FmtSpan::CLOSE)
         .with_current_span(true);
 
-    let console_layer = fmt::layer().with_span_events(FmtSpan::CLOSE).compact();
+    let console_layer = fmt::layer()
+        .with_span_events(FmtSpan::CLOSE)
+        .compact();
 
     tracing_subscriber::registry()
         .with(filter)
         .with(file_layer)
         .with(console_layer)
         .try_init()
-        .map_err(|e| crate::error::NoaError::Internal {
-            message: format!("Failed to initialize logging: {}", e),
-            source: None,
+        .map_err(|e| {
+            crate::error::NoaError::Internal {
+                message: format!("Failed to initialize logging: {}", e),
+                source: None,
+            }
         })?;
 
     Ok(())
@@ -137,11 +142,7 @@ pub enum AuditOutcome {
 }
 
 impl AuditEvent {
-    pub fn new(
-        action: impl Into<String>,
-        actor: impl Into<String>,
-        resource: impl Into<String>,
-    ) -> Self {
+    pub fn new(action: impl Into<String>, actor: impl Into<String>, resource: impl Into<String>) -> Self {
         Self {
             action: action.into(),
             actor: actor.into(),
@@ -247,3 +248,4 @@ mod tests {
         assert!(matches!(event.outcome, AuditOutcome::Success));
     }
 }
+

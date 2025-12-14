@@ -25,3 +25,5 @@ impl RegistrarService {
         Ok(())
     }
 }
+
+

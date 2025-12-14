@@ -7,8 +7,8 @@
 use crate::db::repositories::MemoryRepository;
 use crate::db::vector_search::VectorSearch;
 use crate::error::{NoaError, Result};
-use crate::memory::embeddings::EmbeddingGenerator;
 use crate::memory::semantic_search::SemanticSearch;
+use crate::memory::embeddings::EmbeddingGenerator;
 use uuid::Uuid;
 
 /// Search service for semantic and keyword search
@@ -17,27 +17,6 @@ pub struct SearchService {
     semantic_search: SemanticSearch,
     embedding_generator: Option<EmbeddingGenerator>,
 }
-
-// Validate Send for use inside async handlers.
-#[allow(dead_code)]
-fn _assert_send_search_service()
-where
-    SearchService: Send,
-{
-}
-
-#[allow(dead_code)]
-fn _assert_sync_search_service()
-where
-    SearchService: Sync,
-{
-}
-
-// rusqlite::Connection is !Send/Sync, but we only use this service on the
-// current thread inside request handlers. Mark unsafe bounds so axum handler
-// compilation can proceed; operations remain synchronous per request.
-unsafe impl Send for SearchService {}
-unsafe impl Sync for SearchService {}
 
 impl SearchService {
     /// Create a new search service
@@ -83,8 +62,10 @@ impl SearchService {
         };
 
         // Perform semantic search
-        let results =
-            self.semantic_search.search(None, Some(&query_vector), limit, threshold).await?;
+        let results = self
+            .semantic_search
+            .search(None, Some(&query_vector), limit, threshold)
+            .await?;
 
         // Fetch full memory records
         let mut search_results = Vec::new();
@@ -102,10 +83,14 @@ impl SearchService {
     }
 
     /// Perform keyword search
-    pub fn search_keyword(&self, query: &str, limit: u32) -> Result<Vec<SearchResult>> {
+    pub fn search_keyword(
+        &self,
+        query: &str,
+        limit: u32,
+    ) -> Result<Vec<SearchResult>> {
         // Simple keyword search in content and tags
         // In a real implementation, this would use full-text search
-        let all_memories = self.memory_repo.list(0, (limit * 2).into())?; // Get more to filter
+        let all_memories = self.memory_repo.list(0, limit * 2)?; // Get more to filter
 
         let query_lower = query.to_lowercase();
         let mut results: Vec<_> = all_memories
@@ -136,8 +121,10 @@ impl SearchService {
         semantic_threshold: f32,
     ) -> Result<Vec<SearchResult>> {
         // Get results from both methods
-        let semantic_results =
-            self.search_semantic(query, limit, semantic_threshold).await.unwrap_or_default();
+        let semantic_results = self
+            .search_semantic(query, limit, semantic_threshold)
+            .await
+            .unwrap_or_default();
 
         let keyword_results = self.search_keyword(query, limit).unwrap_or_default();
 
@@ -166,22 +153,6 @@ impl SearchService {
 
         Ok(results)
     }
-
-    /// Dispatch search based on type (semantic, keyword, hybrid)
-    pub async fn search(
-        &self,
-        query: &str,
-        search_type: &str,
-        limit: u32,
-        threshold: f32,
-    ) -> Result<Vec<SearchResult>> {
-        match search_type {
-            "semantic" => self.search_semantic(query, limit, threshold).await,
-            "keyword" => self.search_keyword(query, limit),
-            // Default to hybrid for unknown types
-            _ => self.search_hybrid(query, limit, threshold).await,
-        }
-    }
 }
 
 /// Search result with memory and score
@@ -191,3 +162,4 @@ pub struct SearchResult {
     pub score: f32,
     pub distance: f32,
 }
+

@@ -1,7 +1,7 @@
 //! API route handlers
 
 use axum::Json;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 /// Health check response
 #[derive(Serialize)]
@@ -90,5 +90,8 @@ pub struct ListTasksResponse {
 
 /// List tasks endpoint
 pub async fn list_tasks() -> Json<ListTasksResponse> {
-    Json(ListTasksResponse { tasks: vec![] })
+    Json(ListTasksResponse {
+        tasks: vec![],
+    })
 }
+
