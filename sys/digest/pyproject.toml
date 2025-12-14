@@ -16,20 +16,20 @@ dependencies = [
     "tree-sitter-go>=0.22.0",
     "tree-sitter-rust>=0.22.0",
     "tree-sitter-java>=0.22.0",
-    "pydantic>=2.10.0",
-    "httpx>=0.28.0",
-    "rich>=13.0.0",
-    "typer>=0.15.0",
-    "sqlalchemy>=2.0.0",
+    "pydantic>=2.10.4",
+    "httpx>=0.28.1",
+    "rich>=13.9.4",
+    "typer>=0.15.1",
+    "sqlalchemy>=2.0.36",
     "aiosqlite>=0.20.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.24.0",
-    "ruff>=0.8.0",
-    "mypy>=1.13.0",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.1",
+    "ruff>=0.8.4",
+    "mypy>=1.14.1",
 ]
 
 [project.scripts]
