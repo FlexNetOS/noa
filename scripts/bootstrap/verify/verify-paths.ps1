@@ -90,19 +90,7 @@ foreach ($configFile in $configFiles) {
         $content = Get-Content $configPath -Raw
 
         # Check for absolute paths not starting with ${NOA_ROOT} or noa_root
-        # Allow /opt/ paths in config files (template paths for cross-platform compatibility)
-        $absolutePaths = [regex]::Matches($content, '(?<!"[^"]*)[A-Z]:\\[^"]+|/(?:usr|home|etc)/[^"]+')
-        # Also check for Windows absolute paths outside noa_root
-        $windowsPaths = [regex]::Matches($content, '(?<!"[^"]*)([A-Z]:\\[^"]+)')
-        foreach ($match in $windowsPaths) {
-            $path = $match.Groups[1].Value
-            # Extract just the path part (before any command or version flag)
-            $cleanPath = $path -replace '\s+--version.*$', '' -replace '\s+.*$', ''
-            if ($cleanPath -and -not $cleanPath.StartsWith($NoaRoot) -and -not $cleanPath -match '^[A-Z]:\\Program Files') {
-                # Only flag if it's not a known system path and not in noa_root
-                $absolutePaths = $absolutePaths + $match
-            }
-        }
+        $absolutePaths = [regex]::Matches($content, '(?<!"[^"]*)[A-Z]:\\[^"]+|/(?:usr|opt|home|etc)/[^"]+')
 
         if ($absolutePaths.Count -eq 0) {
             Write-Host "  [OK] $configFile - No external paths" -ForegroundColor Green
@@ -126,52 +114,10 @@ $symlinks = Get-ChildItem -Path $NoaRoot -Recurse -Force -ErrorAction SilentlyCo
     Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }
 
 foreach ($link in $symlinks) {
-    # Get the actual target - use ResolvedTarget if available, otherwise Target
-    $target = if ($link.PSObject.Properties['ResolvedTarget']) {
-        $link.ResolvedTarget
-    } else {
-        try {
-            # Try to get the actual target path
-            $linkInfo = Get-Item $link.FullName -Force
-            if ($linkInfo.LinkType -eq "SymbolicLink") {
-                # Use Target property but resolve it
-                $rawTarget = $linkInfo.Target
-                if ($rawTarget -and -not [System.IO.Path]::IsPathRooted($rawTarget)) {
-                    # Relative path, resolve it
-                    $resolved = Join-Path $link.DirectoryName $rawTarget
-                    $resolved = [System.IO.Path]::GetFullPath($resolved)
-                    $resolved
-                } else {
-                    $rawTarget
-                }
-            } else {
-                $linkInfo.Target
-            }
-        } catch {
-            $link.Target
-        }
-    }
-
+    $target = $link.Target
     if ($target -and -not $target.StartsWith($NoaRoot)) {
-        # Check if portable version exists (graceful degradation)
-        $linkName = $link.Name
-        $portablePaths = @{
-            "git.exe" = Join-Path $NoaRoot "opt/git/cmd/git.exe"
-            "gh.exe" = Join-Path $NoaRoot "opt/gh/bin/gh.exe"
-            "git-lfs.exe" = Join-Path $NoaRoot "opt/git-lfs/git-lfs.exe"
-            "rustc.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/rustc.exe"
-            "cargo.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/cargo.exe"
-            "rustfmt.exe" = Join-Path $NoaRoot "opt/rust/cargo/bin/rustfmt.exe"
-        }
-
-        if ($portablePaths.ContainsKey($linkName) -and (Test-Path $portablePaths[$linkName])) {
-            Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE, but portable version available)" -ForegroundColor Yellow
-            Write-Host "       Run: .\scripts\bootstrap\verify\fix-symlinks.ps1" -ForegroundColor Gray
-            $violations += "SYMLINK: $($link.Name) points to $target (portable available at $($portablePaths[$linkName]))"
-        } else {
-            Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE)" -ForegroundColor Red
-            $violations += "SYMLINK: $($link.Name) points to $target"
-        }
+        Write-Host "  [!!] $($link.FullName) -> $target (OUTSIDE)" -ForegroundColor Red
+        $violations += "SYMLINK: $($link.Name) points to $target"
     }
 }
 

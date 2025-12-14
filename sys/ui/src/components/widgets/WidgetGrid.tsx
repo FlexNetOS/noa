@@ -61,9 +61,6 @@ function SortableWidgetItem({ layout, widget, onRemove }: SortableWidgetItemProp
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-300"
-            aria-label={`Reorder widget ${widget.name}`}
-            role="button"
-            tabIndex={0}
           >
             <GripVertical className="w-5 h-5" />
           </div>
@@ -114,7 +111,7 @@ export default function WidgetGrid({ layouts, onLayoutChange, onRemove }: Widget
     }
   }, [items, onLayoutChange]);
 
-  const _handleRemove = useCallback((widgetId: string) => {
+  const handleRemove = useCallback((widgetId: string) => {
     const newItems = items.filter(item => item.widgetId !== widgetId);
     setItems(newItems);
     onLayoutChange?.(newItems);
@@ -139,7 +136,7 @@ export default function WidgetGrid({ layouts, onLayoutChange, onRemove }: Widget
                   key={layout.id}
                   layout={layout}
                   widget={widget}
-                  onRemove={_handleRemove}
+                  onRemove={onRemove}
                 />
               );
             })
@@ -149,3 +146,4 @@ export default function WidgetGrid({ layouts, onLayoutChange, onRemove }: Widget
     </DndContext>
   );
 }
+

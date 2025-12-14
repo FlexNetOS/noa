@@ -10,13 +10,13 @@ The 7-stage digest pipeline:
 7. Secure - Security scanning (SBOM, vulnerabilities, secrets)
 """
 
+from .analyze import AnalyzeStage
 from .discover import DiscoverStage
 from .fetch import FetchStage
 from .parse import ParseStage
-from .analyze import AnalyzeStage
+from .secure import SecureStage
 from .summarize import SummarizeStage
 from .surface import SurfaceStage
-from .secure import SecureStage
 
 __all__ = [
     "DiscoverStage",

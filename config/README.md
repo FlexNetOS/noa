@@ -8,7 +8,7 @@
 
 ## Overview
 
-This directory contains all configuration files for the NOA system. All configs follow JSON Schema validation, use `${NOA_ROOT}` for path resolution, and prefer camelCase keys. Each file should declare `version`, set `$schema` when available, and keep a short change log in VCS history or adjacent metadata.
+This directory contains all configuration files for the NOA system. All configs follow JSON Schema validation and use `${NOA_ROOT}` for path resolution.
 
 ---
 
@@ -46,24 +46,28 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `ai-providers.json`
 
-**Purpose**: AI provider categories, priorities, shared resources, and model defaults  
+**Purpose**: AI provider configuration and priority  
 **Type**: JSON  
-**Schema**: `config/schemas/providers.yaml` (grouped categories)  
+**Schema**: `config/schemas/providers.yaml`  
 **Version**: 1.0.0
 
 **Key Fields**:
-- `$schema` (string, recommended): Schema pointer
 - `version` (string, required): Config version
-- `providerPriority` (array, required): Category order (`local`, `hybrid`, `ide`, `cloud`)
-- `providers` (object, required): Category blocks keyed by name  
-  - Each category: `{ enabled, priority, types[], configPath }`
-- `sharedResources` (object): Paths for agents, workflows, prompts, skills, tools, models, commands, resources
-- `executionMemory` (object): `{ enabled, path, features[] }`
-- `models` (object): Defaults (`defaultContextLength`, `defaultTemperature`, `defaultTopP`, `defaultTopK`, `defaultRepeatPenalty`, `supportedFormats[]`, `modelPaths{}`, `downloadSources{}`)`
-- `providerSwitching` (object): `{ enabled, preserveConfigs, migrateState }`
+- `providerPriority` (array): Priority order (local, hybrid, ide, cloud)
+- `providers` (object): Provider categories with types and config paths
+- `sharedResources` (object): Shared resource paths
+- `executionMemory` (object): Execution memory bus configuration
+- `models` (object): Model defaults and paths
+- `providerSwitching` (object): Provider switching behavior
+
+**Provider Categories**:
+- `local` (priority 1): llama.cpp, ollama, local-llm, git-cli
+- `hybrid` (priority 2): cursor, local-first-with-cloud-fallback
+- `ide` (priority 4): vscode-copilot
+- `cloud` (priority 3): openai, anthropic, google, mistral, claude-code, codex, abacus
 
 **Default**: Created during bootstrap  
-**Validation**: Validated against `providers.yaml` on load (additional properties are rejected)
+**Validation**: Validated against schema on load
 
 ---
 
@@ -76,7 +80,7 @@ This directory contains all configuration files for the NOA system. All configs 
 
 **Key Fields**:
 - `version` (string, required): Config version
-- `features` (object): Feature name -> enabled (boolean)
+- `features` (object): Feature name → enabled (boolean)
 
 **Example**:
 ```json
@@ -150,7 +154,7 @@ This directory contains all configuration files for the NOA system. All configs 
 
 **Key Fields**:
 - `version` (string, required): State version
-- `tools` (object): Tool name -> installation state
+- `tools` (object): Tool name → installation state
 - `updated_at` (string): ISO 8601 timestamp
 
 **Auto-Generated**: Updated by bootstrap scripts  
@@ -181,7 +185,7 @@ This directory contains all configuration files for the NOA system. All configs 
 
 **Key Fields**:
 - `version` (string, required): Config version
-- `paths` (object): Resource type -> path mappings
+- `paths` (object): Resource type → path mappings
 - `executionMemory` (object): Execution memory bus settings
 
 **Default**: Created during bootstrap  
@@ -193,29 +197,62 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `ai/providers/{category}/{provider}/config.json`
 
-**Purpose**: Individual provider configuration (optional, per provider)  
+**Purpose**: Individual provider configuration  
 **Type**: JSON  
-**Schema**: Forthcoming; keep consistent with grouped provider policy  
+**Schema**: `config/schemas/providers.yaml`  
 **Version**: 1.0.0
 
-**Recommended Fields (camelCase)**:
-- `version` (string, required)
-- `id` (string, required): Provider identifier (e.g., `claude-code`)
-- `category` (string, required): `local | hybrid | ide | cloud`
-- `priority` (integer, required)
-- `enabled` (boolean, required)
-- `description` (string, recommended)
-- `modes` (array): Supported modes (`cli`, `cloud`, `ide`)
-- `capabilities` (object): Feature flags per capability
-- `cli` (object): `{ command, package, version, binaryPath }`
-- `sharedResources` (object): Resource paths (prefer `${NOA_ROOT}`)
-- `latency` (object): `{ target, timeout }`
-- `timeout` (integer)
+**Key Fields** (per CHK122-CHK127):
+- `name` (string, required): Provider name
+- `type` (string, required): Provider type (local/hybrid/ide/cloud)
+- `priority` (integer, required): Unique priority (1-7)
+- `enabled` (boolean, required): Whether provider is enabled
+- `description` (string, required): Provider description
+- `cli` (object, required): CLI configuration
+  - `command` (string): CLI command name
+  - `package` (string): Package name
+  - `version` (string): Required version
+  - `binaryPath` (string): Path to binary (uses `${NOA_ROOT}`)
+- `modes` (array, required): Supported modes (cli, cloud, ide)
+- `capabilities` (object, required): Provider capabilities
+- `sharedResources` (object, required): Shared resource paths
+- `latency` (object, optional): Latency targets
+  - `target` (integer): Target latency in ms
+  - `timeout` (integer): Timeout in ms
+- `timeout` (integer, optional): Default timeout in ms
 
-**Notes**:
-- Use camelCase keys and include `$schema` when a per-provider schema is added.  
-- Keep provider files aligned with category entries in `ai-providers.json` (types + priority).  
-- Validation: until the schema is published, run lightweight JSON lint and keep fields in this shape.
+**Example**:
+```json
+{
+  "name": "claude-code",
+  "type": "cloud",
+  "priority": 3,
+  "enabled": true,
+  "description": "Anthropic Claude Code CLI",
+  "cli": {
+    "command": "claude",
+    "package": "@anthropic-ai/claude-code",
+    "version": "latest",
+    "binaryPath": "${NOA_ROOT}/opt/node/node_modules/.bin/claude"
+  },
+  "modes": ["cli", "cloud"],
+  "capabilities": {
+    "code": true,
+    "chat": true
+  },
+  "sharedResources": {
+    "path": "${NOA_ROOT}/ai/shared"
+  },
+  "latency": {
+    "target": 2000,
+    "timeout": 30000
+  },
+  "timeout": 30000
+}
+```
+
+**Default**: Created during provider installation  
+**Validation**: Validated against schema on load
 
 ---
 
@@ -338,5 +375,4 @@ When schema changes:
 **Documentation Version**: 1.0.0  
 **Last Updated**: 2025-01-27  
 **Maintained By**: NOA Development Team
-
 

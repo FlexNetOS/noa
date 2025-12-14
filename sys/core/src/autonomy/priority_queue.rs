@@ -5,7 +5,7 @@
 //!
 //! T634: Implement unified priority queue
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use serde::{Deserialize, Serialize};
 use std::collections::BinaryHeap;
 use std::sync::Arc;
@@ -38,9 +38,9 @@ impl PartialOrd for PriorityEntry {
 impl Ord for PriorityEntry {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         // Higher priority first, then by ID for stability
-        match self.priority.cmp(&other.priority) {
+        match other.priority.cmp(&self.priority) {
             std::cmp::Ordering::Equal => self.id.cmp(&other.id),
-            ordering => ordering,
+            other => other,
         }
     }
 }
@@ -136,35 +136,26 @@ mod tests {
     async fn test_priority_ordering() {
         let queue = PriorityQueue::new(None);
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 5,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 5,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 10,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 10,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 1,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 1,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
         // Should pop highest priority first
         let first = queue.pop().await.unwrap();
@@ -181,51 +172,39 @@ mod tests {
     async fn test_max_size() {
         let queue = PriorityQueue::new(Some(2));
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 1,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 1,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 2,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 2,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
         // Should fail when at max
-        assert!(queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 3,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .is_err());
+        assert!(queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 3,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.is_err());
     }
 
     #[tokio::test]
     async fn test_peek() {
         let queue = PriorityQueue::new(None);
 
-        queue
-            .push(PriorityEntry {
-                id: Uuid::new_v4(),
-                priority: 10,
-                source: "test".to_string(),
-                data: serde_json::json!({}),
-            })
-            .await
-            .unwrap();
+        queue.push(PriorityEntry {
+            id: Uuid::new_v4(),
+            priority: 10,
+            source: "test".to_string(),
+            data: serde_json::json!({}),
+        }).await.unwrap();
 
         let peeked = queue.peek().await.unwrap();
         assert_eq!(peeked.priority, 10);
@@ -234,3 +213,4 @@ mod tests {
         assert_eq!(queue.len().await, 1);
     }
 }
+
