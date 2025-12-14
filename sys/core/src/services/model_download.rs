@@ -3,9 +3,9 @@
 //! T119: Implement model download with progress
 //! US2: Model download with progress tracking
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -93,7 +93,7 @@ impl ModelDownloadService {
     /// Download task implementation
     async fn download_task(
         download_id: Uuid,
-        model_name: String,
+        _model_name: String,
         url: String,
         output_path: PathBuf,
         downloads: Arc<RwLock<std::collections::HashMap<Uuid, DownloadProgress>>>,

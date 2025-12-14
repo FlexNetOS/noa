@@ -50,7 +50,7 @@ impl NeuralService {
 
     /// Load a model
     pub async fn load_model(&self, model_id: &Uuid) -> Result<()> {
-        let mut model =
+        let model =
             self.repository.find_by_id(model_id)?.ok_or_else(|| NoaError::NotFound {
                 resource: "Model".to_string(),
                 id: model_id.to_string(),

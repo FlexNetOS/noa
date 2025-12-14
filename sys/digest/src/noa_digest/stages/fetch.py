@@ -5,11 +5,10 @@ T166: Implement Fetch stage with git clone
 US4: Digest Everything Pipeline
 """
 
+import logging
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 class FetchStage:
     """Fetch source material (git clone, file copy, etc.)."""
 
-    def __init__(self, work_dir: Optional[Path] = None):
+    def __init__(self, work_dir: Path | None = None):
         """Initialize fetch stage.
 
         Args:

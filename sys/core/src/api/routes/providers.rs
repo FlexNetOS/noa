@@ -50,9 +50,17 @@ async fn enable(
     Json(ProviderListResponse { providers: list })
 }
 
-async fn get_context() -> Json<Vec<String>> {
-    // Placeholder: return the list of shared contexts
-    let memory = SharedProviderMemory::new();
+async fn get_context(State(state): State<AppState>) -> Json<Vec<String>> {
+    // Get shared contexts from database-backed memory
+    let db_path = state.config.database.path.parent()
+        .map(|p| p.join("execution-memory.db"))
+        .unwrap_or_else(|| std::path::PathBuf::from("execution-memory.db"));
+    
+    let memory = match SharedProviderMemory::new(&db_path) {
+        Ok(m) => m,
+        Err(_) => return Json(Vec::new()),
+    };
+    
     let contexts = memory
         .all()
         .into_iter()

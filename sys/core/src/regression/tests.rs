@@ -59,7 +59,7 @@ mod regression_tests {
         let db_path = NoaPaths::data(root).join("noa.db");
         let conn = init_database(&db_path).unwrap();
         ensure_memory_schema(&conn);
-        let memory_service = MemoryService::new(init_database(&db_path).unwrap());
+        let memory_service = MemoryService::new(init_database(&db_path).unwrap(), init_database(&db_path).unwrap());
         let memory_repo = MemoryRepository::new(init_database(&db_path).unwrap());
 
         // Step 1: Create memory
@@ -233,7 +233,7 @@ mod regression_tests {
         let db_path = NoaPaths::data(root).join("noa.db");
         let conn = init_database(&db_path).unwrap();
         ensure_memory_schema(&conn);
-        let memory_service = MemoryService::new(init_database(&db_path).unwrap());
+        let memory_service = MemoryService::new(init_database(&db_path).unwrap(), init_database(&db_path).unwrap());
         let memory_repo = MemoryRepository::new(init_database(&db_path).unwrap());
 
         // Create 1000 memory entries
@@ -343,7 +343,7 @@ mod regression_tests {
         let db_path = NoaPaths::data(root).join("noa.db");
         let conn = init_database(&db_path).unwrap();
         ensure_memory_schema(&conn);
-        let memory_service = MemoryService::new(init_database(&db_path).unwrap());
+        let memory_service = MemoryService::new(init_database(&db_path).unwrap(), init_database(&db_path).unwrap());
 
         // Create memory entry
         let memory_id = memory_service

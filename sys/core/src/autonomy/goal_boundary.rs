@@ -6,7 +6,7 @@
 //!
 //! T632: Implement constitutional goal boundary checker
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;

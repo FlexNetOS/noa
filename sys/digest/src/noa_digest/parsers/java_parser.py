@@ -5,9 +5,9 @@ T176: Implement Java parser
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, List, Any
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class JavaParser:
         # This may require JavaParser library or a Java-based parser
         pass
 
-    def parse_file(self, file_path: Path) -> Dict[str, Any]:
+    def parse_file(self, file_path: Path) -> dict[str, Any]:
         """Parse a Java file.
 
         Args:
@@ -47,7 +47,7 @@ class JavaParser:
             "imports": [],
         }
 
-    def parse_directory(self, directory: Path) -> List[Dict[str, Any]]:
+    def parse_directory(self, directory: Path) -> list[dict[str, Any]]:
         """Parse all Java files in a directory.
 
         Args:

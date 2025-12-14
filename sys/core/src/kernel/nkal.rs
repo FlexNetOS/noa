@@ -603,8 +603,10 @@ impl Default for Nkal {
 #[derive(Debug, Clone, Deserialize)]
 struct MountEntry {
     name: String,
-    hostPath: String,
-    guestPath: String,
+    #[serde(rename = "hostPath")]
+    host_path: String,
+    #[serde(rename = "guestPath")]
+    guest_path: String,
     #[serde(default = "default_mount_mode")]
     mode: String,
     #[serde(default)]
@@ -638,8 +640,8 @@ fn load_mounts(root: &Path) -> Result<Vec<MountSpec>, NkalError> {
         .into_iter()
         .map(|m| MountSpec {
             name: m.name,
-            host_path: m.hostPath,
-            guest_path: m.guestPath,
+            host_path: m.host_path,
+            guest_path: m.guest_path,
             mode: m.mode,
         })
         .collect();

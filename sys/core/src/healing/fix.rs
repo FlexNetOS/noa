@@ -4,11 +4,11 @@
 //! FR-074: System MUST automatically apply fixes based on root cause analysis
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::anomaly::Anomaly;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::info;
 
 /// Fix type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -127,7 +127,7 @@ impl AutoFixExecutor {
     }
 
     /// Execute restart fix
-    async fn execute_restart(&self, component_id: &str, context: &FixContext) -> Result<FixResult> {
+    async fn execute_restart(&self, component_id: &str, _context: &FixContext) -> Result<FixResult> {
         let start = std::time::Instant::now();
 
         info!(component_id = %component_id, "Executing restart fix");

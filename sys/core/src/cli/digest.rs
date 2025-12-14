@@ -8,7 +8,6 @@ use clap::{Args, Subcommand};
 use std::path::PathBuf;
 use tracing::info;
 
-use crate::db::init_database;
 use crate::error::{NoaError, Result, ValidationError};
 use crate::services::DigestService;
 
