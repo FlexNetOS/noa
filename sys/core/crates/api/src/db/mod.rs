@@ -1,44 +1,43 @@
 //! Database module for NOA API
 
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use rusqlite::Connection;
 use std::path::Path;
-use std::str::FromStr;
 
 pub struct Database {
-    pool: SqlitePool,
+    conn: Connection,
 }
 
 impl Database {
-    pub async fn new(db_path: &Path) -> Result<Self, sqlx::Error> {
-        let db_url = format!("sqlite:{}", db_path.display());
+    pub async fn new(db_path: &Path) -> Result<Self, rusqlite::Error> {
+        let conn = Connection::open(db_path)?;
 
-        let options = SqliteConnectOptions::from_str(&db_url)?
-            .create_if_missing(true)
-            .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal);
+        // Enable WAL mode for better concurrency
+        conn.pragma_update(None, "journal_mode", "WAL")?;
+        conn.pragma_update(None, "synchronous", "NORMAL")?;
 
-        let pool = SqlitePool::connect_with(options).await?;
-
-        let db = Self { pool };
+        let db = Self { conn };
         db.initialize_schema().await?;
 
         Ok(db)
     }
 
-    async fn initialize_schema(&self) -> Result<(), sqlx::Error> {
+    async fn initialize_schema(&self) -> Result<(), rusqlite::Error> {
         let schema = include_str!("../../../../../../init/migrations/001_initial.sql");
 
-        sqlx::raw_sql(schema).execute(&self.pool).await?;
+        // Since rusqlite operations are synchronous, we can execute directly
+        self.conn.execute_batch(schema)?;
 
         tracing::info!("Database schema initialized successfully");
         Ok(())
     }
 
-    pub fn pool(&self) -> &SqlitePool {
-        &self.pool
+    pub fn conn(&self) -> &Connection {
+        &self.conn
     }
 
-    pub async fn health_check(&self) -> Result<(), sqlx::Error> {
-        sqlx::query("SELECT 1").execute(&self.pool).await?;
+    pub async fn health_check(&self) -> Result<(), rusqlite::Error> {
+        // Since rusqlite operations are synchronous, we can execute directly
+        self.conn.execute("SELECT 1", [])?;
         Ok(())
     }
 }

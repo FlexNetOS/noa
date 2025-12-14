@@ -55,7 +55,10 @@ pub async fn validate_request(
     // Validate URL length
     let uri = request.uri();
     if uri.to_string().len() > MAX_URL_LENGTH {
-        return Err(ValidationError::new("URL too long", "URL_TOO_LONG"));
+        return Err(ValidationError::new(
+            "URL too long",
+            "URL_TOO_LONG",
+        ));
     }
 
     // Validate content-length if present
@@ -64,10 +67,7 @@ pub async fn validate_request(
             if let Ok(length) = length_str.parse::<u64>() {
                 if length > MAX_BODY_SIZE {
                     return Err(ValidationError::new(
-                        format!(
-                            "Request body too large: {} bytes (max: {})",
-                            length, MAX_BODY_SIZE
-                        ),
+                        format!("Request body too large: {} bytes (max: {})", length, MAX_BODY_SIZE),
                         "BODY_TOO_LARGE",
                     ));
                 }
@@ -115,16 +115,29 @@ pub async fn validate_request(
 
 /// Check for path traversal attempts
 fn contains_path_traversal(path: &str) -> bool {
-    let suspicious_patterns = ["..", "..%2f", "..%5c", "%2e%2e", "....//", "..\\"];
+    let suspicious_patterns = [
+        "..",
+        "..%2f",
+        "..%5c",
+        "%2e%2e",
+        "....//",
+        "..\\",
+    ];
 
     let lower_path = path.to_lowercase();
     suspicious_patterns.iter().any(|pattern| lower_path.contains(pattern))
 }
 
 /// Validate request body JSON
-pub fn validate_json<T: serde::de::DeserializeOwned>(body: &str) -> Result<T, ValidationError> {
-    serde_json::from_str(body)
-        .map_err(|e| ValidationError::new(format!("Invalid JSON: {}", e), "INVALID_JSON"))
+pub fn validate_json<T: serde::de::DeserializeOwned>(
+    body: &str,
+) -> Result<T, ValidationError> {
+    serde_json::from_str(body).map_err(|e| {
+        ValidationError::new(
+            format!("Invalid JSON: {}", e),
+            "INVALID_JSON",
+        )
+    })
 }
 
 /// Validate a required string field
@@ -216,3 +229,4 @@ mod tests {
         assert!(validate_uuid("not-a-uuid", "id").is_err());
     }
 }
+

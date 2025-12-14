@@ -4,23 +4,20 @@
 //! §3.2: SQLite/PostgreSQL database management
 //! FR-003: Local-first database with concurrent modifications
 
-mod migrations;
 mod pool;
-pub mod repair;
-pub mod repositories;
 mod repository;
+mod migrations;
 pub mod vector_search;
+pub mod repositories;
 
-pub use migrations::{Migration, MigrationRunner};
 pub use pool::{ConnectionPool, PoolConfig};
-pub use repair::repair_fts_tables;
-pub use repositories::{EmbeddingRepository, MemoryRepository};
 pub use repository::{Repository, RepositoryError};
-pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
+pub use migrations::{MigrationRunner, Migration};
+pub use vector_search::{VectorSearch, VectorSearchResult, VectorSearchConfig};
+pub use repositories::{MemoryRepository, EmbeddingRepository};
 
-use crate::error::Result;
 use std::path::Path;
-use std::io::Write;
+use crate::error::Result;
 
 /// Database connection type alias
 pub type Connection = rusqlite::Connection;
@@ -32,8 +29,9 @@ pub fn init_database(path: &Path) -> Result<Connection> {
         std::fs::create_dir_all(parent)?;
     }
 
-    let conn = Connection::open(path)
-        .map_err(|e| crate::error::DatabaseError::ConnectionFailed(e.to_string()))?;
+    let conn = Connection::open(path).map_err(|e| {
+        crate::error::DatabaseError::ConnectionFailed(e.to_string())
+    })?;
 
     // Configure SQLite for optimal NOA operation
     configure_connection(&conn)?;
@@ -55,108 +53,43 @@ fn configure_connection(conn: &Connection) -> Result<()> {
         PRAGMA auto_vacuum = INCREMENTAL;
         PRAGMA foreign_keys = ON;
         "#,
-    )
-    .map_err(|e| crate::error::DatabaseError::QueryFailed {
-        query: "PRAGMA configuration".to_string(),
-        error: e.to_string(),
+    ).map_err(|e| {
+        crate::error::DatabaseError::QueryFailed {
+            query: "PRAGMA configuration".to_string(),
+            error: e.to_string(),
+        }
     })?;
 
     Ok(())
 }
 
 /// Check database integrity
-/// Returns Ok(true) if integrity is good, Ok(false) if there are issues
-/// FTS table errors are treated as non-critical and return Ok(false) rather than Err
 pub fn check_integrity(conn: &Connection) -> Result<bool> {
-    // #region agent log
-    let log_entry = serde_json::json!({
-        "location": "db/mod.rs:65",
-        "message": "Before integrity check",
-        "data": {},
-        "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
-        "sessionId": "debug-session",
-        "runId": "integrity-check",
-        "hypothesisId": "F"
-    });
-    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
-        let _ = writeln!(file, "{}", log_entry);
-    }
-    // #endregion
+    let result: String = conn
+        .query_row("PRAGMA integrity_check", [], |row| row.get(0))
+        .map_err(|e| {
+            crate::error::DatabaseError::QueryFailed {
+                query: "PRAGMA integrity_check".to_string(),
+                error: e.to_string(),
+            }
+        })?;
 
-    let result: String = conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(|e| {
-        // #region agent log
-        let error_msg = e.to_string();
-        let log_entry = serde_json::json!({
-            "location": "db/mod.rs:67",
-            "message": "Integrity check query failed",
-            "data": {"error": error_msg.clone()},
-            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
-            "sessionId": "debug-session",
-            "runId": "integrity-check",
-            "hypothesisId": "F"
-        });
-        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
-            let _ = writeln!(file, "{}", log_entry);
-        }
-        // #endregion
-
-        crate::error::DatabaseError::QueryFailed {
-            query: "PRAGMA integrity_check".to_string(),
-            error: error_msg,
-        }
-    })?;
-
-    // #region agent log
-    let log_entry = serde_json::json!({
-        "location": "db/mod.rs:74",
-        "message": "After integrity check",
-        "data": {"result": result.clone()},
-        "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
-        "sessionId": "debug-session",
-        "runId": "integrity-check",
-        "hypothesisId": "F"
-    });
-    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
-        let _ = writeln!(file, "{}", log_entry);
-    }
-    // #endregion
-
-    // Check if result is "ok" or if it only contains FTS-related errors (non-critical)
-    if result == "ok" {
-        Ok(true)
-    } else if result.contains("memory_fts") || result.contains("vtable") || result.contains("fts") || result.contains("FTS") {
-        // FTS table errors are non-critical - database is still functional
-        // Full-text search may be unavailable, but core database operations work fine
-        // Return true (healthy) since FTS is optional functionality
-        // #region agent log
-        let log_entry = serde_json::json!({
-            "location": "db/mod.rs:85",
-            "message": "FTS table error detected (non-critical, treating as healthy)",
-            "data": {"result": result.clone()},
-            "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
-            "sessionId": "debug-session",
-            "runId": "integrity-check",
-            "hypothesisId": "F"
-        });
-        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("n:\\noa\\.cursor\\debug.log") {
-            let _ = writeln!(file, "{}", log_entry);
-        }
-        // #endregion
-        Ok(true) // Treat FTS errors as non-critical - database is healthy for core operations
-    } else {
-        // Other integrity issues are critical
-        Ok(false)
-    }
+    Ok(result == "ok")
 }
 
 /// Get database statistics
 pub fn get_stats(conn: &Connection) -> Result<DatabaseStats> {
-    let page_count: i64 = conn.query_row("PRAGMA page_count", [], |row| row.get(0)).unwrap_or(0);
+    let page_count: i64 = conn
+        .query_row("PRAGMA page_count", [], |row| row.get(0))
+        .unwrap_or(0);
 
-    let page_size: i64 = conn.query_row("PRAGMA page_size", [], |row| row.get(0)).unwrap_or(4096);
+    let page_size: i64 = conn
+        .query_row("PRAGMA page_size", [], |row| row.get(0))
+        .unwrap_or(4096);
 
-    let freelist_count: i64 =
-        conn.query_row("PRAGMA freelist_count", [], |row| row.get(0)).unwrap_or(0);
+    let freelist_count: i64 = conn
+        .query_row("PRAGMA freelist_count", [], |row| row.get(0))
+        .unwrap_or(0);
 
     Ok(DatabaseStats {
         total_pages: page_count as u64,
@@ -191,8 +124,9 @@ mod tests {
         assert!(db_path.exists());
 
         // Verify settings
-        let journal_mode: String =
-            conn.query_row("PRAGMA journal_mode", [], |row| row.get(0)).unwrap();
+        let journal_mode: String = conn
+            .query_row("PRAGMA journal_mode", [], |row| row.get(0))
+            .unwrap();
         assert_eq!(journal_mode, "wal");
     }
 
@@ -205,3 +139,4 @@ mod tests {
         assert!(check_integrity(&conn).unwrap());
     }
 }
+

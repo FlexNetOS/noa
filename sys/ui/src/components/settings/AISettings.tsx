@@ -13,10 +13,7 @@ export default function AISettings() {
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Default Model
           </label>
-          <select
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
-            aria-label="Select default model"
-          >
+          <select className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100">
             <option>llama.cpp (local)</option>
             <option>Claude Code</option>
             <option>Codex</option>
@@ -33,14 +30,13 @@ export default function AISettings() {
             max="1"
             step="0.1"
             defaultValue="0.7"
-            aria-label="Temperature"
             className="w-full"
           />
         </div>
 
         <div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" aria-label="Enable streaming responses" />
+            <input type="checkbox" className="rounded" />
             <span className="text-sm text-slate-300">Enable streaming responses</span>
           </label>
         </div>
@@ -48,3 +44,4 @@ export default function AISettings() {
     </div>
   );
 }
+

@@ -5,8 +5,8 @@
  * and user productivity improvements.
  */
 
+import { apiClient } from '../lib/api';
 import { contextDetector } from './contextDetector';
-import { createApiErrorMessage } from '../lib/apiErrorUtils';
 
 export interface Insight {
   id: string;
@@ -58,7 +58,7 @@ export class InsightsService {
             label: 'Show Code Editor',
             handler: async () => {
               // Implementation would show code editor widget
-              // Widget display logic would go here
+              console.log('Showing code editor widget');
             },
           },
           timestamp: new Date().toISOString(),
@@ -78,7 +78,7 @@ export class InsightsService {
             label: 'Optimize Widgets',
             handler: async () => {
               // Implementation would optimize widgets
-              // Widget optimization logic would go here
+              console.log('Optimizing widgets');
             },
           },
           timestamp: new Date().toISOString(),
@@ -175,16 +175,14 @@ export class InsightsService {
   async requestAIInsights(prompt: string): Promise<Insight[]> {
     try {
       // In a real implementation, this would call the backend AI service
-      const url = '/api/v1/insights/generate';
-      const response = await fetch(url, {
+      const response = await fetch('/api/v1/insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
-        const errorMessage = await createApiErrorMessage(response, url, 'AI insights request failed');
-        throw new Error(errorMessage);
+        throw new Error(`AI insights request failed: ${response.statusText}`);
       }
 
       const data = await response.json();

@@ -16,7 +16,10 @@ use axum::{
 };
 
 /// OpenTelemetry tracing middleware (stub - uses tracing only)
-pub async fn trace_request(request: Request<Body>, next: Next) -> Response<Body> {
+pub async fn trace_request(
+    request: Request<Body>,
+    next: Next,
+) -> Response<Body> {
     let start = Instant::now();
 
     // Get request details for span attributes

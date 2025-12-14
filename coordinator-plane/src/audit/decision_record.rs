@@ -4,8 +4,11 @@
 //! Records the reasoning behind promotion/rollback decisions for audit and transparency
 
 use chrono::{DateTime, Utc};
+use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
-use sqlx::{SqlitePool, Row};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tokio::task;
 use uuid::Uuid;
 
 /// Decision type enum
@@ -93,54 +96,58 @@ pub struct DecisionRecord {
 /// Records detailed decision rationale for all promotion/rollback decisions
 /// Ensures transparency and auditability of coordinator decisions
 pub struct DecisionRecorder {
-    pool: SqlitePool,
+    conn: Arc<Mutex<Connection>>,
 }
 
 impl DecisionRecorder {
     /// Create a new DecisionRecorder with database connection
-    pub async fn new(pool: SqlitePool) -> Result<Self, sqlx::Error> {
+    pub async fn new(conn: Arc<Mutex<Connection>>) -> anyhow::Result<Self> {
         // Ensure the decision_record table exists
-        sqlx::query(
-            r#"
-            CREATE TABLE IF NOT EXISTS decision_record (
-                id TEXT PRIMARY KEY,
-                transition_id TEXT NOT NULL,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                decision_type TEXT NOT NULL CHECK (decision_type IN (
-                    'approve', 'reject', 'defer', 'require_manual_review'
-                )),
-                risk_tier TEXT NOT NULL CHECK (risk_tier IN (
-                    'low', 'medium', 'high', 'critical'
-                )),
-                rationale TEXT NOT NULL,
-                policy_gates TEXT NOT NULL,
-                analytics_results TEXT,
-                test_results TEXT,
-                risk_assessment TEXT,
-                decision_factors TEXT NOT NULL,
-                approved_by TEXT,
-                metadata TEXT,
-                checksum TEXT NOT NULL
-            )
-            "#,
-        )
-        .execute(&pool)
-        .await?;
+        let conn_clone = Arc::clone(&conn);
+        let _ = task::spawn_blocking(move || {
+            let conn = conn_clone.blocking_lock();
+            conn.execute(
+                r#"
+                CREATE TABLE IF NOT EXISTS decision_record (
+                    id TEXT PRIMARY KEY,
+                    transition_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    decision_type TEXT NOT NULL CHECK (decision_type IN (
+                        'approve', 'reject', 'defer', 'require_manual_review'
+                    )),
+                    risk_tier TEXT NOT NULL CHECK (risk_tier IN (
+                        'low', 'medium', 'high', 'critical'
+                    )),
+                    rationale TEXT NOT NULL,
+                    policy_gates TEXT NOT NULL,
+                    analytics_results TEXT,
+                    test_results TEXT,
+                    risk_assessment TEXT,
+                    decision_factors TEXT NOT NULL,
+                    approved_by TEXT,
+                    metadata TEXT,
+                    checksum TEXT NOT NULL
+                )
+                "#,
+                [],
+            )?;
 
-        // Create index for fast lookup by transition_id
-        sqlx::query(
-            "CREATE INDEX IF NOT EXISTS idx_decision_transition ON decision_record(transition_id)",
-        )
-        .execute(&pool)
-        .await?;
+            // Create index for fast lookup by transition_id
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_decision_transition ON decision_record(transition_id)",
+                [],
+            )?;
 
-        Ok(Self { pool })
+            Ok::<(), rusqlite::Error>(())
+        }).await?;
+
+        Ok(Self { conn })
     }
 
     /// Record a decision rationale
-    ///
     /// Captures the complete reasoning behind a promotion/rollback decision,
     /// including policy gate results, analytics evaluations, and risk assessment
+    #[allow(clippy::too_many_arguments)]
     pub async fn record_decision(
         &self,
         transition_id: &str,
@@ -154,62 +161,71 @@ impl DecisionRecorder {
         decision_factors: Vec<String>,
         approved_by: Option<&str>,
         metadata: Option<serde_json::Value>,
-    ) -> Result<String, sqlx::Error> {
+    ) -> anyhow::Result<String> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
 
         // Serialize complex fields
         let policy_gates_json = serde_json::to_string(&policy_gates)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
         let analytics_results_json = serde_json::to_string(&analytics_results)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
         let test_results_json = test_results
             .as_ref()
             .map(serde_json::to_string)
             .transpose()
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
         let risk_assessment_json = risk_assessment
             .as_ref()
             .map(serde_json::to_string)
             .transpose()
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
         let decision_factors_json = serde_json::to_string(&decision_factors)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
         let metadata_json = metadata
             .as_ref()
             .map(serde_json::to_string)
             .transpose()
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
 
         // Calculate checksum of rationale and key decision data
         let checksum_data = format!("{}{}{}", rationale, decision_type.as_str(), risk_tier.as_str());
         let checksum = self.calculate_checksum(&checksum_data);
 
-        sqlx::query(
-            r#"
-            INSERT INTO decision_record (
-                id, transition_id, created_at, decision_type, risk_tier,
-                rationale, policy_gates, analytics_results, test_results,
-                risk_assessment, decision_factors, approved_by, metadata, checksum
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            "#,
-        )
-        .bind(&id)
-        .bind(transition_id)
-        .bind(now.to_rfc3339())
-        .bind(decision_type.as_str())
-        .bind(risk_tier.as_str())
-        .bind(rationale)
-        .bind(&policy_gates_json)
-        .bind(&analytics_results_json)
-        .bind(&test_results_json)
-        .bind(&risk_assessment_json)
-        .bind(&decision_factors_json)
-        .bind(approved_by)
-        .bind(&metadata_json)
-        .bind(&checksum)
-        .execute(&self.pool)
-        .await?;
+        let conn = Arc::clone(&self.conn);
+        let transition_id_clone = transition_id.to_string();
+        let rationale_clone = rationale.to_string();
+        let approved_by_clone = approved_by.map(|s| s.to_string());
+        let id_clone = id.clone();
+        
+        task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            conn.execute(
+                r#"
+                INSERT INTO decision_record (
+                    id, transition_id, created_at, decision_type, risk_tier,
+                    rationale, policy_gates, analytics_results, test_results,
+                    risk_assessment, decision_factors, approved_by, metadata, checksum
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                "#,
+                params![
+                    &id_clone,
+                    &transition_id_clone,
+                    now.to_rfc3339(),
+                    decision_type.as_str(),
+                    risk_tier.as_str(),
+                    rationale_clone,
+                    &policy_gates_json,
+                    &analytics_results_json,
+                    &test_results_json,
+                    &risk_assessment_json,
+                    &decision_factors_json,
+                    &approved_by_clone,
+                    &metadata_json,
+                    &checksum
+                ],
+            )
+        }).await.map_err(anyhow::Error::from)??;
 
         tracing::info!(
             decision_id = %id,
@@ -226,46 +242,58 @@ impl DecisionRecorder {
     pub async fn get_decision_by_transition(
         &self,
         transition_id: &str,
-    ) -> Result<Option<DecisionRecord>, sqlx::Error> {
-        let row = sqlx::query(
-            r#"
-            SELECT id, transition_id, created_at, decision_type, risk_tier,
-                   rationale, policy_gates, analytics_results, test_results,
-                   risk_assessment, decision_factors, approved_by, metadata
-            FROM decision_record
-            WHERE transition_id = ?
-            ORDER BY created_at DESC
-            LIMIT 1
-            "#,
-        )
-        .bind(transition_id)
-        .fetch_optional(&self.pool)
-        .await?;
-
-        row.map(|r| self.row_to_decision_record(&r))
-            .transpose()
+    ) -> anyhow::Result<Option<DecisionRecord>> {
+        let conn = Arc::clone(&self.conn);
+        let transition_id = transition_id.to_string();
+        
+        Ok(task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            let mut stmt = conn.prepare(
+                r#"
+                SELECT id, transition_id, created_at, decision_type, risk_tier,
+                       rationale, policy_gates, analytics_results, test_results,
+                       risk_assessment, decision_factors, approved_by, metadata
+                FROM decision_record
+                WHERE transition_id = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+                "#,
+            )?;
+            
+            let mut rows = stmt.query_map([transition_id], |row| {
+                Self::row_to_decision_record_static(row)
+            })?;
+            
+            rows.next().transpose()
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// Get decision record by ID
     pub async fn get_decision(
         &self,
         decision_id: &str,
-    ) -> Result<Option<DecisionRecord>, sqlx::Error> {
-        let row = sqlx::query(
-            r#"
-            SELECT id, transition_id, created_at, decision_type, risk_tier,
-                   rationale, policy_gates, analytics_results, test_results,
-                   risk_assessment, decision_factors, approved_by, metadata
-            FROM decision_record
-            WHERE id = ?
-            "#,
-        )
-        .bind(decision_id)
-        .fetch_optional(&self.pool)
-        .await?;
-
-        row.map(|r| self.row_to_decision_record(&r))
-            .transpose()
+    ) -> anyhow::Result<Option<DecisionRecord>> {
+        let conn = Arc::clone(&self.conn);
+        let decision_id = decision_id.to_string();
+        
+        Ok(task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            let mut stmt = conn.prepare(
+                r#"
+                SELECT id, transition_id, created_at, decision_type, risk_tier,
+                       rationale, policy_gates, analytics_results, test_results,
+                       risk_assessment, decision_factors, approved_by, metadata
+                FROM decision_record
+                WHERE id = ?
+                "#,
+            )?;
+            
+            let mut rows = stmt.query_map([decision_id], |row| {
+                Self::row_to_decision_record_static(row)
+            })?;
+            
+            rows.next().transpose()
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// List all decisions for a given risk tier
@@ -273,40 +301,40 @@ impl DecisionRecorder {
         &self,
         risk_tier: RiskTier,
         limit: Option<i64>,
-    ) -> Result<Vec<DecisionRecord>, sqlx::Error> {
-        let mut query = sqlx::query(
-            r#"
-            SELECT id, transition_id, created_at, decision_type, risk_tier,
-                   rationale, policy_gates, analytics_results, test_results,
-                   risk_assessment, decision_factors, approved_by, metadata
-            FROM decision_record
-            WHERE risk_tier = ?
-            ORDER BY created_at DESC
-            "#,
-        )
-        .bind(risk_tier.as_str());
-
-        if let Some(limit) = limit {
-            query = sqlx::query(
-                r#"
-                SELECT id, transition_id, created_at, decision_type, risk_tier,
+    ) -> anyhow::Result<Vec<DecisionRecord>> {
+        let conn = Arc::clone(&self.conn);
+        let risk_tier_str = risk_tier.as_str().to_string();
+        
+        Ok(task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            let sql = if limit.is_some() {
+                format!("SELECT id, transition_id, created_at, decision_type, risk_tier,
                        rationale, policy_gates, analytics_results, test_results,
                        risk_assessment, decision_factors, approved_by, metadata
                 FROM decision_record
                 WHERE risk_tier = ?
                 ORDER BY created_at DESC
-                LIMIT ?
-                "#,
-            )
-            .bind(risk_tier.as_str())
-            .bind(limit);
-        }
-
-        let rows = query.fetch_all(&self.pool).await?;
-
-        rows.into_iter()
-            .map(|r| self.row_to_decision_record(&r))
-            .collect()
+                LIMIT {}", limit.unwrap())
+            } else {
+                "SELECT id, transition_id, created_at, decision_type, risk_tier,
+                       rationale, policy_gates, analytics_results, test_results,
+                       risk_assessment, decision_factors, approved_by, metadata
+                FROM decision_record
+                WHERE risk_tier = ?
+                ORDER BY created_at DESC".to_string()
+            };
+            
+            let mut stmt = conn.prepare(&sql)?;
+            let mut rows = stmt.query_map([risk_tier_str], |row| {
+                Self::row_to_decision_record_static(row)
+            })?;
+            
+            let mut results = Vec::new();
+            while let Some(record) = rows.next() {
+                results.push(record?);
+            }
+            Ok::<_, rusqlite::Error>(results)
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// Calculate SHA-256 checksum for integrity
@@ -317,84 +345,83 @@ impl DecisionRecorder {
         format!("{:x}", hasher.finalize())
     }
 
-    /// Convert database row to DecisionRecord
-    fn row_to_decision_record(
-        &self,
-        row: &sqlx::sqlite::SqliteRow,
-    ) -> Result<DecisionRecord, sqlx::Error> {
-        let decision_type_str: String = row.try_get("decision_type")?;
+    /// Convert database row to DecisionRecord (static version)
+    fn row_to_decision_record_static(
+        row: &rusqlite::Row,
+    ) -> Result<DecisionRecord, rusqlite::Error> {
+        let decision_type_str: String = row.get(3)?;
         let decision_type = match decision_type_str.as_str() {
             "approve" => DecisionType::Approve,
             "reject" => DecisionType::Reject,
             "defer" => DecisionType::Defer,
             "require_manual_review" => DecisionType::RequireManualReview,
-            _ => return Err(sqlx::Error::Decode("Invalid decision type".into())),
+            _ => return Err(rusqlite::Error::InvalidColumnType(3, "Invalid decision type".to_string(), rusqlite::types::Type::Text)),
         };
 
-        let risk_tier_str: String = row.try_get("risk_tier")?;
+        let risk_tier_str: String = row.get(4)?;
         let risk_tier = match risk_tier_str.as_str() {
             "low" => RiskTier::Low,
             "medium" => RiskTier::Medium,
             "high" => RiskTier::High,
             "critical" => RiskTier::Critical,
-            _ => return Err(sqlx::Error::Decode("Invalid risk tier".into())),
+            _ => return Err(rusqlite::Error::InvalidColumnType(4, "Invalid risk tier".to_string(), rusqlite::types::Type::Text)),
         };
 
-        let policy_gates_json: String = row.try_get("policy_gates")?;
+        let policy_gates_json: String = row.get(6)?;
         let policy_gates: Vec<GateResult> = serde_json::from_str(&policy_gates_json)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(6, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let analytics_results_json: Option<String> = row.try_get("analytics_results")?;
+        let analytics_results_json: Option<String> = row.get(7)?;
         let analytics_results: Vec<AnalyticsResult> = analytics_results_json
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(7, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?
             .unwrap_or_default();
 
-        let test_results: Option<String> = row.try_get("test_results")?;
+        let test_results: Option<String> = row.get(8)?;
         let test_results = test_results
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(8, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let risk_assessment: Option<String> = row.try_get("risk_assessment")?;
+        let risk_assessment: Option<String> = row.get(9)?;
         let risk_assessment = risk_assessment
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(9, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let decision_factors_json: String = row.try_get("decision_factors")?;
+        let decision_factors_json: String = row.get(10)?;
         let decision_factors: Vec<String> = serde_json::from_str(&decision_factors_json)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(10, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let metadata: Option<String> = row.try_get("metadata")?;
+        let metadata: Option<String> = row.get(12)?;
         let metadata = metadata
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(12, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let created_at_str: String = row.try_get("created_at")?;
+        let created_at_str: String = row.get(2)?;
         let created_at = DateTime::parse_from_rfc3339(&created_at_str)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(2, rusqlite::types::Type::Text, Box::new(e)))?
             .with_timezone(&Utc);
 
         Ok(DecisionRecord {
-            id: row.try_get("id")?,
-            transition_id: row.try_get("transition_id")?,
+            id: row.get(0)?,
+            transition_id: row.get(1)?,
             created_at,
             decision_type,
             risk_tier,
-            rationale: row.try_get("rationale")?,
+            rationale: row.get(5)?,
             policy_gates,
             analytics_results,
             test_results,
             risk_assessment,
             decision_factors,
-            approved_by: row.try_get("approved_by")?,
+            approved_by: row.get(11)?,
             metadata,
         })
     }

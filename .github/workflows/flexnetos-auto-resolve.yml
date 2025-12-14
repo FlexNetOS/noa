@@ -286,31 +286,6 @@ jobs:
         with:
           name: aggregated-issues-${{ needs.aggregate-issues.outputs.pr_number }}
 
-      - name: 🏷️ Ensure Required Labels Exist
-        run: |
-          PR_NUM="${{ needs.aggregate-issues.outputs.pr_number }}"
-          # Create auto-resolve label if it doesn't exist
-          gh label create "auto-resolve" \
-            --description "Issues managed by FlexNetOS auto-resolve system" \
-            --color "1d76db" \
-            --force || true
-          
-          # Create pr-specific label if it doesn't exist
-          gh label create "pr-$PR_NUM" \
-            --description "Issues related to PR #$PR_NUM" \
-            --color "0e8a16" \
-            --force || true
-          
-          # Create automated label if it doesn't exist
-          gh label create "automated" \
-            --description "Automated processes and actions" \
-            --color "fbca04" \
-            --force || true
-          
-          echo "✅ Labels ensured: auto-resolve, pr-$PR_NUM, automated"
-        env:
-          GH_TOKEN: ${{ secrets.FLEXNETOS_BOT_TOKEN || github.token }}
-
       - name: 📝 Create or Update Consolidated Issue
         id: create-issue
         run: |

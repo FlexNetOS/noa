@@ -33,7 +33,7 @@ export default function ActivityLog() {
     const loadInitialEntries = async () => {
       try {
         const response = await apiClient.getActivityLog(1000);
-        setEntries(response.activities.reverse()); // Show newest first
+        setEntries(response.entries.reverse()); // Show newest first
       } catch (error) {
         console.error('Failed to load activity log:', error);
       } finally {
@@ -120,9 +120,6 @@ export default function ActivityLog() {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        role="log"
-        aria-live="polite"
-        aria-label="Activity log entries"
         className="h-96 overflow-y-auto space-y-2 pr-2"
       >
         {entries.length === 0 ? (
@@ -160,3 +157,4 @@ export default function ActivityLog() {
     </div>
   );
 }
+
