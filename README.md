@@ -165,6 +165,14 @@ The system uses SQLite with the following tables:
 - Go: 1.23.4
 - Python: 3.12.8
 
+### Config and Schema Policy
+NOA uses a shared and centralized configuration system located in `/config/`. All configuration files follow a unified JSON schema defined in `/config/schemas/`, ensuring consistency and validation.
+
+- **Metadata Structure**: Each config includes a `metadata` object with `version`, `description`, `updated_at`, and other provenance fields for auditability and change tracking.
+- **Schema Validation**: Configurations are validated against JSON schemas to prevent errors and ensure compliance with the universal task execution policy.
+- **Centralized Management**: Shared resources, providers, and features are configured centrally, with environment-specific overrides supported via `${NOA_ROOT}` variables.
+- **Version Control**: Configs are versioned and changes are tracked, with automated validation on commit.
+
 ## 📚 Documentation
 
 See `specs/001-noa-seed-foundation/` for:
