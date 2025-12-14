@@ -3,13 +3,13 @@
 //! Provides connection pooling for SQLite with rusqlite.
 //! §3.2: Database connection management
 
-use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::collections::VecDeque;
 use std::time::{Duration, Instant};
 
-use super::Connection;
 use crate::error::{DatabaseError, Result};
+use super::Connection;
 
 /// Connection pool configuration
 #[derive(Debug, Clone)]
@@ -120,10 +120,6 @@ impl ConnectionPoolInner {
 pub struct ConnectionPool {
     inner: Arc<ConnectionPoolInner>,
 }
-
-// SQLite connections are used in a pooled, mutex-protected manner; mark pool as Send/Sync.
-unsafe impl Send for ConnectionPool {}
-unsafe impl Sync for ConnectionPool {}
 
 impl ConnectionPool {
     /// Create a new connection pool
@@ -255,7 +251,7 @@ mod tests {
         let pool = ConnectionPool::with_defaults(&db_path).unwrap();
         let status = pool.status();
 
-        assert_eq!(status.idle_connections, 2); // min_idle default
+        assert_eq!(status.idle_connections, 2);  // min_idle default
         assert_eq!(status.active_connections, 0);
     }
 
@@ -276,3 +272,4 @@ mod tests {
         assert_eq!(pool.status().active_connections, 0);
     }
 }
+

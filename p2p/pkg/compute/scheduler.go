@@ -7,6 +7,7 @@ package compute
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/FlexNetOS/noa/p2p/pkg/tasks"
@@ -55,11 +56,6 @@ func (s *Scheduler) scheduleTask(ctx context.Context, task *Task) {
 	}
 	s.mu.RUnlock()
 
-	// If router is not set, skip offloading
-	if s.router == nil || s.offloadProtocol == nil {
-		return
-	}
-
 	// If no local worker available, try to offload
 	req := tasks.ResourceRequirements{
 		MinMemoryMB:      task.Requirements.MinMemoryMB,
@@ -70,7 +66,7 @@ func (s *Scheduler) scheduleTask(ctx context.Context, task *Task) {
 
 	// Route to best peer
 	peerID, err := s.router.RouteTask(req, taskTypeToString(task.Type))
-	if err == nil && peerID != "" {
+	if err == nil {
 		// Offload to peer
 		offloadReq := &tasks.OffloadRequest{
 			TaskID:      task.ID,

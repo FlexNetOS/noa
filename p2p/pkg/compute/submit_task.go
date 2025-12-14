@@ -6,6 +6,7 @@ package compute
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/FlexNetOS/noa/p2p/pkg/protocol"
@@ -27,22 +28,6 @@ func NewComputeService(scheduler *Scheduler) *ComputeService {
 	}
 }
 
-// parseTaskType converts a task type string to TaskType
-func parseTaskType(s string) TaskType {
-	switch s {
-	case "inference":
-		return TaskTypeInference
-	case "embedding":
-		return TaskTypeEmbedding
-	case "parse":
-		return TaskTypeParse
-	case "analyze":
-		return TaskTypeAnalyze
-	default:
-		return TaskTypeCustom
-	}
-}
-
 // SubmitTask handles the SubmitTask RPC
 //
 // Implements T514: §3.3 Implement Compute.SubmitTask RPC
@@ -56,7 +41,7 @@ func (s *ComputeService) SubmitTask(ctx context.Context, req *protocol.SubmitTas
 	// Create task
 	task := &Task{
 		ID:          executionID,
-		Type:        parseTaskType(req.TaskType),
+		Type:        TaskType(req.TaskType),
 		Payload:     req.Payload,
 		Requirements: convertResourceRequirements(req.Requirements),
 		Timeout:     time.Duration(req.TimeoutMs) * time.Millisecond,
@@ -79,12 +64,57 @@ func (s *ComputeService) SubmitTask(ctx context.Context, req *protocol.SubmitTas
 	}, nil
 }
 
+// Task represents a compute task
+type Task struct {
+	ID          string
+	Type        TaskType
+	Payload     []byte
+	Requirements ResourceRequirements
+	Timeout     time.Duration
+	Status      TaskStatus
+	CreatedAt   time.Time
+	StartedAt   *time.Time
+	CompletedAt *time.Time
+	Result      []byte
+	Error       error
+}
+
+// TaskType represents the type of task
+type TaskType int
+
+const (
+	TaskTypeInference TaskType = iota
+	TaskTypeEmbedding
+	TaskTypeParse
+	TaskTypeAnalyze
+	TaskTypeCustom
+)
+
+// TaskStatus represents task status
+type TaskStatus int
+
+const (
+	TaskStatusQueued TaskStatus = iota
+	TaskStatusRunning
+	TaskStatusCompleted
+	TaskStatusFailed
+	TaskStatusCancelled
+)
+
+// ResourceRequirements represents resource requirements
+type ResourceRequirements struct {
+	MinMemoryMB int64
+	MinCPUCores int64
+	RequiresGPU bool
+	EstimatedDuration time.Duration
+}
+
 // convertResourceRequirements converts protocol requirements
-func convertResourceRequirements(req *protocol.ResourceRequirements) TaskRequirements {
+func convertResourceRequirements(req *protocol.ResourceRequirements) ResourceRequirements {
 	if req == nil {
-		return TaskRequirements{}
+		return ResourceRequirements{}
 	}
-	return TaskRequirements{
+	return ResourceRequirements{
 		MinMemoryMB: req.MinMemoryMb,
 		MinCPUCores: req.MinCpuCores,
 		RequiresGPU: req.RequiresGpu,

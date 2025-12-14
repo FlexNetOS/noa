@@ -6,12 +6,12 @@
 //!
 //! T626: Implement autonomous execution mode
 
-use crate::error::{NoaError, Result};
-use chrono::{DateTime, Utc};
+use crate::error::{Result, NoaError};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 /// Autonomous execution mode state
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -51,7 +51,7 @@ impl Default for AutonomousConfig {
             allow_self_generated: true,
             allow_co_improvement: true,
             safety_check_interval: 60, // 1 minute
-            max_resource_usage: 0.8,   // 80%
+            max_resource_usage: 0.8, // 80%
         }
     }
 }
@@ -281,3 +281,4 @@ mod tests {
         assert_eq!(mode.active_goals_count().await, 2);
     }
 }
+

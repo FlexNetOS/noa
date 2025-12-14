@@ -14,7 +14,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
-use axum::response::IntoResponse;
 
 /// P2P information response
 #[derive(Debug, Serialize)]
@@ -70,58 +69,44 @@ pub fn routes() -> Router<AppState> {
 /// GET /api/v1/p2p/info
 ///
 /// Implements T255: Implement GET /api/v1/p2p/info endpoint
-async fn get_p2p_info(State(_state): State<AppState>) -> impl IntoResponse {
+async fn get_p2p_info(State(state): State<AppState>) -> Result<Json<P2PInfoResponse>, StatusCode> {
     // TODO: Get device service from AppState
     // For now, return placeholder
-    (
-        StatusCode::OK,
-        Json(P2PInfoResponse {
-            device_id: "placeholder".to_string(),
-            name: "NOA Device".to_string(),
-            peer_id: "placeholder".to_string(),
-            status: "online".to_string(),
-            platform: "unknown".to_string(),
-            device_type: "server".to_string(),
-        }),
-    )
-        .into_response()
+    Ok(Json(P2PInfoResponse {
+        device_id: "placeholder".to_string(),
+        name: "NOA Device".to_string(),
+        peer_id: "placeholder".to_string(),
+        status: "online".to_string(),
+        platform: "unknown".to_string(),
+        device_type: "server".to_string(),
+    }))
 }
 
 /// GET /api/v1/p2p/peers
 ///
 /// Implements T256: Implement GET /api/v1/p2p/peers endpoint
-async fn get_peers(State(_state): State<AppState>) -> impl IntoResponse {
+async fn get_peers(State(state): State<AppState>) -> Result<Json<PeersResponse>, StatusCode> {
     // TODO: Get device service from AppState
     // For now, return empty list
-    (
-        StatusCode::OK,
-        Json(PeersResponse {
-            peers: Vec::new(),
-            total: 0,
-            online: 0,
-        }),
-    )
-        .into_response()
+    Ok(Json(PeersResponse {
+        peers: Vec::new(),
+        total: 0,
+        online: 0,
+    }))
 }
 
 /// POST /api/v1/p2p/connect
 ///
 /// Implements T257: Implement POST /api/v1/p2p/connect endpoint
 async fn connect_peer(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Json(req): Json<ConnectRequest>,
-) -> impl IntoResponse {
+) -> Result<Json<ConnectResponse>, StatusCode> {
     // TODO: Implement actual connection via P2P node
-    (
-        StatusCode::OK,
-        Json(ConnectResponse {
-            success: true,
-            peer_id: None,
-            message: format!(
-                "Connection to {} initiated (P2P node integration pending)",
-                req.address
-            ),
-        }),
-    )
-        .into_response()
+    Ok(Json(ConnectResponse {
+        success: true,
+        peer_id: None,
+        message: format!("Connection to {} initiated (P2P node integration pending)", req.address),
+    }))
 }
+

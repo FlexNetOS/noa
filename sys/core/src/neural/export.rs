@@ -3,7 +3,7 @@
 //! T113: Implement safetensors/GGUF export
 //! US2: Model format conversion
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use std::path::{Path, PathBuf};
 
 /// Model exporter for format conversion
@@ -16,7 +16,11 @@ impl ModelExporter {
     }
 
     /// Export model to GGUF format
-    pub async fn export_to_gguf(&self, source_path: &Path, output_path: &PathBuf) -> Result<()> {
+    pub async fn export_to_gguf(
+        &self,
+        source_path: &Path,
+        output_path: &PathBuf,
+    ) -> Result<()> {
         // TODO: Implement actual GGUF export
         // This would require llama.cpp convert script or similar
         // For now, return an error indicating not implemented
@@ -51,3 +55,4 @@ impl Default for ModelExporter {
         Self::new()
     }
 }
+
