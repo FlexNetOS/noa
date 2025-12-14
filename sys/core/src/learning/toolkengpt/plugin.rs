@@ -4,7 +4,7 @@
 //! US2: Load tool plugins dynamically
 
 use crate::error::Result;
-use crate::learning::toolkengpt::{ToolTokenPretrainer, ToolkenGptRegistry};
+use crate::learning::toolkengpt::{ToolkenGptRegistry, ToolTokenPretrainer};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -30,7 +30,7 @@ impl ToolPluginLoader {
         let pretrainer = ToolTokenPretrainer::new(registry.clone());
         Self {
             registry,
-            pretrainer,
+            pretrainer
         }
     }
 
@@ -93,3 +93,4 @@ mod tests {
         assert!(result.is_ok() || result.is_err());
     }
 }
+

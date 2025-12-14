@@ -52,17 +52,8 @@ mod tests {
     async fn test_patterns_by_component() {
         let analyzer = PatternAnalyzer::new();
 
-        analyzer
-            .analyze(
-                "Database".to_string(),
-                serde_json::json!({"latency_ms": 1500.0}),
-            )
-            .await
-            .unwrap();
-        analyzer
-            .analyze("API".to_string(), serde_json::json!({"error_rate": 0.1}))
-            .await
-            .unwrap();
+        analyzer.analyze("Database".to_string(), serde_json::json!({"latency_ms": 1500.0})).await.unwrap();
+        analyzer.analyze("API".to_string(), serde_json::json!({"error_rate": 0.1})).await.unwrap();
 
         let db_patterns = analyzer.patterns_by_component("Database").await;
         assert_eq!(db_patterns.len(), 1);
@@ -102,13 +93,7 @@ mod tests {
     async fn test_clear_patterns() {
         let analyzer = PatternAnalyzer::new();
 
-        analyzer
-            .analyze(
-                "Service".to_string(),
-                serde_json::json!({"latency_ms": 1500.0}),
-            )
-            .await
-            .unwrap();
+        analyzer.analyze("Service".to_string(), serde_json::json!({"latency_ms": 1500.0})).await.unwrap();
         assert_eq!(analyzer.all_patterns().await.len(), 1);
 
         analyzer.clear().await;
@@ -146,21 +131,10 @@ mod tests {
     async fn test_multiple_analyses_accumulate() {
         let analyzer = PatternAnalyzer::new();
 
-        analyzer
-            .analyze(
-                "Service1".to_string(),
-                serde_json::json!({"latency_ms": 1500.0}),
-            )
-            .await
-            .unwrap();
-        analyzer
-            .analyze(
-                "Service2".to_string(),
-                serde_json::json!({"error_rate": 0.1}),
-            )
-            .await
-            .unwrap();
+        analyzer.analyze("Service1".to_string(), serde_json::json!({"latency_ms": 1500.0})).await.unwrap();
+        analyzer.analyze("Service2".to_string(), serde_json::json!({"error_rate": 0.1})).await.unwrap();
 
         assert_eq!(analyzer.all_patterns().await.len(), 2);
     }
 }
+

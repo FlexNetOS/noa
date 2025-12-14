@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use tracing::{debug, info, warn};
 
 /// Resource type
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ResourceType {
     Cpu,
     Memory,
@@ -150,7 +150,9 @@ impl ResourceOptimizer {
     }
 
     /// Generate optimization recommendations
-    async fn generate_recommendations(&self) -> Result<Vec<OptimizationRecommendation>> {
+    async fn generate_recommendations(
+        &self,
+    ) -> Result<Vec<OptimizationRecommendation>> {
         let mut recommendations = Vec::new();
 
         for (resource_type, allocation) in &self.current_allocations {
@@ -199,7 +201,10 @@ impl ResourceOptimizer {
     }
 
     /// Apply optimization recommendation
-    async fn apply_optimization(&self, recommendation: &OptimizationRecommendation) -> Result<()> {
+    async fn apply_optimization(
+        &self,
+        recommendation: &OptimizationRecommendation,
+    ) -> Result<()> {
         info!(
             resource_type = ?recommendation.resource_type,
             action = ?recommendation.action,
@@ -249,3 +254,4 @@ mod tests {
         assert!(recommendations.len() >= 0);
     }
 }
+

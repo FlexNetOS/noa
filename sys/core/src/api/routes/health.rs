@@ -3,7 +3,13 @@
 //! Implements GET /api/v1/health for health monitoring.
 //! FR-155: Observability
 
-use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
+use axum::{
+    Router,
+    Json,
+    extract::State,
+    http::StatusCode,
+    routing::get,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
@@ -102,7 +108,9 @@ pub fn routes() -> Router<AppState> {
 
 /// Full health check endpoint
 /// GET /api/v1/health
-async fn health_check(State(state): State<AppState>) -> (StatusCode, Json<HealthResponse>) {
+async fn health_check(
+    State(state): State<AppState>,
+) -> (StatusCode, Json<HealthResponse>) {
     let db_health = check_database(&state).await;
     let memory_health = check_memory();
 
@@ -138,7 +146,9 @@ async fn liveness_check() -> StatusCode {
 
 /// Kubernetes readiness probe
 /// GET /api/v1/health/ready
-async fn readiness_check(State(state): State<AppState>) -> StatusCode {
+async fn readiness_check(
+    State(state): State<AppState>,
+) -> StatusCode {
     // Check if we can serve requests
     let db_health = check_database(&state).await;
 
@@ -240,3 +250,4 @@ mod tests {
         );
     }
 }
+

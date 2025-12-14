@@ -4,9 +4,9 @@
 //! US2: CLI command for model inference
 
 use crate::db::init_database;
-use crate::error::Result;
-use crate::neural::inference::{InferenceEngine, InferenceRequest};
 use crate::services::NeuralService;
+use crate::neural::inference::{InferenceEngine, InferenceRequest};
+use crate::error::Result;
 use clap::Args;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -46,13 +46,13 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
     let model_id = if let Some(model_str) = args.model {
         // Use specified model
         Uuid::parse_str(&model_str)
-            .map_err(|_| {
-                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+            .map_err(|_| crate::error::NoaError::Validation(
+                crate::error::ValidationError::new(
                     "model",
                     "Invalid UUID format",
                     "INVALID_UUID",
-                ))
-            })?
+                ),
+            ))?
             .to_string()
     } else {
         // Auto-select model (use first loaded model or first available)
@@ -75,13 +75,16 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
     };
 
     // Parse context ID if provided
-    let context_id = args.context.map(|c| Uuid::parse_str(&c)).transpose().map_err(|_| {
-        crate::error::NoaError::Validation(crate::error::ValidationError::new(
-            "context",
-            "Invalid UUID format",
-            "INVALID_UUID",
-        ))
-    })?;
+    let context_id = args.context
+        .map(|c| Uuid::parse_str(&c))
+        .transpose()
+        .map_err(|_| crate::error::NoaError::Validation(
+            crate::error::ValidationError::new(
+                "context",
+                "Invalid UUID format",
+                "INVALID_UUID",
+            ),
+        ))?;
 
     let engine = neural_service.inference_engine();
 
@@ -98,9 +101,8 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
 
     if args.stream {
         // Stream response
-        let stream = engine.infer_stream(request).await?;
+        let mut stream = engine.infer_stream(request).await?;
         use tokio_stream::StreamExt;
-        tokio::pin!(stream);
         while let Some(chunk_result) = stream.next().await {
             match chunk_result {
                 Ok(chunk) => {
@@ -127,3 +129,4 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
 
     Ok(())
 }
+

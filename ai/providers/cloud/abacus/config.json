@@ -1,7 +1,7 @@
 {
   "name": "abacus",
   "type": "cloud",
-  "priority": 8,
+  "priority": 7,
   "enabled": true,
   "description": "Abacus AI CLI - Enterprise AI platform with agents and workflows",
   "cli": {
@@ -88,6 +88,5 @@
     "tools": "${NOA_ROOT}/ai/shared/tools",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-  },
-  "timeout": 30000
+  }
 }

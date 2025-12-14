@@ -78,10 +78,12 @@ impl MemoryRepository {
         let tags_json = serde_json::to_string(&memory.tags.iter().collect::<Vec<_>>())
             .map_err(|e| NoaError::Serialization(format!("Failed to serialize tags: {}", e)))?;
 
-        let metadata_json =
-            memory.metadata.as_ref().map(|m| serde_json::to_string(m)).transpose().map_err(
-                |e| NoaError::Serialization(format!("Failed to serialize metadata: {}", e)),
-            )?;
+        let metadata_json = memory
+            .metadata
+            .as_ref()
+            .map(|m| serde_json::to_string(m))
+            .transpose()
+            .map_err(|e| NoaError::Serialization(format!("Failed to serialize metadata: {}", e)))?;
 
         self.conn
             .execute(
@@ -158,10 +160,12 @@ impl MemoryRepository {
         let tags_json = serde_json::to_string(&memory.tags.iter().collect::<Vec<_>>())
             .map_err(|e| NoaError::Serialization(format!("Failed to serialize tags: {}", e)))?;
 
-        let metadata_json =
-            memory.metadata.as_ref().map(|m| serde_json::to_string(m)).transpose().map_err(
-                |e| NoaError::Serialization(format!("Failed to serialize metadata: {}", e)),
-            )?;
+        let metadata_json = memory
+            .metadata
+            .as_ref()
+            .map(|m| serde_json::to_string(m))
+            .transpose()
+            .map_err(|e| NoaError::Serialization(format!("Failed to serialize metadata: {}", e)))?;
 
         let rows_affected = self
             .conn
@@ -325,11 +329,11 @@ impl MemoryRepository {
             .conn
             .query_row("SELECT COUNT(*) FROM memory", [], |row| row.get(0))
             .map_err(|e| {
-            NoaError::Database(DatabaseError::QueryFailed {
-                query: "SELECT COUNT FROM memory".to_string(),
-                error: e.to_string(),
-            })
-        })?;
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT COUNT FROM memory".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
         Ok(count as u64)
     }
@@ -382,8 +386,10 @@ impl MemoryRepository {
             })?;
 
         let source_agent_str: Option<String> = row.get(6)?;
-        let source_agent =
-            source_agent_str.map(|s| Uuid::parse_str(&s)).transpose().map_err(|_| {
+        let source_agent = source_agent_str
+            .map(|s| Uuid::parse_str(&s))
+            .transpose()
+            .map_err(|_| {
                 rusqlite::Error::InvalidColumnType(
                     6,
                     "uuid".to_string(),
@@ -392,17 +398,26 @@ impl MemoryRepository {
             })?;
 
         let parent_id_str: Option<String> = row.get(7)?;
-        let parent_id = parent_id_str.map(|s| Uuid::parse_str(&s)).transpose().map_err(|_| {
-            rusqlite::Error::InvalidColumnType(7, "uuid".to_string(), rusqlite::types::Type::Text)
-        })?;
+        let parent_id = parent_id_str
+            .map(|s| Uuid::parse_str(&s))
+            .transpose()
+            .map_err(|_| {
+                rusqlite::Error::InvalidColumnType(
+                    7,
+                    "uuid".to_string(),
+                    rusqlite::types::Type::Text,
+                )
+            })?;
 
         let tags_str: String = row.get(8)?;
         let tags_vec: Vec<String> = serde_json::from_str(&tags_str).unwrap_or_default();
         let tags = tags_vec.into_iter().collect();
 
         let embedding_id_str: Option<String> = row.get(9)?;
-        let embedding_id =
-            embedding_id_str.map(|s| Uuid::parse_str(&s)).transpose().map_err(|_| {
+        let embedding_id = embedding_id_str
+            .map(|s| Uuid::parse_str(&s))
+            .transpose()
+            .map_err(|_| {
                 rusqlite::Error::InvalidColumnType(
                     9,
                     "uuid".to_string(),
@@ -496,3 +511,4 @@ mod tests {
         assert!(repo.find_by_id(&memory.id).unwrap().is_none());
     }
 }
+

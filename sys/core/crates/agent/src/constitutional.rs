@@ -33,7 +33,10 @@ pub struct ConstitutionalEnforcer;
 
 impl ConstitutionalEnforcer {
     /// Check if an operation violates constitutional principles
-    pub fn check_operation(&self, operation: &AgentOperation) -> ConstitutionalCheckResult {
+    pub fn check_operation(
+        &self,
+        operation: &AgentOperation,
+    ) -> ConstitutionalCheckResult {
         let mut violated_principles = Vec::new();
         let mut violations = Vec::new();
 
@@ -51,8 +54,7 @@ impl ConstitutionalEnforcer {
         // Check local-first principle (§3.2)
         if operation.requires_network && !operation.allows_offline {
             violated_principles.push(ConstitutionalPrinciple::LocalFirst);
-            violations
-                .push("Operation requires network but offline mode not supported".to_string());
+            violations.push("Operation requires network but offline mode not supported".to_string());
         }
 
         // Check security principle (§3.3)
@@ -75,7 +77,10 @@ impl ConstitutionalEnforcer {
     }
 
     /// Enforce constitutional principles (returns error if violated)
-    pub fn enforce(&self, operation: &AgentOperation) -> Result<(), ConstitutionalViolationError> {
+    pub fn enforce(
+        &self,
+        operation: &AgentOperation,
+    ) -> Result<(), ConstitutionalViolationError> {
         let check = self.check_operation(operation);
         if !check.passed {
             return Err(ConstitutionalViolationError {
@@ -124,3 +129,4 @@ impl Default for ConstitutionalEnforcer {
         Self
     }
 }
+

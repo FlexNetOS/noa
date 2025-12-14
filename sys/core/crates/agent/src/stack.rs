@@ -96,3 +96,4 @@ impl MicroAgentStack {
         self.metadata.touch();
     }
 }
+
