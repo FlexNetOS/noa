@@ -82,29 +82,18 @@ New-Item -ItemType Directory -Path $NOA_CACHE -Force | Out-Null
 New-Item -ItemType Directory -Path $NINJA_DIR -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_BIN -Force | Out-Null
 
-# Source download library
-$downloadLib = Join-Path $PSScriptRoot "..\lib\download.ps1"
-if (Test-Path $downloadLib) {
-    . $downloadLib
-}
-
 # Download Ninja
 $downloadUrl = "https://github.com/ninja-build/ninja/releases/download/v$Version/ninja-win.zip"
-$zipFileName = "ninja-$Version-win.zip"
+$zipFile = Join-Path $NOA_CACHE "ninja-$Version-win.zip"
 
 Write-Log "Downloading Ninja $Version..." -Level Info
 try {
-    if (Test-Path $downloadLib) {
-        # Use Get-NoaDownload for checksum support (when available)
-        $zipFile = Get-NoaDownload -Url $downloadUrl -DestinationName $zipFileName -UseCache
+    if (-not (Test-Path $zipFile)) {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
+        Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1KB, 1)) KB" -Level Success
     } else {
-        # Fallback to direct download
-        $zipFile = Join-Path $NOA_CACHE $zipFileName
-        if (-not (Test-Path $zipFile)) {
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
-        }
+        Write-Log "Using cached download" -Level Info
     }
-    Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1KB, 1)) KB" -Level Success
 } catch {
     Write-Log "Download failed: $_" -Level Error
     exit 1

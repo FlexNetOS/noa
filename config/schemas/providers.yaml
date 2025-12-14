@@ -1,154 +1,39 @@
 $id: "https://noa.local/schemas/providers.yaml"
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "NOA Provider Configuration"
-description: "Schema for grouped AI provider configuration, priorities, and shared resources"
+title: "NOA Providers"
+description: "Schema for provider configuration (Phase 2.6)"
 type: object
-required: [metadata, providerPriority, providers]
 properties:
-  $schema:
-    type: string
-    description: "Optional schema reference for JSON consumers"
-  schema:
-    type: string
-    description: "Optional schema reference for YAML consumers"
-  metadata:
-    type: object
-    properties:
-      version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
-        description: "Semantic version of the provider configuration"
-      description:
-        type: string
-      updated_at:
-        type: string
-        format: date-time
-    required: [version]
-  providerPriority:
-    type: array
-    description: "Priority order of provider categories"
-    items:
-      type: string
-      enum: [local, hybrid, ide, cloud]
-    minItems: 1
-    uniqueItems: true
   providers:
-    type: object
-    description: "Provider categories keyed by category name"
-    properties:
-      local: { $ref: "#/definitions/providerCategory" }
-      cloud: { $ref: "#/definitions/providerCategory" }
-      hybrid: { $ref: "#/definitions/providerCategory" }
-      ide: { $ref: "#/definitions/providerCategory" }
-    additionalProperties: false
-    minProperties: 1
-  sharedResources:
-    $ref: "#/definitions/sharedResources"
-  executionMemory:
-    $ref: "#/definitions/executionMemory"
-  models:
-    $ref: "#/definitions/models"
-  providerSwitching:
-    $ref: "#/definitions/providerSwitching"
+    type: array
+    items:
+      type: object
+      required: [id, kind, priority, enabled]
+      properties:
+        id:
+          type: string
+          description: "Provider identifier (llama.cpp, claude, codex, cursor, git, abacus, copilot)"
+        kind:
+          type: string
+          enum: [local, cloud, ide, cli]
+        priority:
+          type: integer
+          description: "Lower number = higher priority"
+        enabled:
+          type: boolean
+        capabilities:
+          type: array
+          items: { type: string }
+        endpoints:
+          type: object
+          description: "Optional endpoint configuration"
+          properties:
+            cli: { type: string }
+            cloud: { type: string }
+            ide: { type: string }
+        rateLimit:
+          type: object
+          properties:
+            maxRps: { type: integer }
+            burst: { type: integer }
 additionalProperties: false
-
-definitions:
-  path:
-    type: string
-    minLength: 1
-    description: "Path or URI; may include ${NOA_ROOT}"
-
-  providerCategory:
-    type: object
-    required: [enabled, priority, types, configPath]
-    properties:
-      enabled:
-        type: boolean
-      priority:
-        type: integer
-        minimum: 1
-        maximum: 100
-        description: "Lower number = higher priority"
-      types:
-        type: array
-        minItems: 1
-        uniqueItems: true
-        items:
-          type: string
-          minLength: 1
-      configPath:
-        $ref: "#/definitions/path"
-    additionalProperties: false
-
-  sharedResources:
-    type: object
-    properties:
-      agents: { $ref: "#/definitions/path" }
-      workflows: { $ref: "#/definitions/path" }
-      prompts: { $ref: "#/definitions/path" }
-      skills: { $ref: "#/definitions/path" }
-      tools: { $ref: "#/definitions/path" }
-      models: { $ref: "#/definitions/path" }
-      commands: { $ref: "#/definitions/path" }
-      resources: { $ref: "#/definitions/path" }
-    additionalProperties: false
-
-  executionMemory:
-    type: object
-    required: [enabled, path]
-    properties:
-      enabled:
-        type: boolean
-      path:
-        $ref: "#/definitions/path"
-      features:
-        type: array
-        uniqueItems: true
-        items:
-          type: string
-          pattern: "^[a-z_][a-z0-9_]*$"
-    additionalProperties: false
-
-  models:
-    type: object
-    properties:
-      defaultContextLength:
-        type: integer
-        minimum: 1
-      defaultTemperature:
-        type: number
-        minimum: 0
-      defaultTopP:
-        type: number
-        minimum: 0
-        maximum: 1
-      defaultTopK:
-        type: integer
-        minimum: 0
-      defaultRepeatPenalty:
-        type: number
-        minimum: 0
-      supportedFormats:
-        type: array
-        minItems: 1
-        uniqueItems: true
-        items:
-          type: string
-          minLength: 1
-      modelPaths:
-        type: object
-        additionalProperties: { $ref: "#/definitions/path" }
-      downloadSources:
-        type: object
-        additionalProperties:
-          type: string
-          format: uri
-    additionalProperties: false
-
-  providerSwitching:
-    type: object
-    properties:
-      enabled: { type: boolean }
-      preserveConfigs: { type: boolean }
-      migrateState: { type: boolean }
-    additionalProperties: false

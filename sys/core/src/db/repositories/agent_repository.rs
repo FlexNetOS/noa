@@ -1,6 +1,7 @@
 //! Agent repository (Phase 9 - T258)
+use crate::db::repository::Repository;
 use crate::error::{DatabaseError, NoaError, Result};
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 
 #[derive(Debug, Clone)]
 pub struct Agent {
@@ -34,21 +35,15 @@ impl<'a> AgentRepository<'a> {
                 })
             })
             .map_err(to_db_err("query agents"))?;
-        let agents = rows
-            .collect::<std::result::Result<Vec<_>, _>>()
-            .map_err(to_db_err("map agents"))?;
-        Ok(agents)
+        Ok(rows.filter_map(Result::ok).collect())
     }
 }
 
 fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
-    move |err| {
-        NoaError::Database(DatabaseError::QueryFailed {
-            query: context.into(),
-            error: err.to_string(),
-        })
-    }
+    move |err| NoaError::Database(DatabaseError::QueryFailed {
+        query: context.into(),
+        error: err.to_string(),
+    })
 }
 
-// TODO: Implement Repository<Agent, i64> trait when needed
-// impl<'a> Repository<Agent, i64> for AgentRepository<'a> {}
+impl<'a> Repository for AgentRepository<'a> {}

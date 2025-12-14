@@ -6,7 +6,7 @@
 //!
 //! T632: Implement constitutional goal boundary checker
 
-use crate::error::Result;
+use crate::error::{Result, NoaError};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -57,13 +57,7 @@ impl GoalBoundaryChecker {
         let mut allowed = true;
 
         // Check for harmful keywords
-        let harmful_keywords = vec![
-            "harm",
-            "violate",
-            "destroy",
-            "delete critical",
-            "remove essential",
-        ];
+        let harmful_keywords = vec!["harm", "violate", "destroy", "delete critical", "remove essential"];
         let text = format!("{} {} {}", title, description, rationale).to_lowercase();
 
         for keyword in harmful_keywords {
@@ -151,14 +145,11 @@ mod tests {
     async fn test_harmful_keyword_detection() {
         let checker = GoalBoundaryChecker::new();
 
-        let result = checker
-            .check_goal(
-                "Harm user data",
-                "Delete all user data",
-                "Remove sensitive information",
-            )
-            .await
-            .unwrap();
+        let result = checker.check_goal(
+            "Harm user data",
+            "Delete all user data",
+            "Remove sensitive information",
+        ).await.unwrap();
 
         assert!(!result.allowed);
         assert!(!result.violations.is_empty());
@@ -168,14 +159,11 @@ mod tests {
     async fn test_risky_operation_warning() {
         let checker = GoalBoundaryChecker::new();
 
-        let result = checker
-            .check_goal(
-                "Modify core system",
-                "Update critical components",
-                "Improve system performance",
-            )
-            .await
-            .unwrap();
+        let result = checker.check_goal(
+            "Modify core system",
+            "Update critical components",
+            "Improve system performance",
+        ).await.unwrap();
 
         assert!(result.allowed); // Should allow but warn
         assert!(!result.warnings.is_empty());
@@ -185,14 +173,11 @@ mod tests {
     async fn test_short_rationale_warning() {
         let checker = GoalBoundaryChecker::new();
 
-        let result = checker
-            .check_goal(
-                "Valid goal",
-                "Description",
-                "Short", // Less than 20 chars
-            )
-            .await
-            .unwrap();
+        let result = checker.check_goal(
+            "Valid goal",
+            "Description",
+            "Short", // Less than 20 chars
+        ).await.unwrap();
 
         assert!(result.allowed);
         assert!(!result.warnings.is_empty());
@@ -202,17 +187,15 @@ mod tests {
     async fn test_valid_goal() {
         let checker = GoalBoundaryChecker::new();
 
-        let result = checker
-            .check_goal(
-                "Optimize database queries",
-                "Improve query performance by adding indexes",
-                "Query latency has increased by 50% over the past week, affecting user experience",
-            )
-            .await
-            .unwrap();
+        let result = checker.check_goal(
+            "Optimize database queries",
+            "Improve query performance by adding indexes",
+            "Query latency has increased by 50% over the past week, affecting user experience",
+        ).await.unwrap();
 
         assert!(result.allowed);
         assert!(result.violations.is_empty());
         assert!(result.warnings.is_empty());
     }
 }
+

@@ -1,14 +1,14 @@
 # NOA Configuration Files
 
-**Purpose**: Documentation for all NOA configuration files
-**Last Updated**: 2025-01-27
+**Purpose**: Documentation for all NOA configuration files  
+**Last Updated**: 2025-01-27  
 **Phase**: Phase 1 - Setup (Shared Infrastructure)
 
 ---
 
 ## Overview
 
-This directory contains all configuration files for the NOA system. All configs follow JSON Schema validation, use `${NOA_ROOT}` for path resolution, and prefer camelCase keys. Each file should declare `version`, set `$schema` when available, and keep a short change log in VCS history or adjacent metadata.
+This directory contains all configuration files for the NOA system. All configs follow JSON Schema validation and use `${NOA_ROOT}` for path resolution.
 
 ---
 
@@ -16,9 +16,9 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `noa-server.json`
 
-**Purpose**: Main server configuration
-**Type**: JSON
-**Schema**: `config/schemas/config_schema.json`
+**Purpose**: Main server configuration  
+**Type**: JSON  
+**Schema**: `config/schemas/config_schema.json`  
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -39,40 +39,48 @@ This directory contains all configuration files for the NOA system. All configs 
 }
 ```
 
-**Default**: Created during `noa init`
+**Default**: Created during `noa init`  
 **Validation**: Validated against schema on load
 
 ---
 
 ### `ai-providers.json`
 
-**Purpose**: Grouped provider categories, priorities, shared resources, and model defaults
-**Type**: JSON
-**Schema**: `config/schemas/providers.yaml` (grouped categories)
+**Purpose**: AI provider configuration and priority  
+**Type**: JSON  
+**Schema**: `config/schemas/providers.yaml`  
 **Version**: 1.0.0
 
 **Key Fields**:
-- `$schema` (string, recommended): Schema pointer
 - `version` (string, required): Config version
-- `providerPriority` (array, required): Category order (`local`, `hybrid`, `ide`, `cloud`)
-- `providers` (object, required): Category blocks keyed by name
-  - Each category: `{ enabled, priority, types[], configPath }`
+- `providerPriority` (array): Priority order (local, hybrid, ide, cloud)
+- `providers` (object): Provider categories with types and config paths
+- `sharedResources` (object): Shared resource paths
+- `executionMemory` (object): Execution memory bus configuration
+- `models` (object): Model defaults and paths
+- `providerSwitching` (object): Provider switching behavior
 
-**Default**: Created during `noa init`
-**Validation**: Validated against `providers.yaml` on load (additional properties are rejected)
+**Provider Categories**:
+- `local` (priority 1): llama.cpp, ollama, local-llm, git-cli
+- `hybrid` (priority 2): cursor, local-first-with-cloud-fallback
+- `ide` (priority 4): vscode-copilot
+- `cloud` (priority 3): openai, anthropic, google, mistral, claude-code, codex, abacus
+
+**Default**: Created during bootstrap  
+**Validation**: Validated against schema on load
 
 ---
 
 ### `features.json`
 
-**Purpose**: Feature flags and toggles
-**Type**: JSON
-**Schema**: `config/schemas/config_schema.json`
+**Purpose**: Feature flags and toggles  
+**Type**: JSON  
+**Schema**: `config/schemas/config_schema.json`  
 **Version**: 1.0.0
 
 **Key Fields**:
 - `version` (string, required): Config version
-- `features` (object): Feature name -> enabled (boolean)
+- `features` (object): Feature name → enabled (boolean)
 
 **Example**:
 ```json
@@ -86,7 +94,7 @@ This directory contains all configuration files for the NOA system. All configs 
 }
 ```
 
-**Default**: Created during `noa init`
+**Default**: Created during `noa init`  
 **Validation**: Validated against schema on load
 
 ---
@@ -95,8 +103,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `database.yaml`
 
-**Purpose**: Database connection configuration
-**Type**: YAML
+**Purpose**: Database connection configuration  
+**Type**: YAML  
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -110,8 +118,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `minio.yaml`
 
-**Purpose**: MinIO S3-compatible storage configuration
-**Type**: YAML
+**Purpose**: MinIO S3-compatible storage configuration  
+**Type**: YAML  
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -124,8 +132,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `qdrant.yaml`
 
-**Purpose**: Qdrant vector store configuration
-**Type**: YAML
+**Purpose**: Qdrant vector store configuration  
+**Type**: YAML  
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -139,25 +147,25 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `bootstrap-state.json`
 
-**Purpose**: Bootstrap tool installation state
-**Type**: JSON
-**Schema**: `config/schemas/config_schema.json`
+**Purpose**: Bootstrap tool installation state  
+**Type**: JSON  
+**Schema**: `config/schemas/config_schema.json`  
 **Version**: 1.0.0
 
 **Key Fields**:
 - `version` (string, required): State version
-- `tools` (object): Tool name -> installation state
+- `tools` (object): Tool name → installation state
 - `updated_at` (string): ISO 8601 timestamp
 
-**Auto-Generated**: Updated by bootstrap scripts
+**Auto-Generated**: Updated by bootstrap scripts  
 **Validation**: Validated on read/write
 
 ---
 
 ### `bootstrap-tools.json`
 
-**Purpose**: Bootstrap tool definitions
-**Type**: JSON
+**Purpose**: Bootstrap tool definitions  
+**Type**: JSON  
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -171,16 +179,16 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `shared-resources.json`
 
-**Purpose**: Shared AI provider resources configuration
-**Type**: JSON
+**Purpose**: Shared AI provider resources configuration  
+**Type**: JSON  
 **Version**: 1.0.0
 
 **Key Fields**:
 - `version` (string, required): Config version
-- `paths` (object): Resource type -> path mappings
+- `paths` (object): Resource type → path mappings
 - `executionMemory` (object): Execution memory bus settings
 
-**Default**: Created during bootstrap
+**Default**: Created during bootstrap  
 **Paths**: All use `${NOA_ROOT}/ai/shared/` prefix
 
 ---
@@ -189,28 +197,62 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `ai/providers/{category}/{provider}/config.json`
 
-**Purpose**: Individual provider configuration (optional, per provider)
-**Type**: JSON
-**Schema**: Not yet formalized; keep consistent with existing provider metadata files in `ai/providers/**/config.json`
+**Purpose**: Individual provider configuration  
+**Type**: JSON  
+**Schema**: `config/schemas/providers.yaml`  
 **Version**: 1.0.0
 
-**Recommended Fields (camelCase)**:
-- `version` (string, required)
-- `id` (string, required): Provider identifier (e.g., `claude-code`)
-- `category` (string, required): `local | hybrid | ide | cloud`
-- `priority` (integer, required)
-- `enabled` (boolean, required)
-- `description` (string, recommended)
-- `modes` (array): Supported modes (`cli`, `cloud`, `ide`)
-- `capabilities` (object): Feature flags per capability
-- `cli` (object): `{ command, package, version, binaryPath }`
-- `sharedResources` (object): Resource paths (prefer `${NOA_ROOT}`)
-- `latency` (object): `{ target, timeout }`
-- `timeout` (integer)
+**Key Fields** (per CHK122-CHK127):
+- `name` (string, required): Provider name
+- `type` (string, required): Provider type (local/hybrid/ide/cloud)
+- `priority` (integer, required): Unique priority (1-7)
+- `enabled` (boolean, required): Whether provider is enabled
+- `description` (string, required): Provider description
+- `cli` (object, required): CLI configuration
+  - `command` (string): CLI command name
+  - `package` (string): Package name
+  - `version` (string): Required version
+  - `binaryPath` (string): Path to binary (uses `${NOA_ROOT}`)
+- `modes` (array, required): Supported modes (cli, cloud, ide)
+- `capabilities` (object, required): Provider capabilities
+- `sharedResources` (object, required): Shared resource paths
+- `latency` (object, optional): Latency targets
+  - `target` (integer): Target latency in ms
+  - `timeout` (integer): Timeout in ms
+- `timeout` (integer, optional): Default timeout in ms
 
-**Notes**:
-- Provider metadata is referenced by `config/ai-providers.json` via each category’s `configPath`, and the category’s `types[]` list.
-- Keep provider IDs listed in `types[]` aligned with `ai/providers/<category>/<provider>/config.json`.
+**Example**:
+```json
+{
+  "name": "claude-code",
+  "type": "cloud",
+  "priority": 3,
+  "enabled": true,
+  "description": "Anthropic Claude Code CLI",
+  "cli": {
+    "command": "claude",
+    "package": "@anthropic-ai/claude-code",
+    "version": "latest",
+    "binaryPath": "${NOA_ROOT}/opt/node/node_modules/.bin/claude"
+  },
+  "modes": ["cli", "cloud"],
+  "capabilities": {
+    "code": true,
+    "chat": true
+  },
+  "sharedResources": {
+    "path": "${NOA_ROOT}/ai/shared"
+  },
+  "latency": {
+    "target": 2000,
+    "timeout": 30000
+  },
+  "timeout": 30000
+}
+```
+
+**Default**: Created during provider installation  
+**Validation**: Validated against schema on load
 
 ---
 
@@ -218,8 +260,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `config/schemas/`
 
-**Purpose**: JSON Schema definitions for validation
-**Type**: JSON/YAML
+**Purpose**: JSON Schema definitions for validation  
+**Type**: JSON/YAML  
 **Schema Version**: JSON Schema draft-07
 
 **Files**:
@@ -330,8 +372,7 @@ When schema changes:
 
 ---
 
-**Documentation Version**: 1.0.0
-**Last Updated**: 2025-01-27
+**Documentation Version**: 1.0.0  
+**Last Updated**: 2025-01-27  
 **Maintained By**: NOA Development Team
-
 

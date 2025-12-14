@@ -46,7 +46,7 @@ impl EmbeddingModel {
     }
 
     /// Generate embedding for a single text
-    pub async fn embed(&self, _text: &str) -> Result<Vec<f32>> {
+    pub async fn embed(&self, text: &str) -> Result<Vec<f32>> {
         // TODO: Implement actual embedding generation using Candle
         // For now, return a placeholder vector
         Ok(vec![0.0; self.dimensions])
@@ -69,3 +69,4 @@ impl EmbeddingModel {
         &self.name
     }
 }
+

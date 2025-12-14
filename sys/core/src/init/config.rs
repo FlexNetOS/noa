@@ -37,33 +37,112 @@ impl ConfigGenerator {
         }
 
         let config = json!({
-            "$schema": "https://noa.local/schemas/providers.yaml",
+            "$schema": "https://noa.local/schemas/ai-providers.json",
             "version": "1.0.0",
-            "providerPriority": ["local", "hybrid", "ide", "cloud"],
+            "providerPriority": ["local", "hybrid", "cloud"],
             "providers": {
-                "local": {
-                    "enabled": true,
+                "llama-cpp": {
+                    "name": "llama.cpp",
+                    "type": "local",
                     "priority": 1,
-                    "types": ["llama.cpp", "ollama", "git-cli"],
-                    "configPath": "${NOA_ROOT}/ai/providers/local"
-                },
-                "hybrid": {
                     "enabled": true,
-                    "priority": 2,
-                    "types": ["cursor"],
-                    "configPath": "${NOA_ROOT}/ai/providers/hybrid"
+                    "description": "Local inference via llama.cpp",
+                    "cli": {
+                        "command": "llama-server",
+                        "binaryPath": "${NOA_ROOT}/opt/llama.cpp/build/bin/llama-server",
+                        "version": "built"
+                    },
+                    "modes": ["cli"],
+                    "capabilities": {
+                        "reasoning": true,
+                        "code": true,
+                        "text": true
+                    },
+                    "sharedResources": {
+                        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+                        "context": "${NOA_ROOT}/ai/shared/resources/context/"
+                    },
+                    "latency": {
+                        "target": 500,
+                        "timeout": 5000
+                    }
                 },
-                "ide": {
-                    "enabled": true,
-                    "priority": 4,
-                    "types": ["vscode-copilot"],
-                    "configPath": "${NOA_ROOT}/ai/providers/ide"
-                },
-                "cloud": {
-                    "enabled": true,
+                "claude-code": {
+                    "name": "Claude Code",
+                    "type": "cloud",
                     "priority": 3,
-                    "types": ["claude-code", "codex", "abacus"],
-                    "configPath": "${NOA_ROOT}/ai/providers/cloud"
+                    "enabled": false,
+                    "description": "Anthropic Claude Code via CLI/Cloud/IDE",
+                    "cli": {
+                        "command": "claude-code",
+                        "package": "@anthropic-ai/claude-code",
+                        "version": "latest"
+                    },
+                    "modes": ["cli", "cloud", "ide"],
+                    "capabilities": {
+                        "reasoning": true,
+                        "code": true,
+                        "text": true
+                    },
+                    "sharedResources": {
+                        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+                        "context": "${NOA_ROOT}/ai/shared/resources/context/"
+                    },
+                    "latency": {
+                        "target": 2000,
+                        "timeout": 10000
+                    }
+                },
+                "codex": {
+                    "name": "Codex",
+                    "type": "cloud",
+                    "priority": 4,
+                    "enabled": false,
+                    "description": "OpenAI Codex via CLI/Cloud",
+                    "cli": {
+                        "command": "codex",
+                        "package": "@openai/codex",
+                        "version": "latest"
+                    },
+                    "modes": ["cli", "cloud"],
+                    "capabilities": {
+                        "code": true,
+                        "text": true
+                    },
+                    "sharedResources": {
+                        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+                        "context": "${NOA_ROOT}/ai/shared/resources/context/"
+                    },
+                    "latency": {
+                        "target": 2000,
+                        "timeout": 10000
+                    }
+                },
+                "cursor": {
+                    "name": "Cursor",
+                    "type": "hybrid",
+                    "priority": 2,
+                    "enabled": false,
+                    "description": "Cursor IDE/CLI/Cloud provider",
+                    "cli": {
+                        "command": "cursor",
+                        "binaryPath": "${NOA_ROOT}/opt/cursor-cli/cursor",
+                        "version": "latest"
+                    },
+                    "modes": ["ide", "cli", "cloud"],
+                    "capabilities": {
+                        "reasoning": true,
+                        "code": true,
+                        "orchestration": true
+                    },
+                    "sharedResources": {
+                        "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+                        "context": "${NOA_ROOT}/ai/shared/resources/context/"
+                    },
+                    "latency": {
+                        "target": 1000,
+                        "timeout": 5000
+                    }
                 }
             }
         });
@@ -259,3 +338,4 @@ mod tests {
         assert!(NoaPaths::config(root).join("models.json").exists());
     }
 }
+

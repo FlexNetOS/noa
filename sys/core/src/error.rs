@@ -4,11 +4,6 @@
 //! FR-148: Error Recovery - graceful handling of failures
 //! §3.1: Core error definition
 
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    Json,
-};
 use std::fmt;
 
 /// Core error type for NOA operations
@@ -36,28 +31,16 @@ pub enum NoaError {
     Validation(ValidationError),
 
     // Resource not found
-    NotFound {
-        resource: String,
-        id: String,
-    },
+    NotFound { resource: String, id: String },
 
     // Permission denied
-    PermissionDenied {
-        action: String,
-        resource: String,
-    },
+    PermissionDenied { action: String, resource: String },
 
     // Timeout
-    Timeout {
-        operation: String,
-        duration_ms: u64,
-    },
+    Timeout { operation: String, duration_ms: u64 },
 
     // Internal error with context
-    Internal {
-        message: String,
-        source: Option<Box<dyn std::error::Error + Send + Sync>>,
-    },
+    Internal { message: String, source: Option<Box<dyn std::error::Error + Send + Sync>> },
 }
 
 /// Database-specific errors
@@ -76,20 +59,10 @@ pub enum DatabaseError {
 #[derive(Debug)]
 pub enum ConfigError {
     FileNotFound(String),
-    ParseError {
-        path: String,
-        error: String,
-    },
-    ValidationError {
-        field: String,
-        message: String,
-    },
+    ParseError { path: String, error: String },
+    ValidationError { field: String, message: String },
     MissingRequired(String),
-    InvalidValue {
-        field: String,
-        value: String,
-        expected: String,
-    },
+    InvalidValue { field: String, value: String, expected: String },
     EnvironmentVariableNotSet(String),
 }
 
@@ -98,24 +71,10 @@ pub enum ConfigError {
 pub enum AgentError {
     NotFound(String),
     AlreadyExists(String),
-    InvalidState {
-        agent: String,
-        current: String,
-        expected: String,
-    },
-    ExecutionFailed {
-        agent: String,
-        action: String,
-        error: String,
-    },
-    CapabilityMissing {
-        agent: String,
-        capability: String,
-    },
-    Timeout {
-        agent: String,
-        operation: String,
-    },
+    InvalidState { agent: String, current: String, expected: String },
+    ExecutionFailed { agent: String, action: String, error: String },
+    CapabilityMissing { agent: String, capability: String },
+    Timeout { agent: String, operation: String },
 }
 
 /// API errors
@@ -140,11 +99,7 @@ pub struct ValidationError {
 }
 
 impl ValidationError {
-    pub fn new(
-        field: impl Into<String>,
-        message: impl Into<String>,
-        code: impl Into<String>,
-    ) -> Self {
+    pub fn new(field: impl Into<String>, message: impl Into<String>, code: impl Into<String>) -> Self {
         Self {
             field: field.into(),
             message: message.into(),
@@ -167,10 +122,7 @@ impl fmt::Display for NoaError {
             NoaError::PermissionDenied { action, resource } => {
                 write!(f, "Permission denied: {} on {}", action, resource)
             }
-            NoaError::Timeout {
-                operation,
-                duration_ms,
-            } => {
+            NoaError::Timeout { operation, duration_ms } => {
                 write!(f, "Timeout after {}ms: {}", duration_ms, operation)
             }
             NoaError::Internal { message, .. } => write!(f, "Internal error: {}", message),
@@ -209,16 +161,8 @@ impl fmt::Display for ConfigError {
                 write!(f, "Invalid config {}: {}", field, message)
             }
             ConfigError::MissingRequired(field) => write!(f, "Missing required field: {}", field),
-            ConfigError::InvalidValue {
-                field,
-                value,
-                expected,
-            } => {
-                write!(
-                    f,
-                    "Invalid value for {}: got '{}', expected {}",
-                    field, value, expected
-                )
+            ConfigError::InvalidValue { field, value, expected } => {
+                write!(f, "Invalid value for {}: got '{}', expected {}", field, value, expected)
             }
             ConfigError::EnvironmentVariableNotSet(var) => {
                 write!(f, "Environment variable not set: {}", var)
@@ -232,22 +176,10 @@ impl fmt::Display for AgentError {
         match self {
             AgentError::NotFound(name) => write!(f, "Agent not found: {}", name),
             AgentError::AlreadyExists(name) => write!(f, "Agent already exists: {}", name),
-            AgentError::InvalidState {
-                agent,
-                current,
-                expected,
-            } => {
-                write!(
-                    f,
-                    "Agent {} in invalid state: {} (expected {})",
-                    agent, current, expected
-                )
+            AgentError::InvalidState { agent, current, expected } => {
+                write!(f, "Agent {} in invalid state: {} (expected {})", agent, current, expected)
             }
-            AgentError::ExecutionFailed {
-                agent,
-                action,
-                error,
-            } => {
+            AgentError::ExecutionFailed { agent, action, error } => {
                 write!(f, "Agent {} failed on {}: {}", agent, action, error)
             }
             AgentError::CapabilityMissing { agent, capability } => {
@@ -268,14 +200,8 @@ impl fmt::Display for ApiError {
             ApiError::Forbidden(msg) => write!(f, "Forbidden: {}", msg),
             ApiError::NotFound(msg) => write!(f, "Not found: {}", msg),
             ApiError::Conflict(msg) => write!(f, "Conflict: {}", msg),
-            ApiError::RateLimited {
-                retry_after_seconds,
-            } => {
-                write!(
-                    f,
-                    "Rate limited, retry after {} seconds",
-                    retry_after_seconds
-                )
+            ApiError::RateLimited { retry_after_seconds } => {
+                write!(f, "Rate limited, retry after {} seconds", retry_after_seconds)
             }
             ApiError::ServiceUnavailable(msg) => write!(f, "Service unavailable: {}", msg),
             ApiError::InternalError(msg) => write!(f, "Internal error: {}", msg),
@@ -287,9 +213,7 @@ impl std::error::Error for NoaError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             NoaError::Io(e) => Some(e),
-            NoaError::Internal {
-                source: Some(e), ..
-            } => Some(e.as_ref()),
+            NoaError::Internal { source: Some(e), .. } => Some(e.as_ref()),
             _ => None,
         }
     }
@@ -337,54 +261,6 @@ impl From<ValidationError> for NoaError {
     }
 }
 
-impl From<rusqlite::Error> for NoaError {
-    fn from(err: rusqlite::Error) -> Self {
-        NoaError::Database(DatabaseError::QueryFailed {
-            query: "sqlite".to_string(),
-            error: err.to_string(),
-        })
-    }
-}
-
-impl From<serde_json::Error> for NoaError {
-    fn from(err: serde_json::Error) -> Self {
-        NoaError::Serialization(err.to_string())
-    }
-}
-
-impl From<serde_yaml::Error> for NoaError {
-    fn from(err: serde_yaml::Error) -> Self {
-        NoaError::Serialization(err.to_string())
-    }
-}
-
-impl From<anyhow::Error> for NoaError {
-    fn from(err: anyhow::Error) -> Self {
-        NoaError::Internal {
-            message: err.to_string(),
-            source: None,
-        }
-    }
-}
-
-impl From<prometheus::Error> for NoaError {
-    fn from(err: prometheus::Error) -> Self {
-        NoaError::Internal {
-            message: err.to_string(),
-            source: Some(Box::new(err)),
-        }
-    }
-}
-
-impl From<std::string::FromUtf8Error> for NoaError {
-    fn from(err: std::string::FromUtf8Error) -> Self {
-        NoaError::Internal {
-            message: err.to_string(),
-            source: Some(Box::new(err)),
-        }
-    }
-}
-
 /// Result type alias for NOA operations
 pub type Result<T> = std::result::Result<T, NoaError>;
 
@@ -407,29 +283,6 @@ impl<T, E: std::error::Error + Send + Sync + 'static> ResultExt<T> for std::resu
             message: f(),
             source: Some(Box::new(e)),
         })
-    }
-}
-
-impl IntoResponse for NoaError {
-    fn into_response(self) -> Response {
-        let status = match self {
-            NoaError::Validation(_) => StatusCode::BAD_REQUEST,
-            NoaError::Api(ApiError::Unauthorized(_)) => StatusCode::UNAUTHORIZED,
-            NoaError::Api(ApiError::Forbidden(_)) => StatusCode::FORBIDDEN,
-            NoaError::Api(ApiError::NotFound(_)) | NoaError::NotFound { .. } => {
-                StatusCode::NOT_FOUND
-            }
-            NoaError::Timeout { .. } => StatusCode::GATEWAY_TIMEOUT,
-            NoaError::PermissionDenied { .. } => StatusCode::FORBIDDEN,
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-
-        let body = serde_json::json!({
-            "error": format!("{}", self),
-            "code": status.as_u16(),
-        });
-
-        (status, Json(body)).into_response()
     }
 }
 
@@ -459,3 +312,4 @@ mod tests {
         assert!(format!("{}", noa_err).contains("email"));
     }
 }
+

@@ -1,6 +1,0 @@
-# NOA Environment Marker
-# Created: 2025-12-11T12:54:02.890980893+00:00
-# Version: 0.1.0
-
-NOA_ROOT=/workspaces/noa/sys/core
-NOA_ENV=development

@@ -1,77 +1,49 @@
-$schema: "https://noa.local/schemas/providers.yaml"
-version: "1.0.0"
-providerPriority:
-  - local
-  - hybrid
-  - ide
-  - cloud
+schema: "https://noa.local/schemas/providers.yaml"
 providers:
-  local:
-    enabled: true
+  - id: "llama.cpp"
+    kind: "local"
     priority: 1
-    types: ["llama.cpp", "git"]
-    configPath: "${NOA_ROOT}/ai/providers/local"
-  hybrid:
     enabled: true
+    capabilities: ["reasoning", "embedding"]
+    rateLimit:
+      maxRps: 20
+      burst: 40
+  - id: "cursor"
+    kind: "ide"
     priority: 2
-    types: ["cursor"]
-    configPath: "${NOA_ROOT}/ai/providers/hybrid"
-  ide:
     enabled: true
-    priority: 4
-    types: ["copilot"]
-    configPath: "${NOA_ROOT}/ai/providers/ide"
-  cloud:
-    enabled: true
+    capabilities: ["code", "context"]
+    rateLimit:
+      maxRps: 10
+      burst: 20
+  - id: "claude"
+    kind: "cloud"
     priority: 3
-    types: ["claude", "codex", "abacus"]
-    configPath: "${NOA_ROOT}/ai/providers/cloud"
-sharedResources:
-  agents: "${NOA_ROOT}/ai/shared/agents"
-  workflows: "${NOA_ROOT}/ai/shared/workflows"
-  prompts: "${NOA_ROOT}/ai/shared/prompts"
-  skills: "${NOA_ROOT}/ai/shared/skills"
-  tools: "${NOA_ROOT}/ai/shared/tools"
-  models: "${NOA_ROOT}/ai/shared/models"
-  commands: "${NOA_ROOT}/ai/shared/commands"
-  resources: "${NOA_ROOT}/ai/shared/resources"
-systemPrompts:
-  enabled: true
-  basePrompts:
-    - name: ultrathink
-      file: ultrathink.md
-      inject: always
-      priority: 1
-      description: "High-bar execution mindset for all providers"
-  contextualPrompts:
-    - name: project-mgmt-prompt
-      file: project-mgmt-prompt.md
-      inject: on-demand
-      priority: 2
-      triggers:
-        - project
-        - task
-        - milestone
-  promptPath: "${NOA_ROOT}/ai/shared/prompts"
-executionMemory:
-  enabled: true
-  path: "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-  features:
-    - context_sharing
-    - reasoning_state
-    - provider_state_sync
-models:
-  defaultContextLength: 2048
-  defaultTemperature: 0.7
-  defaultTopP: 0.9
-  defaultTopK: 40
-  defaultRepeatPenalty: 1.1
-  supportedFormats:
-    - gguf
-    - safetensors
-  modelPaths:
-    local: "${NOA_ROOT}/ai/shared/models"
-providerSwitching:
-  enabled: true
-  preserveConfigs: true
-  migrateState: true
+    enabled: true
+    capabilities: ["reasoning"]
+    rateLimit:
+      maxRps: 5
+      burst: 10
+  - id: "codex"
+    kind: "cloud"
+    priority: 4
+    enabled: true
+    capabilities: ["code"]
+    rateLimit:
+      maxRps: 5
+      burst: 10
+  - id: "copilot"
+    kind: "ide"
+    priority: 5
+    enabled: true
+    capabilities: ["autocomplete"]
+  - id: "git"
+    kind: "local"
+    priority: 6
+    enabled: true
+    capabilities: ["vcs"]
+  - id: "abacus"
+    kind: "cloud"
+    priority: 7
+    enabled: true
+    capabilities: ["analytics"]

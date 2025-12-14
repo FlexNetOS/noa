@@ -4,9 +4,9 @@
 //! FR-074: System MUST support plane swapping for component recovery
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use serde::{Deserialize, Serialize};
-use tracing::info;
+use tracing::{info, warn};
 
 /// Plane type
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -80,7 +80,7 @@ impl PlaneSwapExecutor {
     }
 
     /// Check if plane swap is safe
-    pub async fn can_swap(&self, _component_id: &str, _to_plane: Plane) -> Result<bool> {
+    pub async fn can_swap(&self, component_id: &str, to_plane: Plane) -> Result<bool> {
         // TODO: Check if target plane has capacity
         // TODO: Check if component dependencies are available in target plane
         // TODO: Check if swap would violate constraints
@@ -111,3 +111,4 @@ mod tests {
         assert_eq!(result.to_plane, Plane::Deployed);
     }
 }
+

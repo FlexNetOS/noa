@@ -2414,236 +2414,69 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 ### Phase 1: Foundation (Week 1-2)
 
 ```
-□ **Task: Create unified directory structure**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create unified directory structure.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Set up unified environment at .project-mgmt-env**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, set up unified environment at .project-mgmt-env.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create ai/shared connection (core/ai-shared/)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create ai/shared connection (core/ai-shared/).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Initialize ai/shared directories (agents, workflows, skills, tools, models)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, initialize ai/shared directories (agents, workflows, skills, tools, models).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create base package.json with all dependencies**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create base package.json with all dependencies.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Set up monorepo workspace configuration**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, set up monorepo workspace configuration.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Port provider auto-detection from spec-kit**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, port provider auto-detection from spec-kit.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Implement provider priority system (local > hybrid > cloud)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, implement provider priority system (local > hybrid > cloud).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create platform abstraction layer**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create platform abstraction layer.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create kernel abstraction layer**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create kernel abstraction layer.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Set up build pipeline with Vite**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, set up build pipeline with Vite.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
+□ Create unified directory structure
+□ Set up unified environment at .project-mgmt-env
+□ Create ai/shared connection (core/ai-shared/)
+□ Initialize ai/shared directories (agents, workflows, skills, tools, models)
+□ Create base package.json with all dependencies
+□ Set up monorepo workspace configuration
+□ Port provider auto-detection from spec-kit
+□ Implement provider priority system (local > hybrid > cloud)
+□ Create platform abstraction layer
+□ Create kernel abstraction layer
+□ Set up build pipeline with Vite
 ```
 
 ### Phase 2: Core Migration (Week 3-4)
 
 ```
-□ **Task: Migrate task management from super-productivity**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate task management from super-productivity.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migrate rule engine from ruler**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate rule engine from ruler.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migrate spec parser from spec-kit**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate spec parser from spec-kit.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migrate provider detection from spec-kit**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate provider detection from spec-kit.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migrate AI integration from claude-task-master**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate AI integration from claude-task-master.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migrate prompt library from promptfusion → ai/shared/prompts**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migrate prompt library from promptfusion → ai/shared/prompts.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Implement memory system (core/memory/)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, implement memory system (core/memory/).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create NOA command integrations**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create NOA command integrations.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create unified state management with NgRx**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create unified state management with NgRx.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create unified data models**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create unified data models.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
+□ Migrate task management from super-productivity
+□ Migrate rule engine from ruler
+□ Migrate spec parser from spec-kit
+□ Migrate provider detection from spec-kit
+□ Migrate AI integration from claude-task-master
+□ Migrate prompt library from promptfusion → ai/shared/prompts
+□ Implement memory system (core/memory/)
+□ Create NOA command integrations
+□ Create unified state management with NgRx
+□ Create unified data models
 ```
 
 ### Phase 3: Integration (Week 5-6)
 
 ```
-□ **Task: Integrate DSPy pipelines → ai/shared/workflows**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, integrate DSPy pipelines → ai/shared/workflows.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Integrate BMAD methodology**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, integrate BMAD methodology.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Integrate PRP workflows → ai/shared/agents**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, integrate PRP workflows → ai/shared/agents.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Implement sync engine**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, implement sync engine.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Implement MCP server with provider tools**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, implement MCP server with provider tools.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create AI provider adapters (priority-aware)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create AI provider adapters (priority-aware).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Wire all IDE extensions to shared access**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, wire all IDE extensions to shared access.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Populate ai/shared/skills and ai/shared/tools**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, populate ai/shared/skills and ai/shared/tools.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Connect memory system to ai/shared**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, connect memory system to ai/shared.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
+□ Integrate DSPy pipelines → ai/shared/workflows
+□ Integrate BMAD methodology
+□ Integrate PRP workflows → ai/shared/agents
+□ Implement sync engine
+□ Implement MCP server with provider tools
+□ Create AI provider adapters (priority-aware)
+□ Wire all IDE extensions to shared access
+□ Populate ai/shared/skills and ai/shared/tools
+□ Connect memory system to ai/shared
 ```
 
 ### Phase 4: Platform Apps (Week 7-8)
 
 ```
-□ **Task: Build web application (Angular PWA)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, build web application (Angular PWA).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Build desktop application (Electron)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, build desktop application (Electron).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Build CLI application with provider & NOA commands**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, build CLI application with provider & NOA commands.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Build MCP server with ai/shared integration**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, build MCP server with ai/shared integration.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Create mobile app shell (Capacitor)**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, create mobile app shell (Capacitor).
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Test local AI priority on all platforms**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, test local AI priority on all platforms.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
+□ Build web application (Angular PWA)
+□ Build desktop application (Electron)
+□ Build CLI application with provider & NOA commands
+□ Build MCP server with ai/shared integration
+□ Create mobile app shell (Capacitor)
+□ Test local AI priority on all platforms
 ```
 
 ### Phase 5: Finalization (Week 9-10)
 
 ```
-□ **Task: Run full test suite**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, run full test suite.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Performance optimization**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, performance optimization.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Verify ai/shared resource loading < 100ms**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, verify ai/shared resource loading < 100ms.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Verify memory recall < 100ms**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, verify memory recall < 100ms.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Documentation completion**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, documentation completion.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Migration scripts for existing data**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, migration scripts for existing data.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
-
-□ **Task: Release preparation**
-   - **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.
-   - **Execution:** If not complete, release preparation.
-   - **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents.
+□ Run full test suite
+□ Performance optimization
+□ Verify ai/shared resource loading < 100ms
+□ Verify memory recall < 100ms
+□ Documentation completion
+□ Migration scripts for existing data
+□ Release preparation
 ```
 
 ---
@@ -2740,16 +2573,16 @@ npm run providers:detect
 
 | Platform | Build | Test | Deploy | Providers |
 |----------|-------|------|--------|-----------|
-| Web (PWA) | **Task: Build Web (PWA)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Web (PWA).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Web (PWA)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Web (PWA).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Web (PWA)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Web (PWA).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Limited |
-| Desktop (Windows) | **Task: Build Desktop (Windows)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Desktop (Windows).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Desktop (Windows)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Desktop (Windows).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Desktop (Windows)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Desktop (Windows).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| Desktop (macOS) | **Task: Build Desktop (macOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Desktop (macOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Desktop (macOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Desktop (macOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Desktop (macOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Desktop (macOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| Desktop (Linux) | **Task: Build Desktop (Linux)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Desktop (Linux).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Desktop (Linux)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Desktop (Linux).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Desktop (Linux)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Desktop (Linux).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| Mobile (Android) | **Task: Build Mobile (Android)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Mobile (Android).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Mobile (Android)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Mobile (Android).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Mobile (Android)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Mobile (Android).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Limited |
-| Mobile (iOS) | **Task: Build Mobile (iOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Mobile (iOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Mobile (iOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Mobile (iOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Mobile (iOS)**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Mobile (iOS).<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Limited |
-| CLI | **Task: Build CLI**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build CLI.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test CLI**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test CLI.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy CLI**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy CLI.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| MCP | **Task: Build MCP**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build MCP.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test MCP**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test MCP.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy MCP**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy MCP.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| WSL | **Task: Build WSL**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build WSL.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test WSL**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test WSL.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy WSL**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy WSL.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
-| Docker | **Task: Build Docker**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, build Docker.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Test Docker**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, test Docker.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | **Task: Deploy Docker**<br>- **Pre-verification:** Search existing codebase and cross-reference with target architecture. Verify task not 100% complete per universal_task_execution_policy.md.<br>- **Execution:** If not complete, deploy Docker.<br>- **Post-verification:** Run Truth Gate checks, Triple-Verification Protocol, update all documents. | Full |
+| Web (PWA) | □ | □ | □ | Limited |
+| Desktop (Windows) | □ | □ | □ | Full |
+| Desktop (macOS) | □ | □ | □ | Full |
+| Desktop (Linux) | □ | □ | □ | Full |
+| Mobile (Android) | □ | □ | □ | Limited |
+| Mobile (iOS) | □ | □ | □ | Limited |
+| CLI | □ | □ | □ | Full |
+| MCP | □ | □ | □ | Full |
+| WSL | □ | □ | □ | Full |
+| Docker | □ | □ | □ | Full |
 
 ---
 

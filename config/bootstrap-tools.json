@@ -1,11 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "metadata": {
-    "version": "2.1.0",
-    "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
-    "updated_at": "2025-12-09T00:00:00Z"
-  },
+  "version": "2.1.0",
+  "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
   "strategy": "All tools downloaded to noa_root. NO winget, choco, brew, or apt.",
+  "lastUpdated": "2025-12-09T00:00:00Z",
   "versionPinning": {
     "_comment": "FR-163: Explicit version pinning schema for tool upgrades and rollback",
     "enabled": true,

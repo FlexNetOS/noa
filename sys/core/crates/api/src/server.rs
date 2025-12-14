@@ -1,9 +1,6 @@
 //! API Server implementation
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::{routing::{get, post}, Router};
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -23,7 +20,10 @@ impl Server {
 
     /// Build the router with all routes
     pub fn router() -> Router {
-        let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
+        let cors = CorsLayer::new()
+            .allow_origin(Any)
+            .allow_methods(Any)
+            .allow_headers(Any);
 
         Router::new()
             .route("/health", get(routes::health))
@@ -41,3 +41,4 @@ impl Server {
         axum::serve(listener, Self::router()).await
     }
 }
+

@@ -4,7 +4,7 @@
 //! FR-075: System MUST notify user when fixes fail after 3 attempts
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use crate::healing::HealingEvent;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -35,12 +35,12 @@ pub enum EscalationUrgency {
 
 /// Escalation notifier
 pub struct EscalationNotifier {
-    notification_channels: Vec<Box<dyn NotificationChannel>>,
+    notification_channels: Vec<NotificationChannel>,
 }
 
 /// Notification channel trait
 #[async_trait::async_trait]
-pub trait NotificationChannel: Send + Sync {
+trait NotificationChannel: Send + Sync {
     async fn send(&self, notification: &EscalationNotification) -> Result<()>;
 }
 
@@ -104,7 +104,7 @@ impl EscalationNotifier {
     fn determine_urgency(
         &self,
         health: &crate::healing::ComponentHealth,
-        _anomaly_type: &Option<String>,
+        anomaly_type: &Option<String>,
     ) -> EscalationUrgency {
         match health {
             crate::healing::ComponentHealth::Critical => EscalationUrgency::Critical,
@@ -161,7 +161,11 @@ mod tests {
     #[test]
     fn test_determine_urgency() {
         let notifier = EscalationNotifier::new();
-        let urgency = notifier.determine_urgency(&crate::healing::ComponentHealth::Critical, &None);
+        let urgency = notifier.determine_urgency(
+            &crate::healing::ComponentHealth::Critical,
+            &None,
+        );
         assert_eq!(urgency, EscalationUrgency::Critical);
     }
 }
+

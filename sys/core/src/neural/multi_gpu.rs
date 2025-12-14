@@ -4,7 +4,7 @@
 //! US2: Distribute model layers across multiple GPUs
 
 use crate::error::Result;
-use crate::neural::cuda_devices::CudaDeviceEnumerator;
+use crate::neural::cuda_devices::{CudaDevice, CudaDeviceEnumerator};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -68,8 +68,10 @@ impl MultiGpuDistributor {
             DistributionStrategy::MemoryAware => {
                 // Distribute based on available memory
                 let total_memory: u64 = devices.iter().map(|d| d.free_memory_bytes).sum();
-                let mut current_memory: HashMap<u32, u64> =
-                    devices.iter().map(|d| (d.id, 0)).collect();
+                let mut current_memory: HashMap<u32, u64> = devices
+                    .iter()
+                    .map(|d| (d.id, 0))
+                    .collect();
 
                 for layer_index in 0..total_layers {
                     // Find device with most available memory
@@ -81,8 +83,7 @@ impl MultiGpuDistributor {
                         })
                         .unwrap();
 
-                    let memory_required =
-                        (total_memory / total_layers as u64).min(device.free_memory_bytes);
+                    let memory_required = (total_memory / total_layers as u64).min(device.free_memory_bytes);
                     *current_memory.get_mut(&device.id).unwrap() += memory_required;
 
                     assignments.push(LayerAssignment {
@@ -123,9 +124,8 @@ impl MultiGpuDistributor {
         &self,
         total_layers: usize,
     ) -> Result<HashMap<u32, usize>> {
-        let _devices = self.enumerator.enumerate_devices().await?;
-        let assignments =
-            self.distribute_layers(total_layers, DistributionStrategy::MemoryAware).await?;
+        let devices = self.enumerator.enumerate_devices().await?;
+        let assignments = self.distribute_layers(total_layers, DistributionStrategy::MemoryAware).await?;
 
         let mut layers_per_device: HashMap<u32, usize> = HashMap::new();
         for assignment in assignments {
@@ -149,11 +149,9 @@ mod tests {
     #[tokio::test]
     async fn test_distribute_layers_round_robin() {
         let distributor = MultiGpuDistributor::new();
-        let assignments = distributor
-            .distribute_layers(10, DistributionStrategy::RoundRobin)
-            .await
-            .unwrap();
+        let assignments = distributor.distribute_layers(10, DistributionStrategy::RoundRobin).await.unwrap();
         // May be empty if no GPUs available
         assert!(assignments.len() <= 10);
     }
 }
+

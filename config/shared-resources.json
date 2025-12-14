@@ -1,10 +1,8 @@
 {
     "$schema": "https://noa.local/schemas/shared-resources.json",
-    "metadata": {
-        "version": "1.0.0",
-        "description": "Centralized configuration for shared AI resources (3.3)",
-        "updated_at": "2025-12-09T00:00:00Z"
-    },
+    "version": "1.0.0",
+    "description": "Centralized configuration for shared AI resources (§3.3)",
+    "lastUpdated": "2025-12-09T00:00:00Z",
     "basePath": "${NOA_ROOT}/ai/shared",
     "directories": {
         "agents": {

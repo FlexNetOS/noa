@@ -4,13 +4,13 @@
 //! FR-074: System MUST validate that fixes resolve the issue
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use crate::healing::anomaly::Anomaly;
 use crate::healing::fix::FixResult;
-use crate::healing::monitor::ComponentHealth;
+use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 /// Fix validation result
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -85,10 +85,7 @@ impl FixValidator {
                         health_after: ComponentHealth::Healthy,
                         metric_improved: true,
                         validation_duration_ms,
-                        message: format!(
-                            "Fix validated: component {} is healthy",
-                            anomaly.component_id
-                        ),
+                        message: format!("Fix validated: component {} is healthy", anomaly.component_id),
                     });
                 }
             }
@@ -116,10 +113,7 @@ impl FixValidator {
             message: if success {
                 format!("Fix validated: component {} improved", anomaly.component_id)
             } else {
-                format!(
-                    "Fix validation failed: component {} still unhealthy",
-                    anomaly.component_id
-                )
+                format!("Fix validation failed: component {} still unhealthy", anomaly.component_id)
             },
         })
     }
@@ -155,3 +149,4 @@ mod tests {
         assert_eq!(validator.health_check_interval_secs, 5);
     }
 }
+

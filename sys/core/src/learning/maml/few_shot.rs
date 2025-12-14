@@ -32,7 +32,7 @@ impl FewShotLearner {
     }
 
     /// Learn from few-shot task
-    pub async fn learn(&self, _task: &FewShotTask) -> Result<serde_json::Value> {
+    pub async fn learn(&self, task: &FewShotTask) -> Result<serde_json::Value> {
         // TODO: Implement actual few-shot learning
         // 1. Use inner-loop to adapt to support set
         // 2. Evaluate on query set
@@ -42,7 +42,7 @@ impl FewShotLearner {
     }
 
     /// Meta-train on task distribution
-    pub async fn meta_train(&self, _tasks: &[FewShotTask]) -> Result<()> {
+    pub async fn meta_train(&self, tasks: &[FewShotTask]) -> Result<()> {
         // TODO: Implement meta-training
         // 1. Sample tasks
         // 2. For each task, adapt and evaluate
@@ -76,3 +76,4 @@ mod tests {
         assert!(!result.is_null());
     }
 }
+

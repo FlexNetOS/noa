@@ -1,7 +1,7 @@
 {
   "name": "git-cli",
   "type": "local",
-  "priority": 7,
+  "priority": 6,
   "enabled": true,
   "description": "Git CLI - Version control operations for code management and collaboration",
   "installMethod": "portable",
@@ -19,36 +19,10 @@
       "unix": "${NOA_ROOT}/opt/dev-tools/git/bin/git"
     },
     "subcommands": {
-      "version_control": [
-        "init",
-        "clone",
-        "add",
-        "commit",
-        "push",
-        "pull",
-        "fetch",
-        "merge",
-        "rebase"
-      ],
-      "branching": [
-        "branch",
-        "checkout",
-        "switch",
-        "tag"
-      ],
-      "inspection": [
-        "status",
-        "log",
-        "diff",
-        "show",
-        "blame"
-      ],
-      "collaboration": [
-        "remote",
-        "stash",
-        "cherry-pick",
-        "bisect"
-      ]
+      "version_control": ["init", "clone", "add", "commit", "push", "pull", "fetch", "merge", "rebase"],
+      "branching": ["branch", "checkout", "switch", "tag"],
+      "inspection": ["status", "log", "diff", "show", "blame"],
+      "collaboration": ["remote", "stash", "cherry-pick", "bisect"]
     }
   },
   "modes": {
@@ -59,11 +33,7 @@
     },
     "automation": {
       "description": "Git operations for CI/CD and automation",
-      "features": [
-        "hooks",
-        "scripting",
-        "batch_operations"
-      ],
+      "features": ["hooks", "scripting", "batch_operations"],
       "documentation": "https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks"
     }
   },
@@ -80,11 +50,7 @@
     "offline": true
   },
   "authentication": {
-    "methods": [
-      "ssh_key",
-      "https_token",
-      "credential_helper"
-    ],
+    "methods": ["ssh_key", "https_token", "credential_helper"],
     "documentation": "https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage"
   },
   "latency": {
@@ -108,11 +74,6 @@
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
   },
-  "systemPrompts": {
-    "enabled": true,
-    "inherit": ["ultrathink"],
-    "promptPath": "${NOA_ROOT}/ai/shared/prompts"
-  },
   "integrations": {
     "github": {
       "cli": "gh",
@@ -122,6 +83,6 @@
       "cli": "git-lfs",
       "documentation": "https://git-lfs.github.com"
     }
-  },
-  "timeout": 30000
+  }
 }
+
