@@ -7,10 +7,14 @@
 mod pool;
 mod repository;
 mod migrations;
+pub mod vector_search;
+pub mod repositories;
 
 pub use pool::{ConnectionPool, PoolConfig};
 pub use repository::{Repository, RepositoryError};
 pub use migrations::{MigrationRunner, Migration};
+pub use vector_search::{VectorSearch, VectorSearchResult, VectorSearchConfig};
+pub use repositories::{MemoryRepository, EmbeddingRepository};
 
 use std::path::Path;
 use crate::error::Result;

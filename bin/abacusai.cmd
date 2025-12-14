@@ -5,8 +5,16 @@ SETLOCAL EnableDelayedExpansion
 
 SET "NOA_ROOT=%~dp0.."
 SET "NODE_EXE=%NOA_ROOT%\opt\node\node.exe"
+SET "NPM_BIN=%NOA_ROOT%\opt\dev-tools\npm-global\node_modules\.bin\abacusai.cmd"
 SET "ABACUS_CLI=%NOA_ROOT%\opt\dev-tools\npm-global\node_modules\@abacus-ai\cli\dist\index.js"
 
+REM First try npm .bin wrapper (preferred)
+IF EXIST "%NPM_BIN%" (
+    "%NPM_BIN%" %*
+    exit /b %ERRORLEVEL%
+)
+
+REM Fallback to direct node execution
 IF NOT EXIST "%NODE_EXE%" (
     echo [ERROR] Node.js not found at %NODE_EXE%
     echo Run bootstrap to install Node.js first.

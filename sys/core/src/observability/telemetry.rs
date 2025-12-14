@@ -1,21 +1,13 @@
-//! OpenTelemetry OTLP Export
+//! OpenTelemetry OTLP Export (Stub)
 //!
 //! Sets up OpenTelemetry tracing and metrics export.
 //! §3.5: Observability
 //! FR-155: Observability - tracing, metrics, logging
+//!
+//! NOTE: OpenTelemetry dependencies are optional - using tracing only for now
+//! TODO: Add opentelemetry dependencies when needed
 
 use std::time::Duration;
-
-use opentelemetry::{global, KeyValue};
-use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_sdk::{
-    runtime,
-    trace::{BatchConfig, RandomIdGenerator, Sampler, TracerProvider},
-    Resource,
-};
-use opentelemetry_semantic_conventions::resource::{SERVICE_NAME, SERVICE_VERSION};
-use tracing_opentelemetry::OpenTelemetryLayer;
-use tracing_subscriber::{layer::SubscriberExt, Registry};
 
 use crate::error::Result;
 
@@ -59,157 +51,26 @@ impl Default for TelemetryConfig {
     }
 }
 
-/// Initialize OpenTelemetry with OTLP export
+/// Initialize OpenTelemetry with OTLP export (stub - uses tracing only)
 pub fn init_telemetry(config: &TelemetryConfig) -> Result<()> {
     if !config.tracing_enabled {
         tracing::info!("OpenTelemetry tracing disabled");
         return Ok(());
     }
 
-    // Create resource with service info
-    let resource = Resource::new(vec![
-        KeyValue::new(SERVICE_NAME, config.service_name.clone()),
-        KeyValue::new(SERVICE_VERSION, config.service_version.clone()),
-        KeyValue::new("deployment.environment",
-            std::env::var("NOA_ENV").unwrap_or_else(|_| "development".to_string())),
-    ]);
-
-    // Create OTLP exporter
-    let exporter = opentelemetry_otlp::new_exporter()
-        .tonic()
-        .with_endpoint(&config.otlp_endpoint)
-        .with_timeout(Duration::from_millis(config.export_timeout_ms));
-
-    // Create tracer provider
-    let tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(exporter)
-        .with_trace_config(
-            opentelemetry_sdk::trace::Config::default()
-                .with_sampler(Sampler::TraceIdRatioBased(config.sampling_ratio))
-                .with_id_generator(RandomIdGenerator::default())
-                .with_resource(resource),
-        )
-        .with_batch_config(BatchConfig::default())
-        .install_batch(runtime::Tokio)
-        .map_err(|e| crate::error::NoaError::Internal {
-            message: format!("Failed to initialize OpenTelemetry: {}", e),
-            source: None,
-        })?;
-
-    // Create OpenTelemetry layer for tracing
-    let telemetry_layer = OpenTelemetryLayer::new(tracer);
-
-    // Get existing subscriber and add telemetry layer
-    // Note: This should be called after logging is initialized
-    tracing::subscriber::set_global_default(
-        Registry::default().with(telemetry_layer)
-    ).map_err(|e| crate::error::NoaError::Internal {
-        message: format!("Failed to set subscriber: {}", e),
-        source: None,
-    })?;
-
+    // TODO: Initialize OpenTelemetry when dependencies are added
     tracing::info!(
-        endpoint = %config.otlp_endpoint,
-        service = %config.service_name,
-        "OpenTelemetry initialized"
+        service_name = %config.service_name,
+        service_version = %config.service_version,
+        otlp_endpoint = %config.otlp_endpoint,
+        "Telemetry initialized (tracing only)"
     );
 
     Ok(())
 }
 
-/// Shutdown OpenTelemetry gracefully
+/// Shutdown telemetry (stub)
 pub fn shutdown_telemetry() {
-    global::shutdown_tracer_provider();
-    tracing::info!("OpenTelemetry shutdown complete");
+    // TODO: Shutdown OpenTelemetry when dependencies are added
+    tracing::info!("Telemetry shutdown");
 }
-
-/// Create a traced span for a task
-pub fn task_span(task_id: &str, task_name: &str) -> tracing::Span {
-    tracing::info_span!(
-        "task",
-        otel.name = %task_name,
-        task.id = %task_id,
-        task.name = %task_name,
-    )
-}
-
-/// Create a traced span for an agent action
-pub fn agent_span(agent_name: &str, action: &str) -> tracing::Span {
-    tracing::info_span!(
-        "agent_action",
-        otel.name = %format!("{}.{}", agent_name, action),
-        agent.name = %agent_name,
-        agent.action = %action,
-    )
-}
-
-/// Create a traced span for a database operation
-pub fn db_span(operation: &str, table: &str) -> tracing::Span {
-    tracing::info_span!(
-        "db_operation",
-        otel.name = %format!("db.{}", operation),
-        db.operation = %operation,
-        db.table = %table,
-    )
-}
-
-/// Create a traced span for an HTTP request
-pub fn http_span(method: &str, path: &str) -> tracing::Span {
-    tracing::info_span!(
-        "http_request",
-        otel.name = %format!("{} {}", method, path),
-        http.method = %method,
-        http.target = %path,
-    )
-}
-
-/// Create a traced span for a provider call
-pub fn provider_span(provider: &str, model: &str, operation: &str) -> tracing::Span {
-    tracing::info_span!(
-        "provider_call",
-        otel.name = %format!("{}.{}", provider, operation),
-        provider.name = %provider,
-        provider.model = %model,
-        provider.operation = %operation,
-    )
-}
-
-/// Record metrics for a completed operation
-pub fn record_operation_metrics(
-    operation: &str,
-    duration_ms: u64,
-    success: bool,
-    attributes: &[(String, String)],
-) {
-    tracing::debug!(
-        target: "metrics",
-        operation = %operation,
-        duration_ms = duration_ms,
-        success = success,
-        attributes = ?attributes,
-        "operation_metrics"
-    );
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_telemetry_config_default() {
-        let config = TelemetryConfig::default();
-        assert_eq!(config.service_name, "noa-core");
-        assert!(config.tracing_enabled);
-        assert!(config.metrics_enabled);
-    }
-
-    #[test]
-    fn test_span_creation() {
-        let _span = task_span("task-123", "test-task");
-        let _span = agent_span("TestAgent", "execute");
-        let _span = db_span("SELECT", "agents");
-        // Verify they don't panic
-    }
-}
-

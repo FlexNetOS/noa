@@ -14,4 +14,7 @@ serde_json = { workspace = true }
 tracing = { workspace = true }
 fastembed = { workspace = true }
 anyhow = { workspace = true }
+# Candle for inference (T111)
+candle-core = { workspace = true }
+candle-transformers = { workspace = true }
 

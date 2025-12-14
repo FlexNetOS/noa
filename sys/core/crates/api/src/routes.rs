@@ -1,7 +1,7 @@
 //! API route handlers
 
 use axum::Json;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// Health check response
 #[derive(Serialize)]
@@ -28,6 +28,7 @@ pub struct StatusResponse {
 /// Component status
 #[derive(Serialize)]
 pub struct ComponentStatus {
+    pub api: bool,
     pub database: bool,
     pub embedder: bool,
     pub agents: bool,
@@ -39,11 +40,58 @@ pub async fn status() -> Json<StatusResponse> {
     Json(StatusResponse {
         status: "operational",
         components: ComponentStatus {
+            api: true,
             database: true,
             embedder: false,
             agents: false,
             p2p: false,
         },
+    })
+}
+
+/// Create task request
+#[derive(Deserialize)]
+pub struct CreateTaskRequest {
+    pub description: String,
+    pub priority: Option<String>,
+}
+
+/// Create task response
+#[derive(Serialize)]
+pub struct CreateTaskResponse {
+    pub task_id: String,
+    pub status: String,
+}
+
+/// Create task endpoint
+pub async fn create_task(Json(payload): Json<CreateTaskRequest>) -> Json<CreateTaskResponse> {
+    let task_id = uuid::Uuid::new_v4().to_string();
+
+    Json(CreateTaskResponse {
+        task_id,
+        status: "queued".to_string(),
+    })
+}
+
+/// Task information
+#[derive(Serialize)]
+pub struct TaskInfo {
+    pub id: String,
+    pub description: String,
+    pub status: String,
+    pub priority: String,
+}
+
+/// List tasks response
+#[derive(Serialize)]
+pub struct ListTasksResponse {
+    pub tasks: Vec<TaskInfo>,
+}
+
+/// List tasks endpoint
+pub async fn list_tasks() -> Json<ListTasksResponse> {
+    Json(ListTasksResponse {
+        tasks: vec![],
     })
 }
 

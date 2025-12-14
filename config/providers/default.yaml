@@ -1,0 +1,49 @@
+schema: "https://noa.local/schemas/providers.yaml"
+providers:
+  - id: "llama.cpp"
+    kind: "local"
+    priority: 1
+    enabled: true
+    capabilities: ["reasoning", "embedding"]
+    rateLimit:
+      maxRps: 20
+      burst: 40
+  - id: "cursor"
+    kind: "ide"
+    priority: 2
+    enabled: true
+    capabilities: ["code", "context"]
+    rateLimit:
+      maxRps: 10
+      burst: 20
+  - id: "claude"
+    kind: "cloud"
+    priority: 3
+    enabled: true
+    capabilities: ["reasoning"]
+    rateLimit:
+      maxRps: 5
+      burst: 10
+  - id: "codex"
+    kind: "cloud"
+    priority: 4
+    enabled: true
+    capabilities: ["code"]
+    rateLimit:
+      maxRps: 5
+      burst: 10
+  - id: "copilot"
+    kind: "ide"
+    priority: 5
+    enabled: true
+    capabilities: ["autocomplete"]
+  - id: "git"
+    kind: "local"
+    priority: 6
+    enabled: true
+    capabilities: ["vcs"]
+  - id: "abacus"
+    kind: "cloud"
+    priority: 7
+    enabled: true
+    capabilities: ["analytics"]

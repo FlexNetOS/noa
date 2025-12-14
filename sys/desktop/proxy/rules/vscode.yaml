@@ -1,0 +1,9 @@
+id: vscode
+allowlist:
+  - "marketplace.visualstudio.com"
+  - "update.code.visualstudio.com"
+  - "api.github.com"
+blocklist:
+  - "management.azure.com"
+rate_limit_rps: 10
+notes: "Keep VS Code extensions and updates within a narrow domain set."
