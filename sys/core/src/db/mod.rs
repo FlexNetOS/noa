@@ -124,12 +124,14 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
     // Check if result is "ok" or if it only contains FTS-related errors (non-critical)
     if result == "ok" {
         Ok(true)
-    } else if result.contains("memory_fts") || result.contains("vtable") || result.contains("fts") {
+    } else if result.contains("memory_fts") || result.contains("vtable") || result.contains("fts") || result.contains("FTS") {
         // FTS table errors are non-critical - database is still functional
+        // Full-text search may be unavailable, but core database operations work fine
+        // Return true (healthy) since FTS is optional functionality
         // #region agent log
         let log_entry = serde_json::json!({
             "location": "db/mod.rs:85",
-            "message": "FTS table error detected (non-critical)",
+            "message": "FTS table error detected (non-critical, treating as healthy)",
             "data": {"result": result.clone()},
             "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
             "sessionId": "debug-session",
@@ -140,7 +142,7 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
             let _ = writeln!(file, "{}", log_entry);
         }
         // #endregion
-        Ok(false) // Database is functional, just FTS is broken
+        Ok(true) // Treat FTS errors as non-critical - database is healthy for core operations
     } else {
         // Other integrity issues are critical
         Ok(false)

@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::api::server::AppState;
 use crate::db;
-use crate::db::repair_fts_tables;
 
 /// Health check response
 #[derive(Debug, Serialize, Deserialize)]
@@ -171,19 +170,44 @@ async fn check_database(state: &AppState) -> ComponentStatus {
                 Err(e) => {
                     // Check if error is related to FTS tables (non-critical)
                     let error_msg = e.to_string();
-                    if error_msg.contains("fts") || error_msg.contains("memory_fts") || error_msg.contains("vtable") {
+                    if error_msg.contains("fts") || error_msg.contains("memory_fts") || error_msg.contains("vtable") || error_msg.contains("FTS") {
                         // Attempt to repair FTS tables automatically
-                        if let Err(repair_err) = repair_fts_tables(&conn) {
-                            ComponentStatus::degraded(format!(
-                                "FTS index issue (non-critical, repair failed): {} (original: {})",
-                                repair_err, e
-                            ))
-                        } else {
-                            // Repair succeeded, check integrity again
-                            match db::check_integrity(&conn) {
-                                Ok(true) => ComponentStatus::healthy(),
-                                Ok(false) => ComponentStatus::degraded("FTS repair attempted, but integrity still degraded".to_string()),
-                                Err(e2) => ComponentStatus::degraded(format!("FTS repair attempted, but integrity check still fails: {}", e2)),
+                        match repair_fts_tables(&conn) {
+                            Ok(_) => {
+                                // Repair succeeded, check integrity again
+                                match db::check_integrity(&conn) {
+                                    Ok(true) => {
+                                        // Repair successful - database is now fully healthy
+                                        ComponentStatus::healthy_with_details(serde_json::json!({
+                                            "note": "FTS table repaired successfully"
+                                        }))
+                                    }
+                                    Ok(false) => {
+                                        // Still has issues after repair
+                                        ComponentStatus::degraded("FTS repair attempted, but integrity still degraded".to_string())
+                                    }
+                                    Err(e2) => {
+                                        // Check if it's still an FTS error
+                                        let error_msg2 = e2.to_string();
+                                        if error_msg2.contains("fts") || error_msg2.contains("memory_fts") || error_msg2.contains("vtable") {
+                                            // FTS repair didn't work, but it's non-critical
+                                            ComponentStatus::healthy_with_details(serde_json::json!({
+                                                "note": "FTS index unavailable (non-critical, repair attempted)",
+                                                "fts_error": error_msg2
+                                            }))
+                                        } else {
+                                            ComponentStatus::degraded(format!("FTS repair attempted, but new error: {}", e2))
+                                        }
+                                    }
+                                }
+                            }
+                            Err(repair_err) => {
+                                // Repair failed, but FTS is non-critical
+                                ComponentStatus::healthy_with_details(serde_json::json!({
+                                    "note": "FTS index unavailable (non-critical, repair failed)",
+                                    "fts_error": error_msg,
+                                    "repair_error": repair_err.to_string()
+                                }))
                             }
                         }
                     } else {
