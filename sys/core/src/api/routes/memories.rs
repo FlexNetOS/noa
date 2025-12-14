@@ -134,7 +134,7 @@ pub struct SearchResultResponse {
 async fn create_memory(
     State(state): State<AppState>,
     Json(request): Json<CreateMemoryRequest>,
-) -> Result<Json<CreateMemoryResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<CreateMemoryResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let memory_type = match request.r#type.as_str() {
@@ -196,7 +196,7 @@ async fn create_memory(
 async fn get_memory(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<Json<MemoryResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<MemoryResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let memory_id = Uuid::parse_str(&id)
@@ -225,7 +225,7 @@ async fn get_memory(
 async fn list_memories(
     State(state): State<AppState>,
     Query(params): Query<ListMemoriesQuery>,
-) -> Result<Json<ListMemoriesResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<ListMemoriesResponse>, (StatusCode, String)> {
     let memory_service = get_memory_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
     let offset = params.offset.unwrap_or(0);
@@ -268,7 +268,7 @@ async fn list_memories(
 async fn search_memories(
     State(state): State<AppState>,
     Json(request): Json<SearchMemoriesRequest>,
-) -> Result<Json<SearchMemoriesResponse>, (StatusCode, String)> {
+) -> std::result::Result<Json<SearchMemoriesResponse>, (StatusCode, String)> {
     let search_service = get_search_service(&state)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize search service: {}", e)))?;
     let search_type = request.search_type.as_deref().unwrap_or("hybrid");
@@ -276,17 +276,23 @@ async fn search_memories(
     let threshold = request.threshold.unwrap_or(0.7);
 
     let results = match search_type {
-        "semantic" => search_service
-            .search_semantic(&request.query, limit, threshold)
-            .await
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Semantic search failed: {}", e)))?,
-        "keyword" => search_service
-            .search_keyword(&request.query, limit)
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Keyword search failed: {}", e)))?,
-        "hybrid" => search_service
-            .search_hybrid(&request.query, limit, threshold)
-            .await
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Hybrid search failed: {}", e)))?,
+        "semantic" => {
+            search_service
+                .search_semantic(&request.query, limit, threshold)
+                .await
+                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Semantic search failed: {}", e)))?
+        }
+        "keyword" => {
+            search_service
+                .search_keyword(&request.query, limit)
+                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Keyword search failed: {}", e)))?
+        }
+        "hybrid" => {
+            search_service
+                .search_hybrid(&request.query, limit, threshold)
+                .await
+                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Hybrid search failed: {}", e)))?
+        }
         _ => {
             return Err((
                 StatusCode::BAD_REQUEST,
