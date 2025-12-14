@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 import { Send, Loader } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import { providerClient } from '@/services/providerClient';
@@ -99,14 +100,12 @@ export default function Chat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            aria-label="Chat message input"
             className="flex-1 px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            aria-label="Send chat message"
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
           >
             <Send className="w-4 h-4" />
@@ -117,3 +116,4 @@ export default function Chat() {
     </div>
   );
 }
+
