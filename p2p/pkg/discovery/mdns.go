@@ -50,8 +50,10 @@ func NewMDNSDiscovery(ctx context.Context, h host.Host, onPeer func(peer.AddrInf
 		onPeer: onPeer,
 	}
 
-	// In libp2p v0.37+, NewMdnsService takes the notifee directly
-	service := mdns.NewMdnsService(h, ServiceTag, notifee)
+	service := mdns.NewMdnsService(ctx, h, DiscoveryInterval, ServiceTag)
+	if err := service.RegisterNotifee(notifee); err != nil {
+		return nil, fmt.Errorf("failed to register mDNS notifee: %w", err)
+	}
 
 	return &MDNSDiscovery{
 		service: service,

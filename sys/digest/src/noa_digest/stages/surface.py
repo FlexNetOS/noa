@@ -5,19 +5,19 @@ T170: Implement Surface stage for output generation
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, Any
 import logging
+from pathlib import Path
+from typing import Any
 
 from ..output import (
-    generate_profile,
-    write_profile,
-    generate_system_card,
-    write_system_card,
     generate_knowledge_graph,
-    write_knowledge_graph,
+    generate_profile,
     generate_sbom,
+    generate_system_card,
+    write_knowledge_graph,
+    write_profile,
     write_sbom,
+    write_system_card,
 )
 
 logger = logging.getLogger(__name__)
@@ -38,9 +38,9 @@ class SurfaceStage:
     def surface(
         self,
         source_path: Path,
-        parsed_data: Dict[str, Any],
-        analyzed_data: Dict[str, Any],
-    ) -> Dict[str, Path]:
+        parsed_data: dict[str, Any],
+        analyzed_data: dict[str, Any],
+    ) -> dict[str, Path]:
         """Generate output artifacts.
 
         Args:

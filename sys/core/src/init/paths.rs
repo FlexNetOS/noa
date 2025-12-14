@@ -214,3 +214,4 @@ mod tests {
         assert!(dirs.contains(&NoaPaths::config(&root)));
     }
 }
+

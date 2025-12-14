@@ -3,10 +3,10 @@
 //! VER049: Verify agent timeout triggers circuit breaker [Edge Case]
 //! FR-008: Failure recovery with timeout handling
 
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use serde::{Deserialize, Serialize};
 
 /// Circuit breaker state
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -148,7 +148,10 @@ impl CircuitBreaker {
     /// Get current state for an agent
     pub fn get_state(&self, agent_id: &str) -> CircuitState {
         let states = self.states.lock().unwrap();
-        states.get(agent_id).map(|s| s.state).unwrap_or(CircuitState::Closed)
+        states
+            .get(agent_id)
+            .map(|s| s.state)
+            .unwrap_or(CircuitState::Closed)
     }
 }
 
@@ -157,3 +160,4 @@ impl Default for CircuitBreaker {
         Self::new(CircuitBreakerConfig::default())
     }
 }
+

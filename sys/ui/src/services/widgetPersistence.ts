@@ -5,7 +5,6 @@
  */
 
 import type { WidgetLayout } from '../components/widgets/WidgetGrid';
-import { createApiErrorMessage } from '../lib/apiErrorUtils';
 
 export interface WidgetConfig {
   layouts: WidgetLayout[];
@@ -119,16 +118,14 @@ export class WidgetPersistenceService {
    */
   async syncToRemote(layouts: WidgetLayout[]): Promise<void> {
     try {
-      const url = '/api/v1/widgets/sync';
-      const response = await fetch(url, {
+      const response = await fetch('/api/v1/widgets/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ layouts }),
       });
 
       if (!response.ok) {
-        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
-        throw new Error(errorMessage);
+        throw new Error(`Sync failed: ${response.statusText}`);
       }
     } catch (error) {
       console.error('Failed to sync widget layouts:', error);
@@ -141,15 +138,13 @@ export class WidgetPersistenceService {
    */
   async syncFromRemote(): Promise<WidgetLayout[]> {
     try {
-      const url = '/api/v1/widgets/sync';
-      const response = await fetch(url, {
+      const response = await fetch('/api/v1/widgets/sync', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
-        const errorMessage = await createApiErrorMessage(response, url, 'Sync failed');
-        throw new Error(errorMessage);
+        throw new Error(`Sync failed: ${response.statusText}`);
       }
 
       const data = await response.json();

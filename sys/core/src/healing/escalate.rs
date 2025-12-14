@@ -35,12 +35,12 @@ pub enum EscalationUrgency {
 
 /// Escalation notifier
 pub struct EscalationNotifier {
-    notification_channels: Vec<Box<dyn NotificationChannel>>,
+    notification_channels: Vec<NotificationChannel>,
 }
 
 /// Notification channel trait
 #[async_trait::async_trait]
-pub trait NotificationChannel: Send + Sync {
+trait NotificationChannel: Send + Sync {
     async fn send(&self, notification: &EscalationNotification) -> Result<()>;
 }
 
@@ -161,7 +161,11 @@ mod tests {
     #[test]
     fn test_determine_urgency() {
         let notifier = EscalationNotifier::new();
-        let urgency = notifier.determine_urgency(&crate::healing::ComponentHealth::Critical, &None);
+        let urgency = notifier.determine_urgency(
+            &crate::healing::ComponentHealth::Critical,
+            &None,
+        );
         assert_eq!(urgency, EscalationUrgency::Critical);
     }
 }
+

@@ -5,12 +5,12 @@
 //!
 //! T627: Implement co-improvement goal intake
 
-use crate::error::{NoaError, Result};
-use chrono::{DateTime, Utc};
+use crate::error::{Result, NoaError};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 /// Co-improvement goal source
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -115,12 +115,7 @@ impl CoImprovementIntake {
     /// Get next pending goal
     pub async fn next_goal(&self) -> Option<CoImprovementGoal> {
         let mut goals = self.pending_goals.write().await;
-        // Goals sorted desc by priority; remove from front to return highest first.
-        if !goals.is_empty() {
-            Some(goals.remove(0))
-        } else {
-            None
-        }
+        goals.pop()
     }
 
     /// Mark goal as processed
@@ -167,19 +162,16 @@ mod tests {
     async fn test_submit_goal() {
         let intake = CoImprovementIntake::new();
 
-        let goal_id = intake
-            .submit_goal(
-                CoImprovementSource::User,
-                "Improve error handling".to_string(),
-                "Add better error messages".to_string(),
-                10,
-                "Users report unclear errors".to_string(),
-                "Better UX".to_string(),
-                Some("user123".to_string()),
-                serde_json::json!({}),
-            )
-            .await
-            .unwrap();
+        let goal_id = intake.submit_goal(
+            CoImprovementSource::User,
+            "Improve error handling".to_string(),
+            "Add better error messages".to_string(),
+            10,
+            "Users report unclear errors".to_string(),
+            "Better UX".to_string(),
+            Some("user123".to_string()),
+            serde_json::json!({}),
+        ).await.unwrap();
 
         assert_eq!(intake.pending_count().await, 1);
         assert!(!intake.is_processed(goal_id).await);
@@ -190,54 +182,46 @@ mod tests {
         let intake = CoImprovementIntake::new();
 
         // Empty title should fail
-        assert!(intake
-            .submit_goal(
-                CoImprovementSource::User,
-                "".to_string(),
-                "Description".to_string(),
-                10,
-                "Rationale".to_string(),
-                "Benefit".to_string(),
-                None,
-                serde_json::json!({}),
-            )
-            .await
-            .is_err());
+        assert!(intake.submit_goal(
+            CoImprovementSource::User,
+            "".to_string(),
+            "Description".to_string(),
+            10,
+            "Rationale".to_string(),
+            "Benefit".to_string(),
+            None,
+            serde_json::json!({}),
+        ).await.is_err());
     }
 
     #[tokio::test]
     async fn test_priority_ordering() {
         let intake = CoImprovementIntake::new();
 
-        intake
-            .submit_goal(
-                CoImprovementSource::User,
-                "Low priority".to_string(),
-                "Description".to_string(),
-                5,
-                "Rationale".to_string(),
-                "Benefit".to_string(),
-                None,
-                serde_json::json!({}),
-            )
-            .await
-            .unwrap();
+        intake.submit_goal(
+            CoImprovementSource::User,
+            "Low priority".to_string(),
+            "Description".to_string(),
+            5,
+            "Rationale".to_string(),
+            "Benefit".to_string(),
+            None,
+            serde_json::json!({}),
+        ).await.unwrap();
 
-        intake
-            .submit_goal(
-                CoImprovementSource::User,
-                "High priority".to_string(),
-                "Description".to_string(),
-                10,
-                "Rationale".to_string(),
-                "Benefit".to_string(),
-                None,
-                serde_json::json!({}),
-            )
-            .await
-            .unwrap();
+        intake.submit_goal(
+            CoImprovementSource::User,
+            "High priority".to_string(),
+            "Description".to_string(),
+            10,
+            "Rationale".to_string(),
+            "Benefit".to_string(),
+            None,
+            serde_json::json!({}),
+        ).await.unwrap();
 
         let next = intake.next_goal().await.unwrap();
         assert_eq!(next.title, "High priority");
     }
 }
+
