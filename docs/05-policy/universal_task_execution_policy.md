@@ -79,6 +79,7 @@ Record the three pass results and discrepancies in the Evidence Ledger.
 
 ## 8) Standard Output Templates
 ### A) CLAIMS TABLE
+
 | # | Claim | Type (weak/strong) | Evidence refs | Test/Calc | Limits |
 |---|-------|---------------------|---------------|-----------|--------|
 

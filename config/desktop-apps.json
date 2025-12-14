@@ -1,6 +1,8 @@
 {
     "$schema": "https://noa.local/schemas/desktop-apps.json",
-    "version": "1.0.0",
+    "metadata": {
+        "version": "1.0.0"
+    },
     "proxy": {
         "host": "127.0.0.1",
         "port": 8085,

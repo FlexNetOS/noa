@@ -263,7 +263,7 @@ winget not found. Cannot auto-install prerequisites.
    ```powershell
    # Install Git manually
    # Download from: https://git-scm.com/download/win
-   
+
    # Then run setup without -InstallPrereqs
    .\scripts\setup\setup-noa.ps1
    ```
@@ -499,7 +499,7 @@ Get-Content N:\noa\config\noa.json | ConvertFrom-Json
 - **Main README**: [README.md](../../README.md)
 - **Setup Script**: [scripts/setup/setup-noa.ps1](../../scripts/setup/setup-noa.ps1)
 - **Tests**: [scripts/tests/Setup.Tests.ps1](../../scripts/tests/Setup.Tests.ps1)
-- **CI Workflow**: [.github/workflows/setup-ci.yml](../../.github/workflows/setup-ci.yml)
+- **CI Workflows**: see `[.github/workflows/](../../.github/workflows/)` (e.g. `config-validate.yml`, `secrets-scan.yml`)
 
 ---
 
@@ -515,7 +515,7 @@ Earlier versions of setup scripts had PowerShell quote parsing issues that cause
    ```powershell
    # Bad (parser issues)
    $content = "Line 1`n" + "Line 2`n"
-   
+
    # Good (quote-safe)
    $lines = @('Line 1', 'Line 2')
    $content = $lines -join "`r`n"
@@ -525,7 +525,7 @@ Earlier versions of setup scripts had PowerShell quote parsing issues that cause
    ```powershell
    # Bad
    $sb.Append('"value"')
-   
+
    # Good
    $sb.Append([char]34).Append('value').Append([char]34)
    ```
@@ -536,7 +536,7 @@ Earlier versions of setup scripts had PowerShell quote parsing issues that cause
    $content = @'
    Some "content"
    '@
-   
+
    # Good (explicit array)
    $content = @(
        'Some "content"'
@@ -566,5 +566,5 @@ These techniques ensure the script parses correctly in all PowerShell environmen
 
 ---
 
-**Last Updated:** 2025-12-05  
+**Last Updated:** 2025-12-05
 **Script Version:** 2.0.0

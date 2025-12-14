@@ -17,7 +17,7 @@ use crate::api::server::AppState;
 use crate::db::repositories::model_repository::Model as RepoModel;
 use crate::services::NeuralService;
 use axum::response::IntoResponse;
-use noa_neural::{Model as NeuralModel, ModelStatus};
+use noa_neural::Model as NeuralModel;
 use tokio::{runtime::Handle, task};
 
 /// Model list response
@@ -188,7 +188,7 @@ async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
 
 /// POST /api/v1/models/download - Download a model
 async fn download_model(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     Json(request): Json<DownloadModelRequest>,
 ) -> impl IntoResponse {
     use crate::services::ModelDownloadService;
@@ -224,8 +224,8 @@ async fn download_model(
 
 /// POST /api/v1/models/benchmark - Benchmark a model
 async fn benchmark_model(
-    State(state): State<AppState>,
-    Json(request): Json<BenchmarkRequest>,
+    State(_state): State<AppState>,
+    Json(_request): Json<BenchmarkRequest>,
 ) -> impl IntoResponse {
     // TODO: Implement actual benchmarking
     // This requires model ID in request

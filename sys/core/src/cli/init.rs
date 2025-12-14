@@ -9,7 +9,6 @@ use std::path::PathBuf;
 use clap::Args;
 use tracing::{info, warn};
 
-use crate::db;
 use crate::error::Result;
 use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure};
 use crate::services::InitService;

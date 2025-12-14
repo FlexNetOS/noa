@@ -50,6 +50,26 @@ CREATE INDEX IF NOT EXISTS idx_vss_know_node ON vss_knowledge_map(node_id);
 CREATE INDEX IF NOT EXISTS idx_vss_know_embed ON vss_knowledge_map(embedding_id);
 
 -- ============================================================================
+-- Vector Search Configuration
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS vss_config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    description TEXT,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Default configuration values
+INSERT OR IGNORE INTO vss_config (key, value, description) VALUES 
+    ('model', 'all-MiniLM-L6-v2', 'Default embedding model'),
+    ('dimensions', '384', 'Default vector dimensions'),
+    ('distance_metric', 'cosine', 'Distance metric for similarity search'),
+    ('index_type', 'flat', 'Vector index type (flat for small datasets)'),
+    ('ef_search', '40', 'HNSW search parameter'),
+    ('ef_construction', '200', 'HNSW construction parameter');
+
+-- ============================================================================
 -- Stored Procedures via Views
 -- ============================================================================
 

@@ -5,10 +5,9 @@ T171: Implement Secure stage with Gitleaks/Trivy
 US4: Digest Everything Pipeline
 """
 
-from pathlib import Path
-from typing import Dict, Any, List
 import logging
-import subprocess
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class SecureStage:
         """Initialize secure stage."""
         pass
 
-    def secure(self, source_path: Path) -> Dict[str, Any]:
+    def secure(self, source_path: Path) -> dict[str, Any]:
         """Run security scans.
 
         Args:

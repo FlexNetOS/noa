@@ -8,10 +8,9 @@ use crate::error::{NoaError, Result};
 use crate::neural::context::{InferenceContext, MessageRole};
 use crate::neural::llama_backend::LlamaBackend;
 use futures::{Stream, StreamExt};
-use noa_neural::llama::{CompletionRequest, CompletionResponse};
+use noa_neural::llama::CompletionRequest;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use uuid::Uuid;
 
 /// Inference request
@@ -110,7 +109,7 @@ impl InferenceEngine {
         )?;
 
         // Save context if it was provided
-        if let Some(context_id) = request.context_id {
+        if let Some(_context_id) = request.context_id {
             let contexts = self.contexts.write().await;
             contexts.update_context(context).await?;
         }

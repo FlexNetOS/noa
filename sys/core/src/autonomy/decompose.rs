@@ -5,7 +5,7 @@
 //! §3.4: Adaptive & Self-Improving
 
 use crate::autonomy::goal_queue::Goal;
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 use uuid::Uuid;

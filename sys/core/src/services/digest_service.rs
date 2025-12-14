@@ -4,7 +4,7 @@
 //! §3.4: Digest Everything Pipeline
 //! US4: Digest Everything Pipeline
 
-use crate::db::{init_database, ConnectionPool};
+use crate::db::init_database;
 use crate::error::Result;
 use crate::services::digest::*;
 use std::path::{Path, PathBuf};

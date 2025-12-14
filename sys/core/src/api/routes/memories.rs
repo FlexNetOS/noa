@@ -131,7 +131,13 @@ async fn create_memory(
                 format!("Failed to initialize memory service: {}", e),
             )
         })?;
-        let memory_service = MemoryService::new(conn);
+        let embedding_conn = crate::db::init_database(db_path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize embedding connection: {}", e),
+            )
+        })?;
+        let memory_service = MemoryService::new(conn, embedding_conn);
 
         let memory_type = match request.r#type.as_str() {
             "interaction" => MemoryType::Interaction,
@@ -224,7 +230,13 @@ async fn get_memory(State(state): State<AppState>, Path(id): Path<String>) -> im
                 format!("Failed to initialize memory service: {}", e),
             )
         })?;
-        let memory_service = MemoryService::new(conn);
+        let embedding_conn = crate::db::init_database(db_path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize embedding connection: {}", e),
+            )
+        })?;
+        let memory_service = MemoryService::new(conn, embedding_conn);
 
         let memory = memory_service
             .get(&memory_id)
@@ -283,7 +295,13 @@ async fn list_memories(
                 format!("Failed to initialize memory service: {}", e),
             )
         })?;
-        let memory_service = MemoryService::new(conn);
+        let embedding_conn = crate::db::init_database(db_path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize embedding connection: {}", e),
+            )
+        })?;
+        let memory_service = MemoryService::new(conn, embedding_conn);
 
         let memories = memory_service.list(offset, limit).map_err(|e| {
             (
