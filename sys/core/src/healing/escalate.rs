@@ -35,7 +35,7 @@ pub enum EscalationUrgency {
 
 /// Escalation notifier
 pub struct EscalationNotifier {
-    notification_channels: Vec<NotificationChannel>,
+    notification_channels: Vec<Box<dyn NotificationChannel>>,
 }
 
 /// Notification channel trait
