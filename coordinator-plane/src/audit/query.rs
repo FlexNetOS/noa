@@ -4,9 +4,12 @@
 //! Provides query interface for retrieving and filtering plane transition records
 
 use chrono::{DateTime, Utc};
+use rusqlite::{params_from_iter, Connection};
 use serde::{Deserialize, Serialize};
-use sqlx::{SqlitePool, Row};
 use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tokio::task;
 
 use super::transition_logger::{TransitionRecord, TransitionType, TransitionStatus};
 
@@ -66,90 +69,133 @@ pub struct TransitionStats {
 ///
 /// Provides query interface for retrieving and analyzing plane transition records
 pub struct TransitionQuery {
-    pool: SqlitePool,
+    conn: Arc<Mutex<Connection>>,
 }
 
 impl TransitionQuery {
     /// Create a new TransitionQuery with database connection
-    pub async fn new(pool: SqlitePool) -> Result<Self, sqlx::Error> {
-        Ok(Self { pool })
+    pub async fn new(conn: Connection) -> Result<Self, rusqlite::Error> {
+        Ok(Self { conn: Arc::new(Mutex::new(conn)) })
     }
 
     /// Query transitions with filters
     pub async fn query_transitions(
         &self,
         filter: TransitionFilter,
-    ) -> Result<QueryResult, sqlx::Error> {
-        let mut query_builder = sqlx::QueryBuilder::new(
-            r#"
-            SELECT id, created_at, type, source_plane, target_plane,
-                   source_version, target_version, status, started_at,
-                   completed_at, duration_seconds, pre_checks, post_checks,
-                   validation_status, artifacts_transferred, outcome,
-                   error_message, rollback_reason, initiated_by, approved_by,
-                   metadata, before_state, after_state
-            FROM plane_transition
-            WHERE 1=1
-            "#,
-        );
+    ) -> anyhow::Result<QueryResult> {
+        let conn = Arc::clone(&self.conn);
+        let filter_clone = filter.clone();
+        
+        let result: Result<(Vec<(String, String, String, String, String, String, String, String, Option<String>, Option<String>, Option<i64>, String, String, Option<String>, Option<String>, Option<String>, Option<String>, Option<String>, String, Option<String>, Option<String>, String, Option<String>)>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            
+            // Build the SQL query dynamically
+            let mut sql = r#"
+                SELECT id, created_at, type, source_plane, target_plane,
+                       source_version, target_version, status, started_at,
+                       completed_at, duration_seconds, pre_checks, post_checks,
+                       validation_status, artifacts_transferred, outcome,
+                       error_message, rollback_reason, initiated_by, approved_by,
+                       metadata, before_state, after_state
+                FROM plane_transition
+                WHERE 1=1
+            "#.to_string();
+            
+            let mut params_vec: Vec<String> = Vec::new();
+            
+            // Apply filters
+            if let Some(ref transition_type) = filter_clone.transition_type {
+                sql.push_str(" AND type = ?");
+                params_vec.push(transition_type.as_str().to_string());
+            }
 
-        // Apply filters
-        if let Some(ref transition_type) = filter.transition_type {
-            query_builder.push(" AND type = ");
-            query_builder.push_bind(transition_type.as_str());
-        }
+            if let Some(ref source_plane) = filter_clone.source_plane {
+                sql.push_str(" AND source_plane = ?");
+                params_vec.push(source_plane.clone());
+            }
 
-        if let Some(ref source_plane) = filter.source_plane {
-            query_builder.push(" AND source_plane = ");
-            query_builder.push_bind(source_plane);
-        }
+            if let Some(ref target_plane) = filter_clone.target_plane {
+                sql.push_str(" AND target_plane = ?");
+                params_vec.push(target_plane.clone());
+            }
 
-        if let Some(ref target_plane) = filter.target_plane {
-            query_builder.push(" AND target_plane = ");
-            query_builder.push_bind(target_plane);
-        }
+            if let Some(ref status) = filter_clone.status {
+                sql.push_str(" AND status = ?");
+                params_vec.push(status.as_str().to_string());
+            }
 
-        if let Some(ref status) = filter.status {
-            query_builder.push(" AND status = ");
-            query_builder.push_bind(status.as_str());
-        }
+            if let Some(ref initiated_by) = filter_clone.initiated_by {
+                sql.push_str(" AND initiated_by = ?");
+                params_vec.push(initiated_by.clone());
+            }
 
-        if let Some(ref initiated_by) = filter.initiated_by {
-            query_builder.push(" AND initiated_by = ");
-            query_builder.push_bind(initiated_by);
-        }
+            if let Some(ref date_from) = filter_clone.date_from {
+                sql.push_str(" AND created_at >= ?");
+                params_vec.push(date_from.to_rfc3339());
+            }
 
-        if let Some(ref date_from) = filter.date_from {
-            query_builder.push(" AND created_at >= ");
-            query_builder.push_bind(date_from.to_rfc3339());
-        }
+            if let Some(ref date_to) = filter_clone.date_to {
+                sql.push_str(" AND created_at <= ?");
+                params_vec.push(date_to.to_rfc3339());
+            }
 
-        if let Some(ref date_to) = filter.date_to {
-            query_builder.push(" AND created_at <= ");
-            query_builder.push_bind(date_to.to_rfc3339());
-        }
+            // Order by created_at descending
+            sql.push_str(" ORDER BY created_at DESC");
 
-        // Order by created_at descending
-        query_builder.push(" ORDER BY created_at DESC");
+            // Apply limit and offset
+            let limit = filter_clone.limit.unwrap_or(100);
+            let offset = filter_clone.offset.unwrap_or(0);
+            sql.push_str(" LIMIT ? OFFSET ?");
+            params_vec.push(limit.to_string());
+            params_vec.push(offset.to_string());
 
-        // Apply limit and offset
-        let limit = filter.limit.unwrap_or(100);
-        let offset = filter.offset.unwrap_or(0);
-        query_builder.push(" LIMIT ");
-        query_builder.push_bind(limit);
-        query_builder.push(" OFFSET ");
-        query_builder.push_bind(offset);
+            let mut stmt = conn.prepare(&sql)?;
+            let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+            
+            let mut rows = stmt.query(params_from_iter(params_refs))?;
+            
+            let mut transitions = Vec::new();
+            while let Some(row) = rows.next()? {
+                let row_data = (
+                    row.get::<_, String>(0)?,  // id
+                    row.get::<_, String>(1)?,  // created_at
+                    row.get::<_, String>(2)?,  // type
+                    row.get::<_, String>(3)?,  // source_plane
+                    row.get::<_, String>(4)?,  // target_plane
+                    row.get::<_, String>(5)?,  // source_version
+                    row.get::<_, String>(6)?,  // target_version
+                    row.get::<_, String>(7)?,  // status
+                    row.get::<_, Option<String>>(8)?,  // started_at
+                    row.get::<_, Option<String>>(9)?,  // completed_at
+                    row.get::<_, Option<i64>>(10)?,  // duration_seconds
+                    row.get::<_, String>(11)?,  // pre_checks
+                    row.get::<_, String>(12)?,  // post_checks
+                    row.get::<_, Option<String>>(13)?,  // validation_status
+                    row.get::<_, Option<String>>(14)?,  // artifacts_transferred
+                    row.get::<_, Option<String>>(15)?,  // outcome
+                    row.get::<_, Option<String>>(16)?,  // error_message
+                    row.get::<_, Option<String>>(17)?,  // rollback_reason
+                    row.get::<_, String>(18)?,  // initiated_by
+                    row.get::<_, Option<String>>(19)?,  // approved_by
+                    row.get::<_, Option<String>>(20)?,  // metadata
+                    row.get::<_, String>(21)?,  // before_state
+                    row.get::<_, Option<String>>(22)?,  // after_state
+                );
+                transitions.push(row_data);
+            }
+            
+            Ok((transitions, limit, offset))
+        }).await.map_err(anyhow::Error::from)?;
 
-        let query = query_builder.build();
-        let rows = query.fetch_all(&self.pool).await?;
-
+        let (row_data_vec, limit, offset) = result?;
+        
         // Get total count
         let total = self.count_transitions(&filter).await?;
 
         // Convert rows to TransitionRecord
-        let transitions: Result<Vec<TransitionRecord>, sqlx::Error> = rows
+        let transitions: Result<Vec<TransitionRecord>, _> = row_data_vec
             .into_iter()
-            .map(|row| self.row_to_transition_record(&row))
+            .map(|row_data| self.row_data_to_transition_record(&row_data))
             .collect();
 
         Ok(QueryResult {
@@ -164,25 +210,64 @@ impl TransitionQuery {
     pub async fn get_transition(
         &self,
         transition_id: &str,
-    ) -> Result<Option<TransitionRecord>, sqlx::Error> {
-        let row = sqlx::query(
-            r#"
-            SELECT id, created_at, type, source_plane, target_plane,
-                   source_version, target_version, status, started_at,
-                   completed_at, duration_seconds, pre_checks, post_checks,
-                   validation_status, artifacts_transferred, outcome,
-                   error_message, rollback_reason, initiated_by, approved_by,
-                   metadata, before_state, after_state
-            FROM plane_transition
-            WHERE id = ?
-            "#,
-        )
-        .bind(transition_id)
-        .fetch_optional(&self.pool)
-        .await?;
+    ) -> anyhow::Result<Option<TransitionRecord>> {
+        let conn = Arc::clone(&self.conn);
+        let transition_id = transition_id.to_string();
+        
+        let result = task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            let mut stmt = conn.prepare(
+                r#"
+                SELECT id, created_at, type, source_plane, target_plane,
+                       source_version, target_version, status, started_at,
+                       completed_at, duration_seconds, pre_checks, post_checks,
+                       validation_status, artifacts_transferred, outcome,
+                       error_message, rollback_reason, initiated_by, approved_by,
+                       metadata, before_state, after_state
+                FROM plane_transition
+                WHERE id = ?
+                "#,
+            )?;
+            
+            let mut rows = stmt.query_map([transition_id], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,  // id
+                    row.get::<_, String>(1)?,  // created_at
+                    row.get::<_, String>(2)?,  // type
+                    row.get::<_, String>(3)?,  // source_plane
+                    row.get::<_, String>(4)?,  // target_plane
+                    row.get::<_, String>(5)?,  // source_version
+                    row.get::<_, String>(6)?,  // target_version
+                    row.get::<_, String>(7)?,  // status
+                    row.get::<_, Option<String>>(8)?,  // started_at
+                    row.get::<_, Option<String>>(9)?,  // completed_at
+                    row.get::<_, Option<i64>>(10)?,  // duration_seconds
+                    row.get::<_, String>(11)?,  // pre_checks
+                    row.get::<_, String>(12)?,  // post_checks
+                    row.get::<_, Option<String>>(13)?,  // validation_status
+                    row.get::<_, Option<String>>(14)?,  // artifacts_transferred
+                    row.get::<_, Option<String>>(15)?,  // outcome
+                    row.get::<_, Option<String>>(16)?,  // error_message
+                    row.get::<_, Option<String>>(17)?,  // rollback_reason
+                    row.get::<_, String>(18)?,  // initiated_by
+                    row.get::<_, Option<String>>(19)?,  // approved_by
+                    row.get::<_, Option<String>>(20)?,  // metadata
+                    row.get::<_, String>(21)?,  // before_state
+                    row.get::<_, Option<String>>(22)?,  // after_state
+                ))
+            })?;
 
-        row.map(|r| self.row_to_transition_record(&r))
-            .transpose()
+            rows.next().transpose()
+        }).await.map_err(anyhow::Error::from)?;
+
+        match result {
+            Ok(Some(row_data)) => {
+                let record = self.row_data_to_transition_record(&row_data)?;
+                Ok(Some(record))
+            }
+            Ok(None) => Ok(None),
+            Err(e) => Err(anyhow::Error::from(e)),
+        }
     }
 
     /// Get statistics for transitions
@@ -190,133 +275,145 @@ impl TransitionQuery {
         &self,
         date_from: Option<DateTime<Utc>>,
         date_to: Option<DateTime<Utc>>,
-    ) -> Result<TransitionStats, sqlx::Error> {
-        let mut query_builder = sqlx::QueryBuilder::new(
-            "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1",
-        );
+    ) -> anyhow::Result<TransitionStats> {
+        let conn = Arc::clone(&self.conn);
+        let date_from_clone = date_from;
+        let date_to_clone = date_to;
+        
+        let result: Result<(i64, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, Option<f64>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            
+            // Build total count query
+            let mut total_sql = "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1".to_string();
+            let mut total_params: Vec<String> = Vec::new();
+            
+            if let Some(ref date_from) = date_from_clone {
+                total_sql.push_str(" AND created_at >= ?");
+                total_params.push(date_from.to_rfc3339());
+            }
+            
+            if let Some(ref date_to) = date_to_clone {
+                total_sql.push_str(" AND created_at <= ?");
+                total_params.push(date_to.to_rfc3339());
+            }
+            
+            let total: i64 = {
+                let mut stmt = conn.prepare(&total_sql)?;
+                let params_refs: Vec<&dyn rusqlite::ToSql> = total_params.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+                stmt.query_row(params_from_iter(params_refs), |row| row.get(0))?
+            };
 
-        if let Some(ref date_from) = date_from {
-            query_builder.push(" AND created_at >= ");
-            query_builder.push_bind(date_from.to_rfc3339());
-        }
+            // Count by type
+            let mut by_type = HashMap::new();
+            {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT type, COUNT(*) as count
+                    FROM plane_transition
+                    GROUP BY type
+                    "#,
+                )?;
+                let mut rows = stmt.query([])?;
+                while let Some(row) = rows.next()? {
+                    let type_name: String = row.get(0)?;
+                    let count: i64 = row.get(1)?;
+                    by_type.insert(type_name, count);
+                }
+            }
 
-        if let Some(ref date_to) = date_to {
-            query_builder.push(" AND created_at <= ");
-            query_builder.push_bind(date_to.to_rfc3339());
-        }
+            // Count by status
+            let mut by_status = HashMap::new();
+            {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT status, COUNT(*) as count
+                    FROM plane_transition
+                    GROUP BY status
+                    "#,
+                )?;
+                let mut rows = stmt.query([])?;
+                while let Some(row) = rows.next()? {
+                    let status_name: String = row.get(0)?;
+                    let count: i64 = row.get(1)?;
+                    by_status.insert(status_name, count);
+                }
+            }
 
-        let total: i64 = query_builder
-            .build()
-            .try_map(|row: sqlx::sqlite::SqliteRow| row.try_get("total"))
-            .fetch_one(&self.pool)
-            .await?;
+            // Count by source plane
+            let mut by_source_plane = HashMap::new();
+            {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT source_plane, COUNT(*) as count
+                    FROM plane_transition
+                    GROUP BY source_plane
+                    "#,
+                )?;
+                let mut rows = stmt.query([])?;
+                while let Some(row) = rows.next()? {
+                    let plane: String = row.get(0)?;
+                    let count: i64 = row.get(1)?;
+                    by_source_plane.insert(plane, count);
+                }
+            }
 
-        // Count by type
-        let mut by_type = HashMap::new();
-        let type_rows = sqlx::query(
-            r#"
-            SELECT type, COUNT(*) as count
-            FROM plane_transition
-            GROUP BY type
-            "#,
-        )
-        .fetch_all(&self.pool)
-        .await?;
+            // Count by target plane
+            let mut by_target_plane = HashMap::new();
+            {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT target_plane, COUNT(*) as count
+                    FROM plane_transition
+                    GROUP BY target_plane
+                    "#,
+                )?;
+                let mut rows = stmt.query([])?;
+                while let Some(row) = rows.next()? {
+                    let plane: String = row.get(0)?;
+                    let count: i64 = row.get(1)?;
+                    by_target_plane.insert(plane, count);
+                }
+            }
 
-        for row in type_rows {
-            let type_name: String = row.try_get("type")?;
-            let count: i64 = row.try_get("count")?;
-            by_type.insert(type_name, count);
-        }
+            // Calculate average duration
+            let avg_duration: Option<f64> = {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT AVG(duration_seconds) as avg_duration
+                    FROM plane_transition
+                    WHERE duration_seconds IS NOT NULL
+                    "#,
+                )?;
+                stmt.query_row([], |row| row.get(0)).ok()
+            };
 
-        // Count by status
-        let mut by_status = HashMap::new();
-        let status_rows = sqlx::query(
-            r#"
-            SELECT status, COUNT(*) as count
-            FROM plane_transition
-            GROUP BY status
-            "#,
-        )
-        .fetch_all(&self.pool)
-        .await?;
+            // Calculate success and failure rates
+            let completed: i64 = {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT COUNT(*) as count
+                    FROM plane_transition
+                    WHERE status = 'completed'
+                    "#,
+                )?;
+                stmt.query_row([], |row| row.get(0))?
+            };
 
-        for row in status_rows {
-            let status_name: String = row.try_get("status")?;
-            let count: i64 = row.try_get("count")?;
-            by_status.insert(status_name, count);
-        }
+            let failed: i64 = {
+                let mut stmt = conn.prepare(
+                    r#"
+                    SELECT COUNT(*) as count
+                    FROM plane_transition
+                    WHERE status = 'failed'
+                    "#,
+                )?;
+                stmt.query_row([], |row| row.get(0))?
+            };
 
-        // Count by source plane
-        let mut by_source_plane = HashMap::new();
-        let source_rows = sqlx::query(
-            r#"
-            SELECT source_plane, COUNT(*) as count
-            FROM plane_transition
-            GROUP BY source_plane
-            "#,
-        )
-        .fetch_all(&self.pool)
-        .await?;
+            Ok((total, by_type, by_status, by_source_plane, by_target_plane, avg_duration, completed, failed))
+        }).await.map_err(anyhow::Error::from)?;
 
-        for row in source_rows {
-            let plane: String = row.try_get("source_plane")?;
-            let count: i64 = row.try_get("count")?;
-            by_source_plane.insert(plane, count);
-        }
-
-        // Count by target plane
-        let mut by_target_plane = HashMap::new();
-        let target_rows = sqlx::query(
-            r#"
-            SELECT target_plane, COUNT(*) as count
-            FROM plane_transition
-            GROUP BY target_plane
-            "#,
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        for row in target_rows {
-            let plane: String = row.try_get("target_plane")?;
-            let count: i64 = row.try_get("count")?;
-            by_target_plane.insert(plane, count);
-        }
-
-        // Calculate average duration
-        let avg_duration: Option<f64> = sqlx::query(
-            r#"
-            SELECT AVG(duration_seconds) as avg_duration
-            FROM plane_transition
-            WHERE duration_seconds IS NOT NULL
-            "#,
-        )
-        .try_map(|row: sqlx::sqlite::SqliteRow| row.try_get("avg_duration"))
-        .fetch_optional(&self.pool)
-        .await?;
-
-        // Calculate success and failure rates
-        let completed: i64 = sqlx::query(
-            r#"
-            SELECT COUNT(*) as count
-            FROM plane_transition
-            WHERE status = 'completed'
-            "#,
-        )
-        .try_map(|row: sqlx::sqlite::SqliteRow| row.try_get("count"))
-        .fetch_one(&self.pool)
-        .await?;
-
-        let failed: i64 = sqlx::query(
-            r#"
-            SELECT COUNT(*) as count
-            FROM plane_transition
-            WHERE status = 'failed'
-            "#,
-        )
-        .try_map(|row: sqlx::sqlite::SqliteRow| row.try_get("count"))
-        .fetch_one(&self.pool)
-        .await?;
+        let (total, by_type, by_status, by_source_plane, by_target_plane, avg_duration, completed, failed) = result?;
 
         let success_rate = if total > 0 {
             (completed as f64 / total as f64) * 100.0
@@ -343,90 +440,104 @@ impl TransitionQuery {
     }
 
     /// Count transitions matching filter
-    async fn count_transitions(&self, filter: &TransitionFilter) -> Result<i64, sqlx::Error> {
-        let mut query_builder = sqlx::QueryBuilder::new(
-            "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1",
-        );
+    async fn count_transitions(&self, filter: &TransitionFilter) -> anyhow::Result<i64> {
+        let conn = Arc::clone(&self.conn);
+        let filter_clone = filter.clone();
+        
+        let result: Result<i64, anyhow::Error> = task::spawn_blocking(move || {
+            let conn = conn.blocking_lock();
+            
+            let mut sql = "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1".to_string();
+            let mut params_vec: Vec<String> = Vec::new();
+            
+            if let Some(ref transition_type) = filter_clone.transition_type {
+                sql.push_str(" AND type = ?");
+                params_vec.push(transition_type.as_str().to_string());
+            }
 
-        if let Some(ref transition_type) = filter.transition_type {
-            query_builder.push(" AND type = ");
-            query_builder.push_bind(transition_type.as_str());
-        }
+            if let Some(ref source_plane) = filter_clone.source_plane {
+                sql.push_str(" AND source_plane = ?");
+                params_vec.push(source_plane.clone());
+            }
 
-        if let Some(ref source_plane) = filter.source_plane {
-            query_builder.push(" AND source_plane = ");
-            query_builder.push_bind(source_plane);
-        }
+            if let Some(ref target_plane) = filter_clone.target_plane {
+                sql.push_str(" AND target_plane = ?");
+                params_vec.push(target_plane.clone());
+            }
 
-        if let Some(ref target_plane) = filter.target_plane {
-            query_builder.push(" AND target_plane = ");
-            query_builder.push_bind(target_plane);
-        }
+            if let Some(ref status) = filter_clone.status {
+                sql.push_str(" AND status = ?");
+                params_vec.push(status.as_str().to_string());
+            }
 
-        if let Some(ref status) = filter.status {
-            query_builder.push(" AND status = ");
-            query_builder.push_bind(status.as_str());
-        }
+            if let Some(ref initiated_by) = filter_clone.initiated_by {
+                sql.push_str(" AND initiated_by = ?");
+                params_vec.push(initiated_by.clone());
+            }
 
-        if let Some(ref initiated_by) = filter.initiated_by {
-            query_builder.push(" AND initiated_by = ");
-            query_builder.push_bind(initiated_by);
-        }
+            if let Some(ref date_from) = filter_clone.date_from {
+                sql.push_str(" AND created_at >= ?");
+                params_vec.push(date_from.to_rfc3339());
+            }
 
-        if let Some(ref date_from) = filter.date_from {
-            query_builder.push(" AND created_at >= ");
-            query_builder.push_bind(date_from.to_rfc3339());
-        }
+            if let Some(ref date_to) = filter_clone.date_to {
+                sql.push_str(" AND created_at <= ?");
+                params_vec.push(date_to.to_rfc3339());
+            }
 
-        if let Some(ref date_to) = filter.date_to {
-            query_builder.push(" AND created_at <= ");
-            query_builder.push_bind(date_to.to_rfc3339());
-        }
-
-        let total: i64 = query_builder
-            .build()
-            .try_map(|row: sqlx::sqlite::SqliteRow| row.try_get("total"))
-            .fetch_one(&self.pool)
-            .await?;
-
-        Ok(total)
+            let mut stmt = conn.prepare(&sql)?;
+            let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+            let total: i64 = stmt.query_row(params_from_iter(params_refs), |row| row.get(0))?;
+            
+            Ok(total)
+        }).await.map_err(anyhow::Error::from)?;
+        
+        Ok(result?)
     }
 
-    /// Convert database row to TransitionRecord
-    fn row_to_transition_record(
+    /// Convert database row data to TransitionRecord
+    fn row_data_to_transition_record(
         &self,
-        row: &sqlx::sqlite::SqliteRow,
-    ) -> Result<TransitionRecord, sqlx::Error> {
+        row_data: &(
+            String, String, String, String, String, String, String, String,
+            Option<String>, Option<String>, Option<i64>, String, String,
+            Option<String>, Option<String>, Option<String>, Option<String>,
+            Option<String>, String, Option<String>, Option<String>, String, Option<String>
+        ),
+    ) -> anyhow::Result<TransitionRecord> {
+        let (
+            id, created_at_str, type_str, source_plane, target_plane,
+            source_version, target_version, status_str, started_at_str,
+            completed_at_str, duration_seconds, pre_checks_json, post_checks_json,
+            validation_status_str, artifacts_transferred_json, outcome,
+            error_message, rollback_reason, initiated_by, approved_by,
+            metadata_json, before_state_json, after_state_json
+        ) = row_data;
 
-        let before_state_json: String = row.try_get("before_state")?;
-        let before_state: super::transition_logger::PlaneState = serde_json::from_str(&before_state_json)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+        let before_state: super::transition_logger::PlaneState = serde_json::from_str(before_state_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let after_state: Option<super::transition_logger::PlaneState> = row
-            .try_get::<Option<String>, _>("after_state")?
+        let after_state: Option<super::transition_logger::PlaneState> = after_state_json
+            .as_ref()
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let pre_checks_json: String = row.try_get("pre_checks")?;
-        let pre_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(&pre_checks_json)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+        let pre_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(pre_checks_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let post_checks_json: String = row.try_get("post_checks")?;
-        let post_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(&post_checks_json)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?;
+        let post_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(post_checks_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let type_str: String = row.try_get("type")?;
         let transition_type = match type_str.as_str() {
             "promotion" => TransitionType::Promotion,
             "rollback" => TransitionType::Rollback,
             "migration" => TransitionType::Migration,
             "failover" => TransitionType::Failover,
-            _ => return Err(sqlx::Error::Decode("Invalid transition type".into())),
+            _ => return Err(anyhow::anyhow!("Invalid transition type: {}", type_str)),
         };
 
-        let status_str: String = row.try_get("status")?;
         let status = match status_str.as_str() {
             "pending" => TransitionStatus::Pending,
             "preparing" => TransitionStatus::Preparing,
@@ -435,79 +546,77 @@ impl TransitionQuery {
             "completed" => TransitionStatus::Completed,
             "failed" => TransitionStatus::Failed,
             "rolled_back" => TransitionStatus::RolledBack,
-            _ => return Err(sqlx::Error::Decode("Invalid transition status".into())),
+            _ => return Err(anyhow::anyhow!("Invalid transition status: {}", status_str)),
         };
 
-        let validation_status: Option<String> = row.try_get("validation_status")?;
-        let validation_status = validation_status.map(|s| match s.as_str() {
+        let validation_status = validation_status_str.as_ref().map(|s| match s.as_str() {
             "passed" => super::transition_logger::ValidationStatus::Passed,
             "failed" => super::transition_logger::ValidationStatus::Failed,
             "skipped" => super::transition_logger::ValidationStatus::Skipped,
             _ => super::transition_logger::ValidationStatus::Skipped,
         });
 
-        let created_at_str: String = row.try_get("created_at")?;
-        let created_at = DateTime::parse_from_rfc3339(&created_at_str)
-            .map_err(|e| sqlx::Error::Decode(Box::new(e)))?
+        let created_at = DateTime::parse_from_rfc3339(created_at_str)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?
             .with_timezone(&Utc);
 
-        let started_at: Option<String> = row.try_get("started_at")?;
-        let started_at = started_at
+        let started_at = started_at_str
+            .as_ref()
             .map(|s| {
-                DateTime::parse_from_rfc3339(&s)
-                    .map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                DateTime::parse_from_rfc3339(s)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let completed_at: Option<String> = row.try_get("completed_at")?;
-        let completed_at = completed_at
+        let completed_at = completed_at_str
+            .as_ref()
             .map(|s| {
-                DateTime::parse_from_rfc3339(&s)
-                    .map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                DateTime::parse_from_rfc3339(s)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let artifacts_transferred: Option<String> = row.try_get("artifacts_transferred")?;
-        let artifacts_transferred: Vec<String> = artifacts_transferred
+        let artifacts_transferred: Vec<String> = artifacts_transferred_json
+            .as_ref()
             .map(|json| {
-                serde_json::from_str(&json)
-                    .map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(json)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?
             .unwrap_or_default();
 
-        let metadata: Option<String> = row.try_get("metadata")?;
-        let metadata = metadata
+        let metadata = metadata_json
+            .as_ref()
             .map(|json| {
-                serde_json::from_str(&json).map_err(|e| sqlx::Error::Decode(Box::new(e)))
+                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
         Ok(TransitionRecord {
-            id: row.try_get("id")?,
+            id: id.clone(),
             created_at,
             transition_type,
-            source_plane: row.try_get("source_plane")?,
-            target_plane: row.try_get("target_plane")?,
-            source_version: row.try_get("source_version")?,
-            target_version: row.try_get("target_version")?,
+            source_plane: source_plane.clone(),
+            target_plane: target_plane.clone(),
+            source_version: source_version.clone(),
+            target_version: target_version.clone(),
             status,
             started_at,
             completed_at,
-            duration_seconds: row.try_get("duration_seconds")?,
+            duration_seconds: *duration_seconds,
             before_state,
             after_state,
             pre_checks,
             post_checks,
             validation_status,
             artifacts_transferred,
-            outcome: row.try_get("outcome")?,
-            error_message: row.try_get("error_message")?,
-            rollback_reason: row.try_get("rollback_reason")?,
-            initiated_by: row.try_get("initiated_by")?,
-            approved_by: row.try_get("approved_by")?,
+            outcome: outcome.clone(),
+            error_message: error_message.clone(),
+            rollback_reason: rollback_reason.clone(),
+            initiated_by: initiated_by.clone(),
+            approved_by: approved_by.clone(),
             metadata,
         })
     }
