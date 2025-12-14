@@ -25,7 +25,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.556.0",
+<<<<<<< HEAD
     "next": "^15.1.6",
+=======
+    "next": "^15.5.8",
+>>>>>>> dependabot/npm_and_yarn/project-mgmt/Taskosaur/npm_and_yarn-56d507937f
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-grid-layout": "^2.0.0",
