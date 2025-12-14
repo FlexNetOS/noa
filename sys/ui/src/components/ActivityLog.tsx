@@ -120,9 +120,6 @@ export default function ActivityLog() {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        role="log"
-        aria-live="polite"
-        aria-label="Activity log entries"
         className="h-96 overflow-y-auto space-y-2 pr-2"
       >
         {entries.length === 0 ? (
@@ -160,3 +157,4 @@ export default function ActivityLog() {
     </div>
   );
 }
+
