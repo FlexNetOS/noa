@@ -127,10 +127,7 @@ impl InitService {
         if result.errors.is_empty() {
             info!("NOA initialization completed successfully");
         } else {
-            warn!(
-                error_count = result.errors.len(),
-                "Initialization completed with errors"
-            );
+            warn!(error_count = result.errors.len(), "Initialization completed with errors");
             // Cleanup on partial failure if requested
             if !result.errors.is_empty() {
                 Self::cleanup(&state, noa_root);
@@ -242,7 +239,9 @@ impl InitService {
 
         // TODO: Actually register paths in system PATH or create wrapper scripts
         // For now, just verify bin directory exists
-        let count = std::fs::read_dir(&bin_dir).map_err(|e| NoaError::Io(e))?.count();
+        let count = std::fs::read_dir(&bin_dir)
+            .map_err(|e| NoaError::Io(e))?
+            .count();
 
         info!(bin_dir = %bin_dir.display(), count = count, "Binary paths available");
         Ok(count)
@@ -345,3 +344,4 @@ mod tests {
         assert!(result.database_initialized);
     }
 }
+

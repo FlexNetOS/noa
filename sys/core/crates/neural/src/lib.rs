@@ -6,5 +6,5 @@ pub mod llama;
 pub mod model;
 pub mod runtime;
 
-pub use model::{Model, ModelConfig, ModelStatus, ModelType};
 pub use runtime::NeuralRuntime;
+pub use model::{Model, ModelConfig, ModelStatus, ModelType};

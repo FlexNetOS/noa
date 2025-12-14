@@ -10,6 +10,7 @@ use std::time::Duration;
 use axum::Router;
 use tokio::net::TcpListener;
 use tokio::signal;
+use tower::ServiceBuilder;
 use tower_http::{
     cors::{Any, CorsLayer},
     timeout::TimeoutLayer,
@@ -104,12 +105,17 @@ impl ApiServer {
         let mut router = Router::new();
 
         // Add API routes
-        router = router.merge(super::routes::health::routes()).merge(super::routes::api_v1());
+        router = router
+            .merge(super::routes::health::routes())
+            .merge(super::routes::api_v1());
+
+        // Apply middleware
+        let mut service_builder = ServiceBuilder::new();
 
         // Timeout layer
-        router = router.layer(TimeoutLayer::new(Duration::from_secs(
-            self.config.timeout_secs,
-        )));
+        service_builder = service_builder.layer(TimeoutLayer::new(
+            Duration::from_secs(self.config.timeout_secs),
+        ));
 
         // Tracing layer
         if self.config.enable_tracing {
@@ -118,18 +124,17 @@ impl ApiServer {
 
         // CORS layer
         if self.config.enable_cors {
-            let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
+            let cors = CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any);
             router = router.layer(cors);
         }
 
         // Add custom middleware
         router = router
-            .layer(axum::middleware::from_fn(
-                super::middleware::logging::log_request,
-            ))
-            .layer(axum::middleware::from_fn(
-                super::middleware::validation::validate_request,
-            ));
+            .layer(axum::middleware::from_fn(super::middleware::logging::log_request))
+            .layer(axum::middleware::from_fn(super::middleware::validation::validate_request));
 
         // Add state
         router.with_state(self.state.clone())
@@ -152,11 +157,12 @@ impl ApiServer {
             "Starting NOA API server"
         );
 
-        let listener =
-            TcpListener::bind(addr).await.map_err(|e| crate::error::NoaError::Internal {
+        let listener = TcpListener::bind(addr).await.map_err(|e| {
+            crate::error::NoaError::Internal {
                 message: format!("Failed to bind to {}: {}", addr, e),
                 source: Some(Box::new(e)),
-            })?;
+            }
+        })?;
 
         axum::serve(listener, router)
             .with_graceful_shutdown(shutdown_signal())
@@ -179,7 +185,9 @@ impl ApiServer {
 /// Shutdown signal handler for graceful shutdown
 async fn shutdown_signal() {
     let ctrl_c = async {
-        signal::ctrl_c().await.expect("Failed to install Ctrl+C handler");
+        signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
     };
 
     #[cfg(unix)]
@@ -289,3 +297,4 @@ mod tests {
         // For now, just test that the struct compiles
     }
 }
+

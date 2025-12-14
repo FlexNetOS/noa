@@ -85,10 +85,7 @@ impl FixValidator {
                         health_after: ComponentHealth::Healthy,
                         metric_improved: true,
                         validation_duration_ms,
-                        message: format!(
-                            "Fix validated: component {} is healthy",
-                            anomaly.component_id
-                        ),
+                        message: format!("Fix validated: component {} is healthy", anomaly.component_id),
                     });
                 }
             }
@@ -116,10 +113,7 @@ impl FixValidator {
             message: if success {
                 format!("Fix validated: component {} improved", anomaly.component_id)
             } else {
-                format!(
-                    "Fix validation failed: component {} still unhealthy",
-                    anomaly.component_id
-                )
+                format!("Fix validation failed: component {} still unhealthy", anomaly.component_id)
             },
         })
     }
@@ -155,3 +149,4 @@ mod tests {
         assert_eq!(validator.health_check_interval_secs, 5);
     }
 }
+

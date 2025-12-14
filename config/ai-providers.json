@@ -1,5 +1,4 @@
 {
-  "$schema": "https://noa.local/schemas/providers.yaml",
   "version": "1.0.0",
   "providerPriority": [
     "local",

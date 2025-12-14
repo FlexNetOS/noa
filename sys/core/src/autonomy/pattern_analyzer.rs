@@ -6,11 +6,11 @@
 //! T635: Implement pattern analysis for improvement opportunities
 
 use crate::error::Result;
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 /// Pattern type
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,9 +75,7 @@ impl PatternAnalyzer {
                         description: format!("High latency detected: {}ms", latency_val),
                         evidence: serde_json::json!({"latency_ms": latency_val}),
                         detected_at: Utc::now(),
-                        suggested_improvement: Some(
-                            "Consider optimizing queries or adding caching".to_string(),
-                        ),
+                        suggested_improvement: Some("Consider optimizing queries or adding caching".to_string()),
                     });
                 }
             }
@@ -95,9 +93,7 @@ impl PatternAnalyzer {
                         description: format!("High error rate: {:.2}%", rate * 100.0),
                         evidence: serde_json::json!({"error_rate": rate}),
                         detected_at: Utc::now(),
-                        suggested_improvement: Some(
-                            "Review error logs and improve error handling".to_string(),
-                        ),
+                        suggested_improvement: Some("Review error logs and improve error handling".to_string()),
                     });
                 }
             }
@@ -115,9 +111,7 @@ impl PatternAnalyzer {
                         description: format!("High CPU usage: {:.1}%", cpu * 100.0),
                         evidence: serde_json::json!({"cpu_usage": cpu}),
                         detected_at: Utc::now(),
-                        suggested_improvement: Some(
-                            "Consider optimizing algorithms or scaling resources".to_string(),
-                        ),
+                        suggested_improvement: Some("Consider optimizing algorithms or scaling resources".to_string()),
                     });
                 }
             }
@@ -143,17 +137,17 @@ impl PatternAnalyzer {
 
     /// Get patterns by type
     pub async fn patterns_by_type(&self, pattern_type: &PatternType) -> Vec<DetectedPattern> {
-        self.patterns
-            .read()
-            .await
+        self.patterns.read().await
             .iter()
-            .filter(|p| match (&p.pattern_type, pattern_type) {
-                (PatternType::PerformanceDegradation, PatternType::PerformanceDegradation) => true,
-                (PatternType::ErrorRateIncrease, PatternType::ErrorRateIncrease) => true,
-                (PatternType::ResourceInefficiency, PatternType::ResourceInefficiency) => true,
-                (PatternType::RepeatedFailures, PatternType::RepeatedFailures) => true,
-                (PatternType::UsagePatternChange, PatternType::UsagePatternChange) => true,
-                _ => false,
+            .filter(|p| {
+                match (&p.pattern_type, pattern_type) {
+                    (PatternType::PerformanceDegradation, PatternType::PerformanceDegradation) => true,
+                    (PatternType::ErrorRateIncrease, PatternType::ErrorRateIncrease) => true,
+                    (PatternType::ResourceInefficiency, PatternType::ResourceInefficiency) => true,
+                    (PatternType::RepeatedFailures, PatternType::RepeatedFailures) => true,
+                    (PatternType::UsagePatternChange, PatternType::UsagePatternChange) => true,
+                    _ => false,
+                }
             })
             .cloned()
             .collect()
@@ -161,9 +155,7 @@ impl PatternAnalyzer {
 
     /// Get patterns by component
     pub async fn patterns_by_component(&self, component: &str) -> Vec<DetectedPattern> {
-        self.patterns
-            .read()
-            .await
+        self.patterns.read().await
             .iter()
             .filter(|p| p.component == component)
             .cloned()
@@ -172,9 +164,7 @@ impl PatternAnalyzer {
 
     /// Get high severity patterns
     pub async fn high_severity_patterns(&self, threshold: f64) -> Vec<DetectedPattern> {
-        self.patterns
-            .read()
-            .await
+        self.patterns.read().await
             .iter()
             .filter(|p| p.severity >= threshold)
             .cloned()
@@ -213,10 +203,7 @@ mod tests {
 
         let patterns = analyzer.analyze("Database".to_string(), metrics).await.unwrap();
         assert_eq!(patterns.len(), 1);
-        assert!(matches!(
-            patterns[0].pattern_type,
-            PatternType::PerformanceDegradation
-        ));
+        assert!(matches!(patterns[0].pattern_type, PatternType::PerformanceDegradation));
     }
 
     #[tokio::test]
@@ -229,10 +216,7 @@ mod tests {
 
         let patterns = analyzer.analyze("API".to_string(), metrics).await.unwrap();
         assert_eq!(patterns.len(), 1);
-        assert!(matches!(
-            patterns[0].pattern_type,
-            PatternType::ErrorRateIncrease
-        ));
+        assert!(matches!(patterns[0].pattern_type, PatternType::ErrorRateIncrease));
     }
 
     #[tokio::test]
@@ -264,3 +248,4 @@ mod tests {
         assert!(!high_severity.is_empty());
     }
 }
+

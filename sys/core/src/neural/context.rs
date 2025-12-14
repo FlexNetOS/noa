@@ -54,9 +54,7 @@ impl InferenceContext {
         // Check if adding this message would exceed context length
         if self.current_tokens + tokens > self.max_context_length {
             // Remove oldest messages until we have room
-            while self.current_tokens + tokens > self.max_context_length
-                && !self.messages.is_empty()
-            {
+            while self.current_tokens + tokens > self.max_context_length && !self.messages.is_empty() {
                 if let Some(oldest) = self.messages.pop_front() {
                     self.current_tokens -= oldest.tokens;
                 }
@@ -213,3 +211,4 @@ mod tests {
         assert!(context.current_tokens <= 100);
     }
 }
+

@@ -6,8 +6,11 @@ package discovery
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/FlexNetOS/noa/p2p/pkg/protocol"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peerstore"
 )
 
 // FindPeers handles the FindPeers RPC

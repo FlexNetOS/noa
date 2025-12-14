@@ -1,8 +1,0 @@
-{
-  "id": "SC-008",
-  "description": "7-day continuous operation (accelerated)",
-  "duration_ms": 144,
-  "target_ms": 7000,
-  "status": "Passed",
-  "notes": "heartbeats=7 duration_ms=144"
-}
