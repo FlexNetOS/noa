@@ -13,10 +13,7 @@ export default function SyncSettings() {
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Sync Scope
           </label>
-          <select
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100"
-            aria-label="Select sync scope"
-          >
+          <select className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100">
             <option>Global</option>
             <option>Per Device</option>
             <option>Per Project</option>
@@ -25,12 +22,7 @@ export default function SyncSettings() {
 
         <div>
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="rounded"
-              defaultChecked
-              aria-label="Enable automatic sync"
-            />
+            <input type="checkbox" className="rounded" defaultChecked />
             <span className="text-sm text-slate-300">Enable automatic sync</span>
           </label>
         </div>
@@ -38,3 +30,4 @@ export default function SyncSettings() {
     </div>
   );
 }
+
