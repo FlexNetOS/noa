@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any
 import logging
 
 from ..output import (
@@ -38,9 +38,9 @@ class SurfaceStage:
     def surface(
         self,
         source_path: Path,
-        parsed_data: dict[str, Any],
-        analyzed_data: dict[str, Any],
-    ) -> dict[str, Path]:
+        parsed_data: Dict[str, Any],
+        analyzed_data: Dict[str, Any],
+    ) -> Dict[str, Path]:
         """Generate output artifacts.
 
         Args:

@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class AnalyzeStage:
         """Initialize analyze stage."""
         pass
 
-    def analyze(self, parsed_data: dict[str, Any]) -> dict[str, Any]:
+    def analyze(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze parsed code.
 
         Args:

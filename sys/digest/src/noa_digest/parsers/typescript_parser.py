@@ -6,7 +6,7 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Dict, List, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class TypeScriptParser:
         # self.project = Project()
         pass
 
-    def parse_file(self, file_path: Path) -> dict[str, Any]:
+    def parse_file(self, file_path: Path) -> Dict[str, Any]:
         """Parse a TypeScript/JavaScript file.
 
         Args:
@@ -44,7 +44,7 @@ class TypeScriptParser:
             "imports": [],
         }
 
-    def parse_directory(self, directory: Path) -> list[dict[str, Any]]:
+    def parse_directory(self, directory: Path) -> List[Dict[str, Any]]:
         """Parse all TypeScript/JavaScript files in a directory.
 
         Args:
