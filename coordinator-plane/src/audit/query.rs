@@ -11,7 +11,10 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::task;
 
-use super::transition_logger::{TransitionRecord, TransitionType, TransitionStatus};
+use super::transition_logger::{TransitionRecord, TransitionType, TransitionStatus, TransitionRowData};
+
+/// Type alias for transition statistics result
+type StatsResult = (i64, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, Option<f64>, i64, i64);
 
 /// Query filter for transitions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,7 +89,7 @@ impl TransitionQuery {
         let conn = Arc::clone(&self.conn);
         let filter_clone = filter.clone();
         
-        let result: Result<(Vec<(String, String, String, String, String, String, String, String, Option<String>, Option<String>, Option<i64>, String, String, Option<String>, Option<String>, Option<String>, Option<String>, Option<String>, String, Option<String>, Option<String>, String, Option<String>)>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
+        let result: Result<(Vec<TransitionRowData>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             
             // Build the SQL query dynamically
@@ -280,7 +283,7 @@ impl TransitionQuery {
         let date_from_clone = date_from;
         let date_to_clone = date_to;
         
-        let result: Result<(i64, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, Option<f64>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
+        let result: Result<StatsResult, anyhow::Error> = task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             
             // Build total count query
@@ -492,18 +495,13 @@ impl TransitionQuery {
             Ok(total)
         }).await.map_err(anyhow::Error::from)?;
         
-        Ok(result?)
+        result
     }
 
     /// Convert database row data to TransitionRecord
     fn row_data_to_transition_record(
         &self,
-        row_data: &(
-            String, String, String, String, String, String, String, String,
-            Option<String>, Option<String>, Option<i64>, String, String,
-            Option<String>, Option<String>, Option<String>, Option<String>,
-            Option<String>, String, Option<String>, Option<String>, String, Option<String>
-        ),
+        row_data: &TransitionRowData,
     ) -> anyhow::Result<TransitionRecord> {
         let (
             id, created_at_str, type_str, source_plane, target_plane,
