@@ -4,17 +4,14 @@
 //! Provides query interface for retrieving and filtering plane transition records
 
 use chrono::{DateTime, Utc};
-use rusqlite::{params_from_iter, Connection};
+use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::task;
 
-use super::transition_logger::{TransitionRecord, TransitionType, TransitionStatus, TransitionRowData};
-
-/// Type alias for transition statistics result
-type StatsResult = (i64, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, HashMap<String, i64>, Option<f64>, i64, i64);
+use super::transition_logger::{TransitionRecord, TransitionType, TransitionStatus};
 
 /// Query filter for transitions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,8 +74,8 @@ pub struct TransitionQuery {
 
 impl TransitionQuery {
     /// Create a new TransitionQuery with database connection
-    pub async fn new(conn: Connection) -> Result<Self, rusqlite::Error> {
-        Ok(Self { conn: Arc::new(Mutex::new(conn)) })
+    pub async fn new(conn: Arc<Mutex<Connection>>) -> anyhow::Result<Self> {
+        Ok(Self { conn })
     }
 
     /// Query transitions with filters
@@ -89,10 +86,13 @@ impl TransitionQuery {
         let conn = Arc::clone(&self.conn);
         let filter_clone = filter.clone();
         
-        let result: Result<(Vec<TransitionRowData>, i64, i64), anyhow::Error> = task::spawn_blocking(move || {
+        // Get total count first
+        let total = self.count_transitions(&filter_clone)?;
+        
+        Ok(task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             
-            // Build the SQL query dynamically
+            // Build dynamic SQL
             let mut sql = r#"
                 SELECT id, created_at, type, source_plane, target_plane,
                        source_version, target_version, status, started_at,
@@ -104,7 +104,7 @@ impl TransitionQuery {
                 WHERE 1=1
             "#.to_string();
             
-            let mut params_vec: Vec<String> = Vec::new();
+            let mut params_vec = Vec::new();
             
             // Apply filters
             if let Some(ref transition_type) = filter_clone.transition_type {
@@ -153,60 +153,21 @@ impl TransitionQuery {
             params_vec.push(offset.to_string());
 
             let mut stmt = conn.prepare(&sql)?;
-            let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
-            
-            let mut rows = stmt.query(params_from_iter(params_refs))?;
-            
+            let param_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+            let mut rows = stmt.query(param_refs.as_slice())?;
+
             let mut transitions = Vec::new();
             while let Some(row) = rows.next()? {
-                let row_data = (
-                    row.get::<_, String>(0)?,  // id
-                    row.get::<_, String>(1)?,  // created_at
-                    row.get::<_, String>(2)?,  // type
-                    row.get::<_, String>(3)?,  // source_plane
-                    row.get::<_, String>(4)?,  // target_plane
-                    row.get::<_, String>(5)?,  // source_version
-                    row.get::<_, String>(6)?,  // target_version
-                    row.get::<_, String>(7)?,  // status
-                    row.get::<_, Option<String>>(8)?,  // started_at
-                    row.get::<_, Option<String>>(9)?,  // completed_at
-                    row.get::<_, Option<i64>>(10)?,  // duration_seconds
-                    row.get::<_, String>(11)?,  // pre_checks
-                    row.get::<_, String>(12)?,  // post_checks
-                    row.get::<_, Option<String>>(13)?,  // validation_status
-                    row.get::<_, Option<String>>(14)?,  // artifacts_transferred
-                    row.get::<_, Option<String>>(15)?,  // outcome
-                    row.get::<_, Option<String>>(16)?,  // error_message
-                    row.get::<_, Option<String>>(17)?,  // rollback_reason
-                    row.get::<_, String>(18)?,  // initiated_by
-                    row.get::<_, Option<String>>(19)?,  // approved_by
-                    row.get::<_, Option<String>>(20)?,  // metadata
-                    row.get::<_, String>(21)?,  // before_state
-                    row.get::<_, Option<String>>(22)?,  // after_state
-                );
-                transitions.push(row_data);
+                transitions.push(Self::row_to_transition_record_static(row)?);
             }
-            
-            Ok((transitions, limit, offset))
-        }).await.map_err(anyhow::Error::from)?;
 
-        let (row_data_vec, limit, offset) = result?;
-        
-        // Get total count
-        let total = self.count_transitions(&filter).await?;
-
-        // Convert rows to TransitionRecord
-        let transitions: Result<Vec<TransitionRecord>, _> = row_data_vec
-            .into_iter()
-            .map(|row_data| self.row_data_to_transition_record(&row_data))
-            .collect();
-
-        Ok(QueryResult {
-            transitions: transitions?,
-            total,
-            limit,
-            offset,
-        })
+            Ok::<_, rusqlite::Error>(QueryResult {
+                transitions,
+                total,
+                limit,
+                offset,
+            })
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// Get transition by ID
@@ -217,7 +178,7 @@ impl TransitionQuery {
         let conn = Arc::clone(&self.conn);
         let transition_id = transition_id.to_string();
         
-        let result = task::spawn_blocking(move || {
+        Ok(task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             let mut stmt = conn.prepare(
                 r#"
@@ -233,44 +194,11 @@ impl TransitionQuery {
             )?;
             
             let mut rows = stmt.query_map([transition_id], |row| {
-                Ok((
-                    row.get::<_, String>(0)?,  // id
-                    row.get::<_, String>(1)?,  // created_at
-                    row.get::<_, String>(2)?,  // type
-                    row.get::<_, String>(3)?,  // source_plane
-                    row.get::<_, String>(4)?,  // target_plane
-                    row.get::<_, String>(5)?,  // source_version
-                    row.get::<_, String>(6)?,  // target_version
-                    row.get::<_, String>(7)?,  // status
-                    row.get::<_, Option<String>>(8)?,  // started_at
-                    row.get::<_, Option<String>>(9)?,  // completed_at
-                    row.get::<_, Option<i64>>(10)?,  // duration_seconds
-                    row.get::<_, String>(11)?,  // pre_checks
-                    row.get::<_, String>(12)?,  // post_checks
-                    row.get::<_, Option<String>>(13)?,  // validation_status
-                    row.get::<_, Option<String>>(14)?,  // artifacts_transferred
-                    row.get::<_, Option<String>>(15)?,  // outcome
-                    row.get::<_, Option<String>>(16)?,  // error_message
-                    row.get::<_, Option<String>>(17)?,  // rollback_reason
-                    row.get::<_, String>(18)?,  // initiated_by
-                    row.get::<_, Option<String>>(19)?,  // approved_by
-                    row.get::<_, Option<String>>(20)?,  // metadata
-                    row.get::<_, String>(21)?,  // before_state
-                    row.get::<_, Option<String>>(22)?,  // after_state
-                ))
+                Self::row_to_transition_record_static(row)
             })?;
-
+            
             rows.next().transpose()
-        }).await.map_err(anyhow::Error::from)?;
-
-        match result {
-            Ok(Some(row_data)) => {
-                let record = self.row_data_to_transition_record(&row_data)?;
-                Ok(Some(record))
-            }
-            Ok(None) => Ok(None),
-            Err(e) => Err(anyhow::Error::from(e)),
-        }
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// Get statistics for transitions
@@ -283,12 +211,12 @@ impl TransitionQuery {
         let date_from_clone = date_from;
         let date_to_clone = date_to;
         
-        let result: Result<StatsResult, anyhow::Error> = task::spawn_blocking(move || {
+        Ok(task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             
             // Build total count query
             let mut total_sql = "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1".to_string();
-            let mut total_params: Vec<String> = Vec::new();
+            let mut total_params = Vec::new();
             
             if let Some(ref date_from) = date_from_clone {
                 total_sql.push_str(" AND created_at >= ?");
@@ -302,8 +230,8 @@ impl TransitionQuery {
             
             let total: i64 = {
                 let mut stmt = conn.prepare(&total_sql)?;
-                let params_refs: Vec<&dyn rusqlite::ToSql> = total_params.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
-                stmt.query_row(params_from_iter(params_refs), |row| row.get(0))?
+                let param_refs: Vec<&dyn rusqlite::ToSql> = total_params.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+                stmt.query_row(param_refs.as_slice(), |row| row.get(0))?
             };
 
             // Count by type
@@ -387,7 +315,7 @@ impl TransitionQuery {
                     WHERE duration_seconds IS NOT NULL
                     "#,
                 )?;
-                stmt.query_row([], |row| row.get(0)).ok()
+                stmt.query_row([], |row| row.get(0))?
             };
 
             // Calculate success and failure rates
@@ -413,208 +341,193 @@ impl TransitionQuery {
                 stmt.query_row([], |row| row.get(0))?
             };
 
-            Ok((total, by_type, by_status, by_source_plane, by_target_plane, avg_duration, completed, failed))
-        }).await.map_err(anyhow::Error::from)?;
+            let success_rate = if total > 0 {
+                (completed as f64 / total as f64) * 100.0
+            } else {
+                0.0
+            };
 
-        let (total, by_type, by_status, by_source_plane, by_target_plane, avg_duration, completed, failed) = result?;
+            let failure_rate = if total > 0 {
+                (failed as f64 / total as f64) * 100.0
+            } else {
+                0.0
+            };
 
-        let success_rate = if total > 0 {
-            (completed as f64 / total as f64) * 100.0
-        } else {
-            0.0
-        };
-
-        let failure_rate = if total > 0 {
-            (failed as f64 / total as f64) * 100.0
-        } else {
-            0.0
-        };
-
-        Ok(TransitionStats {
-            total_transitions: total,
-            by_type,
-            by_status,
-            by_source_plane,
-            by_target_plane,
-            average_duration_seconds: avg_duration,
-            success_rate,
-            failure_rate,
-        })
+            Ok::<_, rusqlite::Error>(TransitionStats {
+                total_transitions: total,
+                by_type,
+                by_status,
+                by_source_plane,
+                by_target_plane,
+                average_duration_seconds: avg_duration,
+                success_rate,
+                failure_rate,
+            })
+        }).await.map_err(anyhow::Error::from)??)
     }
 
     /// Count transitions matching filter
-    async fn count_transitions(&self, filter: &TransitionFilter) -> anyhow::Result<i64> {
-        let conn = Arc::clone(&self.conn);
-        let filter_clone = filter.clone();
+    fn count_transitions(&self, filter: &TransitionFilter) -> Result<i64, rusqlite::Error> {
+        let conn = self.conn.blocking_lock();
         
-        let result: Result<i64, anyhow::Error> = task::spawn_blocking(move || {
-            let conn = conn.blocking_lock();
-            
-            let mut sql = "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1".to_string();
-            let mut params_vec: Vec<String> = Vec::new();
-            
-            if let Some(ref transition_type) = filter_clone.transition_type {
-                sql.push_str(" AND type = ?");
-                params_vec.push(transition_type.as_str().to_string());
-            }
+        let mut sql = "SELECT COUNT(*) as total FROM plane_transition WHERE 1=1".to_string();
+        let mut params_vec = Vec::new();
 
-            if let Some(ref source_plane) = filter_clone.source_plane {
-                sql.push_str(" AND source_plane = ?");
-                params_vec.push(source_plane.clone());
-            }
+        if let Some(ref transition_type) = filter.transition_type {
+            sql.push_str(" AND type = ?");
+            params_vec.push(transition_type.as_str().to_string());
+        }
 
-            if let Some(ref target_plane) = filter_clone.target_plane {
-                sql.push_str(" AND target_plane = ?");
-                params_vec.push(target_plane.clone());
-            }
+        if let Some(ref source_plane) = filter.source_plane {
+            sql.push_str(" AND source_plane = ?");
+            params_vec.push(source_plane.clone());
+        }
 
-            if let Some(ref status) = filter_clone.status {
-                sql.push_str(" AND status = ?");
-                params_vec.push(status.as_str().to_string());
-            }
+        if let Some(ref target_plane) = filter.target_plane {
+            sql.push_str(" AND target_plane = ?");
+            params_vec.push(target_plane.clone());
+        }
 
-            if let Some(ref initiated_by) = filter_clone.initiated_by {
-                sql.push_str(" AND initiated_by = ?");
-                params_vec.push(initiated_by.clone());
-            }
+        if let Some(ref status) = filter.status {
+            sql.push_str(" AND status = ?");
+            params_vec.push(status.as_str().to_string());
+        }
 
-            if let Some(ref date_from) = filter_clone.date_from {
-                sql.push_str(" AND created_at >= ?");
-                params_vec.push(date_from.to_rfc3339());
-            }
+        if let Some(ref initiated_by) = filter.initiated_by {
+            sql.push_str(" AND initiated_by = ?");
+            params_vec.push(initiated_by.clone());
+        }
 
-            if let Some(ref date_to) = filter_clone.date_to {
-                sql.push_str(" AND created_at <= ?");
-                params_vec.push(date_to.to_rfc3339());
-            }
+        if let Some(ref date_from) = filter.date_from {
+            sql.push_str(" AND created_at >= ?");
+            params_vec.push(date_from.to_rfc3339());
+        }
 
-            let mut stmt = conn.prepare(&sql)?;
-            let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
-            let total: i64 = stmt.query_row(params_from_iter(params_refs), |row| row.get(0))?;
-            
-            Ok(total)
-        }).await.map_err(anyhow::Error::from)?;
-        
-        result
+        if let Some(ref date_to) = filter.date_to {
+            sql.push_str(" AND created_at <= ?");
+            params_vec.push(date_to.to_rfc3339());
+        }
+
+        let mut stmt = conn.prepare(&sql)?;
+        let param_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|s| s as &dyn rusqlite::ToSql).collect();
+        let total: i64 = stmt.query_row(param_refs.as_slice(), |row| row.get(0))?;
+
+        Ok(total)
     }
 
-    /// Convert database row data to TransitionRecord
-    fn row_data_to_transition_record(
-        &self,
-        row_data: &TransitionRowData,
-    ) -> anyhow::Result<TransitionRecord> {
-        let (
-            id, created_at_str, type_str, source_plane, target_plane,
-            source_version, target_version, status_str, started_at_str,
-            completed_at_str, duration_seconds, pre_checks_json, post_checks_json,
-            validation_status_str, artifacts_transferred_json, outcome,
-            error_message, rollback_reason, initiated_by, approved_by,
-            metadata_json, before_state_json, after_state_json
-        ) = row_data;
+    /// Convert database row to TransitionRecord (static version)
+    fn row_to_transition_record_static(
+        row: &rusqlite::Row,
+    ) -> Result<TransitionRecord, rusqlite::Error> {
+        let before_state_json: String = row.get(21)?;
+        let before_state: super::transition_logger::PlaneState = serde_json::from_str(&before_state_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(21, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let before_state: super::transition_logger::PlaneState = serde_json::from_str(before_state_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
-
-        let after_state: Option<super::transition_logger::PlaneState> = after_state_json
-            .as_ref()
+        let after_state: Option<super::transition_logger::PlaneState> = row.get::<_, Option<String>>(22)?
             .map(|json| {
-                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(22, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
-        let pre_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(pre_checks_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
+        let pre_checks_json: String = row.get(10)?;
+        let pre_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(&pre_checks_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(10, rusqlite::types::Type::Text, Box::new(e)))?;
 
-        let post_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(post_checks_json)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?;
+        let post_checks_json: String = row.get(11)?;
+        let post_checks: Vec<super::transition_logger::CheckResult> = serde_json::from_str(&post_checks_json)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(11, rusqlite::types::Type::Text, Box::new(e)))?;
 
+        let type_str: String = row.get(2)?;
         let transition_type = match type_str.as_str() {
-            "promotion" => TransitionType::Promotion,
-            "rollback" => TransitionType::Rollback,
-            "migration" => TransitionType::Migration,
-            "failover" => TransitionType::Failover,
-            _ => return Err(anyhow::anyhow!("Invalid transition type: {}", type_str)),
+            "promotion" => super::transition_logger::TransitionType::Promotion,
+            "rollback" => super::transition_logger::TransitionType::Rollback,
+            "migration" => super::transition_logger::TransitionType::Migration,
+            "failover" => super::transition_logger::TransitionType::Failover,
+            _ => return Err(rusqlite::Error::InvalidColumnType(2, "Invalid transition type".to_string(), rusqlite::types::Type::Text)),
         };
 
+        let status_str: String = row.get(7)?;
         let status = match status_str.as_str() {
-            "pending" => TransitionStatus::Pending,
-            "preparing" => TransitionStatus::Preparing,
-            "in_progress" => TransitionStatus::InProgress,
-            "validating" => TransitionStatus::Validating,
-            "completed" => TransitionStatus::Completed,
-            "failed" => TransitionStatus::Failed,
-            "rolled_back" => TransitionStatus::RolledBack,
-            _ => return Err(anyhow::anyhow!("Invalid transition status: {}", status_str)),
+            "pending" => super::transition_logger::TransitionStatus::Pending,
+            "preparing" => super::transition_logger::TransitionStatus::Preparing,
+            "in_progress" => super::transition_logger::TransitionStatus::InProgress,
+            "validating" => super::transition_logger::TransitionStatus::Validating,
+            "completed" => super::transition_logger::TransitionStatus::Completed,
+            "failed" => super::transition_logger::TransitionStatus::Failed,
+            "rolled_back" => super::transition_logger::TransitionStatus::RolledBack,
+            _ => return Err(rusqlite::Error::InvalidColumnType(7, "Invalid transition status".to_string(), rusqlite::types::Type::Text)),
         };
 
-        let validation_status = validation_status_str.as_ref().map(|s| match s.as_str() {
+        let validation_status: Option<String> = row.get(13)?;
+        let validation_status = validation_status.map(|s| match s.as_str() {
             "passed" => super::transition_logger::ValidationStatus::Passed,
             "failed" => super::transition_logger::ValidationStatus::Failed,
             "skipped" => super::transition_logger::ValidationStatus::Skipped,
             _ => super::transition_logger::ValidationStatus::Skipped,
         });
 
-        let created_at = DateTime::parse_from_rfc3339(created_at_str)
-            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))?
+        let created_at_str: String = row.get(1)?;
+        let created_at = DateTime::parse_from_rfc3339(&created_at_str)
+            .map_err(|e| rusqlite::Error::FromSqlConversionFailure(1, rusqlite::types::Type::Text, Box::new(e)))?
             .with_timezone(&Utc);
 
-        let started_at = started_at_str
-            .as_ref()
+        let started_at: Option<String> = row.get(8)?;
+        let started_at = started_at
             .map(|s| {
-                DateTime::parse_from_rfc3339(s)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                DateTime::parse_from_rfc3339(&s)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(8, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let completed_at = completed_at_str
-            .as_ref()
+        let completed_at: Option<String> = row.get(9)?;
+        let completed_at = completed_at
             .map(|s| {
-                DateTime::parse_from_rfc3339(s)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                DateTime::parse_from_rfc3339(&s)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(9, rusqlite::types::Type::Text, Box::new(e)))
                     .map(|dt| dt.with_timezone(&Utc))
             })
             .transpose()?;
 
-        let artifacts_transferred: Vec<String> = artifacts_transferred_json
-            .as_ref()
+        let artifacts_transferred: Option<String> = row.get(14)?;
+        let artifacts_transferred: Vec<String> = artifacts_transferred
             .map(|json| {
-                serde_json::from_str(json)
-                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                serde_json::from_str(&json)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(14, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?
             .unwrap_or_default();
 
-        let metadata = metadata_json
-            .as_ref()
+        let metadata: Option<String> = row.get(20)?;
+        let metadata = metadata
             .map(|json| {
-                serde_json::from_str(json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e)))
+                serde_json::from_str(&json).map_err(|e| rusqlite::Error::FromSqlConversionFailure(20, rusqlite::types::Type::Text, Box::new(e)))
             })
             .transpose()?;
 
         Ok(TransitionRecord {
-            id: id.clone(),
+            id: row.get(0)?,
             created_at,
             transition_type,
-            source_plane: source_plane.clone(),
-            target_plane: target_plane.clone(),
-            source_version: source_version.clone(),
-            target_version: target_version.clone(),
+            source_plane: row.get(3)?,
+            target_plane: row.get(4)?,
+            source_version: row.get(5)?,
+            target_version: row.get(6)?,
             status,
             started_at,
             completed_at,
-            duration_seconds: *duration_seconds,
+            duration_seconds: row.get(10)?,
             before_state,
             after_state,
             pre_checks,
             post_checks,
             validation_status,
             artifacts_transferred,
-            outcome: outcome.clone(),
-            error_message: error_message.clone(),
-            rollback_reason: rollback_reason.clone(),
-            initiated_by: initiated_by.clone(),
-            approved_by: approved_by.clone(),
+            outcome: row.get(15)?,
+            error_message: row.get(16)?,
+            rollback_reason: row.get(17)?,
+            initiated_by: row.get(18)?,
+            approved_by: row.get(19)?,
             metadata,
         })
     }
