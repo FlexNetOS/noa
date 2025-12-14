@@ -4,6 +4,7 @@
 //! US2: Pool GPU memory across multiple devices
 
 use crate::error::Result;
+use crate::neural::cuda_devices::CudaDevice;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -31,12 +32,7 @@ impl GpuMemoryPool {
     }
 
     /// Initialize memory pool for a device
-    pub async fn initialize_pool(
-        &self,
-        device_id: u32,
-        total_memory_bytes: u64,
-        chunk_size_bytes: u64,
-    ) -> Result<()> {
+    pub async fn initialize_pool(&self, device_id: u32, total_memory_bytes: u64, chunk_size_bytes: u64) -> Result<()> {
         let mut pools = self.pools.write().await;
         let chunk_count = (total_memory_bytes / chunk_size_bytes) as usize;
 
@@ -54,17 +50,12 @@ impl GpuMemoryPool {
     }
 
     /// Allocate memory from pool
-    pub async fn allocate(
-        &self,
-        device_id: u32,
-        size_bytes: u64,
-    ) -> Result<Option<MemoryAllocation>> {
+    pub async fn allocate(&self, device_id: u32, size_bytes: u64) -> Result<Option<MemoryAllocation>> {
         let mut pools = self.pools.write().await;
 
         if let Some(entries) = pools.get_mut(&device_id) {
             // Find contiguous chunks that can satisfy the request
-            let chunks_needed =
-                ((size_bytes as f64 / entries[0].size_bytes as f64).ceil()) as usize;
+            let chunks_needed = ((size_bytes as f64 / entries[0].size_bytes as f64).ceil()) as usize;
 
             let mut start_index = None;
             let mut contiguous_count = 0;
@@ -190,3 +181,4 @@ mod tests {
         }
     }
 }
+

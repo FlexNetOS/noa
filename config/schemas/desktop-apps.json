@@ -4,40 +4,11 @@
     "title": "NOA Desktop Applications",
     "description": "Schema for desktop application containment and launcher configuration",
     "type": "object",
-    "required": ["metadata", "apps"],
+    "required": ["version", "apps"],
     "properties": {
-        "$schema": {
-            "type": "string"
-        },
-        "metadata": {
-            "type": "object",
-            "description": "Standard metadata for configuration",
-            "properties": {
-                "version": {
-                    "type": "string",
-                    "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$",
-                    "description": "Semantic version of the configuration"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Creation timestamp (ISO8601)"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Last modification timestamp"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator identity (user or agent)"
-                },
-                "description": {
-                    "type": "string",
-                    "description": "Human-readable description"
-                }
-            },
-            "required": ["version"]
+        "version": {
+            "type": "string",
+            "description": "Semantic version of this config"
         },
         "proxy": {
             "type": "object",

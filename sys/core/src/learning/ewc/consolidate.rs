@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// EWC configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EwcConfig {
-    pub lambda: f64,       // EWC penalty weight
+    pub lambda: f64, // EWC penalty weight
     pub fisher_decay: f64, // Decay factor for Fisher Information
 }
 
@@ -41,10 +41,7 @@ impl EwcTrainer {
     }
 
     /// Compute EWC penalty for loss
-    pub fn compute_ewc_penalty(
-        &self,
-        current_parameters: &std::collections::HashMap<String, f64>,
-    ) -> f64 {
+    pub fn compute_ewc_penalty(&self, current_parameters: &std::collections::HashMap<String, f64>) -> f64 {
         let mut penalty = 0.0;
 
         for (param_name, &current_value) in current_parameters {
@@ -85,3 +82,4 @@ mod tests {
         assert!(penalty >= 0.0);
     }
 }
+

@@ -4,13 +4,14 @@
 //! §3.2: Local-First & Offline-Capable
 //! US2: Inference engine for neural runtime
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use crate::neural::context::{InferenceContext, MessageRole};
 use crate::neural::llama_backend::LlamaBackend;
-use futures::{Stream, StreamExt};
-use noa_neural::llama::CompletionRequest;
+use noa_neural::llama::{CompletionRequest, CompletionResponse};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use tokio::sync::RwLock;
+use futures::Stream;
 use uuid::Uuid;
 
 /// Inference request
@@ -65,10 +66,11 @@ impl InferenceEngine {
         // Get or create context
         let mut context = if let Some(context_id) = request.context_id {
             let contexts = self.contexts.read().await;
-            contexts.get_context(&context_id).await.ok_or_else(|| NoaError::NotFound {
-                resource: "InferenceContext".to_string(),
-                id: context_id.to_string(),
-            })?
+            contexts.get_context(&context_id).await
+                .ok_or_else(|| NoaError::NotFound {
+                    resource: "InferenceContext".to_string(),
+                    id: context_id.to_string(),
+                })?
         } else {
             InferenceContext::new(request.model_id.clone(), 2048)
         };
@@ -90,10 +92,10 @@ impl InferenceEngine {
         };
 
         // Execute inference
-        let completion_response =
-            client.complete(completion_request).await.map_err(|e| NoaError::Internal {
+        let completion_response = client.complete(completion_request).await
+            .map_err(|e| NoaError::Internal {
                 message: format!("Inference failed: {}", e),
-                source: None,
+                source: Some(Box::new(e)),
             })?;
 
         // Estimate tokens (rough approximation: 1 token ≈ 4 characters)
@@ -102,14 +104,10 @@ impl InferenceEngine {
 
         // Update context with user message and response
         context.add_message(MessageRole::User, request.prompt, prompt_tokens)?;
-        context.add_message(
-            MessageRole::Assistant,
-            completion_response.content.clone(),
-            response_tokens,
-        )?;
+        context.add_message(MessageRole::Assistant, completion_response.content.clone(), response_tokens)?;
 
         // Save context if it was provided
-        if let Some(_context_id) = request.context_id {
+        if let Some(context_id) = request.context_id {
             let contexts = self.contexts.write().await;
             contexts.update_context(context).await?;
         }
@@ -138,7 +136,7 @@ impl InferenceEngine {
         });
 
         // Use futures::stream::once for single-item stream
-        Ok(futures::stream::once(async move { chunk }).boxed())
+        Ok(futures::stream::once(async move { chunk }))
     }
 
     /// Create a new inference context
@@ -159,3 +157,4 @@ impl InferenceEngine {
         contexts.delete_context(context_id).await;
     }
 }
+

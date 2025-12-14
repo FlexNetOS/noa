@@ -4,11 +4,11 @@
 //! FR-074: System MUST automatically apply fixes based on root cause analysis
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use crate::healing::anomaly::Anomaly;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::info;
+use tracing::{info, warn};
 
 /// Fix type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -95,8 +95,7 @@ impl AutoFixExecutor {
 
         if root_cause_lower.contains("resource") || root_cause_lower.contains("exhaustion") {
             "restart".to_string()
-        } else if root_cause_lower.contains("config") || root_cause_lower.contains("configuration")
-        {
+        } else if root_cause_lower.contains("config") || root_cause_lower.contains("configuration") {
             "reconfigure".to_string()
         } else if root_cause_lower.contains("dependency") || root_cause_lower.contains("service") {
             "redistribute".to_string()
@@ -112,22 +111,32 @@ impl AutoFixExecutor {
     /// Register default fix handlers
     fn register_default_handlers(&mut self) {
         // Restart handler
-        self.fix_handlers.insert("restart".to_string(), Box::new(RestartFixHandler));
+        self.fix_handlers.insert(
+            "restart".to_string(),
+            Box::new(RestartFixHandler),
+        );
 
         // Reconfigure handler
-        self.fix_handlers
-            .insert("reconfigure".to_string(), Box::new(ReconfigureFixHandler));
+        self.fix_handlers.insert(
+            "reconfigure".to_string(),
+            Box::new(ReconfigureFixHandler),
+        );
 
         // Rollback handler
-        self.fix_handlers.insert("rollback".to_string(), Box::new(RollbackFixHandler));
+        self.fix_handlers.insert(
+            "rollback".to_string(),
+            Box::new(RollbackFixHandler),
+        );
 
         // Redistribute handler
-        self.fix_handlers
-            .insert("redistribute".to_string(), Box::new(RedistributeFixHandler));
+        self.fix_handlers.insert(
+            "redistribute".to_string(),
+            Box::new(RedistributeFixHandler),
+        );
     }
 
     /// Execute restart fix
-    async fn execute_restart(&self, component_id: &str, _context: &FixContext) -> Result<FixResult> {
+    async fn execute_restart(&self, component_id: &str, context: &FixContext) -> Result<FixResult> {
         let start = std::time::Instant::now();
 
         info!(component_id = %component_id, "Executing restart fix");
@@ -278,3 +287,4 @@ mod tests {
         assert_eq!(fix_type, "restart");
     }
 }
+

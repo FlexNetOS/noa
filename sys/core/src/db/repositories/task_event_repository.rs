@@ -1,4 +1,5 @@
 //! Task event repository (Phase 9 - T261)
+use crate::db::repository::Repository;
 use crate::error::{DatabaseError, NoaError, Result};
 use rusqlite::{params, Connection};
 
@@ -44,21 +45,15 @@ impl<'a> TaskEventRepository<'a> {
                 })
             })
             .map_err(to_db_err("query task events"))?;
-        let events = rows
-            .collect::<std::result::Result<Vec<_>, _>>()
-            .map_err(to_db_err("map task events"))?;
-        Ok(events)
+        Ok(rows.filter_map(Result::ok).collect())
     }
 }
 
 fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
-    move |err| {
-        NoaError::Database(DatabaseError::QueryFailed {
-            query: context.into(),
-            error: err.to_string(),
-        })
-    }
+    move |err| NoaError::Database(DatabaseError::QueryFailed {
+        query: context.into(),
+        error: err.to_string(),
+    })
 }
 
-// TODO: Implement Repository trait when needed
-// impl<'a> Repository<TaskEvent, i64> for TaskEventRepository<'a> {}
+impl<'a> Repository for TaskEventRepository<'a> {}

@@ -4,7 +4,7 @@
 //! FR-074: System MUST retry fixes up to 3 times before escalating
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::Result;
+use crate::error::{NoaError, Result};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -128,3 +128,4 @@ mod tests {
         assert_eq!(counter.get_count(&event_id).await, 0);
     }
 }
+

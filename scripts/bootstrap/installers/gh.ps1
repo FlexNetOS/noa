@@ -59,19 +59,13 @@ function Test-GhInstalled {
     return Test-Path $ghBin
 }
 
-# Check if portable gh is already installed
-if ((Test-GhInstalled) -and -not $Force) {
-    Write-Log "Portable GitHub CLI already installed in noa_root" -Level Success
-    exit 0
-}
-
-# Check if system gh is available (informational only)
+# Check if system gh is available
 $systemGh = Get-Command gh -ErrorAction SilentlyContinue
 if ($systemGh -and -not $Force) {
     $version = & gh --version 2>&1 | Select-Object -First 1
-    Write-Log "System GitHub CLI available: $version" -Level Info
-    Write-Log "Installing portable version to noa_root for §3.1 compliance..." -Level Info
-    # Continue with installation instead of exiting
+    Write-Log "GitHub CLI already available (system): $version" -Level Success
+    Write-Log "Use -Force to install portable version to noa_root" -Level Info
+    exit 0
 }
 
 Write-Host ""
@@ -127,46 +121,20 @@ if ($nestedDir) {
     if (-not (Test-Path $GhRoot)) {
         New-Item -ItemType Directory -Path $GhRoot -Force | Out-Null
     }
-    # Copy all contents from nested directory
-    Get-ChildItem -Path $nestedDir.FullName | ForEach-Object {
-        Copy-Item -Path $_.FullName -Destination $GhRoot -Recurse -Force
-    }
-    Remove-Item -Path $extractDir -Recurse -Force
-} else {
-    # No nested directory, files are at root of extract
-    if (-not (Test-Path $GhRoot)) {
-        New-Item -ItemType Directory -Path $GhRoot -Force | Out-Null
-    }
-    Get-ChildItem -Path $extractDir | ForEach-Object {
-        Copy-Item -Path $_.FullName -Destination $GhRoot -Recurse -Force
-    }
+    Copy-Item -Path "$($nestedDir.FullName)\*" -Destination $GhRoot -Recurse -Force
     Remove-Item -Path $extractDir -Recurse -Force
 }
 Write-Log "Extracted GitHub CLI successfully" -Level Success
 
-# Verify - check both bin/gh.exe and gh.exe at root
+# Verify
 $ghBin = Join-Path $GhRoot "bin/gh.exe"
-if (-not (Test-Path $ghBin)) {
-    $ghBin = Join-Path $GhRoot "gh.exe"
-}
 if (Test-Path $ghBin) {
     $version = & $ghBin --version 2>&1 | Select-Object -First 1
     Write-Log "Installed: $version" -Level Success
 
-    # Create symlink in bin/ (preferred) or copy if symlink fails
-    $binGh = Join-Path $BinDir "gh.exe"
-    $absGhBin = (Resolve-Path $ghBin).Path
-    try {
-        if (Test-Path $binGh) {
-            Remove-Item $binGh -Force -ErrorAction SilentlyContinue
-        }
-        New-Item -ItemType SymbolicLink -Path $binGh -Target $absGhBin -Force | Out-Null
-        Write-Log "Created symlink: bin/gh.exe -> $absGhBin" -Level Success
-    } catch {
-        # Fallback to copy if symlink creation fails (permissions, etc.)
-        Copy-Item -Path $ghBin -Destination $binGh -Force
-        Write-Log "Copied to bin/gh.exe (symlink failed)" -Level Warning
-    }
+    # Copy to bin/
+    Copy-Item -Path $ghBin -Destination (Join-Path $BinDir "gh.exe") -Force
+    Write-Log "Copied to bin/gh.exe" -Level Success
 } else {
     Write-Log "gh binary not found after extraction" -Level Error
     exit 1

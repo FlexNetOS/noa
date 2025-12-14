@@ -6,7 +6,7 @@
 
 use crate::error::{NoaError, Result};
 use crate::healing::anomaly::Anomaly;
-use crate::healing::monitor::ComponentHealthSnapshot;
+use crate::healing::monitor::{ComponentHealthSnapshot, HealthMetric};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tracing::{debug, info};
@@ -121,8 +121,7 @@ impl RootCauseAnalyzer {
                 "Root cause identified"
             );
 
-            Ok(serde_json::to_string(&root_cause)
-                .map_err(|e| NoaError::Serialization(e.to_string()))?)
+            Ok(serde_json::to_string(&root_cause).map_err(|e| NoaError::Serialization(e.to_string()))?)
         } else {
             // Default: unknown root cause
             let root_cause = RootCause {
@@ -135,8 +134,7 @@ impl RootCauseAnalyzer {
                 metadata: HashMap::new(),
             };
 
-            Ok(serde_json::to_string(&root_cause)
-                .map_err(|e| NoaError::Serialization(e.to_string()))?)
+            Ok(serde_json::to_string(&root_cause).map_err(|e| NoaError::Serialization(e.to_string()))?)
         }
     }
 
@@ -205,15 +203,12 @@ impl RootCauseAnalyzer {
     fn collect_evidence(
         &self,
         anomaly: &Anomaly,
-        _snapshots: &[ComponentHealthSnapshot],
+        snapshots: &[ComponentHealthSnapshot],
     ) -> Vec<String> {
         let mut evidence = Vec::new();
         evidence.push(format!("Anomaly: {}", anomaly.description));
         evidence.push(format!("Component: {}", anomaly.component_id));
-        evidence.push(format!(
-            "Metric: {} = {}",
-            anomaly.metric_type, anomaly.current_value
-        ));
+        evidence.push(format!("Metric: {} = {}", anomaly.metric_type, anomaly.current_value));
         evidence
     }
 
@@ -296,62 +291,67 @@ impl RootCauseAnalyzer {
         // Resource exhaustion patterns
         self.knowledge_base.insert(
             "resource_exhaustion".to_string(),
-            vec![RootCausePattern {
-                category: RootCauseCategory::ResourceExhaustion,
-                indicators: vec![
-                    Indicator {
-                        metric_type: "CpuUsage".to_string(),
-                        condition: Condition::AboveThreshold(95.0),
-                    },
-                    Indicator {
-                        metric_type: "MemoryUsage".to_string(),
-                        condition: Condition::AboveThreshold(95.0),
-                    },
-                ],
-                confidence: 0.9,
-                description_template: "Resource exhaustion: CPU or memory usage critically high"
-                    .to_string(),
-            }],
+            vec![
+                RootCausePattern {
+                    category: RootCauseCategory::ResourceExhaustion,
+                    indicators: vec![
+                        Indicator {
+                            metric_type: "CpuUsage".to_string(),
+                            condition: Condition::AboveThreshold(95.0),
+                        },
+                        Indicator {
+                            metric_type: "MemoryUsage".to_string(),
+                            condition: Condition::AboveThreshold(95.0),
+                        },
+                    ],
+                    confidence: 0.9,
+                    description_template: "Resource exhaustion: CPU or memory usage critically high".to_string(),
+                },
+            ],
         );
 
         // Database issue patterns
         self.knowledge_base.insert(
             "database_issue".to_string(),
-            vec![RootCausePattern {
-                category: RootCauseCategory::DatabaseIssue,
-                indicators: vec![
-                    Indicator {
-                        metric_type: "DatabaseHealth".to_string(),
-                        condition: Condition::BelowThreshold(0.5),
-                    },
-                    Indicator {
-                        metric_type: "ConnectionPool".to_string(),
-                        condition: Condition::BelowThreshold(0.1),
-                    },
-                ],
-                confidence: 0.85,
-                description_template: "Database connectivity or health issue detected".to_string(),
-            }],
+            vec![
+                RootCausePattern {
+                    category: RootCauseCategory::DatabaseIssue,
+                    indicators: vec![
+                        Indicator {
+                            metric_type: "DatabaseHealth".to_string(),
+                            condition: Condition::BelowThreshold(0.5),
+                        },
+                        Indicator {
+                            metric_type: "ConnectionPool".to_string(),
+                            condition: Condition::BelowThreshold(0.1),
+                        },
+                    ],
+                    confidence: 0.85,
+                    description_template: "Database connectivity or health issue detected".to_string(),
+                },
+            ],
         );
 
         // Service failure patterns
         self.knowledge_base.insert(
             "service_failure".to_string(),
-            vec![RootCausePattern {
-                category: RootCauseCategory::ServiceFailure,
-                indicators: vec![
-                    Indicator {
-                        metric_type: "ServiceHealth".to_string(),
-                        condition: Condition::Zero,
-                    },
-                    Indicator {
-                        metric_type: "ErrorRate".to_string(),
-                        condition: Condition::Spike,
-                    },
-                ],
-                confidence: 0.8,
-                description_template: "Service failure or high error rate detected".to_string(),
-            }],
+            vec![
+                RootCausePattern {
+                    category: RootCauseCategory::ServiceFailure,
+                    indicators: vec![
+                        Indicator {
+                            metric_type: "ServiceHealth".to_string(),
+                            condition: Condition::Zero,
+                        },
+                        Indicator {
+                            metric_type: "ErrorRate".to_string(),
+                            condition: Condition::Spike,
+                        },
+                    ],
+                    confidence: 0.8,
+                    description_template: "Service failure or high error rate detected".to_string(),
+                },
+            ],
         );
     }
 }
@@ -379,3 +379,4 @@ mod tests {
         assert!(!fixes.is_empty());
     }
 }
+

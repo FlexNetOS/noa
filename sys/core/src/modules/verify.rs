@@ -1,7 +1,7 @@
 use crate::error::Result;
 use sha2::{Digest, Sha256};
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read};
 use std::path::Path;
 
 /// Verify that the artifact at `path` matches the expected SHA-256 hash.

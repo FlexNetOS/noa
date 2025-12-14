@@ -3,6 +3,7 @@
 //! T137: Implement embedding cache (model_version + input_hash + params_hash)
 //! §3.7: Total Memory Sovereignty
 
+use crate::error::Result;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, VecDeque};
 use std::sync::RwLock;
@@ -22,7 +23,7 @@ impl EmbeddingCache {
             cache: RwLock::new(HashMap::new()),
             access_order: RwLock::new(VecDeque::new()),
             model_version: "all-MiniLM-L6-v2".to_string(), // Default model
-            max_size: 10000,                               // Default max size
+            max_size: 10000, // Default max size
         }
     }
 
@@ -118,3 +119,4 @@ impl Default for EmbeddingCache {
         Self::new()
     }
 }
+

@@ -1,7 +1,7 @@
 {
   "name": "vscode-copilot",
   "type": "ide",
-  "priority": 6,
+  "priority": 5,
   "enabled": true,
   "description": "VS Code with GitHub Copilot - AI-powered inline code completion and chat",
   "installMethod": "portable",
@@ -30,23 +30,13 @@
   "modes": {
     "ide": {
       "description": "Full IDE with Copilot inline completions",
-      "features": [
-        "code_completion",
-        "chat",
-        "code_actions",
-        "inline_suggestions"
-      ],
+      "features": ["code_completion", "chat", "code_actions", "inline_suggestions"],
       "documentation": "https://docs.github.com/copilot"
     },
     "cli": {
       "description": "VS Code CLI for automation",
       "command": "code",
-      "flags": [
-        "--install-extension",
-        "--list-extensions",
-        "--diff",
-        "--goto"
-      ]
+      "flags": ["--install-extension", "--list-extensions", "--diff", "--goto"]
     }
   },
   "capabilities": {
@@ -84,11 +74,6 @@
     "tools": "${NOA_ROOT}/ai/shared/tools",
     "commands": "${NOA_ROOT}/ai/shared/commands",
     "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
-  },
-  "systemPrompts": {
-    "enabled": true,
-    "inherit": ["ultrathink"],
-    "promptPath": "${NOA_ROOT}/ai/shared/prompts"
-  },
-  "timeout": 30000
+  }
 }
+

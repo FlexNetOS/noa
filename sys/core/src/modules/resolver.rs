@@ -1,7 +1,7 @@
-use crate::error::{NoaError, Result};
 use crate::modules::registry::ModuleRegistry;
 use crate::modules::types::ModuleMetadata;
-use std::collections::HashSet;
+use crate::error::{Result, NoaError};
+use std::collections::{HashMap, HashSet};
 
 /// Resolve dependencies depth-first and return an ordered list (parents before children).
 pub fn resolve_dependencies(registry: &ModuleRegistry, root: &str) -> Result<Vec<ModuleMetadata>> {
@@ -28,10 +28,7 @@ pub fn resolve_dependencies(registry: &ModuleRegistry, root: &str) -> Result<Vec
         }
 
         let Some(meta) = registry.find_by_name(name)? else {
-            return Err(NoaError::NotFound {
-                resource: "module".into(),
-                id: name.into(),
-            });
+            return Err(NoaError::NotFound { resource: "module".into(), id: name.into() });
         };
 
         for dep in &meta.dependencies {

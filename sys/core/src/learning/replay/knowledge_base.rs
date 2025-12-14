@@ -5,6 +5,8 @@
 
 use crate::error::Result;
 use crate::learning::replay::Experience;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 /// Knowledge base connector
 pub struct KnowledgeBaseConnector {
@@ -18,24 +20,20 @@ impl KnowledgeBaseConnector {
     }
 
     /// Store experience in knowledge base
-    pub async fn store_experience(&self, _experience: &Experience) -> Result<()> {
+    pub async fn store_experience(&self, experience: &Experience) -> Result<()> {
         // TODO: Implement actual knowledge base storage
         // This would connect to vector DB, SQL, etc.
         Ok(())
     }
 
     /// Retrieve similar experiences
-    pub async fn retrieve_similar(
-        &self,
-        _query: &serde_json::Value,
-        _limit: usize,
-    ) -> Result<Vec<Experience>> {
+    pub async fn retrieve_similar(&self, query: &serde_json::Value, limit: usize) -> Result<Vec<Experience>> {
         // TODO: Implement similarity search
         Ok(vec![])
     }
 
     /// Search experiences by metadata
-    pub async fn search(&self, _metadata: &serde_json::Value) -> Result<Vec<Experience>> {
+    pub async fn search(&self, metadata: &serde_json::Value) -> Result<Vec<Experience>> {
         // TODO: Implement metadata search
         Ok(vec![])
     }
@@ -61,3 +59,4 @@ mod tests {
         connector.store_experience(&exp).await.unwrap();
     }
 }
+

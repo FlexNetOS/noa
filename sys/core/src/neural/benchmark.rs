@@ -3,7 +3,7 @@
 //! T116: Implement model benchmarking utility
 //! US2: Model performance benchmarking
 
-use crate::error::{NoaError, Result};
+use crate::error::{Result, NoaError};
 use crate::neural::inference::{InferenceEngine, InferenceRequest};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
@@ -132,3 +132,4 @@ impl Default for ModelBenchmark {
         Self::new()
     }
 }
+

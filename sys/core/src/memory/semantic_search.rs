@@ -27,7 +27,7 @@ impl SemanticSearch {
     /// * `threshold` - Minimum similarity score
     pub async fn search(
         &self,
-        _query_text: Option<&str>,
+        query_text: Option<&str>,
         query_vector: Option<&[f32]>,
         limit: u32,
         threshold: f32,
@@ -44,7 +44,9 @@ impl SemanticSearch {
         })?;
 
         // Perform vector search
-        let results = self.vector_search.search_memory(vector, limit, threshold)?;
+        let results = self
+            .vector_search
+            .search_memory(vector, limit, threshold)?;
 
         // Convert to SearchResult
         Ok(results
@@ -65,3 +67,4 @@ pub struct SearchResult {
     pub score: f32,
     pub distance: f32,
 }
+

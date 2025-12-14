@@ -1,10 +1,10 @@
-pub mod advisory;
-pub mod environment;
-pub mod evolution;
-pub mod healing;
 pub mod knowledge;
 pub mod learning;
-pub mod model_connector;
-pub mod prediction;
+pub mod evolution;
+pub mod environment;
+pub mod healing;
 pub mod strategy;
+pub mod prediction;
+pub mod model_connector;
+pub mod advisory;
 pub mod trace_logger;

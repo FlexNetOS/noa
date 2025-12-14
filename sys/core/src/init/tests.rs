@@ -7,8 +7,6 @@ mod integration_tests {
     use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
     use crate::services::InitService;
     use std::fs;
-    #[cfg(unix)]
-    use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
     use tempfile::TempDir;
 
@@ -25,14 +23,8 @@ mod integration_tests {
         assert!(NoaPaths::p2p(root).exists(), "p2p/ directory not created");
         assert!(NoaPaths::opt(root).exists(), "opt/ directory not created");
         assert!(NoaPaths::init(root).exists(), "init/ directory not created");
-        assert!(
-            NoaPaths::containers(root).exists(),
-            "containers/ directory not created"
-        );
-        assert!(
-            NoaPaths::config(root).exists(),
-            "config/ directory not created"
-        );
+        assert!(NoaPaths::containers(root).exists(), "containers/ directory not created");
+        assert!(NoaPaths::config(root).exists(), "config/ directory not created");
         assert!(NoaPaths::bin(root).exists(), "bin/ directory not created");
         assert!(NoaPaths::ai(root).exists(), "ai/ directory not created");
     }
@@ -58,13 +50,7 @@ mod integration_tests {
                 let metadata = fs::metadata(&dir).unwrap();
                 let permissions = metadata.permissions();
                 let mode = permissions.mode() & 0o777;
-                assert_eq!(
-                    mode,
-                    0o755,
-                    "Directory {} has incorrect permissions: {:o}",
-                    dir.display(),
-                    mode
-                );
+                assert_eq!(mode, 0o755, "Directory {} has incorrect permissions: {:o}", dir.display(), mode);
             }
         }
     }
@@ -126,10 +112,7 @@ mod integration_tests {
         DatabaseInitializer::initialize(root, false).unwrap();
 
         // Verify test file still exists (data preserved)
-        assert!(
-            test_file.exists(),
-            "Data was not preserved on re-initialization"
-        );
+        assert!(test_file.exists(), "Data was not preserved on re-initialization");
         assert_eq!(fs::read_to_string(&test_file).unwrap(), "test data");
     }
 
@@ -147,10 +130,7 @@ mod integration_tests {
 
         // Verify files exist
         let config_path = NoaPaths::config(root).join("ai-providers.json");
-        assert!(
-            config_path.exists(),
-            "Config file should exist before cleanup"
-        );
+        assert!(config_path.exists(), "Config file should exist before cleanup");
 
         // Verify cleanup mechanism exists
         // Note: InitState is private, so we test cleanup indirectly
@@ -159,10 +139,7 @@ mod integration_tests {
 
         // Manual cleanup verification - remove the file to simulate cleanup
         std::fs::remove_file(&config_path).unwrap();
-        assert!(
-            !config_path.exists(),
-            "Config file should be removable (cleanup mechanism verified)"
-        );
+        assert!(!config_path.exists(), "Config file should be removable (cleanup mechanism verified)");
     }
 
     /// Test full initialization workflow
@@ -173,15 +150,9 @@ mod integration_tests {
 
         let result = InitService::initialize(root, false).await.unwrap();
 
-        assert!(
-            result.directories_created > 0,
-            "Directories should be created"
-        );
+        assert!(result.directories_created > 0, "Directories should be created");
         assert!(result.configs_generated > 0, "Configs should be generated");
-        assert!(
-            result.database_initialized,
-            "Database should be initialized"
-        );
+        assert!(result.database_initialized, "Database should be initialized");
         assert!(result.errors.is_empty(), "No errors should occur");
     }
 
@@ -204,3 +175,4 @@ mod integration_tests {
         assert!(verification.errors.is_empty(), "No verification errors");
     }
 }
+

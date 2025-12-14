@@ -2,8 +2,8 @@
 //!
 //! Stops NOA services gracefully.
 
-use std::fs;
 use std::path::PathBuf;
+use std::fs;
 
 use clap::Args;
 use tracing::{info, warn};
@@ -46,9 +46,11 @@ pub async fn execute(args: StopArgs) -> Result<()> {
 
     // Read PID
     let pid_str = fs::read_to_string(&pid_file)?;
-    let pid: u32 = pid_str.trim().parse().map_err(|_| crate::error::NoaError::Internal {
-        message: "Invalid PID file content".to_string(),
-        source: None,
+    let pid: u32 = pid_str.trim().parse().map_err(|_| {
+        crate::error::NoaError::Internal {
+            message: "Invalid PID file content".to_string(),
+            source: None,
+        }
     })?;
 
     println!("Stopping NOA (PID: {})...", pid);
@@ -72,11 +74,7 @@ pub async fn execute(args: StopArgs) -> Result<()> {
 
 /// Gracefully stop a process
 async fn stop_process_graceful(pid: u32, timeout_secs: u64) -> Result<()> {
-    info!(
-        pid = pid,
-        timeout = timeout_secs,
-        "Sending graceful shutdown signal"
-    );
+    info!(pid = pid, timeout = timeout_secs, "Sending graceful shutdown signal");
 
     // Send SIGTERM on Unix, use other mechanisms on Windows
     #[cfg(unix)]
@@ -85,9 +83,11 @@ async fn stop_process_graceful(pid: u32, timeout_secs: u64) -> Result<()> {
         use nix::unistd::Pid;
 
         let pid = Pid::from_raw(pid as i32);
-        kill(pid, Signal::SIGTERM).map_err(|e| crate::error::NoaError::Internal {
-            message: format!("Failed to send SIGTERM: {}", e),
-            source: None,
+        kill(pid, Signal::SIGTERM).map_err(|e| {
+            crate::error::NoaError::Internal {
+                message: format!("Failed to send SIGTERM: {}", e),
+                source: None,
+            }
         })?;
     }
 
@@ -132,9 +132,11 @@ fn stop_process_force(pid: u32) -> Result<()> {
         use nix::unistd::Pid;
 
         let pid = Pid::from_raw(pid as i32);
-        kill(pid, Signal::SIGKILL).map_err(|e| crate::error::NoaError::Internal {
-            message: format!("Failed to send SIGKILL: {}", e),
-            source: None,
+        kill(pid, Signal::SIGKILL).map_err(|e| {
+            crate::error::NoaError::Internal {
+                message: format!("Failed to send SIGKILL: {}", e),
+                source: None,
+            }
         })?;
     }
 
@@ -163,7 +165,7 @@ fn stop_process_force(pid: u32) -> Result<()> {
 fn is_process_running(pid: u32) -> bool {
     #[cfg(unix)]
     {
-        use nix::sys::signal::kill;
+        use nix::sys::signal::{kill, Signal};
         use nix::unistd::Pid;
 
         let pid = Pid::from_raw(pid as i32);
@@ -187,3 +189,4 @@ fn is_process_running(pid: u32) -> bool {
         }
     }
 }
+

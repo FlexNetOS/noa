@@ -253,8 +253,9 @@ impl DeviceRepository {
                 })
             })?;
 
-        let mut rows =
-            stmt.query_map(params![peer_id], |row| self.row_to_device(row)).map_err(|e| {
+        let mut rows = stmt
+            .query_map(params![peer_id], |row| self.row_to_device(row))
+            .map_err(|e| {
                 NoaError::Database(DatabaseError::QueryFailed {
                     query: "SELECT FROM device".to_string(),
                     error: e.to_string(),
@@ -291,12 +292,14 @@ impl DeviceRepository {
                 })
             })?;
 
-        let mut rows = stmt.query_map(params![], |row| self.row_to_device(row)).map_err(|e| {
-            NoaError::Database(DatabaseError::QueryFailed {
-                query: "SELECT FROM device".to_string(),
-                error: e.to_string(),
-            })
-        })?;
+        let mut rows = stmt
+            .query_map(params![], |row| self.row_to_device(row))
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM device".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
         match rows.next() {
             Some(Ok(device)) => Ok(Some(device)),
@@ -327,12 +330,14 @@ impl DeviceRepository {
                 })
             })?;
 
-        let rows = stmt.query_map(params![], |row| self.row_to_device(row)).map_err(|e| {
-            NoaError::Database(DatabaseError::QueryFailed {
-                query: "SELECT FROM device".to_string(),
-                error: e.to_string(),
-            })
-        })?;
+        let rows = stmt
+            .query_map(params![], |row| self.row_to_device(row))
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM device".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
 
         let mut devices = Vec::new();
         for row in rows {
@@ -389,32 +394,24 @@ impl DeviceRepository {
     /// Convert database row to Device
     fn row_to_device(&self, row: &Row) -> rusqlite::Result<Device> {
         let id_str: String = row.get(0)?;
-        let id = Uuid::parse_str(&id_str).map_err(|_e| {
+        let id = Uuid::parse_str(&id_str).map_err(|e| {
             rusqlite::Error::InvalidColumnType(0, "UUID".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let name: String = row.get(1)?;
         let type_str: String = row.get(2)?;
-        let device_type = DeviceType::from_str(&type_str).map_err(|_e| {
-            rusqlite::Error::InvalidColumnType(
-                2,
-                "device_type".to_string(),
-                rusqlite::types::Type::Text,
-            )
+        let device_type = DeviceType::from_str(&type_str).map_err(|e| {
+            rusqlite::Error::InvalidColumnType(2, "device_type".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let platform_str: String = row.get(3)?;
-        let platform = Platform::from_str(&platform_str).map_err(|_e| {
-            rusqlite::Error::InvalidColumnType(
-                3,
-                "platform".to_string(),
-                rusqlite::types::Type::Text,
-            )
+        let platform = Platform::from_str(&platform_str).map_err(|e| {
+            rusqlite::Error::InvalidColumnType(3, "platform".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let peer_id: String = row.get(4)?;
         let status_str: String = row.get(5)?;
-        let status = DeviceStatus::from_str(&status_str).map_err(|_e| {
+        let status = DeviceStatus::from_str(&status_str).map_err(|e| {
             rusqlite::Error::InvalidColumnType(5, "status".to_string(), rusqlite::types::Type::Text)
         })?;
 
@@ -423,11 +420,7 @@ impl DeviceRepository {
             .map(|s| DateTime::parse_from_rfc3339(&s).map(|d| d.with_timezone(&Utc)))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(
-                    6,
-                    "timestamp".to_string(),
-                    rusqlite::types::Type::Text,
-                )
+                rusqlite::Error::InvalidColumnType(6, "timestamp".to_string(), rusqlite::types::Type::Text)
             })?;
 
         let capabilities_json: Option<String> = row.get(7)?;
@@ -435,11 +428,7 @@ impl DeviceRepository {
             .map(|json| serde_json::from_str(&json))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(
-                    7,
-                    "JSON".to_string(),
-                    rusqlite::types::Type::Text,
-                )
+                rusqlite::Error::InvalidColumnType(7, "JSON".to_string(), rusqlite::types::Type::Text)
             })?;
 
         let resources_json: Option<String> = row.get(8)?;
@@ -447,11 +436,7 @@ impl DeviceRepository {
             .map(|json| serde_json::from_str(&json))
             .transpose()
             .map_err(|_| {
-                rusqlite::Error::InvalidColumnType(
-                    8,
-                    "JSON".to_string(),
-                    rusqlite::types::Type::Text,
-                )
+                rusqlite::Error::InvalidColumnType(8, "JSON".to_string(), rusqlite::types::Type::Text)
             })?;
 
         let is_local: i32 = row.get(9)?;
@@ -470,3 +455,4 @@ impl DeviceRepository {
         })
     }
 }
+

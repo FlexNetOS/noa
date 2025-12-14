@@ -57,39 +57,6 @@ You are reviewing {{language}} code.
 2. **Task Prompts** - Instructions for specific tasks
 3. **Template Prompts** - Reusable prompts with variable substitution
 
-### System Prompt Injection
-
-System prompts can be automatically injected into provider contexts:
-
-| Frontmatter Field | Description |
-|-------------------|-------------|
-| `type: system` | Marks as a system prompt |
-| `inject: always` | Always inject (e.g., `ultrathink.md`) |
-| `inject: on-demand` | Inject based on triggers |
-| `priority: 1` | Lower = higher precedence |
-| `providers: ["all"]` | Which providers receive this prompt |
-
-**Example frontmatter:**
-```yaml
----
-name: ultrathink
-version: "1.0.0"
-type: system
-providers: ["all"]
-inject: always
-priority: 1
----
-```
-
-Provider configs inherit system prompts via:
-```json
-"systemPrompts": {
-  "enabled": true,
-  "inherit": ["ultrathink"],
-  "promptPath": "${NOA_ROOT}/ai/shared/prompts"
-}
-```
-
 ## Variable Substitution
 
 Prompts support Handlebars-style templating:

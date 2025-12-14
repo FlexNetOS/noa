@@ -5,15 +5,14 @@
 //! FR-001: Self-contained operation within noa_root
 
 use std::collections::HashMap;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::error::{ConfigError, NoaError, Result};
 
-mod lineage;
 mod loader;
 mod validator;
 
-pub use lineage::{ChangeType, ConfigLineage, LineageTracker};
 pub use loader::ConfigLoader;
 pub use validator::ConfigValidator;
 
@@ -173,11 +172,7 @@ pub struct ProviderConfig {
 impl Default for ProviderConfig {
     fn default() -> Self {
         Self {
-            priority: vec![
-                "local".to_string(),
-                "hybrid".to_string(),
-                "cloud".to_string(),
-            ],
+            priority: vec!["local".to_string(), "hybrid".to_string(), "cloud".to_string()],
             providers: HashMap::new(),
         }
     }
@@ -215,9 +210,11 @@ impl NoaConfig {
         }
 
         // Check for .noa-env marker file in current directory and parents
-        let mut current = std::env::current_dir().map_err(|e| NoaError::Internal {
-            message: "Failed to get current directory".to_string(),
-            source: Some(Box::new(e)),
+        let mut current = std::env::current_dir().map_err(|e| {
+            NoaError::Internal {
+                message: "Failed to get current directory".to_string(),
+                source: Some(Box::new(e)),
+            }
         })?;
 
         loop {
@@ -233,8 +230,7 @@ impl NoaConfig {
 
         Err(ConfigError::MissingRequired(
             "NOA_ROOT environment variable or .noa-env marker file".to_string(),
-        )
-        .into())
+        ).into())
     }
 
     /// Get a configuration value by path (dot-separated)
@@ -279,14 +275,8 @@ mod tests {
 
     #[test]
     fn test_environment_parsing() {
-        assert_eq!(
-            "development".parse::<Environment>().unwrap(),
-            Environment::Development
-        );
-        assert_eq!(
-            "prod".parse::<Environment>().unwrap(),
-            Environment::Production
-        );
+        assert_eq!("development".parse::<Environment>().unwrap(), Environment::Development);
+        assert_eq!("prod".parse::<Environment>().unwrap(), Environment::Production);
     }
 
     #[test]
@@ -303,3 +293,4 @@ mod tests {
         std::env::remove_var("TEST_VAR");
     }
 }
+
