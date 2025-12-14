@@ -5,8 +5,8 @@
 //! §3.7: Total Memory Sovereignty
 
 use crate::error::Result;
-use crate::memory::cache::EmbeddingCache;
 use crate::memory::embedding_model::EmbeddingModel;
+use crate::memory::cache::EmbeddingCache;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -103,3 +103,4 @@ mod tests {
         assert_eq!(generator.dimensions().await, 384);
     }
 }
+

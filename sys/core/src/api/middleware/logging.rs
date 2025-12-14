@@ -15,7 +15,10 @@ use axum::{
 use tracing::{info, warn, Span};
 
 /// Request logging middleware
-pub async fn log_request(request: Request<Body>, next: Next) -> Response {
+pub async fn log_request(
+    request: Request<Body>,
+    next: Next,
+) -> Response {
     let start = Instant::now();
 
     // Extract request details
@@ -201,13 +204,11 @@ mod tests {
         )
         .with_query(Some("key=value".to_string()))
         .with_response(200, 50)
-        .with_client(
-            Some("test-agent".to_string()),
-            Some("127.0.0.1".to_string()),
-        );
+        .with_client(Some("test-agent".to_string()), Some("127.0.0.1".to_string()));
 
         assert_eq!(log.method, "GET");
         assert_eq!(log.status, 200);
         assert_eq!(log.duration_ms, 50);
     }
 }
+

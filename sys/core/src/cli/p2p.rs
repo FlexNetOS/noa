@@ -74,17 +74,11 @@ pub async fn execute_p2p(args: P2PArgs, db_path: PathBuf) -> Result<()> {
             let devices = device_service.list_devices()?;
             println!("P2P Status:");
             println!("  Total devices: {}", devices.len());
-            let online = devices
-                .iter()
-                .filter(|d| matches!(d.status, crate::db::repositories::DeviceStatus::Online))
-                .count();
+            let online = devices.iter().filter(|d| matches!(d.status, crate::db::repositories::DeviceStatus::Online)).count();
             println!("  Online devices: {}", online);
             println!("\nDevices:");
             for device in devices {
-                println!(
-                    "  {} - {} ({:?})",
-                    device.name, device.peer_id, device.status
-                );
+                println!("  {} - {} ({:?})", device.name, device.peer_id, device.status);
             }
         }
         P2PCommand::Ping { peer_id } => {
@@ -107,3 +101,4 @@ pub async fn execute_p2p(args: P2PArgs, db_path: PathBuf) -> Result<()> {
 
     Ok(())
 }
+

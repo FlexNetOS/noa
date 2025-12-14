@@ -30,14 +30,7 @@
 //! └─────────────────────────────────────────────────────────────┘
 //! ```
 
-use std::path::{Path, PathBuf};
-
-use serde::Deserialize;
-
-use crate::nkal::{
-    BoundaryValidator, CheckpointWriter, MountSpec, Sanitizer, ShutdownGuard, ShutdownState,
-    StateVerifier,
-};
+use std::path::PathBuf;
 
 /// Kernel isolation mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -516,149 +509,12 @@ impl Nkal {
         }
         Ok(())
     }
-
-    /// Perform a mode switch with NKAL boundary enforcement, mounts, and checkpointing.
-    /// This ensures capability policy presence, denies override, graceful shutdown, and
-    /// persists `.kernel-switch-state.json` with pending then complete status.
-    pub fn switch_mode_with_policy(
-        &mut self,
-        target: KernelMode,
-        shutdown_state: ShutdownState,
-    ) -> Result<(), NkalError> {
-        // Require drains completed before switching.
-        ShutdownGuard::require_graceful(&shutdown_state)
-            .map_err(|e| NkalError::ConfigError(e.to_string()))?;
-
-        // Sanitize target mode string as boundary input.
-        let sanitized = Sanitizer::sanitize_command(&target.to_string());
-        let target_mode = sanitized.sanitized.parse::<KernelMode>().map_err(|e| {
-            NkalError::ConfigError(format!("Invalid target mode after sanitization: {}", e))
-        })?;
-
-        // Load capability policy and ensure target mode is configured and not explicitly denied.
-        let cap_path = self
-            .capabilities
-            .noa_root
-            .clone()
-            .join("config")
-            .join("nkal-capabilities.json");
-        let validator = BoundaryValidator::from_file(&cap_path).map_err(|e| {
-            NkalError::ConfigError(format!(
-                "Failed to load capability policy {}: {}",
-                cap_path.display(),
-                e
-            ))
-        })?;
-        let mode_key = target_mode.to_string();
-        let mode_caps = validator.policy().modes.get(&mode_key).ok_or_else(|| {
-            NkalError::ConfigError(format!(
-                "No capability grants for target mode {} in {}",
-                mode_key,
-                cap_path.display()
-            ))
-        })?;
-        if mode_caps.denies.iter().any(|d| d == "kernel.switch") {
-            return Err(NkalError::ConfigError(format!(
-                "Kernel mode switch to {} denied by capability policy",
-                mode_key
-            )));
-        }
-
-        // Load mounts from configuration for checkpointing.
-        let mounts = load_mounts(&self.capabilities.noa_root)?;
-
-        // Write pending checkpoint.
-        let checkpoint_writer = CheckpointWriter::new(Some(self.capabilities.noa_root.clone()));
-        checkpoint_writer
-            .record_transition(
-                self.capabilities.current_mode.to_string(),
-                target_mode.to_string(),
-                "mode switch requested",
-                validator.policy().version.clone(),
-                mounts.clone(),
-                "pending",
-            )
-            .map_err(|e| NkalError::ConfigError(format!("Checkpoint write failed: {}", e)))?;
-
-        // Perform the mode switch with existing validation.
-        self.set_mode(target_mode)?;
-
-        // Validate checkpoint state if present.
-        if let Ok(checkpoint) = StateVerifier::load_checkpoint(checkpoint_writer.path()) {
-            StateVerifier::verify_mode(target_mode, &checkpoint)
-                .map_err(|e| NkalError::ConfigError(e.to_string()))?;
-            StateVerifier::verify_status(&checkpoint)
-                .map_err(|e| NkalError::ConfigError(e.to_string()))?;
-        }
-
-        // Finalize checkpoint as complete and update current mode.
-        checkpoint_writer
-            .record_transition(
-                self.capabilities.current_mode.to_string(),
-                target_mode.to_string(),
-                "mode switch complete",
-                validator.policy().version.clone(),
-                mounts,
-                "complete",
-            )
-            .map_err(|e| NkalError::ConfigError(format!("Checkpoint finalize failed: {}", e)))?;
-
-        self.capabilities.current_mode = target_mode;
-        Ok(())
-    }
 }
 
 impl Default for Nkal {
     fn default() -> Self {
         Self::new().expect("Failed to initialize NKAL with defaults")
     }
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct MountEntry {
-    name: String,
-    hostPath: String,
-    guestPath: String,
-    #[serde(default = "default_mount_mode")]
-    mode: String,
-    #[serde(default)]
-    description: Option<String>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct MountConfig {
-    #[allow(dead_code)]
-    version: Option<String>,
-    mounts: Vec<MountEntry>,
-}
-
-fn default_mount_mode() -> String {
-    "ro".to_string()
-}
-
-fn load_mounts(root: &Path) -> Result<Vec<MountSpec>, NkalError> {
-    let path = root.join("config").join("kernel-mounts.json");
-    let raw = std::fs::read_to_string(&path)?;
-    let cfg: MountConfig = serde_json::from_str(&raw).map_err(|e| {
-        NkalError::ConfigError(format!(
-            "Failed to parse kernel mounts {}: {}",
-            path.display(),
-            e
-        ))
-    })?;
-
-    let mounts = cfg
-        .mounts
-        .into_iter()
-        .map(|m| MountSpec {
-            name: m.name,
-            host_path: m.hostPath,
-            guest_path: m.guestPath,
-            mode: m.mode,
-        })
-        .collect();
-
-    Ok(mounts)
 }
 
 #[cfg(test)]
@@ -687,3 +543,4 @@ mod tests {
         assert!(config.auto_detect);
     }
 }
+

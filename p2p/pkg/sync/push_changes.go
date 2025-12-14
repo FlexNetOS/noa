@@ -10,34 +10,6 @@ import (
 	"github.com/FlexNetOS/noa/p2p/pkg/protocol"
 )
 
-// parseChangeType converts a protocol change type string to internal ChangeType
-func parseChangeType(s string) ChangeType {
-	switch s {
-	case "create":
-		return ChangeTypeCreate
-	case "update":
-		return ChangeTypeUpdate
-	case "delete":
-		return ChangeTypeDelete
-	default:
-		return ChangeTypeUpdate
-	}
-}
-
-// changeTypeToString converts internal ChangeType to protocol string
-func changeTypeToString(ct ChangeType) string {
-	switch ct {
-	case ChangeTypeCreate:
-		return "create"
-	case ChangeTypeUpdate:
-		return "update"
-	case ChangeTypeDelete:
-		return "delete"
-	default:
-		return "update"
-	}
-}
-
 // PushChanges handles the PushChanges RPC
 //
 // Implements T506: Implement Sync.PushChanges RPC
@@ -51,7 +23,7 @@ func (s *SyncService) PushChanges(ctx context.Context, req *protocol.PushChanges
 			ID:          changeProto.Id,
 			EntityID:    changeProto.EntityId,
 			EntityType:  changeProto.EntityType,
-			Type:        parseChangeType(changeProto.Type),
+			Type:        ChangeType(changeProto.Type),
 			Data:        changeProto.Data,
 			Timestamp:   changeProto.Timestamp,
 			SourceDevice: changeProto.SourceDevice,
@@ -102,7 +74,7 @@ func convertDeltaToChange(delta *Delta) *protocol.Change {
 		Id:          delta.ID,
 		EntityId:    delta.EntityID,
 		EntityType:  delta.EntityType,
-		Type:        changeTypeToString(delta.Type),
+		Type:        protocol.ChangeType(delta.Type),
 		Data:        delta.Data,
 		Timestamp:   delta.Timestamp,
 		SourceDevice: delta.SourceDevice,

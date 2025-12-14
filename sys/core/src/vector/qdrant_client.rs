@@ -32,7 +32,10 @@ impl QdrantClient {
     ///
     /// # Arguments
     /// * `points` - Vector of (id, vector, metadata) tuples
-    pub async fn upsert(&self, points: Vec<(Uuid, Vec<f32>, Option<Value>)>) -> Result<()> {
+    pub async fn upsert(
+        &self,
+        points: Vec<(Uuid, Vec<f32>, Option<Value>)>,
+    ) -> Result<()> {
         // TODO: Implement actual Qdrant upsert using qdrant-client crate
         // For now, this is a placeholder
         tracing::info!(
@@ -90,3 +93,4 @@ pub struct SearchResult {
     pub score: f32,
     pub payload: Option<Value>,
 }
+

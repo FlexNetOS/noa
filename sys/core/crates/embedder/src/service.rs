@@ -34,9 +34,7 @@ impl EmbedderService {
     pub async fn embed_single(&self, text: &str) -> Result<Embedding> {
         let texts = vec![text.to_string()];
         let mut embeddings = self.embed(&texts).await?;
-        embeddings
-            .pop()
-            .ok_or_else(|| NoaError::Embedding("Failed to generate embedding".into()))
+        embeddings.pop().ok_or_else(|| NoaError::Embedding("Failed to generate embedding".into()))
     }
 
     /// Get the current model
@@ -50,3 +48,4 @@ impl Default for EmbedderService {
         Self::new(EmbeddingModel::default())
     }
 }
+

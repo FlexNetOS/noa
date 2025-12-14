@@ -82,30 +82,19 @@ New-Item -ItemType Directory -Path $NOA_CACHE -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_OPT -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_BIN -Force | Out-Null
 
-# Source download library for checksum support
-$downloadLib = Join-Path $PSScriptRoot "..\lib\download.ps1"
-if (Test-Path $downloadLib) {
-    . $downloadLib
-}
-
 # Download CMake
 $downloadUrl = "https://github.com/Kitware/CMake/releases/download/v$Version/cmake-$Version-windows-x86_64.zip"
-$zipFileName = "cmake-$Version-windows-x86_64.zip"
+$zipFile = Join-Path $NOA_CACHE "cmake-$Version-windows-x86_64.zip"
 $extractDir = Join-Path $NOA_OPT "cmake-$Version-windows-x86_64"
 
 Write-Log "Downloading CMake $Version..." -Level Info
 try {
-    if (Test-Path $downloadLib) {
-        # Use Get-NoaDownload for checksum support (when available)
-        $zipFile = Get-NoaDownload -Url $downloadUrl -DestinationName $zipFileName -UseCache
+    if (-not (Test-Path $zipFile)) {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
+        Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1MB, 1)) MB" -Level Success
     } else {
-        # Fallback to direct download
-        $zipFile = Join-Path $NOA_CACHE $zipFileName
-        if (-not (Test-Path $zipFile)) {
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
-        }
+        Write-Log "Using cached download" -Level Info
     }
-    Write-Log "Downloaded: $([math]::Round((Get-Item $zipFile).Length / 1MB, 1)) MB" -Level Success
 } catch {
     Write-Log "Download failed: $_" -Level Error
     exit 1

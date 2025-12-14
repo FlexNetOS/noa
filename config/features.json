@@ -1,29 +1,10 @@
 {
-  "$schema": "https://noa.local/schemas/features.json",
-  "version": "1.0.0",
-  "connectors": {
-    "github": true,
-    "google": true,
-    "openai": true,
-    "claude": true,
-    "cloud_storage": true,
-    "email": false,
-    "offline_cache": true,
-    "network_monitor": true,
-    "status_dashboard": true,
-    "oauth": true
-  },
-  "providers": {
-    "sharedExecutionMemory": true,
-    "collaborativeReasoning": true,
-    "rateLimiting": true,
-    "backoff": true
-  },
-  "feature_flags": [
-    {
-      "name": "connectors.enabled",
-      "enabled": true,
-      "description": "Master toggle for all connector flows"
+    "$schema": "https://noa.local/schemas/features.json",
+    "version": "1.0.0",
+    "providers": {
+        "sharedExecutionMemory": true,
+        "collaborativeReasoning": true,
+        "rateLimiting": true,
+        "backoff": true
     }
-  ]
 }
