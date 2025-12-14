@@ -5,11 +5,11 @@
 //! §3.7: Total Memory Sovereignty
 //! US3: Remember everything with instant recall
 
-use crate::db::repositories::memory_repository::MemoryType;
 use crate::db::repositories::{EmbeddingRepository, MemoryRepository};
 use crate::db::Connection;
 use crate::error::{NoaError, Result};
 use crate::memory::embeddings::EmbeddingGenerator;
+use crate::db::repositories::memory_repository::MemoryType;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -22,64 +22,25 @@ pub struct MemoryService {
     embedding_generator: Option<EmbeddingGenerator>,
 }
 
-// Ensure MemoryService can be sent across async tasks used by axum handlers.
-#[allow(dead_code)]
-fn _assert_send_memory_service()
-where
-    MemoryService: Send,
-{
-}
-
-// rusqlite connections are confined to the current thread, but we only use this
-// service in request handlers on the same thread. Marking Send/Sync ensures axum
-// handler bounds are satisfied; operations remain single-threaded.
-unsafe impl Send for MemoryService {}
-unsafe impl Sync for MemoryService {}
-
 impl MemoryService {
     /// Create a new memory service
-    /// Note: Takes ownership of conn for memory_repo. Embedding repo uses in-memory for now.
-    /// TODO: Refactor to use connection pool or Arc<Connection>
     pub fn new(conn: Connection) -> Self {
-        let memory_repo = MemoryRepository::new(conn);
-        // Embedding repo uses in-memory connection as temporary workaround
-        // Proper fix requires connection pooling or Arc<Connection>
-        let embedding_conn = crate::db::Connection::open_in_memory()
-            .map_err(|e| {
-                tracing::warn!(
-                    "Failed to create in-memory connection for embeddings: {}",
-                    e
-                );
-                e
-            })
-            .unwrap_or_else(|_| {
-                // Last resort: try to open a temp file
-                crate::db::Connection::open(":memory:").unwrap()
-            });
         Self {
-            memory_repo,
-            embedding_repo: EmbeddingRepository::new(embedding_conn),
+            memory_repo: MemoryRepository::new(conn.clone()),
+            embedding_repo: EmbeddingRepository::new(conn),
             embedding_generator: None,
         }
     }
 
     /// Create memory service with embedding generator
-    pub async fn with_embeddings(conn: Connection, model_name: &str) -> Result<Self> {
+    pub async fn with_embeddings(
+        conn: Connection,
+        model_name: &str,
+    ) -> Result<Self> {
         let generator = EmbeddingGenerator::new(model_name).await?;
-        let memory_repo = MemoryRepository::new(conn);
-        // Embedding repo uses in-memory connection as temporary workaround
-        let embedding_conn = crate::db::Connection::open_in_memory()
-            .map_err(|e| {
-                tracing::warn!(
-                    "Failed to create in-memory connection for embeddings: {}",
-                    e
-                );
-                e
-            })
-            .unwrap_or_else(|_| crate::db::Connection::open(":memory:").unwrap());
         Ok(Self {
-            memory_repo,
-            embedding_repo: EmbeddingRepository::new(embedding_conn),
+            memory_repo: MemoryRepository::new(conn.clone()),
+            embedding_repo: EmbeddingRepository::new(conn),
             embedding_generator: Some(generator),
         })
     }
@@ -102,8 +63,8 @@ impl MemoryService {
 
         // Generate embedding if generator is available
         let embedding_id = if let Some(ref generator) = self.embedding_generator {
-            let embedding_vector =
-                generator.generate(&content).await.map_err(|e| NoaError::Internal {
+            let embedding_vector = generator.generate(&content).await
+                .map_err(|e| NoaError::Internal {
                     message: format!("Failed to generate embedding: {}", e),
                     source: Some(Box::new(e)),
                 })?;
@@ -118,12 +79,11 @@ impl MemoryService {
                 source_id: memory_id, // Use the memory ID we just created
             };
 
-            self.embedding_repo.create(&embedding).map_err(|e| {
-                NoaError::Database(crate::error::DatabaseError::QueryFailed {
+            self.embedding_repo.create(&embedding)
+                .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
                     query: "INSERT INTO embedding".to_string(),
                     error: format!("Failed to store embedding: {}", e),
-                })
-            })?;
+                }))?;
             Some(embedding_id)
         } else {
             None
@@ -144,12 +104,11 @@ impl MemoryService {
             checksum,
         };
 
-        self.memory_repo.create(&memory).map_err(|e| {
-            NoaError::Database(crate::error::DatabaseError::QueryFailed {
+        self.memory_repo.create(&memory)
+            .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
                 query: "INSERT INTO memory".to_string(),
                 error: format!("Failed to create memory: {}", e),
-            })
-        })?;
+            }))?;
 
         Ok(memory_id)
     }
@@ -172,10 +131,13 @@ impl MemoryService {
         metadata: Option<serde_json::Map<String, serde_json::Value>>,
         tags: Option<HashSet<String>>,
     ) -> Result<()> {
-        let mut memory = self.memory_repo.find_by_id(id)?.ok_or_else(|| NoaError::NotFound {
-            resource: "memory".to_string(),
-            id: id.to_string(),
-        })?;
+        let mut memory = self
+            .memory_repo
+            .find_by_id(id)?
+            .ok_or_else(|| NoaError::NotFound {
+                resource: "memory".to_string(),
+                id: id.to_string(),
+            })?;
 
         // Update fields
         if let Some(new_content) = content {
@@ -220,10 +182,13 @@ impl MemoryService {
 
     /// Validate memory checksum
     pub fn validate_checksum(&self, id: &Uuid) -> Result<bool> {
-        let memory = self.memory_repo.find_by_id(id)?.ok_or_else(|| NoaError::NotFound {
-            resource: "memory".to_string(),
-            id: id.to_string(),
-        })?;
+        let memory = self
+            .memory_repo
+            .find_by_id(id)?
+            .ok_or_else(|| NoaError::NotFound {
+                resource: "memory".to_string(),
+                id: id.to_string(),
+            })?;
 
         let computed = Self::compute_checksum(&memory.content);
         Ok(computed == memory.checksum)
@@ -236,3 +201,4 @@ impl MemoryService {
         format!("{:x}", hasher.finalize())
     }
 }
+

@@ -5,13 +5,13 @@
 
 use std::path::Path;
 
-use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
     fmt::{self, format::FmtSpan, time::UtcTime},
     layer::SubscriberExt,
     util::SubscriberInitExt,
     EnvFilter, Layer,
 };
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use crate::config::{LogFormat, LogLevel, LoggingConfig};
 use crate::error::Result;
@@ -98,7 +98,8 @@ fn build_env_filter(level: LogLevel) -> EnvFilter {
     };
 
     // Allow override via RUST_LOG env var
-    EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(level_str))
+    EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(level_str))
 }
 
 fn build_console_layer<S>(format: LogFormat) -> Box<dyn Layer<S> + Send + Sync + 'static>
@@ -110,10 +111,18 @@ where
             fmt::layer()
                 .json()
                 .with_timer(UtcTime::rfc_3339())
-                .with_span_events(FmtSpan::CLOSE),
+                .with_span_events(FmtSpan::CLOSE)
         ),
-        LogFormat::Text => Box::new(fmt::layer().with_timer(UtcTime::rfc_3339()).compact()),
-        LogFormat::Pretty => Box::new(fmt::layer().with_timer(UtcTime::rfc_3339()).pretty()),
+        LogFormat::Text => Box::new(
+            fmt::layer()
+                .with_timer(UtcTime::rfc_3339())
+                .compact()
+        ),
+        LogFormat::Pretty => Box::new(
+            fmt::layer()
+                .with_timer(UtcTime::rfc_3339())
+                .pretty()
+        ),
     }
 }
 
@@ -192,3 +201,4 @@ mod tests {
         assert!(true);
     }
 }
+

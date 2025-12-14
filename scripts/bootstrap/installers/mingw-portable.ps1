@@ -85,32 +85,21 @@ New-Item -ItemType Directory -Path $NOA_CACHE -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_OPT -Force | Out-Null
 New-Item -ItemType Directory -Path $NOA_BIN -Force | Out-Null
 
-# Source download library for checksum support
-$downloadLib = Join-Path $PSScriptRoot "..\lib\download.ps1"
-if (Test-Path $downloadLib) {
-    . $downloadLib
-}
-
 # Download MinGW-w64 - Using niXman's builds (popular, well-maintained)
 # Release format: x86_64-{version}-release-posix-seh-ucrt-rt_v{rt_version}-rev{revision}.7z
 $rtVersion = "12"
 $revision = "0"
 $downloadUrl = "https://github.com/niXman/mingw-builds-binaries/releases/download/$Version-rt_v$rtVersion-rev$revision/x86_64-$Version-release-posix-seh-ucrt-rt_v$rtVersion-rev$revision.7z"
-$archiveFileName = "mingw-$Version-x86_64.7z"
+$archiveFile = Join-Path $NOA_CACHE "mingw-$Version-x86_64.7z"
 
 Write-Log "Downloading MinGW-w64 $Version (~200MB)..." -Level Info
 try {
-    if (Test-Path $downloadLib) {
-        # Use Get-NoaDownload for checksum support (when available)
-        $archiveFile = Get-NoaDownload -Url $downloadUrl -DestinationName $archiveFileName -UseCache
+    if (-not (Test-Path $archiveFile)) {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $archiveFile -UseBasicParsing
+        Write-Log "Downloaded: $([math]::Round((Get-Item $archiveFile).Length / 1MB, 1)) MB" -Level Success
     } else {
-        # Fallback to direct download
-        $archiveFile = Join-Path $NOA_CACHE $archiveFileName
-        if (-not (Test-Path $archiveFile)) {
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $archiveFile -UseBasicParsing
-        }
+        Write-Log "Using cached download: $([math]::Round((Get-Item $archiveFile).Length / 1MB, 1)) MB" -Level Info
     }
-    Write-Log "Downloaded: $([math]::Round((Get-Item $archiveFile).Length / 1MB, 1)) MB" -Level Success
 } catch {
     Write-Log "Download failed: $_" -Level Error
     Write-Log "Trying alternative download URL..." -Level Warning

@@ -128,3 +128,4 @@ mod tests {
         assert_eq!(counter.get_count(&event_id).await, 0);
     }
 }
+

@@ -6,7 +6,6 @@ US4: Digest Everything Pipeline
 """
 
 from pathlib import Path
-from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class DiscoverStage:
     """Discover sources to digest (repositories, files, APIs, documents)."""
 
-    def __init__(self, base_path: Optional[Path] = None):
+    def __init__(self, base_path: Path | None = None):
         """Initialize discover stage.
 
         Args:
@@ -23,7 +22,7 @@ class DiscoverStage:
         """
         self.base_path = base_path or Path.cwd()
 
-    def discover(self, source: str) -> List[dict]:
+    def discover(self, source: str) -> list[dict]:
         """Discover sources to digest.
 
         Args:

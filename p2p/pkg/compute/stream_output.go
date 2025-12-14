@@ -16,7 +16,7 @@ import (
 // Implements T517: Implement Compute.StreamOutput RPC (streaming)
 func (s *ComputeService) StreamOutput(req *protocol.StreamOutputRequest, stream protocol.Compute_StreamOutputServer) error {
 	// Get task
-	_, exists := s.scheduler.GetTask(req.ExecutionId)
+	task, exists := s.scheduler.GetTask(req.ExecutionId)
 	if !exists {
 		return fmt.Errorf("task not found: %s", req.ExecutionId)
 	}
