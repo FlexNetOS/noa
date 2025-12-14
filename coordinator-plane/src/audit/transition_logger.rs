@@ -12,6 +12,14 @@ use tokio::sync::Mutex;
 use tokio::task;
 use uuid::Uuid;
 
+/// Type alias for transition record database row data
+pub type TransitionRowData = (
+    String, String, String, String, String, String, String, String,
+    Option<String>, Option<String>, Option<i64>, String, String,
+    Option<String>, Option<String>, Option<String>, Option<String>,
+    Option<String>, String, Option<String>, Option<String>, String, Option<String>
+);
+
 /// Transition type enum
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -469,12 +477,7 @@ impl TransitionLogger {
     /// Convert database row data to TransitionRecord
     fn row_data_to_transition_record(
         &self,
-        row_data: &(
-            String, String, String, String, String, String, String, String,
-            Option<String>, Option<String>, Option<i64>, String, String,
-            Option<String>, Option<String>, Option<String>, Option<String>,
-            Option<String>, String, Option<String>, Option<String>, String, Option<String>
-        ),
+        row_data: &TransitionRowData,
     ) -> anyhow::Result<TransitionRecord> {
         let (
             id, created_at_str, type_str, source_plane, target_plane,

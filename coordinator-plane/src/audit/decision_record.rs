@@ -11,6 +11,13 @@ use tokio::sync::Mutex;
 use tokio::task;
 use uuid::Uuid;
 
+/// Type alias for decision record database row data
+type DecisionRowData = (
+    String, String, String, String, String, String, String,
+    Option<String>, Option<String>, Option<String>, String,
+    Option<String>, Option<String>
+);
+
 /// Decision type enum
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -147,9 +154,9 @@ impl DecisionRecorder {
     }
 
     /// Record a decision rationale
-    ///
     /// Captures the complete reasoning behind a promotion/rollback decision,
     /// including policy gate results, analytics evaluations, and risk assessment
+    #[allow(clippy::too_many_arguments)]
     pub async fn record_decision(
         &self,
         transition_id: &str,
@@ -352,7 +359,7 @@ impl DecisionRecorder {
         let risk_tier_str = risk_tier.as_str().to_string();
         let limit_val = limit;
         
-        let result: Result<Vec<(String, String, String, String, String, String, String, Option<String>, Option<String>, Option<String>, String, Option<String>, Option<String>)>, anyhow::Error> = task::spawn_blocking(move || {
+        let result: Result<Vec<DecisionRowData>, anyhow::Error> = task::spawn_blocking(move || {
             let conn = conn.blocking_lock();
             let sql = if limit_val.is_some() {
                 r#"
@@ -436,11 +443,7 @@ impl DecisionRecorder {
     /// Convert database row data to DecisionRecord
     fn row_data_to_decision_record(
         &self,
-        row_data: &(
-            String, String, String, String, String, String, String,
-            Option<String>, Option<String>, Option<String>, String,
-            Option<String>, Option<String>
-        ),
+        row_data: &DecisionRowData,
     ) -> anyhow::Result<DecisionRecord> {
         let (
             id, transition_id, created_at_str, decision_type_str, risk_tier_str,
