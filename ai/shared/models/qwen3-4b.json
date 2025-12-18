@@ -1,0 +1,68 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "id": "qwen3-4b",
+  "name": "Qwen3 4B",
+  "version": "1.0.0",
+  "description": "Alibaba Qwen3 4B - Latest generation compact model with strong general capabilities",
+  "family": "qwen3",
+  "size": "4b",
+  "quantization": "Q4_K_M",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "Qwen/Qwen3-4B",
+    "license": "Apache-2.0"
+  },
+  "file": {
+    "name": "Qwen3-4B-Q4_K_M.gguf",
+    "size_bytes": 2500000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": true,
+    "vision": false,
+    "code": true,
+    "reasoning": true,
+    "multilingual": true
+  },
+  "parameters": {
+    "context_length": 32768,
+    "max_output_tokens": 8192,
+    "temperature_default": 0.7,
+    "top_p_default": 0.9,
+    "top_k_default": 40,
+    "repeat_penalty_default": 1.1
+  },
+  "chat_template": {
+    "format": "chatml",
+    "system_prefix": "<|im_start|>system\n",
+    "system_suffix": "<|im_end|>\n",
+    "user_prefix": "<|im_start|>user\n",
+    "user_suffix": "<|im_end|>\n",
+    "assistant_prefix": "<|im_start|>assistant\n",
+    "assistant_suffix": "<|im_end|>\n"
+  },
+  "recommended_for": [
+    "general_chat",
+    "code_generation",
+    "instruction_following",
+    "multilingual"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 4,
+    "recommended_vram_gb": 6,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 8
+  },
+  "metadata": {
+    "author": "Qwen Team (Alibaba)",
+    "release_date": "2025-04",
+    "noa_added": "2025-12-17",
+    "tags": ["chat", "code", "multilingual", "qwen3"]
+  }
+}

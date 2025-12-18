@@ -27,6 +27,7 @@ members = [
     "crates/agent",
     "crates/common",
     "crates/neural",
+    "crates/virtual_packages",
 ]
 
 [workspace.package]
@@ -117,6 +118,7 @@ noa-indexer = { path = "crates/indexer" }
 noa-agent = { path = "crates/agent" }
 noa-common = { path = "crates/common" }
 noa-neural = { path = "crates/neural" }
+noa-virtual-packages = { path = "crates/virtual_packages" }
 
 [dependencies]
 # Workspace dependencies
@@ -152,6 +154,7 @@ lazy_static = "1.5"
 noa-api = { workspace = true }
 noa-common = { workspace = true }
 noa-neural = { workspace = true }
+noa-virtual-packages = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.10"

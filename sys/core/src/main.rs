@@ -72,6 +72,12 @@ enum Commands {
         command: ModuleCommands,
     },
 
+    /// Virtual package detection (conda)
+    VirtualPackages {
+        #[command(subcommand)]
+        command: VirtualPackagesCommands,
+    },
+
     /// 3-Plane commands
     Plane {
         #[command(subcommand)]
@@ -239,6 +245,14 @@ enum HealingCommands {
     Status,
 }
 
+#[derive(Subcommand)]
+enum VirtualPackagesCommands {
+    /// Print detected conda virtual packages as JSON
+    Detect,
+    /// Register detected conda virtual packages into the module registry
+    Register,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Parse CLI arguments
@@ -271,6 +285,7 @@ async fn main() -> Result<()> {
         Commands::Agent { command } => handle_agent_command(command).await,
         Commands::Provider { command } => handle_provider_command(command).await,
         Commands::Modules { command } => handle_module_command(command, cli.noa_root.clone()).await,
+        Commands::VirtualPackages { command } => handle_virtual_packages_command(command, cli.noa_root.clone()).await,
         Commands::Plane { command } => handle_plane_command(command).await,
         Commands::Promotion { command } => handle_promotion_command(command).await,
         Commands::Healing { command } => handle_healing_command(command).await,
@@ -404,5 +419,28 @@ async fn handle_crm_command(command: CrmCommands) -> Result<()> {
     match command {
         CrmCommands::Toggle { mode } => cli::crm::execute(CrmCmd::Toggle { mode }).await,
         CrmCommands::Rollback => cli::crm::execute(CrmCmd::Rollback).await,
+    }
+}
+
+async fn handle_virtual_packages_command(command: VirtualPackagesCommands, noa_root: Option<String>) -> Result<()> {
+    use std::path::PathBuf;
+
+    match command {
+        VirtualPackagesCommands::Detect => {
+            let json = crate::virtual_packages::detect_report_json()?;
+            println!("{}", json);
+            Ok(())
+        }
+        VirtualPackagesCommands::Register => {
+            let root = PathBuf::from(noa_root.unwrap_or_else(|| ".".into()));
+            let registry_path = root.join("data/modules/registry/registry.db");
+
+            let registry = crate::modules::registry::ModuleRegistry::new(&registry_path)?;
+            let meta = crate::virtual_packages::detect_as_module_metadata()?;
+            registry.register(&meta)?;
+
+            println!("Registered module: {} ({})", meta.name, meta.hash);
+            Ok(())
+        }
     }
 }

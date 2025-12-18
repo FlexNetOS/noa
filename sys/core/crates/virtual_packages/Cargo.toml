@@ -1,0 +1,17 @@
+[package]
+name = "noa-virtual-packages"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "NOA virtual package detection via rattler_virtual_packages"
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+rattler_virtual_packages = "0.7"
+
+[dev-dependencies]
+tempfile = "3.10"
