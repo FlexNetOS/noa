@@ -10,7 +10,6 @@ use std::time::Duration;
 use axum::Router;
 use tokio::net::TcpListener;
 use tokio::signal;
-use tower::ServiceBuilder;
 use tower_http::{
     cors::{Any, CorsLayer},
     timeout::TimeoutLayer,
@@ -109,13 +108,10 @@ impl ApiServer {
             .merge(super::routes::health::routes())
             .merge(super::routes::api_v1());
 
-        // Apply middleware
-        let mut service_builder = ServiceBuilder::new();
-
         // Timeout layer
-        service_builder = service_builder.layer(TimeoutLayer::new(
-            Duration::from_secs(self.config.timeout_secs),
-        ));
+        router = router.layer(TimeoutLayer::new(Duration::from_secs(
+            self.config.timeout_secs,
+        )));
 
         // Tracing layer
         if self.config.enable_tracing {
@@ -167,7 +163,7 @@ impl ApiServer {
         axum::serve(listener, router)
             .with_graceful_shutdown(shutdown_signal())
             .await
-            .map_err(|e| crate::error::NoaError::Internal {
+            .map_err(|e: std::io::Error| crate::error::NoaError::Internal {
                 message: format!("Server error: {}", e),
                 source: Some(Box::new(e)),
             })?;

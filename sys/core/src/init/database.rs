@@ -84,7 +84,7 @@ impl DatabaseInitializer {
                 query: "SELECT version".to_string(),
                 error: e.to_string(),
             }))?
-            .collect::<Result<Vec<_>, _>>()
+            .collect::<std::result::Result<Vec<_>, _>>()
             .map_err(|e| NoaError::Database(crate::error::DatabaseError::QueryFailed {
                 query: "SELECT version".to_string(),
                 error: e.to_string(),
@@ -181,7 +181,7 @@ impl DatabaseInitializer {
                 error: e.to_string(),
             }))?;
 
-        let result: Result<i32, _> = stmt.query_row([], |row| row.get(0));
+        let result: std::result::Result<i32, _> = stmt.query_row([], |row| row.get(0));
         Ok(result.is_ok())
     }
 }

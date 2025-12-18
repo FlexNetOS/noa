@@ -56,4 +56,4 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
     })
 }
 
-impl<'a> Repository for AgentLogRepository<'a> {}
+impl<'a> Repository<AgentLog, i64> for AgentLogRepository<'a> {}

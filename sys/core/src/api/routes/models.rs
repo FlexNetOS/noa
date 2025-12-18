@@ -15,6 +15,7 @@ use uuid::Uuid;
 
 use crate::api::server::AppState;
 use noa_neural::{Model, ModelStatus};
+use crate::db::repositories::Model as DbModel;
 use crate::services::NeuralService;
 use crate::error::{Result, NoaError};
 
@@ -40,8 +41,26 @@ pub struct ModelResponse {
     pub status: String,
 }
 
-impl From<Model> for ModelResponse {
-    fn from(model: Model) -> Self {
+impl From<noa_neural::Model> for ModelResponse {
+    fn from(model: noa_neural::Model) -> Self {
+        Self {
+            id: model.id.to_string(),
+            name: model.name,
+            model_type: format!("{:?}", model.model_type),
+            provider: model.provider,
+            path: model.path,
+            uri: model.uri,
+            size_bytes: model.size_bytes,
+            parameters: model.parameters,
+            context_length: model.context_length,
+            license: model.license,
+            status: format!("{:?}", model.status),
+        }
+    }
+}
+
+impl From<DbModel> for ModelResponse {
+    fn from(model: DbModel) -> Self {
         Self {
             id: model.id.to_string(),
             name: model.name,
