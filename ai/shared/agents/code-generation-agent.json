@@ -1,0 +1,61 @@
+{
+  "$schema": "https://noa.local/schemas/agent.json",
+  "name": "code-generation-agent",
+  "version": "1.0.0",
+  "description": "Code generation agent for creating, completing, and refactoring code",
+  "category": "development",
+  "capabilities": [
+    "code_generation",
+    "code_completion",
+    "refactoring",
+    "bug_fixing",
+    "test_generation"
+  ],
+  "system_prompt": "../prompts/code-generation-system.md",
+  "tools": [
+    "file_read",
+    "file_write",
+    "syntax_check",
+    "format_code",
+    "run_tests"
+  ],
+  "memory": {
+    "type": "project",
+    "persistence": "session",
+    "max_tokens": 16000
+  },
+  "provider_hints": {
+    "preferred": ["codex-cli", "claude-code", "cursor"],
+    "fallback": ["ollama", "llama-server"],
+    "requirements": {
+      "min_context_length": 8000,
+      "capabilities": ["code-generation", "completion"]
+    }
+  },
+  "parameters": {
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "max_tokens": 8192
+  },
+  "supported_languages": [
+    "python",
+    "typescript",
+    "javascript",
+    "rust",
+    "go",
+    "java",
+    "csharp"
+  ],
+  "examples": [
+    {
+      "input": "Create a function that validates email addresses using regex",
+      "language": "python",
+      "expected_behavior": "Generates well-documented function with type hints and edge case handling"
+    }
+  ],
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["code", "generation", "development"]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://noa.local/schemas/mcp-tool.json",
+  "name": "reasoning-tool",
+  "version": "1.0.0",
+  "description": "Complex reasoning and analysis tool for structured problem-solving",
+  "category": "analysis",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "problem": {
+        "type": "string",
+        "description": "The problem or question to analyze"
+      },
+      "context": {
+        "type": "string",
+        "description": "Additional context or constraints"
+      },
+      "reasoning_type": {
+        "type": "string",
+        "enum": ["deductive", "inductive", "abductive", "analogical"],
+        "default": "deductive",
+        "description": "Type of reasoning to apply"
+      },
+      "depth": {
+        "type": "string",
+        "enum": ["shallow", "normal", "deep"],
+        "default": "normal",
+        "description": "Depth of analysis"
+      },
+      "output_format": {
+        "type": "string",
+        "enum": ["structured", "narrative", "bullet_points"],
+        "default": "structured",
+        "description": "Output format preference"
+      }
+    },
+    "required": ["problem"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "analysis": {
+        "type": "string",
+        "description": "Detailed analysis of the problem"
+      },
+      "conclusions": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Key conclusions drawn"
+      },
+      "confidence": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Confidence level in conclusions"
+      },
+      "reasoning_chain": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "step": { "type": "integer" },
+            "premise": { "type": "string" },
+            "inference": { "type": "string" }
+          }
+        },
+        "description": "Step-by-step reasoning chain"
+      },
+      "alternatives": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Alternative interpretations or solutions"
+      }
+    }
+  },
+  "implementation": {
+    "type": "agent",
+    "agent": "reasoning-agent",
+    "handler": "noa.tools.reasoning.analyze"
+  },
+  "permissions": [],
+  "rate_limit": {
+    "requests_per_minute": 30
+  },
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["reasoning", "analysis", "problem-solving"]
+  }
+}

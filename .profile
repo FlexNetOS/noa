@@ -8,6 +8,13 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+# NOA Environment Integration
+# Source NOA environment if this file is in NOA_ROOT
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.noa-env" ]; then
+    . "$SCRIPT_DIR/.noa-env"
+fi
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
