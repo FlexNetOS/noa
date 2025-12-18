@@ -261,6 +261,33 @@ impl From<ValidationError> for NoaError {
     }
 }
 
+impl From<rusqlite::Error> for NoaError {
+    fn from(err: rusqlite::Error) -> Self {
+        NoaError::Database(DatabaseError::QueryFailed {
+            query: "unknown".to_string(),
+            error: err.to_string(),
+        })
+    }
+}
+
+impl From<serde_json::Error> for NoaError {
+    fn from(err: serde_json::Error) -> Self {
+        NoaError::Serialization(err.to_string())
+    }
+}
+
+impl From<uuid::Error> for NoaError {
+    fn from(err: uuid::Error) -> Self {
+        NoaError::Validation(ValidationError::new("uuid", err.to_string(), "INVALID_UUID"))
+    }
+}
+
+impl From<chrono::ParseError> for NoaError {
+    fn from(err: chrono::ParseError) -> Self {
+        NoaError::Validation(ValidationError::new("datetime", err.to_string(), "INVALID_DATETIME"))
+    }
+}
+
 /// Result type alias for NOA operations
 pub type Result<T> = std::result::Result<T, NoaError>;
 

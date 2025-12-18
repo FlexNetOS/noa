@@ -104,7 +104,7 @@ impl EscalationNotifier {
     fn determine_urgency(
         &self,
         health: &crate::healing::ComponentHealth,
-        anomaly_type: &Option<String>,
+        _anomaly_type: &Option<String>,
     ) -> EscalationUrgency {
         match health {
             crate::healing::ComponentHealth::Critical => EscalationUrgency::Critical,

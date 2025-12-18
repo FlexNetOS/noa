@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::error::Result;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct SharedContext {
     pub provider: String,
     pub context_type: String,

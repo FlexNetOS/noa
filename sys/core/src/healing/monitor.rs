@@ -233,7 +233,7 @@ impl HealthMonitor {
     /// Compute health snapshots from metrics
     fn compute_health_snapshots(
         metrics: &[HealthMetric],
-        config: &HealthMonitorConfig,
+        _config: &HealthMonitorConfig,
     ) -> Vec<ComponentHealthSnapshot> {
         let mut snapshots: HashMap<String, Vec<&HealthMetric>> = HashMap::new();
 

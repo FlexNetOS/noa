@@ -18,9 +18,10 @@ pub use repositories::{MemoryRepository, EmbeddingRepository};
 
 use std::path::Path;
 use crate::error::Result;
+use std::sync::{Arc, Mutex};
 
 /// Database connection type alias
-pub type Connection = rusqlite::Connection;
+pub type Connection = Arc<Mutex<rusqlite::Connection>>;
 
 /// Initialize the database at the given path
 pub fn init_database(path: &Path) -> Result<Connection> {
@@ -29,18 +30,19 @@ pub fn init_database(path: &Path) -> Result<Connection> {
         std::fs::create_dir_all(parent)?;
     }
 
-    let conn = Connection::open(path).map_err(|e| {
+    let conn = rusqlite::Connection::open(path).map_err(|e| {
         crate::error::DatabaseError::ConnectionFailed(e.to_string())
     })?;
 
     // Configure SQLite for optimal NOA operation
     configure_connection(&conn)?;
 
-    Ok(conn)
+    Ok(Arc::new(Mutex::new(conn)))
 }
 
 /// Configure a SQLite connection with optimal settings
 fn configure_connection(conn: &Connection) -> Result<()> {
+    let conn = conn.lock().unwrap();
     // Enable WAL mode for concurrent reads
     conn.execute_batch(
         r#"

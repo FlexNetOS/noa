@@ -203,7 +203,7 @@ impl RootCauseAnalyzer {
     fn collect_evidence(
         &self,
         anomaly: &Anomaly,
-        snapshots: &[ComponentHealthSnapshot],
+        _snapshots: &[ComponentHealthSnapshot],
     ) -> Vec<String> {
         let mut evidence = Vec::new();
         evidence.push(format!("Anomaly: {}", anomaly.description));
