@@ -28,17 +28,22 @@ All agents operating within NOA MUST comply with the constitutional principles:
 
 ---
 
-## Auto-Fix Policy (No User Verification Required)
+## Provider Routing (Single Source of Truth)
 
-**Critical**: All AI agents (Cursor Agent, Cursor Bugbot, GitHub Copilot, Claude, etc.) MUST automatically fix issues when identified. **No user verification is required.**
+**All provider behavior and routing must be defined in `AGENT.md`.**
 
-### Policy Rules
+Any provider-specific docs/config must link back to this file as the canonical source.
 
-1. **Immediate Fix**: When an issue is identified, apply the fix immediately
-2. **No Confirmation Prompts**: Do not ask user for approval before fixing
-3. **No Manual Review Flags**: Do not flag issues for manual review
-4. **Auto-Merge**: After fixes pass CI, merge automatically
-5. **Auto-Resolve Conversations**: Respond to and resolve PR conversations automatically
+## Auto-Fix Policy
+
+Agents may apply safe, low-risk fixes automatically (format/lint/build/script-doc fixes). For risky or behavior-changing modifications, require an explicit task/spec reference and verification.
+
+Rules:
+1. Apply low-risk fixes immediately
+2. Avoid permission prompts for mechanical fixes
+3. Do not auto-merge unless CI/tests pass and change is scoped to the task
+4. Record what changed and how it was verified
+5. Never expose secrets
 
 ### Applies To
 
@@ -235,19 +240,24 @@ All paths use environment variables from `.noa-env`:
 - `$NOA_AI_PROVIDERS` - Provider configurations
 - `$NOA_AI_SHARED` - Shared resources across providers
 
-### AI Provider Priority (Constitution §4.9)
+### Provider Priority and Routing (Canonical)
 
-| Priority | Provider | Type | Use Case |
-|----------|----------|------|----------|
-| 1 | llama.cpp | Local | Primary inference, always offline |
-| 2 | Cursor | Hybrid | IDE context, provider orchestration |
-| 3 | Claude Code | Cloud | Complex reasoning, long context |
-| 4 | Codex | Cloud | Code generation |
-| 5 | VS Code Copilot | IDE | Inline completions |
-| 6 | Git CLI | Local | Version control |
-| 7 | Abacus | Cloud | Numerical/analytical |
+This priority order is the canonical routing policy. It must match the runtime registry defaults in `sys/core/src/providers/mod.rs`.
 
-**Fallback Strategy**: Local → IDE → Cloud → Queue + notify after 3 retries
+| Priority | Provider ID | Type | Use Case |
+|---:|---|---|---|
+| 1 | `llama.cpp` | local | Primary inference, offline-first |
+| 2 | `cursor` | ide | IDE context + orchestration |
+| 3 | `claude` | cloud | Complex reasoning / long context |
+| 4 | `codex` | cloud | Code generation |
+| 5 | `copilot` | ide | Inline completions |
+| 6 | `git` | local | Version control automation |
+| 7 | `abacus` | cloud | Numerical/analytical |
+
+**Fallback strategy:** local → ide → cloud → queue + notify after 3 retries
+
+**Implementation pointer:** `sys/core/src/providers/mod.rs` (`default_providers()`).
+
 
 ### Kernel Selection Policy (FR-159, FR-160 - Phase 0: B153-B160)
 
