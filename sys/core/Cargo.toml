@@ -9,6 +9,11 @@ rust-version.workspace = true
 license.workspace = true
 description = "NOA Core - Autonomous Agentic Operating System"
 
+[features]
+default = ["minimal"]
+minimal = []
+full = []
+
 [[bin]]
 name = "noa"
 path = "src/main.rs"
@@ -149,6 +154,7 @@ regex = "1.12"
 reqwest = { version = "0.12", features = ["json"] }
 prometheus = "0.14"
 lazy_static = "1.5"
+serde_yaml = "0.9"
 
 # Internal crates
 noa-api = { workspace = true }

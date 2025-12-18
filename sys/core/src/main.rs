@@ -6,9 +6,10 @@
 use clap::{Parser, Subcommand};
 use tracing::info;
 
-// Modules are declared in lib.rs
-// Access via crate:: paths
-use crate::error::Result;
+use noa_core::cli;
+use noa_core::config;
+use noa_core::error::Result;
+use noa_core::logging;
 
 /// NOA - Autonomous Agentic Operating System
 #[derive(Parser)]
@@ -39,105 +40,124 @@ enum Commands {
     /// Initialize a new NOA installation
     Init(cli::init::InitArgs),
 
-    /// Start NOA services
-    Start(cli::start::StartArgs),
-
-    /// Show NOA status
-    Status(cli::status::StatusArgs),
-
-    /// Stop NOA services
-    Stop(cli::stop::StopArgs),
-
     /// Database management commands
     Db {
         #[command(subcommand)]
         command: cli::db::DbCommands,
     },
 
+    #[cfg(feature = "full")]
+    /// Start NOA services
+    Start(cli::start::StartArgs),
+
+    #[cfg(feature = "full")]
+    /// Show NOA status
+    Status(cli::status::StatusArgs),
+
+    #[cfg(feature = "full")]
+    /// Stop NOA services
+    Stop(cli::stop::StopArgs),
+
+    #[cfg(feature = "full")]
     /// Agent management commands
     Agent {
         #[command(subcommand)]
         command: AgentCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Provider management commands
     Provider {
         #[command(subcommand)]
         command: ProviderCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Module registry and CAS operations
     Modules {
         #[command(subcommand)]
         command: ModuleCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Virtual package detection (conda)
     VirtualPackages {
         #[command(subcommand)]
         command: VirtualPackagesCommands,
     },
 
+    #[cfg(feature = "full")]
     /// 3-Plane commands
     Plane {
         #[command(subcommand)]
         command: PlaneCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Promotion commands
     Promotion {
         #[command(subcommand)]
         command: PromotionCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Healing commands
     Healing {
         #[command(subcommand)]
         command: HealingCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Model management commands
     Models {
         #[command(subcommand)]
         command: cli::models::ModelCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Ask a question to the model
     Ask(cli::ask::AskArgs),
 
+    #[cfg(feature = "full")]
     /// P2P network management commands
     P2P(cli::p2p::P2PArgs),
 
+    #[cfg(feature = "full")]
     /// Agents command group
     Agents {
         #[command(subcommand)]
         command: AgentsCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Tasks command group
     Tasks {
         #[command(subcommand)]
         command: TasksCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Goal commands
     Goal {
         #[command(subcommand)]
         command: GoalCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Logs commands
     Logs {
         #[command(subcommand)]
         command: LogsCommands,
     },
 
+    #[cfg(feature = "full")]
     /// Capsule commands
     Capsule {
         #[command(subcommand)]
         command: CapsuleCommands,
     },
 
+    #[cfg(feature = "full")]
     /// CRM commands
     Crm {
         #[command(subcommand)]
@@ -145,6 +165,7 @@ enum Commands {
     },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum AgentCommands {
     /// List all agents
@@ -157,6 +178,7 @@ enum AgentCommands {
     Stop { name: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum ProviderCommands {
     /// List configured providers
@@ -171,36 +193,42 @@ enum ProviderCommands {
     Test { name: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum AgentsCommands {
     /// List agents
     List,
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum TasksCommands {
     /// List tasks
     List,
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum GoalCommands {
     /// Submit a goal
     Submit { title: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum LogsCommands {
     /// Tail logs
     Tail,
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum CapsuleCommands {
     /// Spawn a capsule
     Spawn { name: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum CrmCommands {
     /// Toggle CRM strangler mode
@@ -209,6 +237,7 @@ enum CrmCommands {
     Rollback,
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum ModuleCommands {
     /// List registered modules
@@ -221,6 +250,7 @@ enum ModuleCommands {
     Deps { name: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum PlaneCommands {
     /// Show plane status
@@ -231,6 +261,7 @@ enum PlaneCommands {
     Rollback { name: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum PromotionCommands {
     /// Show promotion status
@@ -239,12 +270,14 @@ enum PromotionCommands {
     Approve { id: String },
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum HealingCommands {
     /// Show healing status
     Status,
 }
 
+#[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum VirtualPackagesCommands {
     /// Print detected conda virtual packages as JSON
@@ -278,63 +311,81 @@ async fn main() -> Result<()> {
     // Execute command
     match cli.command {
         Commands::Init(args) => cli::init::execute(args).await,
-        Commands::Start(args) => cli::start::execute(args).await,
-        Commands::Status(args) => cli::status::execute(args).await,
-        Commands::Stop(args) => cli::stop::execute(args).await,
         Commands::Db { command } => cli::db::execute(command).await,
+
+        #[cfg(feature = "full")]
+        Commands::Start(args) => cli::start::execute(args).await,
+        #[cfg(feature = "full")]
+        Commands::Status(args) => cli::status::execute(args).await,
+        #[cfg(feature = "full")]
+        Commands::Stop(args) => cli::stop::execute(args).await,
+        #[cfg(feature = "full")]
         Commands::Agent { command } => handle_agent_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Provider { command } => handle_provider_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Modules { command } => handle_module_command(command, cli.noa_root.clone()).await,
-        Commands::VirtualPackages { command } => handle_virtual_packages_command(command, cli.noa_root.clone()).await,
+        #[cfg(feature = "full")]
+        Commands::VirtualPackages { command } => {
+            handle_virtual_packages_command(command, cli.noa_root.clone()).await
+        }
+        #[cfg(feature = "full")]
         Commands::Plane { command } => handle_plane_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Promotion { command } => handle_promotion_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Healing { command } => handle_healing_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Models { command } => {
             cli::models::execute(cli::models::ModelArgs { command }, cli.noa_root.clone()).await
         }
+        #[cfg(feature = "full")]
         Commands::Ask(args) => cli::ask::execute(args, cli.noa_root.clone()).await,
+        #[cfg(feature = "full")]
         Commands::P2P(args) => {
             let db_path = std::path::PathBuf::from(
-                cli.noa_root
-                    .clone()
-                    .unwrap_or_else(|| ".".to_string())
-            ).join("data/noa.db");
-            cli::p2p::execute_p2p(args, db_path).await
+                cli.noa_root.clone().unwrap_or_else(|| "data/noa.db".to_string()),
+            );
+            cli::p2p::execute(args, Some(db_path.display().to_string())).await
         }
+        #[cfg(feature = "full")]
         Commands::Agents { command } => handle_agents_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Tasks { command } => handle_tasks_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Goal { command } => handle_goal_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Logs { command } => handle_logs_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Capsule { command } => handle_capsule_command(command).await,
+        #[cfg(feature = "full")]
         Commands::Crm { command } => handle_crm_command(command).await,
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_agent_command(command: AgentCommands) -> Result<()> {
     match command {
         AgentCommands::List => {
             println!("Listing agents...");
-            // TODO: Implement agent listing
             Ok(())
         }
         AgentCommands::Info { name } => {
             println!("Agent info: {}", name);
-            // TODO: Implement agent info
             Ok(())
         }
         AgentCommands::Start { name } => {
             println!("Starting agent: {}", name);
-            // TODO: Implement agent start
             Ok(())
         }
         AgentCommands::Stop { name } => {
             println!("Stopping agent: {}", name);
-            // TODO: Implement agent stop
             Ok(())
         }
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_module_command(command: ModuleCommands, noa_root: Option<String>) -> Result<()> {
     use cli::modules::ModuleCmd;
     match command {
@@ -345,6 +396,7 @@ async fn handle_module_command(command: ModuleCommands, noa_root: Option<String>
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_provider_command(command: ProviderCommands) -> Result<()> {
     match command {
         ProviderCommands::List => cli::providers::list().await,
@@ -355,6 +407,7 @@ async fn handle_provider_command(command: ProviderCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_plane_command(command: PlaneCommands) -> Result<()> {
     use cli::plane::PlaneCmd;
     match command {
@@ -364,6 +417,7 @@ async fn handle_plane_command(command: PlaneCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_promotion_command(command: PromotionCommands) -> Result<()> {
     use cli::promotion::PromotionCmd;
     match command {
@@ -372,6 +426,7 @@ async fn handle_promotion_command(command: PromotionCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_healing_command(command: HealingCommands) -> Result<()> {
     use cli::healing::HealingCmd;
     match command {
@@ -379,6 +434,7 @@ async fn handle_healing_command(command: HealingCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_agents_command(command: AgentsCommands) -> Result<()> {
     use cli::agents::AgentsCmd;
     match command {
@@ -386,6 +442,7 @@ async fn handle_agents_command(command: AgentsCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_tasks_command(command: TasksCommands) -> Result<()> {
     use cli::tasks::TasksCmd;
     match command {
@@ -393,6 +450,7 @@ async fn handle_tasks_command(command: TasksCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_goal_command(command: GoalCommands) -> Result<()> {
     use cli::goal::GoalCmd;
     match command {
@@ -400,6 +458,7 @@ async fn handle_goal_command(command: GoalCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_logs_command(command: LogsCommands) -> Result<()> {
     use cli::logs::LogsCmd;
     match command {
@@ -407,6 +466,7 @@ async fn handle_logs_command(command: LogsCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_capsule_command(command: CapsuleCommands) -> Result<()> {
     use cli::capsule::CapsuleCmd;
     match command {
@@ -414,6 +474,7 @@ async fn handle_capsule_command(command: CapsuleCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_crm_command(command: CrmCommands) -> Result<()> {
     use cli::crm::CrmCmd;
     match command {
@@ -422,6 +483,7 @@ async fn handle_crm_command(command: CrmCommands) -> Result<()> {
     }
 }
 
+#[cfg(feature = "full")]
 async fn handle_virtual_packages_command(command: VirtualPackagesCommands, noa_root: Option<String>) -> Result<()> {
     use std::path::PathBuf;
 

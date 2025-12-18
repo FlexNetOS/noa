@@ -10,8 +10,9 @@ use clap::Args;
 use tracing::{info, warn};
 
 use crate::error::Result;
-use crate::db;
 use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure};
+
+#[cfg(feature = "full")]
 use crate::services::InitService;
 
 /// Arguments for the init command
@@ -81,8 +82,17 @@ pub async fn execute(args: InitArgs) -> Result<()> {
 
     // Verify initialization
     display_progress("Verifying initialization...");
-    let verification = InitService::verify(&target)?;
-    display_verification(&verification);
+
+    #[cfg(feature = "full")]
+    {
+        let verification = InitService::verify(&target)?;
+        display_verification(&verification);
+    }
+
+    #[cfg(not(feature = "full"))]
+    {
+        display_progress("(skipped) full verification requires --features full");
+    }
 
     println!("\n✓ NOA initialized successfully at {}", target.display());
     println!("\nNext steps:");
@@ -99,6 +109,7 @@ fn display_progress(message: &str) {
 }
 
 /// Display verification results
+#[cfg(feature = "full")]
 fn display_verification(result: &crate::services::VerificationResult) {
     if result.errors.is_empty() {
         display_progress("✓ All checks passed");
@@ -108,7 +119,6 @@ fn display_verification(result: &crate::services::VerificationResult) {
         }
     }
 }
-
 
 /// Create the .noa-env marker file
 fn create_marker_file(target: &PathBuf) -> Result<()> {

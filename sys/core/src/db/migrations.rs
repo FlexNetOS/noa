@@ -96,6 +96,7 @@ impl MigrationRunner {
         // Ensure migrations table exists
         self.ensure_migrations_table(conn)?;
 
+        let conn = conn.lock().unwrap();
         let mut stmt = conn
             .prepare("SELECT version FROM schema_migrations ORDER BY version")
             .map_err(|e| DatabaseError::QueryFailed {
@@ -138,7 +139,7 @@ impl MigrationRunner {
 
     /// Apply a single migration
     fn apply_migration(&self, conn: &Connection, migration: &Migration) -> Result<()> {
-        // Execute migration in a transaction
+        let conn = conn.lock().unwrap();
         conn.execute_batch(&format!(
             "BEGIN TRANSACTION;
             {};
@@ -163,19 +164,21 @@ impl MigrationRunner {
 
     /// Ensure the schema_migrations table exists
     fn ensure_migrations_table(&self, conn: &Connection) -> Result<()> {
-        conn.execute_batch(
-            r#"
+        conn.lock()
+            .unwrap()
+            .execute_batch(
+                r#"
             CREATE TABLE IF NOT EXISTS schema_migrations (
                 version TEXT PRIMARY KEY,
                 description TEXT,
                 applied_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
             "#,
-        )
-        .map_err(|e| DatabaseError::QueryFailed {
-            query: "CREATE schema_migrations".to_string(),
-            error: e.to_string(),
-        })?;
+            )
+            .map_err(|e| DatabaseError::QueryFailed {
+                query: "CREATE schema_migrations".to_string(),
+                error: e.to_string(),
+            })?;
 
         Ok(())
     }
@@ -204,16 +207,13 @@ impl MigrationRunner {
         let applied = self.get_applied_migrations(conn)?;
 
         if let Some(last_version) = applied.last() {
-            // Note: This is a simplified rollback - real rollback would need
-            // separate down migrations or stored rollback SQL
-            conn.execute(
-                "DELETE FROM schema_migrations WHERE version = ?",
-                [last_version],
-            )
-            .map_err(|e| DatabaseError::MigrationFailed {
-                version: last_version.clone(),
-                error: format!("Rollback failed: {}", e),
-            })?;
+            conn.lock()
+                .unwrap()
+                .execute("DELETE FROM schema_migrations WHERE version = ?", [last_version])
+                .map_err(|e| DatabaseError::MigrationFailed {
+                    version: last_version.clone(),
+                    error: format!("Rollback failed: {}", e),
+                })?;
 
             tracing::warn!(version = %last_version, "Rolled back migration (metadata only)");
             return Ok(Some(last_version.clone()));

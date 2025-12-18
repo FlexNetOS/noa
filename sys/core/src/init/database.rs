@@ -90,8 +90,8 @@ impl DatabaseInitializer {
                 error: e.to_string(),
             }))?;
 
-        // Find migration files
-        let migration_files = std::fs::read_dir(migrations_dir)
+        // Find migration files (stable order)
+        let mut migration_files = std::fs::read_dir(migrations_dir)
             .map_err(|e| NoaError::Io(e))?
             .filter_map(|entry| {
                 let entry = entry.ok()?;
@@ -103,6 +103,8 @@ impl DatabaseInitializer {
                 }
             })
             .collect::<Vec<_>>();
+
+        migration_files.sort_by_key(|p| p.file_name().map(|s| s.to_os_string()));
 
         // Apply pending migrations
         for migration_file in migration_files {
@@ -116,6 +118,13 @@ impl DatabaseInitializer {
 
             if applied.contains(&version.to_string()) {
                 debug!(version = %version, "Migration already applied");
+                continue;
+            }
+
+            // Minimal bootstrap only applies the initial migration.
+            // Additional migrations may depend on tables not yet created in minimal mode.
+            if version != "001_initial" {
+                debug!(version = %version, "Skipping migration in minimal bootstrap");
                 continue;
             }
 

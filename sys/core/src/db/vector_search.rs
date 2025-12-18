@@ -55,7 +55,8 @@ impl VectorSearch {
 
     /// Load vector search configuration from database
     fn load_config(conn: &Connection) -> Result<VectorSearchConfig> {
-        // Try to load from vss_config table
+        let conn = conn.lock().unwrap();
+
         let model: String = conn
             .query_row(
                 "SELECT value FROM vss_config WHERE key = 'model'",
@@ -123,14 +124,8 @@ impl VectorSearch {
             )));
         }
 
-        // Note: sqlite-vss requires the extension to be loaded
-        // This is a simplified implementation that would work with sqlite-vss
-        // In practice, you would use the vss_search function from sqlite-vss
-
-        // For now, we'll use a fallback approach that searches the embedding table
-        // and computes cosine similarity manually
-        let mut stmt = self
-            .conn
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = conn
             .prepare(
                 r#"
                 SELECT
@@ -176,7 +171,9 @@ impl VectorSearch {
         let mut results = Vec::new();
         for row in rows {
             let (id_str, vector, memory_id_str) = row?;
-            let id = Uuid::parse_str(&memory_id_str).unwrap_or_else(|_| Uuid::parse_str(&id_str).unwrap());
+            let id = Uuid::parse_str(&memory_id_str)
+                .or_else(|_| Uuid::parse_str(&id_str))
+                .unwrap_or_else(|_| Uuid::nil());
 
             // Compute cosine similarity
             let similarity = cosine_similarity(query_vector, &vector);

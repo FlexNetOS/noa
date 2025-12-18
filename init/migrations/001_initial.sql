@@ -47,23 +47,3 @@ CREATE TABLE IF NOT EXISTS logs (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE TRIGGER IF NOT EXISTS trg_tasks_updated_at
-AFTER UPDATE ON tasks
-FOR EACH ROW
-BEGIN
-  UPDATE tasks SET updated_at = datetime('now') WHERE id = NEW.id;
-END;
-
-CREATE TRIGGER IF NOT EXISTS trg_devices_updated_at
-AFTER UPDATE ON devices
-FOR EACH ROW
-BEGIN
-  UPDATE devices SET updated_at = datetime('now') WHERE id = NEW.id;
-END;
-
-CREATE TRIGGER IF NOT EXISTS trg_models_updated_at
-AFTER UPDATE ON models
-FOR EACH ROW
-BEGIN
-  UPDATE models SET updated_at = datetime('now') WHERE id = NEW.id;
-END;
