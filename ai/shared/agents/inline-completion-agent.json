@@ -1,0 +1,56 @@
+{
+  "$schema": "https://noa.local/schemas/agent.json",
+  "name": "inline-completion-agent",
+  "version": "1.0.0",
+  "description": "Fast inline code completion agent for IDE integration",
+  "category": "development",
+  "capabilities": [
+    "inline_completion",
+    "code_suggestions",
+    "context_aware_completion",
+    "multi_cursor_support"
+  ],
+  "system_prompt": "../prompts/inline-completion-system.md",
+  "tools": [
+    "file_read",
+    "syntax_check"
+  ],
+  "memory": {
+    "type": "buffer",
+    "persistence": "ephemeral",
+    "max_tokens": 4000
+  },
+  "provider_hints": {
+    "preferred": ["vscode-copilot", "cursor"],
+    "fallback": ["ollama", "llama-server"],
+    "requirements": {
+      "latency_ms": 200,
+      "capabilities": ["fast-inference", "streaming"]
+    }
+  },
+  "parameters": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "max_tokens": 256,
+    "stop_sequences": ["\n\n", "```"]
+  },
+  "latency": {
+    "target_ms": 150,
+    "timeout_ms": 500
+  },
+  "streaming": {
+    "enabled": true,
+    "chunk_size": 10
+  },
+  "examples": [
+    {
+      "context": "def calculate_",
+      "expected_completion": "sum(numbers: list[int]) -> int:\n    return sum(numbers)"
+    }
+  ],
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["completion", "inline", "fast", "ide"]
+  }
+}

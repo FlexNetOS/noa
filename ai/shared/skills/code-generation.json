@@ -1,0 +1,92 @@
+{
+  "$schema": "https://noa.local/schemas/skill.json",
+  "name": "code-generation",
+  "version": "1.0.0",
+  "description": "Generate code from natural language descriptions with best practices",
+  "category": "development",
+  "inputs": [
+    {
+      "name": "description",
+      "type": "string",
+      "required": true,
+      "description": "Natural language description of what to generate"
+    },
+    {
+      "name": "language",
+      "type": "string",
+      "required": true,
+      "enum": ["python", "typescript", "javascript", "rust", "go", "java", "csharp"],
+      "description": "Target programming language"
+    },
+    {
+      "name": "context",
+      "type": "string",
+      "required": false,
+      "description": "Existing code or project context"
+    },
+    {
+      "name": "conventions",
+      "type": "object",
+      "required": false,
+      "description": "Coding conventions to follow"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "code",
+      "type": "string",
+      "description": "Generated source code"
+    },
+    {
+      "name": "explanation",
+      "type": "string",
+      "description": "Explanation of the implementation"
+    },
+    {
+      "name": "imports",
+      "type": "array",
+      "description": "Required imports or dependencies"
+    }
+  ],
+  "prompt_template": "../prompts/code-generation.md",
+  "tools_required": [
+    "file_read",
+    "syntax_check",
+    "format_code"
+  ],
+  "quality_criteria": {
+    "type_annotations": true,
+    "error_handling": true,
+    "documentation": true,
+    "edge_cases": true
+  },
+  "examples": [
+    {
+      "input": {
+        "description": "Create a function that reverses a string",
+        "language": "python"
+      },
+      "output": {
+        "code": "def reverse_string(s: str) -> str:\n    \"\"\"Reverse the given string.\n    \n    Args:\n        s: The string to reverse.\n        \n    Returns:\n        The reversed string.\n        \n    Examples:\n        >>> reverse_string('hello')\n        'olleh'\n    \"\"\"\n    return s[::-1]",
+        "explanation": "Uses Python slice notation with step -1 to reverse the string in O(n) time complexity.",
+        "imports": []
+      }
+    },
+    {
+      "input": {
+        "description": "Create an async function to fetch JSON from a URL",
+        "language": "typescript"
+      },
+      "output": {
+        "code": "async function fetchJson<T>(url: string): Promise<T> {\n  const response = await fetch(url);\n  if (!response.ok) {\n    throw new Error(`HTTP error! status: ${response.status}`);\n  }\n  return response.json() as Promise<T>;\n}",
+        "explanation": "Generic async function with proper error handling and type safety.",
+        "imports": []
+      }
+    }
+  ],
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["code", "generation", "development", "skill"]
+  }
+}

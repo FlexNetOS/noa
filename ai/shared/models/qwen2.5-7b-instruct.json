@@ -1,0 +1,68 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "name": "qwen2.5-7b-instruct",
+  "version": "1.0.0",
+  "description": "Qwen2.5 7B Instruct model for general-purpose coding and reasoning",
+  "family": "qwen2.5",
+  "size": "7b",
+  "quantization": "Q4_K_M",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "file": {
+    "name": "qwen2.5-7b-instruct-q4_k_m.gguf",
+    "size_bytes": 4368000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": true,
+    "vision": false,
+    "code": true,
+    "reasoning": true
+  },
+  "parameters": {
+    "context_length": 32768,
+    "max_output_tokens": 8192,
+    "temperature_default": 0.7,
+    "top_p_default": 0.9,
+    "top_k_default": 40,
+    "repeat_penalty_default": 1.1
+  },
+  "chat_template": {
+    "format": "chatml",
+    "system_prefix": "<|im_start|>system\n",
+    "system_suffix": "<|im_end|>\n",
+    "user_prefix": "<|im_start|>user\n",
+    "user_suffix": "<|im_end|>\n",
+    "assistant_prefix": "<|im_start|>assistant\n",
+    "assistant_suffix": "<|im_end|>\n"
+  },
+  "recommended_for": [
+    "code_generation",
+    "general_chat",
+    "analysis",
+    "reasoning",
+    "instruction_following"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 6,
+    "recommended_vram_gb": 8,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 8
+  },
+  "performance": {
+    "tokens_per_second_gpu": 40,
+    "tokens_per_second_cpu": 8,
+    "first_token_latency_ms": 200
+  },
+  "metadata": {
+    "author": "Qwen Team (Alibaba)",
+    "license": "Apache-2.0",
+    "release_date": "2024-09-19",
+    "noa_added": "2025-12-17",
+    "tags": ["instruct", "chat", "code", "multilingual"]
+  }
+}
