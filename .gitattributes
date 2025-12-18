@@ -8,3 +8,4 @@ bin/docker-compose filter=lfs diff=lfs merge=lfs -text
 *.node filter=lfs diff=lfs merge=lfs -text
 *.exe filter=lfs diff=lfs merge=lfs -text
 lib/*.so* filter=lfs diff=lfs merge=lfs -text
+data/pnpm/store/** filter=lfs diff=lfs merge=lfs -text
