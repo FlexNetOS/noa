@@ -95,6 +95,22 @@ For offline-first, auditable documentation:
 - maintain runbooks and pages alongside code
 - rely on Git history for traceability of changes and verification
 
+## Tooling (quick, open source)
+
+The policy above is tooling-agnostic, but these options are low-effort to adopt:
+
+- **MkDocs + Material for MkDocs**: fast docs-as-code site, good search, mobile-friendly.
+  - https://www.mkdocs.org/
+  - https://squidfunk.github.io/mkdocs-material/
+
+- **Backstage TechDocs** (service catalog + docs discovery): docs-as-code rendered per service from the catalog.
+  - https://backstage.io/docs/features/techdocs/
+
+- **Rundeck Community (OSS)** (runbook automation runner): execute scripted diagnostics/remediations from a central job runner.
+  - https://docs.rundeck.com/
+
+If adopting one thing first: generate a static docs site (MkDocs), then add a catalog layer (Backstage) when service count grows.
+
 ## NOA-specific notes
 
 - Prefer linking alert ? runbook ? automation where feasible.
