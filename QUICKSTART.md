@@ -3,25 +3,64 @@
 ## 🚀 Start the Full Stack Application
 
 ### Prerequisites
-All toolchains are already installed in `N:\noa\opt\`:
+Toolchains are installed in `N:\noa\opt\`:
 - Rust 1.91.1
 - Node 20.18.1
 - Go 1.23.4
 - Python 3.12.8
 
+### Environment (Kernels + Conda-forge for notebooks)
+
+**Windows (PowerShell):**
+```powershell
+. N:\noa\noa-env.ps1
+```
+
+This sets:
+- `NOA_KERNEL=N:\noa\sys\kernel`
+- toolchains on `PATH`
+- helper commands for a self-contained conda-forge environment
+
+**Bash (Linux/macOS/WSL):**
+```bash
+source /path/to/noa/.noa-env
+```
+
+#### Conda-forge runtime (recommended for notebooks)
+
+NOA uses a self-contained micromamba environment under `N:\noa\opt\conda` (or `$NOA_OPT/conda`) intended for Jupyter/notebook workflows.
+
+Bootstrap (requires you to place `micromamba`/`micromamba.exe` in `opt/conda/`):
+
+- Windows:
+  ```powershell
+  . N:\noa\noa-env.ps1
+  .\scripts\conda\bootstrap-micromamba.ps1
+  noa-conda-activate
+  ```
+
+- Bash:
+  ```bash
+  source /path/to/noa/.noa-env
+  ./scripts/conda/bootstrap-micromamba.sh
+  noa_conda_activate
+  ```
+
+> Legacy note: `.noa-env` still supports activating `$NOA_OPT/venv` if it exists, but conda-forge is the preferred cross-platform strategy.
+
 ### Start Servers
 
 **Terminal 1 - API Server:**
 ```powershell
+. N:\noa\noa-env.ps1
 cd N:\noa\sys\core
-$env:PATH = "N:\noa\opt\rust\cargo\bin;$env:PATH"
-cargo run --bin noa-api
+cargo run -p noa-api --bin noa-api
 ```
 
 **Terminal 2 - UI Server:**
 ```powershell
+. N:\noa\noa-env.ps1
 cd N:\noa\sys\ui
-$env:PATH = "N:\noa\opt\node;$env:PATH"
 npm run dev
 ```
 
@@ -67,7 +106,7 @@ Invoke-WebRequest `
 ```powershell
 Invoke-WebRequest `
     -Uri http://localhost:3001/api/v1/status `
-    -UseBasicParsing | 
+    -UseBasicParsing |
     Select-Object -ExpandProperty Content
 ```
 
@@ -123,102 +162,13 @@ cargo test
 | Agent Orchestrator | ⏳ Pending | - | CECCA framework |
 | P2P Network | ⏳ Pending | - | libp2p federation |
 
-## 🎨 UI Features
-
-1. **System Dashboard**
-   - Real-time component status
-   - Health indicators with color coding
-   - Version information
-
-2. **Chat Interface**
-   - Natural language input
-   - Task creation via API
-   - Message history
-   - Loading states
-
-3. **Responsive Design**
-   - Works on desktop and mobile
-   - Dark theme with gradients
-   - Smooth animations
-
-## 🔌 API Endpoints
-
-### Health & Status
-- `GET /health` - Server health check
-  ```json
-  {"status":"healthy","version":"0.1.0"}
-  ```
-
-- `GET /api/v1/status` - Component status
-  ```json
-  {
-    "status":"operational",
-    "components":{
-      "api":true,
-      "database":true,
-      "embedder":false,
-      "agents":false,
-      "p2p":false
-    }
-  }
-  ```
-
-### Tasks
-- `GET /api/v1/tasks` - List all tasks
-  ```json
-  {"tasks":[]}
-  ```
-
-- `POST /api/v1/tasks` - Create new task
-  ```json
-  {
-    "description": "Task description",
-    "priority": "normal"
-  }
-  ```
-  Response:
-  ```json
-  {
-    "task_id": "uuid",
-    "status": "queued"
-  }
-  ```
-
-## 🐛 Troubleshooting
-
-**API server won't start:**
-- Check if port 3001 is available
-- Verify Rust toolchain is in PATH
-- Check `sys/core/target/debug/` for build artifacts
-
-**UI server won't start:**
-- Check if port 3000 is available
-- Verify Node is in PATH
-- Run `npm install` in `sys/ui/`
-
-**CORS errors:**
-- API server has CORS enabled for all origins
-- Check browser console for specific errors
-
 ## 📚 Next Steps
 
-1. **Integrate llama.cpp** for local LLM inference
-2. **Activate database** with SQLite
-3. **Build embedder** with FastEmbed
-4. **Implement CECCA** agent orchestrator
-5. **Add P2P networking** with libp2p
-
-## 🎓 Learn More
-
-- See `README.md` for full documentation
-- Check `specs/001-noa-seed-foundation/` for specifications
-- Review `sys/core/crates/` for Rust implementation
-- Explore `sys/ui/src/` for UI components
-
----
-
-**Status**: ✅ Full stack operational and ready for development!
-xplore `sys/ui/src/` for UI components
+1. Integrate llama.cpp for local LLM inference
+2. Activate database with SQLite
+3. Build embedder with FastEmbed
+4. Implement CECCA agent orchestrator
+5. Add P2P networking with libp2p
 
 ---
 

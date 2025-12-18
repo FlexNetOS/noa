@@ -1,0 +1,151 @@
+# Code Analysis Workflow
+# Orchestrates comprehensive code analysis using multiple agents
+
+$schema: "https://noa.local/schemas/workflow.yaml"
+name: code-analysis-workflow
+version: "1.0.0"
+description: "Multi-stage code analysis workflow for comprehensive code review"
+
+metadata:
+  author: NOA Team
+  created: "2025-12-17"
+  tags:
+    - code-analysis
+    - review
+    - quality
+
+triggers:
+  - type: command
+    command: analyze-code
+  - type: event
+    event: file.saved
+    filter:
+      extensions: [".rs", ".py", ".ts", ".js", ".go"]
+
+inputs:
+  path:
+    type: string
+    required: true
+    description: "File or directory path to analyze"
+  depth:
+    type: string
+    enum: [shallow, normal, deep]
+    default: normal
+    description: "Analysis depth"
+  include_security:
+    type: boolean
+    default: true
+    description: "Include security analysis"
+  include_performance:
+    type: boolean
+    default: true
+    description: "Include performance analysis"
+
+outputs:
+  summary:
+    type: string
+    description: "Executive summary of findings"
+  issues:
+    type: array
+    description: "List of identified issues"
+  recommendations:
+    type: array
+    description: "Improvement recommendations"
+  metrics:
+    type: object
+    description: "Code quality metrics"
+
+steps:
+  - id: read-files
+    name: "Read Source Files"
+    tool: file_read
+    inputs:
+      path: "{{ inputs.path }}"
+      recursive: true
+    outputs:
+      files: "{{ result.files }}"
+
+  - id: static-analysis
+    name: "Static Code Analysis"
+    agent: reasoning-agent
+    inputs:
+      problem: "Analyze the following code for issues, patterns, and improvements"
+      context: "{{ steps.read-files.outputs.files }}"
+      reasoning_type: deductive
+      depth: "{{ inputs.depth }}"
+    outputs:
+      analysis: "{{ result.analysis }}"
+      issues: "{{ result.conclusions }}"
+
+  - id: security-scan
+    name: "Security Analysis"
+    condition: "{{ inputs.include_security }}"
+    agent: reasoning-agent
+    inputs:
+      problem: "Identify security vulnerabilities and risks in this code"
+      context: "{{ steps.read-files.outputs.files }}"
+      reasoning_type: abductive
+    outputs:
+      security_issues: "{{ result.conclusions }}"
+
+  - id: performance-review
+    name: "Performance Analysis"
+    condition: "{{ inputs.include_performance }}"
+    agent: reasoning-agent
+    inputs:
+      problem: "Analyze performance characteristics and potential bottlenecks"
+      context: "{{ steps.read-files.outputs.files }}"
+      reasoning_type: deductive
+    outputs:
+      performance_issues: "{{ result.conclusions }}"
+
+  - id: generate-recommendations
+    name: "Generate Recommendations"
+    agent: code-generation-agent
+    depends_on:
+      - static-analysis
+      - security-scan
+      - performance-review
+    inputs:
+      description: "Generate specific, actionable recommendations based on analysis"
+      context: |
+        Static Analysis: {{ steps.static-analysis.outputs.analysis }}
+        Security Issues: {{ steps.security-scan.outputs.security_issues | default([]) }}
+        Performance Issues: {{ steps.performance-review.outputs.performance_issues | default([]) }}
+      language: markdown
+    outputs:
+      recommendations: "{{ result.code }}"
+
+  - id: compile-report
+    name: "Compile Final Report"
+    agent: orchestration-agent
+    depends_on:
+      - generate-recommendations
+    inputs:
+      problem: "Compile a comprehensive code analysis report"
+      context: |
+        Analysis: {{ steps.static-analysis.outputs.analysis }}
+        Issues: {{ steps.static-analysis.outputs.issues }}
+        Security: {{ steps.security-scan.outputs.security_issues | default([]) }}
+        Performance: {{ steps.performance-review.outputs.performance_issues | default([]) }}
+        Recommendations: {{ steps.generate-recommendations.outputs.recommendations }}
+    outputs:
+      summary: "{{ result.analysis }}"
+      all_issues: "{{ result.conclusions }}"
+
+error_handling:
+  on_step_failure:
+    strategy: continue
+    fallback: skip
+  on_workflow_failure:
+    strategy: report
+    notify: false
+
+timeout:
+  total_ms: 300000
+  per_step_ms: 60000
+
+concurrency:
+  max_parallel_steps: 3
+  allow_step_retry: true
+  max_retries: 2

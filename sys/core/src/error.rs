@@ -276,18 +276,15 @@ impl From<serde_json::Error> for NoaError {
     }
 }
 
-impl From<prometheus::Error> for NoaError {
-    fn from(err: prometheus::Error) -> Self {
-        NoaError::Internal {
-            message: format!("Prometheus error: {}", err),
-            source: Some(Box::new(err)),
-        }
+impl From<uuid::Error> for NoaError {
+    fn from(err: uuid::Error) -> Self {
+        NoaError::Validation(ValidationError::new("uuid", err.to_string(), "INVALID_UUID"))
     }
 }
 
-impl From<std::string::FromUtf8Error> for NoaError {
-    fn from(err: std::string::FromUtf8Error) -> Self {
-        NoaError::Serialization(format!("UTF-8 conversion error: {}", err))
+impl From<chrono::ParseError> for NoaError {
+    fn from(err: chrono::ParseError) -> Self {
+        NoaError::Validation(ValidationError::new("datetime", err.to_string(), "INVALID_DATETIME"))
     }
 }
 

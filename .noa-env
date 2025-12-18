@@ -53,6 +53,12 @@ export NOA_NAMESPACE=$NOA_SYS/namespace
 export NOA_CGROUP=$NOA_SYS/cgroup
 export NOA_KERNEL=$NOA_SYS/kernel
 
+# Add kernel tools to PATH (platform-specific subdirs)
+noa_add_path "$NOA_KERNEL/linux"
+noa_add_path "$NOA_KERNEL/linux/vm"
+noa_add_path "$NOA_KERNEL/linux/namespaces"
+noa_add_path "$NOA_KERNEL/macos/vm"
+
 # Add NOA directories to PATH (only if they exist and not already in PATH)
 noa_add_path() {
   local dir="$1"
@@ -76,7 +82,38 @@ noa_add_path "$NOA_SCRIPTS"
 # Set library path for bundled libraries
 noa_add_lib_path "$NOA_LIB"
 
-# Activate Python virtual environment
+# Conda-forge environment (for notebooks / cross-platform Python)
+# Preferred runtime is a self-contained micromamba environment under $NOA_OPT/conda
+export NOA_CONDA="$NOA_OPT/conda"
+export NOA_CONDA_ENV="$NOA_CONDA/envs/noa"
+
+noa_conda_init() {
+  mkdir -p "$NOA_CONDA"
+  local micromamba="$NOA_CONDA/micromamba"
+  if [ ! -x "$micromamba" ]; then
+    echo "micromamba not found/executable at: $micromamba" >&2
+    echo "Install or place micromamba there to enable conda-forge envs." >&2
+    return 1
+  fi
+  "$micromamba" create -y -p "$NOA_CONDA_ENV" -c conda-forge python=3.12 jupyterlab ipykernel
+}
+
+noa_conda_activate() {
+  local micromamba="$NOA_CONDA/micromamba"
+  if [ ! -x "$micromamba" ]; then
+    echo "micromamba not found/executable at: $micromamba" >&2
+    return 1
+  fi
+  eval "$("$micromamba" shell hook -s bash)"
+  micromamba activate -p "$NOA_CONDA_ENV"
+}
+
+# Prefer conda env if it already exists
+if [ -f "$NOA_CONDA_ENV/bin/python" ]; then
+  noa_add_path "$NOA_CONDA_ENV/bin"
+fi
+
+# Legacy: Activate Python virtual environment if present
 [ -f "$NOA_OPT/venv/bin/activate" ] && source "$NOA_OPT/venv/bin/activate"
 
 # Ensure NOA CLI tool is accessible

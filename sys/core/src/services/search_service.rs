@@ -90,7 +90,7 @@ impl SearchService {
     ) -> Result<Vec<SearchResult>> {
         // Simple keyword search in content and tags
         // In a real implementation, this would use full-text search
-        let all_memories = self.memory_repo.list(0, (limit * 2) as u64)?; // Get more to filter
+        let all_memories = self.memory_repo.list(0, limit * 2)?; // Get more to filter
 
         let query_lower = query.to_lowercase();
         let mut results: Vec<_> = all_memories

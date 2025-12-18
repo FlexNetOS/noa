@@ -1,0 +1,68 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "id": "qwen3-0.6b",
+  "name": "Qwen3 0.6B",
+  "version": "1.0.0",
+  "description": "Alibaba Qwen3 0.6B - Ultra-compact model for edge deployment and rapid inference",
+  "family": "qwen3",
+  "size": "0.6b",
+  "quantization": "BF16",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "Qwen/Qwen3-0.6B",
+    "license": "Apache-2.0"
+  },
+  "file": {
+    "name": "Qwen3-0.6B-BF16.gguf",
+    "size_bytes": 1200000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-BF16.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": false,
+    "vision": false,
+    "code": true,
+    "reasoning": false
+  },
+  "parameters": {
+    "context_length": 32768,
+    "max_output_tokens": 4096,
+    "temperature_default": 0.7,
+    "top_p_default": 0.9,
+    "top_k_default": 40,
+    "repeat_penalty_default": 1.1
+  },
+  "chat_template": {
+    "format": "chatml",
+    "system_prefix": "<|im_start|>system\n",
+    "system_suffix": "<|im_end|>\n",
+    "user_prefix": "<|im_start|>user\n",
+    "user_suffix": "<|im_end|>\n",
+    "assistant_prefix": "<|im_start|>assistant\n",
+    "assistant_suffix": "<|im_end|>\n"
+  },
+  "recommended_for": [
+    "edge_deployment",
+    "mobile",
+    "rapid_inference",
+    "simple_tasks",
+    "resource_constrained"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 1,
+    "recommended_vram_gb": 2,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 4
+  },
+  "metadata": {
+    "author": "Qwen Team (Alibaba)",
+    "release_date": "2025-04",
+    "noa_added": "2025-12-17",
+    "tags": ["compact", "edge", "mobile", "fast", "qwen3"]
+  }
+}

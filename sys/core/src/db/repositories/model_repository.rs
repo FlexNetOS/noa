@@ -129,7 +129,7 @@ impl ModelRepository {
             })
         }).transpose()?;
 
-        self.conn
+        self.conn.lock().unwrap()
             .execute(
                 r#"
                 INSERT INTO model (
@@ -167,7 +167,7 @@ impl ModelRepository {
     /// Find model by ID
     pub fn find_by_id(&self, id: &Uuid) -> Result<Option<Model>> {
         let mut stmt = self
-            .conn
+            .conn.lock().unwrap()
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
@@ -181,13 +181,16 @@ impl ModelRepository {
                 error: e.to_string(),
             })?;
 
-        let result = stmt
-            .query_row(params![id.to_string()], |row| self.row_to_model(row))
-            .optional()
-            .map_err(|e| DatabaseError::QueryFailed {
-                query: "find_by_id".to_string(),
-                error: e.to_string(),
-            })?;
+        let result = match stmt.query_row(params![id.to_string()], |row| self.row_to_model(row)) {
+            Ok(model) => Some(model),
+            Err(rusqlite::Error::QueryReturnedNoRows) => None,
+            Err(e) => {
+                return Err(DatabaseError::QueryFailed {
+                    query: "find_by_id".to_string(),
+                    error: e.to_string(),
+                }.into());
+            }
+        };
 
         Ok(result)
     }
@@ -304,7 +307,7 @@ impl ModelRepository {
         }).transpose()?;
 
         let rows_affected = self
-            .conn
+            .conn.lock().unwrap()
             .execute(
                 r#"
                 UPDATE model
@@ -396,7 +399,7 @@ impl ModelRepository {
     /// Convert database row to Model entity
     fn row_to_model(&self, row: &Row) -> rusqlite::Result<Model> {
         let id_str: String = row.get(0)?;
-        let id = Uuid::parse_str(&id_str).map_err(|e| {
+        let id = Uuid::parse_str(&id_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(0, "uuid".to_string(), rusqlite::types::Type::Text)
         })?;
 

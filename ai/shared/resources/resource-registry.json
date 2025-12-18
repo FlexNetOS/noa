@@ -2,22 +2,74 @@
     "$schema": "https://noa.local/schemas/resource-registry.json",
     "version": "1.0.0",
     "description": "Central registry of all unified shared resources (§3.13)",
-    "lastUpdated": "2025-12-09T00:00:00Z",
+    "lastUpdated": "2025-12-17T00:00:00Z",
     "registry": {
         "agents": {
             "path": "ai/shared/agents/",
             "description": "AI agent definitions",
-            "resources": []
+            "resources": [
+                {
+                    "name": "reasoning-agent",
+                    "file": "reasoning-agent.json",
+                    "type": "agent",
+                    "providers": ["all"],
+                    "description": "Advanced reasoning and analysis agent"
+                },
+                {
+                    "name": "code-generation-agent",
+                    "file": "code-generation-agent.json",
+                    "type": "agent",
+                    "providers": ["all"],
+                    "description": "Code generation and refactoring agent"
+                },
+                {
+                    "name": "inline-completion-agent",
+                    "file": "inline-completion-agent.json",
+                    "type": "agent",
+                    "providers": ["all"],
+                    "description": "Fast inline code completion agent"
+                },
+                {
+                    "name": "orchestration-agent",
+                    "file": "orchestration-agent.json",
+                    "type": "agent",
+                    "providers": ["all"],
+                    "description": "Multi-provider orchestration agent"
+                }
+            ]
         },
         "tools": {
             "path": "ai/shared/tools/",
             "description": "MCP tool definitions",
-            "resources": []
+            "resources": [
+                {
+                    "name": "reasoning-tool",
+                    "file": "reasoning-tool.json",
+                    "type": "tool",
+                    "providers": ["all"],
+                    "description": "Complex reasoning and analysis tool"
+                },
+                {
+                    "name": "code-generation-tool",
+                    "file": "code-generation-tool.json",
+                    "type": "tool",
+                    "providers": ["all"],
+                    "description": "Code generation from natural language"
+                }
+            ]
         },
         "commands": {
             "path": "ai/shared/commands/",
             "description": "Shared command definitions",
-            "resources": []
+            "resources": [
+                {
+                    "name": "ultrathink",
+                    "file": "ultrathink.command.yaml",
+                    "type": "command",
+                    "providers": ["all"],
+                    "description": "Deep thinking and reasoning command"
+                }
+            ]
         },
         "prompts": {
             "path": "ai/shared/prompts/",
@@ -34,23 +86,95 @@
                     "file": "startup-prmt.md",
                     "type": "system",
                     "providers": ["all"]
+                },
+                {
+                    "name": "ultrathink-prompt",
+                    "file": "ultrathink.prompt.md",
+                    "type": "system",
+                    "providers": ["all"]
                 }
             ]
         },
         "workflows": {
             "path": "ai/shared/workflows/",
             "description": "Orchestration workflows",
-            "resources": []
+            "resources": [
+                {
+                    "name": "code-analysis-workflow",
+                    "file": "code-analysis-workflow.yaml",
+                    "type": "workflow",
+                    "providers": ["all"],
+                    "description": "Multi-stage code analysis workflow"
+                }
+            ]
         },
         "skills": {
             "path": "ai/shared/skills/",
             "description": "Agent skill modules",
-            "resources": []
+            "resources": [
+                {
+                    "name": "code-generation",
+                    "file": "code-generation.json",
+                    "type": "skill",
+                    "providers": ["all"],
+                    "description": "Code generation skill with best practices"
+                }
+            ]
         },
         "models": {
             "path": "ai/shared/models/",
             "description": "Model adapters and configs",
-            "resources": []
+            "resources": [
+                {
+                    "name": "phi4-mini-reasoning",
+                    "file": "phi4-mini-reasoning.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Microsoft Phi-4 Mini 3.8B - Math reasoning optimized"
+                },
+                {
+                    "name": "gemma-3n-e2b",
+                    "file": "gemma-3n-e2b.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Google Gemma 3n E2B - Efficient multimodal model"
+                },
+                {
+                    "name": "deepseek-r1-distill-qwen-1.5b",
+                    "file": "deepseek-r1-distill-qwen-1.5b.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "DeepSeek R1 distilled 1.5B - Ultra-lightweight reasoning"
+                },
+                {
+                    "name": "qwen3-4b",
+                    "file": "qwen3-4b.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Alibaba Qwen3 4B - Compact general-purpose model"
+                },
+                {
+                    "name": "qwen3-0.6b",
+                    "file": "qwen3-0.6b.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Alibaba Qwen3 0.6B - Ultra-compact edge model"
+                },
+                {
+                    "name": "gemma-3-1b",
+                    "file": "gemma-3-1b.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Google Gemma 3 1B - Lightweight instruction model"
+                },
+                {
+                    "name": "gemma-3-4b-qat",
+                    "file": "gemma-3-4b-qat.json",
+                    "type": "model",
+                    "providers": ["local"],
+                    "description": "Google Gemma 3 4B QAT - High quality quantized model"
+                }
+            ]
         },
         "resources": {
             "path": "ai/shared/resources/",
@@ -90,13 +214,6 @@
                     "type": "configuration",
                     "providers": ["all"],
                     "description": "Task distribution across AI providers"
-                },
-                {
-                    "name": "provider-sync-config",
-                    "file": "provider-sync-config.json",
-                    "type": "configuration",
-                    "providers": ["all"],
-                    "description": "Provider state synchronization configuration"
                 }
             ]
         },

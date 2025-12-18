@@ -1,0 +1,76 @@
+{
+  "$schema": "https://noa.local/schemas/agent.json",
+  "name": "orchestration-agent",
+  "version": "1.0.0",
+  "description": "Multi-provider orchestration agent for coordinating complex tasks across AI providers",
+  "category": "orchestration",
+  "capabilities": [
+    "task_decomposition",
+    "provider_selection",
+    "parallel_execution",
+    "result_aggregation",
+    "context_management",
+    "error_recovery"
+  ],
+  "system_prompt": "../prompts/orchestration-system.md",
+  "tools": [
+    "provider_invoke",
+    "task_queue",
+    "context_share",
+    "result_merge",
+    "fallback_route"
+  ],
+  "memory": {
+    "type": "execution",
+    "persistence": "task",
+    "max_tokens": 64000,
+    "shared": true
+  },
+  "provider_hints": {
+    "preferred": ["cursor", "claude-code"],
+    "fallback": ["ollama"],
+    "requirements": {
+      "min_context_length": 32000,
+      "capabilities": ["orchestration", "multi-provider"]
+    }
+  },
+  "parameters": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "max_tokens": 8192
+  },
+  "orchestration": {
+    "max_parallel_tasks": 4,
+    "timeout_per_task_ms": 60000,
+    "retry_attempts": 3,
+    "fallback_enabled": true
+  },
+  "delegation_rules": [
+    {
+      "task_type": "code_generation",
+      "delegate_to": "code-generation-agent",
+      "priority": 1
+    },
+    {
+      "task_type": "reasoning",
+      "delegate_to": "reasoning-agent",
+      "priority": 1
+    },
+    {
+      "task_type": "completion",
+      "delegate_to": "inline-completion-agent",
+      "priority": 2
+    }
+  ],
+  "examples": [
+    {
+      "input": "Analyze this codebase and generate comprehensive documentation",
+      "expected_behavior": "Decomposes into analysis and generation subtasks, delegates appropriately, aggregates results"
+    }
+  ],
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["orchestration", "coordination", "multi-provider"]
+  }
+}

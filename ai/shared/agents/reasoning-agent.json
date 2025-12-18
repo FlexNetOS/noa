@@ -1,0 +1,50 @@
+{
+  "$schema": "https://noa.local/schemas/agent.json",
+  "name": "reasoning-agent",
+  "version": "1.0.0",
+  "description": "Advanced reasoning and analysis agent for complex problem-solving",
+  "category": "analysis",
+  "capabilities": [
+    "complex_reasoning",
+    "step_by_step_analysis",
+    "multi_perspective_evaluation",
+    "logical_deduction",
+    "hypothesis_generation"
+  ],
+  "system_prompt": "../prompts/reasoning-system.md",
+  "tools": [
+    "search",
+    "calculate",
+    "summarize",
+    "compare"
+  ],
+  "memory": {
+    "type": "conversation",
+    "persistence": "session",
+    "max_tokens": 32000
+  },
+  "provider_hints": {
+    "preferred": ["claude-code", "cursor"],
+    "fallback": ["ollama", "llama-server"],
+    "requirements": {
+      "min_context_length": 16000,
+      "capabilities": ["reasoning", "long-context"]
+    }
+  },
+  "parameters": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "max_tokens": 4096
+  },
+  "examples": [
+    {
+      "input": "Analyze the trade-offs between using SQLite vs PostgreSQL for a local-first application",
+      "expected_behavior": "Provides structured comparison with pros/cons, use cases, and recommendation"
+    }
+  ],
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["reasoning", "analysis", "problem-solving"]
+  }
+}

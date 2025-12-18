@@ -6,8 +6,7 @@
 
 use crate::db::Connection;
 use crate::error::{DatabaseError, NoaError, Result};
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use chrono::{DateTime, Utc};
 use rusqlite::{params, Row};
 use serde_json::{Map, Value};
 use std::collections::HashSet;
@@ -65,12 +64,12 @@ impl MemoryType {
 
 /// Memory repository for CRUD operations
 pub struct MemoryRepository {
-    conn: Arc<Mutex<Connection>>,
+    conn: Connection,
 }
 
 impl MemoryRepository {
     /// Create a new memory repository
-    pub fn new(conn: Arc<Mutex<Connection>>) -> Self {
+    pub fn new(conn: Connection) -> Self {
         Self { conn }
     }
 

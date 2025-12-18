@@ -1,0 +1,76 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "id": "deepseek-r1-distill-qwen-1.5b",
+  "name": "DeepSeek R1 Distill Qwen 1.5B",
+  "version": "1.0.0",
+  "description": "DeepSeek R1 distilled to Qwen 1.5B - Ultra-lightweight reasoning model with chain-of-thought capabilities",
+  "family": "deepseek-r1",
+  "size": "1.5b",
+  "quantization": "Q8_0",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "base_model": "Qwen/Qwen2.5-Math-1.5B",
+    "license": "Apache-2.0"
+  },
+  "file": {
+    "name": "DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf",
+    "size_bytes": 1890000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": false,
+    "vision": false,
+    "code": true,
+    "reasoning": true,
+    "math": true,
+    "chain_of_thought": true
+  },
+  "parameters": {
+    "context_length": 128000,
+    "max_output_tokens": 32768,
+    "temperature_default": 0.6,
+    "top_p_default": 0.95,
+    "top_k_default": 40,
+    "repeat_penalty_default": 1.1
+  },
+  "chat_template": {
+    "format": "deepseek",
+    "user_prefix": "<?User?>",
+    "user_suffix": "",
+    "assistant_prefix": "<?Assistant?>",
+    "assistant_suffix": ""
+  },
+  "recommended_for": [
+    "math_reasoning",
+    "chain_of_thought",
+    "lightweight_reasoning",
+    "edge_deployment",
+    "resource_constrained"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 2,
+    "recommended_vram_gb": 4,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 4
+  },
+  "benchmarks": {
+    "AIME_2024_pass1": 28.9,
+    "AIME_2024_cons64": 52.7,
+    "MATH_500": 83.9,
+    "GPQA_Diamond": 33.8,
+    "LiveCodeBench": 16.9
+  },
+  "metadata": {
+    "author": "DeepSeek AI",
+    "release_date": "2025-01",
+    "noa_added": "2025-12-17",
+    "tags": ["reasoning", "distilled", "lightweight", "math", "cot"]
+  }
+}

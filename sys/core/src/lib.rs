@@ -21,3 +21,4 @@ pub mod observability;
 pub mod services;
 pub mod vector;
 pub mod agents;
+pub mod virtual_packages;

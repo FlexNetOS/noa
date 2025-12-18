@@ -35,7 +35,7 @@ pub enum EscalationUrgency {
 
 /// Escalation notifier
 pub struct EscalationNotifier {
-    notification_channels: Vec<NotificationChannel>,
+    notification_channels: Vec<Box<dyn NotificationChannel>>,
 }
 
 /// Notification channel trait
@@ -104,7 +104,7 @@ impl EscalationNotifier {
     fn determine_urgency(
         &self,
         health: &crate::healing::ComponentHealth,
-        anomaly_type: &Option<String>,
+        _anomaly_type: &Option<String>,
     ) -> EscalationUrgency {
         match health {
             crate::healing::ComponentHealth::Critical => EscalationUrgency::Critical,

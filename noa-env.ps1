@@ -18,6 +18,14 @@ if ($ScriptPath) {
     $env:NOA_ROOT = $PWD.Path
 }
 
+# Add NOA directories to PATH
+function Add-NoaPath {
+    param([string]$Dir)
+    if ((Test-Path $Dir) -and ($env:PATH -notlike "*$Dir*")) {
+        $env:PATH = "$Dir;$env:PATH"
+    }
+}
+
 # Core directories
 $env:NOA_REPOS = Join-Path $env:NOA_ROOT "repos"
 $env:NOA_CONTAINERS = Join-Path $env:NOA_ROOT "containers"
@@ -74,6 +82,11 @@ $env:NOA_NAMESPACE = Join-Path $env:NOA_SYS "namespace"
 $env:NOA_CGROUP = Join-Path $env:NOA_SYS "cgroup"
 $env:NOA_KERNEL = Join-Path $env:NOA_SYS "kernel"
 
+# Add kernel tools to PATH
+Add-NoaPath (Join-Path $env:NOA_KERNEL "windows")
+Add-NoaPath (Join-Path $env:NOA_KERNEL "windows\hyperv")
+Add-NoaPath (Join-Path $env:NOA_KERNEL "windows\sandbox")
+
 # Go environment (portable installation)
 $env:GOROOT = Join-Path $env:NOA_OPT "go"
 $env:GOPATH = Join-Path $env:NOA_OPT "go\workspace"
@@ -120,49 +133,44 @@ Add-NoaPath (Join-Path $env:NOA_OPT "cmake\bin")
 # Add llama.cpp build to PATH
 Add-NoaPath (Join-Path $env:NOA_OPT "llama.cpp\build\bin\Release")
 
-# Add portable PowerShell to PATH (Constitution §3.1 compliance)
-$env:NOA_PWSH = Join-Path $env:NOA_OPT "powershell"
-Add-NoaPath $env:NOA_PWSH
+# Conda-forge environment (for notebooks / cross-platform Python)
+# Preferred runtime is a self-contained micromamba environment under $env:NOA_OPT\conda
+$env:NOA_CONDA = Join-Path $env:NOA_OPT "conda"
+$env:NOA_CONDA_ENV = Join-Path $env:NOA_CONDA "envs\noa"
 
-# Warn if using system PowerShell instead of portable
-if ($PSHOME -notlike "*noa*") {
-    Write-Host "[WARN] Using system PowerShell: $PSHOME" -ForegroundColor Yellow
-    Write-Host "[INFO] For Constitution §3.1 compliance, use: N:\noa\opt\powershell\pwsh.exe" -ForegroundColor Gray
+# If the env exists, prepend it so python/jupyter resolve from it
+$condaPython = Join-Path $env:NOA_CONDA_ENV "python.exe"
+if (Test-Path $condaPython) {
+    Add-NoaPath (Join-Path $env:NOA_CONDA_ENV "Scripts")
+    Add-NoaPath $env:NOA_CONDA_ENV
 }
 
-# Navigation aliases
-function cda { Set-Location $env:NOA_ROOT }
-function cdr { Set-Location $env:NOA_REPOS }
-function cdc { Set-Location $env:NOA_CONTAINERS }
-function cdw { Set-Location $env:NOA_WORKSPACE }
-function cdp { Set-Location $env:NOA_P2P }
-function cdai { Set-Location $env:NOA_AI }
-function cdgit { Set-Location $env:NOA_GIT }
-function cds { Set-Location $env:NOA_SCRIPTS }
-function cdl { Set-Location $env:NOA_LOGS }
-
-# NOA CLI wrapper
-function noa {
-    param([Parameter(ValueFromRemainingArguments)]$Args)
-    $noaScript = Join-Path $env:NOA_SCRIPTS "noa.ps1"
-    if (Test-Path $noaScript) {
-        & $noaScript @Args
-    } else {
-        Write-Host "NOA CLI not found at: $noaScript" -ForegroundColor Red
+function noa-conda-init {
+    if (-not (Test-Path $env:NOA_CONDA)) {
+        New-Item -ItemType Directory -Path $env:NOA_CONDA -Force | Out-Null
     }
+
+    $micromamba = Join-Path $env:NOA_CONDA "micromamba.exe"
+    if (-not (Test-Path $micromamba)) {
+        Write-Host "micromamba not found at: $micromamba" -ForegroundColor Yellow
+        Write-Host "Install or place micromamba.exe there to enable conda-forge envs." -ForegroundColor Gray
+        return
+    }
+
+    & $micromamba create -y -p $env:NOA_CONDA_ENV -c conda-forge python=3.12 jupyterlab ipykernel
+    Write-Host "Created/updated conda-forge env: $env:NOA_CONDA_ENV" -ForegroundColor Green
 }
 
-# Git workflow helpers
-function git-sync {
-    param([string]$Message = "")
-    & (Join-Path $env:NOA_SCRIPTS "sync.ps1") $Message
-}
+function noa-conda-activate {
+    $micromamba = Join-Path $env:NOA_CONDA "micromamba.exe"
+    if (-not (Test-Path $micromamba)) {
+        Write-Host "micromamba not found at: $micromamba" -ForegroundColor Yellow
+        return
+    }
 
-function git-push-dev {
-    param([string]$Message = "")
-    & (Join-Path $env:NOA_SCRIPTS "git-push.ps1") -Message $Message
+    & $micromamba shell hook -s powershell | Out-String | Invoke-Expression
+    micromamba activate -p $env:NOA_CONDA_ENV
 }
-
 # Environment validation
 function Test-NoaEnv {
     $required = @(

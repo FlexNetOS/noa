@@ -1,0 +1,73 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "id": "phi4-mini-reasoning",
+  "name": "Phi-4 Mini Reasoning",
+  "version": "1.0.0",
+  "description": "Microsoft Phi-4 Mini Reasoning - 3.8B parameter model optimized for mathematical reasoning",
+  "family": "phi4",
+  "size": "3.8b",
+  "quantization": "Q4_K_XL",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "microsoft/Phi-4-mini-reasoning",
+    "license": "MIT"
+  },
+  "file": {
+    "name": "Phi-4-mini-reasoning-UD-Q4_K_XL.gguf",
+    "size_bytes": 2460000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF/resolve/main/Phi-4-mini-reasoning-UD-Q4_K_XL.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": true,
+    "vision": false,
+    "code": true,
+    "reasoning": true,
+    "math": true
+  },
+  "parameters": {
+    "context_length": 128000,
+    "max_output_tokens": 32768,
+    "temperature_default": 0.8,
+    "top_p_default": 0.95,
+    "top_k_default": 40,
+    "repeat_penalty_default": 1.1
+  },
+  "chat_template": {
+    "format": "phi3",
+    "system_prefix": "<|system|>",
+    "system_suffix": "<|end|>",
+    "user_prefix": "<|user|>",
+    "user_suffix": "<|end|>",
+    "assistant_prefix": "<|assistant|>",
+    "assistant_suffix": "<|end|>"
+  },
+  "recommended_for": [
+    "math_reasoning",
+    "step_by_step_analysis",
+    "problem_solving",
+    "code_generation"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 4,
+    "recommended_vram_gb": 6,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 8
+  },
+  "benchmarks": {
+    "AIME_2024": 57.5,
+    "MATH_500": 94.6,
+    "GPQA_Diamond": 52.0
+  },
+  "metadata": {
+    "author": "Microsoft",
+    "release_date": "2025-04",
+    "noa_added": "2025-12-17",
+    "tags": ["reasoning", "math", "phi4", "instruct"]
+  }
+}

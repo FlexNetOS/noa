@@ -1,8 +1,11 @@
 //! Shared provider execution memory (in-memory stub)
 
-use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use crate::error::Result;
+
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct SharedContext {
     pub provider: String,
     pub context_type: String,

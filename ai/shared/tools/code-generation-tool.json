@@ -1,0 +1,83 @@
+{
+  "$schema": "https://noa.local/schemas/mcp-tool.json",
+  "name": "code-generation-tool",
+  "version": "1.0.0",
+  "description": "Generate code from natural language descriptions or specifications",
+  "category": "development",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string",
+        "description": "Natural language description of the code to generate"
+      },
+      "language": {
+        "type": "string",
+        "enum": ["python", "typescript", "javascript", "rust", "go", "java", "csharp"],
+        "description": "Target programming language"
+      },
+      "context": {
+        "type": "string",
+        "description": "Existing code context or file contents"
+      },
+      "style": {
+        "type": "string",
+        "enum": ["minimal", "documented", "verbose"],
+        "default": "documented",
+        "description": "Code style preference"
+      },
+      "include_tests": {
+        "type": "boolean",
+        "default": false,
+        "description": "Include unit tests for generated code"
+      },
+      "framework": {
+        "type": "string",
+        "description": "Specific framework to use (e.g., 'axum', 'express', 'fastapi')"
+      }
+    },
+    "required": ["description", "language"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "string",
+        "description": "Generated source code"
+      },
+      "explanation": {
+        "type": "string",
+        "description": "Explanation of the generated code"
+      },
+      "dependencies": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Required dependencies or imports"
+      },
+      "tests": {
+        "type": "string",
+        "description": "Unit tests if requested"
+      },
+      "usage_example": {
+        "type": "string",
+        "description": "Example of how to use the generated code"
+      }
+    }
+  },
+  "implementation": {
+    "type": "agent",
+    "agent": "code-generation-agent",
+    "handler": "noa.tools.codegen.generate"
+  },
+  "permissions": [
+    "file:read"
+  ],
+  "rate_limit": {
+    "requests_per_minute": 60
+  },
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2025-12-17",
+    "tags": ["code", "generation", "development"]
+  }
+}
