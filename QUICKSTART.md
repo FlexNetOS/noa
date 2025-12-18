@@ -1,27 +1,33 @@
 # NOA Quick Start Guide
 
-## 🚀 Start the Full Stack Application
+## Start the Full Stack Application
 
 ### Prerequisites
-All toolchains are already installed in `N:\noa\opt\`:
-- Rust 1.91.1
-- Node 20.18.1
-- Go 1.23.4
-- Python 3.12.8
+Toolchains are installed in `N:\noa\opt\`.
+
+> Note: `sys/core/Cargo.toml` declares a minimum Rust toolchain of `1.83`.
+
+### One-time shell setup (recommended)
+
+In a new PowerShell session, load the NOA environment first (adds toolchains and paths):
+
+```powershell
+. N:\noa\noa-env.ps1
+# or (recommended for persistent shells)
+. N:\noa\noa-profile.ps1
+```
 
 ### Start Servers
 
 **Terminal 1 - API Server:**
 ```powershell
 cd N:\noa\sys\core
-$env:PATH = "N:\noa\opt\rust\cargo\bin;$env:PATH"
 cargo run --bin noa-api
 ```
 
 **Terminal 2 - UI Server:**
 ```powershell
 cd N:\noa\sys\ui
-$env:PATH = "N:\noa\opt\node;$env:PATH"
 npm run dev
 ```
 
@@ -32,7 +38,7 @@ npm run dev
 - **API Health**: http://localhost:3001/health
 - **System Status**: http://localhost:3001/api/v1/status
 
-## 🎯 Features
+## Features
 
 ### UI Dashboard (Port 3000)
 - Real-time system status monitoring
@@ -46,7 +52,7 @@ npm run dev
 - System health checks
 - CORS enabled for UI integration
 
-## 📝 Quick Test
+## Quick Test
 
 **Create a task via API:**
 ```powershell
@@ -67,22 +73,23 @@ Invoke-WebRequest `
 ```powershell
 Invoke-WebRequest `
     -Uri http://localhost:3001/api/v1/status `
-    -UseBasicParsing | 
+    -UseBasicParsing |
     Select-Object -ExpandProperty Content
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 NOA Seed Foundation
 ├── sys/core/          # Rust backend
 │   ├── crates/
-│   │   ├── api/       # REST API server
+│   │   ├── api/       # REST API server (bin: noa-api)
 │   │   ├── common/    # Shared types
 │   │   ├── embedder/  # Vector embeddings
 │   │   ├── trainer/   # Model training
 │   │   ├── indexer/   # Code indexing
-│   │   └── agent/     # Agent orchestration
+│   │   ├── agent/     # Agent orchestration
+│   │   └── neural/    # Neural runtime
 │   └── target/        # Build artifacts
 │
 └── sys/ui/            # Next.js frontend
@@ -92,27 +99,27 @@ NOA Seed Foundation
     └── node_modules/  # Dependencies
 ```
 
-## 🔧 Development
+## Development
 
 **Build Rust backend:**
 ```powershell
-cd sys/core
+cd N:\noa\sys\core
 cargo build --release
 ```
 
 **Build Next.js UI:**
 ```powershell
-cd sys/ui
+cd N:\noa\sys\ui
 npm run build
 ```
 
 **Run tests:**
 ```powershell
-cd sys/core
+cd N:\noa\sys\core
 cargo test
 ```
 
-## 📊 System Components
+## System Components
 
 | Component | Status | Port | Description |
 |-----------|--------|------|-------------|
@@ -123,25 +130,7 @@ cargo test
 | Agent Orchestrator | ⏳ Pending | - | CECCA framework |
 | P2P Network | ⏳ Pending | - | libp2p federation |
 
-## 🎨 UI Features
-
-1. **System Dashboard**
-   - Real-time component status
-   - Health indicators with color coding
-   - Version information
-
-2. **Chat Interface**
-   - Natural language input
-   - Task creation via API
-   - Message history
-   - Loading states
-
-3. **Responsive Design**
-   - Works on desktop and mobile
-   - Dark theme with gradients
-   - Smooth animations
-
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Health & Status
 - `GET /health` - Server health check
@@ -184,41 +173,36 @@ cargo test
   }
   ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **API server won't start:**
 - Check if port 3001 is available
-- Verify Rust toolchain is in PATH
-- Check `sys/core/target/debug/` for build artifacts
+- Ensure the NOA environment is loaded (`. N:\noa\noa-env.ps1`)
+- Check `N:\noa\sys\core\target\debug\` for build artifacts
 
 **UI server won't start:**
 - Check if port 3000 is available
-- Verify Node is in PATH
-- Run `npm install` in `sys/ui/`
+- Ensure the NOA environment is loaded (`. N:\noa\noa-env.ps1`)
+- Run `npm install` in `N:\noa\sys\ui\`
 
 **CORS errors:**
 - API server has CORS enabled for all origins
 - Check browser console for specific errors
 
-## 📚 Next Steps
+## Next Steps
 
-1. **Integrate llama.cpp** for local LLM inference
-2. **Activate database** with SQLite
-3. **Build embedder** with FastEmbed
-4. **Implement CECCA** agent orchestrator
-5. **Add P2P networking** with libp2p
+1. Integrate llama.cpp for local LLM inference
+2. Activate database with SQLite
+3. Build embedder with FastEmbed
+4. Implement CECCA agent orchestrator
+5. Add P2P networking with libp2p
 
-## 🎓 Learn More
+## Learn More
 
 - See `README.md` for full documentation
 - Check `specs/001-noa-seed-foundation/` for specifications
 - Review `sys/core/crates/` for Rust implementation
 - Explore `sys/ui/src/` for UI components
-
----
-
-**Status**: ✅ Full stack operational and ready for development!
-xplore `sys/ui/src/` for UI components
 
 ---
 
