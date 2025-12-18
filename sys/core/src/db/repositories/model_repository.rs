@@ -166,8 +166,8 @@ impl ModelRepository {
 
     /// Find model by ID
     pub fn find_by_id(&self, id: &Uuid) -> Result<Option<Model>> {
-        let mut stmt = self
-            .conn.lock().unwrap()
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = conn
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
@@ -188,7 +188,8 @@ impl ModelRepository {
                 return Err(DatabaseError::QueryFailed {
                     query: "find_by_id".to_string(),
                     error: e.to_string(),
-                }.into());
+                }
+                .into());
             }
         };
 

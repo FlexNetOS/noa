@@ -85,7 +85,7 @@ pub async fn execute(command: DbCommands) -> Result<()> {
             migrate_database(&config.noa_root, &db_path, apply, rollback)
         }
         DbCommands::Stats => show_stats(&db_path),
-        DbCommands::Backup { output } => backup_database(&db_path, output.as_deref()),
+        DbCommands::Backup { output } => backup_database(&db_path, output.as_ref()),
         DbCommands::Vacuum => vacuum_database(&db_path),
     }
 }
@@ -109,7 +109,7 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
             if fix {
                 println!("Attempting to fix...");
                 // In SQLite, we can try REINDEX
-                conn.execute_batch("REINDEX;")?;
+                conn.lock().unwrap().execute_batch("REINDEX;")?;
                 println!("Reindexed database");
             }
         }
@@ -117,7 +117,10 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
     }
 
     // Check foreign keys
-    let fk_result: i64 = conn.query_row("PRAGMA foreign_key_check", [], |row| row.get(0))
+    let fk_result: i64 = conn
+        .lock()
+        .unwrap()
+        .query_row("PRAGMA foreign_key_check", [], |row| row.get(0))
         .unwrap_or(0);
 
     if fk_result == 0 {
@@ -136,9 +139,9 @@ fn export_database(db_path: &PathBuf, output: &PathBuf, format: &str, tables: &s
     let conn = db::init_database(db_path)?;
 
     match format {
-        "sql" => export_sql(&conn, output, tables),
-        "csv" => export_csv(&conn, output, tables),
-        "json" => export_json(&conn, output, tables),
+        "sql" => export_sql(&conn.lock().unwrap(), output, tables),
+        "csv" => export_csv(&conn.lock().unwrap(), output, tables),
+        "json" => export_json(&conn.lock().unwrap(), output, tables),
         _ => {
             println!("Unsupported export format: {}", format);
             Ok(())
@@ -294,7 +297,7 @@ fn export_json(conn: &rusqlite::Connection, output: &PathBuf, tables: &str) -> R
                         rusqlite::types::Value::Real(f) => serde_json::json!(f),
                         rusqlite::types::Value::Text(s) => serde_json::json!(s),
                         rusqlite::types::Value::Blob(b) => {
-                            serde_json::json!(base64::encode(&b))
+                            serde_json::json!({"blob_len": b.len()})
                         }
                     };
                     obj.insert(col.clone(), json_value);
@@ -334,7 +337,7 @@ fn import_database(db_path: &PathBuf, input: &PathBuf) -> Result<()> {
     let content = fs::read_to_string(input)?;
     let conn = db::init_database(db_path)?;
 
-    conn.execute_batch(&content)?;
+    conn.lock().unwrap().execute_batch(&content)?;
 
     println!("✓ Import complete");
     Ok(())
@@ -393,25 +396,28 @@ fn show_stats(db_path: &PathBuf) -> Result<()> {
     let conn = db::init_database(db_path)?;
     let stats = db::get_stats(&conn)?;
 
-    println!("Total size: {} bytes ({:.2} MB)",
+    println!(
+        "Total size: {} bytes ({:.2} MB)",
         stats.total_size_bytes,
-        stats.total_size_bytes as f64 / 1024.0 / 1024.0);
-    println!("Used size: {} bytes ({:.2} MB)",
+        stats.total_size_bytes as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "Used size: {} bytes ({:.2} MB)",
         stats.used_size_bytes,
-        stats.used_size_bytes as f64 / 1024.0 / 1024.0);
+        stats.used_size_bytes as f64 / 1024.0 / 1024.0
+    );
     println!("Total pages: {}", stats.total_pages);
     println!("Page size: {} bytes", stats.page_size);
     println!("Free pages: {}", stats.free_pages);
 
-    // Table sizes
     println!("\nTable Sizes:");
-    let tables = get_all_tables(&conn)?;
+    let tables = get_all_tables(&conn.lock().unwrap())?;
     for table in tables {
-        let count: i64 = conn.query_row(
-            &format!("SELECT COUNT(*) FROM {}", table),
-            [],
-            |row| row.get(0),
-        ).unwrap_or(0);
+        let count: i64 = conn
+            .lock()
+            .unwrap()
+            .query_row(&format!("SELECT COUNT(*) FROM {}", table), [], |row| row.get(0))
+            .unwrap_or(0);
         println!("  {}: {} rows", table, count);
     }
 
@@ -443,15 +449,15 @@ fn vacuum_database(db_path: &PathBuf) -> Result<()> {
 
     let conn = db::init_database(db_path)?;
 
-    // Get size before
     let stats_before = db::get_stats(&conn)?;
 
-    conn.execute_batch("VACUUM;")?;
+    conn.lock().unwrap().execute_batch("VACUUM;")?;
 
-    // Get size after
     let stats_after = db::get_stats(&conn)?;
 
-    let freed = stats_before.total_size_bytes.saturating_sub(stats_after.total_size_bytes);
+    let freed = stats_before
+        .total_size_bytes
+        .saturating_sub(stats_after.total_size_bytes);
 
     println!("✓ Vacuum complete");
     println!("  Before: {} bytes", stats_before.total_size_bytes);

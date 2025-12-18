@@ -5,16 +5,27 @@
 //! FR-003: Local-first database with concurrent modifications
 
 mod pool;
-mod repository;
 mod migrations;
+
+#[cfg(feature = "full")]
+mod repository;
+
+#[cfg(feature = "full")]
 pub mod vector_search;
+#[cfg(feature = "full")]
 pub mod repositories;
 
 pub use pool::{ConnectionPool, PoolConfig};
+
+#[cfg(feature = "full")]
 pub use repository::{Repository, RepositoryError};
+
 pub use migrations::{MigrationRunner, Migration};
-pub use vector_search::{VectorSearch, VectorSearchResult, VectorSearchConfig};
-pub use repositories::{MemoryRepository, EmbeddingRepository};
+
+#[cfg(feature = "full")]
+pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
+#[cfg(feature = "full")]
+pub use repositories::{EmbeddingRepository, MemoryRepository};
 
 use std::path::Path;
 use crate::error::Result;
@@ -41,9 +52,7 @@ pub fn init_database(path: &Path) -> Result<Connection> {
 }
 
 /// Configure a SQLite connection with optimal settings
-fn configure_connection(conn: &Connection) -> Result<()> {
-    let conn = conn.lock().unwrap();
-    // Enable WAL mode for concurrent reads
+fn configure_connection(conn: &rusqlite::Connection) -> Result<()> {
     conn.execute_batch(
         r#"
         PRAGMA journal_mode = WAL;
@@ -68,6 +77,8 @@ fn configure_connection(conn: &Connection) -> Result<()> {
 /// Check database integrity
 pub fn check_integrity(conn: &Connection) -> Result<bool> {
     let result: String = conn
+        .lock()
+        .unwrap()
         .query_row("PRAGMA integrity_check", [], |row| row.get(0))
         .map_err(|e| {
             crate::error::DatabaseError::QueryFailed {
@@ -81,17 +92,11 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
 
 /// Get database statistics
 pub fn get_stats(conn: &Connection) -> Result<DatabaseStats> {
-    let page_count: i64 = conn
-        .query_row("PRAGMA page_count", [], |row| row.get(0))
-        .unwrap_or(0);
+    let conn = conn.lock().unwrap();
 
-    let page_size: i64 = conn
-        .query_row("PRAGMA page_size", [], |row| row.get(0))
-        .unwrap_or(4096);
-
-    let freelist_count: i64 = conn
-        .query_row("PRAGMA freelist_count", [], |row| row.get(0))
-        .unwrap_or(0);
+    let page_count: i64 = conn.query_row("PRAGMA page_count", [], |row| row.get(0)).unwrap_or(0);
+    let page_size: i64 = conn.query_row("PRAGMA page_size", [], |row| row.get(0)).unwrap_or(4096);
+    let freelist_count: i64 = conn.query_row("PRAGMA freelist_count", [], |row| row.get(0)).unwrap_or(0);
 
     Ok(DatabaseStats {
         total_pages: page_count as u64,
