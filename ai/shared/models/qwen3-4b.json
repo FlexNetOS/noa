@@ -1,18 +1,24 @@
 {
   "$schema": "https://noa.local/schemas/model-config.json",
-  "name": "qwen2.5-7b-instruct",
+  "id": "qwen3-4b",
+  "name": "Qwen3 4B",
   "version": "1.0.0",
-  "description": "Qwen2.5 7B Instruct model for general-purpose coding and reasoning",
-  "family": "qwen2.5",
-  "size": "7b",
+  "description": "Alibaba Qwen3 4B - Latest generation compact model with strong general capabilities",
+  "family": "qwen3",
+  "size": "4b",
   "quantization": "Q4_K_M",
   "provider": "local",
   "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "Qwen/Qwen3-4B",
+    "license": "Apache-2.0"
+  },
   "file": {
-    "name": "qwen2.5-7b-instruct-q4_k_m.gguf",
-    "size_bytes": 4368000000,
+    "name": "Qwen3-4B-Q4_K_M.gguf",
+    "size_bytes": 2500000000,
     "sha256": null,
-    "download_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf"
+    "download_url": "https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf"
   },
   "capabilities": {
     "chat": true,
@@ -21,7 +27,8 @@
     "function_calling": true,
     "vision": false,
     "code": true,
-    "reasoning": true
+    "reasoning": true,
+    "multilingual": true
   },
   "parameters": {
     "context_length": 32768,
@@ -41,28 +48,21 @@
     "assistant_suffix": "<|im_end|>\n"
   },
   "recommended_for": [
-    "code_generation",
     "general_chat",
-    "analysis",
-    "reasoning",
-    "instruction_following"
+    "code_generation",
+    "instruction_following",
+    "multilingual"
   ],
   "memory_requirements": {
-    "minimum_vram_gb": 6,
-    "recommended_vram_gb": 8,
+    "minimum_vram_gb": 4,
+    "recommended_vram_gb": 6,
     "cpu_fallback": true,
     "cpu_threads_recommended": 8
   },
-  "performance": {
-    "tokens_per_second_gpu": 40,
-    "tokens_per_second_cpu": 8,
-    "first_token_latency_ms": 200
-  },
   "metadata": {
     "author": "Qwen Team (Alibaba)",
-    "license": "Apache-2.0",
-    "release_date": "2024-09-19",
+    "release_date": "2025-04",
     "noa_added": "2025-12-17",
-    "tags": ["instruct", "chat", "code", "multilingual"]
+    "tags": ["chat", "code", "multilingual", "qwen3"]
   }
 }

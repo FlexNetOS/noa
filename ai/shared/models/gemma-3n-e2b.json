@@ -1,0 +1,74 @@
+{
+  "$schema": "https://noa.local/schemas/model-config.json",
+  "id": "gemma-3n-e2b",
+  "name": "Gemma 3n E2B",
+  "version": "1.0.0",
+  "description": "Google Gemma 3n E2B - Efficient 2B parameter multimodal model with selective parameter activation",
+  "family": "gemma3n",
+  "size": "2b-effective",
+  "quantization": "Q4_K_XL",
+  "provider": "local",
+  "backend": "llama.cpp",
+  "source": {
+    "publisher": "unsloth",
+    "original": "google/gemma-3n-E2B-it",
+    "license": "gemma"
+  },
+  "file": {
+    "name": "gemma-3n-E2B-it-UD-Q4_K_XL.gguf",
+    "size_bytes": 3750000000,
+    "sha256": null,
+    "download_url": "https://huggingface.co/unsloth/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-UD-Q4_K_XL.gguf"
+  },
+  "capabilities": {
+    "chat": true,
+    "completion": true,
+    "embedding": false,
+    "function_calling": false,
+    "vision": true,
+    "audio": true,
+    "code": true,
+    "reasoning": true,
+    "multilingual": true
+  },
+  "parameters": {
+    "context_length": 32000,
+    "max_output_tokens": 32000,
+    "temperature_default": 1.0,
+    "top_p_default": 0.95,
+    "top_k_default": 64,
+    "min_p_default": 0.0
+  },
+  "chat_template": {
+    "format": "gemma",
+    "bos_token": "<bos>",
+    "user_prefix": "<start_of_turn>user\n",
+    "user_suffix": "<end_of_turn>\n",
+    "assistant_prefix": "<start_of_turn>model\n",
+    "assistant_suffix": "<end_of_turn>\n"
+  },
+  "recommended_for": [
+    "general_chat",
+    "multimodal",
+    "multilingual",
+    "edge_deployment",
+    "mobile"
+  ],
+  "memory_requirements": {
+    "minimum_vram_gb": 4,
+    "recommended_vram_gb": 6,
+    "cpu_fallback": true,
+    "cpu_threads_recommended": 8
+  },
+  "benchmarks": {
+    "MMLU": 60.1,
+    "HumanEval": 66.5,
+    "MATH_500": null
+  },
+  "metadata": {
+    "author": "Google DeepMind",
+    "release_date": "2025-06",
+    "noa_added": "2025-12-17",
+    "tags": ["multimodal", "efficient", "gemma", "edge"]
+  }
+}
