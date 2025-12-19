@@ -48,13 +48,11 @@ export interface LegacyAppDataForProjects {
 }
 
 export interface LegacyAppDataCompleteOptionalSyncModelChange
-  extends LegacyAppBaseData,
-    LegacyAppDataForProjects {
+  extends LegacyAppBaseData, LegacyAppDataForProjects {
   lastLocalSyncModelChange?: number | null;
 }
 
 export interface LegacyAppDataComplete
-  extends LegacyAppBaseData,
-    LegacyAppDataForProjects {
+  extends LegacyAppBaseData, LegacyAppDataForProjects {
   lastLocalSyncModelChange: number | null;
 }

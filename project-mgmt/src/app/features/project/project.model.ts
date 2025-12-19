@@ -22,7 +22,8 @@ export interface ProjectBasicCfg {
 
 // Omit conflicting properties from PluginProject when extending
 export interface ProjectCopy
-  extends Omit<PluginProject, 'advancedCfg' | 'theme'>,
+  extends
+    Omit<PluginProject, 'advancedCfg' | 'theme'>,
     ProjectBasicCfg,
     WorkContextCommon {
   // Additional app-specific fields

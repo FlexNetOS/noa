@@ -21,8 +21,9 @@ export const playDoneSound = (soundCfg: SoundConfig, nrOfDoneTasks: number = 0):
       PITCH_OFFSET + (nrOfDoneTasks * 50)
     : 0;
 
-  const audioCtx = new ((window as any).AudioContext ||
-    (window as any).webkitAudioContext)();
+  const audioCtx = new (
+    (window as any).AudioContext || (window as any).webkitAudioContext
+  )();
   const source = audioCtx.createBufferSource();
   const request = new XMLHttpRequest();
   request.open('GET', file, true);

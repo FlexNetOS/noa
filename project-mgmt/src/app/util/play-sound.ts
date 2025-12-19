@@ -3,8 +3,9 @@ const BASE = './assets/snd';
 export const playSound = (filePath: string, vol = 100): void => {
   const file = `${BASE}/${filePath}`;
 
-  const audioCtx = new ((window as any).AudioContext ||
-    (window as any).webkitAudioContext)();
+  const audioCtx = new (
+    (window as any).AudioContext || (window as any).webkitAudioContext
+  )();
   const source = audioCtx.createBufferSource();
   const request = new XMLHttpRequest();
   request.open('GET', file, true);
