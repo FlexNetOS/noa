@@ -1,0 +1,83 @@
+// For format details, see https://aka.ms/devcontainer.json
+// Streamlined devcontainer for NOA project
+{
+	"name": "NOA Development",
+	
+	// Use Debian-based image (required for apt-get based features)
+	"image": "mcr.microsoft.com/devcontainers/base:debian",
+	
+	// Essential features only - grouped by category
+	"features": {
+		// Core utilities
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true
+		},
+		
+		// Version control
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/git-lfs:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		
+		// Languages - Core project needs
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "lts",
+			"nodeGypDependencies": true
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "3.12"
+		},
+		"ghcr.io/devcontainers/features/rust:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "latest"
+		},
+		
+		// Shell - PowerShell for cross-platform scripts
+		"ghcr.io/devcontainers/features/powershell:1": {},
+		
+		// Container tools
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		
+		// Cloud CLIs (require apt-get, now works with Debian)
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		
+		// Infrastructure
+		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+		
+		// pnpm for package management
+		"ghcr.io/devcontainers-extra/features/pnpm:2": {}
+	},
+
+	// Post-create setup
+	"postCreateCommand": "echo 'NOA devcontainer ready' && pnpm --version || npm install -g pnpm",
+
+	// Configure VS Code
+	"customizations": {
+		"vscode": {
+			"settings": { 
+				"terminal.integrated.defaultProfile.linux": "zsh"
+			},
+			"extensions": [
+				"ms-vscode.powershell",
+				"rust-lang.rust-analyzer",
+				"ms-python.python",
+				"golang.go",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"GitHub.copilot",
+				"GitHub.vscode-pull-request-github",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+
+	// Forward common dev ports
+	"forwardPorts": [3000, 5000, 8000, 8080],
+
+	// Run as non-root user
+	"remoteUser": "vscode"
+}
