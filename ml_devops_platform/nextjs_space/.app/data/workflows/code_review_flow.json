@@ -1,0 +1,20 @@
+{
+  "id": "code_review_flow",
+  "name": "Code Review Workflow",
+  "description": "Automated code review with suggestions",
+  "steps": [
+    {
+      "agentId": "reviewer",
+      "action": "analyze",
+      "input": "code"
+    },
+    {
+      "agentId": "coder",
+      "action": "suggest_fixes"
+    },
+    {
+      "agentId": "reviewer",
+      "action": "validate_fixes"
+    }
+  ]
+}

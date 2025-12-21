@@ -1,0 +1,14 @@
+{
+  "id": "data_analysis",
+  "name": "Data Analysis",
+  "description": "Analyze and visualize data",
+  "category": "analysis",
+  "requiredCapabilities": [
+    "analysis",
+    "embeddings"
+  ],
+  "examples": [
+    "Analyze CSV",
+    "Generate charts"
+  ]
+}

@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/libp2p/go-libp2p"
+	libp2pcrypto "github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/peerstore"
@@ -147,11 +148,12 @@ func (h *Host) Peerstore() peerstore.Peerstore {
 
 // generateKeyFromSeed generates a private key from a seed
 // This allows deterministic peer IDs for device identity
-func generateKeyFromSeed(seed []byte) (interface{}, error) {
+func generateKeyFromSeed(seed []byte) (libp2pcrypto.PrivKey, error) {
+	_ = seed
 	// For now, generate a random key
 	// TODO: Implement deterministic key generation from seed
 	// This would allow devices to maintain the same peer ID across restarts
-	_, privKey, err := libp2p.GenerateKeyPairWithReader(peer.Ed25519, rand.Reader)
+	privKey, _, err := libp2pcrypto.GenerateEd25519Key(rand.Reader)
 	return privKey, err
 }
 

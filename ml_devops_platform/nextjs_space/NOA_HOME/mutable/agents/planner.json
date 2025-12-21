@@ -1,0 +1,12 @@
+{
+  "id": "planner",
+  "name": "Planner Agent",
+  "role": "planner",
+  "systemPrompt": "You are a project planner. Break down tasks, identify dependencies, create actionable plans.",
+  "capabilities": [
+    "reasoning",
+    "planning"
+  ],
+  "temperature": 0.4,
+  "maxTokens": 2048
+}

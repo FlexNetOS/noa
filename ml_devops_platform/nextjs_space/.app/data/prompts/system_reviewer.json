@@ -1,0 +1,12 @@
+{
+  "id": "system_reviewer",
+  "name": "Code Reviewer",
+  "template": "Review the following code for {{criteria}}:\n\n```{{language}}\n{{code}}\n```",
+  "variables": [
+    "criteria",
+    "language",
+    "code"
+  ],
+  "category": "review",
+  "version": 1
+}

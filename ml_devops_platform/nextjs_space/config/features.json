@@ -1,0 +1,6 @@
+{
+  "eventReplay": true,
+  "widgetRegistry": true,
+  "streamingChat": true,
+  "eventPersistence": true
+}

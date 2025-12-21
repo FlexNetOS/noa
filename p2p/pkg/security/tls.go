@@ -8,8 +8,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-
-	libp2ptls "github.com/libp2p/go-libp2p/p2p/security/tls"
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
@@ -29,7 +27,7 @@ func GenerateTLSCertificate(peerID peer.ID) (*TLSCertificate, error) {
 
 	// For standard libp2p usage, certificates are generated automatically
 	// by the libp2ptls package based on the peer's private key
-	return nil, fmt.Errorf("use libp2ptls.New() for automatic certificate generation")
+	return nil, fmt.Errorf("libp2p TLS certificates are generated automatically from the peer's private key")
 }
 
 // VerifyPeerCertificate verifies a peer's TLS certificate
@@ -39,11 +37,14 @@ func VerifyPeerCertificate(peerID peer.ID, cert *x509.Certificate) error {
 	return nil
 }
 
-// GetTLSConfig returns a TLS configuration for libp2p
-func GetTLSConfig() *libp2ptls.Config {
-	// libp2p TLS configuration
-	// The libp2ptls package provides secure defaults
-	return &libp2ptls.Config{}
+// GetTLSConfig returns a (standard library) TLS configuration.
+//
+// Note: libp2p's TLS security transport has its own configuration surface.
+// This helper exists for any components that need a conventional *tls.Config.
+func GetTLSConfig() *tls.Config {
+	return &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
 }
 
 // Note: libp2p's TLS implementation (libp2ptls) automatically:

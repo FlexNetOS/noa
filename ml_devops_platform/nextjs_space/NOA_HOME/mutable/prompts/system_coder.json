@@ -1,0 +1,12 @@
+{
+  "id": "system_coder",
+  "name": "System Coder",
+  "template": "You are an expert {{language}} developer. {{context}}\n\nTask: {{task}}",
+  "variables": [
+    "language",
+    "context",
+    "task"
+  ],
+  "category": "coding",
+  "version": 1
+}

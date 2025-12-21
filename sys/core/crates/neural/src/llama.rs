@@ -5,6 +5,56 @@ use serde::{Deserialize, Serialize};
 use std::process::{Child, Command, Stdio};
 use std::path::PathBuf;
 
+fn resolve_noa_root() -> Option<PathBuf> {
+    if let Ok(root) = std::env::var("NOA_ROOT") {
+        let p = PathBuf::from(root);
+        if p.exists() {
+            return Some(p);
+        }
+    }
+
+    // Best-effort: walk up from current working dir looking for a repo marker.
+    let mut dir = std::env::current_dir().ok()?;
+    for _ in 0..10 {
+        if dir.join("pnpm-workspace.yaml").exists() || dir.join(".git").exists() || dir.join("AGENT.md").exists() {
+            return Some(dir);
+        }
+        if !dir.pop() {
+            break;
+        }
+    }
+    None
+}
+
+fn resolve_llama_server_path() -> PathBuf {
+    if let Ok(p) = std::env::var("NOA_LLAMA_SERVER_PATH") {
+        return PathBuf::from(p);
+    }
+
+    let bin_name = if cfg!(windows) { "llama-server.exe" } else { "llama-server" };
+    if let Some(root) = resolve_noa_root() {
+        return root.join("opt/llama.cpp/build/bin").join(bin_name);
+    }
+
+    PathBuf::from(bin_name)
+}
+
+fn resolve_model_path(model_path: &PathBuf) -> PathBuf {
+    if let Ok(p) = std::env::var("NOA_LLAMA_MODEL_PATH") {
+        return PathBuf::from(p);
+    }
+
+    if model_path.is_absolute() {
+        return model_path.clone();
+    }
+
+    if let Some(root) = resolve_noa_root() {
+        return root.join(model_path);
+    }
+
+    model_path.clone()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LlamaServerConfig {
     pub host: String,
@@ -20,7 +70,8 @@ impl Default for LlamaServerConfig {
         Self {
             host: "127.0.0.1".to_string(),
             port: 8080,
-            model_path: PathBuf::from("models/default.gguf"),
+            // Resolved at runtime via NOA_ROOT/NOA_LLAMA_MODEL_PATH.
+            model_path: PathBuf::from("opt/models/default.gguf"),
             context_size: 2048,
             n_gpu_layers: 0,
             threads: None,
@@ -42,16 +93,31 @@ impl LlamaServer {
     }
     
     pub fn start(&mut self) -> Result<()> {
-        let llama_server_path = PathBuf::from("opt/llama.cpp/build/bin/llama-server.exe");
+        if self.is_running() {
+            return Ok(());
+        }
+
+        let llama_server_path = resolve_llama_server_path();
+        let model_path = resolve_model_path(&self.config.model_path);
         
         if !llama_server_path.exists() {
-            anyhow::bail!("llama-server not found at {:?}", llama_server_path);
+            anyhow::bail!(
+                "llama-server not found at {:?}. Set NOA_LLAMA_SERVER_PATH or NOA_ROOT.",
+                llama_server_path
+            );
+        }
+
+        if !model_path.exists() {
+            anyhow::bail!(
+                "Model file not found at {:?}. Set NOA_LLAMA_MODEL_PATH or place a .gguf at opt/models/default.gguf under NOA_ROOT.",
+                model_path
+            );
         }
         
         let mut cmd = Command::new(&llama_server_path);
         cmd.arg("--host").arg(&self.config.host)
             .arg("--port").arg(self.config.port.to_string())
-            .arg("--model").arg(&self.config.model_path)
+            .arg("--model").arg(&model_path)
             .arg("--ctx-size").arg(self.config.context_size.to_string())
             .arg("--n-gpu-layers").arg(self.config.n_gpu_layers.to_string());
         
@@ -59,8 +125,10 @@ impl LlamaServer {
             cmd.arg("--threads").arg(threads.to_string());
         }
         
-        cmd.stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        // Avoid deadlocks: piping stdout/stderr without draining can block long-running servers.
+        // Use inherit so logs are visible and buffers can't fill.
+        cmd.stdout(Stdio::inherit())
+            .stderr(Stdio::inherit());
         
         let child = cmd.spawn()
             .context("Failed to start llama-server")?;

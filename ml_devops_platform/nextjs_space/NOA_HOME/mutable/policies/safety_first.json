@@ -1,0 +1,11 @@
+{
+  "id": "safety_first",
+  "name": "Safety First",
+  "rules": [
+    "Never execute untrusted code without sandboxing",
+    "Validate all user inputs",
+    "Log all sensitive operations"
+  ],
+  "scope": "global",
+  "enforcement": "strict"
+}

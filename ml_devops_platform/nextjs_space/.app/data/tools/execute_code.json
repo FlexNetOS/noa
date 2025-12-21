@@ -1,0 +1,19 @@
+{
+  "id": "execute_code",
+  "name": "Execute Code",
+  "description": "Execute code in a sandboxed environment",
+  "parameters": {
+    "language": {
+      "type": "string",
+      "description": "Programming language",
+      "required": true
+    },
+    "code": {
+      "type": "string",
+      "description": "Code to execute",
+      "required": true
+    }
+  },
+  "handler": "tools.execute_code",
+  "category": "execution"
+}

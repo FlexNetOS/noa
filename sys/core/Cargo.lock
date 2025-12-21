@@ -2642,9 +2642,13 @@ dependencies = [
 name = "noa-api"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "chrono",
+ "futures",
  "noa-common",
+ "noa-neural",
+ "reqwest 0.12.25",
  "rusqlite",
  "serde",
  "serde_json",

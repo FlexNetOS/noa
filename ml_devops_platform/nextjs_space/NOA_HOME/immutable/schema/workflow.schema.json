@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.dev/schema/workflow.json",
+  "title": "Workflow Schema",
+  "description": "Defines agent workflow execution patterns",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "strategy",
+    "agents"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "sequential",
+        "parallel",
+        "conditional",
+        "loop",
+        "map-reduce"
+      ]
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agentId"
+        ],
+        "properties": {
+          "agentId": {
+            "type": "string"
+          },
+          "casRef": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "condition": {
+            "type": "string"
+          },
+          "memory": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "aggregation": {
+      "type": "string",
+      "enum": [
+        "merge",
+        "concat",
+        "vote",
+        "custom"
+      ]
+    },
+    "context": {
+      "type": "object",
+      "description": "Shared execution context"
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "preValidate": {
+          "type": "string"
+        },
+        "postCommit": {
+          "type": "string"
+        }
+      }
+    },
+    "casHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "version": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

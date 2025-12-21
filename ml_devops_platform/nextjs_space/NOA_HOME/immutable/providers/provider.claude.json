@@ -1,0 +1,27 @@
+{
+  "id": "claude",
+  "name": "Claude Code CLI",
+  "type": "remote",
+  "capabilities": [
+    "reasoning",
+    "planning",
+    "code-generation",
+    "analysis"
+  ],
+  "costModels": {
+    "tokensPerSecond": 120,
+    "maxContextWindow": 200000,
+    "costPerToken": 0.00003
+  },
+  "latencyCurves": {
+    "baseline": 250,
+    "perToken": 8
+  },
+  "toolAccess": [
+    "all"
+  ],
+  "contextWindowLimits": {
+    "default": 100000,
+    "max": 200000
+  }
+}

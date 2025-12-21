@@ -1,0 +1,13 @@
+{
+  "nodeId": "noa-node-1766032575982",
+  "role": "primary",
+  "peers": [],
+  "capabilities": [
+    "orchestration",
+    "inference",
+    "storage"
+  ],
+  "status": "active",
+  "version": "1.0.0",
+  "joinedAt": "2025-12-18T04:36:15.982Z"
+}

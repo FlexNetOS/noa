@@ -44,10 +44,8 @@ func (s *StorageService) List(ctx context.Context, req *protocol.ListRequest) (*
 		}
 
 		// Read file to get metadata
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
+		// NOTE: We intentionally avoid reading the full file contents here.
+		// Metadata is derived from filesystem stat info.
 
 		// Get replica count
 		replicaCount := 0

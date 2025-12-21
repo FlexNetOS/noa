@@ -1,0 +1,12 @@
+{
+  "maxConcurrentAgents": 10,
+  "maxMemoryMB": 8192,
+  "allowedTools": [
+    "all"
+  ],
+  "safetyRules": [
+    "no-destructive-file-operations",
+    "require-user-confirmation-for-external-api-calls",
+    "sandbox-code-execution"
+  ]
+}

@@ -1,7 +1,7 @@
 //! Neural Runtime - Multi-SLM orchestration
 
 use crate::llama::{LlamaServer, LlamaClient, LlamaServerConfig, CompletionRequest};
-use crate::model::{Model, ModelConfig, ModelStatus};
+use crate::model::{Model, ModelStatus};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
 use std::sync::Arc;
