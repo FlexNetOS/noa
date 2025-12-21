@@ -36,8 +36,31 @@ impl Database {
     }
 
     pub async fn health_check(&self) -> Result<(), rusqlite::Error> {
-        // Since rusqlite operations are synchronous, we can execute directly
-        self.conn.execute("SELECT 1", [])?;
+        // `Connection::execute` is for statements that do NOT return rows.
+        // A SELECT will trigger rusqlite::Error::ExecuteReturnedResults.
+        let _: i32 = self.conn.query_row("SELECT 1", [], |row| row.get(0))?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[tokio::test]
+    async fn health_check_does_not_return_results_error() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock")
+            .as_nanos();
+
+        let db_path = std::env::temp_dir().join(format!("noa-api-test-{nonce}.db"));
+        let _ = std::fs::remove_file(&db_path);
+
+        let db = Database::new(&db_path).await.expect("db init");
+        db.health_check().await.expect("health check");
+
+        let _ = std::fs::remove_file(&db_path);
     }
 }
