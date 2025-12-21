@@ -1,0 +1,15 @@
+# Sandbox Configuration
+[sandbox]
+version = "1.0.0"
+type = "container"
+description = "Execution sandbox for tools and agents"
+
+[permissions]
+filesystem_read = true
+filesystem_write = false
+network_access = false
+process_spawn = false
+
+[limits]
+max_execution_time_sec = 300
+max_memory_mb = 1024

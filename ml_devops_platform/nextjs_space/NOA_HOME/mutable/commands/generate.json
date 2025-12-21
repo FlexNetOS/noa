@@ -1,0 +1,11 @@
+{
+  "id": "generate",
+  "name": "/generate",
+  "description": "Generate code or content",
+  "syntax": "/generate <type> <description>",
+  "examples": [
+    "/generate component UserCard",
+    "/generate api /users endpoint"
+  ],
+  "handler": "commands.generate"
+}

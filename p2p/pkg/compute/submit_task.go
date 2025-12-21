@@ -6,7 +6,6 @@ package compute
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/FlexNetOS/noa/p2p/pkg/protocol"

@@ -13,13 +13,34 @@ import (
 	"github.com/FlexNetOS/noa/p2p/pkg/tasks"
 )
 
+// Scheduler manages local execution and optional offloading of compute tasks.
+//
+// Implements T248: distributed compute scheduler (initial scaffolding).
+type Scheduler struct {
+	mu sync.RWMutex
+
+	tasks map[string]*Task
+	queue []*Task
+
+	// Local workers able to execute tasks.
+	workers map[string]*Worker
+
+	// Offload routing (best-effort). These are optional and can be nil.
+	offloadProtocol *tasks.OffloadProtocol
+	router          *tasks.Router
+}
+
 // NewScheduler creates a new scheduler
 //
 // Implements T248: Implement distributed compute scheduler
 func NewScheduler() *Scheduler {
+	offload := tasks.NewOffloadProtocol()
 	return &Scheduler{
 		tasks: make(map[string]*Task),
 		queue: make([]*Task, 0),
+		workers: make(map[string]*Worker),
+		offloadProtocol: offload,
+		router: tasks.NewRouter(offload),
 	}
 }
 

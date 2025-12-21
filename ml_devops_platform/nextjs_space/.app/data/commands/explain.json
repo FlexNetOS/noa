@@ -1,0 +1,11 @@
+{
+  "id": "explain",
+  "name": "/explain",
+  "description": "Explain code or concept",
+  "syntax": "/explain <topic|code>",
+  "examples": [
+    "/explain async/await",
+    "/explain this function"
+  ],
+  "handler": "commands.explain"
+}

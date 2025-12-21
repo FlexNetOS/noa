@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.dev/schema/agent.json",
+  "title": "Agent Schema",
+  "description": "Defines the structure of an AI agent in the NOA system",
+  "type": "object",
+  "required": ["id", "name", "role", "version", "capabilities"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]+$",
+      "description": "Unique agent identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Human-readable agent name"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "planner",
+        "analyst",
+        "coder",
+        "reviewer",
+        "document_analyzer",
+        "code_generator",
+        "web_builder",
+        "backend_builder",
+        "code_reviewer"
+      ],
+      "description": "Agent's specialized role"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "List of agent capabilities"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Reference to skill CAS hash"
+      },
+      "description": "Skills the agent can use"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Reference to tool CAS hash"
+      },
+      "description": "Tools the agent can access"
+    },
+    "beliefs": {
+      "type": "object",
+      "description": "Agent's belief system and world model",
+      "properties": {
+        "worldview": {"type": "string"},
+        "constraints": {"type": "array", "items": {"type": "string"}},
+        "goals": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "provider": {
+      "type": "object",
+      "properties": {
+        "preferred": {"type": "array", "items": {"type": "string"}},
+        "fallback": {"type": "array", "items": {"type": "string"}}
+      },
+      "description": "Provider routing preferences"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "temperature": {"type": "number", "minimum": 0, "maximum": 2},
+        "maxTokens": {"type": "integer", "minimum": 1},
+        "systemPrompt": {"type": "string"}
+      }
+    },
+    "casHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of this agent definition"
+    },
+    "createdAt": {"type": "string", "format": "date-time"},
+    "updatedAt": {"type": "string", "format": "date-time"}
+  }
+}

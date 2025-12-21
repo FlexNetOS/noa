@@ -8,6 +8,7 @@ description = "NOA API server and endpoints"
 
 [dependencies]
 noa-common = { workspace = true }
+noa-neural = { workspace = true }
 tokio = { workspace = true }
 axum = { workspace = true }
 tower = { workspace = true }
@@ -19,4 +20,7 @@ tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 rusqlite = { workspace = true }
+futures = { workspace = true }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+anyhow = { workspace = true }
 

@@ -7,7 +7,6 @@ package discovery
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -17,8 +16,6 @@ import (
 const (
 	// ServiceTag is the mDNS service tag for NOA P2P
 	ServiceTag = "noa-p2p"
-	// DiscoveryInterval is how often to announce presence
-	DiscoveryInterval = time.Minute
 )
 
 // mDNSNotifee handles mDNS discovery events
@@ -45,14 +42,15 @@ type MDNSDiscovery struct {
 //
 // Implements T231: §3.8 Implement mDNS discovery
 func NewMDNSDiscovery(ctx context.Context, h host.Host, onPeer func(peer.AddrInfo)) (*MDNSDiscovery, error) {
+	_ = ctx
 	notifee := &mDNSNotifee{
 		host:   h,
 		onPeer: onPeer,
 	}
 
-	service := mdns.NewMdnsService(ctx, h, DiscoveryInterval, ServiceTag)
-	if err := service.RegisterNotifee(notifee); err != nil {
-		return nil, fmt.Errorf("failed to register mDNS notifee: %w", err)
+	service := mdns.NewMdnsService(h, ServiceTag, notifee)
+	if err := service.Start(); err != nil {
+		return nil, fmt.Errorf("failed to start mDNS service: %w", err)
 	}
 
 	return &MDNSDiscovery{

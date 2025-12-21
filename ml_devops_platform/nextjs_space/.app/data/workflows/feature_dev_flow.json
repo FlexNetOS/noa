@@ -1,0 +1,23 @@
+{
+  "id": "feature_dev_flow",
+  "name": "Feature Development",
+  "description": "End-to-end feature development",
+  "steps": [
+    {
+      "agentId": "planner",
+      "action": "plan"
+    },
+    {
+      "agentId": "coder",
+      "action": "implement"
+    },
+    {
+      "agentId": "reviewer",
+      "action": "review"
+    },
+    {
+      "agentId": "coder",
+      "action": "refine"
+    }
+  ]
+}

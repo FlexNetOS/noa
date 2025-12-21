@@ -1,0 +1,14 @@
+{
+  "id": "reasoning",
+  "name": "Complex Reasoning",
+  "description": "Multi-step logical reasoning",
+  "category": "reasoning",
+  "requiredCapabilities": [
+    "reasoning",
+    "long_context"
+  ],
+  "examples": [
+    "Solve math problems",
+    "Debug complex issues"
+  ]
+}

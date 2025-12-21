@@ -6,11 +6,8 @@ package discovery
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/FlexNetOS/noa/p2p/pkg/protocol"
-	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/peerstore"
 )
 
 // FindPeers handles the FindPeers RPC
@@ -23,11 +20,11 @@ func (s *DiscoveryService) FindPeers(ctx context.Context, req *protocol.FindPeer
 	}
 
 	// Query peerstore for peers matching capabilities
-	peerstore := s.host.Peerstore()
+	ps := s.host.Peerstore()
 	peers := make([]*protocol.PeerInfo, 0)
 
 	// Get all known peers
-	allPeers := peerstore.Peers()
+	allPeers := ps.Peers()
 	count := 0
 
 	for _, peerID := range allPeers {
@@ -40,7 +37,7 @@ func (s *DiscoveryService) FindPeers(ctx context.Context, req *protocol.FindPeer
 		}
 
 		// Get peer addresses
-		addrs := peerstore.Addrs(peerID)
+		addrs := ps.Addrs(peerID)
 		addrStrings := make([]string, len(addrs))
 		for i, addr := range addrs {
 			addrStrings[i] = addr.String()

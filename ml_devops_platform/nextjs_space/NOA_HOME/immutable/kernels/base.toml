@@ -1,0 +1,16 @@
+# Base Microkernel Configuration
+[kernel]
+version = "1.0.0"
+type = "base"
+description = "Base kernel for NOA AgenticOS"
+
+[runtime]
+max_agents = 10
+max_concurrent_workflows = 5
+memory_limit_mb = 8192
+cpu_limit_percent = 80
+
+[security]
+sandbox_enabled = true
+validation_required = true
+trust_anchors = ["immutable/trust/root.pub"]

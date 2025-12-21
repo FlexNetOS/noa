@@ -1,0 +1,14 @@
+# Virtual Machine Manager Configuration
+[vmm]
+version = "1.0.0"
+type = "hypervisor"
+description = "Manages isolated execution environments"
+
+[isolation]
+enabled = true
+per_agent_sandbox = true
+shared_memory = false
+
+[resources]
+default_memory_mb = 512
+default_cpu_cores = 1

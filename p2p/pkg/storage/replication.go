@@ -6,7 +6,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -87,6 +86,7 @@ func (rm *ReplicationManager) RemoveTarget(peerID peer.ID) {
 
 // Replicate replicates content to peers
 func (rm *ReplicationManager) Replicate(ctx context.Context, hash string, content []byte) error {
+	_ = ctx
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
 

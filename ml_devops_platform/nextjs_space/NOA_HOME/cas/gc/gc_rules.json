@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "schedule": "0 2 * * 0",
+  "retentionDays": 30,
+  "dryRun": false,
+  "excludePatterns": [
+    "v*",
+    "stable",
+    "latest-*"
+  ]
+}

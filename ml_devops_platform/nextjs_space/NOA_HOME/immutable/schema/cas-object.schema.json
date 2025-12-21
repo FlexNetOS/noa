@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.dev/schema/cas-object.json",
+  "title": "CAS Object Schema",
+  "description": "Defines content-addressable storage objects",
+  "type": "object",
+  "required": [
+    "hash",
+    "type",
+    "content"
+  ],
+  "properties": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 content hash"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "agent",
+        "skill",
+        "tool",
+        "workflow",
+        "prompt",
+        "model",
+        "snapshot",
+        "blob"
+      ],
+      "description": "Type of CAS object"
+    },
+    "content": {
+      "description": "The actual content (can be any valid JSON or reference to binary)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "description": "Content size in bytes"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Other CAS hashes this object references"
+        },
+        "refCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Reference count for GC"
+        }
+      }
+    },
+    "merkleRoot": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Merkle tree root for nested objects"
+    }
+  }
+}
