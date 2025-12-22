@@ -105,55 +105,59 @@ async fn start_inference_server(
     state: tauri::State<'_, AppState>,
     port: Option<u16>,
 ) -> Result<String, String> {
-    let mut server_lock = state.inference_server.lock()
-        .map_err(|e| format!("Failed to lock server state: {}", e))?;
-    
-    // Check if server is already running
-    if let Some(ref mut child) = *server_lock {
-        match child.try_wait() {
-            Ok(None) => return Ok(format!("Server already running on port {}", *state.server_port.lock().unwrap())),
-            _ => {
-                // Process exited, clean up
-                *server_lock = None;
+    let server_url = {
+        let mut server_lock = state.inference_server.lock()
+            .map_err(|e| format!("Failed to lock server state: {}", e))?;
+        
+        // Check if server is already running
+        if let Some(ref mut child) = *server_lock {
+            match child.try_wait() {
+                Ok(None) => return Ok(format!("Server already running on port {}", *state.server_port.lock().unwrap())),
+                _ => {
+                    // Process exited, clean up
+                    *server_lock = None;
+                }
             }
         }
-    }
-    
-    let server_port = port.unwrap_or(8080);
-    
-    // Find the inference server binary
-    // Try multiple paths: bundled resources, development, installed
-    let possible_paths = vec![
-        std::env::current_exe()
-            .ok()
-            .and_then(|exe| exe.parent().map(|p| p.join("inference_server"))),
-        Some(PathBuf::from("../../rust_backend/target/release/inference_server")),
-        Some(PathBuf::from("./rust_backend/target/release/inference_server")),
-        Some(PathBuf::from("inference_server")),
-    ];
-    
-    let binary_path = possible_paths
-        .into_iter()
-        .flatten()
-        .find(|p| p.exists())
-        .ok_or_else(|| "Inference server binary not found. Please build with: cd rust_backend && cargo build --release".to_string())?;
-    
-    // Start the server process
-    let child = Command::new(binary_path)
-        .args(&[
-            "--host", "127.0.0.1",
-            "--port", &server_port.to_string(),
-            "--log-level", "info",
-        ])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| format!("Failed to start inference server: {}", e))?;
-    
-    *server_lock = Some(child);
-    *state.server_port.lock().unwrap() = server_port;
-    let server_url = format!("http://127.0.0.1:{}", server_port);
-    *state.server_url.lock().unwrap() = server_url.clone();
+        
+        let server_port = port.unwrap_or(8080);
+        
+        // Find the inference server binary
+        // Try multiple paths: bundled resources, development, installed
+        let possible_paths = vec![
+            std::env::current_exe()
+                .ok()
+                .and_then(|exe| exe.parent().map(|p| p.join("inference_server"))),
+            Some(PathBuf::from("../../rust_backend/target/release/inference_server")),
+            Some(PathBuf::from("./rust_backend/target/release/inference_server")),
+            Some(PathBuf::from("inference_server")),
+        ];
+        
+        let binary_path = possible_paths
+            .into_iter()
+            .flatten()
+            .find(|p| p.exists())
+            .ok_or_else(|| "Inference server binary not found. Please build with: cd rust_backend && cargo build --release".to_string())?;
+        
+        // Start the server process
+        let child = Command::new(binary_path)
+            .args(&[
+                "--host", "127.0.0.1",
+                "--port", &server_port.to_string(),
+                "--log-level", "info",
+            ])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("Failed to start inference server: {}", e))?;
+        
+        *server_lock = Some(child);
+        *state.server_port.lock().unwrap() = server_port;
+        let server_url = format!("http://127.0.0.1:{}", server_port);
+        *state.server_url.lock().unwrap() = server_url.clone();
+        
+        server_url
+    }; // MutexGuard dropped here before await
     
     // Wait a moment for server to initialize
     tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;

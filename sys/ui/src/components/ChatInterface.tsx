@@ -22,7 +22,7 @@ export default function ChatInterface() {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/v1/tasks', {
+            const response = await fetch('/api/v1/tasks', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ description: input, priority: 'normal' }),
