@@ -5,7 +5,7 @@
 //! T141: Implement vector search with filters
 //! §3.7: Total Memory Sovereignty
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde_json::Value;
 use uuid::Uuid;
 

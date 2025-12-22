@@ -30,7 +30,7 @@ pub use plane_swap::PlaneSwapExecutor;
 pub use retry::RetryCounter;
 pub use validate::FixValidator;
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
