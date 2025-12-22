@@ -7,10 +7,10 @@
 use crate::error::Result;
 use crate::healing::anomaly::Anomaly;
 use crate::healing::fix::FixResult;
-use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot};
+use crate::healing::monitor::ComponentHealth;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 /// Fix validation result
 #[derive(Debug, Clone, Serialize, Deserialize)]

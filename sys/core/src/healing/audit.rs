@@ -7,7 +7,6 @@
 use crate::error::Result;
 use crate::healing::HealingEvent;
 use chrono::Utc;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info};

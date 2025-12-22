@@ -6,7 +6,6 @@
 
 use crate::db::Connection;
 use crate::error::{DatabaseError, NoaError, Result};
-use chrono::{DateTime, Utc};
 use rusqlite::{params, Row, OptionalExtension};
 use serde_json::Value as JsonValue;
 use uuid::Uuid;

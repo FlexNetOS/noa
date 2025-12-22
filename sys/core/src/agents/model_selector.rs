@@ -5,7 +5,7 @@
 //! US2: Model selection for optimal task routing
 
 use crate::error::Result;
-use crate::db::repositories::{ModelRepository, Model as DbModel, ModelType, ModelStatus};
+use crate::db::repositories::{ModelRepository, Model as DbModel, ModelStatus};
 use crate::db::Connection;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;

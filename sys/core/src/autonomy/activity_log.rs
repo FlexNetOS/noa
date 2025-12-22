@@ -6,7 +6,6 @@
 //!
 //! T629: Implement real-time activity log (observation only)
 
-use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;

@@ -5,7 +5,7 @@
 
 use crate::db::init_database;
 use crate::services::NeuralService;
-use crate::neural::inference::{InferenceEngine, InferenceRequest};
+use crate::neural::inference::InferenceRequest;
 use crate::error::Result;
 use clap::Args;
 use std::path::PathBuf;

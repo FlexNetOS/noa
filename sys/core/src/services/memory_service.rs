@@ -119,7 +119,7 @@ impl<'a> MemoryService<'a> {
     }
 
     /// Get memory repository (for services that need direct access)
-    pub fn memory_repo(&self) -> &MemoryRepository {
+    pub fn memory_repo(&self) -> &MemoryRepository<'_> {
         &self.memory_repo
     }
 

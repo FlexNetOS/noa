@@ -1,5 +1,4 @@
 //! Agent log repository (Phase 9 - T259)
-use crate::db::repository::Repository;
 use crate::error::{DatabaseError, NoaError, Result};
 use rusqlite::{params, Connection};
 

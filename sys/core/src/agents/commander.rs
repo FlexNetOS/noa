@@ -1,6 +1,9 @@
 use crate::agents::base::BaseAgent;
-use crate::error::Result;
-
+use crate::error::{NoaError, Result};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 /// Task priority levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -255,14 +258,97 @@ impl BaseAgent for CommanderChiefAgent {
     }
 
     fn description(&self) -> &str {
-        "Coordinates micro agent stacks"
+        "Executive orchestrator that coordinates multiple agents, decomposes goals into tasks, and manages execution plans"
     }
 
     fn capabilities(&self) -> Vec<String> {
-        vec!["coordinate".into(), "delegate".into()]
+        vec![
+            "coordinate".into(),
+            "delegate".into(),
+            "plan".into(),
+            "decompose".into(),
+            "orchestrate".into(),
+        ]
     }
 
     fn execute(&self, task: &str) -> Result<String> {
-        Ok(format!("CommanderChief delegated '{}'", task))
+        // Try to parse as CommanderRequest
+        match serde_json::from_str::<CommanderRequest>(task) {
+            Ok(request) => {
+                let plan = self.plan_execution(request)?;
+                let summary = self.coordinate_execution(&plan)?;
+                Ok(summary)
+            }
+            Err(_) => {
+                // Fallback: treat as simple goal
+                let request = CommanderRequest {
+                    goal: task.to_string(),
+                    context: None,
+                    constraints: None,
+                };
+                let plan = self.plan_execution(request)?;
+                let summary = self.coordinate_execution(&plan)?;
+                Ok(summary)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_commander_decompose_file_goal() {
+        let commander = CommanderChiefAgent::new();
+        let request = CommanderRequest {
+            goal: "Read file config.yaml and write to backup.yaml".into(),
+            context: None,
+            constraints: None,
+        };
+        let plan = commander.plan_execution(request).unwrap();
+        assert!(!plan.tasks.is_empty());
+        assert!(plan.tasks.iter().any(|t| t.agent_name == "file-io"));
+    }
+
+    #[test]
+    fn test_commander_decompose_search_goal() {
+        let commander = CommanderChiefAgent::new();
+        let request = CommanderRequest {
+            goal: "Search for documentation about RAG".into(),
+            context: None,
+            constraints: None,
+        };
+        let plan = commander.plan_execution(request).unwrap();
+        assert!(!plan.tasks.is_empty());
+        assert!(plan.tasks.iter().any(|t| t.agent_name == "rag"));
+    }
+
+    #[test]
+    fn test_commander_coordinate_execution() {
+        let commander = CommanderChiefAgent::new();
+        let plan = ExecutionPlan {
+            id: Uuid::new_v4(),
+            goal: "Test goal".into(),
+            tasks: vec![
+                AgentTask {
+                    id: Uuid::new_v4(),
+                    description: "Task 1".into(),
+                    agent_name: "file-io".into(),
+                    priority: TaskPriority::Medium,
+                    status: TaskStatus::Pending,
+                    created_at: Utc::now(),
+                    started_at: None,
+                    completed_at: None,
+                    result: None,
+                    error: None,
+                },
+            ],
+            created_at: Utc::now(),
+            estimated_duration_secs: Some(30),
+        };
+        let summary = commander.coordinate_execution(&plan).unwrap();
+        assert!(summary.contains("Test goal"));
+        assert!(summary.contains("file-io"));
     }
 }
