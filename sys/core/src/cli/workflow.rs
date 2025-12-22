@@ -25,8 +25,8 @@ pub enum WorkflowCmd {
     },
 }
 
-pub async fn execute(command: WorkflowCmd) -> Result<()> {
-    let orchestrator = WorkflowOrchestrator::new();
+pub fn execute(command: WorkflowCmd) -> Result<()> {
+    let mut orchestrator = WorkflowOrchestrator::new();
 
     match command {
         WorkflowCmd::List => {
@@ -63,7 +63,7 @@ pub async fn execute(command: WorkflowCmd) -> Result<()> {
                 parameters,
             };
 
-            let result = orchestrator.execute_workflow(config).await?;
+            let result = orchestrator.execute_workflow(config)?;
 
             println!("\n{}", result.summary);
             println!("\nDetailed Results:");
@@ -97,7 +97,7 @@ pub async fn execute(command: WorkflowCmd) -> Result<()> {
             println!("{:-<80}", "");
 
             let config = workflows::code_review(pr_number, target_branch);
-            let result = orchestrator.execute_workflow(config).await?;
+            let result = orchestrator.execute_workflow(config)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -112,7 +112,7 @@ pub async fn execute(command: WorkflowCmd) -> Result<()> {
             println!("{:-<80}", "");
 
             let config = workflows::deployment(environment, version);
-            let result = orchestrator.execute_workflow(config).await?;
+            let result = orchestrator.execute_workflow(config)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -127,7 +127,7 @@ pub async fn execute(command: WorkflowCmd) -> Result<()> {
             println!("{:-<80}", "");
 
             let config = workflows::testing(component, test_type);
-            let result = orchestrator.execute_workflow(config).await?;
+            let result = orchestrator.execute_workflow(config)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -138,10 +138,11 @@ pub async fn execute(command: WorkflowCmd) -> Result<()> {
             println!("{:-<80}", "");
 
             let config = workflows::security_audit(target, "full".to_string());
-            let result = orchestrator.execute_workflow(config).await?;
+            let result = orchestrator.execute_workflow(config)?;
 
             println!("\n{}", result.summary);
             Ok(())
         }
     }
 }
+

@@ -50,6 +50,7 @@ impl MultiAgentExecutor {
         agents.insert("file-io".to_string(), Box::new(FileIOAgent::new()));
         agents.insert("terminal".to_string(), Box::new(TerminalAgent::new()));
         agents.insert("rag".to_string(), Box::new(RAGAgent::new()));
+        agents.insert("model-selector".to_string(), Box::new(crate::agents::ModelSelectorAgent::new()));
 
         Self {
             agents,
