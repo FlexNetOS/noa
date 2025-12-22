@@ -139,6 +139,24 @@ mod tests {
         assert!(prompt.contains("Paris"));
         assert!(prompt.contains("Context"));
     }
+<<<<<<< Updated upstream
+=======
+
+    #[test]
+    fn test_format_query() {
+        let agent = RAGAgent::new();
+        let query = RAGQuery {
+            query: "test query".into(),
+            top_k: Some(10),
+            filters: None,
+            include_sources: true,
+        };
+        let formatted = agent.format_query(&query);
+        assert!(formatted.contains("test query"));
+        assert!(formatted.contains("10"));
+    }
+}
+>>>>>>> Stashed changes
 
     #[test]
     fn test_format_query() {
