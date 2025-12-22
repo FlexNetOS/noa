@@ -551,7 +551,7 @@ noa/
 
 ## Target System Graph
 
-```
+```mermaid
 flowchart TB
   UI("UI/UX: chat + widgets + XR") --> ORCH("Orchestrator: planner/router/executor")
   IDE[IDE: VS Code/Cursor<br/>separate caches/logs] --> ORCH
