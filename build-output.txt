@@ -1,0 +1,364 @@
+warning: field `login` is never read
+    --> crates\api\src\routes\auth.rs:1153:5
+     |
+1151 | struct GithubUser {
+     |        ---------- field in this struct
+1152 |     id: u64,
+1153 |     login: String,
+     |     ^^^^^
+     |
+     = note: `GithubUser` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `noa-api` (lib) generated 1 warning
+warning: unused import: `NoaError`
+ --> src\agents\file_io.rs:2:20
+  |
+2 | use crate::error::{NoaError, Result};
+  |                    ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Path`
+ --> src\agents\file_io.rs:5:17
+  |
+5 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `NoaError`
+ --> src\agents\terminal.rs:2:20
+  |
+2 | use crate::error::{NoaError, Result};
+  |                    ^^^^^^^^
+
+warning: unused import: `std::path::PathBuf`
+ --> src\agents\terminal.rs:5:5
+  |
+5 | use std::path::PathBuf;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `context`
+   --> src\healing\fix.rs:139:57
+    |
+139 |     async fn execute_restart(&self, component_id: &str, context: &FixContext) -> Result<FixResult> {
+    |                                                         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_context`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `component_id`
+  --> src\healing\plane_swap.rs:83:34
+   |
+83 |     pub async fn can_swap(&self, component_id: &str, to_plane: Plane) -> Result<bool> {
+   |                                  ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_component_id`
+
+warning: unused variable: `to_plane`
+  --> src\healing\plane_swap.rs:83:54
+   |
+83 |     pub async fn can_swap(&self, component_id: &str, to_plane: Plane) -> Result<bool> {
+   |                                                      ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_to_plane`
+
+warning: unused variable: `context_id`
+   --> src\neural\inference.rs:111:21
+    |
+111 |         if let Some(context_id) = request.context_id {
+    |                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_context_id`
+
+warning: unused variable: `source_path`
+  --> src\neural\export.rs:21:9
+   |
+21 |         source_path: &Path,
+   |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_source_path`
+
+warning: unused variable: `output_path`
+  --> src\neural\export.rs:22:9
+   |
+22 |         output_path: &PathBuf,
+   |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_output_path`
+
+warning: unused variable: `source_path`
+  --> src\neural\export.rs:36:9
+   |
+36 |         source_path: &Path,
+   |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_source_path`
+
+warning: unused variable: `output_path`
+  --> src\neural\export.rs:37:9
+   |
+37 |         output_path: &PathBuf,
+   |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_output_path`
+
+warning: unused variable: `devices`
+   --> src\neural\multi_gpu.rs:127:13
+    |
+127 |         let devices = self.enumerator.enumerate_devices().await?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_devices`
+
+warning: unused variable: `task_data`
+  --> src\learning\maml\inner_loop.rs:39:88
+   |
+39 | ...ns::HashMap<String, f64>, task_data: &serde_json::Value) -> Result<std::collections::HashMap<String, f64>> {
+   |                              ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_task_data`
+
+warning: unused variable: `task`
+  --> src\learning\maml\few_shot.rs:35:31
+   |
+35 |     pub async fn learn(&self, task: &FewShotTask) -> Result<serde_json::Value> {
+   |                               ^^^^ help: if this is intentional, prefix it with an underscore: `_task`
+
+warning: unused variable: `tasks`
+  --> src\learning\maml\few_shot.rs:45:36
+   |
+45 |     pub async fn meta_train(&self, tasks: &[FewShotTask]) -> Result<()> {
+   |                                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_tasks`
+
+warning: unused variable: `model_name`
+  --> src\services\model_download.rs:95:9
+   |
+95 |         model_name: String,
+   |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_model_name`
+
+warning: unused variable: `query_vector`
+  --> src\vector\qdrant_client.rs:57:9
+   |
+57 |         query_vector: &[f32],
+   |         ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_query_vector`
+
+warning: unused variable: `filter`
+  --> src\vector\qdrant_client.rs:59:9
+   |
+59 |         filter: Option<&Value>,
+   |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_filter`
+
+warning: unused variable: `e`
+   --> src\db\repositories\memory_repository.rs:344:52
+    |
+344 |         let id = Uuid::parse_str(&id_str).map_err(|e| {
+    |                                                    ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unused variable: `e`
+   --> src\db\repositories\device_repository.rs:397:52
+    |
+397 |         let id = Uuid::parse_str(&id_str).map_err(|e| {
+    |                                                    ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unused variable: `e`
+   --> src\db\repositories\device_repository.rs:403:68
+    |
+403 |         let device_type = DeviceType::from_str(&type_str).map_err(|e| {
+    |                                                                    ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unused variable: `e`
+   --> src\db\repositories\device_repository.rs:408:67
+    |
+408 |         let platform = Platform::from_str(&platform_str).map_err(|e| {
+    |                                                                   ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unused variable: `e`
+   --> src\db\repositories\device_repository.rs:414:67
+    |
+414 |         let status = DeviceStatus::from_str(&status_str).map_err(|e| {
+    |                                                                   ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: variable does not need to be mutable
+   --> src\agents\terminal.rs:117:21
+    |
+117 |                 let mut check_interval = Duration::from_millis(100);
+    |                     ----^^^^^^^^^^^^^^
+    |                     |
+    |                     help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: type `InitState` is more private than the item `InitService::cleanup`
+   --> src\services\init_service.rs:142:5
+    |
+142 |     pub(crate) fn cleanup(state: &InitState, noa_root: &Path) {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ associated function `InitService::cleanup` is reachable at visibility `pub(crate)`
+    |
+note: but type `InitState` is only usable at visibility `pub(self)`
+   --> src\services\init_service.rs:17:1
+    |
+ 17 | struct InitState {
+    | ^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_interfaces)]` on by default
+
+warning: trait `QueryableRepository` is never used
+  --> src\db\repository.rs:62:11
+   |
+62 | pub trait QueryableRepository<T, Id>: Repository<T, Id> {
+   |           ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `Filter` is never constructed
+  --> src\db\repository.rs:75:12
+   |
+75 | pub struct Filter {
+   |            ^^^^^^
+
+warning: associated items `new`, `with_condition`, `with_order_by`, `with_limit`, and `with_offset` are never used
+   --> src\db\repository.rs:83:12
+    |
+ 82 | impl Filter {
+    | ----------- associated items in this implementation
+ 83 |     pub fn new() -> Self {
+    |            ^^^
+...
+ 92 |     pub fn with_condition(mut self, condition: Condition) -> Self {
+    |            ^^^^^^^^^^^^^^
+...
+ 97 |     pub fn with_order_by(mut self, field: impl Into<String>, direction: Direction) -> Self {
+    |            ^^^^^^^^^^^^^
+...
+105 |     pub fn with_limit(mut self, limit: u64) -> Self {
+    |            ^^^^^^^^^^
+...
+110 |     pub fn with_offset(mut self, offset: u64) -> Self {
+    |            ^^^^^^^^^^^
+
+warning: struct `Condition` is never constructed
+   --> src\db\repository.rs:124:12
+    |
+124 | pub struct Condition {
+    |            ^^^^^^^^^
+
+warning: associated functions `eq`, `ne`, `gt`, `lt`, `contains`, and `is_in` are never used
+   --> src\db\repository.rs:131:12
+    |
+130 | impl Condition {
+    | -------------- associated functions in this implementation
+131 |     pub fn eq(field: impl Into<String>, value: impl Into<Value>) -> Self {
+    |            ^^
+...
+139 |     pub fn ne(field: impl Into<String>, value: impl Into<Value>) -> Self {
+    |            ^^
+...
+147 |     pub fn gt(field: impl Into<String>, value: impl Into<Value>) -> Self {
+    |            ^^
+...
+155 |     pub fn lt(field: impl Into<String>, value: impl Into<Value>) -> Self {
+    |            ^^
+...
+163 |     pub fn contains(field: impl Into<String>, value: impl Into<String>) -> Self {
+    |            ^^^^^^^^
+...
+171 |     pub fn is_in(field: impl Into<String>, values: Vec<Value>) -> Self {
+    |            ^^^^^
+
+warning: enum `Operator` is never used
+   --> src\db\repository.rs:182:10
+    |
+182 | pub enum Operator {
+    |          ^^^^^^^^
+
+warning: enum `Value` is never used
+   --> src\db\repository.rs:200:10
+    |
+200 | pub enum Value {
+    |          ^^^^^
+
+warning: struct `OrderBy` is never constructed
+   --> src\db\repository.rs:247:12
+    |
+247 | pub struct OrderBy {
+    |            ^^^^^^^
+
+warning: enum `Direction` is never used
+   --> src\db\repository.rs:254:10
+    |
+254 | pub enum Direction {
+    |          ^^^^^^^^^
+
+warning: struct `PaginatedResult` is never constructed
+   --> src\db\repository.rs:267:12
+    |
+267 | pub struct PaginatedResult<T> {
+    |            ^^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> src\db\repository.rs:276:12
+    |
+275 | impl<T> PaginatedResult<T> {
+    | -------------------------- associated function in this implementation
+276 |     pub fn new(items: Vec<T>, total: u64, offset: u64, limit: u64) -> Self {
+    |            ^^^
+
+warning: field `plane_swap` is never read
+  --> src\healing\mod.rs:88:5
+   |
+79 | pub struct SelfHealingOrchestrator {
+   |            ----------------------- field in this struct
+...
+88 |     plane_swap: Arc<PlaneSwapExecutor>,
+   |     ^^^^^^^^^^
+
+warning: methods `count_consecutive_violations` and `detect_statistical_anomaly` are never used
+   --> src\healing\anomaly.rs:238:8
+    |
+ 90 | impl AnomalyDetector {
+    | -------------------- methods in this implementation
+...
+238 |     fn count_consecutive_violations(&self, metric_key: &str, threshold: f64) -> u32 {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+256 |     fn detect_statistical_anomaly(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `device_id` is never read
+  --> src\neural\gpu_pool.rs:15:5
+   |
+14 | struct MemoryPoolEntry {
+   |        --------------- field in this struct
+15 |     device_id: u32,
+   |     ^^^^^^^^^
+   |
+   = note: `MemoryPoolEntry` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `pretrainer` is never read
+  --> src\learning\toolkengpt\plugin.rs:24:5
+   |
+22 | pub struct ToolPluginLoader {
+   |            ---------------- field in this struct
+23 |     registry: ToolkenGptRegistry,
+24 |     pretrainer: ToolTokenPretrainer,
+   |     ^^^^^^^^^^
+
+warning: field `config` is never read
+  --> src\learning\maml\outer_loop.rs:29:5
+   |
+28 | pub struct OuterLoopOptimizer {
+   |            ------------------ field in this struct
+29 |     config: OuterLoopConfig,
+   |     ^^^^^^
+
+warning: fields `inner_loop` and `outer_loop` are never read
+  --> src\learning\maml\few_shot.rs:21:5
+   |
+20 | pub struct FewShotLearner {
+   |            -------------- fields in this struct
+21 |     inner_loop: InnerLoopAdapter,
+   |     ^^^^^^^^^^
+22 |     outer_loop: OuterLoopOptimizer,
+   |     ^^^^^^^^^^
+
+warning: field `marker_file_created` is never read
+  --> src\services\init_service.rs:21:5
+   |
+17 | struct InitState {
+   |        --------- field in this struct
+...
+21 |     marker_file_created: bool,
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `InitState` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `url` is never read
+  --> src\vector\qdrant_client.rs:14:5
+   |
+13 | pub struct QdrantClient {
+   |            ------------ field in this struct
+14 |     url: String,
+   |     ^^^
+
+warning: `noa-core` (lib) generated 45 warnings (run `cargo fix --lib -p noa-core` to apply 5 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
