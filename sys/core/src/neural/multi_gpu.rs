@@ -124,7 +124,7 @@ impl MultiGpuDistributor {
         &self,
         total_layers: usize,
     ) -> Result<HashMap<u32, usize>> {
-        let devices = self.enumerator.enumerate_devices().await?;
+        let _devices = self.enumerator.enumerate_devices().await?;
         let assignments = self.distribute_layers(total_layers, DistributionStrategy::MemoryAware).await?;
 
         let mut layers_per_device: HashMap<u32, usize> = HashMap::new();

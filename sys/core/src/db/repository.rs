@@ -59,6 +59,7 @@ pub trait Repository<T, Id> {
 }
 
 /// Extended repository trait with query capabilities
+#[allow(dead_code)]
 pub trait QueryableRepository<T, Id>: Repository<T, Id> {
     /// Find all entities
     fn find_all(&self) -> Result<Vec<T>>;
@@ -71,6 +72,7 @@ pub trait QueryableRepository<T, Id>: Repository<T, Id> {
 }
 
 /// Generic filter for queries
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Filter {
     pub conditions: Vec<Condition>,
@@ -120,6 +122,7 @@ impl Default for Filter {
 }
 
 /// Query condition
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Condition {
     pub field: String,

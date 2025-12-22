@@ -14,7 +14,7 @@ pub struct InitService;
 
 /// Tracks what was created during initialization for cleanup on failure
 #[derive(Debug, Default)]
-struct InitState {
+pub(crate) struct InitState {
     directories_created: Vec<std::path::PathBuf>,
     configs_created: Vec<std::path::PathBuf>,
     database_created: bool,

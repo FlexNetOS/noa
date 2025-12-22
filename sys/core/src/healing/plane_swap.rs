@@ -87,7 +87,7 @@ impl PlaneSwapExecutor {
     }
 
     /// Check if plane swap is safe
-    pub async fn can_swap(&self, component_id: &str, to_plane: Plane) -> Result<bool> {
+    pub async fn can_swap(&self, _component_id: &str, _to_plane: Plane) -> Result<bool> {
         // TODO: Check if target plane has capacity
         // TODO: Check if component dependencies are available in target plane
         // TODO: Check if swap would violate constraints

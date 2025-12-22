@@ -92,7 +92,7 @@ impl ModelDownloadService {
     /// Download task implementation
     async fn download_task(
         download_id: Uuid,
-        model_name: String,
+        _model_name: String,
         url: String,
         output_path: PathBuf,
         downloads: Arc<RwLock<std::collections::HashMap<Uuid, DownloadProgress>>>,

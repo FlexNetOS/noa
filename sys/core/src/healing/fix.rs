@@ -136,7 +136,7 @@ impl AutoFixExecutor {
     }
 
     /// Execute restart fix
-    async fn execute_restart(&self, component_id: &str, context: &FixContext) -> Result<FixResult> {
+    async fn execute_restart(&self, component_id: &str, _context: &FixContext) -> Result<FixResult> {
         let start = std::time::Instant::now();
 
         info!(component_id = %component_id, "Executing restart fix");
