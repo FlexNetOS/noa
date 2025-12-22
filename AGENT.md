@@ -379,24 +379,31 @@ noa_root/
 │       │   └── spec/
 │       └── prompts/
 ├── apps/                        # First-class UI modules (versioned, pinned, sandbox-runnable)
-│   └── task-manager/
-│       ├── upstream/            # Vendor/original distribution (immutable, pinned)
-│       │   ├── web/             # Static assets or bundle
-│       │   ├── desktop/
-│       │   │   ├── win/
-│       │   │   ├── mac/
-│       │   │   └── linux/
-│       │   └── mobile/
-│       │       ├── ios/
-│       │       └── android/
-│       ├── wrappers/            # NOA-specific integration glue (thin)
-│       │   ├── mcp/             # Optional: MCP server around the app's API
-│       │   ├── deep-links/      # URL schemes, intents, navigation contracts
-│       │   ├── auth/            # SSO/OAuth mapping to sys/identity
-│       │   └── ui-embed/        # Embed adapters (webview, iframe, tauri window)
-│       ├── profiles/            # Settings separation: logs/cache isolated
-│       ├── config/              # App-specific config (generated; not secrets)
-│       └── manifests/           # Pinned versions + hashes + SBOM-ish metadata
+│   ├── task-app-a/              # Example: Linear, Jira, etc.
+│   │   ├── upstream/            # Vendor/original distribution (immutable, pinned)
+│   │   │   ├── web/             # Static assets or bundle
+│   │   │   ├── desktop/
+│   │   │   │   ├── win/
+│   │   │   │   ├── mac/
+│   │   │   │   └── linux/
+│   │   │   └── mobile/
+│   │   │       ├── ios/
+│   │   │       └── android/
+│   │   ├── wrappers/            # NOA-specific integration glue (thin)
+│   │   │   ├── connector/       # Adapter to/from Task Kernel (bidirectional sync)
+│   │   │   ├── mcp/             # Optional: MCP server around the app's API
+│   │   │   ├── deep-links/      # URL schemes, intents, navigation contracts
+│   │   │   ├── auth/            # SSO/OAuth mapping to sys/identity
+│   │   │   └── ui-embed/        # Embed adapters (webview, iframe, tauri window)
+│   │   ├── profiles/            # Settings separation: logs/cache isolated
+│   │   ├── config/              # App-specific config (generated; not secrets)
+│   │   └── manifests/           # Pinned versions + hashes + SBOM-ish metadata
+│   ├── task-app-b/              # Example: ClickUp, Notion, etc.
+│   │   └── wrappers/
+│   │       └── connector/       # Each app has its own adapter
+│   └── task-app-c/              # Example: Asana, Monday.com, etc.
+│       └── wrappers/
+│           └── connector/
 ├── sys/
 │   ├── core/                    # Rust core system
 │   │   ├── src/
@@ -412,7 +419,11 @@ noa_root/
 │       │   ├── shell/           # Main nav + layout
 │       │   ├── pages/
 │       │   │   ├── convo/       # Default home (chat + widgets)
-│       │   │   ├── tasks/       # Embedded task manager pane
+│       │   │   ├── tasks/       # Tasks Hub - unified canonical view
+│       │   │   │   ├── hub/     # Main aggregated view (all apps normalized)
+│       │   │   │   ├── app-a/   # Embedded App A (optional deep-link view)
+│       │   │   │   ├── app-b/   # Embedded App B (optional)
+│       │   │   │   └── app-c/   # Embedded App C (optional)
 │       │   │   ├── runs/        # Task execution runs (logs/artifacts)
 │       │   │   └── hive/        # Devices, compute, storage mesh view
 │       │   └── widgets/
@@ -426,11 +437,21 @@ noa_root/
 ├── gateway/
 │   └── mcp/
 │       └── connectors/
-│           └── task-manager/    # Task app integration bridge
+│           └── tasks/           # Task integration layer
+│               ├── app-a/       # Connector for App A (endpoints + auth + mapping)
+│               ├── app-b/       # Connector for App B
+│               ├── app-c/       # Connector for App C
+│               └── router/      # Authority router (which app owns what scopes)
 ├── orchestrator/
+│   ├── task-kernel/             # Canonical task model + unification rules
+│   │   ├── schema/              # TaskKernelTask schema (JSON/Proto)
+│   │   │   └── task_kernel.json # Canonical internal task representation
+│   │   ├── normalization/       # Canonicalization + dedupe + conflict resolution
+│   │   ├── mapping/             # Per-app mapping configs (app schema → kernel schema)
+│   │   └── sync/                # Ingestion + emission pipeline (bidirectional sync)
 │   └── packages/
 │       ├── schema/
-│       │   └── task_package.json    # Canonical task schema (NOA ↔ task app)
+│       │   └── task_package.json    # Task Package schema (execution-oriented)
 │       └── templates/
 │           └── task-sync/       # Task synchronization workflows
 ├── data/
@@ -438,62 +459,214 @@ noa_root/
 │   ├── models/                  # Local models
 │   ├── cache/
 │   │   └── apps/
-│   │       └── task-manager/    # App-specific cache isolation
+│   │       ├── task-app-a/      # App-specific cache isolation
+│   │       │   └── <profile-id>/
+│   │       ├── task-app-b/
+│   │       │   └── <profile-id>/
+│   │       └── task-app-c/
 │   │           └── <profile-id>/
 │   └── logs/
 │       └── apps/
-│           └── task-manager/    # App-specific log isolation
+│           ├── task-app-a/      # App-specific log isolation
+│           │   └── <profile-id>/
+│           ├── task-app-b/
+│           │   └── <profile-id>/
+│           └── task-app-c/
 │               └── <profile-id>/
 ├── bin/                         # Executables
 ├── config/                      # Configuration files
 └── logs/                        # System logs
 ```
 
-### Task Management App Architecture
+### Task Management Architecture (Multi-App Support)
 
-The task management app is treated as a **first-class UI module (pane)**, not as the primary UI or backend:
+NOA supports **multiple task management apps** running concurrently, unified through a canonical **Task Kernel**. This approach keeps each app's native UX intact while providing a single source of truth for agent execution.
 
-**Design Philosophy:**
+#### Design Philosophy
+
 - **Conversational UI** = Command center (chat, intent, narration, approvals)
-- **Task App** = Structured work cockpit (backlog, workflows, boards, ownership)
-- **Agents/Models** = Wired through orchestrator + gateway (not through task app)
+- **Task Apps** = Structured work cockpits (boards, Gantt, docs, workflows)
+- **Task Kernel** = Canonical internal representation + sync layer
+- **Agents/Models** = Wired through Task Kernel, not directly to apps
 
-**Integration Boundary:**
+#### What Stays Separate
 
-Task app ↔ NOA integration happens via **Task API + event stream**, owned by NOA:
+Each task app maintains:
+- Its own binaries + UX (boards, Gantt, docs, etc.)
+- Native data model (for now)
+- App-specific workflows/features
+- Isolated profiles, logs, and cache
+
+#### What Becomes Unified (Immediately)
+
+NOA provides:
+- **TaskKernelTask** schema (canonical internal representation)
+- **Sync layer** with per-app adapters (app schema ↔ kernel schema)
+- **Single execution truth** (runs, artifacts, provenance in CAS)
+- **Tasks Hub UI** (normalized view across all apps)
+
+#### Integration Boundary
+
+Task apps ↔ NOA integration happens via **Task Kernel + Connectors**:
 
 ```
-Task App (UI/Storage) → NOA Gateway → Orchestrator → Agents/Providers
-                           ↓
-                    Task Package Schema
-                           ↓
-                  Execution (Sandbox → CAS)
-                           ↓
-                  Status/Progress → Task App + UI Widgets
+Task App A/B/C → Gateway Connector → Task Kernel → Orchestrator → Agents
+                      ↓                    ↓
+                  Mapping Rules      Normalization
+                                          ↓
+                                  Task Package (execution)
+                                          ↓
+                              Sandbox → CAS (artifacts)
+                                          ↓
+                          Status/Progress → Apps + UI Widgets
 ```
 
-**Data Flow:**
-1. Task created/changed in task app
-2. NOA ingests → converts to **task package** (`orchestrator/packages/schema/task_package.json`)
-3. Orchestrator decomposes and routes to tools/providers
-4. Execution occurs in sandbox → artifacts to CAS
-5. Status/progress pushed back to task app + UI widgets
+#### Data Flow
 
-**Truth Distribution:**
-- **Task app** = Human-visible truth (board, priorities, owners)
-- **NOA** = Execution truth (runs, artifacts, provenance, linked to tasks)
+1. **Task created/changed** in any task app
+2. Gateway connector **ingests** event → maps to **TaskKernelTask**
+3. Task Kernel **normalizes** + deduplicates + resolves conflicts
+4. Orchestrator converts to **TaskPackage** and routes to agents/providers
+5. Execution occurs in sandbox → **artifacts stored in CAS**
+6. Status/progress **emitted back** to source app(s) + UI widgets
 
-**Isolation Policy:**
-- Logs: `data/logs/apps/task-manager/<profile-id>/`
-- Cache: `data/cache/apps/task-manager/<profile-id>/`
-- Config: `apps/task-manager/config/` (generated; not secrets)
-- Binaries: `apps/task-manager/upstream/<platform>/`
+#### Authority Modes
 
-**Deep Linking Format:** `noa://tasks/<id>`
+Each app can operate in one of three modes (per project or per field):
 
-**Status Mapping:**
-- Task App: `todo` / `in-progress` / `done`
-- NOA: `planned` / `running` / `succeeded` / `failed`
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Read-only source** | Ingest tasks, never write back | Legacy apps, external integrations |
+| **Bidirectional** | Two-way sync (rare at first) | Primary working app per project |
+| **Kernel-authoritative** | Tasks created in NOA, app is view | Advanced: NOA-native task creation |
+
+**Practical rollout:**
+1. Start with **read-only ingestion** from all apps
+2. Pick *one* app for **bidirectional** sync per project
+3. Gradually migrate to **kernel-authoritative** as adoption grows
+
+#### TaskKernelTask Schema
+
+The canonical internal representation includes:
+
+- `id` (stable, internal UUID)
+- `source` (app identifier + native task ID)
+- `title`, `description`
+- `state` (canonical enum: `planned` | `running` | `succeeded` | `failed`)
+- `priority` (normalized scale)
+- `tags[]`
+- `project`, `milestone`
+- `assignee(s)`
+- `deps[]` (task DAG for dependencies)
+- `artifacts[]` (CAS refs to execution outputs)
+- `runs[]` (execution run history)
+- `policy` (required capabilities, sandbox profile)
+- `metadata` (app-specific fields, conflict resolution hints)
+
+#### Adapter Contract
+
+Each app connector implements three core functions:
+
+```rust
+trait TaskAppAdapter {
+    // Ingest app event → canonical kernel task
+    fn ingest(&self, app_event: AppEvent) -> Result<TaskKernelTask>;
+    
+    // Emit kernel task → app mutation (optional, for write-back)
+    fn emit(&self, task: &TaskKernelTask) -> Result<AppMutation>;
+    
+    // Resolve conflicts when multiple apps have divergent state
+    fn reconcile(&self, conflicts: Vec<TaskConflict>) -> Result<TaskKernelTask>;
+}
+```
+
+#### Normalization & Deduplication
+
+The Task Kernel normalization layer handles:
+
+- **Status mapping**: Deterministic conversion (e.g., `todo` → `planned`, `done` → `succeeded`)
+- **Deduplication**: Via `(normalized_title + project + assignee + time_window)` + optional fuzzy match
+- **Conflict resolution**: Keep all originals as provenance, mark "merged into" with references
+- **Never discard**: All data retained; CAS provides immutable anchors
+
+#### UI: Tasks Hub
+
+The conversational UI provides a unified Tasks Hub:
+
+- **`/tasks`** = Canonical hub (aggregated view, normalized across all apps)
+  - Filters: source app, owner, project, hive scope (personal/regional/org)
+  - Agent run status: planned/running/failed/succeeded
+  - Deep links: "Open in App X" buttons
+- **`/tasks/app-a`** = Embedded App A view (optional)
+- **`/tasks/app-b`** = Embedded App B view (optional)
+- **`/tasks/app-c`** = Embedded App C view (optional)
+
+#### Truth Distribution
+
+- **Task Apps** = Human-visible truth (boards, priorities, owners, native UX)
+- **Task Kernel** = Canonical internal state (normalized, deduplicated)
+- **NOA Orchestrator** = Execution truth (runs, artifacts, provenance, logs)
+
+#### Agent Integration
+
+**Agents NEVER talk directly to task apps.** Instead:
+
+- Agents query **Task Kernel** (what to do)
+- Agents use **Orchestrator** (how to do it)
+- Agents invoke **MCP tools** (do it)
+- **Task Kernel emits status** back through connectors to apps
+
+This keeps the agent loop stable even when switching or adding task apps.
+
+#### Isolation Policy
+
+Each app maintains strict isolation:
+
+- **Logs**: `data/logs/apps/task-app-{a,b,c}/<profile-id>/`
+- **Cache**: `data/cache/apps/task-app-{a,b,c}/<profile-id>/`
+- **Config**: `apps/task-app-{a,b,c}/config/` (generated; not secrets)
+- **Binaries**: `apps/task-app-{a,b,c}/upstream/<platform>/`
+
+#### Deep Linking Format
+
+- **Canonical**: `noa://tasks/<kernel-task-id>`
+- **App-specific**: `noa://tasks/app-a/<native-task-id>`
+
+#### Status Mapping Examples
+
+| Task App State | NOA Kernel State | Notes |
+|----------------|------------------|-------|
+| `todo`, `backlog` | `planned` | Not yet started |
+| `in-progress`, `active` | `running` | Agent/human working |
+| `done`, `closed`, `resolved` | `succeeded` | Completed successfully |
+| `cancelled`, `blocked`, `failed` | `failed` | Did not complete |
+
+#### Migration Strategy
+
+**Phase 1: Read-only ingestion** (Current)
+- Ingest tasks from all apps into Task Kernel
+- No write-back to apps
+- Agents execute based on kernel state
+
+**Phase 2: Selective bidirectional** (Next)
+- Pick one app per project for bidirectional sync
+- Status updates flow back to that app
+- Other apps remain read-only
+
+**Phase 3: Kernel-authoritative** (Future)
+- Tasks created directly in NOA
+- Apps become views/editors
+- Full agent-driven task lifecycle
+
+#### When to Unify/Refactor
+
+Unify apps into a single native implementation only when:
+- 80% of tasks flow through the canonical hub
+- Stable mappings and authority rules proven
+- One app is clearly redundant
+- ROI is obvious (cost of maintaining adapters > cost of custom app)
+
+Until then, **keep apps separate** and let the Task Kernel handle integration.
 
 ---
 
