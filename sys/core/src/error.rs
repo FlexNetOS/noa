@@ -326,6 +326,96 @@ impl From<chrono::ParseError> for NoaError {
     }
 }
 
+/// Standardized API error response format.
+/// All error responses follow this structure for consistency.
+#[derive(Debug, serde::Serialize)]
+pub struct ApiErrorResponse {
+    /// Human-readable error message
+    pub error: String,
+    /// Machine-readable error code
+    pub code: String,
+    /// HTTP status code
+    pub status: u16,
+    /// Optional field-specific validation errors
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub details: Option<serde_json::Value>,
+    /// Request ID for correlation (populated by middleware)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_id: Option<String>,
+}
+
+impl NoaError {
+    /// Get the error code for machine parsing.
+    pub fn error_code(&self) -> &'static str {
+        match self {
+            NoaError::Database(DatabaseError::ConnectionFailed(_)) => "DB_CONNECTION_FAILED",
+            NoaError::Database(DatabaseError::QueryFailed { .. }) => "DB_QUERY_FAILED",
+            NoaError::Database(DatabaseError::MigrationFailed { .. }) => "DB_MIGRATION_FAILED",
+            NoaError::Database(DatabaseError::PoolExhausted) => "DB_POOL_EXHAUSTED",
+            NoaError::Database(DatabaseError::TransactionFailed(_)) => "DB_TRANSACTION_FAILED",
+            NoaError::Database(DatabaseError::IntegrityViolation(_)) => "DB_INTEGRITY_VIOLATION",
+            NoaError::Database(DatabaseError::Corruption { .. }) => "DB_CORRUPTION",
+
+            NoaError::Config(ConfigError::FileNotFound(_)) => "CONFIG_FILE_NOT_FOUND",
+            NoaError::Config(ConfigError::ParseError { .. }) => "CONFIG_PARSE_ERROR",
+            NoaError::Config(ConfigError::ValidationError { .. }) => "CONFIG_VALIDATION_ERROR",
+            NoaError::Config(ConfigError::MissingRequired(_)) => "CONFIG_MISSING_REQUIRED",
+            NoaError::Config(ConfigError::InvalidValue { .. }) => "CONFIG_INVALID_VALUE",
+            NoaError::Config(ConfigError::EnvironmentVariableNotSet(_)) => "CONFIG_ENV_NOT_SET",
+
+            NoaError::Agent(AgentError::NotFound(_)) => "AGENT_NOT_FOUND",
+            NoaError::Agent(AgentError::AlreadyExists(_)) => "AGENT_ALREADY_EXISTS",
+            NoaError::Agent(AgentError::InvalidState { .. }) => "AGENT_INVALID_STATE",
+            NoaError::Agent(AgentError::ExecutionFailed { .. }) => "AGENT_EXECUTION_FAILED",
+            NoaError::Agent(AgentError::CapabilityMissing { .. }) => "AGENT_CAPABILITY_MISSING",
+            NoaError::Agent(AgentError::Timeout { .. }) => "AGENT_TIMEOUT",
+
+            NoaError::Api(ApiError::BadRequest(_)) => "BAD_REQUEST",
+            NoaError::Api(ApiError::Unauthorized(_)) => "UNAUTHORIZED",
+            NoaError::Api(ApiError::Forbidden(_)) => "FORBIDDEN",
+            NoaError::Api(ApiError::NotFound(_)) => "NOT_FOUND",
+            NoaError::Api(ApiError::Conflict(_)) => "CONFLICT",
+            NoaError::Api(ApiError::RateLimited { .. }) => "RATE_LIMITED",
+            NoaError::Api(ApiError::ServiceUnavailable(_)) => "SERVICE_UNAVAILABLE",
+            NoaError::Api(ApiError::InternalError(_)) => "INTERNAL_ERROR",
+
+            NoaError::Io(_) => "IO_ERROR",
+            NoaError::Serialization(_) => "SERIALIZATION_ERROR",
+            NoaError::Validation(_) => "VALIDATION_ERROR",
+            NoaError::NotFound { .. } => "RESOURCE_NOT_FOUND",
+            NoaError::PermissionDenied { .. } => "PERMISSION_DENIED",
+            NoaError::Timeout { .. } => "TIMEOUT",
+            NoaError::Internal { .. } => "INTERNAL_ERROR",
+        }
+    }
+
+    /// Get optional details for the error (e.g., validation field errors).
+    pub fn details(&self) -> Option<serde_json::Value> {
+        match self {
+            NoaError::Validation(v) => Some(serde_json::json!({
+                "field": v.field,
+                "code": v.code,
+            })),
+            NoaError::Api(ApiError::RateLimited { retry_after_seconds }) => Some(serde_json::json!({
+                "retry_after_seconds": retry_after_seconds,
+            })),
+            NoaError::NotFound { resource, id } => Some(serde_json::json!({
+                "resource": resource,
+                "id": id,
+            })),
+            NoaError::PermissionDenied { action, resource } => Some(serde_json::json!({
+                "action": action,
+                "resource": resource,
+            })),
+            NoaError::Timeout { operation, duration_ms } => Some(serde_json::json!({
+                "operation": operation,
+                "duration_ms": duration_ms,
+            })),
+            _ => None,
+        }
+    }
+}
+
 impl IntoResponse for NoaError {
     fn into_response(self) -> axum::response::Response {
         let status = match &self {
@@ -343,15 +433,24 @@ impl IntoResponse for NoaError {
             NoaError::PermissionDenied { .. } => StatusCode::FORBIDDEN,
             NoaError::Timeout { .. } => StatusCode::GATEWAY_TIMEOUT,
 
+            // Database errors - 503 for connection issues, 500 for others
+            NoaError::Database(DatabaseError::ConnectionFailed(_)) => StatusCode::SERVICE_UNAVAILABLE,
+            NoaError::Database(DatabaseError::PoolExhausted) => StatusCode::SERVICE_UNAVAILABLE,
+            NoaError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
+
             // Default: internal
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        let body = serde_json::json!({
-            "error": self.to_string(),
-        });
+        let response = ApiErrorResponse {
+            error: self.to_string(),
+            code: self.error_code().to_string(),
+            status: status.as_u16(),
+            details: self.details(),
+            request_id: None, // Populated by middleware if available
+        };
 
-        (status, Json(body)).into_response()
+        (status, Json(response)).into_response()
     }
 }
 /// Result type alias for NOA operations

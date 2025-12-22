@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo check:*)",
+      "Bash(~/.cargo/bin/cargo check)",
+      "Bash(cmd /c \"cd C:\\Users\\De-Flex.Net\\.claude-worktrees\\noa\\affectionate-hugle\\sys\\core && cargo check 2>&1\")",
+      "Bash(powershell.exe -Command \"cd ''C:\\Users\\De-Flex.Net\\.claude-worktrees\\noa\\affectionate-hugle\\sys\\core''; cargo check 2>&1\")",
+      "Bash(powershell.exe -Command \"cd 'C:\\Users\\De-Flex.Net\\.claude-worktrees\\noa\\affectionate-hugle\\sys\\core'; & 'C:\\Users\\De-Flex.Net\\.cargo\\bin\\cargo.exe' check:*)",
+      "Bash(powershell.exe -Command \"dir ''C:\\Users\\De-Flex.Net\\.cargo\\bin\\'' 2>&1\")",
+      "Bash(powershell.exe -Command \"where.exe cargo 2>&1\")"
+    ]
+  }
+}
