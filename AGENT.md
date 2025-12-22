@@ -329,3 +329,278 @@ Before completing any task, verify:
 - [ ] Triple-verification completed (§3.12)
 
 ---
+
+## Target Directory Structure
+
+noa/
+├─ README.md
+├─ AGENT.md
+├─ LICENSE
+├─ .gitignore
+│
+├─ bin/                              # user-facing executables (thin wrappers)
+│  ├─ noa                            # main CLI entry
+│  ├─ noa-admin                      # owner/maintainer CLI
+│  └─ noa-sandbox                    # sandbox runner entry
+│
+├─ lib/                              # shared libraries (Rust crates / polyglot libs)
+│  ├─ noa-core/                      # core types, error model, IDs, tracing
+│  ├─ noa-policy/                    # capability tokens, policy DSL, authz primitives
+│  ├─ noa-mcp/                       # MCP protocol helpers, client/server glue
+│  ├─ noa-cas/                       # CAS primitives (hashing, refs/tags, merkle DAG)
+│  ├─ noa-p2p/                       # libp2p abstractions, transport, discovery
+│  ├─ noa-schema/                    # schema definitions + validators (shared)
+│  └─ noa-ui-proto/                  # UI event protocol + widget schema
+│
+├─ sys/                              # "Kernel": smallest trusted core
+│  ├─ core/
+│  │  ├─ identity/                   # users/devices/org roles
+│  │  ├─ policy/                     # allow/deny, budgets, capabilities, trust levels
+│  │  ├─ secrets/                    # secret mediation API (no raw secrets to tools)
+│  │  ├─ audit/                      # append-only audit + provenance
+│  │  ├─ scheduler/                  # task DAG runner, quotas, priorities
+│  │  ├─ world_model/                # machine-readable world model (SSoT)
+│  │  ├─ registry/                   # tool/model/server registry pointers + trust pins
+│  │  └─ enforcement/                # (Layer 3) validator/compiler/guardrails hooks
+│  ├─ api-server/                    # internal control plane API (sys/core endpoints)
+│  ├─ init/                          # boot sequence (first-run + migrations)
+│  ├─ shell/                         # controlled shells (bash/pwsh adapters)
+│  └─ etc/                           # "system-ish" defaults (read-only baseline mirrors)
+│
+├─ gateway/                          # Tool bus + routing (MCP lives here)
+│  ├─ mcp/
+│  │  ├─ proxy/                      # central MCP gateway/proxy
+│  │  ├─ registry/                   # discovery, version pinning, signatures/trust
+│  │  ├─ routing/                    # locality-aware routing (local/personal/regional/org)
+│  │  ├─ authz/                      # capability token -> per-tool permission mapping
+│  │  ├─ connectors/                 # adapter layer to external systems (bounded)
+│  │  └─ workflows/                  # workflow engine bindings (calls tools via MCP)
+│  ├─ api/                           # stable internal APIs (for UI + orchestrator)
+│  └─ ui-bridge/                     # streaming progress/events to UI widgets
+│
+├─ orchestrator/                     # Brains: plan + route + run
+│  ├─ router/                        # provider+tool selection (budget + locality)
+│  ├─ planner/                       # decomposes requests into task packages
+│  ├─ executor/                      # runs task packages via gateway/mcp
+│  ├─ workflows/                     # high-level DAG workflows (build/test/train/etc.)
+│  ├─ commands/                      # "command verbs" mapped to packages/workflows
+│  └─ packages/                      # microservice/package format
+│     ├─ schema/                     # package schema definitions
+│     ├─ templates/                  # common task shapes
+│     ├─ compiled/                   # resolved DAGs ready to run
+│     └─ staging/                    # resolved packages before promotion to “known good”
+│
+├─ task/                             # task system + todo + project-management
+│  ├─ todo/                          # queue of work items (machine-first)
+│  ├─ project-management/            # boards, milestones, sprints, ownership
+│  ├─ run-logs/                      # task run metadata (bounded, CAS-linked)
+│  └─ artifacts/                     # outputs captured from runs (promote to CAS)
+│
+├─ sandbox/                          # “Claude-like” containment (anti-rot)
+│  ├─ runtime/
+│  │  ├─ runners/                    # sandbox runners (process/VM/containerless)
+│  │  ├─ workspaces/                 # per-task ephemeral dirs
+│  │  ├─ mounts/                     # controlled FS mounts
+│  │  ├─ network/                    # network policy toggles + allowlists
+│  │  └─ limits/                     # cpu/gpu/time/log/cache caps
+│  ├─ snapshots/                     # rollback points + diff monitors
+│  └─ policies/                      # sandbox profiles (build, scan, train, db-migrate)
+│
+├─ tools/                            # Tool servers (often 1 MCP server per tool)
+│  ├─ spec-kit/                      # MCP server: spec generation/validation/diff
+│  ├─ code-scan/                     # MCP server: scan/lint/security checks
+│  ├─ build-test/                    # MCP server: build/unit/integration tests
+│  ├─ db/                            # MCP server: db access (read-only + write split)
+│  ├─ object-store/                  # MCP server: object storage (S3-like, local-first)
+│  ├─ cas/                           # MCP server: CAS get/put, refs/tags, GC triggers
+│  ├─ notebook-kernel/               # MCP server: controlled notebooks (see test/notebook)
+│  ├─ package-manager/               # pnpm (or alt) ops isolated behind MCP
+│  └─ connectors/                    # external connector tool-servers (bounded + audited)
+│
+├─ providers/                        # Model providers (compute plane)
+│  ├─ local/
+│  │  ├─ llama_cpp/
+│  │  └─ candle/
+│  ├─ remote/
+│  │  ├─ codex_cli/
+│  │  ├─ claude_code_cli/
+│  │  └─ copilot_bridge/
+│  ├─ shared/                        # shared provider resources (kv cache, embeddings cache)
+│  └─ pool/                          # routing + budgets + concurrency control
+│
+├─ p2p/                              # Hive mind mesh (libp2p)
+│  ├─ personal/                      # user-owned devices (trust anchor)
+│  │  ├─ node/
+│  │  ├─ discovery/
+│  │  ├─ routing/
+│  │  ├─ compute/                    # distributed compute requests (sandboxed)
+│  │  └─ storage/                    # CAS replication, pinning, retrieval
+│  ├─ regional/                      # pooled community resources
+│  │  ├─ admission/
+│  │  ├─ compute/
+│  │  └─ storage/
+│  └─ org/                           # org hive mind
+│     ├─ governance/
+│     ├─ compute/
+│     └─ storage/
+│
+├─ data/                             # Durable data plane
+│  ├─ cas/
+│  │  ├─ blobs/
+│  │  ├─ refs/                       # mutable pointers/tags on top of CAS
+│  │  ├─ index/                      # search index
+│  │  └─ gc/                         # garbage collection config/state
+│  ├─ db/
+│  │  ├─ postgres/
+│  │  └─ sqlite/
+│  ├─ vectors/                       # vector DB files/index (or remote endpoint config)
+│  ├─ object-store/                  # local object store backing (if self-hosted)
+│  ├─ logs/                          # bounded, rotated logs (optional CAS-linked)
+│  └─ cache/                         # bounded caches
+│
+├─ configs/                          # AI-native centralized config (3-layer model)
+│  ├─ base/                          # Layer 1 (immutable baseline; “known good”)
+│  │  ├─ microkernel-layout/         # directory contract + invariants
+│  │  ├─ toolchain-versions/         # pinned toolchain versions
+│  │  ├─ schemas/                    # core schema definitions (authoritative)
+│  │  ├─ safety-rails/               # hard limits, deny lists, invariants
+│  │  ├─ sandbox-definitions/        # default sandbox profiles
+│  │  └─ rollback-points/            # baseline snapshots metadata
+│  ├─ semantic/                      # Layer 2 (mutable; evolves)
+│  │  ├─ preferences/                # user/org prefs
+│  │  ├─ capabilities/               # granted capabilities per role/device
+│  │  ├─ device-profiles/            # distributed device profiles
+│  │  ├─ world-model-metadata/       # mutable world model facts
+│  │  ├─ intent/                     # user intent files (goals, constraints)
+│  │  ├─ agent-rules/                # coordination rules, learned optimizations
+│  │  └─ hive-state/                 # personal/regional/org state (non-secret)
+│  └─ enforcement/                   # Layer 3 (enforcement + self-correction)
+│     ├─ validator/                  # schema validator
+│     ├─ compiler/                   # “compile” configs into runnable state
+│     ├─ guardrails/                 # rules engine + policy checks
+│     ├─ snapshot-diff-monitor/      # detect drift; enforce rollback/repair
+│     └─ policy-engine/              # self-correcting policy loop
+│
+├─ settings/                         # runtime settings (derived from configs + secrets)
+│  ├─ resolved/                      # compiled, merged settings (generated)
+│  ├─ profiles/                      # UI/IDE/provider profiles to prevent bloat
+│  └─ overrides/                     # temporary overrides (time-limited, audited)
+│
+├─ secret-store/                     # sealed secret material + policy (no raw secrets in repos)
+│  ├─ envelopes/                     # encrypted blobs
+│  ├─ policies/                      # who/what can request which secret
+│  └─ brokers/                       # local broker + p2p broker (optional)
+│
+├─ scripts/                          # repo scripts (thin; call commands/)
+│  ├─ dev/
+│  ├─ ops/
+│  └─ maintenance/
+│
+├─ commands/                         # canonical command definitions (machine-first)
+│  ├─ noa.yaml                       # CLI verbs -> packages/workflows
+│  └─ catalog/                       # command catalog by domain
+│
+├─ api/                              # application APIs (not sys control plane)
+│  ├─ public/                        # user-facing API server (if exposed)
+│  ├─ internal/                      # internal APIs consumed by UI/agents
+│  └─ connectors/                    # API-level connectors (distinct from tool connectors)
+│
+├─ docs/                             # Documentation system (Wiki/Pages/Runbooks)
+│  ├─ wiki/                          # navigation + architecture map (SSoT hub)
+│  ├─ pages/                         # granular docs
+│  ├─ runbooks/                      # verified action playbooks (triggers/escalation)
+│  ├─ api/                           # API reference docs
+│  ├─ schemas/                       # schema docs generated from configs/base/schemas
+│  └─ adr/                           # architecture decision records
+│
+├─ test/                             # Testing + QA + notebooks
+│  ├─ unit/
+│  ├─ integration/
+│  ├─ e2e/
+│  ├─ qa/                            # QA plans, checklists, test matrices
+│  └─ notebook/
+│     ├─ kernels/                    # notebook-kernel configs
+│     ├─ notebooks/                  # analysis notebooks (sandboxed execution only)
+│     └─ fixtures/
+│
+├─ staging/                          # Promotion pipeline workspace (pre-release)
+│  ├─ builds/
+│  ├─ releases/
+│  └─ canary/
+│
+├─ deploy/                           # Release strategies + environment control
+│  ├─ blue-green/                    # a/b + blue-green hot swap
+│  ├─ canary/
+│  ├─ rollback/
+│  └─ hot-swap/                      # fast swap mechanics and constraints
+│
+├─ training/                         # ML/devops training flows (data + pipelines)
+│  ├─ datasets/                      # references/manifest to datasets (often CAS-backed)
+│  ├─ pipelines/                     # training pipelines (call tools via MCP)
+│  ├─ evals/                         # eval suites
+│  └─ finetune/                      # finetune recipes (if any)
+│
+└─ workflows/                        # higher-order workflows (cross-domain)
+   ├─ build-release/
+   ├─ migrate/
+   ├─ onboard-device/
+   ├─ runbook-automation/
+   └─ self-heal/                     # drift detection -> rollback/repair
+```
+--- 
+
+## Target System Graph
+
+```
+flowchart TB
+  UI("UI/UX: chat + widgets + XR") --> ORCH("Orchestrator: planner/router/executor")
+  IDE[IDE: VS Code/Cursor<br/>separate caches/logs] --> ORCH
+
+  ORCH --> TASK[task/: todo + project-management]
+  ORCH --> CMD[commands/: verbs -> packages/workflows]
+  ORCH --> WF[workflows/: DAGs]
+
+  ORCH --> GATE[Gateway: MCP Proxy/Registry/AuthZ/Routing]
+  GATE --> TOOLS[tools/: per-tool MCP servers]
+  TOOLS --> SBX[sandbox/: constrained execution]
+  SBX --> ART[data/cas + data/object-store<br/>artifacts promoted & pinned]
+
+  subgraph CONFIGS[AI-native centralized config]
+    C1[configs/base<br/>Layer 1 immutable baseline]
+    C2[configs/semantic<br/>Layer 2 mutable semantic layer]
+    C3[configs/enforcement<br/>Layer 3 enforcement]
+    C1 --> C3
+    C2 --> C3
+  end
+
+  C3 --> SYS[sys/core: policy + identity + scheduler + world model]
+  SYS --> GATE
+
+  subgraph DATA[Data plane]
+    CAS[(data/cas)]
+    PG[(data/db/postgres)]
+    SQLITE[(data/db/sqlite)]
+    VDB[(data/vectors)]
+    OBJ[(data/object-store)]
+  end
+
+  TOOLS --> PG
+  TOOLS --> SQLITE
+  TOOLS --> VDB
+  TOOLS --> OBJ
+  TOOLS --> CAS
+
+  subgraph HIVE[p2p hive mind (libp2p)]
+    P[p2p/personal]
+    R[p2p/regional]
+    O[p2p/org]
+  end
+
+  SYS --> HIVE
+  GATE --> HIVE
+  HIVE --> TOOLS
+
+  DOCS[docs/: wiki + pages + runbooks] <---> SYS
+  QA[test/qa + staging + deploy blue-green/canary] <---> ORCH
+
+```
