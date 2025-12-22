@@ -5,7 +5,6 @@
 //! FR-001: Self-contained operation within noa_root
 
 use std::collections::HashMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::error::{ConfigError, NoaError, Result};

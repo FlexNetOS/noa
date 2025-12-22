@@ -1,0 +1,75 @@
+{
+  "// INSTRUCTIONS": "Copy this entire content to .vscode/settings.json to fix VS Code performance",
+  "// This file excludes large directories from file watching without deleting them": "",
+  
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/.next/**": true,
+    "**/node_modules/**": true,
+    "**/opt/**": true,
+    "**/cache/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/__pycache__/**": true,
+    "**/.pytest_cache/**": true,
+    "**/venv/**": true,
+    "**/.venv/**": true,
+    "**/lib/**": true,
+    "**/logs/**": true,
+    "**/playwright-report/**": true,
+    "**/test-results/**": true
+  },
+  
+  "search.exclude": {
+    "**/target": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/opt": true,
+    "**/cache": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/__pycache__": true,
+    "**/venv": true,
+    "**/.venv": true,
+    "**/lib": true,
+    "**/logs": true,
+    "**/*.log": true
+  },
+  
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/*.pyc": true
+  },
+  
+  "git.enabled": true,
+  "git.autorefresh": false,
+  "git.autofetch": false,
+  "git.untrackedChanges": "hidden",
+  
+  "typescript.tsc.autoDetect": "off",
+  "npm.autoDetect": "off",
+  "gulp.autoDetect": "off",
+  "grunt.autoDetect": "off",
+  "jake.autoDetect": "off",
+  
+  "rust-analyzer.checkOnSave.enable": true,
+  "rust-analyzer.checkOnSave.allTargets": false,
+  "rust-analyzer.cargo.buildScripts.enable": false,
+  "rust-analyzer.procMacro.enable": false,
+  
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggest.showWords": false,
+  "editor.wordBasedSuggestions": "off",
+  
+  "telemetry.telemetryLevel": "off"
+}

@@ -7,10 +7,9 @@ use std::fs;
 use std::io::Write;
 
 use clap::Subcommand;
-use tracing::{info, warn};
 
 use crate::config::NoaConfig;
-use crate::db::{self, ConnectionPool, MigrationRunner};
+use crate::db::{self, MigrationRunner};
 use crate::error::{NoaError, Result};
 use crate::init::paths::NoaPaths;
 
