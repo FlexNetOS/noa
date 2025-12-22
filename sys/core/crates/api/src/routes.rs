@@ -98,3 +98,26 @@ pub async fn list_tasks() -> Json<ListTasksResponse> {
     })
 }
 
+// --- Stub Handlers for UI ---
+
+#[derive(Serialize)]
+pub struct CapsulesResponse { pub capsules: Vec<String> }
+pub async fn get_capsules() -> Json<CapsulesResponse> { Json(CapsulesResponse { capsules: vec![] }) }
+
+#[derive(Serialize)]
+pub struct JobsResponse { pub jobs: Vec<String> }
+pub async fn get_jobs() -> Json<JobsResponse> { Json(JobsResponse { jobs: vec![] }) }
+
+#[derive(Serialize)]
+pub struct ArtifactsResponse { pub artifacts: Vec<String> }
+pub async fn get_artifacts() -> Json<ArtifactsResponse> { Json(ArtifactsResponse { artifacts: vec![] }) }
+
+#[derive(Serialize)]
+pub struct ModelsResponse { pub models: Vec<String> }
+pub async fn get_models() -> Json<ModelsResponse> { Json(ModelsResponse { models: vec![] }) }
+
+#[derive(Serialize)]
+pub struct ActivityResponse { pub entries: Vec<String> }
+pub async fn get_activity() -> Json<ActivityResponse> { Json(ActivityResponse { entries: vec![] }) }
+
+

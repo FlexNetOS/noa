@@ -39,9 +39,9 @@ permissions:
 
 jobs:
   # Call the organization's reusable workflow
-  auto-resolve:
+  auto_resolve:
     name: 🤖 Auto-Resolve
-    uses: FlexNetOS/.github/.github/workflows/flexnetos-reusable-resolver.yml@main
+    uses: ./.github/workflows/flexnetos-reusable-resolver.yml
     with:
       pr_number: ${{ github.event.pull_request.number || github.event.inputs.pr_number }}
       max_iterations: 10
@@ -56,15 +56,15 @@ jobs:
   # Optional: Post-merge actions
   post-merge:
     name: 📦 Post-Merge
-    needs: auto-resolve
-    if: needs.auto-resolve.outputs.merged == 'true'
+    needs: auto_resolve
+    if: needs.auto_resolve.outputs.merged == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Log Success
         run: |
           echo "🎉 PR successfully auto-merged!"
-          echo "Fixes applied: ${{ needs.auto-resolve.outputs.total_fixes }}"
+          echo "Fixes applied: ${{ needs.auto_resolve.outputs.total_fixes }}"
 
