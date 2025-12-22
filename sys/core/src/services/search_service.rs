@@ -64,7 +64,7 @@ impl<'a> SearchService<'a> {
         // Perform semantic search
         let results = self
             .semantic_search
-            .search(None, Some(&query_vector), limit, threshold)
+            .search(&query_vector, limit, threshold)
             .await?;
 
         // Fetch full memory records

@@ -4,7 +4,7 @@
 //! FR-074: System MUST support plane swapping for component recovery
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use tracing::{info, warn};
 

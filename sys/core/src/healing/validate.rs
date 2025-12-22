@@ -4,7 +4,7 @@
 //! FR-074: System MUST validate that fixes resolve the issue
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::anomaly::Anomaly;
 use crate::healing::fix::FixResult;
 use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot};

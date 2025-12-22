@@ -6,7 +6,7 @@
 
 use crate::db::repositories::{DeviceRepository, Device, DeviceType, Platform, DeviceStatus};
 use crate::db::Connection;
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use chrono::Utc;
 use serde_json::{Map, Value};
 use uuid::Uuid;
