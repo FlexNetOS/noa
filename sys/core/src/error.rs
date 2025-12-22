@@ -280,12 +280,17 @@ impl From<serde_json::Error> for NoaError {
 impl From<rusqlite::Error> for NoaError {
     fn from(err: rusqlite::Error) -> Self {
         NoaError::Database(DatabaseError::QueryFailed {
+<<<<<<< HEAD
             query: "unknown".to_string(),
+=======
+            query: "".to_string(),
+>>>>>>> d68c02c8d3 (WIP on develop: 18ff7fc8 Remove large build artifacts from git tracking)
             error: err.to_string(),
         })
     }
 }
 
+<<<<<<< HEAD
 impl From<chrono::ParseError> for NoaError {
     fn from(err: chrono::ParseError) -> Self {
         NoaError::Validation(ValidationError::new(
@@ -296,6 +301,8 @@ impl From<chrono::ParseError> for NoaError {
     }
 }
 
+=======
+>>>>>>> d68c02c8d3 (WIP on develop: 18ff7fc8 Remove large build artifacts from git tracking)
 /// Result type alias for NOA operations
 pub type Result<T> = std::result::Result<T, NoaError>;
 

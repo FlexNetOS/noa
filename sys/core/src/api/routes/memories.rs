@@ -135,6 +135,7 @@ async fn create_memory(
     State(state): State<AppState>,
     Json(request): Json<CreateMemoryRequest>,
 ) -> impl IntoResponse {
+<<<<<<< HEAD
     let memory_service = match get_memory_service(&state) {
         Ok(service) => service,
         Err(e) => {
@@ -145,6 +146,10 @@ async fn create_memory(
                 .into_response();
         }
     };
+=======
+    let memory_service = get_memory_service(&state)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
+>>>>>>> d68c02c8d3 (WIP on develop: 18ff7fc8 Remove large build artifacts from git tracking)
     let memory_type = match request.r#type.as_str() {
         "interaction" => MemoryType::Interaction,
         "decision" => MemoryType::Decision,
