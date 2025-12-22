@@ -12,6 +12,38 @@ warning: field `login` is never read
 
 warning: `noa-api` (lib) generated 1 warning
    Compiling noa-core v0.1.0 (N:\noa.worktrees\concrete-yak\sys\core)
+warning: unused import: `NoaError`
+ --> src\agents\file_io.rs:2:20
+  |
+2 | use crate::error::{NoaError, Result};
+  |                    ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Path`
+ --> src\agents\file_io.rs:5:17
+  |
+5 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `NoaError`
+ --> src\agents\terminal.rs:2:20
+  |
+2 | use crate::error::{NoaError, Result};
+  |                    ^^^^^^^^
+
+warning: unused import: `std::path::PathBuf`
+ --> src\agents\terminal.rs:5:5
+  |
+5 | use std::path::PathBuf;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `EmbeddingRepository`
+ --> src\agents\rag.rs:3:56
+  |
+3 | use crate::db::repositories::{KnowledgeNodeRepository, EmbeddingRepository};
+  |                                                        ^^^^^^^^^^^^^^^^^^^
+
 warning: unused variable: `context`
    --> src\healing\fix.rs:139:57
     |
@@ -104,6 +136,93 @@ warning: unused variable: `filter`
 59 |         filter: Option<&Value>,
    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_filter`
 
+error[E0308]: mismatched types
+  --> src\agents\rag.rs:75:54
+   |
+75 |         let node_repo = KnowledgeNodeRepository::new(conn);
+   |                         ---------------------------- ^^^^ expected `Connection`, found `&Arc<Connection>`
+   |                         |
+   |                         arguments to this function are incorrect
+   |
+   = note: expected struct `rusqlite::Connection`
+           found reference `&Arc<rusqlite::Connection>`
+note: associated function defined here
+  --> src\db\repositories\knowledge_node_repository.rs:76:12
+   |
+76 |     pub fn new(conn: Connection) -> Self {
+   |            ^^^ ----------------
+
+error[E0599]: no method named `search` found for struct `KnowledgeNodeRepository` in the current scope
+  --> src\agents\rag.rs:76:31
+   |
+76 |         let nodes = node_repo.search(&query.query, top_k)?;
+   |                               ^^^^^^ method not found in `KnowledgeNodeRepository`
+   |
+  ::: src\db\repositories\knowledge_node_repository.rs:70:1
+   |
+70 | pub struct KnowledgeNodeRepository {
+   | ---------------------------------- method `search` not found for this struct
+
+error[E0308]: mismatched types
+   --> src\agents\rag.rs:145:54
+    |
+145 |         let node_repo = KnowledgeNodeRepository::new(conn);
+    |                         ---------------------------- ^^^^ expected `Connection`, found `&Arc<Connection>`
+    |                         |
+    |                         arguments to this function are incorrect
+    |
+    = note: expected struct `rusqlite::Connection`
+            found reference `&Arc<rusqlite::Connection>`
+note: associated function defined here
+   --> src\db\repositories\knowledge_node_repository.rs:76:12
+    |
+ 76 |     pub fn new(conn: Connection) -> Self {
+    |            ^^^ ----------------
+
+error[E0599]: no method named `create_node` found for struct `KnowledgeNodeRepository` in the current scope
+   --> src\agents\rag.rs:146:33
+    |
+146 |         let node_id = node_repo.create_node(
+    |                       ----------^^^^^^^^^^^
+    |
+   ::: src\db\repositories\knowledge_node_repository.rs:70:1
+    |
+ 70 | pub struct KnowledgeNodeRepository {
+    | ---------------------------------- method `create_node` not found for this struct
+    |
+help: there is a method `create` with a similar name, but with different arguments
+   --> src\db\repositories\knowledge_node_repository.rs:81:5
+    |
+ 81 |     pub fn create(&self, node: &KnowledgeNode) -> Result<Uuid> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> src\agents\rag.rs:165:54
+    |
+165 |         let node_repo = KnowledgeNodeRepository::new(conn);
+    |                         ---------------------------- ^^^^ expected `Connection`, found `&Arc<Connection>`
+    |                         |
+    |                         arguments to this function are incorrect
+    |
+    = note: expected struct `rusqlite::Connection`
+            found reference `&Arc<rusqlite::Connection>`
+note: associated function defined here
+   --> src\db\repositories\knowledge_node_repository.rs:76:12
+    |
+ 76 |     pub fn new(conn: Connection) -> Self {
+    |            ^^^ ----------------
+
+error[E0599]: no method named `search` found for struct `KnowledgeNodeRepository` in the current scope
+   --> src\agents\rag.rs:166:31
+    |
+166 |         let nodes = node_repo.search(query, limit)?;
+    |                               ^^^^^^ method not found in `KnowledgeNodeRepository`
+    |
+   ::: src\db\repositories\knowledge_node_repository.rs:70:1
+    |
+ 70 | pub struct KnowledgeNodeRepository {
+    | ---------------------------------- method `search` not found for this struct
+
 warning: unused variable: `e`
    --> src\db\repositories\memory_repository.rs:344:52
     |
@@ -134,196 +253,46 @@ warning: unused variable: `e`
 414 |         let status = DeviceStatus::from_str(&status_str).map_err(|e| {
     |                                                                   ^ help: if this is intentional, prefix it with an underscore: `_e`
 
-warning: type `InitState` is more private than the item `InitService::cleanup`
-   --> src\services\init_service.rs:142:5
+warning: variable does not need to be mutable
+   --> src\agents\terminal.rs:117:21
     |
-142 |     pub(crate) fn cleanup(state: &InitState, noa_root: &Path) {
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ associated function `InitService::cleanup` is reachable at visibility `pub(crate)`
+117 |                 let mut check_interval = Duration::from_millis(100);
+    |                     ----^^^^^^^^^^^^^^
+    |                     |
+    |                     help: remove this `mut`
     |
-note: but type `InitState` is only usable at visibility `pub(self)`
-   --> src\services\init_service.rs:17:1
-    |
- 17 | struct InitState {
-    | ^^^^^^^^^^^^^^^^
-    = note: `#[warn(private_interfaces)]` on by default
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
 
-warning: trait `QueryableRepository` is never used
-  --> src\db\repository.rs:62:11
+error[E0382]: borrow of moved value: `tasks`
+  --> src\agents\commander.rs:97:43
    |
-62 | pub trait QueryableRepository<T, Id>: Repository<T, Id> {
-   |           ^^^^^^^^^^^^^^^^^^^
+90 |         let tasks = self.decompose_goal(&request.goal, request.constraints.as_deref())?;
+   |             ----- move occurs because `tasks` has type `Vec<AgentTask>`, which does not implement the `Copy` trait
+...
+95 |             tasks,
+   |             ----- value moved here
+96 |             created_at: Utc::now(),
+97 |             estimated_duration_secs: Some(tasks.len() as u64 * 30), // Rough estimate
+   |                                           ^^^^^ value borrowed here after move
    |
-   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-warning: struct `Filter` is never constructed
-  --> src\db\repository.rs:75:12
+help: consider cloning the value if the performance cost is acceptable
    |
-75 | pub struct Filter {
-   |            ^^^^^^
+95 |             tasks: tasks.clone(),
+   |                  +++++++++++++++
 
-warning: associated items `new`, `with_condition`, `with_order_by`, `with_limit`, and `with_offset` are never used
-   --> src\db\repository.rs:83:12
+warning: unused variable: `constraints`
+   --> src\agents\commander.rs:102:42
     |
- 82 | impl Filter {
-    | ----------- associated items in this implementation
- 83 |     pub fn new() -> Self {
-    |            ^^^
-...
- 92 |     pub fn with_condition(mut self, condition: Condition) -> Self {
-    |            ^^^^^^^^^^^^^^
-...
- 97 |     pub fn with_order_by(mut self, field: impl Into<String>, direction: Direction) -> Self {
-    |            ^^^^^^^^^^^^^
-...
-105 |     pub fn with_limit(mut self, limit: u64) -> Self {
-    |            ^^^^^^^^^^
-...
-110 |     pub fn with_offset(mut self, offset: u64) -> Self {
-    |            ^^^^^^^^^^^
+102 |     fn decompose_goal(&self, goal: &str, constraints: Option<&[String]>) -> Result<Vec<AgentTask>> {
+    |                                          ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_constraints`
 
-warning: struct `Condition` is never constructed
-   --> src\db\repository.rs:124:12
+warning: unused variable: `task_id`
+   --> src\agents\commander.rs:205:35
     |
-124 | pub struct Condition {
-    |            ^^^^^^^^^
+205 |     pub fn assign_task(&mut self, task_id: Uuid, agent: &str) -> Result<()> {
+    |                                   ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_task_id`
 
-warning: associated functions `eq`, `ne`, `gt`, `lt`, `contains`, and `is_in` are never used
-   --> src\db\repository.rs:131:12
-    |
-130 | impl Condition {
-    | -------------- associated functions in this implementation
-131 |     pub fn eq(field: impl Into<String>, value: impl Into<Value>) -> Self {
-    |            ^^
-...
-139 |     pub fn ne(field: impl Into<String>, value: impl Into<Value>) -> Self {
-    |            ^^
-...
-147 |     pub fn gt(field: impl Into<String>, value: impl Into<Value>) -> Self {
-    |            ^^
-...
-155 |     pub fn lt(field: impl Into<String>, value: impl Into<Value>) -> Self {
-    |            ^^
-...
-163 |     pub fn contains(field: impl Into<String>, value: impl Into<String>) -> Self {
-    |            ^^^^^^^^
-...
-171 |     pub fn is_in(field: impl Into<String>, values: Vec<Value>) -> Self {
-    |            ^^^^^
-
-warning: enum `Operator` is never used
-   --> src\db\repository.rs:182:10
-    |
-182 | pub enum Operator {
-    |          ^^^^^^^^
-
-warning: enum `Value` is never used
-   --> src\db\repository.rs:200:10
-    |
-200 | pub enum Value {
-    |          ^^^^^
-
-warning: struct `OrderBy` is never constructed
-   --> src\db\repository.rs:247:12
-    |
-247 | pub struct OrderBy {
-    |            ^^^^^^^
-
-warning: enum `Direction` is never used
-   --> src\db\repository.rs:254:10
-    |
-254 | pub enum Direction {
-    |          ^^^^^^^^^
-
-warning: struct `PaginatedResult` is never constructed
-   --> src\db\repository.rs:267:12
-    |
-267 | pub struct PaginatedResult<T> {
-    |            ^^^^^^^^^^^^^^^
-
-warning: associated function `new` is never used
-   --> src\db\repository.rs:276:12
-    |
-275 | impl<T> PaginatedResult<T> {
-    | -------------------------- associated function in this implementation
-276 |     pub fn new(items: Vec<T>, total: u64, offset: u64, limit: u64) -> Self {
-    |            ^^^
-
-warning: field `plane_swap` is never read
-  --> src\healing\mod.rs:88:5
-   |
-79 | pub struct SelfHealingOrchestrator {
-   |            ----------------------- field in this struct
-...
-88 |     plane_swap: Arc<PlaneSwapExecutor>,
-   |     ^^^^^^^^^^
-
-warning: methods `count_consecutive_violations` and `detect_statistical_anomaly` are never used
-   --> src\healing\anomaly.rs:238:8
-    |
- 90 | impl AnomalyDetector {
-    | -------------------- methods in this implementation
-...
-238 |     fn count_consecutive_violations(&self, metric_key: &str, threshold: f64) -> u32 {
-    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-...
-256 |     fn detect_statistical_anomaly(
-    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: field `device_id` is never read
-  --> src\neural\gpu_pool.rs:15:5
-   |
-14 | struct MemoryPoolEntry {
-   |        --------------- field in this struct
-15 |     device_id: u32,
-   |     ^^^^^^^^^
-   |
-   = note: `MemoryPoolEntry` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
-
-warning: field `pretrainer` is never read
-  --> src\learning\toolkengpt\plugin.rs:24:5
-   |
-22 | pub struct ToolPluginLoader {
-   |            ---------------- field in this struct
-23 |     registry: ToolkenGptRegistry,
-24 |     pretrainer: ToolTokenPretrainer,
-   |     ^^^^^^^^^^
-
-warning: field `config` is never read
-  --> src\learning\maml\outer_loop.rs:29:5
-   |
-28 | pub struct OuterLoopOptimizer {
-   |            ------------------ field in this struct
-29 |     config: OuterLoopConfig,
-   |     ^^^^^^
-
-warning: fields `inner_loop` and `outer_loop` are never read
-  --> src\learning\maml\few_shot.rs:21:5
-   |
-20 | pub struct FewShotLearner {
-   |            -------------- fields in this struct
-21 |     inner_loop: InnerLoopAdapter,
-   |     ^^^^^^^^^^
-22 |     outer_loop: OuterLoopOptimizer,
-   |     ^^^^^^^^^^
-
-warning: field `marker_file_created` is never read
-  --> src\services\init_service.rs:21:5
-   |
-17 | struct InitState {
-   |        --------- field in this struct
-...
-21 |     marker_file_created: bool,
-   |     ^^^^^^^^^^^^^^^^^^^
-   |
-   = note: `InitState` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-
-warning: field `url` is never read
-  --> src\vector\qdrant_client.rs:14:5
-   |
-13 | pub struct QdrantClient {
-   |            ------------ field in this struct
-14 |     url: String,
-   |     ^^^
-
-warning: `noa-core` (lib) generated 40 warnings
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.51s
+Some errors have detailed explanations: E0308, E0382, E0599.
+For more information about an error, try `rustc --explain E0308`.
+warning: `noa-core` (lib) generated 28 warnings
+error: could not compile `noa-core` (lib) due to 7 previous errors; 28 warnings emitted
