@@ -7,18 +7,39 @@
 mod pool;
 mod migrations;
 mod repository;
+mod backend;
 
 #[cfg(feature = "full")]
 mod postgres;
 
+#[cfg(feature = "full")]
+pub mod postgres_stores;
+
 pub mod vector_search;
 pub mod repositories;
+pub mod sqlite_stores;
 
-pub use pool::{ConnectionPool, PoolConfig, PooledConnection};
-pub use repository::{Repository, RepositoryError};
+pub use pool::{ConnectionPool, PoolConfig, PooledConnection, PoolStatus};
+pub use repository::{Repository, RepositoryError, PaginatedResult, Filter, Condition, Operator, Value, Direction};
 pub use migrations::{MigrationRunner, Migration};
-pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
+pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult as LegacyVectorSearchResult};
 pub use repositories::{EmbeddingRepository, MemoryRepository};
+
+// Backend abstraction exports
+pub use backend::{
+    DatabaseKind,
+    DatabaseBackend,
+    DatabaseHandle,
+    DatabaseHealth,
+    HealthCheckResult,
+    MemoryStore,
+    ModelStore,
+    TaskStore,
+    AgentStore,
+    AuditLogStore,
+    VectorStore,
+    VectorSearchResult,
+};
 
 #[cfg(feature = "full")]
 pub use postgres::{check_postgres, connect_postgres, migrate_postgres};
