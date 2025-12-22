@@ -266,7 +266,7 @@ mod tests {
         assert_eq!(pool.status().active_connections, 1);
 
         // Connection should be usable
-        conn.lock().unwrap().execute_batch("SELECT 1").unwrap();
+        conn.execute_batch("SELECT 1").unwrap();
 
         drop(conn);
         assert_eq!(pool.status().active_connections, 0);

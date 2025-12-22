@@ -39,15 +39,15 @@ pub async fn execute(args: StatusArgs) -> Result<()> {
     };
 
     if args.format == "json" {
-        print_json_status(&config, args.detailed)?;
+        print_json_status(&config, args.detailed).await?;
     } else {
-        print_text_status(&config, args.detailed)?;
+        print_text_status(&config, args.detailed).await?;
     }
 
     Ok(())
 }
 
-fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
+async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     println!("NOA Status");
     println!("==========");
     println!();
@@ -58,13 +58,37 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
 
     // Check database
     println!("Components:");
-    let db_path = config.noa_root.join(&config.database.path);
-    if db_path.exists() {
-        match db::init_database(&db_path) {
-            Ok(conn) => {
-                match db::check_integrity(&conn) {
+    if config.database.driver == "postgresql" {
+        #[cfg(not(feature = "full"))]
+        {
+            println!("  [!] Database: PostgreSQL requires --features full");
+        }
+
+        #[cfg(feature = "full")]
+        {
+            let url = match config.database.url.as_deref() {
+                Some(u) => u,
+                None => {
+                    println!("  [✗] Database: Missing database.url");
+                    return Ok(());
+                }
+            };
+
+            match crate::db::connect_postgres(url, config.database.max_connections).await {
+                Ok(pool) => match crate::db::check_postgres(&pool).await {
+                    Ok(()) => println!("  [✓] Database (PostgreSQL): OK"),
+                    Err(e) => println!("  [✗] Database (PostgreSQL): Error - {}", e),
+                },
+                Err(e) => println!("  [✗] Database (PostgreSQL): Connection failed - {}", e),
+            }
+        }
+    } else {
+        let db_path = config.noa_root.join(&config.database.path);
+        if db_path.exists() {
+            match db::init_database(&db_path) {
+                Ok(conn) => match db::check_integrity(&conn) {
                     Ok(true) => {
-                        println!("  [✓] Database: OK");
+                        println!("  [✓] Database (SQLite): OK");
                         if detailed {
                             if let Ok(stats) = db::get_stats(&conn) {
                                 println!("      Size: {} bytes", stats.total_size_bytes);
@@ -74,12 +98,12 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
                     }
                     Ok(false) => println!("  [✗] Database: INTEGRITY CHECK FAILED"),
                     Err(e) => println!("  [!] Database: Error - {}", e),
-                }
+                },
+                Err(e) => println!("  [✗] Database: Connection failed - {}", e),
             }
-            Err(e) => println!("  [✗] Database: Connection failed - {}", e),
+        } else {
+            println!("  [!] Database: Not found at {}", db_path.display());
         }
-    } else {
-        println!("  [!] Database: Not found at {}", db_path.display());
     }
 
     // Check API server
@@ -108,19 +132,43 @@ fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     Ok(())
 }
 
-fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
-    let db_path = config.noa_root.join(&config.database.path);
+async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
+    let (db_status, db_ref) = if config.database.driver == "postgresql" {
+        #[cfg(not(feature = "full"))]
+        {
+            ("requires_full", config.database.url.clone().unwrap_or_default())
+        }
 
-    let db_status = if db_path.exists() {
-        match db::init_database(&db_path) {
-            Ok(conn) => match db::check_integrity(&conn) {
-                Ok(true) => "ok",
-                _ => "error",
-            },
-            Err(_) => "error",
+        #[cfg(feature = "full")]
+        {
+            let url = config.database.url.clone().unwrap_or_default();
+            let status = if !url.is_empty() {
+                match crate::db::connect_postgres(&url, config.database.max_connections).await {
+                    Ok(pool) => match crate::db::check_postgres(&pool).await {
+                        Ok(()) => "ok",
+                        Err(_) => "error",
+                    },
+                    Err(_) => "error",
+                }
+            } else {
+                "missing_url"
+            };
+            (status, url)
         }
     } else {
-        "not_found"
+        let db_path = config.noa_root.join(&config.database.path);
+        let status = if db_path.exists() {
+            match db::init_database(&db_path) {
+                Ok(conn) => match db::check_integrity(&conn) {
+                    Ok(true) => "ok",
+                    _ => "error",
+                },
+                Err(_) => "error",
+            }
+        } else {
+            "not_found"
+        };
+        (status, db_path.display().to_string())
     };
 
     let status = serde_json::json!({
@@ -130,7 +178,7 @@ fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
         "components": {
             "database": {
                 "status": db_status,
-                "path": db_path.display().to_string(),
+                "ref": db_ref,
             },
             "api_server": {
                 "status": "unknown",

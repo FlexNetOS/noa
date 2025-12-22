@@ -17,9 +17,32 @@ use tower_http::{
 };
 
 use crate::config::NoaConfig;
-use crate::db::ConnectionPool;
-use crate::error::Result;
+use crate::db::{ConnectionPool, PooledConnection};
+use crate::error::{ApiError, NoaError, Result};
 use crate::config::access::ConfigAccess;
+
+/// Database handle used by the API server.
+///
+/// Today, most routes are still SQLite-first (rusqlite-based repositories).
+/// We keep SQLite as a first-class option while allowing the server to boot
+/// with PostgreSQL state for server deployments.
+#[derive(Clone)]
+pub enum AppDatabase {
+    Sqlite(Arc<ConnectionPool>),
+
+    #[cfg(feature = "full")]
+    Postgres(sqlx::PgPool),
+}
+
+impl AppDatabase {
+    pub fn kind(&self) -> &'static str {
+        match self {
+            AppDatabase::Sqlite(_) => "sqlite",
+            #[cfg(feature = "full")]
+            AppDatabase::Postgres(_) => "postgresql",
+        }
+    }
+}
 
 /// API server configuration
 #[derive(Debug, Clone)]
@@ -122,7 +145,7 @@ impl ApiConfig {
 #[derive(Clone)]
 pub struct AppState {
     /// Database connection pool
-    pub db: Arc<ConnectionPool>,
+    pub db: AppDatabase,
 
     /// Application configuration
     pub config: Arc<NoaConfig>,
@@ -135,13 +158,36 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(db: ConnectionPool, config: NoaConfig) -> Self {
+    pub fn new(db: AppDatabase, config: NoaConfig) -> Self {
         let config_access = Arc::new(ConfigAccess::from_config(&config));
         Self {
-            db: Arc::new(db),
+            db,
             config: Arc::new(config),
             config_access,
             start_time: std::time::Instant::now(),
+        }
+    }
+
+    pub fn new_sqlite(db: ConnectionPool, config: NoaConfig) -> Self {
+        Self::new(AppDatabase::Sqlite(Arc::new(db)), config)
+    }
+
+    #[cfg(feature = "full")]
+    pub fn new_postgres(pool: sqlx::PgPool, config: NoaConfig) -> Self {
+        Self::new(AppDatabase::Postgres(pool), config)
+    }
+
+    /// Get a SQLite pooled connection if this instance is configured for SQLite.
+    ///
+    /// Returns a ServiceUnavailable error when running on PostgreSQL, since most
+    /// current repositories/routes are still SQLite-first.
+    pub fn sqlite_conn(&self) -> Result<PooledConnection> {
+        match &self.db {
+            AppDatabase::Sqlite(pool) => pool.get(),
+            #[cfg(feature = "full")]
+            AppDatabase::Postgres(_) => Err(NoaError::Api(ApiError::ServiceUnavailable(
+                "This endpoint requires the SQLite backend; PostgreSQL support is not implemented yet.".to_string(),
+            ))),
         }
     }
 
@@ -289,7 +335,7 @@ pub struct ApiServerBuilder {
     cors_origins: Option<Vec<String>>, 
     enable_tracing: Option<bool>,
     shutdown_timeout_secs: Option<u64>,
-    db: Option<ConnectionPool>,
+    db: Option<AppDatabase>,
     noa_config: Option<NoaConfig>,
 }
 
@@ -354,7 +400,13 @@ impl ApiServerBuilder {
     }
 
     pub fn with_database(mut self, db: ConnectionPool) -> Self {
-        self.db = Some(db);
+        self.db = Some(AppDatabase::Sqlite(Arc::new(db)));
+        self
+    }
+
+    #[cfg(feature = "full")]
+    pub fn with_postgres_pool(mut self, pool: sqlx::PgPool) -> Self {
+        self.db = Some(AppDatabase::Postgres(pool));
         self
     }
 

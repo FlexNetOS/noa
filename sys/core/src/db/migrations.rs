@@ -284,8 +284,6 @@ mod tests {
 
         // Verify table was created
         let count: i64 = conn
-            .lock()
-            .unwrap()
             .query_row("SELECT COUNT(*) FROM sqlite_master WHERE name = 'test'", [], |r| r.get(0))
             .unwrap();
         assert_eq!(count, 1);

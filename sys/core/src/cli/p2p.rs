@@ -41,6 +41,18 @@ pub enum P2PCommand {
     },
 }
 
+/// Execute P2P command (NOA-root based).
+///
+/// This mirrors other CLI commands that accept `noa_root` and resolve the SQLite DB path
+/// as `<noa_root>/data/noa.db` (or `data/noa.db` when unset).
+pub async fn execute(args: P2PArgs, noa_root: Option<String>) -> Result<()> {
+    let db_path = noa_root
+        .map(|r| PathBuf::from(r).join("data").join("noa.db"))
+        .unwrap_or_else(|| PathBuf::from("data").join("noa.db"));
+
+    execute_p2p(args, db_path).await
+}
+
 /// Execute P2P command
 ///
 // Implements T250-T254: P2P CLI commands

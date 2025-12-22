@@ -172,7 +172,7 @@ impl ConfigLoader {
             .and_then(|v| v.get("primary"))
             .and_then(|v| v.get("path"))
             .and_then(|v| v.as_str())
-            .unwrap_or("${NOA_ROOT}/data/noa.db");
+            .unwrap_or("data/noa.db");
 
         let path = PathBuf::from(expand_env_vars(path_str));
 
@@ -229,7 +229,7 @@ impl ConfigLoader {
         let output_str = log
             .and_then(|v| v.get("output"))
             .and_then(|v| v.as_str())
-            .unwrap_or("${NOA_ROOT}/logs/noa.log");
+            .unwrap_or("logs/noa.log");
 
         let output = PathBuf::from(expand_env_vars(output_str));
 

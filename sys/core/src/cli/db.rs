@@ -9,10 +9,10 @@ use std::io::Write;
 use clap::Subcommand;
 use tracing::{info, warn};
 
-use crate::cli::CliContext;
 use crate::config::NoaConfig;
 use crate::db::{self, ConnectionPool, MigrationRunner};
-use crate::error::Result;
+use crate::error::{NoaError, Result};
+use crate::init::paths::NoaPaths;
 
 /// Database subcommands
 #[derive(Subcommand, Debug)]
@@ -72,20 +72,157 @@ pub enum DbCommands {
 }
 
 /// Execute database command
-pub async fn execute(ctx: &CliContext, command: DbCommands) -> Result<()> {
-    let db_path = PathBuf::from(&ctx.config.database.path);
+pub async fn execute(command: DbCommands) -> Result<()> {
+    let config = NoaConfig::load()?;
+
+    if config.database.driver == "postgresql" {
+        return execute_postgres(command, &config).await;
+    }
+
+    // Default: SQLite
+    let db_path = config.noa_root.join(&config.database.path);
 
     match command {
         DbCommands::Check { fix } => check_database(&db_path, fix),
-        DbCommands::Export { output, format, tables } => {
-            export_database(&db_path, &output, &format, &tables)
-        }
+        DbCommands::Export {
+            output,
+            format,
+            tables,
+        } => export_database(&db_path, &output, &format, &tables),
         DbCommands::Import { input } => import_database(&db_path, &input),
         DbCommands::Migrate { apply, rollback } => migrate_database(&db_path, apply, rollback),
         DbCommands::Stats => show_stats(&db_path),
         DbCommands::Backup { output } => backup_database(&db_path, output.as_ref()),
         DbCommands::Vacuum => vacuum_database(&db_path),
     }
+}
+
+async fn execute_postgres(command: DbCommands, config: &NoaConfig) -> Result<()> {
+    #[cfg(not(feature = "full"))]
+    {
+        let _ = (command, config);
+        return Err(NoaError::Internal {
+            message: "PostgreSQL support requires building noa-core with --features full".to_string(),
+            source: None,
+        });
+    }
+
+    #[cfg(feature = "full")]
+    {
+        use sqlx::Row;
+
+        let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+            message: "database.url is required when database.driver=postgresql".to_string(),
+            source: None,
+        })?;
+
+        match command {
+            DbCommands::Check { fix: _ } => {
+                println!("Checking PostgreSQL connectivity...");
+                let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+                crate::db::check_postgres(&pool).await?;
+                println!("✓ PostgreSQL: OK");
+                Ok(())
+            }
+
+            DbCommands::Migrate { apply, rollback } => {
+                migrate_database_postgres(config, apply, rollback).await
+            }
+
+            DbCommands::Stats => {
+                println!("Database Statistics (PostgreSQL)");
+                println!("==============================");
+
+                let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+
+                let row = sqlx::query("SELECT current_database() AS db, current_user AS usr")
+                    .fetch_one(&pool)
+                    .await
+                    .map_err(|e| crate::error::DatabaseError::QueryFailed {
+                        query: "SELECT current_database()".to_string(),
+                        error: e.to_string(),
+                    })?;
+
+                let db: String = row.try_get("db").map_err(|e| crate::error::DatabaseError::QueryFailed {
+                    query: "SELECT current_database()".to_string(),
+                    error: e.to_string(),
+                })?;
+                let usr: String = row.try_get("usr").map_err(|e| crate::error::DatabaseError::QueryFailed {
+                    query: "SELECT current_user".to_string(),
+                    error: e.to_string(),
+                })?;
+
+                println!("Database: {}", db);
+                println!("User: {}", usr);
+                Ok(())
+            }
+
+            DbCommands::Export { .. }
+            | DbCommands::Import { .. }
+            | DbCommands::Backup { .. }
+            | DbCommands::Vacuum => {
+                println!("This command is currently SQLite-only.");
+                println!("Set database.driver=sqlite, or use `noa db migrate`/`noa db check` with PostgreSQL.");
+                Ok(())
+            }
+        }
+    }
+}
+
+#[cfg(feature = "full")]
+async fn migrate_database_postgres(config: &NoaConfig, apply: bool, rollback: bool) -> Result<()> {
+    use sqlx::Row;
+
+    let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+        message: "database.url is required when database.driver=postgresql".to_string(),
+        source: None,
+    })?;
+
+    let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
+    let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+
+    // Gather migrations on disk
+    let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(&migrations_dir)
+        .map_err(|e| crate::error::DatabaseError::MigrationFailed {
+            version: "discovery".to_string(),
+            error: e.to_string(),
+        })?
+        .filter_map(|e| e.ok())
+        .map(|e| e.path())
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("sql"))
+        .collect();
+    files.sort();
+
+    // Gather applied migrations (sqlx bookkeeping table). If table doesn't exist yet, treat as none.
+    let applied_versions: Vec<i64> = match sqlx::query("SELECT version FROM _sqlx_migrations ORDER BY version")
+        .fetch_all(&pool)
+        .await
+    {
+        Ok(rows) => rows
+            .into_iter()
+            .filter_map(|r| r.try_get::<i64, _>("version").ok())
+            .collect(),
+        Err(_) => Vec::new(),
+    };
+
+    println!("Migration Status (PostgreSQL)");
+    println!("=============================");
+    println!("Migrations dir: {}", migrations_dir.display());
+    println!("Total migrations on disk: {}", files.len());
+    println!("Applied (sqlx): {}", applied_versions.len());
+
+    if apply {
+        println!("\nApplying pending migrations...");
+        crate::db::migrate_postgres(&pool, &migrations_dir).await?;
+        println!("✓ Migrations applied");
+    }
+
+    if rollback {
+        println!("\nRollback requested, but sqlx migrations do not support rollback.");
+        println!("(Tip) Use explicit down-migrations or a dedicated rollback procedure.");
+    }
+
+    Ok(())
 }
 
 /// Check database integrity

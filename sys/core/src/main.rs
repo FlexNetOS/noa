@@ -343,10 +343,13 @@ async fn main() -> Result<()> {
         Commands::Ask(args) => cli::ask::execute(args, cli.noa_root.clone()).await,
         #[cfg(feature = "full")]
         Commands::P2P(args) => {
-            let db_path = std::path::PathBuf::from(
-                cli.noa_root.clone().unwrap_or_else(|| "data/noa.db".to_string()),
-            );
-            cli::p2p::execute(args, Some(db_path.display().to_string())).await
+            let db_path = cli
+                .noa_root
+                .clone()
+                .map(|r| std::path::PathBuf::from(r).join("data").join("noa.db"))
+                .unwrap_or_else(|| std::path::PathBuf::from("data").join("noa.db"));
+
+            cli::p2p::execute_p2p(args, db_path).await
         }
         #[cfg(feature = "full")]
         Commands::Agents { command } => handle_agents_command(command).await,
@@ -489,7 +492,7 @@ async fn handle_virtual_packages_command(command: VirtualPackagesCommands, noa_r
 
     match command {
         VirtualPackagesCommands::Detect => {
-            let json = crate::virtual_packages::detect_report_json()?;
+            let json = noa_core::virtual_packages::detect_report_json()?;
             println!("{}", json);
             Ok(())
         }
@@ -497,8 +500,8 @@ async fn handle_virtual_packages_command(command: VirtualPackagesCommands, noa_r
             let root = PathBuf::from(noa_root.unwrap_or_else(|| ".".into()));
             let registry_path = root.join("data/modules/registry/registry.db");
 
-            let registry = crate::modules::registry::ModuleRegistry::new(&registry_path)?;
-            let meta = crate::virtual_packages::detect_as_module_metadata()?;
+            let registry = noa_core::modules::registry::ModuleRegistry::new(&registry_path)?;
+            let meta = noa_core::virtual_packages::detect_as_module_metadata()?;
             registry.register(&meta)?;
 
             println!("Registered module: {} ({})", meta.name, meta.hash);

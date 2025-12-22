@@ -6,6 +6,12 @@
 
 use std::fmt;
 
+use axum::{
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
+
 /// Core error type for NOA operations
 #[derive(Debug)]
 pub enum NoaError {
@@ -277,6 +283,30 @@ impl From<serde_json::Error> for NoaError {
     }
 }
 
+impl From<prometheus::Error> for NoaError {
+    fn from(err: prometheus::Error) -> Self {
+        NoaError::Internal {
+            message: format!("Prometheus error: {}", err),
+            source: None,
+        }
+    }
+}
+
+impl From<std::string::FromUtf8Error> for NoaError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        NoaError::Serialization(err.to_string())
+    }
+}
+
+impl From<anyhow::Error> for NoaError {
+    fn from(err: anyhow::Error) -> Self {
+        NoaError::Internal {
+            message: err.to_string(),
+            source: None,
+        }
+    }
+}
+
 impl From<rusqlite::Error> for NoaError {
     fn from(err: rusqlite::Error) -> Self {
         NoaError::Database(DatabaseError::QueryFailed {
@@ -293,6 +323,35 @@ impl From<chrono::ParseError> for NoaError {
             err.to_string(),
             "INVALID_DATETIME",
         ))
+    }
+}
+
+impl IntoResponse for NoaError {
+    fn into_response(self) -> axum::response::Response {
+        let status = match &self {
+            NoaError::Api(ApiError::BadRequest(_)) => StatusCode::BAD_REQUEST,
+            NoaError::Api(ApiError::Unauthorized(_)) => StatusCode::UNAUTHORIZED,
+            NoaError::Api(ApiError::Forbidden(_)) => StatusCode::FORBIDDEN,
+            NoaError::Api(ApiError::NotFound(_)) => StatusCode::NOT_FOUND,
+            NoaError::Api(ApiError::Conflict(_)) => StatusCode::CONFLICT,
+            NoaError::Api(ApiError::RateLimited { .. }) => StatusCode::TOO_MANY_REQUESTS,
+            NoaError::Api(ApiError::ServiceUnavailable(_)) => StatusCode::SERVICE_UNAVAILABLE,
+            NoaError::Api(ApiError::InternalError(_)) => StatusCode::INTERNAL_SERVER_ERROR,
+
+            NoaError::Validation(_) => StatusCode::BAD_REQUEST,
+            NoaError::NotFound { .. } => StatusCode::NOT_FOUND,
+            NoaError::PermissionDenied { .. } => StatusCode::FORBIDDEN,
+            NoaError::Timeout { .. } => StatusCode::GATEWAY_TIMEOUT,
+
+            // Default: internal
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+
+        let body = serde_json::json!({
+            "error": self.to_string(),
+        });
+
+        (status, Json(body)).into_response()
     }
 }
 /// Result type alias for NOA operations

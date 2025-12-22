@@ -3,6 +3,7 @@
 //! Implements all CLI commands for NOA.
 
 pub mod init;
+pub mod context;
 
 #[cfg(feature = "full")]
 pub mod start;
@@ -17,6 +18,10 @@ pub mod db;
 pub mod providers;
 #[cfg(feature = "full")]
 pub mod modules;
+#[cfg(feature = "full")]
+pub mod models;
+#[cfg(feature = "full")]
+pub mod ask;
 #[cfg(feature = "full")]
 pub mod memory;
 #[cfg(feature = "full")]
@@ -40,7 +45,9 @@ pub mod capsule;
 #[cfg(feature = "full")]
 pub mod crm;
 
+pub use context::CliContext;
+
 #[cfg(feature = "full")]
-pub use memory::{execute_memory, MemoryArgs};
+pub use memory::{execute as execute_memory, MemoryArgs};
 #[cfg(feature = "full")]
 pub use p2p::{execute_p2p, P2PArgs};

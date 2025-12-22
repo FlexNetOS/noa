@@ -8,6 +8,9 @@ mod pool;
 mod migrations;
 mod repository;
 
+#[cfg(feature = "full")]
+mod postgres;
+
 pub mod vector_search;
 pub mod repositories;
 
@@ -16,6 +19,9 @@ pub use repository::{Repository, RepositoryError};
 pub use migrations::{MigrationRunner, Migration};
 pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
 pub use repositories::{EmbeddingRepository, MemoryRepository};
+
+#[cfg(feature = "full")]
+pub use postgres::{check_postgres, connect_postgres, migrate_postgres};
 
 use std::path::Path;
 use crate::error::Result;
@@ -117,8 +123,6 @@ mod tests {
 
         // Verify settings
         let journal_mode: String = conn
-            .lock()
-            .unwrap()
             .query_row("PRAGMA journal_mode", [], |row| row.get(0))
             .unwrap();
         assert_eq!(journal_mode, "wal");

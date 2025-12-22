@@ -8,7 +8,8 @@ use tracing::{info, error};
 use crate::api::server::{ApiConfig, ApiServer, ApiServerBuilder, AppState};
 use crate::config::NoaConfig;
 use crate::db::ConnectionPool;
-use crate::error::Result;
+use crate::error::{NoaError, Result};
+use crate::init::paths::NoaPaths;
 
 /// Arguments for the start command
 #[derive(Args, Debug)]
@@ -46,6 +47,29 @@ pub async fn execute(args: StartArgs) -> Result<()> {
     // Load configuration
     let config = NoaConfig::load()?;
     info!(instance = %config.instance_name, "Configuration loaded");
+
+    // PostgreSQL path (server deployments)
+    if config.database.driver == "postgresql" {
+        let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+            message: "database.url is required when database.driver=postgresql".to_string(),
+            source: None,
+        })?;
+
+        let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
+        let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+        crate::db::migrate_postgres(&pool, &migrations_dir).await?;
+        crate::db::check_postgres(&pool).await?;
+
+        if args.no_api && args.no_agents {
+            info!("PostgreSQL migrations applied; nothing else to start");
+            return Ok(());
+        }
+
+        return Err(NoaError::Internal {
+            message: "PostgreSQL is configured, but the API server currently uses the SQLite ConnectionPool. Backend-agnostic server wiring is not implemented yet.".to_string(),
+            source: None,
+        });
+    }
 
     // Initialize database pool
     let db_path = config.noa_root.join(&config.database.path);

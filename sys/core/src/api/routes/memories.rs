@@ -5,9 +5,7 @@
 //! US3: Remember everything with instant recall
 
 use axum::{
-    extract::{Path, Query, State},
-    http::StatusCode,
-    response::{IntoResponse, Json},
+    extract::{Extension, Json, Path, Query},
     routing::{get, post},
     Router,
 };
@@ -16,45 +14,19 @@ use std::collections::HashSet;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use crate::db::repositories::MemoryRepository;
-use crate::db::vector_search::VectorSearch;
-use crate::db::init_database;
-use crate::error::Result;
-use crate::services::{MemoryService, SearchService};
-use crate::memory::MemoryType;
-use crate::init::paths::NoaPaths;
-use std::path::PathBuf;
+use crate::db::repositories::{Memory, MemoryRepository};
+use crate::db::vector_search::{VectorSearch, VectorSearchResult};
+use crate::error::{ApiError, NoaError, Result};
+use crate::memory::{EmbeddingGenerator, MemoryType};
+use chrono::Utc;
+use sha2::{Digest, Sha256};
 
 /// Create memory routes
-pub fn create_routes() -> Router<AppState> {
+pub fn create_routes() -> Router {
     Router::new()
         .route("/", post(create_memory).get(list_memories))
         .route("/:id", get(get_memory))
         .route("/search", post(search_memories))
-}
-
-/// Helper to get database path from AppState
-fn get_db_path(state: &AppState) -> PathBuf {
-    let noa_root = std::env::var("NOA_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("."));
-    NoaPaths::data(&noa_root).join("noa.db")
-}
-
-/// Helper to create memory service from AppState
-fn get_memory_service(state: &AppState) -> Result<MemoryService> {
-    let db_path = get_db_path(state);
-    let conn = init_database(&db_path)?;
-    Ok(MemoryService::new(conn))
-}
-
-/// Helper to create search service from AppState
-fn get_search_service(state: &AppState) -> Result<SearchService> {
-    let db_path = get_db_path(state);
-    let conn = init_database(&db_path)?;
-    let memory_repo = MemoryRepository::new(conn.clone());
-    let vector_search = VectorSearch::new(conn)?;
-    Ok(SearchService::new(memory_repo, vector_search))
 }
 
 /// Create memory request
@@ -132,97 +104,87 @@ pub struct SearchResultResponse {
 
 /// Create a new memory
 async fn create_memory(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Json(request): Json<CreateMemoryRequest>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to initialize memory service: {}", e),
-            )
-                .into_response();
-        }
-    };
+) -> Result<Json<CreateMemoryResponse>> {
+    let mut conn = state.db.get()?;
+    let memory_repo = MemoryRepository::new(conn.connection());
+
     let memory_type = match request.r#type.as_str() {
         "interaction" => MemoryType::Interaction,
         "decision" => MemoryType::Decision,
         "learning" => MemoryType::Learning,
         "artifact" => MemoryType::Artifact,
         _ => {
-            return (StatusCode::BAD_REQUEST, format!("Invalid memory type: {}", request.r#type)).into_response();
+            return Err(NoaError::Api(ApiError::BadRequest(format!(
+                "Invalid memory type: {}",
+                request.r#type
+            ))));
         }
     };
 
-    let agent_id = match request
+    let agent_id = request
         .source_agent
-        .map(|s| Uuid::parse_str(&s))
-        .transpose()
-    {
-        Ok(id) => id,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid agent ID: {}", e)).into_response(),
-    };
+        .as_deref()
+        .map(Uuid::parse_str)
+        .transpose()?;
 
-    let parent_id = match request
+    let parent_id = request
         .parent_id
-        .map(|s| Uuid::parse_str(&s))
-        .transpose()
-    {
-        Ok(id) => id,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid parent ID: {}", e)).into_response(),
-    };
+        .as_deref()
+        .map(Uuid::parse_str)
+        .transpose()?;
 
     let tags: HashSet<String> = request.tags.unwrap_or_default().into_iter().collect();
 
-    let id = match memory_service
-        .create(
-            memory_type,
-            request.content,
-            request.metadata,
-            agent_id,
-            parent_id,
-            tags,
-        )
-        .await
-    {
-        Ok(id) => id,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create memory: {}", e)).into_response(),
+    let created_at = Utc::now();
+    let updated_at = created_at;
+    let id = Uuid::new_v4();
+    let checksum = {
+        let mut hasher = Sha256::new();
+        hasher.update(request.content.as_bytes());
+        format!("{:x}", hasher.finalize())
     };
 
-    let memory = match memory_service.get(&id) {
-        Ok(Some(mem)) => mem,
-        Ok(None) => return (StatusCode::INTERNAL_SERVER_ERROR, "Memory not found after creation".to_string()).into_response(),
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)).into_response(),
+    let memory = Memory {
+        id,
+        created_at,
+        updated_at,
+        memory_type,
+        content: request.content,
+        metadata: request.metadata,
+        source_agent: agent_id,
+        parent_id,
+        tags,
+        embedding_id: None,
+        checksum,
     };
 
-    (StatusCode::OK, Json(CreateMemoryResponse {
+    memory_repo.create(&memory)?;
+
+    Ok(Json(CreateMemoryResponse {
         id: id.to_string(),
         created_at: memory.created_at.to_rfc3339(),
-    })).into_response()
+    }))
 }
 
 /// Get memory by ID
 async fn get_memory(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Path(id): Path<String>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)).into_response(),
-    };
-    let memory_id = match Uuid::parse_str(&id) {
-        Ok(id) => id,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid memory ID: {}", e)).into_response(),
-    };
+) -> Result<Json<MemoryResponse>> {
+    let mut conn = state.db.get()?;
+    let memory_repo = MemoryRepository::new(conn.connection());
+    let memory_id = Uuid::parse_str(&id)?;
 
-    let memory = match memory_service.get(&memory_id) {
-        Ok(Some(mem)) => mem,
-        Ok(None) => return (StatusCode::NOT_FOUND, format!("Memory not found: {}", id)).into_response(),
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)).into_response(),
-    };
+    let memory = memory_repo
+        .find_by_id(&memory_id)?
+        .ok_or_else(|| NoaError::NotFound {
+            resource: "Memory".to_string(),
+            id: id.clone(),
+        })?;
 
-    (StatusCode::OK, Json(MemoryResponse {
+    Ok(Json(MemoryResponse {
         id: memory.id.to_string(),
         created_at: memory.created_at.to_rfc3339(),
         updated_at: memory.updated_at.to_rfc3339(),
@@ -233,30 +195,21 @@ async fn get_memory(
         parent_id: memory.parent_id.map(|id| id.to_string()),
         tags: memory.tags.into_iter().collect(),
         checksum: memory.checksum,
-    })).into_response()
+    }))
 }
 
 /// List memories with pagination
 async fn list_memories(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Query(params): Query<ListMemoriesQuery>,
-) -> impl IntoResponse {
-    let memory_service = match get_memory_service(&state) {
-        Ok(service) => service,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)).into_response(),
-    };
+) -> Result<Json<ListMemoriesResponse>> {
+    let mut conn = state.db.get()?;
+    let memory_repo = MemoryRepository::new(conn.connection());
     let offset = params.offset.unwrap_or(0);
     let limit = params.limit.unwrap_or(20);
 
-    let memories = match memory_service.list(offset, limit) {
-        Ok(mems) => mems,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list memories: {}", e)).into_response(),
-    };
-
-    let total = match memory_service.memory_repo().count() {
-        Ok(count) => count,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to count memories: {}", e)).into_response(),
-    };
+    let memories = memory_repo.list(offset, limit)?;
+    let total = memory_repo.count()?;
 
     let memory_responses: Vec<MemoryResponse> = memories
         .into_iter()
@@ -274,68 +227,120 @@ async fn list_memories(
         })
         .collect();
 
-    (StatusCode::OK, Json(ListMemoriesResponse {
+    Ok(Json(ListMemoriesResponse {
         memories: memory_responses,
         total,
         offset,
         limit,
-    })).into_response()
+    }))
 }
 
 /// Search memories
 async fn search_memories(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Json(request): Json<SearchMemoriesRequest>,
-) -> impl IntoResponse {
-    let search_service = match get_search_service(&state) {
-        Ok(service) => service,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize search service: {}", e)).into_response(),
-    };
+) -> Result<Json<SearchMemoriesResponse>> {
     let search_type = request.search_type.as_deref().unwrap_or("hybrid");
     let limit = request.limit.unwrap_or(10);
     let threshold = request.threshold.unwrap_or(0.7);
 
-    let results = match search_type {
-        "semantic" => match search_service.search_semantic(&request.query, limit, threshold).await {
-            Ok(res) => res,
-            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Semantic search failed: {}", e)).into_response(),
-        },
-        "keyword" => match search_service.search_keyword(&request.query, limit) {
-            Ok(res) => res,
-            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Keyword search failed: {}", e)).into_response(),
-        },
-        "hybrid" => match search_service.search_hybrid(&request.query, limit, threshold).await {
-            Ok(res) => res,
-            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Hybrid search failed: {}", e)).into_response(),
-        },
-        _ => {
-            return (StatusCode::BAD_REQUEST, format!("Invalid search type: {}", search_type)).into_response();
-        }
+    // IMPORTANT: avoid holding a rusqlite connection (non-Sync) across await.
+    // Any async work must happen before opening the DB connection.
+    let query_vector = if search_type == "semantic" || search_type == "hybrid" {
+        let generator = EmbeddingGenerator::new("all-MiniLM-L6-v2").await?;
+        Some(generator.generate(&request.query).await?)
+    } else {
+        None
     };
 
-    let result_responses: Vec<SearchResultResponse> = results
-        .into_iter()
-        .map(|r| SearchResultResponse {
-            memory: MemoryResponse {
-                id: r.memory.id.to_string(),
-                created_at: r.memory.created_at.to_rfc3339(),
-                updated_at: r.memory.updated_at.to_rfc3339(),
-                r#type: r.memory.memory_type.as_str().to_string(),
-                content: r.memory.content,
-                metadata: r.memory.metadata,
-                source_agent: r.memory.source_agent.map(|id| id.to_string()),
-                parent_id: r.memory.parent_id.map(|id| id.to_string()),
-                tags: r.memory.tags.into_iter().collect(),
-                checksum: r.memory.checksum,
-            },
-            score: r.score,
-            distance: r.distance,
-        })
-        .collect();
+    let mut conn = state.db.get()?;
+    let memory_repo = MemoryRepository::new(conn.connection());
+    let vector_search = VectorSearch::new(conn.connection())?;
 
-    (StatusCode::OK, Json(SearchMemoriesResponse {
+    let mut combined: std::collections::HashMap<Uuid, SearchResultResponse> = std::collections::HashMap::new();
+
+    // Semantic
+    if let Some(ref qv) = query_vector {
+        let semantic: Vec<VectorSearchResult> = vector_search.search_memory(qv, limit, threshold)?;
+        for hit in semantic {
+            if let Some(memory) = memory_repo.find_by_id(&hit.id)? {
+                combined.insert(
+                    memory.id,
+                    SearchResultResponse {
+                        memory: MemoryResponse {
+                            id: memory.id.to_string(),
+                            created_at: memory.created_at.to_rfc3339(),
+                            updated_at: memory.updated_at.to_rfc3339(),
+                            r#type: memory.memory_type.as_str().to_string(),
+                            content: memory.content,
+                            metadata: memory.metadata,
+                            source_agent: memory.source_agent.map(|id| id.to_string()),
+                            parent_id: memory.parent_id.map(|id| id.to_string()),
+                            tags: memory.tags.into_iter().collect(),
+                            checksum: memory.checksum,
+                        },
+                        score: hit.score,
+                        distance: hit.distance,
+                    },
+                );
+            }
+        }
+    }
+
+    // Keyword
+    if search_type == "keyword" || search_type == "hybrid" {
+        let all_memories = memory_repo.list(0, (limit as u64) * 2)?;
+        let query_lower = request.query.to_lowercase();
+
+        for memory in all_memories
+            .into_iter()
+            .filter(|m| {
+                m.content.to_lowercase().contains(&query_lower)
+                    || m.tags
+                        .iter()
+                        .any(|tag| tag.to_lowercase().contains(&query_lower))
+            })
+            .take(limit as usize)
+        {
+            combined
+                .entry(memory.id)
+                .and_modify(|existing| {
+                    // Boost score if found by both.
+                    existing.score = (existing.score + 1.0).min(2.0);
+                })
+                .or_insert(SearchResultResponse {
+                    memory: MemoryResponse {
+                        id: memory.id.to_string(),
+                        created_at: memory.created_at.to_rfc3339(),
+                        updated_at: memory.updated_at.to_rfc3339(),
+                        r#type: memory.memory_type.as_str().to_string(),
+                        content: memory.content,
+                        metadata: memory.metadata,
+                        source_agent: memory.source_agent.map(|id| id.to_string()),
+                        parent_id: memory.parent_id.map(|id| id.to_string()),
+                        tags: memory.tags.into_iter().collect(),
+                        checksum: memory.checksum,
+                    },
+                    score: 1.0,
+                    distance: 0.0,
+                });
+        }
+    }
+
+    if search_type != "semantic" && search_type != "keyword" && search_type != "hybrid" {
+        return Err(NoaError::Api(ApiError::BadRequest(format!(
+            "Invalid search type: {}",
+            search_type
+        ))));
+    }
+
+    let mut result_responses: Vec<SearchResultResponse> = combined.into_values().collect();
+    result_responses.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    result_responses.truncate(limit as usize);
+
+    Ok(Json(SearchMemoriesResponse {
         count: result_responses.len(),
         results: result_responses,
-    })).into_response()
+    }))
 }
 

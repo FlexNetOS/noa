@@ -4,9 +4,11 @@
 //! US2: API endpoints for model inference
 
 use axum::{
-    extract::State,
-    response::{Json, sse::Event, Sse},
+    extract::Extension,
+    http::StatusCode,
+    response::{sse::Event, Sse},
     routing::post,
+    Json,
     Router,
 };
 use serde::{Deserialize, Serialize};
@@ -54,7 +56,7 @@ impl From<InferenceResponse> for InferenceApiResponse {
 }
 
 /// Create routes for inference
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/inference", post(infer))
         .route("/inference/stream", post(infer_stream))
@@ -62,13 +64,14 @@ pub fn routes() -> Router<AppState> {
 
 /// POST /api/v1/inference - Run inference
 async fn infer(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Json(request): Json<InferenceApiRequest>,
 ) -> Result<Json<InferenceApiResponse>> {
-    let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)?;
-    let service = NeuralService::new(conn);
-    let engine = service.inference_engine();
+    let engine = {
+        let mut conn = state.db.get()?;
+        let service = NeuralService::new(conn.connection());
+        service.inference_engine()
+    };
 
     let context_id = request.context_id
         .map(|c| Uuid::parse_str(&c))
@@ -97,14 +100,22 @@ async fn infer(
 
 /// POST /api/v1/inference/stream - Run inference with streaming
 async fn infer_stream(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
     Json(request): Json<InferenceApiRequest>,
 ) -> std::result::Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>, (StatusCode, String)> {
-    let db_path = &state.config.database.path;
-    let conn = crate::db::init_database(db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize database: {}", e)))?;
-    let service = NeuralService::new(conn);
-    let engine = service.inference_engine();
+    let engine = {
+        let mut conn = state
+            .db
+            .get()
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to acquire database connection: {}", e),
+                )
+            })?;
+        let service = NeuralService::new(conn.connection());
+        service.inference_engine()
+    };
 
     let context_id = request.context_id
         .map(|c| Uuid::parse_str(&c))
