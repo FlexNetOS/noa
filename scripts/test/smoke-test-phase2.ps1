@@ -62,13 +62,13 @@ Test-Check "002_indexes.sql exists" { Test-Path "$NOA_ROOT/init/migrations/002_i
 Test-Check "003_vectors.sql exists" { Test-Path "$NOA_ROOT/init/migrations/003_vectors.sql" -PathType Leaf }
 
 # Verify schema contains key tables
-Test-Check "001_initial.sql contains memory table" { 
+Test-Check "001_initial.sql contains memory table" {
     Select-String -Path "$NOA_ROOT/init/migrations/001_initial.sql" -Pattern "CREATE TABLE.*memory" -Quiet
 }
-Test-Check "001_initial.sql contains embedding table" { 
+Test-Check "001_initial.sql contains embedding table" {
     Select-String -Path "$NOA_ROOT/init/migrations/001_initial.sql" -Pattern "CREATE TABLE.*embedding" -Quiet
 }
-Test-Check "001_initial.sql contains agent table" { 
+Test-Check "001_initial.sql contains agent table" {
     Select-String -Path "$NOA_ROOT/init/migrations/001_initial.sql" -Pattern "CREATE TABLE.*agent" -Quiet
 }
 

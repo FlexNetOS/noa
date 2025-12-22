@@ -9,7 +9,7 @@ This document provides exact steps to reproduce the Phase 0 quality verification
 ### Windows (PowerShell)
 - **OS**: Windows 10/11 or Windows Server 2019+
 - **PowerShell**: PowerShell 7.0+ (pwsh)
-- **Tools**: 
+- **Tools**:
   - Git (for cloning repository)
   - Internet connection (for downloading tools)
 
@@ -330,7 +330,7 @@ echo "Generated $(wc -l < specs/001-noa-seed-foundation/checklists/phase0-hashes
 $reportPath = "specs/001-noa-seed-foundation/checklists/phase0-quality-report.md"
 if (Test-Path $reportPath) {
     Write-Host "[OK] Quality report exists"
-    
+
     # Count check items
     $content = Get-Content $reportPath -Raw
     $passCount = ([regex]::Matches($content, '\[X\]').Count)
@@ -347,7 +347,7 @@ if (Test-Path $reportPath) {
 # Check quality report exists
 if [[ -f "specs/001-noa-seed-foundation/checklists/phase0-quality-report.md" ]]; then
     echo "[OK] Quality report exists"
-    
+
     # Count check items
     pass_count=$(grep -c "\[X\]" "specs/001-noa-seed-foundation/checklists/phase0-quality-report.md" || echo "0")
     fail_count=$(grep -c "\[ \]" "specs/001-noa-seed-foundation/checklists/phase0-quality-report.md" || echo "0")

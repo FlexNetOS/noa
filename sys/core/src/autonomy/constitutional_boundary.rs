@@ -6,7 +6,7 @@
 //!
 //! T630: Implement constitutional decision boundary
 
-use crate::error::{Result, NoaError};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;

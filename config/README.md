@@ -1,7 +1,7 @@
 # NOA Configuration Files
 
-**Purpose**: Documentation for all NOA configuration files  
-**Last Updated**: 2025-01-27  
+**Purpose**: Documentation for all NOA configuration files
+**Last Updated**: 2025-01-27
 **Phase**: Phase 1 - Setup (Shared Infrastructure)
 
 ---
@@ -16,9 +16,9 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `noa-server.json`
 
-**Purpose**: Main server configuration  
-**Type**: JSON  
-**Schema**: `config/schemas/config_schema.json`  
+**Purpose**: Main server configuration
+**Type**: JSON
+**Schema**: `config/schemas/config_schema.json`
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -39,16 +39,16 @@ This directory contains all configuration files for the NOA system. All configs 
 }
 ```
 
-**Default**: Created during `noa init`  
+**Default**: Created during `noa init`
 **Validation**: Validated against schema on load
 
 ---
 
 ### `ai-providers.json`
 
-**Purpose**: AI provider configuration and priority  
-**Type**: JSON  
-**Schema**: `config/schemas/providers.yaml`  
+**Purpose**: AI provider configuration and priority
+**Type**: JSON
+**Schema**: `config/schemas/providers.yaml`
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -66,16 +66,16 @@ This directory contains all configuration files for the NOA system. All configs 
 - `ide` (priority 4): vscode-copilot
 - `cloud` (priority 3): openai, anthropic, google, mistral, claude-code, codex, abacus
 
-**Default**: Created during bootstrap  
+**Default**: Created during bootstrap
 **Validation**: Validated against schema on load
 
 ---
 
 ### `features.json`
 
-**Purpose**: Feature flags and toggles  
-**Type**: JSON  
-**Schema**: `config/schemas/config_schema.json`  
+**Purpose**: Feature flags and toggles
+**Type**: JSON
+**Schema**: `config/schemas/config_schema.json`
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -94,7 +94,7 @@ This directory contains all configuration files for the NOA system. All configs 
 }
 ```
 
-**Default**: Created during `noa init`  
+**Default**: Created during `noa init`
 **Validation**: Validated against schema on load
 
 ---
@@ -103,8 +103,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `database.yaml`
 
-**Purpose**: Database connection configuration  
-**Type**: YAML  
+**Purpose**: Database connection configuration
+**Type**: YAML
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -118,8 +118,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `minio.yaml`
 
-**Purpose**: MinIO S3-compatible storage configuration  
-**Type**: YAML  
+**Purpose**: MinIO S3-compatible storage configuration
+**Type**: YAML
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -132,8 +132,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `qdrant.yaml`
 
-**Purpose**: Qdrant vector store configuration  
-**Type**: YAML  
+**Purpose**: Qdrant vector store configuration
+**Type**: YAML
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -147,9 +147,9 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `bootstrap-state.json`
 
-**Purpose**: Bootstrap tool installation state  
-**Type**: JSON  
-**Schema**: `config/schemas/config_schema.json`  
+**Purpose**: Bootstrap tool installation state
+**Type**: JSON
+**Schema**: `config/schemas/config_schema.json`
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -157,15 +157,15 @@ This directory contains all configuration files for the NOA system. All configs 
 - `tools` (object): Tool name → installation state
 - `updated_at` (string): ISO 8601 timestamp
 
-**Auto-Generated**: Updated by bootstrap scripts  
+**Auto-Generated**: Updated by bootstrap scripts
 **Validation**: Validated on read/write
 
 ---
 
 ### `bootstrap-tools.json`
 
-**Purpose**: Bootstrap tool definitions  
-**Type**: JSON  
+**Purpose**: Bootstrap tool definitions
+**Type**: JSON
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -179,8 +179,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `shared-resources.json`
 
-**Purpose**: Shared AI provider resources configuration  
-**Type**: JSON  
+**Purpose**: Shared AI provider resources configuration
+**Type**: JSON
 **Version**: 1.0.0
 
 **Key Fields**:
@@ -188,7 +188,7 @@ This directory contains all configuration files for the NOA system. All configs 
 - `paths` (object): Resource type → path mappings
 - `executionMemory` (object): Execution memory bus settings
 
-**Default**: Created during bootstrap  
+**Default**: Created during bootstrap
 **Paths**: All use `${NOA_ROOT}/ai/shared/` prefix
 
 ---
@@ -197,9 +197,9 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `ai/providers/{category}/{provider}/config.json`
 
-**Purpose**: Individual provider configuration  
-**Type**: JSON  
-**Schema**: `config/schemas/providers.yaml`  
+**Purpose**: Individual provider configuration
+**Type**: JSON
+**Schema**: `config/schemas/providers.yaml`
 **Version**: 1.0.0
 
 **Key Fields** (per CHK122-CHK127):
@@ -251,7 +251,7 @@ This directory contains all configuration files for the NOA system. All configs 
 }
 ```
 
-**Default**: Created during provider installation  
+**Default**: Created during provider installation
 **Validation**: Validated against schema on load
 
 ---
@@ -260,8 +260,8 @@ This directory contains all configuration files for the NOA system. All configs 
 
 ### `config/schemas/`
 
-**Purpose**: JSON Schema definitions for validation  
-**Type**: JSON/YAML  
+**Purpose**: JSON Schema definitions for validation
+**Type**: JSON/YAML
 **Schema Version**: JSON Schema draft-07
 
 **Files**:
@@ -372,7 +372,7 @@ When schema changes:
 
 ---
 
-**Documentation Version**: 1.0.0  
-**Last Updated**: 2025-01-27  
+**Documentation Version**: 1.0.0
+**Last Updated**: 2025-01-27
 **Maintained By**: NOA Development Team
 

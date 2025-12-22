@@ -1636,122 +1636,122 @@ ai/shared/
 
 ### Agent Framework (US7)
 
-- [ ] T258 [US7] §3.3 Implement Agent repository in `sys/core/src/db/repositories/agent_repository.rs`
-- [ ] T259 [P] [US7] §3.5 Implement AgentLog repository in `sys/core/src/db/repositories/agentlog_repository.rs`
-- [ ] T260 [US7] §3.3 Implement Task repository in `sys/core/src/db/repositories/task_repository.rs`
-- [ ] T261 [P] [US7] Implement TaskEvent repository in `sys/core/src/db/repositories/task_event_repository.rs`
+- [X] T258 [US7] §3.3 Implement Agent repository in `sys/core/src/db/repositories/agent_repository.rs`
+- [X] T259 [P] [US7] §3.5 Implement AgentLog repository in `sys/core/src/db/repositories/agentlog_repository.rs`
+- [X] T260 [US7] §3.3 Implement Task repository in `sys/core/src/db/repositories/task_repository.rs`
+- [X] T261 [P] [US7] Implement TaskEvent repository in `sys/core/src/db/repositories/task_event_repository.rs`
 
 ### Core Agents (US7)
 
-- [ ] T262 [US7] §3.3 Implement BaseAgent trait in `sys/core/src/agents/base.rs`
-- [ ] T263 [P] [US7] Implement FileIOAgent in `sys/core/src/agents/file_io.rs`
-- [ ] T264 [P] [US7] Implement TerminalAgent in `sys/core/src/agents/terminal.rs`
-- [ ] T265 [P] [US7] Implement RAGAgent in `sys/core/src/agents/rag.rs`
-- [ ] T266 [P] [US7] Implement MicroserviceManagementAgent in `sys/core/src/agents/microservice_mgmt.rs`
+- [X] T262 [US7] §3.3 Implement BaseAgent trait in `sys/core/src/agents/base.rs`
+- [X] T263 [P] [US7] Implement FileIOAgent in `sys/core/src/agents/file_io.rs`
+- [X] T264 [P] [US7] Implement TerminalAgent in `sys/core/src/agents/terminal.rs`
+- [X] T265 [P] [US7] Implement RAGAgent in `sys/core/src/agents/rag.rs`
+- [X] T266 [P] [US7] Implement MicroserviceManagementAgent in `sys/core/src/agents/microservice_mgmt.rs`
 
 ### Executive Agents (US7) - FR-142, FR-143, FR-144, FR-183
 
-- [ ] T267 [US7] §3.3 Implement ExecutiveCommanderChiefAgent in `sys/core/src/agents/executive/commander.rs`
-- [ ] T268 [P] [US7] Implement LegalExecutive Agent in `sys/core/src/agents/executive/legal.rs`
-- [ ] T269 [P] [US7] Implement FinanceExecutive Agent in `sys/core/src/agents/executive/finance.rs`
-- [ ] T270 [P] [US7] Implement SecurityExecutive Agent in `sys/core/src/agents/executive/security.rs`
-- [ ] T271 [P] [US7] Implement OperationsExecutive Agent in `sys/core/src/agents/executive/operations.rs`
-- [ ] T272 [P] [US7] Implement QAExecutive Agent in `sys/core/src/agents/executive/qa.rs`
-- [ ] T273 [P] [US7] Implement ArchitectureExecutive Agent in `sys/core/src/agents/executive/architecture.rs`
-- [ ] T274 [P] [US7] §3.5 Implement Executive Agent delegation logging in `sys/core/src/agents/executive/audit_logger.rs`
+- [X] T267 [US7] §3.3 Implement ExecutiveCommanderChiefAgent in `sys/core/src/agents/executive/commander.rs`
+- [X] T268 [P] [US7] Implement LegalExecutive Agent in `sys/core/src/agents/executive/legal.rs`
+- [X] T269 [P] [US7] Implement FinanceExecutive Agent in `sys/core/src/agents/executive/finance.rs`
+- [X] T270 [P] [US7] Implement SecurityExecutive Agent in `sys/core/src/agents/executive/security.rs`
+- [X] T271 [P] [US7] Implement OperationsExecutive Agent in `sys/core/src/agents/executive/operations.rs`
+- [X] T272 [P] [US7] Implement QAExecutive Agent in `sys/core/src/agents/executive/qa.rs`
+- [X] T273 [P] [US7] Implement ArchitectureExecutive Agent in `sys/core/src/agents/executive/architecture.rs`
+- [X] T274 [P] [US7] §3.5 Implement Executive Agent delegation logging in `sys/core/src/agents/executive/audit_logger.rs`
 
 ### MicroAgentStack (US7)
 
-- [ ] T275 [US7] §3.3 Implement MicroAgentStack repository in `sys/core/src/db/repositories/stack_repository.rs`
-- [ ] T276 [US7] §3.3 Implement 5-stage lifecycle (bootstrap→execute→validate→package→archive) in `sys/core/src/orchestration/stack_lifecycle.rs`
-- [ ] T277 [P] [US7] Implement CommanderChiefAgent in `sys/core/src/agents/commander.rs`
-- [ ] T278 [P] [US7] Implement stack naming (mas_* reusable, gen_mas disposable) in `sys/core/src/orchestration/stack_naming.rs`
-- [ ] T279 [P] [US7] Implement stack workspace (in/work/out/logs) in `sys/core/src/orchestration/stack_workspace.rs`
+- [X] T275 [US7] §3.3 Implement MicroAgentStack repository in `sys/core/src/db/repositories/stack_repository.rs`
+- [X] T276 [US7] §3.3 Implement 5-stage lifecycle (bootstrap→execute→validate→package→archive) in `sys/core/src/orchestration/stack_lifecycle.rs`
+- [X] T277 [P] [US7] Implement CommanderChiefAgent in `sys/core/src/agents/commander.rs`
+- [X] T278 [P] [US7] Implement stack naming (mas_* reusable, gen_mas disposable) in `sys/core/src/orchestration/stack_naming.rs`
+- [X] T279 [P] [US7] Implement stack workspace (in/work/out/logs) in `sys/core/src/orchestration/stack_workspace.rs`
 
 ### Orchestration (US7)
 
-- [ ] T280 [US7] §3.3 Implement goal decomposition in `sys/core/src/orchestration/decomposer.rs`
-- [ ] T281 [P] [US7] Implement task scheduler with priority queue in `sys/core/src/orchestration/scheduler.rs`
-- [ ] T282 [US7] §3.3 Implement orchestration engine (CECCA) in `sys/core/src/orchestration/engine.rs`
-- [ ] T283 [P] [US7] Implement retry and escalation logic in `sys/core/src/orchestration/retry.rs`
+- [X] T280 [US7] §3.3 Implement goal decomposition in `sys/core/src/orchestration/decomposer.rs`
+- [X] T281 [P] [US7] Implement task scheduler with priority queue in `sys/core/src/orchestration/scheduler.rs`
+- [X] T282 [US7] §3.3 Implement orchestration engine (CECCA) in `sys/core/src/orchestration/engine.rs`
+- [X] T283 [P] [US7] Implement retry and escalation logic in `sys/core/src/orchestration/retry.rs`
 
 ### Capsule Architecture (US7)
 
-- [ ] T284 [US7] Implement Capsule sidecars (build-proxy, service-mirror, policy-agent, telemetry) in `containers/capsules/sidecars/`
-- [ ] T285 [P] [US7] Create noa-core.yaml capsule spec in `containers/capsules/noa-core.yaml`
-- [ ] T286 [P] [US7] Create noa-digest.yaml capsule spec in `containers/capsules/noa-digest.yaml`
+- [X] T284 [US7] Implement Capsule sidecars (build-proxy, service-mirror, policy-agent, telemetry) in `containers/capsules/sidecars/`
+- [X] T285 [P] [US7] Create noa-core.yaml capsule spec in `containers/capsules/noa-core.yaml`
+- [X] T286 [P] [US7] Create noa-digest.yaml capsule spec in `containers/capsules/noa-digest.yaml`
 
 ### CRM Strangler Pattern (US7)
 
-- [ ] T287 [US7] Implement CRM Strangler Proxy service in `sys/core/src/services/crm_strangler.rs`
-- [ ] T288 [P] [US7] Implement shadow mode in `sys/core/src/services/crm_strangler.rs`
-- [ ] T289 [P] [US7] Implement write-through mode in `sys/core/src/services/crm_strangler.rs`
-- [ ] T290 [P] [US7] Implement instant rollback in `sys/core/src/services/crm_strangler.rs`
+- [X] T287 [US7] Implement CRM Strangler Proxy service in `sys/core/src/services/crm_strangler.rs`
+- [X] T288 [P] [US7] Implement shadow mode in `sys/core/src/services/crm_strangler.rs`
+- [X] T289 [P] [US7] Implement write-through mode in `sys/core/src/services/crm_strangler.rs`
+- [X] T290 [P] [US7] Implement instant rollback in `sys/core/src/services/crm_strangler.rs`
 
 ### Services (US7)
 
-- [ ] T291 [US7] §3.3 Implement AgentService in `sys/core/src/services/agent_service.rs`
-- [ ] T292 [P] [US7] Implement TaskService in `sys/core/src/services/task_service.rs`
-- [ ] T293 [US7] §3.3 Implement OrchestrationService in `sys/core/src/services/orchestration_service.rs`
+- [X] T291 [US7] §3.3 Implement AgentService in `sys/core/src/services/agent_service.rs`
+- [X] T292 [P] [US7] Implement TaskService in `sys/core/src/services/task_service.rs`
+- [X] T293 [US7] §3.3 Implement OrchestrationService in `sys/core/src/services/orchestration_service.rs`
 
 ### CLI Commands (US7)
 
-- [ ] T294 [US7] Implement `noa agents list` command in `sys/core/src/cli/agents.rs`
-- [ ] T295 [P] [US7] Implement `noa tasks list` command in `sys/core/src/cli/tasks.rs`
-- [ ] T296 [P] [US7] Implement `noa goal submit` command in `sys/core/src/cli/goal.rs`
-- [ ] T297 [P] [US7] §3.5 Implement `noa logs` command in `sys/core/src/cli/logs.rs`
-- [ ] T298 [P] [US7] Implement `noa capsule spawn` command in `sys/core/src/cli/capsule.rs`
-- [ ] T299 [P] [US7] Implement `noa crm toggle` command in `sys/core/src/cli/crm.rs`
+- [X] T294 [US7] Implement `noa agents list` command in `sys/core/src/cli/agents.rs`
+- [X] T295 [P] [US7] Implement `noa tasks list` command in `sys/core/src/cli/tasks.rs`
+- [X] T296 [P] [US7] Implement `noa goal submit` command in `sys/core/src/cli/goal.rs`
+- [X] T297 [P] [US7] §3.5 Implement `noa logs` command in `sys/core/src/cli/logs.rs`
+- [X] T298 [P] [US7] Implement `noa capsule spawn` command in `sys/core/src/cli/capsule.rs`
+- [X] T299 [P] [US7] Implement `noa crm toggle` command in `sys/core/src/cli/crm.rs`
 
 ### API Endpoints (US7)
 
-- [ ] T300 [US7] Implement GET /api/v1/agents endpoint in `sys/core/src/api/routes/agents.rs`
-- [ ] T520 [P] [US7] Implement GET /api/v1/agents/{id} endpoint in `sys/core/src/api/routes/agents.rs`
-- [ ] T521 [P] [US7] Implement POST /api/v1/agents/{id}/start endpoint in `sys/core/src/api/routes/agents.rs`
-- [ ] T522 [P] [US7] Implement POST /api/v1/agents/{id}/stop endpoint in `sys/core/src/api/routes/agents.rs`
-- [ ] T523 [P] [US7] Implement GET /api/v1/agents/{id}/logs endpoint in `sys/core/src/api/routes/agents.rs`
-- [ ] T301 [P] [US7] Implement GET /api/v1/tasks endpoint in `sys/core/src/api/routes/tasks.rs`
-- [ ] T524 [P] [US7] Implement POST /api/v1/tasks endpoint in `sys/core/src/api/routes/tasks.rs`
-- [ ] T525 [P] [US7] Implement GET /api/v1/tasks/{id} endpoint in `sys/core/src/api/routes/tasks.rs`
-- [ ] T526 [P] [US7] Implement PATCH /api/v1/tasks/{id} endpoint in `sys/core/src/api/routes/tasks.rs`
-- [ ] T302 [US7] Implement POST /api/v1/goals endpoint in `sys/core/src/api/routes/goals.rs`
-- [ ] T303 [P] [US7] Implement GET /api/v1/orchestration/status endpoint in `sys/core/src/api/routes/orchestration.rs`
-- [ ] T304 [P] [US7] Implement POST /api/v1/capsule/spawn endpoint in `sys/core/src/api/routes/capsule.rs`
-- [ ] T305 [P] [US7] Implement POST /api/v1/crm/toggle endpoint in `sys/core/src/api/routes/crm.rs`
-- [ ] T306 [P] [US7] Implement POST /api/v1/crm/rollback endpoint in `sys/core/src/api/routes/crm.rs`
+- [X] T300 [US7] Implement GET /api/v1/agents endpoint in `sys/core/src/api/routes/agents.rs`
+- [X] T520 [P] [US7] Implement GET /api/v1/agents/{id} endpoint in `sys/core/src/api/routes/agents.rs`
+- [X] T521 [P] [US7] Implement POST /api/v1/agents/{id}/start endpoint in `sys/core/src/api/routes/agents.rs`
+- [X] T522 [P] [US7] Implement POST /api/v1/agents/{id}/stop endpoint in `sys/core/src/api/routes/agents.rs`
+- [X] T523 [P] [US7] Implement GET /api/v1/agents/{id}/logs endpoint in `sys/core/src/api/routes/agents.rs`
+- [X] T301 [P] [US7] Implement GET /api/v1/tasks endpoint in `sys/core/src/api/routes/tasks.rs`
+- [X] T524 [P] [US7] Implement POST /api/v1/tasks endpoint in `sys/core/src/api/routes/tasks.rs`
+- [X] T525 [P] [US7] Implement GET /api/v1/tasks/{id} endpoint in `sys/core/src/api/routes/tasks.rs`
+- [X] T526 [P] [US7] Implement PATCH /api/v1/tasks/{id} endpoint in `sys/core/src/api/routes/tasks.rs`
+- [X] T302 [US7] Implement POST /api/v1/goals endpoint in `sys/core/src/api/routes/goals.rs`
+- [X] T303 [P] [US7] Implement GET /api/v1/orchestration/status endpoint in `sys/core/src/api/routes/orchestration.rs`
+- [X] T304 [P] [US7] Implement POST /api/v1/capsule/spawn endpoint in `sys/core/src/api/routes/capsule.rs`
+- [X] T305 [P] [US7] Implement POST /api/v1/crm/toggle endpoint in `sys/core/src/api/routes/crm.rs`
+- [X] T306 [P] [US7] Implement POST /api/v1/crm/rollback endpoint in `sys/core/src/api/routes/crm.rs`
 
 ### Board Agents (Advisory) - FR-184 to FR-190
 
 **Note**: Board Agents are advisory-only, connected to reasoning models via ModelSelector. No execution authority.
 
-- [ ] T306a [US7] §3.3 FR-184 Implement KnowledgeBoard agent in `sys/core/src/agents/board/knowledge.rs`
+- [X] T306a [US7] §3.3 FR-184 Implement KnowledgeBoard agent in `sys/core/src/agents/board/knowledge.rs`
   - Knowledge synthesis, information retrieval, fact verification
   - Stack layer: Memory & Knowledge Graph layers
-- [ ] T306b [P] [US7] §3.3 FR-184 Implement LearningBoard agent in `sys/core/src/agents/board/learning.rs`
+- [X] T306b [P] [US7] §3.3 FR-184 Implement LearningBoard agent in `sys/core/src/agents/board/learning.rs`
   - Self-learning strategies, skill acquisition, capability growth
   - Stack layer: Training & Fine-tuning layers
-- [ ] T306c [P] [US7] §3.3 FR-184 Implement EvolutionBoard agent in `sys/core/src/agents/board/evolution.rs`
+- [X] T306c [P] [US7] §3.3 FR-184 Implement EvolutionBoard agent in `sys/core/src/agents/board/evolution.rs`
   - Self-upgrading recommendations, capability enhancement proposals
   - Stack layer: Self-modification & Update layers
-- [ ] T306d [P] [US7] §3.3 FR-184 Implement EnvironmentBoard agent in `sys/core/src/agents/board/environment.rs`
+- [X] T306d [P] [US7] §3.3 FR-184 Implement EnvironmentBoard agent in `sys/core/src/agents/board/environment.rs`
   - Environment awareness, context sensing, situational analysis
   - Stack layer: Perception & Context layers
-- [ ] T306e [P] [US7] §3.3 FR-184 Implement HealingBoard agent in `sys/core/src/agents/board/healing.rs`
+- [X] T306e [P] [US7] §3.3 FR-184 Implement HealingBoard agent in `sys/core/src/agents/board/healing.rs`
   - Self-healing strategies, recovery recommendations, fault diagnosis
   - Stack layer: System health & Recovery layers
-- [ ] T306f [P] [US7] §3.3 FR-184 Implement StrategyBoard agent in `sys/core/src/agents/board/strategy.rs`
+- [X] T306f [P] [US7] §3.3 FR-184 Implement StrategyBoard agent in `sys/core/src/agents/board/strategy.rs`
   - Problem solving, decision support, optimization recommendations
   - Stack layer: Planning & Orchestration layers
-- [ ] T306g [P] [US7] §3.3 FR-184 Implement PredictionBoard agent in `sys/core/src/agents/board/prediction.rs`
+- [X] T306g [P] [US7] §3.3 FR-184 Implement PredictionBoard agent in `sys/core/src/agents/board/prediction.rs`
   - Predictive analysis, trend forecasting, risk anticipation
   - Stack layer: Analytics & Forecasting layers
-- [ ] T306h [US7] §3.3 FR-186 Implement ModelSelector connection for Board Agents in `sys/core/src/agents/board/model_connector.rs`
+- [X] T306h [US7] §3.3 FR-186 Implement ModelSelector connection for Board Agents in `sys/core/src/agents/board/model_connector.rs`
   - Connect Board Agents to reasoning models via ModelSelector
   - Route complex queries to appropriate reasoning model
-- [ ] T306i [P] [US7] §3.3 FR-188 Implement Board Agent advisory interface in `sys/core/src/agents/board/advisory.rs`
+- [X] T306i [P] [US7] §3.3 FR-188 Implement Board Agent advisory interface in `sys/core/src/agents/board/advisory.rs`
   - Define advisory input interface to Executive Agents
   - Implement recommendation generation pipeline
-- [ ] T306j [P] [US7] §3.5 FR-190 Implement Board Agent reasoning trace logging in `sys/core/src/agents/board/trace_logger.rs`
+- [X] T306j [P] [US7] §3.5 FR-190 Implement Board Agent reasoning trace logging in `sys/core/src/agents/board/trace_logger.rs`
   - Log all recommendations with model reasoning trace
   - Audit trail for advisory decisions
 
@@ -3012,5 +3012,6 @@ Then implement P3 stories:
 | T888-T890 | Module Lifecycle | 3 |
 | T891-T893 | Dependency Resolution | 3 |
 | **Total** | | **12** |
+
 
 

@@ -16,6 +16,8 @@ pub mod api;
 #[cfg(feature = "full")]
 pub mod autonomy;
 #[cfg(feature = "full")]
+pub mod events;
+#[cfg(feature = "full")]
 pub mod healing;
 #[cfg(feature = "full")]
 pub mod memory;

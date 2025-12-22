@@ -25,7 +25,7 @@ test_negative() {
     local name="$1"
     local test_cmd="$2"
     local expected_failure="$3"
-    
+
     if ! eval "$test_cmd" >/dev/null 2>&1; then
         echo "✅ PASS: $name (correctly failed as expected: $expected_failure)"
         ((PASSED++))
@@ -41,7 +41,7 @@ test_negative() {
 test_boundary() {
     local name="$1"
     local test_cmd="$2"
-    
+
     if eval "$test_cmd" >/dev/null 2>&1; then
         echo "✅ PASS: $name"
         ((PASSED++))

@@ -15,6 +15,7 @@ pub mod agent_repository;
 pub mod agentlog_repository;
 pub mod task_repository;
 pub mod task_event_repository;
+pub mod stack_repository;
 
 pub use memory_repository::{MemoryRepository, Memory};
 pub use embedding_repository::{EmbeddingRepository, Embedding};
@@ -28,3 +29,4 @@ pub use agent_repository::{AgentRepository, Agent};
 pub use agentlog_repository::{AgentLogRepository, AgentLog};
 pub use task_repository::{TaskRepository, Task};
 pub use task_event_repository::{TaskEventRepository, TaskEvent};
+pub use stack_repository::{StackRepository, StackRecord};

@@ -5,7 +5,6 @@
 
 use axum::{
     extract::State,
-    http::StatusCode,
     response::{Json, sse::Event, Sse},
     routing::post,
     Router,
@@ -16,7 +15,7 @@ use tokio_stream::Stream;
 use uuid::Uuid;
 
 use crate::api::server::AppState;
-use crate::neural::inference::{InferenceRequest, InferenceResponse, StreamChunk};
+use crate::neural::inference::{InferenceRequest, InferenceResponse};
 use crate::error::{Result, NoaError};
 use crate::services::NeuralService;
 

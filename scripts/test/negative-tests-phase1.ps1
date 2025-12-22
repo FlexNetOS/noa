@@ -19,7 +19,7 @@ function Test-Negative {
         [scriptblock]$TestCmd,
         [string]$ExpectedFailure
     )
-    
+
     try {
         & $TestCmd | Out-Null
         Write-Host "❌ FAIL: $Name (should have failed but didn't)" -ForegroundColor Red
@@ -37,7 +37,7 @@ function Test-Boundary {
         [string]$Name,
         [scriptblock]$TestCmd
     )
-    
+
     try {
         & $TestCmd | Out-Null
         Write-Host "✅ PASS: $Name" -ForegroundColor Green

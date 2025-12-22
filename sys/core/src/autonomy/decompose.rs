@@ -4,7 +4,7 @@
 //! FR-054: System MUST autonomously decompose high-level user goals into executable task chains
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::autonomy::goal_queue::Goal;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};

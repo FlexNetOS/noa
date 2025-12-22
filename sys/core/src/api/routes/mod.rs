@@ -14,6 +14,11 @@ pub mod promotions;
 pub mod healing;
 pub mod goals;
 pub mod activity;
+pub mod agents;
+pub mod tasks;
+pub mod orchestration;
+pub mod capsule;
+pub mod crm;
 
 use axum::Router;
 use crate::api::server::AppState;
@@ -38,8 +43,10 @@ fn v1_routes() -> Router<AppState> {
         .merge(healing::routes())
         .merge(goals::routes())
         .merge(activity::routes())
+        .merge(agents::routes())
+        .merge(tasks::routes())
+        .merge(orchestration::routes())
+        .merge(capsule::routes())
+        .merge(crm::routes())
         .merge(memories::create_routes())
-        // Future routes:
-        // .merge(agents::routes())
-        // .merge(tasks::routes())
 }

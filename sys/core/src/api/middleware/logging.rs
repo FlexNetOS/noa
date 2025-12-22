@@ -8,11 +8,11 @@ use std::time::Instant;
 
 use axum::{
     body::Body,
-    http::{Request, StatusCode},
+    http::Request,
     middleware::Next,
     response::Response,
 };
-use tracing::{info, warn, Span};
+use tracing::{info, warn};
 
 /// Request logging middleware
 pub async fn log_request(

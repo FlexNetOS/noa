@@ -2,8 +2,6 @@
 //!
 //! Starts NOA services including API server and agents.
 
-use std::path::PathBuf;
-
 use clap::Args;
 use tracing::{info, error};
 

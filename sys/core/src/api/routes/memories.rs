@@ -7,7 +7,7 @@
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    response::Json,
+    response::{IntoResponse, Json},
     routing::{get, post},
     Router,
 };
@@ -134,37 +134,48 @@ pub struct SearchResultResponse {
 async fn create_memory(
     State(state): State<AppState>,
     Json(request): Json<CreateMemoryRequest>,
-) -> std::result::Result<Json<CreateMemoryResponse>, (StatusCode, String)> {
-    let memory_service = get_memory_service(&state)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
+) -> impl IntoResponse {
+    let memory_service = match get_memory_service(&state) {
+        Ok(service) => service,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to initialize memory service: {}", e),
+            )
+                .into_response();
+        }
+    };
     let memory_type = match request.r#type.as_str() {
         "interaction" => MemoryType::Interaction,
         "decision" => MemoryType::Decision,
         "learning" => MemoryType::Learning,
         "artifact" => MemoryType::Artifact,
         _ => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                format!("Invalid memory type: {}", request.r#type),
-            ));
+            return (StatusCode::BAD_REQUEST, format!("Invalid memory type: {}", request.r#type)).into_response();
         }
     };
 
-    let agent_id = request
+    let agent_id = match request
         .source_agent
         .map(|s| Uuid::parse_str(&s))
         .transpose()
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid agent ID: {}", e)))?;
+    {
+        Ok(id) => id,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid agent ID: {}", e)).into_response(),
+    };
 
-    let parent_id = request
+    let parent_id = match request
         .parent_id
         .map(|s| Uuid::parse_str(&s))
         .transpose()
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid parent ID: {}", e)))?;
+    {
+        Ok(id) => id,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid parent ID: {}", e)).into_response(),
+    };
 
     let tags: HashSet<String> = request.tags.unwrap_or_default().into_iter().collect();
 
-    let id = memory_service
+    let id = match memory_service
         .create(
             memory_type,
             request.content,
@@ -174,40 +185,44 @@ async fn create_memory(
             tags,
         )
         .await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create memory: {}", e)))?;
+    {
+        Ok(id) => id,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create memory: {}", e)).into_response(),
+    };
 
-    let memory = memory_service
-        .get(&id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)))?
-        .ok_or_else(|| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Memory not found after creation".to_string(),
-            )
-        })?;
+    let memory = match memory_service.get(&id) {
+        Ok(Some(mem)) => mem,
+        Ok(None) => return (StatusCode::INTERNAL_SERVER_ERROR, "Memory not found after creation".to_string()).into_response(),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)).into_response(),
+    };
 
-    Ok(Json(CreateMemoryResponse {
+    (StatusCode::OK, Json(CreateMemoryResponse {
         id: id.to_string(),
         created_at: memory.created_at.to_rfc3339(),
-    }))
+    })).into_response()
 }
 
 /// Get memory by ID
 async fn get_memory(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> std::result::Result<Json<MemoryResponse>, (StatusCode, String)> {
-    let memory_service = get_memory_service(&state)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
-    let memory_id = Uuid::parse_str(&id)
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid memory ID: {}", e)))?;
+) -> impl IntoResponse {
+    let memory_service = match get_memory_service(&state) {
+        Ok(service) => service,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)).into_response(),
+    };
+    let memory_id = match Uuid::parse_str(&id) {
+        Ok(id) => id,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Invalid memory ID: {}", e)).into_response(),
+    };
 
-    let memory = memory_service
-        .get(&memory_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)))?
-        .ok_or_else(|| (StatusCode::NOT_FOUND, format!("Memory not found: {}", id)))?;
+    let memory = match memory_service.get(&memory_id) {
+        Ok(Some(mem)) => mem,
+        Ok(None) => return (StatusCode::NOT_FOUND, format!("Memory not found: {}", id)).into_response(),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to retrieve memory: {}", e)).into_response(),
+    };
 
-    Ok(Json(MemoryResponse {
+    (StatusCode::OK, Json(MemoryResponse {
         id: memory.id.to_string(),
         created_at: memory.created_at.to_rfc3339(),
         updated_at: memory.updated_at.to_rfc3339(),
@@ -218,27 +233,30 @@ async fn get_memory(
         parent_id: memory.parent_id.map(|id| id.to_string()),
         tags: memory.tags.into_iter().collect(),
         checksum: memory.checksum,
-    }))
+    })).into_response()
 }
 
 /// List memories with pagination
 async fn list_memories(
     State(state): State<AppState>,
     Query(params): Query<ListMemoriesQuery>,
-) -> std::result::Result<Json<ListMemoriesResponse>, (StatusCode, String)> {
-    let memory_service = get_memory_service(&state)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)))?;
+) -> impl IntoResponse {
+    let memory_service = match get_memory_service(&state) {
+        Ok(service) => service,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize memory service: {}", e)).into_response(),
+    };
     let offset = params.offset.unwrap_or(0);
     let limit = params.limit.unwrap_or(20);
 
-    let memories = memory_service
-        .list(offset, limit)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list memories: {}", e)))?;
+    let memories = match memory_service.list(offset, limit) {
+        Ok(mems) => mems,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list memories: {}", e)).into_response(),
+    };
 
-    let total = memory_service
-        .memory_repo()
-        .count()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to count memories: {}", e)))?;
+    let total = match memory_service.memory_repo().count() {
+        Ok(count) => count,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to count memories: {}", e)).into_response(),
+    };
 
     let memory_responses: Vec<MemoryResponse> = memories
         .into_iter()
@@ -256,48 +274,42 @@ async fn list_memories(
         })
         .collect();
 
-    Ok(Json(ListMemoriesResponse {
+    (StatusCode::OK, Json(ListMemoriesResponse {
         memories: memory_responses,
         total,
         offset,
         limit,
-    }))
+    })).into_response()
 }
 
 /// Search memories
 async fn search_memories(
     State(state): State<AppState>,
     Json(request): Json<SearchMemoriesRequest>,
-) -> std::result::Result<Json<SearchMemoriesResponse>, (StatusCode, String)> {
-    let search_service = get_search_service(&state)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize search service: {}", e)))?;
+) -> impl IntoResponse {
+    let search_service = match get_search_service(&state) {
+        Ok(service) => service,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to initialize search service: {}", e)).into_response(),
+    };
     let search_type = request.search_type.as_deref().unwrap_or("hybrid");
     let limit = request.limit.unwrap_or(10);
     let threshold = request.threshold.unwrap_or(0.7);
 
     let results = match search_type {
-        "semantic" => {
-            search_service
-                .search_semantic(&request.query, limit, threshold)
-                .await
-                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Semantic search failed: {}", e)))?
-        }
-        "keyword" => {
-            search_service
-                .search_keyword(&request.query, limit)
-                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Keyword search failed: {}", e)))?
-        }
-        "hybrid" => {
-            search_service
-                .search_hybrid(&request.query, limit, threshold)
-                .await
-                .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Hybrid search failed: {}", e)))?
-        }
+        "semantic" => match search_service.search_semantic(&request.query, limit, threshold).await {
+            Ok(res) => res,
+            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Semantic search failed: {}", e)).into_response(),
+        },
+        "keyword" => match search_service.search_keyword(&request.query, limit) {
+            Ok(res) => res,
+            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Keyword search failed: {}", e)).into_response(),
+        },
+        "hybrid" => match search_service.search_hybrid(&request.query, limit, threshold).await {
+            Ok(res) => res,
+            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Hybrid search failed: {}", e)).into_response(),
+        },
         _ => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                format!("Invalid search type: {}", search_type),
-            ));
+            return (StatusCode::BAD_REQUEST, format!("Invalid search type: {}", search_type)).into_response();
         }
     };
 
@@ -321,9 +333,9 @@ async fn search_memories(
         })
         .collect();
 
-    Ok(Json(SearchMemoriesResponse {
+    (StatusCode::OK, Json(SearchMemoriesResponse {
         count: result_responses.len(),
         results: result_responses,
-    }))
+    })).into_response()
 }
 
