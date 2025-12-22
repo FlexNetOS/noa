@@ -4,11 +4,11 @@
 //! FR-074: System MUST automatically apply fixes based on root cause analysis
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::anomaly::Anomaly;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::info;
 
 /// Fix type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

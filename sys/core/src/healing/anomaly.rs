@@ -4,12 +4,11 @@
 //! FR-072: System MUST detect anomalies in health metrics
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot, HealthMetric};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{debug, warn};
 
 /// Anomaly type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

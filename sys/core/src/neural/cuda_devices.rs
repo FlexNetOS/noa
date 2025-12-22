@@ -6,7 +6,6 @@
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// CUDA device information
 #[derive(Debug, Clone, Serialize, Deserialize)]

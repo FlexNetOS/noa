@@ -1,7 +1,6 @@
 use axum::{routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 
-use crate::api::server::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HealingStatus {

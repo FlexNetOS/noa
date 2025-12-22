@@ -6,7 +6,6 @@
 use crate::error::{NoaError, Result};
 use crate::init::paths::NoaPaths;
 use rusqlite::{Connection, params};
-use std::fs;
 use std::path::Path;
 use tracing::{debug, info, warn};
 

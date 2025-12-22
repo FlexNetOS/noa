@@ -4,13 +4,10 @@
 //! §3.5: Observability
 //! FR-155: Observability - tracing, metrics, logging
 
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
 use prometheus::{
-    self, Counter, CounterVec, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec,
-    IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder, Encoder,
+    self, Gauge, HistogramOpts, HistogramVec, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder, Encoder,
 };
 use lazy_static::lazy_static;
 

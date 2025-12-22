@@ -4,7 +4,7 @@
 //! FR-075: System MUST notify user when fixes fail after 3 attempts
 //! §3.4: Adaptive & Self-Improving
 
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use crate::healing::HealingEvent;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};

@@ -198,6 +198,11 @@ enum ProviderCommands {
 enum AgentsCommands {
     /// List agents
     List,
+    /// Show agent logs
+    Logs {
+        /// Agent name (optional)
+        agent_name: Option<String>,
+    },
 }
 
 #[cfg(feature = "full")]
@@ -275,6 +280,8 @@ enum PromotionCommands {
 enum HealingCommands {
     /// Show healing status
     Status,
+    /// List healing events
+    Events,
 }
 
 #[cfg(feature = "full")]
@@ -433,7 +440,8 @@ async fn handle_promotion_command(command: PromotionCommands) -> Result<()> {
 async fn handle_healing_command(command: HealingCommands) -> Result<()> {
     use cli::healing::HealingCmd;
     match command {
-        HealingCommands::Status => cli::healing::execute(HealingCmd::Status).await,
+        HealingCommands::Status => cli::healing::execute(HealingCmd::Status, None).await,
+        HealingCommands::Events => cli::healing::execute(HealingCmd::Events, None).await,
     }
 }
 
@@ -441,7 +449,8 @@ async fn handle_healing_command(command: HealingCommands) -> Result<()> {
 async fn handle_agents_command(command: AgentsCommands) -> Result<()> {
     use cli::agents::AgentsCmd;
     match command {
-        AgentsCommands::List => cli::agents::execute(AgentsCmd::List).await,
+        AgentsCommands::List => cli::agents::execute(AgentsCmd::List, None).await,
+        AgentsCommands::Logs { agent_name } => cli::agents::execute(AgentsCmd::Logs { agent_name }, None).await,
     }
 }
 
