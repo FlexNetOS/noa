@@ -50,15 +50,11 @@ pub fn routes() -> Router {
 }
 
 /// GET /api/v1/system/info
-async fn get_system_info(Extension(_state): Extension<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
+async fn get_system_info(Extension(state): Extension<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
     info!("GET /api/v1/system/info");
 
-    // Get NOA_ROOT from environment or use default
-    let noa_root = std::env::var("NOA_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(|_| std::path::PathBuf::from("."));
-
-    let db_path = NoaPaths::data(&noa_root).join("noa.db");
+    let noa_root = state.config.noa_root.clone();
+    let db_path = noa_root.join(&state.config.database.path);
 
     let directories = NoaPaths::all_directories(&noa_root)
         .iter()
@@ -80,32 +76,26 @@ async fn get_system_info(Extension(_state): Extension<AppState>) -> Result<Json<
 async fn get_system_health(Extension(state): Extension<AppState>) -> Result<Json<SystemHealth>, StatusCode> {
     info!("GET /api/v1/system/health");
 
-    // Get NOA_ROOT from environment or use default
-    let noa_root = std::env::var("NOA_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(|_| std::path::PathBuf::from("."));
-
-    let db_path = NoaPaths::data(&noa_root).join("noa.db");
+    let noa_root = state.config.noa_root.clone();
+    let db_path = noa_root.join(&state.config.database.path);
 
     // Check database health
     let database = if db_path.exists() {
-        match db::init_database(&db_path) {
-            Ok(conn) => {
-                match db::check_integrity(&conn) {
-                    Ok(true) => HealthStatus {
-                        status: "healthy".to_string(),
-                        message: None,
-                    },
-                    Ok(false) => HealthStatus {
-                        status: "degraded".to_string(),
-                        message: Some("Database integrity check failed".to_string()),
-                    },
-                    Err(e) => HealthStatus {
-                        status: "unhealthy".to_string(),
-                        message: Some(format!("Database error: {}", e)),
-                    },
-                }
-            }
+        match state.sqlite_conn() {
+            Ok(conn) => match db::check_integrity(&conn) {
+                Ok(true) => HealthStatus {
+                    status: "healthy".to_string(),
+                    message: None,
+                },
+                Ok(false) => HealthStatus {
+                    status: "degraded".to_string(),
+                    message: Some("Database integrity check failed".to_string()),
+                },
+                Err(e) => HealthStatus {
+                    status: "unhealthy".to_string(),
+                    message: Some(format!("Database error: {}", e)),
+                },
+            },
             Err(e) => HealthStatus {
                 status: "unhealthy".to_string(),
                 message: Some(format!("Database connection failed: {}", e)),
@@ -114,7 +104,10 @@ async fn get_system_health(Extension(state): Extension<AppState>) -> Result<Json
     } else {
         HealthStatus {
             status: "uninitialized".to_string(),
-            message: Some("Database not initialized".to_string()),
+            message: Some(format!(
+                "Database not initialized at {}",
+                db_path.display()
+            )),
         }
     };
 

@@ -21,29 +21,40 @@ impl ConfigValidator {
     }
 
     fn validate_noa_root(config: &NoaConfig) -> Result<()> {
-        if !config.noa_root.exists() {
-            return Err(ConfigError::ValidationError {
+        validate_path(&config.noa_root, true, true).map_err(|e| -> crate::error::NoaError {
+            ConfigError::ValidationError {
                 field: "noa_root".to_string(),
-                message: format!("Directory does not exist: {}", config.noa_root.display()),
-            }.into());
-        }
+                message: e.to_string(),
+            }
+            .into()
+        })?;
 
         // Check for required subdirectories
         let required_dirs = ["bin", "config", "data", "logs"];
         for dir in required_dirs {
             let path = config.noa_root.join(dir);
-            if !path.exists() {
-                return Err(ConfigError::ValidationError {
+            validate_path(&path, true, true).map_err(|e| -> crate::error::NoaError {
+                ConfigError::ValidationError {
                     field: "noa_root".to_string(),
-                    message: format!("Required directory missing: {}", dir),
-                }.into());
-            }
+                    message: format!("{} ({}): {}", dir, path.display(), e),
+                }
+                .into()
+            })?;
         }
 
         Ok(())
     }
 
     fn validate_database(config: &NoaConfig) -> Result<()> {
+        validate_not_empty(&config.database.driver, "database.driver")
+            .map_err(|e| -> crate::error::NoaError {
+                ConfigError::ValidationError {
+                    field: "database.driver".to_string(),
+                    message: e.to_string(),
+                }
+                .into()
+            })?;
+
         let valid_drivers = ["sqlite", "postgresql"];
         if !valid_drivers.contains(&config.database.driver.as_str()) {
             return Err(ConfigError::InvalidValue {
@@ -53,12 +64,19 @@ impl ConfigValidator {
             }.into());
         }
 
-        if config.database.max_connections == 0 {
-            return Err(ConfigError::ValidationError {
+        validate_range(
+            config.database.max_connections,
+            1u32,
+            u32::MAX,
+            "database.max_connections",
+        )
+        .map_err(|e| -> crate::error::NoaError {
+            ConfigError::ValidationError {
                 field: "database.max_connections".to_string(),
-                message: "Must be greater than 0".to_string(),
-            }.into());
-        }
+                message: e.to_string(),
+            }
+            .into()
+        })?;
 
         // For PostgreSQL, require a URL.
         if config.database.driver == "postgresql" {
@@ -81,15 +99,13 @@ impl ConfigValidator {
         // For SQLite, ensure parent directory exists
         if config.database.driver == "sqlite" {
             if let Some(parent) = config.database.path.parent() {
-                if !parent.exists() {
-                    return Err(ConfigError::ValidationError {
+                validate_path(parent, true, true).map_err(|e| -> crate::error::NoaError {
+                    ConfigError::ValidationError {
                         field: "database.path".to_string(),
-                        message: format!(
-                            "Parent directory does not exist: {}",
-                            parent.display()
-                        ),
-                    }.into());
-                }
+                        message: e.to_string(),
+                    }
+                    .into()
+                })?;
             }
         }
 
@@ -99,23 +115,28 @@ impl ConfigValidator {
     fn validate_logging(config: &NoaConfig) -> Result<()> {
         // Ensure log output parent directory exists
         if let Some(parent) = config.logging.output.parent() {
-            if !parent.exists() {
-                return Err(ConfigError::ValidationError {
+            validate_path(parent, true, true).map_err(|e| -> crate::error::NoaError {
+                ConfigError::ValidationError {
                     field: "logging.output".to_string(),
-                    message: format!(
-                        "Parent directory does not exist: {}",
-                        parent.display()
-                    ),
-                }.into());
-            }
+                    message: e.to_string(),
+                }
+                .into()
+            })?;
         }
 
-        if config.logging.max_size_mb == 0 {
-            return Err(ConfigError::ValidationError {
+        validate_range(
+            config.logging.max_size_mb,
+            1u64,
+            u64::MAX,
+            "logging.max_size_mb",
+        )
+        .map_err(|e| -> crate::error::NoaError {
+            ConfigError::ValidationError {
                 field: "logging.max_size_mb".to_string(),
-                message: "Must be greater than 0".to_string(),
-            }.into());
-        }
+                message: e.to_string(),
+            }
+            .into()
+        })?;
 
         Ok(())
     }

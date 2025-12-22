@@ -5,7 +5,7 @@
 use clap::Args;
 use tracing::{info, error};
 
-use crate::api::server::{ApiConfig, ApiServer, ApiServerBuilder, AppState};
+use crate::api::server::{ApiConfig, ApiServerBuilder};
 use crate::config::NoaConfig;
 use crate::db::ConnectionPool;
 use crate::error::{NoaError, Result};
@@ -50,25 +50,66 @@ pub async fn execute(args: StartArgs) -> Result<()> {
 
     // PostgreSQL path (server deployments)
     if config.database.driver == "postgresql" {
-        let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
-            message: "database.url is required when database.driver=postgresql".to_string(),
-            source: None,
-        })?;
+        #[cfg(feature = "full")]
+        {
+            let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+                message: "database.url is required when database.driver=postgresql".to_string(),
+                source: None,
+            })?;
 
-        let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
-        let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
-        crate::db::migrate_postgres(&pool, &migrations_dir).await?;
-        crate::db::check_postgres(&pool).await?;
+            let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
+            let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+            crate::db::migrate_postgres(&pool, &migrations_dir).await?;
+            crate::db::check_postgres(&pool).await?;
 
-        if args.no_api && args.no_agents {
-            info!("PostgreSQL migrations applied; nothing else to start");
+            if args.no_api && args.no_agents {
+                info!("PostgreSQL migrations applied; nothing else to start");
+                return Ok(());
+            }
+
+            // Start API server if not disabled
+            if !args.no_api {
+                let api_config = ApiConfig {
+                    host: args.host.clone(),
+                    port: args.port,
+                    timeout_secs: 30,
+                    enable_cors: true,
+                    cors_origins: vec![],
+                    enable_tracing: true,
+                    shutdown_timeout_secs: 30,
+                };
+
+                println!("Starting NOA API server on {}:{} (PostgreSQL)", args.host, args.port);
+
+                let server = ApiServerBuilder::new()
+                    .with_config(api_config)
+                    .with_postgres_pool(pool)
+                    .with_noa_config(config)
+                    .build()?;
+
+                if let Err(e) = server.start().await {
+                    error!(error = %e, "Server failed");
+                    return Err(e);
+                }
+            }
+
+            // Start agents if not disabled
+            if !args.no_agents {
+                info!("Agent startup not yet implemented");
+                // TODO: Start configured agents
+            }
+
+            info!("NOA services started successfully");
             return Ok(());
         }
 
-        return Err(NoaError::Internal {
-            message: "PostgreSQL is configured, but the API server currently uses the SQLite ConnectionPool. Backend-agnostic server wiring is not implemented yet.".to_string(),
-            source: None,
-        });
+        #[cfg(not(feature = "full"))]
+        {
+            return Err(NoaError::Internal {
+                message: "database.driver=postgresql requires building noa-core with feature \"full\"".to_string(),
+                source: None,
+            });
+        }
     }
 
     // Initialize database pool

@@ -11,7 +11,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::api::server::AppState;
+use crate::api::server::{AppDatabase, AppState};
 use crate::db;
 
 /// Health check response
@@ -160,26 +160,39 @@ async fn readiness_check(
 
 /// Check database health
 async fn check_database(state: &AppState) -> ComponentStatus {
-    match state.db.get() {
-        Ok(conn) => {
-            // Try to run integrity check
-            match db::check_integrity(&conn) {
-                Ok(true) => {
-                    // Get stats
-                    match db::get_stats(&conn) {
-                        Ok(stats) => ComponentStatus::healthy_with_details(serde_json::json!({
-                            "total_size_bytes": stats.total_size_bytes,
-                            "used_size_bytes": stats.used_size_bytes,
-                            "total_pages": stats.total_pages,
-                        })),
-                        Err(_) => ComponentStatus::healthy(),
+    match &state.db {
+        AppDatabase::Sqlite(_) => match state.sqlite_conn() {
+            Ok(conn) => {
+                // Try to run integrity check
+                match db::check_integrity(&conn) {
+                    Ok(true) => {
+                        // Get stats
+                        match db::get_stats(&conn) {
+                            Ok(stats) => ComponentStatus::healthy_with_details(serde_json::json!({
+                                "total_size_bytes": stats.total_size_bytes,
+                                "used_size_bytes": stats.used_size_bytes,
+                                "total_pages": stats.total_pages,
+                            })),
+                            Err(_) => ComponentStatus::healthy(),
+                        }
                     }
+                    Ok(false) => ComponentStatus::unhealthy("Database integrity check failed"),
+                    Err(e) => ComponentStatus::degraded(format!("Integrity check error: {}", e)),
                 }
-                Ok(false) => ComponentStatus::unhealthy("Database integrity check failed"),
-                Err(e) => ComponentStatus::degraded(format!("Integrity check error: {}", e)),
+            }
+            Err(e) => ComponentStatus::unhealthy(format!("Database connection failed: {}", e)),
+        },
+
+        #[cfg(feature = "full")]
+        AppDatabase::Postgres(pool) => {
+            match sqlx::query_scalar::<_, i64>("SELECT 1")
+                .fetch_one(pool)
+                .await
+            {
+                Ok(_) => ComponentStatus::healthy(),
+                Err(e) => ComponentStatus::unhealthy(format!("PostgreSQL query failed: {}", e)),
             }
         }
-        Err(e) => ComponentStatus::unhealthy(format!("Database connection failed: {}", e)),
     }
 }
 

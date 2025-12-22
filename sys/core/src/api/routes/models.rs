@@ -114,7 +114,7 @@ pub fn routes() -> Router {
 
 /// GET /api/v1/models - List all models
 async fn list_models(Extension(state): Extension<AppState>) -> Result<Json<ModelListResponse>> {
-    let mut conn = state.db.get()?;
+    let mut conn = state.sqlite_conn()?;
     let repo = ModelRepository::new(conn.connection_mut());
 
     let models = repo.find_all()?;
@@ -197,7 +197,7 @@ async fn ingest_model(
         metrics: None,
     };
 
-    let mut conn = state.db.get()?;
+    let mut conn = state.sqlite_conn()?;
     let repo = ModelRepository::new(conn.connection_mut());
     repo.create(&model)?;
 
@@ -227,7 +227,7 @@ async fn get_model_status(
         ))
     })?;
 
-    let mut conn = state.db.get()?;
+    let mut conn = state.sqlite_conn()?;
     let repo = ModelRepository::new(conn.connection_mut());
     let model = repo
         .find_by_id(&model_id)?

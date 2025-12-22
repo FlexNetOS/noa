@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 use crate::api::server::AppState;
 use crate::neural::inference::{InferenceRequest, InferenceResponse};
-use crate::error::{Result, NoaError};
+use crate::error::{ApiError, NoaError, Result};
 use crate::services::NeuralService;
 
 /// Inference request
@@ -68,7 +68,7 @@ async fn infer(
     Json(request): Json<InferenceApiRequest>,
 ) -> Result<Json<InferenceApiResponse>> {
     let engine = {
-        let mut conn = state.db.get()?;
+        let mut conn = state.sqlite_conn()?;
         let service = NeuralService::new(conn.connection());
         service.inference_engine()
     };
@@ -104,15 +104,13 @@ async fn infer_stream(
     Json(request): Json<InferenceApiRequest>,
 ) -> std::result::Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>, (StatusCode, String)> {
     let engine = {
-        let mut conn = state
-            .db
-            .get()
-            .map_err(|e| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to acquire database connection: {}", e),
-                )
-            })?;
+        let mut conn = state.sqlite_conn().map_err(|e| {
+            let status = match &e {
+                NoaError::Api(ApiError::ServiceUnavailable(_)) => StatusCode::SERVICE_UNAVAILABLE,
+                _ => StatusCode::INTERNAL_SERVER_ERROR,
+            };
+            (status, format!("Failed to acquire database connection: {}", e))
+        })?;
         let service = NeuralService::new(conn.connection());
         service.inference_engine()
     };
