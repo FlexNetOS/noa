@@ -198,6 +198,18 @@ enum ProviderCommands {
 enum AgentsCommands {
     /// List agents
     List,
+    /// Show agent information
+    Info {
+        /// Agent name
+        agent_name: String,
+    },
+    /// Run an agent with a task
+    Run {
+        /// Agent name (commander-chief, file-io, terminal, rag)
+        agent_name: String,
+        /// Task specification (can be JSON or simple string)
+        task: String,
+    },
     /// Show agent logs
     Logs {
         /// Agent name (optional)
@@ -450,6 +462,8 @@ async fn handle_agents_command(command: AgentsCommands) -> Result<()> {
     use cli::agents::AgentsCmd;
     match command {
         AgentsCommands::List => cli::agents::execute(AgentsCmd::List, None).await,
+        AgentsCommands::Info { agent_name } => cli::agents::execute(AgentsCmd::Info { agent_name }, None).await,
+        AgentsCommands::Run { agent_name, task } => cli::agents::execute(AgentsCmd::Run { agent_name, task }, None).await,
         AgentsCommands::Logs { agent_name } => cli::agents::execute(AgentsCmd::Logs { agent_name }, None).await,
     }
 }
