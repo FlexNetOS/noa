@@ -39,6 +39,7 @@ pub mod logs;
 pub mod capsule;
 #[cfg(feature = "full")]
 pub mod crm;
+pub mod digest;
 
 #[cfg(feature = "full")]
 pub use memory::{execute_memory, MemoryArgs};

@@ -13,10 +13,10 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
-    "test:smoke": "jest --testPathPattern=smoke",
-    "test:unit": "jest --testPathPattern=__tests__/unit",
-    "test:integration": "jest --testPathPattern=__tests__/integration",
-    "test:e2e": "jest --testPathPattern=__tests__/e2e"
+    "test:smoke": "jest --testPathPatterns smoke",
+    "test:unit": "jest --testPathPatterns __tests__/unit",
+    "test:integration": "jest --testPathPatterns __tests__/integration",
+    "test:e2e": "jest --testPathPatterns __tests__/e2e"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
