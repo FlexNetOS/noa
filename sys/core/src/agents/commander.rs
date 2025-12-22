@@ -88,18 +88,19 @@ impl CommanderChiefAgent {
     /// Decompose a high-level goal into agent tasks
     pub fn plan_execution(&self, request: CommanderRequest) -> Result<ExecutionPlan> {
         let tasks = self.decompose_goal(&request.goal, request.constraints.as_deref())?;
+        let task_count = tasks.len();
         
         Ok(ExecutionPlan {
             id: Uuid::new_v4(),
             goal: request.goal,
             tasks,
             created_at: Utc::now(),
-            estimated_duration_secs: Some(tasks.len() as u64 * 30), // Rough estimate
+            estimated_duration_secs: Some(task_count as u64 * 30), // Rough estimate
         })
     }
 
     /// Decompose goal into agent tasks (rule-based strategy)
-    fn decompose_goal(&self, goal: &str, constraints: Option<&[String]>) -> Result<Vec<AgentTask>> {
+    fn decompose_goal(&self, goal: &str, _constraints: Option<&[String]>) -> Result<Vec<AgentTask>> {
         let mut tasks = Vec::new();
         let goal_lower = goal.to_lowercase();
 
@@ -202,7 +203,7 @@ impl CommanderChiefAgent {
     }
 
     /// Assign task to an agent
-    pub fn assign_task(&mut self, task_id: Uuid, agent: &str) -> Result<()> {
+    pub fn assign_task(&mut self, _task_id: Uuid, agent: &str) -> Result<()> {
         if !self.available_agents.contains(&agent.to_string()) {
             return Err(NoaError::Validation(crate::error::ValidationError::new(
                 "agent",

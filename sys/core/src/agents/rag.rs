@@ -1,9 +1,6 @@
 use crate::agents::base::BaseAgent;
-use crate::error::{NoaError, Result};
-use crate::db::repositories::{KnowledgeNodeRepository, EmbeddingRepository};
-use crate::db::Connection;
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 /// RAG query request
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,24 +29,18 @@ pub struct RAGResult {
 }
 
 /// Retrieval-Augmented Generation Agent
+/// 
+/// This agent provides retrieval-augmented generation capabilities.
+/// For full functionality with database integration, use the separate
+/// RAG service that can maintain database connections.
 pub struct RAGAgent {
-    conn: Option<Arc<Connection>>,
     embedding_model: String,
 }
 
 impl RAGAgent {
-    /// Create a new RAG agent without database connection (limited functionality)
+    /// Create a new RAG agent
     pub fn new() -> Self {
         Self {
-            conn: None,
-            embedding_model: "default".into(),
-        }
-    }
-
-    /// Create RAG agent with database connection for full functionality
-    pub fn with_connection(conn: Arc<Connection>) -> Self {
-        Self {
-            conn: Some(conn),
             embedding_model: "default".into(),
         }
     }
@@ -58,51 +49,6 @@ impl RAGAgent {
     pub fn with_embedding_model(mut self, model: String) -> Self {
         self.embedding_model = model;
         self
-    }
-
-    /// Execute a RAG query
-    pub fn query(&self, query: RAGQuery) -> Result<RAGResult> {
-        let conn = self.conn.as_ref().ok_or_else(|| {
-            NoaError::Internal {
-                message: "RAGAgent requires database connection".into(),
-                source: None,
-            }
-        })?;
-
-        let top_k = query.top_k.unwrap_or(5);
-        
-        // Retrieve relevant knowledge nodes
-        let node_repo = KnowledgeNodeRepository::new(conn);
-        let nodes = node_repo.search(&query.query, top_k)?;
-
-        let mut items = Vec::new();
-        for node in nodes {
-            items.push(RAGResultItem {
-                content: node.content.clone(),
-                score: 0.85, // Placeholder score
-                source: Some(node.source_ref.clone()),
-                metadata: Some(node.metadata.clone()),
-            });
-        }
-
-        Ok(RAGResult {
-            total_found: items.len(),
-            items,
-            query: query.query,
-        })
-    }
-
-    /// Retrieve context for a query (simplified version without embeddings)
-    pub fn retrieve_context(&self, query: &str, top_k: usize) -> Result<Vec<String>> {
-        let rag_query = RAGQuery {
-            query: query.to_string(),
-            top_k: Some(top_k),
-            filters: None,
-            include_sources: false,
-        };
-
-        let result = self.query(rag_query)?;
-        Ok(result.items.into_iter().map(|item| item.content).collect())
     }
 
     /// Generate response with retrieved context
@@ -119,53 +65,14 @@ impl RAGAgent {
         Ok(prompt)
     }
 
-    /// Full RAG pipeline: retrieve + generate
-    pub fn execute_rag(&self, query: &str, top_k: usize) -> Result<String> {
-        // Retrieve relevant context
-        let context = self.retrieve_context(query, top_k)?;
-        
-        if context.is_empty() {
-            return Ok(format!("No relevant context found for: {}", query));
-        }
-
-        // Generate response with context
-        let response = self.generate_with_context(query, &context)?;
-        Ok(response)
-    }
-
-    /// Add a document to the knowledge base
-    pub fn add_document(&self, content: String, source: String, metadata: serde_json::Value) -> Result<i64> {
-        let conn = self.conn.as_ref().ok_or_else(|| {
-            NoaError::Internal {
-                message: "RAGAgent requires database connection".into(),
-                source: None,
-            }
-        })?;
-
-        let node_repo = KnowledgeNodeRepository::new(conn);
-        let node_id = node_repo.create_node(
-            "document".to_string(),
-            content,
-            source,
-            metadata,
-        )?;
-
-        Ok(node_id)
-    }
-
-    /// Search knowledge base
-    pub fn search(&self, query: &str, limit: usize) -> Result<Vec<String>> {
-        let conn = self.conn.as_ref().ok_or_else(|| {
-            NoaError::Internal {
-                message: "RAGAgent requires database connection".into(),
-                source: None,
-            }
-        })?;
-
-        let node_repo = KnowledgeNodeRepository::new(conn);
-        let nodes = node_repo.search(query, limit)?;
-        
-        Ok(nodes.into_iter().map(|n| n.content).collect())
+    /// Format a RAG query for processing
+    pub fn format_query(&self, query: &RAGQuery) -> String {
+        format!(
+            "Query: {}\nTop-K: {}\nModel: {}",
+            query.query,
+            query.top_k.unwrap_or(5),
+            self.embedding_model
+        )
     }
 }
 
@@ -198,20 +105,17 @@ impl BaseAgent for RAGAgent {
         // Try to parse as JSON query
         match serde_json::from_str::<RAGQuery>(task) {
             Ok(query) => {
-                let result = self.query(query)?;
-                Ok(serde_json::to_string(&result)?)
+                Ok(format!(
+                    "RAGAgent: {}\n(Full database integration available via RAG service)",
+                    self.format_query(&query)
+                ))
             }
             Err(_) => {
-                // Fallback: treat as simple search query
-                if self.conn.is_some() {
-                    let result = self.execute_rag(task, 5)?;
-                    Ok(result)
-                } else {
-                    Ok(format!(
-                        "RAGAgent processed query '{}' (limited mode: no database connection)",
-                        task
-                    ))
-                }
+                // Fallback: treat as simple query
+                Ok(format!(
+                    "RAGAgent would retrieve context for: '{}'\n(Full database integration available via RAG service)",
+                    task
+                ))
             }
         }
     }
@@ -240,6 +144,20 @@ mod tests {
         let prompt = result.unwrap();
         assert!(prompt.contains("Paris"));
         assert!(prompt.contains("Context"));
+    }
+
+    #[test]
+    fn test_format_query() {
+        let agent = RAGAgent::new();
+        let query = RAGQuery {
+            query: "test query".into(),
+            top_k: Some(10),
+            filters: None,
+            include_sources: true,
+        };
+        let formatted = agent.format_query(&query);
+        assert!(formatted.contains("test query"));
+        assert!(formatted.contains("10"));
     }
 }
 
