@@ -19,6 +19,7 @@ pub mod tasks;
 pub mod orchestration;
 pub mod capsule;
 pub mod crm;
+pub mod admin;
 
 use axum::Router;
 

@@ -195,7 +195,7 @@ mod tests {
         let commander = CommanderChiefAgent::new();
         
         let request = CommanderRequest {
-            goal: "Read and write files".to_string(),  // Changed to avoid model-selector
+            goal: "Read and write files".to_string(),
             context: None,
             constraints: None,
         };

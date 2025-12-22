@@ -21,6 +21,12 @@ use crate::db::{ConnectionPool, PooledConnection};
 use crate::error::{ApiError, NoaError, Result};
 use crate::config::access::ConfigAccess;
 
+use super::middleware::{
+    RateLimitConfig, RateLimiter,
+    RequestLimitsConfig, RequestLimits,
+    AuthConfig, AuthState,
+};
+
 /// Database handle used by the API server.
 ///
 /// Today, most routes are still SQLite-first (rusqlite-based repositories).
@@ -67,6 +73,27 @@ pub struct ApiConfig {
 
     /// Graceful shutdown timeout in seconds
     pub shutdown_timeout_secs: u64,
+
+    /// Maximum request body size in bytes
+    pub max_body_size: usize,
+
+    /// Maximum concurrent requests
+    pub max_concurrent_requests: usize,
+
+    /// Enable rate limiting
+    pub enable_rate_limiting: bool,
+
+    /// Rate limit: max requests per minute (default endpoints)
+    pub rate_limit_requests_per_minute: u32,
+
+    /// Rate limit: max requests per minute for expensive endpoints
+    pub rate_limit_expensive_per_minute: u32,
+
+    /// Enable authentication
+    pub enable_auth: bool,
+
+    /// JWT secret for token signing/verification
+    pub jwt_secret: Option<String>,
 }
 
 impl Default for ApiConfig {
@@ -79,6 +106,13 @@ impl Default for ApiConfig {
             cors_origins: vec!["http://localhost:*".to_string()],
             enable_tracing: true,
             shutdown_timeout_secs: 30,
+            max_body_size: 10 * 1024 * 1024, // 10MB
+            max_concurrent_requests: 100,
+            enable_rate_limiting: true,
+            rate_limit_requests_per_minute: 100,
+            rate_limit_expensive_per_minute: 20,
+            enable_auth: false, // Disabled by default for development
+            jwt_secret: None,
         }
     }
 }
@@ -114,6 +148,27 @@ impl ApiConfig {
                         .iter()
                         .filter_map(|v| v.as_str().map(|s| s.to_string()))
                         .collect();
+                }
+                if let Some(max_body) = api.get("max_body_size").and_then(|v| v.as_u64()) {
+                    cfg.max_body_size = max_body as usize;
+                }
+                if let Some(max_concurrent) = api.get("max_concurrent_requests").and_then(|v| v.as_u64()) {
+                    cfg.max_concurrent_requests = max_concurrent as usize;
+                }
+                if let Some(enable_rate) = api.get("enable_rate_limiting").and_then(|v| v.as_bool()) {
+                    cfg.enable_rate_limiting = enable_rate;
+                }
+                if let Some(rate_limit) = api.get("rate_limit_requests_per_minute").and_then(|v| v.as_u64()) {
+                    cfg.rate_limit_requests_per_minute = rate_limit as u32;
+                }
+                if let Some(expensive_limit) = api.get("rate_limit_expensive_per_minute").and_then(|v| v.as_u64()) {
+                    cfg.rate_limit_expensive_per_minute = expensive_limit as u32;
+                }
+                if let Some(enable_auth) = api.get("enable_auth").and_then(|v| v.as_bool()) {
+                    cfg.enable_auth = enable_auth;
+                }
+                if let Some(jwt_secret) = api.get("jwt_secret").and_then(|v| v.as_str()) {
+                    cfg.jwt_secret = Some(jwt_secret.to_string());
                 }
             }
 
@@ -155,16 +210,56 @@ pub struct AppState {
 
     /// Server start time for uptime tracking
     pub start_time: std::time::Instant,
+
+    /// Rate limiter for API endpoints
+    pub rate_limiter: Arc<RateLimiter>,
+
+    /// Request limits (body size, concurrency)
+    pub request_limits: Arc<RequestLimits>,
+
+    /// Authentication state
+    pub auth: Arc<AuthState>,
 }
 
 impl AppState {
     pub fn new(db: AppDatabase, config: NoaConfig) -> Self {
+        Self::with_api_config(db, config, ApiConfig::default())
+    }
+
+    pub fn with_api_config(db: AppDatabase, config: NoaConfig, api_config: ApiConfig) -> Self {
         let config_access = Arc::new(ConfigAccess::from_config(&config));
+
+        // Create rate limiter from config
+        let rate_limiter = Arc::new(RateLimiter::new(RateLimitConfig {
+            max_requests: api_config.rate_limit_requests_per_minute,
+            window: Duration::from_secs(60),
+            per_ip: true,
+            per_token: true,
+        }));
+
+        // Create request limits from config
+        let request_limits = Arc::new(RequestLimits::new(RequestLimitsConfig {
+            max_body_size: api_config.max_body_size,
+            max_concurrent: api_config.max_concurrent_requests,
+            timeout_secs: api_config.timeout_secs,
+        }));
+
+        // Create auth state from config
+        let auth = Arc::new(AuthState::new(AuthConfig {
+            enabled: api_config.enable_auth,
+            allow_health_unauthenticated: true,
+            jwt_secret: api_config.jwt_secret.clone(),
+            api_keys: Vec::new(), // API keys loaded from config/database separately
+        }));
+
         Self {
             db,
             config: Arc::new(config),
             config_access,
             start_time: std::time::Instant::now(),
+            rate_limiter,
+            request_limits,
+            auth,
         }
     }
 
@@ -218,7 +313,7 @@ impl ApiServer {
             .merge(super::routes::health::routes())
             .merge(super::routes::api_v1());
 
-        // Timeout layer
+        // Timeout layer (via tower-http)
         router = router.layer(TimeoutLayer::new(Duration::from_secs(
             self.config.timeout_secs,
         )));
@@ -235,6 +330,37 @@ impl ApiServer {
                 .allow_methods(Any)
                 .allow_headers(Any);
             router = router.layer(cors);
+        }
+
+        // Request limits middleware (body size, concurrency)
+        let limits = self.state.request_limits.clone();
+        router = router.layer(axum::middleware::from_fn(move |req, next| {
+            let limits = limits.clone();
+            async move {
+                super::middleware::request_limits_middleware(limits, req, next).await
+            }
+        }));
+
+        // Rate limiting middleware (if enabled)
+        if self.config.enable_rate_limiting {
+            let limiter = self.state.rate_limiter.clone();
+            router = router.layer(axum::middleware::from_fn(move |req, next| {
+                let limiter = limiter.clone();
+                async move {
+                    super::middleware::rate_limit_middleware(limiter, req, next).await
+                }
+            }));
+        }
+
+        // Authentication middleware (if enabled)
+        if self.config.enable_auth {
+            let auth = self.state.auth.clone();
+            router = router.layer(axum::middleware::from_fn(move |req, next| {
+                let auth = auth.clone();
+                async move {
+                    super::middleware::auth_middleware(auth, req, next).await
+                }
+            }));
         }
 
         // Add custom middleware
@@ -452,7 +578,7 @@ impl ApiServerBuilder {
             api_cfg.shutdown_timeout_secs = shutdown_timeout_secs;
         }
 
-        let state = AppState::new(db, noa_config);
+        let state = AppState::with_api_config(db, noa_config, api_cfg.clone());
         Ok(ApiServer::new(api_cfg, state))
     }
 }
