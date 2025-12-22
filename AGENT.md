@@ -332,6 +332,7 @@ Before completing any task, verify:
 
 ## Target Directory Structure
 
+```text
 noa/
 ├─ README.md
 ├─ AGENT.md
@@ -342,6 +343,18 @@ noa/
 │  ├─ noa                            # main CLI entry
 │  ├─ noa-admin                      # owner/maintainer CLI
 │  └─ noa-sandbox                    # sandbox runner entry
+│
+├─ apps/                             # task apps (upstream + wrappers)
+│  ├─ task-app-A/
+│  │  ├─ upstream/...
+│  │  └─ wrappers/
+│  │     ├─ connector/               # adapter to/from Task Kernel
+│  │     ├─ deep-links/
+│  │     └─ ui-embed/
+│  ├─ task-app-B/
+│  │  └─ wrappers/...
+│  └─ task-app-C/
+│     └─ wrappers/...
 │
 ├─ lib/                              # shared libraries (Rust crates / polyglot libs)
 │  ├─ noa-core/                      # core types, error model, IDs, tracing
@@ -374,6 +387,11 @@ noa/
 │  │  ├─ routing/                    # locality-aware routing (local/personal/regional/org)
 │  │  ├─ authz/                      # capability token -> per-tool permission mapping
 │  │  ├─ connectors/                 # adapter layer to external systems (bounded)
+│  │  │  └─ tasks/
+│  │  │     ├─ app-A/                 # connector endpoints + auth + mapping rules
+│  │  │     ├─ app-B/
+│  │  │     ├─ app-C/
+│  │  │     └─ router/                # which app is authoritative for which scopes
 │  │  └─ workflows/                  # workflow engine bindings (calls tools via MCP)
 │  ├─ api/                           # stable internal APIs (for UI + orchestrator)
 │  └─ ui-bridge/                     # streaming progress/events to UI widgets
@@ -384,6 +402,11 @@ noa/
 │  ├─ executor/                      # runs task packages via gateway/mcp
 │  ├─ workflows/                     # high-level DAG workflows (build/test/train/etc.)
 │  ├─ commands/                      # "command verbs" mapped to packages/workflows
+│  ├─ task-kernel/                   # canonical task model + rules
+│  │  ├─ schema/                     # TaskKernel schema (JSON/Proto)
+│  │  ├─ normalization/              # canonicalization + dedupe + conflict rules
+│  │  ├─ mapping/                    # mapping configs per app
+│  │  └─ sync/                       # ingestion + emission pipeline
 │  └─ packages/                      # microservice/package format
 │     ├─ schema/                     # package schema definitions
 │     ├─ templates/                  # common task shapes
@@ -504,6 +527,17 @@ noa/
 │  ├─ public/                        # user-facing API server (if exposed)
 │  ├─ internal/                      # internal APIs consumed by UI/agents
 │  └─ connectors/                    # API-level connectors (distinct from tool connectors)
+│
+├─ ui/                               # user-facing UI (migrating from sys/ui)
+│  ├─ pages/
+│  │  ├─ convo/
+│  │  └─ tasks/
+│  │     ├─ hub/                     # unified “Tasks Hub” view (canonical)
+│  │     ├─ app-A/                   # embedded view (optional)
+│  │     ├─ app-B/
+│  │     └─ app-C/
+│  └─ widgets/
+│     └─ task-summary/
 │
 ├─ docs/                             # Documentation system (Wiki/Pages/Runbooks)
 │  ├─ wiki/                          # navigation + architecture map (SSoT hub)
