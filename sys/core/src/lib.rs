@@ -38,4 +38,6 @@ pub mod vector;
 #[cfg(feature = "full")]
 pub mod agents;
 #[cfg(feature = "full")]
+pub mod automation;
+#[cfg(feature = "full")]
 pub mod virtual_packages;

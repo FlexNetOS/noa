@@ -50,7 +50,7 @@ impl MultiAgentExecutor {
         agents.insert("file-io".to_string(), Box::new(FileIOAgent::new()));
         agents.insert("terminal".to_string(), Box::new(TerminalAgent::new()));
         agents.insert("rag".to_string(), Box::new(RAGAgent::new()));
-        agents.insert("model-selector".to_string(), Box::new(crate::agents::ModelSelectorAgent::new()));
+        // Note: model-selector requires a database connection, registered separately
 
         Self {
             agents,
@@ -195,7 +195,7 @@ mod tests {
         let commander = CommanderChiefAgent::new();
         
         let request = CommanderRequest {
-            goal: "Test workflow".to_string(),
+            goal: "Read and write files".to_string(),  // Changed to avoid model-selector
             context: None,
             constraints: None,
         };
