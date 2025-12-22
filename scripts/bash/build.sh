@@ -6,7 +6,7 @@
 #
 # Usage:
 #   ./scripts/bash/build.sh [component]
-#   Components: all, rust, go, ui, digest
+#   Components: all, rust, p2p, ui, digest
 
 set -euo pipefail
 
@@ -26,7 +26,7 @@ log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 build_rust() {
-    log_info "Building Rust components..."
+    log_info "Building Rust components (sys/core)..."
     cd "$NOA_ROOT/sys/core"
     if command -v cargo &> /dev/null; then
         cargo build --release
@@ -36,15 +36,19 @@ build_rust() {
     fi
 }
 
-build_go() {
-    log_info "Building Go components..."
+build_p2p() {
+    log_info "Building P2P components (rust-libp2p)..."
     cd "$NOA_ROOT/p2p"
-    if command -v go &> /dev/null; then
-        go build -o "$NOA_ROOT/bin/noa-p2p" ./cmd/p2p-node
-        log_success "Go build complete"
+    if command -v cargo &> /dev/null; then
+        cargo build --release
+        log_success "P2P build complete"
     else
-        log_warning "go not found, skipping Go build"
+        log_warning "cargo not found, skipping P2P build"
     fi
+}
+
+build_go() {
+    log_warning "Go p2p-node has been replaced by rust-libp2p. Use 'p2p' component to build."
 }
 
 build_ui() {
@@ -73,7 +77,7 @@ build_digest() {
 build_all() {
     log_info "Building all NOA components..."
     build_rust
-    build_go
+    build_p2p
     build_ui
     build_digest
     log_success "All builds complete!"
@@ -84,13 +88,14 @@ COMPONENT="${1:-all}"
 
 case "$COMPONENT" in
     rust)   build_rust ;;
+    p2p)    build_p2p ;;
     go)     build_go ;;
     ui)     build_ui ;;
     digest) build_digest ;;
     all)    build_all ;;
     *)
         log_error "Unknown component: $COMPONENT"
-        echo "Usage: $0 [all|rust|go|ui|digest]"
+        echo "Usage: $0 [all|rust|p2p|go|ui|digest]"
         exit 1
         ;;
 esac

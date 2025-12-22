@@ -1,0 +1,18 @@
+[package]
+name = "identify-example"
+version = "0.1.0"
+edition.workspace = true
+publish = false
+license = "MIT"
+
+[package.metadata.release]
+release = false
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+futures = { workspace = true }
+libp2p = { path = "../../libp2p", features = ["identify", "noise", "tcp", "tokio", "yamux"] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+
+[lints]
+workspace = true
