@@ -9,7 +9,7 @@
 
 ```bash
 # 1. Install dependencies
-cd ml_devops_platform/nextjs_space
+cd sys/ui/apps/ml-devops
 yarn install
 
 # 2. Set up environment

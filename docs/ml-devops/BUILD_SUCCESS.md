@@ -18,7 +18,7 @@ Successfully built the ML DevOps Platform Rust backend following NOA Constitutio
 2. **No System-Wide Dependencies**
    - Rust 1.91.1 (from `N:\noa\opt\rust\cargo\bin\rustc.exe`)
    - Node.js v20.18.1 (from `N:\noa\opt\node\node.exe`)
-   - All build artifacts in `ml_devops_platform/rust_backend/target/`
+   - All build artifacts in `sys/core/apps/ml-devops-rust-backend/target/`
 
 ### 🔧 Build Details
 
@@ -100,7 +100,7 @@ inference_server.exe --port 8080
 
 2. **Build Tauri Desktop App**:
    ```powershell
-   cd ml_devops_platform/nextjs_space
+   cd sys/ui/apps/ml-devops
    yarn install
    yarn prisma generate
    yarn tauri build

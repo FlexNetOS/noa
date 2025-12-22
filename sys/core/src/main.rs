@@ -330,7 +330,6 @@ async fn main() -> Result<()> {
             handle_virtual_packages_command(command, cli.noa_root.clone()).await
         }
         #[cfg(feature = "full")]
-        Commands::VirtualPackages { command } => handle_virtual_packages_command(command, cli.noa_root.clone()).await,
         Commands::Plane { command } => handle_plane_command(command).await,
         #[cfg(feature = "full")]
         Commands::Promotion { command } => handle_promotion_command(command).await,

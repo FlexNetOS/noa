@@ -33,7 +33,7 @@ source ~/.cargo/env
 
 **3. Clone and Build:**
 ```bash
-cd ml_devops_platform/rust_backend
+cd sys/core/apps/ml-devops-rust-backend
 cargo build --release
 ```
 

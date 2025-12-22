@@ -132,6 +132,8 @@ mod tests {
 
         // Verify settings
         let journal_mode: String = conn
+            .lock()
+            .unwrap()
             .query_row("PRAGMA journal_mode", [], |row| row.get(0))
             .unwrap();
         assert_eq!(journal_mode, "wal");

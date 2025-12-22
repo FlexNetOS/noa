@@ -15,7 +15,7 @@ The ML DevOps Platform has been successfully configured in the NOA environment f
 ## 📦 Installed Components
 
 ### 1. Rust Backend (Inference Server)
-- **Location**: `ml_devops_platform/rust_backend/`
+- **Location**: `sys/core/apps/ml-devops-rust-backend/`
 - **Binary**: `target/release/inference_server.exe`
 - **Status**: ✅ Built and running
 - **Port**: 8080
@@ -34,7 +34,7 @@ The ML DevOps Platform has been successfully configured in the NOA environment f
 - Removed unused variables and warnings
 
 ### 2. Google OAuth Configuration
-- **Location**: `ml_devops_platform/nextjs_space/.env`
+- **Location**: `sys/ui/apps/ml-devops/.env` (local-only; use `.env.example` as a template)
 - **Status**: ✅ Configured
 - **Client ID**: Set
 - **Client Secret**: Set

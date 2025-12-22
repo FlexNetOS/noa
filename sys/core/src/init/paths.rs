@@ -62,6 +62,10 @@ impl NoaPaths {
         noa_root.join("init/migrations")
     }
 
+    pub fn init_migrations_pg(noa_root: &Path) -> PathBuf {
+        noa_root.join("init/migrations/pg")
+    }
+
     pub fn init_seeds(noa_root: &Path) -> PathBuf {
         noa_root.join("init/seeds")
     }
@@ -167,6 +171,7 @@ impl NoaPaths {
             Self::init(noa_root),
             Self::init_bootstrap(noa_root),
             Self::init_migrations(noa_root),
+            Self::init_migrations_pg(noa_root),
             Self::init_seeds(noa_root),
             Self::init_services(noa_root),
             Self::containers(noa_root),

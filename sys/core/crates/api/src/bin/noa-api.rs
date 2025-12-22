@@ -1,6 +1,7 @@
-use noa_api::{Server, db::Database};
+use noa_api::{Server, db::Database, state::AppState};
 use std::net::SocketAddr;
 use std::env;
+use std::sync::Arc;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -26,8 +27,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     db.health_check().await?;
     tracing::info!("Database health check passed");
 
+    let state = AppState::from_env(Arc::new(db));
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3001));
-    let server = Server::new(addr);
+    let server = Server::new(addr, state);
 
     tracing::info!("Starting NOA API server on {}", addr);
     server.run().await?;

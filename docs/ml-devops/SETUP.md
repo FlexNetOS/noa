@@ -22,7 +22,7 @@
 ### 1. Clone and Navigate
 
 ```bash
-cd /home/ubuntu/ml_devops_platform/nextjs_space
+cd /home/ubuntu/sys/ui/apps/ml-devops
 ```
 
 ### 2. Install Dependencies

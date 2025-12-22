@@ -77,6 +77,8 @@ impl Default for Environment {
 #[derive(Debug, Clone)]
 pub struct DatabaseConfig {
     pub driver: String,
+    /// Connection URL (used for PostgreSQL; optional for SQLite)
+    pub url: Option<String>,
     pub path: PathBuf,
     pub max_connections: u32,
     pub settings: HashMap<String, String>,
@@ -86,6 +88,7 @@ impl Default for DatabaseConfig {
     fn default() -> Self {
         Self {
             driver: "sqlite".to_string(),
+            url: None,
             path: PathBuf::from("data/noa.db"),
             max_connections: 10,
             settings: HashMap::new(),

@@ -5,6 +5,7 @@
 #[cfg(test)]
 mod integration_tests {
     use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
+    #[cfg(feature = "full")]
     use crate::services::InitService;
     use std::fs;
     use std::path::Path;
@@ -143,6 +144,7 @@ mod integration_tests {
     }
 
     /// Test full initialization workflow
+    #[cfg(feature = "full")]
     #[tokio::test]
     async fn test_full_initialization_workflow() {
         let tmp = TempDir::new().unwrap();
@@ -157,6 +159,7 @@ mod integration_tests {
     }
 
     /// Test verification functionality
+    #[cfg(feature = "full")]
     #[test]
     fn test_verification() {
         let tmp = TempDir::new().unwrap();

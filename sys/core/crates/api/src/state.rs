@@ -5,15 +5,17 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::db::Database;
 use noa_neural::llama::{LlamaServer, LlamaServerConfig};
 
 #[derive(Clone)]
 pub struct AppState {
     pub llama: Arc<LlamaProxy>,
+    pub db: Arc<Database>,
 }
 
 impl AppState {
-    pub fn from_env() -> Self {
+    pub fn from_env(db: Arc<Database>) -> Self {
         let host = std::env::var("NOA_LLAMA_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
         let port = std::env::var("NOA_LLAMA_PORT")
             .ok()
@@ -61,6 +63,7 @@ impl AppState {
                 auto_start,
                 server: Mutex::new(LlamaServer::new(config)),
             }),
+            db,
         }
     }
 }

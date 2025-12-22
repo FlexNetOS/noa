@@ -5,10 +5,10 @@
  * and user productivity improvements.
  */
 
-import { apiClient } from '../lib/api';
 import { contextDetector } from './contextDetector';
 
-export interface Insight {
+export interface Insight
+{
   id: string;
   type: 'productivity' | 'optimization' | 'suggestion' | 'warning';
   title: string;
@@ -27,18 +27,21 @@ export interface Insight {
  *
  * Generates and manages AI-powered insights for the user.
  */
-export class InsightsService {
+export class InsightsService
+{
   private insights: Map<string, Insight> = new Map();
-  private listeners: Set<(insights: Insight[]) => void> = new Set();
+  private listeners: Set<( insights: Insight[] ) => void> = new Set();
 
   /**
    * Generate insights based on current context and activity
    */
-  async generateInsights(activity?: {
+  async generateInsights ( activity?: {
     type: string;
     data?: Record<string, unknown>;
-  }): Promise<Insight[]> {
-    try {
+  } ): Promise<Insight[]>
+  {
+    try
+    {
       // Get current context
       const context = contextDetector.getCurrentContext();
 
@@ -46,9 +49,10 @@ export class InsightsService {
       const insights: Insight[] = [];
 
       // Example: Productivity insight for coding context
-      if (context?.type === 'coding') {
-        insights.push({
-          id: `insight_${Date.now()}_1`,
+      if ( context?.type === 'coding' )
+      {
+        insights.push( {
+          id: `insight_${ Date.now() }_1`,
           type: 'productivity',
           title: 'Coding Context Detected',
           message: 'Consider using the Code Editor widget for better code navigation.',
@@ -56,19 +60,20 @@ export class InsightsService {
           actionable: true,
           action: {
             label: 'Show Code Editor',
-            handler: async () => {
+            handler: async () =>
+            {
               // Implementation would show code editor widget
-              console.log('Showing code editor widget');
             },
           },
           timestamp: new Date().toISOString(),
-        });
+        } );
       }
 
       // Example: Optimization insight
-      if (activity?.type === 'performance') {
-        insights.push({
-          id: `insight_${Date.now()}_2`,
+      if ( activity?.type === 'performance' )
+      {
+        insights.push( {
+          id: `insight_${ Date.now() }_2`,
           type: 'optimization',
           title: 'Performance Optimization',
           message: 'Your system performance could be improved by reducing active widgets.',
@@ -76,26 +81,28 @@ export class InsightsService {
           actionable: true,
           action: {
             label: 'Optimize Widgets',
-            handler: async () => {
+            handler: async () =>
+            {
               // Implementation would optimize widgets
-              console.log('Optimizing widgets');
             },
           },
           timestamp: new Date().toISOString(),
-        });
+        } );
       }
 
       // Store insights
-      insights.forEach(insight => {
-        this.insights.set(insight.id, insight);
-      });
+      insights.forEach( insight =>
+      {
+        this.insights.set( insight.id, insight );
+      } );
 
       // Notify listeners
       this.notifyListeners();
 
       return insights;
-    } catch (error) {
-      console.error('Failed to generate insights:', error);
+    } catch ( error )
+    {
+      console.error( 'Failed to generate insights:', error );
       return [];
     }
   }
@@ -103,36 +110,42 @@ export class InsightsService {
   /**
    * Get all insights
    */
-  getAllInsights(): Insight[] {
-    return Array.from(this.insights.values()).sort((a, b) => {
+  getAllInsights (): Insight[]
+  {
+    return Array.from( this.insights.values() ).sort( ( a, b ) =>
+    {
       // Sort by priority and timestamp
       const priorityOrder = { high: 3, medium: 2, low: 1 };
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-      if (priorityDiff !== 0) return priorityDiff;
-      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-    });
+      const priorityDiff = priorityOrder[ b.priority ] - priorityOrder[ a.priority ];
+      if ( priorityDiff !== 0 ) return priorityDiff;
+      return new Date( b.timestamp ).getTime() - new Date( a.timestamp ).getTime();
+    } );
   }
 
   /**
    * Get insights by type
    */
-  getInsightsByType(type: Insight['type']): Insight[] {
-    return this.getAllInsights().filter(insight => insight.type === type);
+  getInsightsByType ( type: Insight[ 'type' ] ): Insight[]
+  {
+    return this.getAllInsights().filter( insight => insight.type === type );
   }
 
   /**
    * Get high-priority insights
    */
-  getHighPriorityInsights(): Insight[] {
-    return this.getAllInsights().filter(insight => insight.priority === 'high');
+  getHighPriorityInsights (): Insight[]
+  {
+    return this.getAllInsights().filter( insight => insight.priority === 'high' );
   }
 
   /**
    * Dismiss an insight
    */
-  dismissInsight(id: string): void {
-    if (this.insights.has(id)) {
-      this.insights.delete(id);
+  dismissInsight ( id: string ): void
+  {
+    if ( this.insights.has( id ) )
+    {
+      this.insights.delete( id );
       this.notifyListeners();
     }
   }
@@ -140,7 +153,8 @@ export class InsightsService {
   /**
    * Dismiss all insights
    */
-  dismissAllInsights(): void {
+  dismissAllInsights (): void
+  {
     this.insights.clear();
     this.notifyListeners();
   }
@@ -148,55 +162,66 @@ export class InsightsService {
   /**
    * Subscribe to insights updates
    */
-  subscribe(listener: (insights: Insight[]) => void): () => void {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
+  subscribe ( listener: ( insights: Insight[] ) => void ): () => void
+  {
+    this.listeners.add( listener );
+    return () =>
+    {
+      this.listeners.delete( listener );
     };
   }
 
   /**
    * Notify all listeners
    */
-  private notifyListeners(): void {
+  private notifyListeners (): void
+  {
     const insights = this.getAllInsights();
-    this.listeners.forEach(listener => {
-      try {
-        listener(insights);
-      } catch (error) {
-        console.error('Insights listener error:', error);
+    this.listeners.forEach( listener =>
+    {
+      try
+      {
+        listener( insights );
+      } catch ( error )
+      {
+        console.error( 'Insights listener error:', error );
       }
-    });
+    } );
   }
 
   /**
    * Request AI-generated insights from backend
    */
-  async requestAIInsights(prompt: string): Promise<Insight[]> {
-    try {
+  async requestAIInsights ( prompt: string ): Promise<Insight[]>
+  {
+    try
+    {
       // In a real implementation, this would call the backend AI service
-      const response = await fetch('/api/v1/insights/generate', {
+      const response = await fetch( '/api/v1/insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
+        body: JSON.stringify( { prompt } ),
+      } );
 
-      if (!response.ok) {
-        throw new Error(`AI insights request failed: ${response.statusText}`);
+      if ( !response.ok )
+      {
+        throw new Error( `AI insights request failed: ${ response.statusText }` );
       }
 
       const data = await response.json();
       const insights: Insight[] = data.insights || [];
 
       // Store insights
-      insights.forEach(insight => {
-        this.insights.set(insight.id, insight);
-      });
+      insights.forEach( insight =>
+      {
+        this.insights.set( insight.id, insight );
+      } );
 
       this.notifyListeners();
       return insights;
-    } catch (error) {
-      console.error('Failed to request AI insights:', error);
+    } catch ( error )
+    {
+      console.error( 'Failed to request AI insights:', error );
       return [];
     }
   }

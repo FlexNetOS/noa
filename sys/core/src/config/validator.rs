@@ -60,6 +60,24 @@ impl ConfigValidator {
             }.into());
         }
 
+        // For PostgreSQL, require a URL.
+        if config.database.driver == "postgresql" {
+            let url_ok = config
+                .database
+                .url
+                .as_ref()
+                .map(|s| !s.trim().is_empty())
+                .unwrap_or(false);
+
+            if !url_ok {
+                return Err(ConfigError::ValidationError {
+                    field: "database.url".to_string(),
+                    message: "PostgreSQL requires database.primary.url (or env DATABASE_URL/DB_CONNECTION_STRING)".to_string(),
+                }
+                .into());
+            }
+        }
+
         // For SQLite, ensure parent directory exists
         if config.database.driver == "sqlite" {
             if let Some(parent) = config.database.path.parent() {

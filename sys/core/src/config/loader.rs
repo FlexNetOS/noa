@@ -152,6 +152,24 @@ impl ConfigLoader {
             .unwrap_or("sqlite")
             .to_string();
 
+        let url_str = db
+            .and_then(|v| v.get("primary"))
+            .and_then(|v| v.get("url").or_else(|| v.get("connection_string")))
+            .and_then(|v| v.as_str());
+
+        let mut url = url_str
+            .map(expand_env_vars)
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty());
+
+        // Allow URL to come purely from environment if not present in config.
+        // This is especially common for local/dev PostgreSQL setups.
+        if url.is_none() {
+            url = std::env::var("DATABASE_URL")
+                .ok()
+                .or_else(|| std::env::var("DB_CONNECTION_STRING").ok());
+        }
+
         let path_str = db
             .and_then(|v| v.get("primary"))
             .and_then(|v| v.get("path"))
@@ -183,6 +201,7 @@ impl ConfigLoader {
 
         Ok(DatabaseConfig {
             driver,
+            url,
             path,
             max_connections,
             settings,

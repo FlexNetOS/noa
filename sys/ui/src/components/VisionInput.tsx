@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Monitor, X, Check } from 'lucide-react';
 import { hardwareCapabilities } from '@/services/hardwareCapabilities';
-import { multiModalService } from '@/services/multiModal';
 import { cn } from '@/lib/utils';
 
-interface VisionInputProps {
-  onCapture: (data: Blob | File) => void;
+interface VisionInputProps
+{
+  onCapture: ( data: Blob | File ) => void;
   onCancel?: () => void;
   disabled?: boolean;
 }
@@ -19,106 +19,127 @@ type CaptureMode = 'camera' | 'screen' | null;
  *
  * Provides vision input using camera or screen capture with graceful degradation.
  */
-export default function VisionInput({ onCapture, onCancel, disabled }: VisionInputProps) {
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [captureMode, setCaptureMode] = useState<CaptureMode>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function VisionInput ( { onCapture, onCancel, disabled }: VisionInputProps )
+{
+  const [ isAvailable, setIsAvailable ] = useState( false );
+  const [ captureMode, setCaptureMode ] = useState<CaptureMode>( null );
+  const [ stream, setStream ] = useState<MediaStream | null>( null );
+  const [ capturedImage, setCapturedImage ] = useState<string | null>( null );
+  const videoRef = useRef<HTMLVideoElement>( null );
+  const canvasRef = useRef<HTMLCanvasElement>( null );
 
-  useEffect(() => {
-    const checkAvailability = async () => {
+  useEffect( () =>
+  {
+    const checkAvailability = async () =>
+    {
       const capabilities = await hardwareCapabilities.detect();
-      setIsAvailable(capabilities.vision.available);
+      setIsAvailable( capabilities.vision.available );
     };
 
     checkAvailability();
 
-    return () => {
+    return () =>
+    {
       // Cleanup stream on unmount
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if ( stream )
+      {
+        stream.getTracks().forEach( track => track.stop() );
       }
     };
-  }, [stream]);
+  }, [ stream ] );
 
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
+  const startCamera = async () =>
+  {
+    try
+    {
+      const mediaStream = await navigator.mediaDevices.getUserMedia( {
         video: { facingMode: 'environment' },
-      });
+      } );
 
-      setStream(mediaStream);
-      setCaptureMode('camera');
+      setStream( mediaStream );
+      setCaptureMode( 'camera' );
 
-      if (videoRef.current) {
+      if ( videoRef.current )
+      {
         videoRef.current.srcObject = mediaStream;
       }
-    } catch (error) {
-      console.error('Failed to start camera:', error);
-      alert('Failed to access camera. Please check permissions.');
+    } catch ( error )
+    {
+      console.error( 'Failed to start camera:', error );
+      alert( 'Failed to access camera. Please check permissions.' );
     }
   };
 
-  const startScreenCapture = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getDisplayMedia({
+  const startScreenCapture = async () =>
+  {
+    try
+    {
+      const mediaStream = await navigator.mediaDevices.getDisplayMedia( {
         video: true,
-      });
+      } );
 
-      setStream(mediaStream);
-      setCaptureMode('screen');
+      setStream( mediaStream );
+      setCaptureMode( 'screen' );
 
-      if (videoRef.current) {
+      if ( videoRef.current )
+      {
         videoRef.current.srcObject = mediaStream;
       }
-    } catch (error) {
-      console.error('Failed to start screen capture:', error);
-      alert('Failed to capture screen. Please check permissions.');
+    } catch ( error )
+    {
+      console.error( 'Failed to start screen capture:', error );
+      alert( 'Failed to capture screen. Please check permissions.' );
     }
   };
 
-  const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+  const captureImage = () =>
+  {
+    if ( !videoRef.current || !canvasRef.current ) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext( '2d' );
 
-    if (!ctx) return;
+    if ( !ctx ) return;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage( video, 0, 0 );
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const imageUrl = URL.createObjectURL(blob);
-        setCapturedImage(imageUrl);
-        onCapture(blob);
+    canvas.toBlob( ( blob ) =>
+    {
+      if ( blob )
+      {
+        const imageUrl = URL.createObjectURL( blob );
+        setCapturedImage( imageUrl );
+        onCapture( blob );
       }
-    }, 'image/png');
+    }, 'image/png' );
   };
 
-  const stopCapture = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+  const stopCapture = () =>
+  {
+    if ( stream )
+    {
+      stream.getTracks().forEach( track => track.stop() );
+      setStream( null );
     }
-    setCaptureMode(null);
-    setCapturedImage(null);
-    if (videoRef.current) {
+    setCaptureMode( null );
+    setCapturedImage( null );
+    if ( videoRef.current )
+    {
       videoRef.current.srcObject = null;
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
+  {
     stopCapture();
     onCancel?.();
   };
 
-  if (!isAvailable) {
+  if ( !isAvailable )
+  {
     return (
       <div className="text-sm text-slate-400 p-4 bg-slate-800/50 rounded-lg">
         Vision input not available on this device. Camera or screen capture permissions may be required.
@@ -128,19 +149,19 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
 
   return (
     <div className="space-y-4">
-      {!captureMode ? (
+      { !captureMode ? (
         <div className="flex gap-2">
           <button
-            onClick={startCamera}
-            disabled={disabled}
+            onClick={ startCamera }
+            disabled={ disabled }
             className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Camera className="w-4 h-4" />
             Camera
           </button>
           <button
-            onClick={startScreenCapture}
-            disabled={disabled}
+            onClick={ startScreenCapture }
+            disabled={ disabled }
             className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Monitor className="w-4 h-4" />
@@ -151,36 +172,36 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
         <div className="space-y-4">
           <div className="relative">
             <video
-              ref={videoRef}
+              ref={ videoRef }
               autoPlay
               playsInline
-              className={cn(
+              className={ cn(
                 'w-full rounded-lg',
                 capturedImage && 'hidden'
-              )}
+              ) }
             />
-            {capturedImage && (
+            { capturedImage && (
               <img
-                src={capturedImage}
+                src={ capturedImage }
                 alt="Captured"
                 className="w-full rounded-lg"
               />
-            )}
-            <canvas ref={canvasRef} className="hidden" />
+            ) }
+            <canvas ref={ canvasRef } className="hidden" />
           </div>
 
           <div className="flex gap-2">
-            {!capturedImage ? (
+            { !capturedImage ? (
               <>
                 <button
-                  onClick={captureImage}
+                  onClick={ captureImage }
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <Check className="w-4 h-4" />
                   Capture
                 </button>
                 <button
-                  onClick={stopCapture}
+                  onClick={ stopCapture }
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -190,27 +211,28 @@ export default function VisionInput({ onCapture, onCancel, disabled }: VisionInp
             ) : (
               <>
                 <button
-                  onClick={handleCancel}
+                  onClick={ handleCancel }
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
                 >
                   <Check className="w-4 h-4" />
                   Done
                 </button>
                 <button
-                  onClick={() => {
-                    setCapturedImage(null);
+                  onClick={ () =>
+                  {
+                    setCapturedImage( null );
                     stopCapture();
-                  }}
+                  } }
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Retake
                 </button>
               </>
-            )}
+            ) }
           </div>
         </div>
-      )}
+      ) }
     </div>
   );
 }

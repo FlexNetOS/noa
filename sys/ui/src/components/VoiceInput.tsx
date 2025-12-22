@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { multiModalService } from '@/services/multiModal';
 
-interface VoiceInputProps {
-  onTranscript: (text: string) => void;
+interface VoiceInputProps
+{
+  onTranscript: ( text: string ) => void;
   disabled?: boolean;
 }
 
@@ -14,61 +15,79 @@ interface VoiceInputProps {
  *
  * Provides voice input using Web Speech API with graceful degradation.
  */
-export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) {
-  const [isListening, setIsListening] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+export default function VoiceInput ( { onTranscript, disabled }: VoiceInputProps )
+{
+  const [ isListening, setIsListening ] = useState( false );
+  const [ isAvailable, setIsAvailable ] = useState( false );
+  const [ recognition, setRecognition ] = useState<SpeechRecognition | null>( null );
 
-  useEffect(() => {
-    const checkAvailability = async () => {
+  useEffect( () =>
+  {
+    const checkAvailability = async () =>
+    {
       const capabilities = await multiModalService.detectCapabilities();
-      setIsAvailable(capabilities.voice);
+      setIsAvailable( capabilities.voice );
     };
 
     checkAvailability();
 
     // Initialize Web Speech API
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      if (SpeechRecognition) {
-        const rec = new SpeechRecognition();
+    if ( typeof window !== 'undefined' )
+    {
+      type SpeechRecognitionConstructor = new () => SpeechRecognition;
+      const w = window as Window & {
+        webkitSpeechRecognition?: SpeechRecognitionConstructor;
+        SpeechRecognition?: SpeechRecognitionConstructor;
+      };
+      const SpeechRecognitionCtor = w.webkitSpeechRecognition ?? w.SpeechRecognition;
+
+      if ( SpeechRecognitionCtor )
+      {
+        const rec = new SpeechRecognitionCtor();
         rec.continuous = false;
         rec.interimResults = false;
         rec.lang = 'en-US';
 
-        rec.onresult = (event: SpeechRecognitionEvent) => {
-          const transcript = event.results[0][0].transcript;
-          onTranscript(transcript);
-          setIsListening(false);
+        rec.onresult = ( event: SpeechRecognitionEvent ) =>
+        {
+          const transcript = event.results[ 0 ][ 0 ].transcript;
+          onTranscript( transcript );
+          setIsListening( false );
         };
 
-        rec.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
+        rec.onerror = ( event: SpeechRecognitionErrorEvent ) =>
+        {
+          console.error( 'Speech recognition error:', event.error );
+          setIsListening( false );
         };
 
-        rec.onend = () => {
-          setIsListening(false);
+        rec.onend = () =>
+        {
+          setIsListening( false );
         };
 
-        setRecognition(rec);
+        setRecognition( rec );
       }
     }
-  }, [onTranscript]);
+  }, [ onTranscript ] );
 
-  const toggleListening = () => {
-    if (!recognition || disabled || !isAvailable) return;
+  const toggleListening = () =>
+  {
+    if ( !recognition || disabled || !isAvailable ) return;
 
-    if (isListening) {
+    if ( isListening )
+    {
       recognition.stop();
-      setIsListening(false);
-    } else {
+      setIsListening( false );
+    } else
+    {
       recognition.start();
-      setIsListening(true);
+      setIsListening( true );
     }
   };
 
-  if (!isAvailable) {
+  if ( !isAvailable )
+  {
     return (
       <div className="text-sm text-slate-400">
         Voice input not available on this device
@@ -78,20 +97,19 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
 
   return (
     <button
-      onClick={toggleListening}
-      disabled={disabled}
-      className={`p-3 rounded-lg transition-colors ${
-        isListening
+      onClick={ toggleListening }
+      disabled={ disabled }
+      className={ `p-3 rounded-lg transition-colors ${ isListening
           ? 'bg-red-600 hover:bg-red-700 text-white'
           : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-      } disabled:opacity-50 disabled:cursor-not-allowed`}
-      aria-label={isListening ? 'Stop listening' : 'Start listening'}
+        } disabled:opacity-50 disabled:cursor-not-allowed` }
+      aria-label={ isListening ? 'Stop listening' : 'Start listening' }
     >
-      {isListening ? (
+      { isListening ? (
         <MicOff className="w-5 h-5" />
       ) : (
         <Mic className="w-5 h-5" />
-      )}
+      ) }
     </button>
   );
 }

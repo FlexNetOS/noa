@@ -16,11 +16,8 @@ pub struct Server {
 
 impl Server {
     /// Create a new server instance
-    pub fn new(addr: SocketAddr) -> Self {
-        Self {
-            addr,
-            state: AppState::from_env(),
-        }
+    pub fn new(addr: SocketAddr, state: AppState) -> Self {
+        Self { addr, state }
     }
 
     /// Build the router with all routes
@@ -33,6 +30,14 @@ impl Server {
         Router::new()
             .route("/health", get(routes::health))
             .route("/api/v1/status", get(routes::status))
+            .route("/api/v1/auth/whoami", get(routes::auth::whoami))
+            .route("/api/v1/auth/signup", post(routes::auth::signup))
+            .route("/api/v1/auth/login", post(routes::auth::login))
+            .route("/api/v1/auth/logout", post(routes::auth::logout))
+            .route("/api/v1/auth/github/start", get(routes::auth::github_start))
+            .route("/api/v1/auth/github/callback", get(routes::auth::github_callback))
+            .route("/api/v1/auth/google/start", get(routes::auth::google_start))
+            .route("/api/v1/auth/google/callback", get(routes::auth::google_callback))
             .route("/api/v1/tasks", get(routes::list_tasks))
             .route("/api/v1/tasks", post(routes::create_task))
             .route("/api/v1/chat", post(routes::chat::chat))

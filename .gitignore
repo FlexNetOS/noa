@@ -55,6 +55,15 @@ setup-log.txt
 *.TestResults.xml
 TestResults.xml
 
+# Local environment files (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Jest coverage output (generated)
+coverage/
+**/coverage/
+
 # Temporary and test files
 test-*.ps1
 test-*.txt
@@ -80,10 +89,16 @@ Thumbs.db
 # Local app/IDE state (user-specific)
 # NOTE: These files can contain machine-specific settings and should not be committed.
 data/state/.copilot/
+data/state/pnpm/
+data/state/pnpm/**
 etc/.copilot/
 etc/configstore/
+data/appdata/local/
+data/appdata/local/**
 data/appdata/roaming/Code/
 data/appdata/roaming/AbacusAI/
+data/appdata/roaming/Python/
+data/appdata/roaming/Python/**
 
 # Go telemetry (local, user-specific)
 data/appdata/roaming/go/telemetry/
@@ -103,6 +118,14 @@ test-results/
 # Local dev databases (generated)
 prisma/dev.db
 **/prisma/dev.db
+
+# NOA sqlite database (generated)
+sys/core/data/noa.db
+sys/core/data/noa.db-*
+sys/core/data/*.db
+sys/core/data/*.db-*
+*.db-wal
+*.db-shm
 
 # IDE workspace files (user-specific)
 *.code-workspace

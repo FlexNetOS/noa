@@ -1,6 +1,7 @@
 //! API route handlers
 
 pub mod chat;
+pub mod auth;
 
 use axum::Json;
 use serde::{Serialize, Deserialize};

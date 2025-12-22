@@ -7,6 +7,7 @@ license.workspace = true
 description = "NOA API server and endpoints"
 
 [dependencies]
+bcrypt = "0.17.1"
 noa-common = { workspace = true }
 noa-neural = { workspace = true }
 tokio = { workspace = true }

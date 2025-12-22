@@ -96,7 +96,7 @@ This guide provides instructions for building the ML DevOps Platform for various
 
 1. **Clone the repository** (or navigate to the project directory):
    ```bash
-   cd ml_devops_platform/nextjs_space
+   cd sys/ui/apps/ml-devops
    ```
 
 2. **Install dependencies**:
