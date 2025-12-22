@@ -198,6 +198,7 @@ impl DatabaseInitializer {
 mod tests {
     use super::*;
     use tempfile::TempDir;
+    use std::fs;
 
     #[test]
     fn test_database_initialization() {
