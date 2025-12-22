@@ -6,7 +6,7 @@
     Builds all NOA components: Rust, Go, TypeScript, Python
 
 .PARAMETER Component
-    Component to build: all, rust, go, ui, digest
+    Component to build: all, rust, p2p, ui, digest
 
 .EXAMPLE
     .\build.ps1
@@ -20,7 +20,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('all', 'rust', 'go', 'ui', 'digest')]
+    [ValidateSet('all', 'rust', 'p2p', 'go', 'ui', 'digest')]
     [string]$Component = 'all'
 )
 
@@ -40,7 +40,7 @@ function Write-Log {
 }
 
 function Build-Rust {
-    Write-Log 'Building Rust components...'
+    Write-Log 'Building Rust components (sys/core)...'
     Push-Location "$NoaRoot\sys\core"
     try {
         if (Get-Command cargo -ErrorAction SilentlyContinue) {
@@ -56,21 +56,26 @@ function Build-Rust {
     }
 }
 
-function Build-Go {
-    Write-Log 'Building Go components...'
+function Build-P2P {
+    Write-Log 'Building P2P components (rust-libp2p)...'
     Push-Location "$NoaRoot\p2p"
     try {
-        if (Get-Command go -ErrorAction SilentlyContinue) {
-            & go build -o "$NoaRoot\bin\noa-p2p.exe" ./cmd/p2p-node
-            Write-Log 'Go build complete' -Level Success
+        if (Get-Command cargo -ErrorAction SilentlyContinue) {
+            # Build the workspace (library and examples)
+            & cargo build --release
+            Write-Log 'P2P build complete' -Level Success
         }
         else {
-            Write-Log 'go not found, skipping Go build' -Level Warning
+            Write-Log 'cargo not found, skipping P2P build' -Level Warning
         }
     }
     finally {
         Pop-Location
     }
+}
+
+function Build-Go {
+    Write-Log 'Go p2p-node has been replaced by rust-libp2p. Use -Component p2p to build.' -Level Warning
 }
 
 function Build-UI {
@@ -116,7 +121,7 @@ function Build-Digest {
 function Build-All {
     Write-Log 'Building all NOA components...'
     Build-Rust
-    Build-Go
+    Build-P2P
     Build-UI
     Build-Digest
     Write-Log 'All builds complete!' -Level Success
@@ -125,6 +130,7 @@ function Build-All {
 # Main
 switch ($Component) {
     'rust' { Build-Rust }
+    'p2p' { Build-P2P }
     'go' { Build-Go }
     'ui' { Build-UI }
     'digest' { Build-Digest }
