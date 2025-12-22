@@ -1,3 +1,26 @@
+---
+title: "AGENT Instructions"
+description: "Agent execution guidelines for NOA - Constitutional authority, provider routing, and operational protocols"
+version: "2.0.0"
+last_updated: "2025-12-22"
+status: "canonical"
+tags:
+  - agents
+  - constitution
+  - providers
+  - automation
+  - workflows
+embeddings:
+  indexed: true
+  priority: high
+  context_window: full
+metadata:
+  authority: "constitutional"
+  binding: true
+  scope: "system-wide"
+  enforcement: "mandatory"
+---
+
 # AGENT Instructions
 
 **AGENT.md** - Agent execution guidelines for NOA
@@ -281,6 +304,199 @@ This priority order is the canonical routing policy. It must match the runtime r
 
 ---
 
+## Implemented Agents (Phase 9 Complete)
+
+### Core Agents (Operational)
+| Agent | Type | Status | Description |
+|-------|------|--------|-------------|
+| **CommanderChief** | Executive | ✅ Active | Task decomposition, planning, and delegation |
+| **FileIO** | Worker | ✅ Active | File operations (read, write, delete, copy) |
+| **Terminal** | Worker | ✅ Active | Command execution and shell operations |
+| **RAG** | Knowledge | ✅ Active | Retrieval-augmented generation with vector search |
+| **ModelSelector** | Intelligence | ✅ Active | Optimal model selection based on task requirements |
+| **MicroserviceManagement** | Operations | ✅ Active | Microservice lifecycle and orchestration |
+
+### Executive Layer (Phase 9)
+| Component | Status | Purpose |
+|-----------|--------|---------|
+| **ExecutiveAgent** | ✅ Active | Strategic decision-making |
+| **BoardAgent** | ✅ Active | Multi-agent coordination |
+| **MultiAgentExecutor** | ✅ Active | Parallel task execution |
+| **WorkflowOrchestrator** | ✅ Active | Complex workflow management |
+
+### Automation Services (Advanced Features)
+| Service | Status | Capabilities |
+|---------|--------|--------------|
+| **AutomatedCodeReview** | ✅ Active | Code quality analysis, security scanning |
+| **DeploymentAutomation** | ✅ Active | CI/CD pipeline management |
+| **KnowledgeBaseInterrogation** | ✅ Active | RAG-powered knowledge queries |
+
+### Agent CLI Commands
+```bash
+# List all available agents
+noa agents list
+
+# Get agent information
+noa agents info <agent_name>
+
+# Run an agent with a task
+noa agents run <agent_name> <task>
+
+# View agent execution logs
+noa agents logs [agent_name]
+```
+
+### Workflow Commands
+```bash
+# Execute multi-agent workflows
+noa workflow run <type>  # code-review | deployment | knowledge-query
+noa workflow status <workflow_id>
+noa workflow cancel <workflow_id>
+```
+
+**Implementation Directory:** `sys/core/src/agents/`
+**Automation Directory:** `sys/core/src/automation/`
+
+---
+
+## Target Directory Structure (Goal)
+
+This represents the **intended** architecture, not necessarily the current state:
+
+```
+noa_root/
+├── ai/
+│   ├── providers/
+│   │   ├── llama.cpp/
+│   │   ├── cursor/
+│   │   ├── claude/
+│   │   ├── codex/
+│   │   └── copilot/
+│   └── shared/
+│       ├── resources/
+│       │   ├── resource-registry.json
+│       │   ├── resource-mapping.json
+│       │   └── spec/
+│       └── prompts/
+├── apps/                        # First-class UI modules (versioned, pinned, sandbox-runnable)
+│   └── task-manager/
+│       ├── upstream/            # Vendor/original distribution (immutable, pinned)
+│       │   ├── web/             # Static assets or bundle
+│       │   ├── desktop/
+│       │   │   ├── win/
+│       │   │   ├── mac/
+│       │   │   └── linux/
+│       │   └── mobile/
+│       │       ├── ios/
+│       │       └── android/
+│       ├── wrappers/            # NOA-specific integration glue (thin)
+│       │   ├── mcp/             # Optional: MCP server around the app's API
+│       │   ├── deep-links/      # URL schemes, intents, navigation contracts
+│       │   ├── auth/            # SSO/OAuth mapping to sys/identity
+│       │   └── ui-embed/        # Embed adapters (webview, iframe, tauri window)
+│       ├── profiles/            # Settings separation: logs/cache isolated
+│       ├── config/              # App-specific config (generated; not secrets)
+│       └── manifests/           # Pinned versions + hashes + SBOM-ish metadata
+├── sys/
+│   ├── core/                    # Rust core system
+│   │   ├── src/
+│   │   │   ├── agents/          # ✅ Phase 9 Complete
+│   │   │   ├── automation/      # ✅ Advanced features
+│   │   │   ├── cli/             # CLI commands
+│   │   │   ├── healing/         # Self-healing logic
+│   │   │   ├── providers/       # Provider management
+│   │   │   ├── services/        # Core services
+│   │   │   └── vector/          # Vector DB (Qdrant)
+│   └── ui/                      # Next.js frontend (conversational command center)
+│       ├── app/
+│       │   ├── shell/           # Main nav + layout
+│       │   ├── pages/
+│       │   │   ├── convo/       # Default home (chat + widgets)
+│       │   │   ├── tasks/       # Embedded task manager pane
+│       │   │   ├── runs/        # Task execution runs (logs/artifacts)
+│       │   │   └── hive/        # Devices, compute, storage mesh view
+│       │   └── widgets/
+│       │       ├── task-summary/    # "My top tasks", "Blocked", "Agent running"
+│       │       ├── kanban-mini/
+│       │       └── dag-viewer/
+│       └── src/
+│           ├── components/
+│           ├── contexts/
+│           └── services/
+├── gateway/
+│   └── mcp/
+│       └── connectors/
+│           └── task-manager/    # Task app integration bridge
+├── orchestrator/
+│   └── packages/
+│       ├── schema/
+│       │   └── task_package.json    # Canonical task schema (NOA ↔ task app)
+│       └── templates/
+│           └── task-sync/       # Task synchronization workflows
+├── data/
+│   ├── vectors/                 # Qdrant data
+│   ├── models/                  # Local models
+│   ├── cache/
+│   │   └── apps/
+│   │       └── task-manager/    # App-specific cache isolation
+│   │           └── <profile-id>/
+│   └── logs/
+│       └── apps/
+│           └── task-manager/    # App-specific log isolation
+│               └── <profile-id>/
+├── bin/                         # Executables
+├── config/                      # Configuration files
+└── logs/                        # System logs
+```
+
+### Task Management App Architecture
+
+The task management app is treated as a **first-class UI module (pane)**, not as the primary UI or backend:
+
+**Design Philosophy:**
+- **Conversational UI** = Command center (chat, intent, narration, approvals)
+- **Task App** = Structured work cockpit (backlog, workflows, boards, ownership)
+- **Agents/Models** = Wired through orchestrator + gateway (not through task app)
+
+**Integration Boundary:**
+
+Task app ↔ NOA integration happens via **Task API + event stream**, owned by NOA:
+
+```
+Task App (UI/Storage) → NOA Gateway → Orchestrator → Agents/Providers
+                           ↓
+                    Task Package Schema
+                           ↓
+                  Execution (Sandbox → CAS)
+                           ↓
+                  Status/Progress → Task App + UI Widgets
+```
+
+**Data Flow:**
+1. Task created/changed in task app
+2. NOA ingests → converts to **task package** (`orchestrator/packages/schema/task_package.json`)
+3. Orchestrator decomposes and routes to tools/providers
+4. Execution occurs in sandbox → artifacts to CAS
+5. Status/progress pushed back to task app + UI widgets
+
+**Truth Distribution:**
+- **Task app** = Human-visible truth (board, priorities, owners)
+- **NOA** = Execution truth (runs, artifacts, provenance, linked to tasks)
+
+**Isolation Policy:**
+- Logs: `data/logs/apps/task-manager/<profile-id>/`
+- Cache: `data/cache/apps/task-manager/<profile-id>/`
+- Config: `apps/task-manager/config/` (generated; not secrets)
+- Binaries: `apps/task-manager/upstream/<platform>/`
+
+**Deep Linking Format:** `noa://tasks/<id>`
+
+**Status Mapping:**
+- Task App: `todo` / `in-progress` / `done`
+- NOA: `planned` / `running` / `succeeded` / `failed`
+
+---
+
 ## Constitutional Compliance Checklist
 
 Before completing any task, verify:
@@ -292,5 +508,31 @@ Before completing any task, verify:
 - [ ] State is persisted for recall (§3.7)
 - [ ] Provider resources unified if applicable (§3.13)
 - [ ] Triple-verification completed (§3.12)
+
+---
+
+## Provider Integration Points
+
+All providers must reference this file as the canonical source for:
+- **Priority and routing logic** (see Provider Priority table above)
+- **Fallback strategies**
+- **Resource sharing policies** (§3.13)
+- **Constitutional compliance requirements**
+
+### Provider Configuration Files
+Each provider should contain a reference link:
+```markdown
+<!-- See AGENT.md for canonical provider routing and policies -->
+[AGENT.md](../../AGENT.md)
+```
+
+**Location:** `$NOA_AI_PROVIDERS/<provider>/README.md`
+
+### Shared Resources
+All shared resources (prompts, templates, schemas) are catalogued in:
+- `$NOA_AI_SHARED/resources/resource-registry.json`
+- `$NOA_AI_SHARED/resources/resource-mapping.json`
+
+**Implementation:** `sys/core/src/providers/mod.rs` must match the priority table in this file.
 
 ---
