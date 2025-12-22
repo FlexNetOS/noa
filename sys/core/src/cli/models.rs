@@ -56,7 +56,7 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
         .unwrap_or_else(|| PathBuf::from("data").join("noa.db"));
 
     let conn = init_database(&db_path)?;
-    let neural_service = NeuralService::new(conn.clone());
+    let neural_service = NeuralService::new(&conn);
     let download_service = ModelDownloadService::new();
 
     match args.command {
@@ -120,7 +120,7 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
             let model = neural_service.get_model(&model_uuid)?
                 .ok_or_else(|| crate::error::NoaError::NotFound {
                     resource: "Model".to_string(),
-                    id: model_id,
+                    id: model_id.clone(),
                 })?;
 
             println!("Benchmarking model: {}", model.name);

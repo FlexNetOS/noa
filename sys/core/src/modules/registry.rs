@@ -113,7 +113,7 @@ impl ModuleRegistry {
             })
             .map_err(to_db_err("map modules"))?;
 
-        Ok(rows.filter_map(Result::ok).collect())
+        Ok(rows.filter_map(std::result::Result::ok).collect())
     }
 
     pub fn find_by_name(&self, name: &str) -> Result<Option<ModuleMetadata>> {

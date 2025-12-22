@@ -12,15 +12,15 @@ use crate::memory::embeddings::EmbeddingGenerator;
 use uuid::Uuid;
 
 /// Search service for semantic and keyword search
-pub struct SearchService {
-    memory_repo: MemoryRepository,
-    semantic_search: SemanticSearch,
+pub struct SearchService<'a> {
+    memory_repo: MemoryRepository<'a>,
+    semantic_search: SemanticSearch<'a>,
     embedding_generator: Option<EmbeddingGenerator>,
 }
 
-impl SearchService {
+impl<'a> SearchService<'a> {
     /// Create a new search service
-    pub fn new(memory_repo: MemoryRepository, vector_search: VectorSearch) -> Self {
+    pub fn new(memory_repo: MemoryRepository<'a>, vector_search: VectorSearch<'a>) -> Self {
         let semantic_search = SemanticSearch::new(vector_search);
         Self {
             memory_repo,
@@ -31,8 +31,8 @@ impl SearchService {
 
     /// Create search service with embedding generator
     pub async fn with_embeddings(
-        memory_repo: MemoryRepository,
-        vector_search: VectorSearch,
+        memory_repo: MemoryRepository<'a>,
+        vector_search: VectorSearch<'a>,
         model_name: &str,
     ) -> Result<Self> {
         let generator = EmbeddingGenerator::new(model_name).await?;
@@ -90,7 +90,7 @@ impl SearchService {
     ) -> Result<Vec<SearchResult>> {
         // Simple keyword search in content and tags
         // In a real implementation, this would use full-text search
-        let all_memories = self.memory_repo.list(0, limit * 2)?; // Get more to filter
+        let all_memories = self.memory_repo.list(0, (limit as u64) * 2)?; // Get more to filter
 
         let query_lower = query.to_lowercase();
         let mut results: Vec<_> = all_memories

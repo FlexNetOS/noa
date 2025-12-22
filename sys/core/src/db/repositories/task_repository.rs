@@ -37,7 +37,7 @@ impl<'a> TaskRepository<'a> {
                 })
             })
             .map_err(to_db_err("query tasks"))?;
-        Ok(rows.filter_map(Result::ok).collect())
+        Ok(rows.filter_map(std::result::Result::ok).collect())
     }
 }
 
@@ -47,5 +47,3 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
         error: err.to_string(),
     })
 }
-
-impl<'a> Repository<Task, i64> for TaskRepository<'a> {}

@@ -1,6 +1,17 @@
 {
   "name": "noa-node",
   "version": "1.0.0",
+  "api": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "timeout_secs": 30,
+    "shutdown_timeout_secs": 30,
+    "enable_tracing": true,
+    "enable_cors": true,
+    "cors_origins": [
+      "http://localhost:*"
+    ]
+  },
   "p2p": {
     "port": 8080,
     "network": "noa-network",

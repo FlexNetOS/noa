@@ -3,18 +3,18 @@
 //! T136: Implement semantic search with HNSW index
 //! §3.7: Total Memory Sovereignty
 
-use crate::db::vector_search::VectorSearch;
+use crate::db::vector_search::{VectorSearch, VectorSearchResult};
 use crate::error::Result;
 use uuid::Uuid;
 
 /// Semantic search engine using HNSW index
-pub struct SemanticSearch {
-    vector_search: VectorSearch,
+pub struct SemanticSearch<'a> {
+    vector_search: VectorSearch<'a>,
 }
 
-impl SemanticSearch {
+impl<'a> SemanticSearch<'a> {
     /// Create a new semantic search instance
-    pub fn new(vector_search: VectorSearch) -> Self {
+    pub fn new(vector_search: VectorSearch<'a>) -> Self {
         Self { vector_search }
     }
 

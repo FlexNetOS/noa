@@ -63,13 +63,13 @@ impl MemoryType {
 }
 
 /// Memory repository for CRUD operations
-pub struct MemoryRepository {
-    conn: Connection,
+pub struct MemoryRepository<'a> {
+    conn: &'a Connection,
 }
 
-impl MemoryRepository {
+impl<'a> MemoryRepository<'a> {
     /// Create a new memory repository
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         Self { conn }
     }
 
@@ -474,7 +474,7 @@ mod tests {
         )
         .unwrap();
 
-        let repo = MemoryRepository::new(conn);
+        let repo = MemoryRepository::new(&conn);
 
         let memory = Memory {
             id: Uuid::new_v4(),

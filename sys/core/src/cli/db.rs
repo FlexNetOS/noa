@@ -9,6 +9,7 @@ use std::io::Write;
 use clap::Subcommand;
 use tracing::{info, warn};
 
+use crate::cli::CliContext;
 use crate::config::NoaConfig;
 use crate::db::{self, ConnectionPool, MigrationRunner};
 use crate::error::Result;
@@ -71,9 +72,8 @@ pub enum DbCommands {
 }
 
 /// Execute database command
-pub async fn execute(command: DbCommands) -> Result<()> {
-    let config = NoaConfig::load()?;
-    let db_path = config.noa_root.join(&config.database.path);
+pub async fn execute(ctx: &CliContext, command: DbCommands) -> Result<()> {
+    let db_path = PathBuf::from(&ctx.config.database.path);
 
     match command {
         DbCommands::Check { fix } => check_database(&db_path, fix),
@@ -81,9 +81,7 @@ pub async fn execute(command: DbCommands) -> Result<()> {
             export_database(&db_path, &output, &format, &tables)
         }
         DbCommands::Import { input } => import_database(&db_path, &input),
-        DbCommands::Migrate { apply, rollback } => {
-            migrate_database(&config.noa_root, &db_path, apply, rollback)
-        }
+        DbCommands::Migrate { apply, rollback } => migrate_database(&db_path, apply, rollback),
         DbCommands::Stats => show_stats(&db_path),
         DbCommands::Backup { output } => backup_database(&db_path, output.as_ref()),
         DbCommands::Vacuum => vacuum_database(&db_path),
@@ -109,7 +107,7 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
             if fix {
                 println!("Attempting to fix...");
                 // In SQLite, we can try REINDEX
-                conn.lock().unwrap().execute_batch("REINDEX;")?;
+                conn.execute_batch("REINDEX;")?;
                 println!("Reindexed database");
             }
         }
@@ -118,8 +116,6 @@ fn check_database(db_path: &PathBuf, fix: bool) -> Result<()> {
 
     // Check foreign keys
     let fk_result: i64 = conn
-        .lock()
-        .unwrap()
         .query_row("PRAGMA foreign_key_check", [], |row| row.get(0))
         .unwrap_or(0);
 
@@ -139,9 +135,9 @@ fn export_database(db_path: &PathBuf, output: &PathBuf, format: &str, tables: &s
     let conn = db::init_database(db_path)?;
 
     match format {
-        "sql" => export_sql(&conn.lock().unwrap(), output, tables),
-        "csv" => export_csv(&conn.lock().unwrap(), output, tables),
-        "json" => export_json(&conn.lock().unwrap(), output, tables),
+        "sql" => export_sql(&conn, output, tables),
+        "csv" => export_csv(&conn, output, tables),
+        "json" => export_json(&conn, output, tables),
         _ => {
             println!("Unsupported export format: {}", format);
             Ok(())
@@ -337,15 +333,15 @@ fn import_database(db_path: &PathBuf, input: &PathBuf) -> Result<()> {
     let content = fs::read_to_string(input)?;
     let conn = db::init_database(db_path)?;
 
-    conn.lock().unwrap().execute_batch(&content)?;
+    conn.execute_batch(&content)?;
 
     println!("✓ Import complete");
     Ok(())
 }
 
 /// Migrate database
-fn migrate_database(noa_root: &PathBuf, db_path: &PathBuf, apply: bool, rollback: bool) -> Result<()> {
-    let migrations_dir = noa_root.join("init/migrations");
+fn migrate_database(db_path: &PathBuf, apply: bool, rollback: bool) -> Result<()> {
+    let migrations_dir = PathBuf::from("init/migrations");
     let conn = db::init_database(db_path)?;
     let runner = MigrationRunner::new(&migrations_dir);
 
@@ -411,11 +407,9 @@ fn show_stats(db_path: &PathBuf) -> Result<()> {
     println!("Free pages: {}", stats.free_pages);
 
     println!("\nTable Sizes:");
-    let tables = get_all_tables(&conn.lock().unwrap())?;
+    let tables = get_all_tables(&conn)?;
     for table in tables {
         let count: i64 = conn
-            .lock()
-            .unwrap()
             .query_row(&format!("SELECT COUNT(*) FROM {}", table), [], |row| row.get(0))
             .unwrap_or(0);
         println!("  {}: {} rows", table, count);
@@ -451,7 +445,7 @@ fn vacuum_database(db_path: &PathBuf) -> Result<()> {
 
     let stats_before = db::get_stats(&conn)?;
 
-    conn.lock().unwrap().execute_batch("VACUUM;")?;
+    conn.execute_batch("VACUUM;")?;
 
     let stats_after = db::get_stats(&conn)?;
 

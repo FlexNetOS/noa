@@ -35,7 +35,7 @@ impl<'a> AgentRepository<'a> {
                 })
             })
             .map_err(to_db_err("query agents"))?;
-        Ok(rows.filter_map(Result::ok).collect())
+        Ok(rows.filter_map(std::result::Result::ok).collect())
     }
 }
 
@@ -45,5 +45,3 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
         error: err.to_string(),
     })
 }
-
-impl<'a> Repository<Agent, i64> for AgentRepository<'a> {}

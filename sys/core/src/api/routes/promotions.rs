@@ -15,7 +15,7 @@ pub struct PromotionList {
     pub promotions: Vec<Promotion>,
 }
 
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/promotions", get(list_promotions))
         .route("/promotions/:id/status", get(promotion_status))

@@ -71,13 +71,13 @@ pub enum CostPreference {
 }
 
 /// Model selector agent
-pub struct ModelSelectorAgent {
-    repository: ModelRepository,
+pub struct ModelSelectorAgent<'a> {
+    repository: ModelRepository<'a>,
 }
 
-impl ModelSelectorAgent {
+impl<'a> ModelSelectorAgent<'a> {
     /// Create a new model selector agent
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         Self {
             repository: ModelRepository::new(conn),
         }
@@ -151,6 +151,7 @@ impl ModelSelectorAgent {
 
         // Context length matching
         if let Some(required) = criteria.required_context_length {
+            let required = required as i32;
             if let Some(available) = model.context_length {
                 if available >= required {
                     score += 20.0;

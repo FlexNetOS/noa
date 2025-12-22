@@ -4,11 +4,10 @@
 //! FR-155: Observability
 
 use axum::{
-    Router,
-    Json,
-    extract::State,
+    extract::Extension,
     http::StatusCode,
     routing::get,
+    Json, Router,
 };
 use serde::{Deserialize, Serialize};
 
@@ -99,7 +98,7 @@ impl ComponentStatus {
 }
 
 /// Create health check routes
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/health", get(health_check))
         .route("/health/live", get(liveness_check))
@@ -109,7 +108,7 @@ pub fn routes() -> Router<AppState> {
 /// Full health check endpoint
 /// GET /api/v1/health
 async fn health_check(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
 ) -> (StatusCode, Json<HealthResponse>) {
     let db_health = check_database(&state).await;
     let memory_health = check_memory();
@@ -147,7 +146,7 @@ async fn liveness_check() -> StatusCode {
 /// Kubernetes readiness probe
 /// GET /api/v1/health/ready
 async fn readiness_check(
-    State(state): State<AppState>,
+    Extension(state): Extension<AppState>,
 ) -> StatusCode {
     // Check if we can serve requests
     let db_health = check_database(&state).await;

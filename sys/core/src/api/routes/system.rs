@@ -4,7 +4,7 @@
 //! US1: Initialize NOA Seed Environment
 
 use axum::{
-    extract::State,
+    extract::Extension,
     http::StatusCode,
     response::Json,
     routing::get,
@@ -43,14 +43,14 @@ pub struct HealthStatus {
 }
 
 /// Create system routes
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/system/info", get(get_system_info))
         .route("/system/health", get(get_system_health))
 }
 
 /// GET /api/v1/system/info
-async fn get_system_info(State(_state): State<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
+async fn get_system_info(Extension(_state): Extension<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
     info!("GET /api/v1/system/info");
 
     // Get NOA_ROOT from environment or use default
@@ -77,7 +77,7 @@ async fn get_system_info(State(_state): State<AppState>) -> Result<Json<SystemIn
 }
 
 /// GET /api/v1/system/health
-async fn get_system_health(State(state): State<AppState>) -> Result<Json<SystemHealth>, StatusCode> {
+async fn get_system_health(Extension(state): Extension<AppState>) -> Result<Json<SystemHealth>, StatusCode> {
     info!("GET /api/v1/system/health");
 
     // Get NOA_ROOT from environment or use default

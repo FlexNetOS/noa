@@ -2,8 +2,8 @@ use crate::proxy_config::{load_rules, ProxyConfig, ProxyRule};
 use anyhow::Result;
 use hyper::body::to_bytes;
 use hyper::client::HttpConnector;
-use hyper::{Body, Client, Request, Response, Server, Uri};
 use hyper::service::{make_service_fn, service_fn};
+use hyper::{Body, Client, Request, Response, Server, Uri};
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -12,7 +12,7 @@ use tokio::sync::RwLock;
 use tracing::{error, info};
 
 #[derive(Clone)]
-struct SharedState {
+pub(crate) struct SharedState {
     client: Client<HttpConnector>,
     config: ProxyConfig,
     rules: Arc<RwLock<Vec<ProxyRule>>>,
@@ -49,10 +49,7 @@ pub async fn start_proxy(config: ProxyConfig) -> Result<()> {
     Ok(())
 }
 
-async fn handle_request(
-    req: Request<Body>,
-    state: SharedState,
-) -> Result<Response<Body>, Infallible> {
+async fn handle_request(req: Request<Body>, state: SharedState) -> Result<Response<Body>, Infallible> {
     // Simple allow/block check based on host
     let host = req
         .headers()
@@ -142,7 +139,7 @@ fn rewrite_uri(original: &hyper::Uri, upstream: &Uri) -> Uri {
 }
 
 /// Helper to reload rule files without restarting the proxy
-pub async fn reload_rules(state: &SharedState, rules_dir: PathBuf) -> Result<()> {
+pub(crate) async fn reload_rules(state: &SharedState, rules_dir: PathBuf) -> Result<()> {
     let loaded = load_rules(&rules_dir)?;
     let mut guard = state.rules.write().await;
     *guard = loaded;

@@ -92,10 +92,12 @@ impl InferenceEngine {
         };
 
         // Execute inference
-        let completion_response = client.complete(completion_request).await
+        let completion_response = client
+            .complete(completion_request)
+            .await
             .map_err(|e| NoaError::Internal {
                 message: format!("Inference failed: {}", e),
-                source: Some(Box::new(e)),
+                source: None,
             })?;
 
         // Estimate tokens (rough approximation: 1 token ≈ 4 characters)

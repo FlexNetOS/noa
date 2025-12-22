@@ -13,6 +13,12 @@ use crate::error::{ConfigError, NoaError, Result};
 mod loader;
 mod validator;
 
+pub mod raw_access;
+pub mod query;
+pub mod access;
+pub mod watch;
+pub mod merge_map;
+
 pub use loader::ConfigLoader;
 pub use validator::ConfigValidator;
 

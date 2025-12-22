@@ -395,14 +395,14 @@ impl DigestRepository {
         let last_digest = last_digest_str
             .map(|s| {
                 DateTime::parse_from_rfc3339(&s)
+                    .map(|dt| dt.with_timezone(&Utc))
                     .map_err(|_| {
                         rusqlite::Error::InvalidColumnType(
                             5,
                             "timestamp".to_string(),
                             rusqlite::types::Type::Text,
                         )
-                    })?
-                    .with_timezone(&Utc)
+                    })
             })
             .transpose()?;
 

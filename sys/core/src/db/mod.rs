@@ -6,33 +6,22 @@
 
 mod pool;
 mod migrations;
-
-#[cfg(feature = "full")]
 mod repository;
 
-#[cfg(feature = "full")]
 pub mod vector_search;
-#[cfg(feature = "full")]
 pub mod repositories;
 
-pub use pool::{ConnectionPool, PoolConfig};
-
-#[cfg(feature = "full")]
+pub use pool::{ConnectionPool, PoolConfig, PooledConnection};
 pub use repository::{Repository, RepositoryError};
-
 pub use migrations::{MigrationRunner, Migration};
-
-#[cfg(feature = "full")]
 pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult};
-#[cfg(feature = "full")]
 pub use repositories::{EmbeddingRepository, MemoryRepository};
 
 use std::path::Path;
 use crate::error::Result;
-use std::sync::{Arc, Mutex};
 
 /// Database connection type alias
-pub type Connection = Arc<Mutex<rusqlite::Connection>>;
+pub type Connection = rusqlite::Connection;
 
 /// Initialize the database at the given path
 pub fn init_database(path: &Path) -> Result<Connection> {
@@ -48,7 +37,7 @@ pub fn init_database(path: &Path) -> Result<Connection> {
     // Configure SQLite for optimal NOA operation
     configure_connection(&conn)?;
 
-    Ok(Arc::new(Mutex::new(conn)))
+    Ok(conn)
 }
 
 /// Configure a SQLite connection with optimal settings
@@ -77,8 +66,6 @@ fn configure_connection(conn: &rusqlite::Connection) -> Result<()> {
 /// Check database integrity
 pub fn check_integrity(conn: &Connection) -> Result<bool> {
     let result: String = conn
-        .lock()
-        .unwrap()
         .query_row("PRAGMA integrity_check", [], |row| row.get(0))
         .map_err(|e| {
             crate::error::DatabaseError::QueryFailed {
@@ -92,8 +79,6 @@ pub fn check_integrity(conn: &Connection) -> Result<bool> {
 
 /// Get database statistics
 pub fn get_stats(conn: &Connection) -> Result<DatabaseStats> {
-    let conn = conn.lock().unwrap();
-
     let page_count: i64 = conn.query_row("PRAGMA page_count", [], |row| row.get(0)).unwrap_or(0);
     let page_size: i64 = conn.query_row("PRAGMA page_size", [], |row| row.get(0)).unwrap_or(4096);
     let freelist_count: i64 = conn.query_row("PRAGMA freelist_count", [], |row| row.get(0)).unwrap_or(0);

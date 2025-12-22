@@ -41,22 +41,20 @@ impl Default for VectorSearchConfig {
 }
 
 /// Vector search integration for sqlite-vss
-pub struct VectorSearch {
-    conn: Connection,
+pub struct VectorSearch<'a> {
+    conn: &'a Connection,
     config: VectorSearchConfig,
 }
 
-impl VectorSearch {
+impl<'a> VectorSearch<'a> {
     /// Create a new vector search instance
-    pub fn new(conn: Connection) -> Result<Self> {
-        let config = Self::load_config(&conn)?;
+    pub fn new(conn: &'a Connection) -> Result<Self> {
+        let config = Self::load_config(conn)?;
         Ok(Self { conn, config })
     }
 
     /// Load vector search configuration from database
     fn load_config(conn: &Connection) -> Result<VectorSearchConfig> {
-        let conn = conn.lock().unwrap();
-
         let model: String = conn
             .query_row(
                 "SELECT value FROM vss_config WHERE key = 'model'",
@@ -124,8 +122,8 @@ impl VectorSearch {
             )));
         }
 
-        let conn = self.conn.lock().unwrap();
-        let mut stmt = conn
+        let mut stmt = self
+            .conn
             .prepare(
                 r#"
                 SELECT

@@ -40,7 +40,7 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
         .unwrap_or_else(|| PathBuf::from("data").join("noa.db"));
 
     let conn = init_database(&db_path)?;
-    let neural_service = NeuralService::new(conn);
+    let neural_service = NeuralService::new(&conn);
 
     // Determine model ID
     let model_id = if let Some(model_str) = args.model {
@@ -101,8 +101,9 @@ pub async fn execute(args: AskArgs, noa_root: Option<String>) -> Result<()> {
 
     if args.stream {
         // Stream response
-        let mut stream = engine.infer_stream(request).await?;
+        let stream = engine.infer_stream(request).await?;
         use tokio_stream::StreamExt;
+        tokio::pin!(stream);
         while let Some(chunk_result) = stream.next().await {
             match chunk_result {
                 Ok(chunk) => {

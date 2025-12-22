@@ -16,17 +16,17 @@ use std::collections::HashSet;
 use uuid::Uuid;
 
 /// Memory service for managing memories
-pub struct MemoryService {
-    memory_repo: MemoryRepository,
-    embedding_repo: EmbeddingRepository,
+pub struct MemoryService<'a> {
+    memory_repo: MemoryRepository<'a>,
+    embedding_repo: EmbeddingRepository<'a>,
     embedding_generator: Option<EmbeddingGenerator>,
 }
 
-impl MemoryService {
+impl<'a> MemoryService<'a> {
     /// Create a new memory service
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
+            memory_repo: MemoryRepository::new(conn),
             embedding_repo: EmbeddingRepository::new(conn),
             embedding_generator: None,
         }
@@ -34,12 +34,12 @@ impl MemoryService {
 
     /// Create memory service with embedding generator
     pub async fn with_embeddings(
-        conn: Connection,
+        conn: &'a Connection,
         model_name: &str,
     ) -> Result<Self> {
         let generator = EmbeddingGenerator::new(model_name).await?;
         Ok(Self {
-            memory_repo: MemoryRepository::new(conn.clone()),
+            memory_repo: MemoryRepository::new(conn),
             embedding_repo: EmbeddingRepository::new(conn),
             embedding_generator: Some(generator),
         })
@@ -66,7 +66,7 @@ impl MemoryService {
             let embedding_vector = generator.generate(&content).await
                 .map_err(|e| NoaError::Internal {
                     message: format!("Failed to generate embedding: {}", e),
-                    source: Some(Box::new(e)),
+                    source: None,
                 })?;
             let embedding_id = Uuid::new_v4();
 

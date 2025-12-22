@@ -15,9 +15,8 @@ pub struct GoalRequest {
     pub title: String,
 }
 
-pub fn routes() -> Router<AppState> {
-    Router::new()
-        .route("/goals", get(list_goals).post(create_goal))
+pub fn routes() -> Router {
+    Router::new().route("/goals", get(list_goals).post(create_goal))
 }
 
 async fn list_goals() -> Json<Vec<Goal>> {

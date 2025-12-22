@@ -34,7 +34,7 @@ use crate::error::{NoaError, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 
 /// Healing event status
@@ -78,7 +78,7 @@ pub struct HealingEvent {
 /// Self-healing orchestrator
 pub struct SelfHealingOrchestrator {
     monitor: Arc<HealthMonitor>,
-    anomaly_detector: Arc<AnomalyDetector>,
+    anomaly_detector: Arc<Mutex<AnomalyDetector>>,
     root_cause_analyzer: Arc<RootCauseAnalyzer>,
     fix_executor: Arc<AutoFixExecutor>,
     fix_validator: Arc<FixValidator>,
@@ -104,7 +104,7 @@ impl SelfHealingOrchestrator {
     ) -> Self {
         Self {
             monitor,
-            anomaly_detector,
+            anomaly_detector: Arc::new(Mutex::new((*anomaly_detector).clone())),
             root_cause_analyzer,
             fix_executor,
             fix_validator,
@@ -120,10 +120,16 @@ impl SelfHealingOrchestrator {
     pub async fn run_healing_loop(&self) -> Result<()> {
         loop {
             // Stage 1: Monitor - continuous health monitoring
-            let health_metrics = self.monitor.collect_metrics().await?;
+            let health_snapshots = self.monitor.get_all_health_snapshots().await;
 
             // Stage 2: Detect - anomaly detection
-            if let Some(anomaly) = self.anomaly_detector.detect(&health_metrics).await? {
+            if let Some(anomaly) = {
+                let mut detector = self.anomaly_detector.lock().await;
+                detector.detect(&health_snapshots).await?
+            } {
+                let anomaly_type = anomaly.anomaly_type.clone();
+                let metadata_value = serde_json::Value::Object(anomaly.metadata.clone().into_iter().collect());
+
                 let event = HealingEvent {
                     id: Uuid::new_v4(),
                     component_id: anomaly.component_id.clone(),
@@ -131,14 +137,14 @@ impl SelfHealingOrchestrator {
                     detected_at: Utc::now(),
                     status: HealingStatus::Detected,
                     health_before: anomaly.health_status,
-                    anomaly_type: Some(anomaly.anomaly_type),
+                    anomaly_type: Some(anomaly_type),
                     root_cause: None,
                     fix_applied: None,
                     fix_attempts: 0,
                     validated: false,
                     escalated: false,
                     resolved_at: None,
-                    metadata: anomaly.metadata.clone(),
+                    metadata: metadata_value,
                 };
 
                 // Log detection
@@ -153,7 +159,7 @@ impl SelfHealingOrchestrator {
                 // Stage 3: Diagnose - root cause analysis
                 let root_cause = self
                     .root_cause_analyzer
-                    .analyze(&anomaly, &health_metrics)
+                    .analyze(&anomaly, &health_snapshots)
                     .await?;
 
                 // Update event with root cause

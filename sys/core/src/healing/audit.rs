@@ -41,7 +41,8 @@ impl HealingAuditLogger {
 
         // Trim if over limit
         if events.len() > self.max_events {
-            events.drain(0..events.len() - self.max_events);
+            let drain_count = events.len() - self.max_events;
+            events.drain(0..drain_count);
         }
 
         // TODO: Also persist to database (HealingEvent table)

@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Extension, Path},
     routing::{get, post},
     Json, Router,
 };
@@ -28,7 +28,7 @@ pub struct ExecuteResponse {
     pub result: String,
 }
 
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/providers", get(list_providers))
         .route("/providers/:id/enable", post(enable))
@@ -41,7 +41,7 @@ async fn list_providers() -> Json<ProviderListResponse> {
     Json(ProviderListResponse { providers: list })
 }
 
-async fn enable(Path(id): Path<String>, State(_state): State<AppState>) -> Json<ProviderListResponse> {
+async fn enable(Path(id): Path<String>, Extension(_state): Extension<AppState>) -> Json<ProviderListResponse> {
     let _ = enable_provider(&id);
     let list = providers().unwrap_or_default();
     Json(ProviderListResponse { providers: list })

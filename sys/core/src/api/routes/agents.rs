@@ -9,7 +9,7 @@ pub struct Agent {
     pub status: String,
 }
 
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/agents", get(list_agents))
         .route("/agents/:id", get(get_agent))

@@ -7,7 +7,7 @@
 use crate::db::Connection;
 use crate::error::{DatabaseError, NoaError, Result};
 use chrono::{DateTime, Utc};
-use rusqlite::{params, Row};
+use rusqlite::{params, Row, OptionalExtension};
 use serde_json::Value as JsonValue;
 use uuid::Uuid;
 
@@ -101,13 +101,13 @@ impl ModelStatus {
 }
 
 /// Model repository for CRUD operations
-pub struct ModelRepository {
-    conn: Connection,
+pub struct ModelRepository<'a> {
+    conn: &'a Connection,
 }
 
-impl ModelRepository {
+impl<'a> ModelRepository<'a> {
     /// Create a new model repository
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         Self { conn }
     }
 
@@ -129,7 +129,7 @@ impl ModelRepository {
             })
         }).transpose()?;
 
-        self.conn.lock().unwrap()
+        self.conn
             .execute(
                 r#"
                 INSERT INTO model (
@@ -154,11 +154,9 @@ impl ModelRepository {
                     metrics_json,
                 ],
             )
-            .map_err(|e| {
-                DatabaseError::QueryFailed {
-                    query: "create model".to_string(),
-                    error: e.to_string(),
-                }
+            .map_err(|e| DatabaseError::QueryFailed {
+                query: "create model".to_string(),
+                error: e.to_string(),
             })?;
 
         Ok(model.id)
@@ -166,8 +164,8 @@ impl ModelRepository {
 
     /// Find model by ID
     pub fn find_by_id(&self, id: &Uuid) -> Result<Option<Model>> {
-        let conn = self.conn.lock().unwrap();
-        let mut stmt = conn
+        let mut stmt = self
+            .conn
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
@@ -308,7 +306,7 @@ impl ModelRepository {
         }).transpose()?;
 
         let rows_affected = self
-            .conn.lock().unwrap()
+            .conn
             .execute(
                 r#"
                 UPDATE model
@@ -473,7 +471,7 @@ mod tests {
             [],
         ).unwrap();
 
-        let repo = ModelRepository::new(conn);
+        let repo = ModelRepository::new(&conn);
 
         let model = Model {
             id: Uuid::new_v4(),

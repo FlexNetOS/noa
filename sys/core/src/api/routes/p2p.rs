@@ -5,7 +5,7 @@
 //! §3.8: P2P Hive-Mind
 
 use axum::{
-    extract::State,
+    extract::Extension,
     http::StatusCode,
     response::Json,
     routing::{get, post},
@@ -59,7 +59,7 @@ struct ConnectResponse {
 }
 
 /// Create P2P API routes
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/api/v1/p2p/info", get(get_p2p_info))
         .route("/api/v1/p2p/peers", get(get_peers))
@@ -69,7 +69,7 @@ pub fn routes() -> Router<AppState> {
 /// GET /api/v1/p2p/info
 ///
 /// Implements T255: Implement GET /api/v1/p2p/info endpoint
-async fn get_p2p_info(State(state): State<AppState>) -> Result<Json<P2PInfoResponse>, StatusCode> {
+async fn get_p2p_info(Extension(_state): Extension<AppState>) -> Result<Json<P2PInfoResponse>, StatusCode> {
     // TODO: Get device service from AppState
     // For now, return placeholder
     Ok(Json(P2PInfoResponse {
@@ -85,7 +85,7 @@ async fn get_p2p_info(State(state): State<AppState>) -> Result<Json<P2PInfoRespo
 /// GET /api/v1/p2p/peers
 ///
 /// Implements T256: Implement GET /api/v1/p2p/peers endpoint
-async fn get_peers(State(state): State<AppState>) -> Result<Json<PeersResponse>, StatusCode> {
+async fn get_peers(Extension(_state): Extension<AppState>) -> Result<Json<PeersResponse>, StatusCode> {
     // TODO: Get device service from AppState
     // For now, return empty list
     Ok(Json(PeersResponse {
@@ -99,7 +99,7 @@ async fn get_peers(State(state): State<AppState>) -> Result<Json<PeersResponse>,
 ///
 /// Implements T257: Implement POST /api/v1/p2p/connect endpoint
 async fn connect_peer(
-    State(state): State<AppState>,
+    Extension(_state): Extension<AppState>,
     Json(req): Json<ConnectRequest>,
 ) -> Result<Json<ConnectResponse>, StatusCode> {
     // TODO: Implement actual connection via P2P node

@@ -16,7 +16,7 @@ Design a **cross-platform agentic env** that:
 - Installs like a normal app (no visible hypervisor / VM UX).
 - Uses the **host kernel directly** via adapters, but stays **host-agnostic** internally.
 - Is **self-governing**: runs with **no human in the operational loop**.
-- Uses **2–3 small local models (<3B params each)**, running under **llama.cpp**, to:
+- Uses **3–5 small local models (<3B params each)**, running under **llama.cpp**, to:
   - Plan, coordinate, and reconfigure the environment.
   - Generate/modify tools and pipelines.
   - Enforce safety & policy.

@@ -45,7 +45,7 @@ impl<'a> TaskEventRepository<'a> {
                 })
             })
             .map_err(to_db_err("query task events"))?;
-        Ok(rows.filter_map(Result::ok).collect())
+        Ok(rows.filter_map(std::result::Result::ok).collect())
     }
 }
 
@@ -55,5 +55,3 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
         error: err.to_string(),
     })
 }
-
-impl<'a> Repository<TaskEvent, i64> for TaskEventRepository<'a> {}

@@ -96,7 +96,6 @@ impl MigrationRunner {
         // Ensure migrations table exists
         self.ensure_migrations_table(conn)?;
 
-        let conn = conn.lock().unwrap();
         let mut stmt = conn
             .prepare("SELECT version FROM schema_migrations ORDER BY version")
             .map_err(|e| DatabaseError::QueryFailed {
@@ -139,46 +138,59 @@ impl MigrationRunner {
 
     /// Apply a single migration
     fn apply_migration(&self, conn: &Connection, migration: &Migration) -> Result<()> {
-        let conn = conn.lock().unwrap();
-        conn.execute_batch(&format!(
-            "BEGIN TRANSACTION;
-            {};
-            INSERT OR REPLACE INTO schema_migrations (version, description, applied_at)
-            VALUES ('{}', '{}', datetime('now'));
-            COMMIT;",
-            migration.sql,
-            migration.version,
-            migration.description.replace('\'', "''")
-        ))
-        .map_err(|e| {
-            // Attempt rollback on failure
-            let _ = conn.execute_batch("ROLLBACK;");
-            DatabaseError::MigrationFailed {
+        conn.execute_batch("BEGIN TRANSACTION;")
+            .map_err(|e| DatabaseError::MigrationFailed {
                 version: migration.version.clone(),
                 error: e.to_string(),
-            }
-        })?;
+            })?;
+
+        let apply_res = (|| {
+            conn.execute_batch(&migration.sql).map_err(|e| DatabaseError::MigrationFailed {
+                version: migration.version.clone(),
+                error: e.to_string(),
+            })?;
+
+            conn.execute(
+                "INSERT OR REPLACE INTO schema_migrations (version, description, applied_at) VALUES (?1, ?2, datetime('now'))",
+                rusqlite::params![migration.version, migration.description],
+            )
+            .map_err(|e| DatabaseError::MigrationFailed {
+                version: migration.version.clone(),
+                error: e.to_string(),
+            })?;
+
+            Ok(())
+        })();
+
+        if apply_res.is_err() {
+            let _ = conn.execute_batch("ROLLBACK;");
+            return apply_res;
+        }
+
+        conn.execute_batch("COMMIT;")
+            .map_err(|e| DatabaseError::MigrationFailed {
+                version: migration.version.clone(),
+                error: e.to_string(),
+            })?;
 
         Ok(())
     }
 
     /// Ensure the schema_migrations table exists
     fn ensure_migrations_table(&self, conn: &Connection) -> Result<()> {
-        conn.lock()
-            .unwrap()
-            .execute_batch(
-                r#"
+        conn.execute_batch(
+            r#"
             CREATE TABLE IF NOT EXISTS schema_migrations (
                 version TEXT PRIMARY KEY,
                 description TEXT,
                 applied_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
             "#,
-            )
-            .map_err(|e| DatabaseError::QueryFailed {
-                query: "CREATE schema_migrations".to_string(),
-                error: e.to_string(),
-            })?;
+        )
+        .map_err(|e| DatabaseError::QueryFailed {
+            query: "CREATE schema_migrations".to_string(),
+            error: e.to_string(),
+        })?;
 
         Ok(())
     }
@@ -207,9 +219,7 @@ impl MigrationRunner {
         let applied = self.get_applied_migrations(conn)?;
 
         if let Some(last_version) = applied.last() {
-            conn.lock()
-                .unwrap()
-                .execute("DELETE FROM schema_migrations WHERE version = ?", [last_version])
+            conn.execute("DELETE FROM schema_migrations WHERE version = ?", [last_version])
                 .map_err(|e| DatabaseError::MigrationFailed {
                     version: last_version.clone(),
                     error: format!("Rollback failed: {}", e),

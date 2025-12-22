@@ -16,7 +16,7 @@ pub struct HealingEvent {
     pub status: String,
 }
 
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/healing/status", get(status))
         .route("/healing/events", get(events))

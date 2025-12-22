@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::config::merge_map::{MergeStrategy, CORE_MERGE_SPECS};
 use crate::error::{ConfigError, Result};
 use super::{
     expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig,
@@ -43,8 +44,7 @@ impl ConfigLoader {
         }
 
         // Load additional configuration files and merge
-        self.merge_provider_config(&mut raw)?;
-        self.merge_shared_resources_config(&mut raw)?;
+        self.merge_from_map(&mut raw)?;
 
         // Build the configuration
         self.build_config(raw)
@@ -84,27 +84,25 @@ impl ConfigLoader {
         }
     }
 
-    /// Merge provider configuration
-    fn merge_provider_config(&self, raw: &mut serde_json::Value) -> Result<()> {
-        let providers_path = self.noa_root.join("config/ai-providers.json");
-        if providers_path.exists() {
-            let providers: serde_json::Value = self.load_file(&providers_path)?;
-            if let serde_json::Value::Object(ref mut map) = raw {
-                map.insert("providers".to_string(), providers);
-            }
-        }
-        Ok(())
-    }
+    fn merge_from_map(&self, raw: &mut serde_json::Value) -> Result<()> {
+        let serde_json::Value::Object(ref mut map) = raw else {
+            return Ok(());
+        };
 
-    /// Merge shared resources configuration
-    fn merge_shared_resources_config(&self, raw: &mut serde_json::Value) -> Result<()> {
-        let shared_path = self.noa_root.join("config/shared-resources.json");
-        if shared_path.exists() {
-            let shared: serde_json::Value = self.load_file(&shared_path)?;
-            if let serde_json::Value::Object(ref mut map) = raw {
-                map.insert("shared_resources".to_string(), shared);
+        for spec in CORE_MERGE_SPECS {
+            let path = spec.full_path(&self.noa_root);
+            if !path.exists() {
+                continue;
+            }
+
+            let value = self.load_file(&path)?;
+            match spec.strategy {
+                MergeStrategy::Namespaced => {
+                    map.insert(spec.raw_key.to_string(), value);
+                }
             }
         }
+
         Ok(())
     }
 

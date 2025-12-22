@@ -21,16 +21,14 @@ pub mod capsule;
 pub mod crm;
 
 use axum::Router;
-use crate::api::server::AppState;
 
 /// Create the v1 API router with all routes
-pub fn api_v1() -> Router<AppState> {
-    Router::new()
-        .nest("/api/v1", v1_routes())
+pub fn api_v1() -> Router {
+    Router::new().nest("/api/v1", v1_routes())
 }
 
 /// V1 API routes
-fn v1_routes() -> Router<AppState> {
+fn v1_routes() -> Router {
     Router::new()
         .merge(health::routes())
         .merge(system::routes())

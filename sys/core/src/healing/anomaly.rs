@@ -82,6 +82,7 @@ impl Default for AnomalyDetectorConfig {
 }
 
 /// Anomaly detector
+#[derive(Clone)]
 pub struct AnomalyDetector {
     config: AnomalyDetectorConfig,
     metric_history: HashMap<String, Vec<(DateTime<Utc>, f64)>>,
@@ -161,8 +162,13 @@ impl AnomalyDetector {
 
         if let Some(warning_threshold) = metric.threshold_warning {
             if metric.value >= warning_threshold {
-                // Check for consecutive violations
-                let consecutive = self.count_consecutive_violations(&metric_key, warning_threshold);
+                // Check for consecutive violations using local history
+                let consecutive = history
+                    .iter()
+                    .rev()
+                    .take_while(|(_, value)| *value >= warning_threshold)
+                    .count() as u32;
+
                 if consecutive >= self.config.consecutive_violations {
                     return Ok(Some(Anomaly {
                         component_id: metric.component_id.clone(),
@@ -189,8 +195,40 @@ impl AnomalyDetector {
 
         // Statistical anomaly detection
         if self.config.enable_statistical && history.len() >= 10 {
-            if let Some(anomaly) = self.detect_statistical_anomaly(metric, history)? {
-                return Ok(Some(anomaly));
+            // Compute simple z-score against recent history
+            let values: Vec<f64> = history.iter().map(|(_, v)| *v).collect();
+            let mean = values.iter().sum::<f64>() / values.len() as f64;
+            let var = values
+                .iter()
+                .map(|v| {
+                    let d = v - mean;
+                    d * d
+                })
+                .sum::<f64>()
+                / values.len() as f64;
+            let std_dev = var.sqrt();
+
+            if std_dev > 0.0 {
+                let z = (metric.value - mean).abs() / std_dev;
+                if z >= (self.config.spike_threshold_percent / 10.0) {
+                    return Ok(Some(Anomaly {
+                        component_id: metric.component_id.clone(),
+                        component_type: metric.component_type.clone(),
+                        anomaly_type: "statistical_outlier".to_string(),
+                        health_status: snapshot.health_status,
+                        metric_type: format!("{:?}", metric.metric_type),
+                        current_value: metric.value,
+                        expected_value: Some(mean),
+                        severity: AnomalySeverity::Medium,
+                        detected_at: Utc::now(),
+                        description: format!(
+                            "Metric {} is a statistical outlier (z={:.2})",
+                            format!("{:?}", metric.metric_type),
+                            z
+                        ),
+                        metadata: HashMap::new(),
+                    }));
+                }
             }
         }
 

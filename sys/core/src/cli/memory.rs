@@ -4,13 +4,12 @@
 //! §3.7: Total Memory Sovereignty
 //! US3: Remember everything with instant recall
 
-use crate::db::init_database;
+use crate::cli::CliContext;
 use crate::db::vector_search::VectorSearch;
 use crate::error::Result;
 use crate::services::{MemoryService, SearchService};
 use crate::db::repositories::MemoryRepository;
 use clap::{Args, Subcommand};
-use std::path::PathBuf;
 use uuid::Uuid;
 
 /// Memory management commands
@@ -71,12 +70,12 @@ pub enum MemoryCommand {
 }
 
 /// Execute memory command
-pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
-    let conn = init_database(&db_path)?;
-    let memory_repo = MemoryRepository::new(conn.clone());
-    let vector_search = VectorSearch::new(conn.clone())?;
+pub async fn execute(ctx: &CliContext, args: MemoryArgs) -> Result<()> {
+    let conn = ctx.db.get()?;
 
-    let memory_service = MemoryService::new(conn.clone());
+    let memory_repo = MemoryRepository::new(&conn);
+    let vector_search = VectorSearch::new(&conn)?;
+    let memory_service = MemoryService::new(&conn);
     let search_service = SearchService::new(memory_repo, vector_search);
 
     match args.command {
@@ -93,7 +92,10 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
                 "learning" => crate::memory::MemoryType::Learning,
                 "artifact" => crate::memory::MemoryType::Artifact,
                 _ => {
-                    eprintln!("Invalid memory type: {}. Must be: interaction, decision, learning, or artifact", r#type);
+                    eprintln!(
+                        "Invalid memory type: {}. Must be: interaction, decision, learning, or artifact",
+                        r#type
+                    );
                     return Ok(());
                 }
             };
@@ -101,16 +103,24 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
             let agent_id = agent
                 .map(|s| Uuid::parse_str(&s))
                 .transpose()
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("agent", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+                .map_err(|e| {
+                    crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                        "agent",
+                        format!("Invalid UUID: {}", e),
+                        "INVALID_UUID",
+                    ))
+                })?;
 
             let parent_id = parent
                 .map(|s| Uuid::parse_str(&s))
                 .transpose()
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("parent", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+                .map_err(|e| {
+                    crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                        "parent",
+                        format!("Invalid UUID: {}", e),
+                        "INVALID_UUID",
+                    ))
+                })?;
 
             let tags_set: std::collections::HashSet<String> = tags
                 .map(|s| s.split(',').map(|t| t.trim().to_string()).collect())
@@ -120,8 +130,7 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
                 .create(memory_type, content, None, agent_id, parent_id, tags_set)
                 .await?;
 
-            println!("Created memory: {}", id);
-            Ok(())
+            println!("✓ Created memory: {}", id);
         }
         MemoryCommand::Search {
             query,
@@ -130,83 +139,47 @@ pub async fn execute_memory(args: MemoryArgs, db_path: PathBuf) -> Result<()> {
             threshold,
         } => {
             let results = match search_type.as_str() {
-                "semantic" => {
-                    search_service.search_semantic(&query, limit, threshold).await?
-                }
-                "keyword" => {
-                    search_service.search_keyword(&query, limit)?
-                }
-                "hybrid" => {
-                    search_service.search_hybrid(&query, limit, threshold).await?
-                }
-                _ => {
-                    eprintln!("Invalid search type: {}. Must be: semantic, keyword, or hybrid", search_type);
+                "semantic" => search_service.search_semantic(&query, limit, threshold).await?,
+                "keyword" => search_service.search_keyword(&query, limit)?,
+                "hybrid" => search_service.search_hybrid(&query, limit, threshold).await?,
+                other => {
+                    eprintln!("Invalid search_type: {}. Must be: semantic, keyword, hybrid", other);
                     return Ok(());
                 }
             };
 
-            println!("Found {} results:", results.len());
-            for (i, result) in results.iter().enumerate() {
-                println!("\n{}. Memory {} (score: {:.3})", i + 1, result.memory.id, result.score);
-                println!("   Type: {:?}", result.memory.memory_type);
-                println!("   Content: {}",
-                    if result.memory.content.len() > 100 {
-                        &result.memory.content[..100]
-                    } else {
-                        &result.memory.content
-                    });
+            for result in results {
+                println!(
+                    "{} ({:.3}) {}",
+                    result.memory.id,
+                    result.score,
+                    result.memory.content
+                );
             }
-            Ok(())
         }
         MemoryCommand::List { offset, limit } => {
             let memories = memory_service.list(offset, limit)?;
-            println!("Found {} memories:", memories.len());
             for memory in memories {
-                println!("\nMemory {} ({:?})", memory.id, memory.memory_type);
-                println!("  Created: {}", memory.created_at);
-                println!("  Content: {}",
-                    if memory.content.len() > 80 {
-                        &memory.content[..80]
-                    } else {
-                        &memory.content
-                    });
+                println!("{} {}", memory.id, memory.content);
             }
-            Ok(())
         }
         MemoryCommand::Get { id } => {
-            let memory_id = Uuid::parse_str(&id)
-                .map_err(|e| crate::error::NoaError::Validation(
-                    crate::error::ValidationError::new("id", format!("Invalid UUID: {}", e), "INVALID_UUID")
-                ))?;
+            let id = Uuid::parse_str(&id).map_err(|e| {
+                crate::error::NoaError::Validation(crate::error::ValidationError::new(
+                    "id",
+                    format!("Invalid UUID: {}", e),
+                    "INVALID_UUID",
+                ))
+            })?;
 
-            match memory_service.get(&memory_id)? {
-                Some(memory) => {
-                    println!("Memory: {}", memory.id);
-                    println!("Type: {:?}", memory.memory_type);
-                    println!("Created: {}", memory.created_at);
-                    println!("Updated: {}", memory.updated_at);
-                    println!("Content: {}", memory.content);
-                    if let Some(ref metadata) = memory.metadata {
-                        println!("Metadata: {}", serde_json::to_string_pretty(metadata)?);
-                    }
-                    if !memory.tags.is_empty() {
-                        println!("Tags: {:?}", memory.tags);
-                    }
-                    if let Some(agent) = memory.source_agent {
-                        println!("Source Agent: {}", agent);
-                    }
-                    if let Some(parent) = memory.parent_id {
-                        println!("Parent: {}", parent);
-                    }
-                    println!("Checksum: {}", memory.checksum);
-                    Ok(())
-                }
-                None => {
-                    eprintln!("Memory not found: {}", id);
-                    Ok(())
-                }
+            if let Some(memory) = memory_service.get(&id)? {
+                println!("{}\n{}", memory.id, memory.content);
+            } else {
+                println!("Memory not found");
             }
         }
     }
+
+    Ok(())
 }
 

@@ -115,7 +115,11 @@ impl CoImprovementIntake {
     /// Get next pending goal
     pub async fn next_goal(&self) -> Option<CoImprovementGoal> {
         let mut goals = self.pending_goals.write().await;
-        goals.pop()
+        if goals.is_empty() {
+            None
+        } else {
+            Some(goals.remove(0))
+        }
     }
 
     /// Mark goal as processed

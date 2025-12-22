@@ -25,7 +25,7 @@ pub struct SwitchResponse {
     pub message: String,
 }
 
-pub fn routes() -> Router<AppState> {
+pub fn routes() -> Router {
     Router::new()
         .route("/planes", get(list_planes))
         .route("/planes/:name/health", get(plane_health))

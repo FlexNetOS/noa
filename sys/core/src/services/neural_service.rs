@@ -13,15 +13,15 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 /// Neural service for model management
-pub struct NeuralService {
-    repository: ModelRepository,
+pub struct NeuralService<'a> {
+    repository: ModelRepository<'a>,
     backend: Arc<LlamaBackend>,
     inference_engine: Arc<InferenceEngine>,
 }
 
-impl NeuralService {
+impl<'a> NeuralService<'a> {
     /// Create a new neural service
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         let backend = Arc::new(LlamaBackend::new());
         let inference_engine = Arc::new(InferenceEngine::new(backend.clone()));
 

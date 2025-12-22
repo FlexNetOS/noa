@@ -22,13 +22,13 @@ pub struct Embedding {
 }
 
 /// Embedding repository for CRUD operations
-pub struct EmbeddingRepository {
-    conn: Connection,
+pub struct EmbeddingRepository<'a> {
+    conn: &'a Connection,
 }
 
-impl EmbeddingRepository {
+impl<'a> EmbeddingRepository<'a> {
     /// Create a new embedding repository
-    pub fn new(conn: Connection) -> Self {
+    pub fn new(conn: &'a Connection) -> Self {
         Self { conn }
     }
 
@@ -268,7 +268,7 @@ mod tests {
         )
         .unwrap();
 
-        let repo = EmbeddingRepository::new(conn);
+        let repo = EmbeddingRepository::new(&conn);
 
         let embedding = Embedding {
             id: Uuid::new_v4(),
