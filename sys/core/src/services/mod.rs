@@ -13,6 +13,7 @@ pub mod agent_service;
 pub mod task_service;
 pub mod orchestration_service;
 pub mod crm_strangler;
+pub mod rag_service;
 
 pub use memory_service::MemoryService;
 pub use device_service::DeviceService;
@@ -24,3 +25,4 @@ pub use agent_service::AgentService;
 pub use task_service::TaskService;
 pub use orchestration_service::OrchestrationService;
 pub use crm_strangler::{CrmStranglerService, StranglerMode};
+pub use rag_service::RAGService;
