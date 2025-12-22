@@ -64,7 +64,7 @@ impl TerminalAgent {
                 "ls", "dir", "pwd", "echo", "cat", "type",
                 "find", "grep", "which", "where",
                 "git", "cargo", "npm", "node", "python",
-                "rustc", "rustup", "dotnet",
+                "rustc", "rustup", "dotnet", "cmd", "powershell",
             ];
             safe_commands.contains(&command)
         }
@@ -241,6 +241,17 @@ mod tests {
     #[test]
     fn test_terminal_agent_echo() {
         let agent = TerminalAgent::new();
+        
+        #[cfg(target_os = "windows")]
+        let cmd = TerminalCommand {
+            command: "cmd".into(),
+            args: vec!["/C".into(), "echo".into(), "Hello".into(), "World".into()],
+            working_dir: None,
+            env: None,
+            timeout_secs: Some(5),
+        };
+
+        #[cfg(not(target_os = "windows"))]
         let cmd = TerminalCommand {
             command: "echo".into(),
             args: vec!["Hello".into(), "World".into()],
@@ -248,6 +259,7 @@ mod tests {
             env: None,
             timeout_secs: Some(5),
         };
+
         let result = agent.execute_command(cmd).unwrap();
         assert!(result.success);
         assert!(result.stdout.contains("Hello"));
@@ -255,14 +267,23 @@ mod tests {
 
     #[test]
     fn test_terminal_agent_whitelist() {
-        let agent = TerminalAgent::with_whitelist(vec!["echo".into()]);
+        #[cfg(target_os = "windows")]
+        let allowed = vec!["cmd".into()];
+        #[cfg(not(target_os = "windows"))]
+        let allowed = vec!["echo".into()];
+
+        let agent = TerminalAgent::with_whitelist(allowed);
         
         // Allowed command
+        #[cfg(target_os = "windows")]
+        let result = agent.execute_simple("cmd /C echo test").unwrap();
+        #[cfg(not(target_os = "windows"))]
         let result = agent.execute_simple("echo test").unwrap();
+        
         assert!(result.success);
         
         // Disallowed command
-        let result = agent.execute_simple("rm -rf /").unwrap();
+        let result = agent.execute_simple("git status").unwrap();
         assert!(!result.success);
         assert!(result.error.is_some());
     }

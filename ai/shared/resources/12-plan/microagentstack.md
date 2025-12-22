@@ -2,21 +2,25 @@
 
 ## Structure
 
-01. **CommandChiefAgent (Stack Master)**
-Executive orchestrator of the stack. Decomposes tasks, assigns work to subordinate agents, monitors progress, resolves conflicts, and enforces SLAs. Dynamically spins up, upgrades, merges, or decommissions agents as needed. Creates and assigns tools with full access to resources required to accomplish the user's goal. Typically paired with a reasoning agent via the Model Selector Agent, but can request any available model(s) for task execution. Self-upgrades and leads the agent stack team to execute with precision. Orchestrates task execution in real time—creating, reassigning, or decommissioning agents as the task demands. Runs the stack in parallel and/or concurrently when needed. Receives live agent-to-agent looped communication to resolve any issues that arise.
+### **CommandChiefAgent (Stack Master)**
 
-02. **Operators:**
-Specialised agents that perform specific functions.  Examples include code runners (execute code), data wranglers (transform data), doc generators (produce reports), testers (run unit/integration tests) and packagers (build zips, PDFs).
+- Chief orchestrator of the stack. Decomposes tasks, assigns work to subordinate agents, monitors progress, resolves conflicts, and enforces SLAs. Dynamically spins up, upgrades, merges, or decommissions agents as needed. Creates and assigns tools with full access to resources required to accomplish the user's goal. Typically paired with a reasoning agent via the Model Selector Agent, but can request any available model(s) for task execution. Self-upgrades and leads the agent stack team to execute with precision. Orchestrates task execution in real time—creating, reassigning, or decommissioning agents as the task demands. Runs the stack in parallel and/or concurrently when needed. Receives live agent-to-agent looped communication to resolve any issues that arise.
 
-03. **Adapters:**
-Connectors to external systems (repos, CRMs, APIs) and publishers to internal services (registry, MinIO, Postgres). Adapters abstract away details like auth and rate‑limits.
+### **Operators:**
 
-04. **Guards:**
-Policy enforcement points—security scanners, licence checkers, quality gates.  They ensure the stack adheres to policies defined by NOA and the Board Agents.
+- Specialised agents that perform specific functions.  Examples include code runners (execute code), data wranglers (transform data), doc generators (produce reports), testers (run unit/integration tests) and packagers (build zips, PDFs).
+
+### **Adapters:**
+
+- Connectors to external systems (repos, CRMs, APIs) and publishers to internal services (registry, MinIO, Postgres). Adapters abstract away details like auth and rate‑limits.
+
+### **Guards:**
+
+- Policy enforcement points—security scanners, licence checkers, quality gates.  They ensure the stack adheres to policies defined by NOA and the Board Agents.
 
 ## Relationship to Other Components
 
-Board Agents:
+### Board Agents:
 
 - Create and oversee stacks.
 - Each stack reports to its Board Agent.
@@ -25,18 +29,23 @@ Board Agents:
 - Provide direction and supervision.
 - Delegate work and report to Noa.
 
-ModelSelectorAgents:
+### ModelSelector Agents:
 
 - When a stack requires AI processing, the CommandChiefAgent requests ModelSelector to choose the appropriate model(s) and logs the rationale.
 - ModelSelector considers cost, latency, accuracy, and context.
 - The selected model(s) are then used by the CommandChiefAgent and subordinate agents for task execution.
 
-Executive Agents:
+### Executive Agents:
 
-unlike the Board Agent the Executive Agents can and will do real work. 
-- Executive Digest Agent: 
-Often uses MicroAgentStacks to perform large‑scale digestions across many repos or datasets.  
-Each stack digests one or more sources and returns results to the Digest Agent or its sub-agents.
+- Executive Agents can and will do real work themselves when tasks are complex, critical, or require high trust.
+- Empowered to use maximum resources and make decisions on behalf of the user.
+
+### Executive Digest Agent:
+
+- Often uses MicroAgentStacks to perform large‑scale digestions across many repos or datasets.  
+- Each stack digests one or more sources and returns results to the Digest Agent or its sub-agents.
+- Enables horizontal scaling of digestion tasks.
+
 
 
 ## Guidelines
@@ -62,8 +71,11 @@ Orchestrator Federation Agent: Federate and synchronize multiple orchestrators a
 Versioning & Rollback Agent: Commit configs to VCS, tag releases, rollback on failures.
 
 01. Implementation & Code Generation
+
 01.01 CodeGen Agent: Agent code scaffold/implementation (calls helpers)
+
 01.01.01 Codegen Sub-Agents:
+
 01.01.01.01 Prompt Designer Agent
 01.01.01.02 Template Manager Agent
 01.01.01.03 Dependency Resolver Agent
@@ -76,6 +88,7 @@ Versioning & Rollback Agent: Commit configs to VCS, tag releases, rollback on fa
 01.01.01.10 Error Handling & Retry Helper
 01.01.01.11 Orchestration Definition Agent
 01.01.01.12 Cache Manager Agent
+
 01.02 Execution Planning Agent: Command/config planning, install/generation
 01.03 SDK/Plugin Manager Agent: Extension ecosystem support
 

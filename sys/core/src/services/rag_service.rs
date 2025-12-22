@@ -159,11 +159,31 @@ impl Default for RAGService {
 mod tests {
     use super::*;
     use tempfile::TempDir;
+    use crate::db::MigrationRunner;
+    use std::path::PathBuf;
+
+    fn apply_migrations(db_path: &Path) -> Result<()> {
+        let conn = crate::db::init_database(db_path)?;
+        let migrations_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../init/migrations");
+        let runner = MigrationRunner::new(&migrations_dir);
+        match runner.apply_pending(&conn) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                let err_str = e.to_string();
+                if err_str.contains("no such module: vss0") {
+                    println!("Warning: sqlite-vss extension not available. Skipping vector search setup.");
+                    return Ok(());
+                }
+                Err(e)
+            }
+        }
+    }
 
     #[test]
     fn test_rag_service_add_document() -> Result<()> {
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
+        apply_migrations(&db_path)?;
         
         let service = RAGService::new();
         let doc = Document {
@@ -183,6 +203,7 @@ mod tests {
     fn test_rag_service_search() -> Result<()> {
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
+        apply_migrations(&db_path)?;
         
         let service = RAGService::new();
         
@@ -213,6 +234,7 @@ mod tests {
     fn test_rag_service_generate_prompt() -> Result<()> {
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
+        apply_migrations(&db_path)?;
         
         let service = RAGService::new();
         

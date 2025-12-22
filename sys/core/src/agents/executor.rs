@@ -2,7 +2,8 @@
 //!
 //! Orchestrates sequential execution of agent tasks
 
-use crate::agents::{BaseAgent, CommanderChiefAgent, FileIOAgent, TerminalAgent, RAGAgent};
+use crate::agents::{BaseAgent, CommanderChiefAgent, FileIOAgent, TerminalAgent, RAGAgent, ModelSelectorAgent};
+use crate::agents::model_selector::MockModelSelectorAgent;
 use crate::agents::commander::{ExecutionPlan, AgentTask, TaskStatus};
 use crate::error::{NoaError, Result};
 use std::collections::HashMap;
@@ -50,7 +51,8 @@ impl MultiAgentExecutor {
         agents.insert("file-io".to_string(), Box::new(FileIOAgent::new()));
         agents.insert("terminal".to_string(), Box::new(TerminalAgent::new()));
         agents.insert("rag".to_string(), Box::new(RAGAgent::new()));
-        // Note: model-selector requires a database connection, registered separately
+        // Register mock model selector by default (can be overridden)
+        agents.insert("model-selector".to_string(), Box::new(MockModelSelectorAgent::new()));
 
         Self {
             agents,

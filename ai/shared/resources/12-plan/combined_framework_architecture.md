@@ -1,4 +1,4 @@
-# Combined Framework & Architecture of ark‑os‑noa
+# Combined Framework & Architecture
 
 ## High‑Level Overview
 
