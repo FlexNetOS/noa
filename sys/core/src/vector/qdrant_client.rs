@@ -39,6 +39,7 @@ impl QdrantClient {
         // TODO: Implement actual Qdrant upsert using qdrant-client crate
         // For now, this is a placeholder
         tracing::info!(
+            url = %self.url,
             collection = %self.collection_name,
             points = points.len(),
             "Upserting vectors to Qdrant"

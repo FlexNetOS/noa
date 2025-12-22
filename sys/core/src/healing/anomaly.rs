@@ -134,9 +134,14 @@ impl AnomalyDetector {
         // Keep only recent history
         let cutoff = Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
         history.retain(|(ts, _)| *ts >= cutoff);
+        
+        // Clone history for analysis to release the mutable borrow
+        let history_clone = history.clone();
 
         // Check threshold violations
         if let Some(critical_threshold) = metric.threshold_critical {
+            let consecutive_violations = self.count_consecutive_violations(&metric_key, critical_threshold);
+            
             if metric.value >= critical_threshold {
                 return Ok(Some(Anomaly {
                     component_id: metric.component_id.clone(),
@@ -149,10 +154,11 @@ impl AnomalyDetector {
                     severity: AnomalySeverity::Critical,
                     detected_at: Utc::now(),
                     description: format!(
-                        "Metric {} exceeded critical threshold: {} >= {}",
+                        "Metric {} exceeded critical threshold: {} >= {} ({} consecutive violations)",
                         format!("{:?}", metric.metric_type),
                         metric.value,
-                        critical_threshold
+                        critical_threshold,
+                        consecutive_violations
                     ),
                     metadata: HashMap::new(),
                 }));
@@ -162,7 +168,7 @@ impl AnomalyDetector {
         if let Some(warning_threshold) = metric.threshold_warning {
             if metric.value >= warning_threshold {
                 // Check for consecutive violations using local history
-                let consecutive = history
+                let consecutive = history_clone
                     .iter()
                     .rev()
                     .take_while(|(_, value)| *value >= warning_threshold)
@@ -193,9 +199,14 @@ impl AnomalyDetector {
         }
 
         // Statistical anomaly detection
-        if self.config.enable_statistical && history.len() >= 10 {
-            // Compute simple z-score against recent history
-            let values: Vec<f64> = history.iter().map(|(_, v)| *v).collect();
+        if self.config.enable_statistical && history_clone.len() >= 10 {
+            // Use the dedicated statistical anomaly detector
+            if let Some(stat_anomaly) = self.detect_statistical_anomaly(metric, &history_clone)? {
+                return Ok(Some(stat_anomaly));
+            }
+            
+            // Compute simple z-score against recent history (backup method)
+            let values: Vec<f64> = history_clone.iter().map(|(_, v)| *v).collect();
             let mean = values.iter().sum::<f64>() / values.len() as f64;
             let var = values
                 .iter()

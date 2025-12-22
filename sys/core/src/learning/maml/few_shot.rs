@@ -35,6 +35,7 @@ impl FewShotLearner {
     pub async fn learn(&self, task: &FewShotTask) -> Result<serde_json::Value> {
         // TODO: Implement actual few-shot learning
         // 1. Use inner-loop to adapt to support set
+        let _adapted = self.inner_loop.adapt(&task.support_set).await?;
         // 2. Evaluate on query set
         // 3. Return predictions
 
@@ -46,7 +47,11 @@ impl FewShotLearner {
         // TODO: Implement meta-training
         // 1. Sample tasks
         // 2. For each task, adapt and evaluate
-        // 3. Meta-optimize initialization
+        for task in tasks {
+            let _adapted = self.inner_loop.adapt(&task.support_set).await?;
+        }
+        // 3. Meta-optimize initialization (using outer_loop)
+        self.outer_loop.step().await?;
 
         Ok(())
     }

@@ -161,6 +161,16 @@ impl InitService {
             }
         }
 
+        // Remove marker file if created
+        if state.marker_file_created {
+            let marker_path = noa_root.join(".noa-initialized");
+            if let Err(e) = std::fs::remove_file(&marker_path) {
+                warn!(path = %marker_path.display(), error = %e, "Failed to remove marker file during cleanup");
+            } else {
+                info!(path = %marker_path.display(), "Removed marker file");
+            }
+        }
+
         // Remove created directories (in reverse order to handle nested dirs)
         // Only remove if they're empty (safe cleanup)
         for dir in state.directories_created.iter().rev() {

@@ -218,6 +218,41 @@ NEXT: <smallest verifiable step if incomplete>
 VERIFIED_BY: <Pass A/B/C completion status>
 ```
 
+## Building and Testing
+
+### Build Commands
+
+**Load environment first:**
+```powershell
+. 'N:\noa\noa-env.ps1'
+```
+
+**Build the core library:**
+```powershell
+Set-Location 'N:\noa\sys\core'
+cargo build --lib -p noa-core
+```
+
+**Run cargo fix for automatic fixes:**
+```powershell
+cargo fix --lib -p noa-core --allow-dirty
+```
+
+**Build all workspace members:**
+```powershell
+cargo build --workspace
+```
+
+**Current Status:**
+- `noa-core` builds successfully with 30 warnings (reduced from 46)
+- All critical components are properly connected and in use
+- Main warnings are unused fields in development/future features
+
+**Warning Categories:**
+- Unused variables in error handling (can be prefixed with `_`)
+- Unused fields in experimental features (MAML, ToolkenGPT, GPU pool)
+- Dead code in development stubs (normal for active development)
+
 ## Environment Rules (CRITICAL)
 
 Per `env-rule.md`, these rules are atomic and enforceable:

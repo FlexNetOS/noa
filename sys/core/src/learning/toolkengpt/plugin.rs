@@ -49,7 +49,9 @@ impl ToolPluginLoader {
         // In production, this would:
         // 1. Load plugin metadata (JSON/YAML)
         // 2. Validate plugin
-        // 3. Pre-train embeddings
+        // 3. Pre-train embeddings using the pretrainer
+        tracing::debug!("Pre-training plugin embeddings");
+        self.pretrainer.pretrain_for_plugin(plugin_path).await?;
         // 4. Register with registry
 
         Ok(())

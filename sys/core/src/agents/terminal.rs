@@ -1,8 +1,7 @@
 use crate::agents::base::BaseAgent;
-use crate::error::{NoaError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
 
@@ -114,7 +113,7 @@ impl TerminalAgent {
                 use std::time::Instant;
 
                 let start = Instant::now();
-                let mut check_interval = Duration::from_millis(100);
+                let check_interval = Duration::from_millis(100);
 
                 loop {
                     match child.try_wait() {

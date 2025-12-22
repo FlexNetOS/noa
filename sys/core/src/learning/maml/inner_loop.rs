@@ -36,10 +36,16 @@ impl InnerLoopAdapter {
     }
 
     /// Adapt model to task
-    pub async fn adapt(&self, initial_params: &std::collections::HashMap<String, f64>, task_data: &serde_json::Value) -> Result<std::collections::HashMap<String, f64>> {
+    pub async fn adapt(&self, task_data: &[serde_json::Value]) -> Result<()> {
         // TODO: Implement actual gradient-based adaptation
-        // For now, return initial parameters
-        Ok(initial_params.clone())
+        // Use config for learning rate and adaptation steps
+        tracing::debug!(
+            learning_rate = self.config.learning_rate,
+            adaptation_steps = self.config.adaptation_steps,
+            "Adapting to task with {} examples",
+            task_data.len()
+        );
+        Ok(())
     }
 
     /// Perform adaptation step

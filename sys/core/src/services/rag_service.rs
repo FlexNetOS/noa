@@ -2,7 +2,6 @@
 //!
 //! Full RAG implementation with vector search and knowledge base integration
 
-use crate::db::Connection;
 use crate::db::repositories::{KnowledgeNode, KnowledgeNodeType};
 use crate::error::Result;
 use crate::agents::rag::{RAGQuery, RAGResult, RAGResultItem};
