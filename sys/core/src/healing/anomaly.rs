@@ -9,7 +9,6 @@ use crate::healing::monitor::{ComponentHealth, ComponentHealthSnapshot, HealthMe
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{debug, warn};
 
 /// Anomaly type
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

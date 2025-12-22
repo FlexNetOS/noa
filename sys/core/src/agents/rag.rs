@@ -88,11 +88,17 @@ impl BaseAgent for RAGAgent {
     }
 
     fn description(&self) -> &str {
-        "Retrieval-augmented generation agent"
+        "Retrieval-augmented generation: searches knowledge base and generates contextual responses"
     }
 
     fn capabilities(&self) -> Vec<String> {
-        vec!["retrieve".into(), "generate".into()]
+        vec![
+            "retrieve".into(),
+            "generate".into(),
+            "search".into(),
+            "index".into(),
+            "embed".into(),
+        ]
     }
 
     fn execute(&self, task: &str) -> Result<String> {
@@ -139,8 +145,6 @@ mod tests {
         assert!(prompt.contains("Paris"));
         assert!(prompt.contains("Context"));
     }
-<<<<<<< Updated upstream
-=======
 
     #[test]
     fn test_format_query() {
@@ -156,19 +160,4 @@ mod tests {
         assert!(formatted.contains("10"));
     }
 }
->>>>>>> Stashed changes
 
-    #[test]
-    fn test_format_query() {
-        let agent = RAGAgent::new();
-        let query = RAGQuery {
-            query: "test query".into(),
-            top_k: Some(10),
-            filters: None,
-            include_sources: true,
-        };
-        let formatted = agent.format_query(&query);
-        assert!(formatted.contains("test query"));
-        assert!(formatted.contains("10"));
-    }
-}

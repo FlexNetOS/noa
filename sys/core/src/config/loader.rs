@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use crate::config::merge_map::{MergeStrategy, CORE_MERGE_SPECS};
 use crate::error::{ConfigError, Result};
 use super::{
-    expand_env_vars, DatabaseConfig, Environment, LogFormat, LogLevel, LoggingConfig,
+    expand_env_vars, DatabaseConfig, LogFormat, LoggingConfig,
     NoaConfig, ProviderConfig, ProviderSettings,
 };
 

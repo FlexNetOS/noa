@@ -3,7 +3,6 @@
 //! T668: Implement dynamic architecture adapter modules
 //! US2: Add task-specific adapters without modifying base model
 
-use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

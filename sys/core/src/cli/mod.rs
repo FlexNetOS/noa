@@ -44,6 +44,8 @@ pub mod logs;
 pub mod capsule;
 #[cfg(feature = "full")]
 pub mod crm;
+#[cfg(feature = "full")]
+pub mod workflow;
 
 pub use context::CliContext;
 

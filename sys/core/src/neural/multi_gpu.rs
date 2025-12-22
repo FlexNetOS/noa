@@ -4,7 +4,7 @@
 //! US2: Distribute model layers across multiple GPUs
 
 use crate::error::Result;
-use crate::neural::cuda_devices::{CudaDevice, CudaDeviceEnumerator};
+use crate::neural::cuda_devices::CudaDeviceEnumerator;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

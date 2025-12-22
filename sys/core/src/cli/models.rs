@@ -4,7 +4,7 @@
 //! US2: CLI commands for model management
 
 use crate::db::init_database;
-use crate::db::repositories::{ModelRepository, Model, ModelStatus};
+use crate::db::repositories::ModelStatus;
 use crate::error::Result;
 use crate::services::{NeuralService, ModelDownloadService};
 use crate::neural::benchmark::{ModelBenchmark, BenchmarkConfig};

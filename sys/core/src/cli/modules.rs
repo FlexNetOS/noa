@@ -1,5 +1,5 @@
 use crate::modules::registry::ModuleRegistry;
-use crate::modules::resolver::{render_tree, resolve_dependencies};
+use crate::modules::resolver::render_tree;
 use crate::modules::cas::ContentAddressableStore;
 use crate::modules::verify::verify_hash;
 use crate::error::Result;

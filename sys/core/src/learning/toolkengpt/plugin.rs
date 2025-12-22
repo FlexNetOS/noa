@@ -61,7 +61,7 @@ impl ToolPluginLoader {
             return Ok(0);
         }
 
-        let mut count = 0;
+        let count = 0;
         // TODO: Iterate through directory and load plugins
         Ok(count)
     }

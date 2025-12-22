@@ -7,10 +7,9 @@
 use crate::error::{Result, NoaError};
 use crate::neural::context::{InferenceContext, MessageRole};
 use crate::neural::llama_backend::LlamaBackend;
-use noa_neural::llama::{CompletionRequest, CompletionResponse};
+use noa_neural::llama::CompletionRequest;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use futures::Stream;
 use uuid::Uuid;
 

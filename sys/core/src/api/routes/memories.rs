@@ -107,7 +107,7 @@ async fn create_memory(
     Extension(state): Extension<AppState>,
     Json(request): Json<CreateMemoryRequest>,
 ) -> Result<Json<CreateMemoryResponse>> {
-    let mut conn = state.sqlite_conn()?;
+    let conn = state.sqlite_conn()?;
     let memory_repo = MemoryRepository::new(conn.connection());
 
     let memory_type = match request.r#type.as_str() {
@@ -173,7 +173,7 @@ async fn get_memory(
     Extension(state): Extension<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<MemoryResponse>> {
-    let mut conn = state.sqlite_conn()?;
+    let conn = state.sqlite_conn()?;
     let memory_repo = MemoryRepository::new(conn.connection());
     let memory_id = Uuid::parse_str(&id)?;
 
@@ -203,7 +203,7 @@ async fn list_memories(
     Extension(state): Extension<AppState>,
     Query(params): Query<ListMemoriesQuery>,
 ) -> Result<Json<ListMemoriesResponse>> {
-    let mut conn = state.sqlite_conn()?;
+    let conn = state.sqlite_conn()?;
     let memory_repo = MemoryRepository::new(conn.connection());
     let offset = params.offset.unwrap_or(0);
     let limit = params.limit.unwrap_or(20);
@@ -253,7 +253,7 @@ async fn search_memories(
         None
     };
 
-    let mut conn = state.sqlite_conn()?;
+    let conn = state.sqlite_conn()?;
     let memory_repo = MemoryRepository::new(conn.connection());
     let vector_search = VectorSearch::new(conn.connection())?;
 
