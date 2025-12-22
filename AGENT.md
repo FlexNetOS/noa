@@ -1,3 +1,26 @@
+---
+title: "AGENT Instructions"
+description: "Agent execution guidelines for NOA - Constitutional authority, provider routing, and operational protocols"
+version: "2.0.0"
+last_updated: "2025-12-22"
+status: "canonical"
+tags:
+  - agents
+  - constitution
+  - providers
+  - automation
+  - workflows
+embeddings:
+  indexed: true
+  priority: high
+  context_window: full
+metadata:
+  authority: "constitutional"
+  binding: true
+  scope: "system-wide"
+  enforcement: "mandatory"
+---
+
 # AGENT Instructions
 
 **AGENT.md** - Agent execution guidelines for NOA
@@ -218,41 +241,6 @@ NEXT: <smallest verifiable step if incomplete>
 VERIFIED_BY: <Pass A/B/C completion status>
 ```
 
-## Building and Testing
-
-### Build Commands
-
-**Load environment first:**
-```powershell
-. 'N:\noa\noa-env.ps1'
-```
-
-**Build the core library:**
-```powershell
-Set-Location 'N:\noa\sys\core'
-cargo build --lib -p noa-core
-```
-
-**Run cargo fix for automatic fixes:**
-```powershell
-cargo fix --lib -p noa-core --allow-dirty
-```
-
-**Build all workspace members:**
-```powershell
-cargo build --workspace
-```
-
-**Current Status:**
-- `noa-core` builds successfully with 30 warnings (reduced from 46)
-- All critical components are properly connected and in use
-- Main warnings are unused fields in development/future features
-
-**Warning Categories:**
-- Unused variables in error handling (can be prefixed with `_`)
-- Unused fields in experimental features (MAML, ToolkenGPT, GPU pool)
-- Dead code in development stubs (normal for active development)
-
 ## Environment Rules (CRITICAL)
 
 Per `env-rule.md`, these rules are atomic and enforceable:
@@ -316,6 +304,372 @@ This priority order is the canonical routing policy. It must match the runtime r
 
 ---
 
+## Implemented Agents (Phase 9 Complete)
+
+### Core Agents (Operational)
+| Agent | Type | Status | Description |
+|-------|------|--------|-------------|
+| **CommanderChief** | Executive | ✅ Active | Task decomposition, planning, and delegation |
+| **FileIO** | Worker | ✅ Active | File operations (read, write, delete, copy) |
+| **Terminal** | Worker | ✅ Active | Command execution and shell operations |
+| **RAG** | Knowledge | ✅ Active | Retrieval-augmented generation with vector search |
+| **ModelSelector** | Intelligence | ✅ Active | Optimal model selection based on task requirements |
+| **MicroserviceManagement** | Operations | ✅ Active | Microservice lifecycle and orchestration |
+
+### Executive Layer (Phase 9)
+| Component | Status | Purpose |
+|-----------|--------|---------|
+| **ExecutiveAgent** | ✅ Active | Strategic decision-making |
+| **BoardAgent** | ✅ Active | Multi-agent coordination |
+| **MultiAgentExecutor** | ✅ Active | Parallel task execution |
+| **WorkflowOrchestrator** | ✅ Active | Complex workflow management |
+
+### Automation Services (Advanced Features)
+| Service | Status | Capabilities |
+|---------|--------|--------------|
+| **AutomatedCodeReview** | ✅ Active | Code quality analysis, security scanning |
+| **DeploymentAutomation** | ✅ Active | CI/CD pipeline management |
+| **KnowledgeBaseInterrogation** | ✅ Active | RAG-powered knowledge queries |
+
+### Agent CLI Commands
+```bash
+# List all available agents
+noa agents list
+
+# Get agent information
+noa agents info <agent_name>
+
+# Run an agent with a task
+noa agents run <agent_name> <task>
+
+# View agent execution logs
+noa agents logs [agent_name]
+```
+
+### Workflow Commands
+```bash
+# Execute multi-agent workflows
+noa workflow run <type>  # code-review | deployment | knowledge-query
+noa workflow status <workflow_id>
+noa workflow cancel <workflow_id>
+```
+
+**Implementation Directory:** `sys/core/src/agents/`
+**Automation Directory:** `sys/core/src/automation/`
+
+---
+
+## Target Directory Structure (Goal)
+
+This represents the **intended** architecture, not necessarily the current state:
+
+```
+noa_root/
+├── ai/
+│   ├── providers/
+│   │   ├── llama.cpp/
+│   │   ├── cursor/
+│   │   ├── claude/
+│   │   ├── codex/
+│   │   └── copilot/
+│   └── shared/
+│       ├── resources/
+│       │   ├── resource-registry.json
+│       │   ├── resource-mapping.json
+│       │   └── spec/
+│       └── prompts/
+├── apps/                        # First-class UI modules (versioned, pinned, sandbox-runnable)
+│   ├── task-app-a/              # Example: Linear, Jira, etc.
+│   │   ├── upstream/            # Vendor/original distribution (immutable, pinned)
+│   │   │   ├── web/             # Static assets or bundle
+│   │   │   ├── desktop/
+│   │   │   │   ├── win/
+│   │   │   │   ├── mac/
+│   │   │   │   └── linux/
+│   │   │   └── mobile/
+│   │   │       ├── ios/
+│   │   │       └── android/
+│   │   ├── wrappers/            # NOA-specific integration glue (thin)
+│   │   │   ├── connector/       # Adapter to/from Task Kernel (bidirectional sync)
+│   │   │   ├── mcp/             # Optional: MCP server around the app's API
+│   │   │   ├── deep-links/      # URL schemes, intents, navigation contracts
+│   │   │   ├── auth/            # SSO/OAuth mapping to sys/identity
+│   │   │   └── ui-embed/        # Embed adapters (webview, iframe, tauri window)
+│   │   ├── profiles/            # Settings separation: logs/cache isolated
+│   │   ├── config/              # App-specific config (generated; not secrets)
+│   │   └── manifests/           # Pinned versions + hashes + SBOM-ish metadata
+│   ├── task-app-b/              # Example: ClickUp, Notion, etc.
+│   │   └── wrappers/
+│   │       └── connector/       # Each app has its own adapter
+│   └── task-app-c/              # Example: Asana, Monday.com, etc.
+│       └── wrappers/
+│           └── connector/
+├── sys/
+│   ├── core/                    # Rust core system
+│   │   ├── src/
+│   │   │   ├── agents/          # ✅ Phase 9 Complete
+│   │   │   ├── automation/      # ✅ Advanced features
+│   │   │   ├── cli/             # CLI commands
+│   │   │   ├── healing/         # Self-healing logic
+│   │   │   ├── providers/       # Provider management
+│   │   │   ├── services/        # Core services
+│   │   │   └── vector/          # Vector DB (Qdrant)
+│   └── ui/                      # Next.js frontend (conversational command center)
+│       ├── app/
+│       │   ├── shell/           # Main nav + layout
+│       │   ├── pages/
+│       │   │   ├── convo/       # Default home (chat + widgets)
+│       │   │   ├── tasks/       # Tasks Hub - unified canonical view
+│       │   │   │   ├── hub/     # Main aggregated view (all apps normalized)
+│       │   │   │   ├── app-a/   # Embedded App A (optional deep-link view)
+│       │   │   │   ├── app-b/   # Embedded App B (optional)
+│       │   │   │   └── app-c/   # Embedded App C (optional)
+│       │   │   ├── runs/        # Task execution runs (logs/artifacts)
+│       │   │   └── hive/        # Devices, compute, storage mesh view
+│       │   └── widgets/
+│       │       ├── task-summary/    # "My top tasks", "Blocked", "Agent running"
+│       │       ├── kanban-mini/
+│       │       └── dag-viewer/
+│       └── src/
+│           ├── components/
+│           ├── contexts/
+│           └── services/
+├── gateway/
+│   └── mcp/
+│       └── connectors/
+│           └── tasks/           # Task integration layer
+│               ├── app-a/       # Connector for App A (endpoints + auth + mapping)
+│               ├── app-b/       # Connector for App B
+│               ├── app-c/       # Connector for App C
+│               └── router/      # Authority router (which app owns what scopes)
+├── orchestrator/
+│   ├── task-kernel/             # Canonical task model + unification rules
+│   │   ├── schema/              # TaskKernelTask schema (JSON/Proto)
+│   │   │   └── task_kernel.json # Canonical internal task representation
+│   │   ├── normalization/       # Canonicalization + dedupe + conflict resolution
+│   │   ├── mapping/             # Per-app mapping configs (app schema → kernel schema)
+│   │   └── sync/                # Ingestion + emission pipeline (bidirectional sync)
+│   └── packages/
+│       ├── schema/
+│       │   └── task_package.json    # Task Package schema (execution-oriented)
+│       └── templates/
+│           └── task-sync/       # Task synchronization workflows
+├── data/
+│   ├── vectors/                 # Qdrant data
+│   ├── models/                  # Local models
+│   ├── cache/
+│   │   └── apps/
+│   │       ├── task-app-a/      # App-specific cache isolation
+│   │       │   └── <profile-id>/
+│   │       ├── task-app-b/
+│   │       │   └── <profile-id>/
+│   │       └── task-app-c/
+│   │           └── <profile-id>/
+│   └── logs/
+│       └── apps/
+│           ├── task-app-a/      # App-specific log isolation
+│           │   └── <profile-id>/
+│           ├── task-app-b/
+│           │   └── <profile-id>/
+│           └── task-app-c/
+│               └── <profile-id>/
+├── bin/                         # Executables
+├── config/                      # Configuration files
+└── logs/                        # System logs
+```
+
+### Task Management Architecture (Multi-App Support)
+
+NOA supports **multiple task management apps** running concurrently, unified through a canonical **Task Kernel**. This approach keeps each app's native UX intact while providing a single source of truth for agent execution.
+
+#### Design Philosophy
+
+- **Conversational UI** = Command center (chat, intent, narration, approvals)
+- **Task Apps** = Structured work cockpits (boards, Gantt, docs, workflows)
+- **Task Kernel** = Canonical internal representation + sync layer
+- **Agents/Models** = Wired through Task Kernel, not directly to apps
+
+#### What Stays Separate
+
+Each task app maintains:
+- Its own binaries + UX (boards, Gantt, docs, etc.)
+- Native data model (for now)
+- App-specific workflows/features
+- Isolated profiles, logs, and cache
+
+#### What Becomes Unified (Immediately)
+
+NOA provides:
+- **TaskKernelTask** schema (canonical internal representation)
+- **Sync layer** with per-app adapters (app schema ↔ kernel schema)
+- **Single execution truth** (runs, artifacts, provenance in CAS)
+- **Tasks Hub UI** (normalized view across all apps)
+
+#### Integration Boundary
+
+Task apps ↔ NOA integration happens via **Task Kernel + Connectors**:
+
+```
+Task App A/B/C → Gateway Connector → Task Kernel → Orchestrator → Agents
+                      ↓                    ↓
+                  Mapping Rules      Normalization
+                                          ↓
+                                  Task Package (execution)
+                                          ↓
+                              Sandbox → CAS (artifacts)
+                                          ↓
+                          Status/Progress → Apps + UI Widgets
+```
+
+#### Data Flow
+
+1. **Task created/changed** in any task app
+2. Gateway connector **ingests** event → maps to **TaskKernelTask**
+3. Task Kernel **normalizes** + deduplicates + resolves conflicts
+4. Orchestrator converts to **TaskPackage** and routes to agents/providers
+5. Execution occurs in sandbox → **artifacts stored in CAS**
+6. Status/progress **emitted back** to source app(s) + UI widgets
+
+#### Authority Modes
+
+Each app can operate in one of three modes (per project or per field):
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Read-only source** | Ingest tasks, never write back | Legacy apps, external integrations |
+| **Bidirectional** | Two-way sync (rare at first) | Primary working app per project |
+| **Kernel-authoritative** | Tasks created in NOA, app is view | Advanced: NOA-native task creation |
+
+**Practical rollout:**
+1. Start with **read-only ingestion** from all apps
+2. Pick *one* app for **bidirectional** sync per project
+3. Gradually migrate to **kernel-authoritative** as adoption grows
+
+#### TaskKernelTask Schema
+
+The canonical internal representation includes:
+
+- `id` (stable, internal UUID)
+- `source` (app identifier + native task ID)
+- `title`, `description`
+- `state` (canonical enum: `planned` | `running` | `succeeded` | `failed`)
+- `priority` (normalized scale)
+- `tags[]`
+- `project`, `milestone`
+- `assignee(s)`
+- `deps[]` (task DAG for dependencies)
+- `artifacts[]` (CAS refs to execution outputs)
+- `runs[]` (execution run history)
+- `policy` (required capabilities, sandbox profile)
+- `metadata` (app-specific fields, conflict resolution hints)
+
+#### Adapter Contract
+
+Each app connector implements three core functions:
+
+```rust
+trait TaskAppAdapter {
+    // Ingest app event → canonical kernel task
+    fn ingest(&self, app_event: AppEvent) -> Result<TaskKernelTask>;
+    
+    // Emit kernel task → app mutation (optional, for write-back)
+    fn emit(&self, task: &TaskKernelTask) -> Result<AppMutation>;
+    
+    // Resolve conflicts when multiple apps have divergent state
+    fn reconcile(&self, conflicts: Vec<TaskConflict>) -> Result<TaskKernelTask>;
+}
+```
+
+#### Normalization & Deduplication
+
+The Task Kernel normalization layer handles:
+
+- **Status mapping**: Deterministic conversion (e.g., `todo` → `planned`, `done` → `succeeded`)
+- **Deduplication**: Via `(normalized_title + project + assignee + time_window)` + optional fuzzy match
+- **Conflict resolution**: Keep all originals as provenance, mark "merged into" with references
+- **Never discard**: All data retained; CAS provides immutable anchors
+
+#### UI: Tasks Hub
+
+The conversational UI provides a unified Tasks Hub:
+
+- **`/tasks`** = Canonical hub (aggregated view, normalized across all apps)
+  - Filters: source app, owner, project, hive scope (personal/regional/org)
+  - Agent run status: planned/running/failed/succeeded
+  - Deep links: "Open in App X" buttons
+- **`/tasks/app-a`** = Embedded App A view (optional)
+- **`/tasks/app-b`** = Embedded App B view (optional)
+- **`/tasks/app-c`** = Embedded App C view (optional)
+
+#### Truth Distribution
+
+- **Task Apps** = Human-visible truth (boards, priorities, owners, native UX)
+- **Task Kernel** = Canonical internal state (normalized, deduplicated)
+- **NOA Orchestrator** = Execution truth (runs, artifacts, provenance, logs)
+
+#### Agent Integration
+
+**Agents NEVER talk directly to task apps.** Instead:
+
+- Agents query **Task Kernel** (what to do)
+- Agents use **Orchestrator** (how to do it)
+- Agents invoke **MCP tools** (do it)
+- **Task Kernel emits status** back through connectors to apps
+
+This keeps the agent loop stable even when switching or adding task apps.
+
+#### Isolation Policy
+
+Each app maintains strict isolation:
+
+- **Logs**: `data/logs/apps/task-app-{a,b,c}/<profile-id>/`
+- **Cache**: `data/cache/apps/task-app-{a,b,c}/<profile-id>/`
+- **Config**: `apps/task-app-{a,b,c}/config/` (generated; not secrets)
+- **Binaries**: `apps/task-app-{a,b,c}/upstream/<platform>/`
+
+#### Deep Linking Format
+
+- **Canonical**: `noa://tasks/<kernel-task-id>`
+- **App-specific**: `noa://tasks/app-a/<native-task-id>`
+
+#### Status Mapping Examples
+
+| Task App State | NOA Kernel State | Notes |
+|----------------|------------------|-------|
+| `todo`, `backlog` | `planned` | Not yet started |
+| `in-progress`, `active` | `running` | Agent/human working |
+| `done`, `closed`, `resolved` | `succeeded` | Completed successfully |
+| `cancelled`, `blocked`, `failed` | `failed` | Did not complete |
+
+#### Migration Strategy
+
+**Phase 1: Read-only ingestion** (Current)
+- Ingest tasks from all apps into Task Kernel
+- No write-back to apps
+- Agents execute based on kernel state
+
+**Phase 2: Selective bidirectional** (Next)
+- Pick one app per project for bidirectional sync
+- Status updates flow back to that app
+- Other apps remain read-only
+
+**Phase 3: Kernel-authoritative** (Future)
+- Tasks created directly in NOA
+- Apps become views/editors
+- Full agent-driven task lifecycle
+
+#### When to Unify/Refactor
+
+Unify apps into a single native implementation only when:
+- 80% of tasks flow through the canonical hub
+- Stable mappings and authority rules proven
+- One app is clearly redundant
+- ROI is obvious (cost of maintaining adapters > cost of custom app)
+
+Until then, **keep apps separate** and let the Task Kernel handle integration.
+
+---
+
 ## Constitutional Compliance Checklist
 
 Before completing any task, verify:
@@ -330,311 +684,28 @@ Before completing any task, verify:
 
 ---
 
-## Target Directory Structure
+## Provider Integration Points
 
-```text
-noa/
-├─ README.md
-├─ AGENT.md
-├─ LICENSE
-├─ .gitignore
-│
-├─ bin/                              # user-facing executables (thin wrappers)
-│  ├─ noa                            # main CLI entry
-│  ├─ noa-admin                      # owner/maintainer CLI
-│  └─ noa-sandbox                    # sandbox runner entry
-│
-├─ apps/                             # task apps (upstream + wrappers)
-│  ├─ task-app-A/
-│  │  ├─ upstream/...
-│  │  └─ wrappers/
-│  │     ├─ connector/               # adapter to/from Task Kernel
-│  │     ├─ deep-links/
-│  │     └─ ui-embed/
-│  ├─ task-app-B/
-│  │  └─ wrappers/...
-│  └─ task-app-C/
-│     └─ wrappers/...
-│
-├─ lib/                              # shared libraries (Rust crates / polyglot libs)
-│  ├─ noa-core/                      # core types, error model, IDs, tracing
-│  ├─ noa-policy/                    # capability tokens, policy DSL, authz primitives
-│  ├─ noa-mcp/                       # MCP protocol helpers, client/server glue
-│  ├─ noa-cas/                       # CAS primitives (hashing, refs/tags, merkle DAG)
-│  ├─ noa-p2p/                       # libp2p abstractions, transport, discovery
-│  ├─ noa-schema/                    # schema definitions + validators (shared)
-│  └─ noa-ui-proto/                  # UI event protocol + widget schema
-│
-├─ sys/                              # "Kernel": smallest trusted core
-│  ├─ core/
-│  │  ├─ identity/                   # users/devices/org roles
-│  │  ├─ policy/                     # allow/deny, budgets, capabilities, trust levels
-│  │  ├─ secrets/                    # secret mediation API (no raw secrets to tools)
-│  │  ├─ audit/                      # append-only audit + provenance
-│  │  ├─ scheduler/                  # task DAG runner, quotas, priorities
-│  │  ├─ world_model/                # machine-readable world model (SSoT)
-│  │  ├─ registry/                   # tool/model/server registry pointers + trust pins
-│  │  └─ enforcement/                # (Layer 3) validator/compiler/guardrails hooks
-│  ├─ api-server/                    # internal control plane API (sys/core endpoints)
-│  ├─ init/                          # boot sequence (first-run + migrations)
-│  ├─ shell/                         # controlled shells (bash/pwsh adapters)
-│  └─ etc/                           # "system-ish" defaults (read-only baseline mirrors)
-│
-├─ gateway/                          # Tool bus + routing (MCP lives here)
-│  ├─ mcp/
-│  │  ├─ proxy/                      # central MCP gateway/proxy
-│  │  ├─ registry/                   # discovery, version pinning, signatures/trust
-│  │  ├─ routing/                    # locality-aware routing (local/personal/regional/org)
-│  │  ├─ authz/                      # capability token -> per-tool permission mapping
-│  │  ├─ connectors/                 # adapter layer to external systems (bounded)
-│  │  │  └─ tasks/
-│  │  │     ├─ app-A/                 # connector endpoints + auth + mapping rules
-│  │  │     ├─ app-B/
-│  │  │     ├─ app-C/
-│  │  │     └─ router/                # which app is authoritative for which scopes
-│  │  └─ workflows/                  # workflow engine bindings (calls tools via MCP)
-│  ├─ api/                           # stable internal APIs (for UI + orchestrator)
-│  └─ ui-bridge/                     # streaming progress/events to UI widgets
-│
-├─ orchestrator/                     # Brains: plan + route + run
-│  ├─ router/                        # provider+tool selection (budget + locality)
-│  ├─ planner/                       # decomposes requests into task packages
-│  ├─ executor/                      # runs task packages via gateway/mcp
-│  ├─ workflows/                     # high-level DAG workflows (build/test/train/etc.)
-│  ├─ commands/                      # "command verbs" mapped to packages/workflows
-│  ├─ task-kernel/                   # canonical task model + rules
-│  │  ├─ schema/                     # TaskKernel schema (JSON/Proto)
-│  │  ├─ normalization/              # canonicalization + dedupe + conflict rules
-│  │  ├─ mapping/                    # mapping configs per app
-│  │  └─ sync/                       # ingestion + emission pipeline
-│  └─ packages/                      # microservice/package format
-│     ├─ schema/                     # package schema definitions
-│     ├─ templates/                  # common task shapes
-│     ├─ compiled/                   # resolved DAGs ready to run
-│     └─ staging/                    # resolved packages before promotion to “known good”
-│
-├─ task/                             # task system + todo + project-management
-│  ├─ todo/                          # queue of work items (machine-first)
-│  ├─ project-management/            # boards, milestones, sprints, ownership
-│  ├─ run-logs/                      # task run metadata (bounded, CAS-linked)
-│  └─ artifacts/                     # outputs captured from runs (promote to CAS)
-│
-├─ sandbox/                          # “Claude-like” containment (anti-rot)
-│  ├─ runtime/
-│  │  ├─ runners/                    # sandbox runners (process/VM/containerless)
-│  │  ├─ workspaces/                 # per-task ephemeral dirs
-│  │  ├─ mounts/                     # controlled FS mounts
-│  │  ├─ network/                    # network policy toggles + allowlists
-│  │  └─ limits/                     # cpu/gpu/time/log/cache caps
-│  ├─ snapshots/                     # rollback points + diff monitors
-│  └─ policies/                      # sandbox profiles (build, scan, train, db-migrate)
-│
-├─ tools/                            # Tool servers (often 1 MCP server per tool)
-│  ├─ spec-kit/                      # MCP server: spec generation/validation/diff
-│  ├─ code-scan/                     # MCP server: scan/lint/security checks
-│  ├─ build-test/                    # MCP server: build/unit/integration tests
-│  ├─ db/                            # MCP server: db access (read-only + write split)
-│  ├─ object-store/                  # MCP server: object storage (S3-like, local-first)
-│  ├─ cas/                           # MCP server: CAS get/put, refs/tags, GC triggers
-│  ├─ notebook-kernel/               # MCP server: controlled notebooks (see test/notebook)
-│  ├─ package-manager/               # pnpm (or alt) ops isolated behind MCP
-│  └─ connectors/                    # external connector tool-servers (bounded + audited)
-│
-├─ providers/                        # Model providers (compute plane)
-│  ├─ local/
-│  │  ├─ llama_cpp/
-│  │  └─ candle/
-│  ├─ remote/
-│  │  ├─ codex_cli/
-│  │  ├─ claude_code_cli/
-│  │  └─ copilot_bridge/
-│  ├─ shared/                        # shared provider resources (kv cache, embeddings cache)
-│  └─ pool/                          # routing + budgets + concurrency control
-│
-├─ p2p/                              # Hive mind mesh (libp2p)
-│  ├─ personal/                      # user-owned devices (trust anchor)
-│  │  ├─ node/
-│  │  ├─ discovery/
-│  │  ├─ routing/
-│  │  ├─ compute/                    # distributed compute requests (sandboxed)
-│  │  └─ storage/                    # CAS replication, pinning, retrieval
-│  ├─ regional/                      # pooled community resources
-│  │  ├─ admission/
-│  │  ├─ compute/
-│  │  └─ storage/
-│  └─ org/                           # org hive mind
-│     ├─ governance/
-│     ├─ compute/
-│     └─ storage/
-│
-├─ data/                             # Durable data plane
-│  ├─ cas/
-│  │  ├─ blobs/
-│  │  ├─ refs/                       # mutable pointers/tags on top of CAS
-│  │  ├─ index/                      # search index
-│  │  └─ gc/                         # garbage collection config/state
-│  ├─ db/
-│  │  ├─ postgres/
-│  │  └─ sqlite/
-│  ├─ vectors/                       # vector DB files/index (or remote endpoint config)
-│  ├─ object-store/                  # local object store backing (if self-hosted)
-│  ├─ logs/                          # bounded, rotated logs (optional CAS-linked)
-│  └─ cache/                         # bounded caches
-│
-├─ configs/                          # AI-native centralized config (3-layer model)
-│  ├─ base/                          # Layer 1 (immutable baseline; “known good”)
-│  │  ├─ microkernel-layout/         # directory contract + invariants
-│  │  ├─ toolchain-versions/         # pinned toolchain versions
-│  │  ├─ schemas/                    # core schema definitions (authoritative)
-│  │  ├─ safety-rails/               # hard limits, deny lists, invariants
-│  │  ├─ sandbox-definitions/        # default sandbox profiles
-│  │  └─ rollback-points/            # baseline snapshots metadata
-│  ├─ semantic/                      # Layer 2 (mutable; evolves)
-│  │  ├─ preferences/                # user/org prefs
-│  │  ├─ capabilities/               # granted capabilities per role/device
-│  │  ├─ device-profiles/            # distributed device profiles
-│  │  ├─ world-model-metadata/       # mutable world model facts
-│  │  ├─ intent/                     # user intent files (goals, constraints)
-│  │  ├─ agent-rules/                # coordination rules, learned optimizations
-│  │  └─ hive-state/                 # personal/regional/org state (non-secret)
-│  └─ enforcement/                   # Layer 3 (enforcement + self-correction)
-│     ├─ validator/                  # schema validator
-│     ├─ compiler/                   # “compile” configs into runnable state
-│     ├─ guardrails/                 # rules engine + policy checks
-│     ├─ snapshot-diff-monitor/      # detect drift; enforce rollback/repair
-│     └─ policy-engine/              # self-correcting policy loop
-│
-├─ settings/                         # runtime settings (derived from configs + secrets)
-│  ├─ resolved/                      # compiled, merged settings (generated)
-│  ├─ profiles/                      # UI/IDE/provider profiles to prevent bloat
-│  └─ overrides/                     # temporary overrides (time-limited, audited)
-│
-├─ secret-store/                     # sealed secret material + policy (no raw secrets in repos)
-│  ├─ envelopes/                     # encrypted blobs
-│  ├─ policies/                      # who/what can request which secret
-│  └─ brokers/                       # local broker + p2p broker (optional)
-│
-├─ scripts/                          # repo scripts (thin; call commands/)
-│  ├─ dev/
-│  ├─ ops/
-│  └─ maintenance/
-│
-├─ commands/                         # canonical command definitions (machine-first)
-│  ├─ noa.yaml                       # CLI verbs -> packages/workflows
-│  └─ catalog/                       # command catalog by domain
-│
-├─ api/                              # application APIs (not sys control plane)
-│  ├─ public/                        # user-facing API server (if exposed)
-│  ├─ internal/                      # internal APIs consumed by UI/agents
-│  └─ connectors/                    # API-level connectors (distinct from tool connectors)
-│
-├─ ui/                               # user-facing UI (migrating from sys/ui)
-│  ├─ pages/
-│  │  ├─ convo/
-│  │  └─ tasks/
-│  │     ├─ hub/                     # unified “Tasks Hub” view (canonical)
-│  │     ├─ app-A/                   # embedded view (optional)
-│  │     ├─ app-B/
-│  │     └─ app-C/
-│  └─ widgets/
-│     └─ task-summary/
-│
-├─ docs/                             # Documentation system (Wiki/Pages/Runbooks)
-│  ├─ wiki/                          # navigation + architecture map (SSoT hub)
-│  ├─ pages/                         # granular docs
-│  ├─ runbooks/                      # verified action playbooks (triggers/escalation)
-│  ├─ api/                           # API reference docs
-│  ├─ schemas/                       # schema docs generated from configs/base/schemas
-│  └─ adr/                           # architecture decision records
-│
-├─ test/                             # Testing + QA + notebooks
-│  ├─ unit/
-│  ├─ integration/
-│  ├─ e2e/
-│  ├─ qa/                            # QA plans, checklists, test matrices
-│  └─ notebook/
-│     ├─ kernels/                    # notebook-kernel configs
-│     ├─ notebooks/                  # analysis notebooks (sandboxed execution only)
-│     └─ fixtures/
-│
-├─ staging/                          # Promotion pipeline workspace (pre-release)
-│  ├─ builds/
-│  ├─ releases/
-│  └─ canary/
-│
-├─ deploy/                           # Release strategies + environment control
-│  ├─ blue-green/                    # a/b + blue-green hot swap
-│  ├─ canary/
-│  ├─ rollback/
-│  └─ hot-swap/                      # fast swap mechanics and constraints
-│
-├─ training/                         # ML/devops training flows (data + pipelines)
-│  ├─ datasets/                      # references/manifest to datasets (often CAS-backed)
-│  ├─ pipelines/                     # training pipelines (call tools via MCP)
-│  ├─ evals/                         # eval suites
-│  └─ finetune/                      # finetune recipes (if any)
-│
-└─ workflows/                        # higher-order workflows (cross-domain)
-   ├─ build-release/
-   ├─ migrate/
-   ├─ onboard-device/
-   ├─ runbook-automation/
-   └─ self-heal/                     # drift detection -> rollback/repair
+All providers must reference this file as the canonical source for:
+- **Priority and routing logic** (see Provider Priority table above)
+- **Fallback strategies**
+- **Resource sharing policies** (§3.13)
+- **Constitutional compliance requirements**
+
+### Provider Configuration Files
+Each provider should contain a reference link:
+```markdown
+<!-- See AGENT.md for canonical provider routing and policies -->
+[AGENT.md](../../AGENT.md)
 ```
---- 
 
-## Target System Graph
+**Location:** `$NOA_AI_PROVIDERS/<provider>/README.md`
 
-```mermaid
-flowchart TB
-  UI("UI/UX: chat + widgets + XR") --> ORCH("Orchestrator: planner/router/executor")
-  IDE[IDE: VS Code/Cursor<br/>separate caches/logs] --> ORCH
+### Shared Resources
+All shared resources (prompts, templates, schemas) are catalogued in:
+- `$NOA_AI_SHARED/resources/resource-registry.json`
+- `$NOA_AI_SHARED/resources/resource-mapping.json`
 
-  ORCH --> TASK[task/: todo + project-management]
-  ORCH --> CMD[commands/: verbs -> packages/workflows]
-  ORCH --> WF[workflows/: DAGs]
+**Implementation:** `sys/core/src/providers/mod.rs` must match the priority table in this file.
 
-  ORCH --> GATE[Gateway: MCP Proxy/Registry/AuthZ/Routing]
-  GATE --> TOOLS[tools/: per-tool MCP servers]
-  TOOLS --> SBX[sandbox/: constrained execution]
-  SBX --> ART[data/cas + data/object-store<br/>artifacts promoted & pinned]
-
-  subgraph CONFIGS[AI-native centralized config]
-    C1[configs/base<br/>Layer 1 immutable baseline]
-    C2[configs/semantic<br/>Layer 2 mutable semantic layer]
-    C3[configs/enforcement<br/>Layer 3 enforcement]
-    C1 --> C3
-    C2 --> C3
-  end
-
-  C3 --> SYS[sys/core: policy + identity + scheduler + world model]
-  SYS --> GATE
-
-  subgraph DATA[Data plane]
-    CAS[(data/cas)]
-    PG[(data/db/postgres)]
-    SQLITE[(data/db/sqlite)]
-    VDB[(data/vectors)]
-    OBJ[(data/object-store)]
-  end
-
-  TOOLS --> PG
-  TOOLS --> SQLITE
-  TOOLS --> VDB
-  TOOLS --> OBJ
-  TOOLS --> CAS
-
-  subgraph HIVE[p2p hive mind (libp2p)]
-    P[p2p/personal]
-    R[p2p/regional]
-    O[p2p/org]
-  end
-
-  SYS --> HIVE
-  GATE --> HIVE
-  HIVE --> TOOLS
-
-  DOCS[docs/: wiki + pages + runbooks] <---> SYS
-  QA[test/qa + staging + deploy blue-green/canary] <---> ORCH
-
-```
+---
