@@ -37,8 +37,8 @@ export default function Home() {
         const fetchStatus = async () => {
             try {
                 const [healthRes, statusRes] = await Promise.all([
-                    fetch('http://localhost:3001/health'),
-                    fetch('http://localhost:3001/api/v1/status'),
+                    fetch('/health'),
+                    fetch('/api/v1/status'),
                 ]);
 
                 const healthData = await healthRes.json();

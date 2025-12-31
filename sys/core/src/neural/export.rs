@@ -18,8 +18,8 @@ impl ModelExporter {
     /// Export model to GGUF format
     pub async fn export_to_gguf(
         &self,
-        source_path: &Path,
-        output_path: &PathBuf,
+        _source_path: &Path,
+        _output_path: &PathBuf,
     ) -> Result<()> {
         // TODO: Implement actual GGUF export
         // This would require llama.cpp convert script or similar
@@ -33,8 +33,8 @@ impl ModelExporter {
     /// Export model to safetensors format
     pub async fn export_to_safetensors(
         &self,
-        source_path: &Path,
-        output_path: &PathBuf,
+        _source_path: &Path,
+        _output_path: &PathBuf,
     ) -> Result<()> {
         // TODO: Implement actual safetensors export
         // This would require safetensors library integration

@@ -79,8 +79,15 @@ impl PlaneSwapExecutor {
         })
     }
 
+    /// Execute plane swap based on healing event
+    pub async fn execute_swap(&self, event: &super::HealingEvent) -> Result<PlaneSwapResult> {
+        // Determine optimal target plane based on event
+        let target_plane = Plane::Sandbox; // Default to sandbox for recovery
+        self.swap_component(&event.id.to_string(), Plane::Deployed, target_plane).await
+    }
+
     /// Check if plane swap is safe
-    pub async fn can_swap(&self, component_id: &str, to_plane: Plane) -> Result<bool> {
+    pub async fn can_swap(&self, _component_id: &str, _to_plane: Plane) -> Result<bool> {
         // TODO: Check if target plane has capacity
         // TODO: Check if component dependencies are available in target plane
         // TODO: Check if swap would violate constraints

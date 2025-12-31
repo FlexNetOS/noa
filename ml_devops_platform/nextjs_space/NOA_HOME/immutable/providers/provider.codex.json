@@ -1,0 +1,26 @@
+{
+  "id": "codex",
+  "name": "Codex CLI",
+  "type": "remote",
+  "capabilities": [
+    "code-generation",
+    "code-review",
+    "debugging"
+  ],
+  "costModels": {
+    "tokensPerSecond": 100,
+    "maxContextWindow": 32768,
+    "costPerToken": 0.00002
+  },
+  "latencyCurves": {
+    "baseline": 200,
+    "perToken": 10
+  },
+  "toolAccess": [
+    "all"
+  ],
+  "contextWindowLimits": {
+    "default": 16384,
+    "max": 32768
+  }
+}

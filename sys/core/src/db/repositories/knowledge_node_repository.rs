@@ -101,7 +101,7 @@ impl KnowledgeNodeRepository {
             .execute(
                 r#"
                 INSERT INTO knowledge_node (
-                    id, type, name, qualified_name, description, source_digest,
+                    id, node_type, name, qualified_name, description, source_digest,
                     location, properties, embedding_id, created_at
                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
                 "#,
@@ -134,7 +134,7 @@ impl KnowledgeNodeRepository {
             .conn
             .prepare(
                 r#"
-                SELECT id, type, name, qualified_name, description, source_digest,
+                SELECT id, node_type, name, qualified_name, description, source_digest,
                        location, properties, embedding_id, created_at
                 FROM knowledge_node
                 WHERE id = ?1
@@ -172,10 +172,10 @@ impl KnowledgeNodeRepository {
             .conn
             .prepare(
                 r#"
-                SELECT id, type, name, qualified_name, description, source_digest,
+                SELECT id, node_type, name, qualified_name, description, source_digest,
                        location, properties, embedding_id, created_at
                 FROM knowledge_node
-                WHERE type = ?1
+                WHERE node_type = ?1
                 ORDER BY created_at DESC
                 "#,
             )
@@ -209,7 +209,7 @@ impl KnowledgeNodeRepository {
             .conn
             .prepare(
                 r#"
-                SELECT id, type, name, qualified_name, description, source_digest,
+                SELECT id, node_type, name, qualified_name, description, source_digest,
                        location, properties, embedding_id, created_at
                 FROM knowledge_node
                 WHERE source_digest = ?1

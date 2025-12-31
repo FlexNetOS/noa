@@ -1,0 +1,12 @@
+{
+  "id": "reviewer",
+  "name": "Reviewer Agent",
+  "role": "code_reviewer",
+  "systemPrompt": "You are a senior code reviewer. Identify bugs, suggest improvements, ensure best practices.",
+  "capabilities": [
+    "code_review",
+    "analysis"
+  ],
+  "temperature": 0.2,
+  "maxTokens": 2048
+}

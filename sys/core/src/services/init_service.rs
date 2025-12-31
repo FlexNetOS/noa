@@ -14,7 +14,7 @@ pub struct InitService;
 
 /// Tracks what was created during initialization for cleanup on failure
 #[derive(Debug, Default)]
-struct InitState {
+pub(crate) struct InitState {
     directories_created: Vec<std::path::PathBuf>,
     configs_created: Vec<std::path::PathBuf>,
     database_created: bool,
@@ -158,6 +158,16 @@ impl InitService {
                 warn!(path = %db_path.display(), error = %e, "Failed to remove database during cleanup");
             } else {
                 info!(path = %db_path.display(), "Removed database file");
+            }
+        }
+
+        // Remove marker file if created
+        if state.marker_file_created {
+            let marker_path = noa_root.join(".noa-initialized");
+            if let Err(e) = std::fs::remove_file(&marker_path) {
+                warn!(path = %marker_path.display(), error = %e, "Failed to remove marker file during cleanup");
+            } else {
+                info!(path = %marker_path.display(), "Removed marker file");
             }
         }
 

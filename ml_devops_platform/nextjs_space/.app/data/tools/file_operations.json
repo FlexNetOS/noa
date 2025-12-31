@@ -1,0 +1,23 @@
+{
+  "id": "file_operations",
+  "name": "File Operations",
+  "description": "Read, write, or modify files",
+  "parameters": {
+    "operation": {
+      "type": "string",
+      "description": "read|write|append|delete",
+      "required": true
+    },
+    "path": {
+      "type": "string",
+      "description": "File path",
+      "required": true
+    },
+    "content": {
+      "type": "string",
+      "description": "Content for write operations"
+    }
+  },
+  "handler": "tools.file_operations",
+  "category": "filesystem"
+}

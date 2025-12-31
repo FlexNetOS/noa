@@ -51,6 +51,13 @@ impl ToolTokenPretrainer {
         Ok(embedding)
     }
 
+    /// Pre-train embeddings for a plugin
+    pub async fn pretrain_for_plugin(&self, plugin_path: &std::path::Path) -> Result<()> {
+        tracing::debug!(path = ?plugin_path, "Pre-training plugin embeddings");
+        // TODO: Load plugin metadata and generate embeddings
+        Ok(())
+    }
+
     /// Batch pre-train multiple tools
     pub async fn pretrain_batch(&self, tools: Vec<(String, String, Vec<String>)>) -> Result<Vec<Vec<f32>>> {
         let mut embeddings = Vec::new();

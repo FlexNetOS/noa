@@ -1,0 +1,14 @@
+{
+  "id": "code_generation",
+  "name": "Code Generation",
+  "description": "Generate code in multiple languages",
+  "category": "coding",
+  "requiredCapabilities": [
+    "code_completion",
+    "code_generation"
+  ],
+  "examples": [
+    "Write a React component",
+    "Create a REST API"
+  ]
+}

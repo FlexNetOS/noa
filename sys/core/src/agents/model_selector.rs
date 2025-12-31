@@ -5,10 +5,44 @@
 //! US2: Model selection for optimal task routing
 
 use crate::error::Result;
+use crate::agents::BaseAgent;
 use crate::db::repositories::{ModelRepository, Model as DbModel, ModelStatus};
 use crate::db::Connection;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+
+/// Mock model selector agent for testing/default execution
+pub struct MockModelSelectorAgent;
+
+impl MockModelSelectorAgent {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Default for MockModelSelectorAgent {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl BaseAgent for MockModelSelectorAgent {
+    fn name(&self) -> &str {
+        "model-selector"
+    }
+
+    fn description(&self) -> &str {
+        "Mock model selector for testing"
+    }
+
+    fn capabilities(&self) -> Vec<String> {
+        vec!["select_model".into()]
+    }
+
+    fn execute(&self, _task: &str) -> Result<String> {
+        Ok("Selected model: gpt-4".into())
+    }
+}
 
 /// Task type for model selection
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -1964,7 +1964,7 @@ ai/shared/
 
 ### Universal Task Execution Policy Artifacts (§9)
 
-Per [universal_task_execution_policy.md](../../project-mgmt/docs/05-policy/universal_task_execution_policy.md):
+Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgmt/docs/05-policy/universal_task_execution_policy.md):
 
 - [ ] T486 Create HASHES.txt generation script in `scripts/bash/generate-hashes.sh`
 - [ ] T487 [P] Create SHA-256 hash generation for all key artifacts in `noa_root/test-results/HASHES.txt`

@@ -1,0 +1,14 @@
+{
+  "id": "code_review",
+  "name": "Code Review",
+  "description": "Review and improve code quality",
+  "category": "coding",
+  "requiredCapabilities": [
+    "code_review",
+    "analysis"
+  ],
+  "examples": [
+    "Review PR",
+    "Find bugs"
+  ]
+}

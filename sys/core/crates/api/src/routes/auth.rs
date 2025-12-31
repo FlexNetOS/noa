@@ -1150,6 +1150,7 @@ struct GithubTokenResponse {
 #[derive(Debug, Deserialize)]
 struct GithubUser {
     id: u64,
+    #[allow(dead_code)]
     login: String,
     name: Option<String>,
     avatar_url: Option<String>,

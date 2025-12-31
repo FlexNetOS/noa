@@ -59,6 +59,7 @@ pub trait Repository<T, Id> {
 }
 
 /// Extended repository trait with query capabilities
+#[allow(dead_code)]
 pub trait QueryableRepository<T, Id>: Repository<T, Id> {
     /// Find all entities
     fn find_all(&self) -> Result<Vec<T>>;
@@ -71,6 +72,7 @@ pub trait QueryableRepository<T, Id>: Repository<T, Id> {
 }
 
 /// Generic filter for queries
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Filter {
     pub conditions: Vec<Condition>,
@@ -79,6 +81,7 @@ pub struct Filter {
     pub offset: Option<u64>,
 }
 
+#[allow(dead_code)]
 impl Filter {
     pub fn new() -> Self {
         Self {
@@ -120,6 +123,7 @@ impl Default for Filter {
 }
 
 /// Query condition
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Condition {
     pub field: String,
@@ -127,6 +131,7 @@ pub struct Condition {
     pub value: Value,
 }
 
+#[allow(dead_code)]
 impl Condition {
     pub fn eq(field: impl Into<String>, value: impl Into<Value>) -> Self {
         Self {
@@ -178,6 +183,7 @@ impl Condition {
 }
 
 /// Query operators
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Operator {
     Equal,
@@ -196,6 +202,7 @@ pub enum Operator {
 }
 
 /// Query value types
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Value {
     String(String),
@@ -243,6 +250,7 @@ impl From<bool> for Value {
 }
 
 /// Order by clause
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct OrderBy {
     pub field: String,
@@ -250,6 +258,7 @@ pub struct OrderBy {
 }
 
 /// Sort direction
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
     Ascending,
@@ -263,6 +272,7 @@ impl Default for Direction {
 }
 
 /// Paginated result
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct PaginatedResult<T> {
     pub items: Vec<T>,
@@ -272,6 +282,7 @@ pub struct PaginatedResult<T> {
     pub has_more: bool,
 }
 
+#[allow(dead_code)]
 impl<T> PaginatedResult<T> {
     pub fn new(items: Vec<T>, total: u64, offset: u64, limit: u64) -> Self {
         let has_more = offset + (items.len() as u64) < total;

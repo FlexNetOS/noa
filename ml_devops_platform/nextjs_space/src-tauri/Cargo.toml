@@ -1,0 +1,54 @@
+[package]
+name = "ml_devops_platform"
+version = "0.1.0"
+description = "Event-driven ML DevOps platform with streaming chat and SONA orchestration"
+authors = ["ML DevOps Team"]
+license = "MIT"
+repository = "https://github.com/mldevops/platform"
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "ml_devops_platform_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.3", features = [] }
+
+[dependencies]
+# Core dependencies
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+tokio = { version = "1", features = ["full"] }
+
+# Tauri core
+tauri = { version = "2.9.5", features = [] }
+tauri-plugin-log = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-http = "2"
+tauri-plugin-websocket = "2"
+
+# HTTP/WebSocket for future ML inference server
+reqwest = { version = "0.12", features = ["json", "stream"] }
+axum = { version = "0.7", optional = true }
+tower = { version = "0.4", optional = true }
+
+# System integration
+directories = "5.0"
+anyhow = "1.0"
+thiserror = "2.0"
+hostname = "0.4"
+opener = "0.7"
+
+# Async runtime
+futures = "0.3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+local-inference = ["axum", "tower"]

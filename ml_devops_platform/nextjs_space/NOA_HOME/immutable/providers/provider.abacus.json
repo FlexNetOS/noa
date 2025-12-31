@@ -1,0 +1,26 @@
+{
+  "id": "abacus",
+  "name": "Abacus AI",
+  "type": "remote",
+  "capabilities": [
+    "text-generation",
+    "reasoning",
+    "analysis"
+  ],
+  "costModels": {
+    "tokensPerSecond": 150,
+    "maxContextWindow": 128000,
+    "costPerToken": 0.00001
+  },
+  "latencyCurves": {
+    "baseline": 150,
+    "perToken": 5
+  },
+  "toolAccess": [
+    "all"
+  ],
+  "contextWindowLimits": {
+    "default": 32768,
+    "max": 128000
+  }
+}

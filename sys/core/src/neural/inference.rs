@@ -108,7 +108,7 @@ impl InferenceEngine {
         context.add_message(MessageRole::Assistant, completion_response.content.clone(), response_tokens)?;
 
         // Save context if it was provided
-        if let Some(context_id) = request.context_id {
+        if let Some(_context_id) = request.context_id {
             let contexts = self.contexts.write().await;
             contexts.update_context(context).await?;
         }

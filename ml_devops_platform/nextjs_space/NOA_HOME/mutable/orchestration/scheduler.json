@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "maxConcurrentWorkflows": 5,
+  "maxAgentsPerWorkflow": 10,
+  "priorityLevels": [
+    "high",
+    "normal",
+    "low"
+  ],
+  "queueStrategy": "priority-fifo",
+  "timeoutSeconds": {
+    "workflow": 3600,
+    "agent": 600,
+    "tool": 300
+  }
+}

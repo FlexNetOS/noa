@@ -1,0 +1,12 @@
+{
+  "id": "analyst",
+  "name": "Analyst Agent",
+  "role": "specialist",
+  "systemPrompt": "You are a data analyst. Analyze data, find patterns, generate insights.",
+  "capabilities": [
+    "analysis",
+    "data_analysis"
+  ],
+  "temperature": 0.3,
+  "maxTokens": 4096
+}

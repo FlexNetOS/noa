@@ -209,6 +209,14 @@ impl SelfHealingOrchestrator {
                     let retry_count = self.retry_counter.increment(&event.id).await?;
 
                     if retry_count >= 3 {
+                        // Check if we should attempt plane swap for critical issues
+                        if root_cause.contains("critical") || root_cause.contains("Critical") {
+                            tracing::warn!(event_id = %event.id, "Attempting plane swap for critical issue");
+                            if let Err(e) = self.plane_swap.execute_swap(&event).await {
+                                tracing::error!(error = %e, "Plane swap failed");
+                            }
+                        }
+
                         // Escalate to user
                         self.escalation_notifier
                             .notify(&event, &root_cause, retry_count)

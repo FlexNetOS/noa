@@ -1,0 +1,26 @@
+{
+  "id": "llamacpp",
+  "name": "llama.cpp",
+  "type": "local",
+  "capabilities": [
+    "text-generation",
+    "completion"
+  ],
+  "costModels": {
+    "tokensPerSecond": 50,
+    "maxContextWindow": 8192,
+    "memoryMB": 4096
+  },
+  "latencyCurves": {
+    "baseline": 100,
+    "perToken": 20
+  },
+  "toolAccess": [
+    "execute_code",
+    "file_operations"
+  ],
+  "contextWindowLimits": {
+    "default": 8192,
+    "max": 16384
+  }
+}

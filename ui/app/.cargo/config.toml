@@ -1,0 +1,5 @@
+[build]
+# On Windows, incremental compilation directories can sometimes be locked by
+# antivirus/indexers, which surfaces as a rustc warning and breaks "0-warnings"
+# expectations. Disabling incremental avoids that class of flake.
+incremental = false

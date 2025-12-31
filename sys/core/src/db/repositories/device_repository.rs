@@ -394,24 +394,24 @@ impl DeviceRepository {
     /// Convert database row to Device
     fn row_to_device(&self, row: &Row) -> rusqlite::Result<Device> {
         let id_str: String = row.get(0)?;
-        let id = Uuid::parse_str(&id_str).map_err(|e| {
+        let id = Uuid::parse_str(&id_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(0, "UUID".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let name: String = row.get(1)?;
         let type_str: String = row.get(2)?;
-        let device_type = DeviceType::from_str(&type_str).map_err(|e| {
+        let device_type = DeviceType::from_str(&type_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(2, "device_type".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let platform_str: String = row.get(3)?;
-        let platform = Platform::from_str(&platform_str).map_err(|e| {
+        let platform = Platform::from_str(&platform_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(3, "platform".to_string(), rusqlite::types::Type::Text)
         })?;
 
         let peer_id: String = row.get(4)?;
         let status_str: String = row.get(5)?;
-        let status = DeviceStatus::from_str(&status_str).map_err(|e| {
+        let status = DeviceStatus::from_str(&status_str).map_err(|_e| {
             rusqlite::Error::InvalidColumnType(5, "status".to_string(), rusqlite::types::Type::Text)
         })?;
 

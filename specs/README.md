@@ -1,6 +1,6 @@
 # NOA Specifications Index
 
-This directory contains all feature specifications for the NOA project, following the [Spec-Driven Development](../project-mgmt/spec-kit/spec-driven.md) methodology.
+This directory contains all feature specifications for the NOA project, following the [Spec-Driven Development](../data/archive/sessions/project-mgmt/spec-kit/spec-driven.md) methodology.
 
 ---
 
@@ -26,15 +26,15 @@ These high-level architecture documents inform the implementation specs:
 
 ## Spec-Kit Integration
 
-All specs follow the [Spec-Kit](../project-mgmt/spec-kit/) template structure:
+All specs follow the [Spec-Kit](../data/archive/sessions/project-mgmt/spec-kit) template structure:
 
 ### Required Documents (per spec)
 
 | Document | Purpose | Template |
 |----------|---------|----------|
-| `spec.md` | User stories, requirements, acceptance criteria | [spec-template.md](../project-mgmt/spec-kit/templates/spec-template.md) |
-| `plan.md` | Technical context, architecture, task breakdown | [plan-template.md](../project-mgmt/spec-kit/templates/plan-template.md) |
-| `tasks.md` | Detailed task list with IDs, dependencies | [tasks-template.md](../project-mgmt/spec-kit/templates/tasks-template.md) |
+| `spec.md` | User stories, requirements, acceptance criteria | [spec-template.md](../data/archive/sessions/project-mgmt/spec-kit/templates/spec-template.md) |
+| `plan.md` | Technical context, architecture, task breakdown | [plan-template.md](../data/archive/sessions/project-mgmt/spec-kit/templates/plan-template.md) |
+| `tasks.md` | Detailed task list with IDs, dependencies | [tasks-template.md](../data/archive/sessions/project-mgmt/spec-kit/templates/tasks-template.md) |
 
 ### Optional Documents (per spec)
 
@@ -142,8 +142,8 @@ The implementation specs are informed by the AER (Agentic Environment Runtime) a
 ## Related Documentation
 
 - [NOA Constitution](../CONSTITUTION.md) - Core principles and governance
-- [Spec-Kit README](../project-mgmt/spec-kit/README.md) - Spec-driven development toolkit
-- [AGENTS.md](../project-mgmt/spec-kit/AGENTS.md) - AI agent integration guide
+- [Spec-Kit README](../data/archive/sessions/project-mgmt/spec-kit/README.md) - Spec-driven development toolkit
+- [AGENTS.md](../data/archive/sessions/project-mgmt/spec-kit/AGENTS.md) - AI agent integration guide
 
 ---
 

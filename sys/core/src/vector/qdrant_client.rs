@@ -39,6 +39,7 @@ impl QdrantClient {
         // TODO: Implement actual Qdrant upsert using qdrant-client crate
         // For now, this is a placeholder
         tracing::info!(
+            url = %self.url,
             collection = %self.collection_name,
             points = points.len(),
             "Upserting vectors to Qdrant"
@@ -54,9 +55,9 @@ impl QdrantClient {
     /// * `filter` - Optional metadata filter
     pub async fn search(
         &self,
-        query_vector: &[f32],
+        _query_vector: &[f32],
         limit: u32,
-        filter: Option<&Value>,
+        _filter: Option<&Value>,
     ) -> Result<Vec<SearchResult>> {
         // TODO: Implement actual Qdrant search using qdrant-client crate
         // For now, this is a placeholder

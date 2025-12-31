@@ -12,6 +12,7 @@ use tokio::sync::RwLock;
 /// GPU memory pool entry
 #[derive(Debug, Clone)]
 struct MemoryPoolEntry {
+    #[allow(dead_code)]
     device_id: u32,
     size_bytes: u64,
     allocated: bool,

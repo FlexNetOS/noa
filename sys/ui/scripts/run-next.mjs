@@ -47,9 +47,16 @@ if ( process.platform === 'win32' && !process.env.NEXT_TEST_WASM_DIR )
 
 const nextBin = path.join( process.cwd(), 'node_modules', 'next', 'dist', 'bin', 'next' );
 
+// Remove VS Code debugger preload from NODE_OPTIONS to avoid path issues
+const cleanEnv = { ...process.env };
+if ( cleanEnv.NODE_OPTIONS && ( cleanEnv.NODE_OPTIONS.includes( 'bootloader.js' ) || cleanEnv.NODE_OPTIONS.includes( 'js-debug' ) ) )
+{
+    delete cleanEnv.NODE_OPTIONS;
+}
+
 const result = spawnSync( process.execPath, [ nextBin, ...nextArgs ], {
     stdio: 'inherit',
-    env: process.env
+    env: cleanEnv
 } );
 
 if ( result.error )

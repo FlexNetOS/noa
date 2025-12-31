@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2025-12-18T04:36:15.961Z",
+  "entities": [
+    {
+      "id": "user",
+      "type": "human",
+      "name": "System User",
+      "properties": {
+        "role": "administrator"
+      }
+    },
+    {
+      "id": "noa",
+      "type": "system",
+      "name": "NOA AgenticOS",
+      "properties": {
+        "version": "0.3.0"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source": "user",
+      "target": "noa",
+      "type": "controls",
+      "weight": 1
+    }
+  ],
+  "context": {
+    "environment": "development",
+    "platform": "linux",
+    "architecture": "x64"
+  }
+}

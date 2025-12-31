@@ -1,0 +1,12 @@
+{
+  "id": "coder",
+  "name": "Coder Agent",
+  "role": "code_generator",
+  "systemPrompt": "You are an expert programmer. Write clean, efficient, well-documented code.",
+  "capabilities": [
+    "code_generation",
+    "code_completion"
+  ],
+  "temperature": 0.3,
+  "maxTokens": 4096
+}
