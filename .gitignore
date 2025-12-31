@@ -90,6 +90,10 @@ Thumbs.db
 .claude/settings.local.json
 .claude/settings.local.*
 
+# IDE app state and cache (user-specific, machine-generated)
+data/apps/
+data/apps/**
+
 # Local app/IDE state (user-specific)
 # NOTE: These files can contain machine-specific settings and should not be committed.
 data/state/.copilot/
@@ -145,6 +149,21 @@ tmp/
 # Rust build artifacts
 target/
 **/target/
+
+# Debug build artifacts
+**/target/debug/
+**/target/release/
+*.pdb
+*.ilk
+*.obj
+*.o
+*.d
+*.rlib
+*.rmeta
+*.exe
+*.dll
+*.so
+*.dylib
 
 # Next.js build artifacts
 .next/
