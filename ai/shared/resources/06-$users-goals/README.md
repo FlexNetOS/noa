@@ -1,10 +1,10 @@
-# 04-goals
+# 06-$users-goals
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-04-goals component of static resources and policy documents.
+06-$users-goals component of static resources and policy documents.
 
 ## Directory Structure
 
