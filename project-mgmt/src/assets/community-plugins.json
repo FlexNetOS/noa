@@ -1,7 +1,0 @@
-[
-  {
-    "name": "Date Range Reporter Plugin",
-    "shortDescription": "Generates reports of completed tasks and tasks with work logs within a specified date range.",
-    "url": "https://github.com/dougcooper/sp-reporter"
-  }
-]

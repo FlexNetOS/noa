@@ -35,8 +35,17 @@ The architecture is designed to support future integrations with:
 ## Quick Start
 
 ### Prerequisites
-- Rust 1.75.0 or later
-- Node.js 18+ (for web builds)
+- Rust toolchain (recommended: current stable; **Rust 1.77+ required** if `Cargo.lock` is format v4)
+- `wasm32-unknown-unknown` target for web (`rustup target add wasm32-unknown-unknown`)
+- Dioxus CLI (`dx`) (installed by `make install`)
+- Node.js 18+ (recommended for web asset pipelines; required if your setup uses npm-based tools)
+
+Platform-specific:
+- **Windows desktop**: Microsoft Edge **WebView2 Runtime** installed
+- **Docker**: Docker Desktop (WSL2 backend recommended)
+- **Mobile**:
+    - Android builds require Android Studio + SDK/NDK
+    - iOS builds require Xcode (macOS)
 
 ### Installation
 
@@ -58,10 +67,22 @@ cargo run
 
 ### Development
 
-For development with hot reload:
-```bash
-cargo run --features web
-```
+For development with hot reload (recommended):
+
+- Web (client-only): `make dev-web`
+- Desktop (client-only): `make dev-desktop`
+
+Fullstack (server + client) with hot reload:
+
+- Web fullstack: `make dev-fullstack-web`
+- Desktop fullstack: `make dev-fullstack-desktop`
+
+Server-only run targets:
+
+- Run: `make run-server`
+- Dev autorestart: `make dev-server`
+
+Server bind address (useful for Docker/deploy): set `RUST_LOVABLE_ADDRESS` (e.g. `0.0.0.0:8080`).
 
 ## Architecture
 

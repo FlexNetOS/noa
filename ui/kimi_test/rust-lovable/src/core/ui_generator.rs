@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::core::conversational_ai::{PlatformTarget, UIChangeRequest, UIChangeType};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct UIComponent {
     pub id: String,
     pub component_type: ComponentType,
@@ -14,57 +14,57 @@ pub struct UIComponent {
     pub generated_code: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum ComponentType {
     // Layout components
     Container,
     Flex,
     Grid,
     Stack,
-    
+
     // Basic components
     Text,
     Button,
     Image,
     Icon,
-    
+
     // Form components
     Input,
     TextArea,
     Select,
     Checkbox,
     Radio,
-    
+
     // Navigation
     Navbar,
     Sidebar,
     Tabs,
     Menu,
-    
+
     // Data display
     Table,
     List,
     Card,
     Badge,
-    
+
     // Interactive
     Modal,
     Dropdown,
     Tooltip,
     Accordion,
-    
+
     // Custom
     Custom(String),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlatformAdaptation {
     pub styles: HashMap<String, String>,
     pub behavior: HashMap<String, String>,
     pub interactions: Vec<Interaction>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Interaction {
     pub event: String,
     pub action: String,
@@ -146,7 +146,10 @@ impl UIGenerator {
         }
     }
 
-    pub fn generate_component(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    pub fn generate_component(
+        &mut self,
+        request: UIChangeRequest,
+    ) -> Result<UIComponent, UIGenError> {
         match request.change_type {
             UIChangeType::CreateComponent => self.create_component(request),
             UIChangeType::ModifyComponent => self.modify_component(request),
@@ -161,7 +164,7 @@ impl UIGenerator {
     fn create_component(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Parse component type from description
         let component_type = self.infer_component_type(&request.description);
-        
+
         let component = UIComponent {
             id: Uuid::new_v4().to_string(),
             component_type: component_type.clone(),
@@ -170,49 +173,49 @@ impl UIGenerator {
             platform_adaptations: HashMap::new(),
             generated_code: None,
         };
-        
+
         // Generate code for the component
         let generated_code = self.generate_code(&component, &PlatformTarget::Universal)?;
         let mut component = component;
         component.generated_code = Some(generated_code);
-        
+
         Ok(component)
     }
 
-    fn modify_component(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn modify_component(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Find component by ID or description
         // Apply modifications
         // Regenerate code
         todo!()
     }
 
-    fn delete_component(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn delete_component(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Find and remove component
         // Update parent references
         todo!()
     }
 
-    fn restructure_layout(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn restructure_layout(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Reorganize component hierarchy
         // Update layout properties
         todo!()
     }
 
-    fn change_styling(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn change_styling(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Parse styling changes
         // Update component properties
         // Apply platform-specific adaptations
         todo!()
     }
 
-    fn add_interaction(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn add_interaction(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Parse interaction requirements
         // Add event handlers and behaviors
         // Generate interaction code
         todo!()
     }
 
-    fn update_content(&mut self, request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
+    fn update_content(&mut self, _request: UIChangeRequest) -> Result<UIComponent, UIGenError> {
         // Update text content, images, etc.
         // Regenerate affected components
         todo!()
@@ -220,68 +223,127 @@ impl UIGenerator {
 
     fn infer_component_type(&self, description: &str) -> ComponentType {
         let desc_lower = description.to_lowercase();
-        
+
         if desc_lower.contains("button") {
             ComponentType::Button
-        } else if desc_lower.contains("text") || desc_lower.contains("label") || desc_lower.contains("heading") {
+        } else if desc_lower.contains("text")
+            || desc_lower.contains("label")
+            || desc_lower.contains("heading")
+        {
             ComponentType::Text
         } else if desc_lower.contains("input") || desc_lower.contains("field") {
             ComponentType::Input
-        } else if desc_lower.contains("image") || desc_lower.contains("picture") || desc_lower.contains("photo") {
+        } else if desc_lower.contains("image")
+            || desc_lower.contains("picture")
+            || desc_lower.contains("photo")
+        {
             ComponentType::Image
-        } else if desc_lower.contains("container") || desc_lower.contains("box") || desc_lower.contains("div") {
+        } else if desc_lower.contains("container")
+            || desc_lower.contains("box")
+            || desc_lower.contains("div")
+        {
             ComponentType::Container
-        } else if desc_lower.contains("flex") || desc_lower.contains("row") || desc_lower.contains("column") {
+        } else if desc_lower.contains("flex")
+            || desc_lower.contains("row")
+            || desc_lower.contains("column")
+        {
             ComponentType::Flex
         } else if desc_lower.contains("grid") || desc_lower.contains("table") {
             ComponentType::Grid
-        } else if desc_lower.contains("navbar") || desc_lower.contains("header") || desc_lower.contains("navigation") {
+        } else if desc_lower.contains("navbar")
+            || desc_lower.contains("header")
+            || desc_lower.contains("navigation")
+        {
             ComponentType::Navbar
-        } else if desc_lower.contains("modal") || desc_lower.contains("popup") || desc_lower.contains("dialog") {
+        } else if desc_lower.contains("modal")
+            || desc_lower.contains("popup")
+            || desc_lower.contains("dialog")
+        {
             ComponentType::Modal
         } else {
             ComponentType::Container // Default
         }
     }
 
-    fn get_default_properties(&self, component_type: &ComponentType) -> HashMap<String, serde_json::Value> {
+    fn get_default_properties(
+        &self,
+        component_type: &ComponentType,
+    ) -> HashMap<String, serde_json::Value> {
         let mut properties = HashMap::new();
-        
+
         match component_type {
             ComponentType::Text => {
-                properties.insert("text".to_string(), serde_json::Value::String("Sample text".to_string()));
-                properties.insert("fontSize".to_string(), serde_json::Value::String("16px".to_string()));
-                properties.insert("color".to_string(), serde_json::Value::String("#000000".to_string()));
+                properties.insert(
+                    "text".to_string(),
+                    serde_json::Value::String("Sample text".to_string()),
+                );
+                properties.insert(
+                    "fontSize".to_string(),
+                    serde_json::Value::String("16px".to_string()),
+                );
+                properties.insert(
+                    "color".to_string(),
+                    serde_json::Value::String("#000000".to_string()),
+                );
             }
             ComponentType::Button => {
-                properties.insert("text".to_string(), serde_json::Value::String("Click me".to_string()));
-                properties.insert("variant".to_string(), serde_json::Value::String("primary".to_string()));
-                properties.insert("size".to_string(), serde_json::Value::String("medium".to_string()));
+                properties.insert(
+                    "text".to_string(),
+                    serde_json::Value::String("Click me".to_string()),
+                );
+                properties.insert(
+                    "variant".to_string(),
+                    serde_json::Value::String("primary".to_string()),
+                );
+                properties.insert(
+                    "size".to_string(),
+                    serde_json::Value::String("medium".to_string()),
+                );
             }
             ComponentType::Input => {
-                properties.insert("placeholder".to_string(), serde_json::Value::String("Enter text...".to_string()));
-                properties.insert("type".to_string(), serde_json::Value::String("text".to_string()));
+                properties.insert(
+                    "placeholder".to_string(),
+                    serde_json::Value::String("Enter text...".to_string()),
+                );
+                properties.insert(
+                    "type".to_string(),
+                    serde_json::Value::String("text".to_string()),
+                );
             }
             ComponentType::Container => {
-                properties.insert("padding".to_string(), serde_json::Value::String("16px".to_string()));
-                properties.insert("display".to_string(), serde_json::Value::String("flex".to_string()));
+                properties.insert(
+                    "padding".to_string(),
+                    serde_json::Value::String("16px".to_string()),
+                );
+                properties.insert(
+                    "display".to_string(),
+                    serde_json::Value::String("flex".to_string()),
+                );
             }
             _ => {}
         }
-        
+
         properties
     }
 
-    pub fn generate_code(&self, component: &UIComponent, platform: &PlatformTarget) -> Result<String, UIGenError> {
+    pub fn generate_code(
+        &self,
+        component: &UIComponent,
+        platform: &PlatformTarget,
+    ) -> Result<String, UIGenError> {
         let template = self.get_code_template(&component.component_type, platform)?;
         let code = self.fill_template(template, component)?;
         Ok(code)
     }
 
-    fn get_code_template(&self, component_type: &ComponentType, platform: &PlatformTarget) -> Result<String, UIGenError> {
+    fn get_code_template(
+        &self,
+        component_type: &ComponentType,
+        platform: &PlatformTarget,
+    ) -> Result<String, UIGenError> {
         // Get appropriate template based on component type and platform
         let template_key = format!("{:?}_{:?}", component_type, platform);
-        
+
         match self.code_templates.get(&template_key) {
             Some(template) => Ok(template.clone()),
             None => self.get_default_template(component_type),
@@ -290,15 +352,18 @@ impl UIGenerator {
 
     fn get_default_template(&self, component_type: &ComponentType) -> Result<String, UIGenError> {
         let template = match component_type {
-            ComponentType::Text => r#"
+            ComponentType::Text => {
+                r#"
                 rsx! {{
                     p {{
                         class: "{class_name}",
                         "{text}"
                     }}
                 }}
-            "#,
-            ComponentType::Button => r#"
+            "#
+            }
+            ComponentType::Button => {
+                r#"
                 rsx! {{
                     button {{
                         class: "{class_name}",
@@ -308,8 +373,10 @@ impl UIGenerator {
                         "{text}"
                     }}
                 }}
-            "#,
-            ComponentType::Input => r#"
+            "#
+            }
+            ComponentType::Input => {
+                r#"
                 rsx! {{
                     input {{
                         class: "{class_name}",
@@ -321,31 +388,40 @@ impl UIGenerator {
                         }}
                     }}
                 }}
-            "#,
-            ComponentType::Container => r#"
+            "#
+            }
+            ComponentType::Container => {
+                r#"
                 rsx! {{
                     div {{
                         class: "{class_name}",
                         {children}
                     }}
                 }}
-            "#,
-            _ => r#"
+            "#
+            }
+            _ => {
+                r#"
                 rsx! {{
                     div {{
                         class: "{class_name}",
                         "Component: {component_type}"
                     }}
                 }}
-            "#,
+            "#
+            }
         };
-        
+
         Ok(template.to_string())
     }
 
-    fn fill_template(&self, template: String, component: &UIComponent) -> Result<String, UIGenError> {
+    fn fill_template(
+        &self,
+        template: String,
+        component: &UIComponent,
+    ) -> Result<String, UIGenError> {
         let mut filled = template;
-        
+
         // Replace placeholders with actual values
         for (key, value) in &component.properties {
             let placeholder = format!("{{{}}}", key);
@@ -357,14 +433,17 @@ impl UIGenerator {
             };
             filled = filled.replace(&placeholder, &value_str);
         }
-        
+
         // Replace component type placeholder
-        filled = filled.replace("{component_type}", &format!("{:?}", component.component_type));
-        
+        filled = filled.replace(
+            "{component_type}",
+            &format!("{:?}", component.component_type),
+        );
+
         // Replace class name placeholder
         let class_name = format!("component-{}-{:?}", component.id, component.component_type);
         filled = filled.replace("{class_name}", &class_name);
-        
+
         Ok(filled)
     }
 
@@ -382,17 +461,23 @@ impl UIGenerator {
     }
 }
 
+impl Default for UIGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum UIGenError {
     #[error("Template not found for component type: {0}")]
     TemplateNotFound(String),
-    
+
     #[error("Invalid property value: {0}")]
     InvalidProperty(String),
-    
+
     #[error("Code generation failed: {0}")]
     CodeGeneration(String),
-    
+
     #[error("Platform not supported: {0}")]
     PlatformNotSupported(String),
 }

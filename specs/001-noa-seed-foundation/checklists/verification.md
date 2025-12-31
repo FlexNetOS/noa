@@ -838,7 +838,7 @@ echo "NEXT: $NEXT"
 | Document | Purpose |
 |----------|---------|
 | [comprehensive.md](./comprehensive.md) | Requirements Quality Checklist |
-| [universal_task_execution_policy.md](../../../project-mgmt/docs/05-policy/universal_task_execution_policy.md) | Execution Policy (source for Phase 9) |
+| [universal_task_execution_policy.md](../../../data/archive/sessions/project-mgmt/docs/05-policy/universal_task_execution_policy.md) | Execution Policy (source for Phase 9) |
 | [spec.md](../spec.md) | Feature Specification (truth source) |
 | [plan.md](../plan.md) | Implementation Plan |
 | [tasks.md](../tasks.md) | Task Breakdown |
@@ -849,5 +849,5 @@ echo "NEXT: $NEXT"
 **Checklist Created**: 2025-12-08
 **Updated**: 2025-12-08 (Added Truth Gate, Triple-Verify, Multi-GPU, Policy artifacts)
 **Related**: [comprehensive.md](./comprehensive.md) (Requirements Quality)
-**Policy**: [universal_task_execution_policy.md](../../../project-mgmt/docs/05-policy/universal_task_execution_policy.md)
+**Policy**: [universal_task_execution_policy.md](../../../data/archive/sessions/project-mgmt/docs/05-policy/universal_task_execution_policy.md)
 **Next Step**: Execute Phase 1 tests after task implementation

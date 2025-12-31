@@ -1,5 +1,5 @@
 # Multi-stage build for Rust Lovable
-FROM rust:1.75.0 as builder
+FROM rust:1.85.0 AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,12 +10,14 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy manifests
-COPY Cargo.toml Cargo.lock ./
+# Copy manifests + build script + local path dependencies.
+# Cargo needs local path dependency manifests to exist even when the deps are optional.
+COPY Cargo.toml Cargo.lock build.rs ./
+COPY crates ./crates
 
 # Build dependencies (this is cached)
 RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release
+RUN cargo build --release --no-default-features --features server
 RUN rm -rf src
 
 # Copy source code
@@ -24,7 +26,7 @@ COPY assets ./assets
 COPY templates ./templates
 
 # Build the application
-RUN cargo build --release
+RUN cargo build --release --no-default-features --features server
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -33,6 +35,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user
@@ -57,9 +60,13 @@ USER appuser
 # Expose port
 EXPOSE 8080
 
+# Bind on all interfaces inside the container
+ENV RUST_LOVABLE_ADDRESS=0.0.0.0:8080
+
 # Health check
+# Basic health check (server root should respond)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:8080/ || exit 1
 
 # Run the application
 CMD ["./rust-lovable"]

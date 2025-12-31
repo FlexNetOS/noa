@@ -1,12 +1,7 @@
-pub mod conversational_ai;
-pub mod ui_generator;
-pub mod project_manager;
 pub mod code_generator;
+pub mod conversational_ai;
 pub mod cross_platform;
+pub mod project_manager;
+pub mod ui_generator;
 
-// Re-export core modules
-pub use conversational_ai::*;
-pub use ui_generator::*;
-pub use project_manager::*;
-pub use code_generator::*;
-pub use cross_platform::*;
+// Note: Avoid glob re-exports here to keep compilation warnings manageable.

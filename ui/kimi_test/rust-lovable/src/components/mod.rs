@@ -1,12 +1,8 @@
-pub mod chat;
 pub mod canvas;
+pub mod chat;
 pub mod sidebar;
 pub mod toolbar;
 pub mod ui_components;
 
-// Re-export components
-pub use chat::*;
-pub use canvas::*;
-pub use sidebar::*;
-pub use toolbar::*;
-pub use ui_components::*;
+// Note: Avoid glob re-exports here. They tend to create noisy warnings (unused/ambiguous)
+// and make it harder to track where symbols come from.

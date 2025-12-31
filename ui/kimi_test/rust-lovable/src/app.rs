@@ -1,8 +1,8 @@
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 
-use crate::components::chat::ChatInterface;
 use crate::components::canvas::UICanvas;
+use crate::components::chat::ChatInterface;
 use crate::components::sidebar::Sidebar;
 use crate::components::toolbar::Toolbar;
 
@@ -26,31 +26,31 @@ pub fn App() -> Element {
 #[component]
 pub fn Home() -> Element {
     let theme = use_signal(|| String::from("dark"));
-    
+
     rsx! {
         div {
             class: "app-container {theme.read()}",
-            
+
             // App Header
             header {
                 class: "app-header",
                 h1 { "Rust Lovable - Conversational UI Builder" }
                 Toolbar {}
             }
-            
+
             // Main Layout
             main {
                 class: "main-layout",
-                
+
                 // Left Sidebar - Project Explorer
                 Sidebar {}
-                
+
                 // Center - UI Canvas
                 div {
                     class: "canvas-section",
                     UICanvas {}
                 }
-                
+
                 // Right Panel - Chat Interface
                 div {
                     class: "chat-section",

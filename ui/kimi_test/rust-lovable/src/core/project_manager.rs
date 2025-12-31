@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use uuid::Uuid;
+
+use crate::core::ui_generator::UIComponent;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
@@ -101,8 +103,12 @@ impl ProjectManager {
             current_project: None,
         }
     }
-    
-    pub fn create_project(&mut self, name: String, description: String) -> Result<Project, ProjectError> {
+
+    pub fn create_project(
+        &mut self,
+        name: String,
+        description: String,
+    ) -> Result<Project, ProjectError> {
         let project = Project {
             id: Uuid::new_v4().to_string(),
             name,
@@ -113,35 +119,35 @@ impl ProjectManager {
             pages: vec![self.create_default_page()],
             assets: Vec::new(),
         };
-        
+
         self.save_project(&project)?;
         self.current_project = Some(project.clone());
-        
+
         Ok(project)
     }
-    
+
     pub fn load_project(&mut self, project_id: &str) -> Result<Project, ProjectError> {
         let project_path = self.projects_dir.join(project_id).join("project.json");
         let project_json = std::fs::read_to_string(project_path)?;
         let project: Project = serde_json::from_str(&project_json)?;
-        
+
         self.current_project = Some(project.clone());
         Ok(project)
     }
-    
+
     pub fn save_project(&self, project: &Project) -> Result<(), ProjectError> {
         let project_dir = self.projects_dir.join(&project.id);
         std::fs::create_dir_all(&project_dir)?;
-        
+
         let project_json = serde_json::to_string_pretty(project)?;
         std::fs::write(project_dir.join("project.json"), project_json)?;
-        
+
         Ok(())
     }
-    
+
     pub fn list_projects(&self) -> Result<Vec<ProjectSummary>, ProjectError> {
         let mut projects = Vec::new();
-        
+
         for entry in std::fs::read_dir(&self.projects_dir)? {
             let entry = entry?;
             if entry.file_type()?.is_dir() {
@@ -149,7 +155,7 @@ impl ProjectManager {
                 if project_path.exists() {
                     let project_json = std::fs::read_to_string(project_path)?;
                     let project: Project = serde_json::from_str(&project_json)?;
-                    
+
                     projects.push(ProjectSummary {
                         id: project.id,
                         name: project.name,
@@ -159,14 +165,12 @@ impl ProjectManager {
                 }
             }
         }
-        
+
         projects.sort_by(|a, b| b.last_modified.cmp(&a.last_modified));
         Ok(projects)
     }
-    
+
     pub fn add_page(&mut self, name: String, path: String) -> Result<Page, ProjectError> {
-        let project = self.current_project.as_mut().ok_or(ProjectError::NoProjectOpen)?;
-        
         let page = Page {
             id: Uuid::new_v4().to_string(),
             name,
@@ -174,38 +178,65 @@ impl ProjectManager {
             components: Vec::new(),
             metadata: PageMetadata::default(),
         };
-        
-        project.pages.push(page.clone());
-        project.updated_at = chrono::Utc::now();
-        
-        self.save_project(project)?;
-        Ok(page)
-    }
-    
-    pub fn add_component(&mut self, page_id: &str, component: UIComponent) -> Result<(), ProjectError> {
-        let project = self.current_project.as_mut().ok_or(ProjectError::NoProjectOpen)?;
-        
-        if let Some(page) = project.pages.iter_mut().find(|p| p.id == page_id) {
-            page.components.push(component);
+
+        {
+            let project = self
+                .current_project
+                .as_mut()
+                .ok_or(ProjectError::NoProjectOpen)?;
+
+            project.pages.push(page.clone());
             project.updated_at = chrono::Utc::now();
+        }
+
+        // Save after the mutable borrow ends.
+        if let Some(project) = self.current_project.as_ref() {
             self.save_project(project)?;
         }
-        
+        Ok(page)
+    }
+
+    pub fn add_component(
+        &mut self,
+        page_id: &str,
+        component: UIComponent,
+    ) -> Result<(), ProjectError> {
+        {
+            let project = self
+                .current_project
+                .as_mut()
+                .ok_or(ProjectError::NoProjectOpen)?;
+
+            if let Some(page) = project.pages.iter_mut().find(|p| p.id == page_id) {
+                page.components.push(component);
+                project.updated_at = chrono::Utc::now();
+            }
+        }
+
+        // Save after the mutable borrow ends.
+        if let Some(project) = self.current_project.as_ref() {
+            self.save_project(project)?;
+        }
+
         Ok(())
     }
-    
-    pub fn export_project(&self, project_id: &str, format: ExportFormat) -> Result<PathBuf, ProjectError> {
+
+    pub fn export_project(
+        &mut self,
+        project_id: &str,
+        format: ExportFormat,
+    ) -> Result<PathBuf, ProjectError> {
         let project = self.load_project(project_id)?;
         let export_dir = self.projects_dir.join("exports").join(project_id);
         std::fs::create_dir_all(&export_dir)?;
-        
+
         match format {
             ExportFormat::Zip => self.export_as_zip(&project, &export_dir),
             ExportFormat::GitHub => self.export_to_github(&project, &export_dir),
             ExportFormat::Vercel => self.export_to_vercel(&project, &export_dir),
         }
     }
-    
+
     fn create_default_page(&self) -> Page {
         Page {
             id: Uuid::new_v4().to_string(),
@@ -215,21 +246,29 @@ impl ProjectManager {
             metadata: PageMetadata::default(),
         }
     }
-    
-    fn export_as_zip(&self, project: &Project, export_dir: &PathBuf) -> Result<PathBuf, ProjectError> {
+
+    fn export_as_zip(&self, project: &Project, export_dir: &Path) -> Result<PathBuf, ProjectError> {
         let zip_path = export_dir.join(format!("{}.zip", project.name));
         // Implementation for creating ZIP file
         Ok(zip_path)
     }
-    
-    fn export_to_github(&self, project: &Project, export_dir: &PathBuf) -> Result<PathBuf, ProjectError> {
+
+    fn export_to_github(
+        &self,
+        _project: &Project,
+        export_dir: &Path,
+    ) -> Result<PathBuf, ProjectError> {
         // Implementation for GitHub export
-        Ok(export_dir.clone())
+        Ok(export_dir.to_path_buf())
     }
-    
-    fn export_to_vercel(&self, project: &Project, export_dir: &PathBuf) -> Result<PathBuf, ProjectError> {
+
+    fn export_to_vercel(
+        &self,
+        _project: &Project,
+        export_dir: &Path,
+    ) -> Result<PathBuf, ProjectError> {
         // Implementation for Vercel export
-        Ok(export_dir.clone())
+        Ok(export_dir.to_path_buf())
     }
 }
 
@@ -274,13 +313,13 @@ impl Default for PageMetadata {
 pub enum ProjectError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
-    
+
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
-    
+
     #[error("No project is currently open")]
     NoProjectOpen,
-    
+
     #[error("Project not found: {0}")]
     ProjectNotFound(String),
 }

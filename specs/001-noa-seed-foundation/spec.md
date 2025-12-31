@@ -900,7 +900,7 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
 
 ### Universal Task Execution Policy Integration
 
-All task execution MUST comply with [Universal Task Execution Policy](../../project-mgmt/docs/05-policy/universal_task_execution_policy.md):
+All task execution MUST comply with [Universal Task Execution Policy](../../data/archive/sessions/project-mgmt/docs/05-policy/universal_task_execution_policy.md):
 
 **Truth Sources (§0 Priority Order)**:
 1. User-provided files and chat (highest)

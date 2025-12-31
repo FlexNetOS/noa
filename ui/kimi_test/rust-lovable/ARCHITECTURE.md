@@ -267,6 +267,38 @@ Generate Platform Code
 Responsive Styles
 ```
 
+## Build & Run Modes
+
+This repo supports multiple execution modes via Cargo features and the Dioxus CLI.
+
+### Client-only (desktop/web)
+
+- Desktop: default (`desktop` + `fullstack` features) launches the GUI app.
+- Web: use the Dioxus CLI for dev server + hot reload.
+
+Make targets:
+- `make dev-desktop` (hot reload)
+- `make dev-web` (hot reload)
+
+### Server mode
+
+Server mode is gated behind the `server` feature and is intended for container/deployment usage.
+
+- Cargo: `--no-default-features --features server`
+- Bind address: `RUST_LOVABLE_ADDRESS` (e.g. `0.0.0.0:8080`)
+
+Make targets:
+- `make run-server`
+- `make dev-server`
+
+### Fullstack (server + client)
+
+Fullstack development runs a server build and a client build together via `dx serve`.
+
+Make targets:
+- `make dev-fullstack-web`
+- `make dev-fullstack-desktop`
+
 ## Future Integrations
 
 ### 1. ruv-FANN Integration

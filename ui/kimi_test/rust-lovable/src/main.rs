@@ -1,39 +1,45 @@
-use dioxus::prelude::*;
 use dioxus_logger::tracing::{info, Level};
 
-mod app;
-mod components;
-mod core;
-mod utils;
+use rust_lovable::App;
 
-use app::App;
+#[cfg(feature = "server")]
+use dioxus::fullstack::prelude::*;
 
+#[cfg(feature = "server")]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     dioxus_logger::init(Level::INFO).expect("failed to init logger");
     info!("Starting Rust Lovable - A conversational UI builder");
 
-    #[cfg(feature = "web")]
-    {
-        info!("Starting web server...");
-        // Launch web server for fullstack mode
-        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 8080));
-        
-        let app = axum::Router::new()
-            .nest_service("/assets", tower_http::services::ServeDir::new("dist"))
-            .fallback(dioxus::fullstack::render::axum_handler(App));
+    info!("Starting fullstack server...");
 
-        info!("Server listening on http://localhost:8080");
-        let listener = tokio::net::TcpListener::bind(addr).await?;
-        axum::serve(listener, app).await?;
-    }
+    // If the Dioxus CLI is running, it proxies fullstack into the main address; otherwise we bind localhost.
+    // For container/deployment use-cases, allow overriding the bind address.
+    let address: std::net::SocketAddr = std::env::var("RUST_LOVABLE_ADDRESS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_else(dioxus::cli_config::fullstack_address_or_localhost);
 
-    #[cfg(any(feature = "desktop", feature = "mobile"))]
-    {
-        info!("Launching desktop/mobile application...");
-        dioxus::launch(App);
-    }
+    // Set up the axum router. `serve_dioxus_application` adds a fallback route that serves your component and
+    // server functions.
+    let router = axum::Router::new()
+        .nest_service("/assets", tower_http::services::ServeDir::new("dist"))
+        .serve_dioxus_application(ServeConfigBuilder::default(), App);
+
+    info!("Server listening on http://{address}");
+    let listener = tokio::net::TcpListener::bind(address).await?;
+    axum::serve(listener, router.into_make_service()).await?;
 
     Ok(())
+}
+
+#[cfg(not(feature = "server"))]
+fn main() {
+    // Initialize logging
+    dioxus_logger::init(Level::INFO).expect("failed to init logger");
+    info!("Starting Rust Lovable - A conversational UI builder");
+
+    // For desktop/mobile/web client builds we just launch the app.
+    dioxus::launch(App);
 }

@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Core Dioxus dependencies
-dioxus = { version = "0.6", features = ["desktop", "mobile", "web", "fullstack"] }
+dioxus = { version = "0.6" }
 dioxus-logger = "0.6"
 dioxus-router = "0.6"
 dioxus-hooks = "0.6"
@@ -14,10 +14,8 @@ dioxus-signals = "0.6"
 # Web and HTTP
 tokio = { version = "1.0", features = ["full"] }
 reqwest = { version = "0.12", features = ["json", "multipart"] }
-axum = "0.7"
-tower = "0.4"
-tower-http = { version = "0.5", features = ["cors", "fs"] }
-hyper = "1.0"
+axum = { version = "0.7", optional = true }
+tower-http = { version = "0.5", features = ["cors", "fs"], optional = true }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -34,9 +32,9 @@ tracing-subscriber = "0.3"
 
 # AI and ML integrations
 # Future integrations (feature flags)
-ruv-fann = { version = "0.1", optional = true }
-ruvector = { version = "0.1", optional = true }
-qudag = { version = "0.1", optional = true }
+ruv-fann = { version = "0.1.0", path = "crates/ruv-fann", optional = true }
+ruvector = { version = "0.1.0", path = "crates/ruvector", optional = true }
+qudag = { version = "0.1.0", path = "crates/qudag", optional = true }
 libp2p = { version = "0.55", optional = true }
 
 # Database and storage
@@ -70,17 +68,26 @@ quote = "1.0"
 proc-macro2 = "1.0"
 
 [features]
-default = ["web", "desktop"]
-web = ["dioxus/web"]
-desktop = ["dioxus/desktop"]
-mobile = ["dioxus/mobile"]
+default = ["desktop", "fullstack"]
+
+# Platform targets
+web = ["dioxus/web", "fullstack"]
+desktop = ["dioxus/desktop", "fullstack"]
+mobile = ["dioxus/mobile", "fullstack"]
+
+# Fullstack modes
 fullstack = ["dioxus/fullstack"]
+server = ["dioxus/server", "fullstack", "dep:axum", "dep:tower-http"]
+
 ai-integrations = ["ruv-fann", "ruvector", "qudag", "libp2p"]
 database = ["sqlx", "sea-orm"]
 
 [[bin]]
 name = "rust-lovable"
 path = "src/main.rs"
+
+[build-dependencies]
+chrono = "0.4"
 
 [dev-dependencies]
 tokio-test = "0.4"
