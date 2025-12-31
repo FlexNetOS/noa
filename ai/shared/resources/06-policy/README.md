@@ -1,10 +1,10 @@
-# 05-policy
+# 06-policy
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-05-policy component of static resources and policy documents.
+06-policy component of static resources and policy documents.
 
 ## Directory Structure
 

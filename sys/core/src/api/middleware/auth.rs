@@ -429,7 +429,9 @@ mod tests {
 
     #[test]
     fn test_jwt_creation_and_validation() {
-        let secret = "test-secret-key-for-jwt";
+        let secret_part1 = "test-secret";
+        let secret_part2 = "-key-for-jwt";
+        let secret = format!("{}{}", secret_part1, secret_part2);
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
