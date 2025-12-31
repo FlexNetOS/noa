@@ -25,15 +25,15 @@ jobs:
         run: |
           # Check if there are commits ahead of main
           COMMITS_AHEAD=$(git rev-list --count origin/main..origin/develop)
-          
+
           if [ "$COMMITS_AHEAD" -eq "0" ]; then
             echo "No new commits to merge"
             exit 0
           fi
-          
+
           # Check if PR already exists
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number')
-          
+
           if [ -n "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists"
           else
@@ -44,7 +44,7 @@ jobs:
               --body "Automated PR to merge develop branch into main.
 
               **Commits:** $COMMITS_AHEAD new commit(s)
-              
+
               This PR was automatically created by GitHub Actions."
           fi
 
@@ -60,9 +60,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the PR number
-          PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
-          
+          PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head develop --json number --jq '.[0].number')
+
           if [ -n "$PR_NUMBER" ]; then
+            # Skip auto-merge when PR is not cleanly mergeable (e.g., has conflicts).
+            MERGEABLE=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json mergeable --jq '.mergeable')
+            MERGE_STATE=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json mergeStateStatus --jq '.mergeStateStatus')
+
+            if [ "$MERGEABLE" != "MERGEABLE" ] || [ "$MERGE_STATE" != "CLEAN" ]; then
+              echo "PR #$PR_NUMBER is not auto-mergeable (mergeable=$MERGEABLE, mergeStateStatus=$MERGE_STATE)."
+              echo "Skipping auto-merge; manual conflict resolution is required."
+              exit 0
+            fi
+
             echo "Merging PR #$PR_NUMBER"
             gh pr merge "$PR_NUMBER" --squash --auto --delete-branch=false
           else

@@ -77,32 +77,13 @@ Thumbs.db
 *.userosscache
 *.sln.docstates
 
-# Local app/IDE state (user-specific)
-# NOTE: These files can contain machine-specific settings and should not be committed.
-data/state/.copilot/
-etc/.copilot/
-etc/configstore/
-data/appdata/roaming/Code/
-data/appdata/roaming/AbacusAI/
+# Local AI/agent state (user-specific)
+.claude/settings.local.json
+.claude/settings.local.*
 
-# Go telemetry (local, user-specific)
-data/appdata/roaming/go/telemetry/
-data/appdata/roaming/go/telemetry/**
-
-# Local inference models (very large; keep out of git history)
-*.gguf
-ml_devops_platform/rust_backend/models/
-ml_devops_platform/rust_backend/models/**
-
-# Playwright artifacts (generated)
-playwright-report/
-**/playwright-report/
-test-results/
-**/test-results/
-
-# Local dev databases (generated)
-prisma/dev.db
-**/prisma/dev.db
+# IDE app state and cache (user-specific, machine-generated)
+data/apps/
+data/apps/**
 
 # IDE workspace files (user-specific)
 *.code-workspace
@@ -118,6 +99,21 @@ tmp/
 # Rust build artifacts
 target/
 **/target/
+
+# Debug build artifacts
+**/target/debug/
+**/target/release/
+*.pdb
+*.ilk
+*.obj
+*.o
+*.d
+*.rlib
+*.rmeta
+*.exe
+*.dll
+*.so
+*.dylib
 
 # Next.js build artifacts
 .next/
