@@ -144,9 +144,23 @@ async fn bootstrap(
                     api_key: None,
                 }),
             );
+        .and_then(|s| s.as_str());
+
+    let jwt_secret = match jwt_secret {
+        Some(secret) if !secret.is_empty() => secret,
+        _ => {
+            tracing::error!("JWT secret is not configured; refusing to generate admin token");
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(BootstrapResponse {
+                    success: false,
+                    message: "Server configuration error: JWT secret is not set".to_string(),
+                    token: None,
+                    api_key: None,
+                }),
+            );
         }
     };
-
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
