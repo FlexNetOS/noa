@@ -1,5 +1,5 @@
 [package]
-name = "noa-ui-lilrep-api"
+name = "noa-ui-styleguide-api"
 version = "0.1.0"
 edition = "2024"
 publish = false

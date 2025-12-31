@@ -14,12 +14,12 @@ pub enum Route {
     #[route("/settings")]
     Settings {},
 
-    // Migrated reference UI (from `ui/lilrep`)
-    #[layout(LilrepLayout)]
-    #[route("/lilrep")]
-    LilrepHome {},
-    #[route("/lilrep/blog/:id")]
-    LilrepBlog { id: i32 },
+    // Dioxus reference styleguide (kept generic; no legacy project naming)
+    #[layout(StyleguideLayout)]
+    #[route("/styleguide")]
+    StyleguideHome {},
+    #[route("/styleguide/blog/:id")]
+    StyleguideBlog { id: i32 },
 }
 
 #[component]
@@ -77,16 +77,16 @@ pub fn Settings() -> Element {
 }
 
 #[component]
-pub fn LilrepLayout() -> Element {
-    rsx! { crate::styleguide::lilrep::LilrepLayout {} }
+pub fn StyleguideLayout() -> Element {
+    rsx! { crate::styleguide::demo::StyleguideLayout {} }
 }
 
 #[component]
-pub fn LilrepHome() -> Element {
-    rsx! { crate::styleguide::lilrep::LilrepHome {} }
+pub fn StyleguideHome() -> Element {
+    rsx! { crate::styleguide::demo::StyleguideHome {} }
 }
 
 #[component]
-pub fn LilrepBlog(id: i32) -> Element {
-    rsx! { crate::styleguide::lilrep::LilrepBlog { id } }
+pub fn StyleguideBlog(id: i32) -> Element {
+    rsx! { crate::styleguide::demo::StyleguideBlog { id } }
 }

@@ -4,8 +4,8 @@ resolver = "2"
 members = [
 	"crates/noa-ui-paths",
 	"crates/noa-ui-protocol",
-	"crates/noa-ui-lilrep-api",
-	"crates/noa-ui-lilrep-ui",
+	"crates/noa-ui-styleguide-api",
+	"crates/noa-ui-styleguide-ui",
 	"crates/noa-ui-core",
 	"crates/noa-ui-shell",
 	"bins/noa-ui-desktop",

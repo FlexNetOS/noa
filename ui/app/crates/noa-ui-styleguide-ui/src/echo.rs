@@ -15,7 +15,7 @@ pub fn Echo() -> Element {
             input {
                 placeholder: "Type here to echo...",
                 oninput: move |event| async move {
-                    let data = noa_ui_lilrep_api::echo(event.value()).await.unwrap();
+                    let data = noa_ui_styleguide_api::echo(event.value()).await.unwrap();
                     response.set(data);
                 },
             }

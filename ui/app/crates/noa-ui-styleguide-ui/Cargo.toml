@@ -1,0 +1,12 @@
+[package]
+name = "noa-ui-styleguide-ui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dioxus = { workspace = true }
+noa-ui-styleguide-api = { path = "../noa-ui-styleguide-api" }
+
+[features]
+server = ["noa-ui-styleguide-api/server"]

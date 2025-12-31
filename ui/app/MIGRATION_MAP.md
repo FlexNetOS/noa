@@ -38,7 +38,7 @@ This file is the authoritative mapping from `ui/kimi_test/rust-lovable` sources 
 
 | rust-lovable path | Destination (ui/app) | Notes |
 |---|---|---|
-| `assets/styles.css` | `bins/noa-ui-web/assets/…` and/or `bins/noa-ui-desktop/assets/…` | Adopt lilrep pattern (`asset!("/assets/main.css")`). |
+| `assets/styles.css` | `bins/noa-ui-web/assets/…` and/or `bins/noa-ui-desktop/assets/…` | Adopt the Dioxus template pattern (`asset!("/assets/main.css")`). |
 | `templates/*` | `crates/noa-ui-core/templates/*` *(planned)* | UI/codegen templates should be packaged with core. |
 | `.env.example` | Merge into root NOA env model | Canonical secrets live in `n:\noa\.env` (untracked). App overrides in `ui/app/.env` (untracked). |
 | `Dockerfile`, `docker-compose.yml` | `bins/noa-ui-server` / top-level orchestration | Revisit once server binary exists under ui/app.

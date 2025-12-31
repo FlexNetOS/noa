@@ -1,4 +1,4 @@
-//! lilrep-derived shared fullstack server functions.
+//! Shared fullstack server functions for the NOA UI styleguide/demo area.
 use dioxus::prelude::*;
 
 /// Echo the user input on the server.

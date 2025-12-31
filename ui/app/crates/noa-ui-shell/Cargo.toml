@@ -7,4 +7,4 @@ publish = false
 [dependencies]
 dioxus = { workspace = true, features = ["router"] }
 noa-ui-core = { path = "../noa-ui-core" }
-noa-ui-lilrep-ui = { path = "../noa-ui-lilrep-ui" }
+noa-ui-styleguide-ui = { path = "../noa-ui-styleguide-ui" }
