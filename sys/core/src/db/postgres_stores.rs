@@ -651,9 +651,15 @@ impl TaskStore for PgTaskStore {
         }))
     }
 
-    async fn update(&self, task: &Task) -> Result<()> {
-        // This is a simplified update - full implementation would need UUID field
-        Ok(())
+    async fn update(&self, _task: &Task) -> Result<()> {
+        // Task update is not implemented for the PostgreSQL store because the UUID
+        // field needed to uniquely identify the row is not currently wired through
+        // the Task model. Returning an explicit error avoids silently ignoring
+        // update attempts and potential data inconsistencies.
+        Err(NoaError::Database(DatabaseError::QueryFailed {
+            query: "UPDATE task (not implemented)".to_string(),
+            error: "Task update is not supported for PostgreSQL store".to_string(),
+        }))
     }
 
     async fn delete(&self, id: &Uuid) -> Result<bool> {
