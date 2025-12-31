@@ -28,12 +28,12 @@ This plan covers **all config-like assets** across the repository, not only `con
 
 ### 3) Add policy-aligned columns (must map to governance)
 Add columns aligned to:
-- CAS hybrid model (`docs/05-policy/config-cas.md`)
-- Wiki/pages/runbook durability (`docs/05-policy/wiki-pages-runbook.md`)
-- AppData containment (`docs/architecture/appdata-containment.md`)
-- Kernel independence (`docs/architecture/kernel-independence.md`)
-- Environment policy (`project-mgmt/docs/05-policy/env-policy.md`)
-- ML/model provider best practices (`project-mgmt/docs/07-plans/ml_model_provider_best_practices.md`)
+- CAS hybrid model (`ai/shared/resources/policy/03-CONFIG_CAS.md`)
+- Wiki/pages/runbook durability (`ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md`)
+- AppData containment (`ai/shared/resources/policy/02-ENV_CONTAINMENT.md`)
+- Kernel independence (`ai/shared/resources/policy/02-ENV_KERNELS.md`)
+- Environment policy (`ai/shared/resources/policy/02-ENV_CANONICAL-VARS.md`)
+- ML/model provider best practices (archived)
 
 **Minimum new columns**:
 - [x] `asset_type` (config|schema|policy|template|code_consumer|runtime_state|runtime_data|tooling|generated|binary|doc)
@@ -109,12 +109,12 @@ Add columns aligned to:
 Draft a single governance doc (or section) that maps policy directly onto table fields.
 
 Non-negotiable rules to encode:
-- [x] From `docs/05-policy/config-cas.md`: immutable vs mutable vs CAS vs cache/state/logs/data rules
-- [x] From `docs/05-policy/wiki-pages-runbook.md`: doc tiers, runbook verification, “where truth lives” link field
-- [x] From `docs/architecture/appdata-containment.md`: FR-001 containment requirements + env redirection rules
-- [x] From `docs/architecture/kernel-independence.md`: kernel mode precedence + platform scope rules
-- [x] From `project-mgmt/docs/05-policy/env-policy.md`: secrets handling, `.env` rules, `.env.example` coverage, no secret logging
-- [x] From `project-mgmt/docs/07-plans/ml_model_provider_best_practices.md`: determinism, pinned versions, lineage requirements, provider routing observability
+- [x] From `ai/shared/resources/policy/03-CONFIG_CAS.md`: immutable vs mutable vs CAS vs cache/state/logs/data rules
+- [x] From `ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md`: doc tiers, runbook verification, "where truth lives" link field
+- [x] From `ai/shared/resources/policy/02-ENV_CONTAINMENT.md`: FR-001 containment requirements + env redirection rules
+- [x] From `ai/shared/resources/policy/02-ENV_KERNELS.md`: kernel mode precedence + platform scope rules
+- [x] From `ai/shared/resources/policy/02-ENV_CANONICAL-VARS.md`: secrets handling, `.env` rules, `.env.example` coverage, no secret logging
+- [x] ML/model provider best practices: determinism, pinned versions, lineage requirements, provider routing observability
 
 ---
 
@@ -140,7 +140,7 @@ Use the registry to identify and resolve duplicates.
   - [x] `config/providers/default.yaml`
   - [x] `ai/providers/**/config.json`
   - [ ] `sys/core/src/providers/mod.rs` default in-memory providers
-- [ ] Define “one source of truth” for each domain and record it in the registry.
+- [ ] Define ï¿½one source of truthï¿½ for each domain and record it in the registry.
 - [ ] Add deprecation rows and migration steps for legacy sources.
 
 ---
@@ -149,7 +149,7 @@ Use the registry to identify and resolve duplicates.
 - [x] Treat CSV registry as the source-of-truth.
 - [x] Regenerate/update these docs from registry:
   - [x] `config/README.md` quick reference (generated as `config/README.generated.md`)
-  - [x] policy docs section stating the registry is canonical (“where truth lives”)
+  - [x] policy docs section stating the registry is canonical (ï¿½where truth livesï¿½)
 - [ ] Add doc tiering fields and maintain them (Draft/Reviewed/Deprecated).
 
 ---
@@ -174,19 +174,17 @@ Output should be a report artifact (CSV diff + failure list).
 - [ ] Review the policy with stakeholders.
 - [ ] Apply bulk updates to registry rows.
 - [x] Implement enforcement scripts.
-- [x] Re-run until registry stabilizes and becomes the single “truth map”.
+- [x] Re-run until registry stabilizes and becomes the single ï¿½truth mapï¿½.
 
 ## Files
-- `docs/plans/config-audit-table.csv` (modify) - expand into typed asset registry
-- `docs/05-policy/config-cas.md` (reference) - immutable/mutable/CAS model
-- `docs/05-policy/wiki-pages-runbook.md` (reference) - doc durability + runbook standards
-- `docs/architecture/appdata-containment.md` (reference) - FR-001 containment requirements
-- `docs/architecture/kernel-independence.md` (reference) - kernel mode governance
-- `project-mgmt/docs/05-policy/env-policy.md` (reference) - env/secrets rules
-- `project-mgmt/docs/07-plans/ml_model_provider_best_practices.md` (reference) - determinism/versioning/observability rules
-- `docs/05-policy/asset-registry-governance.md` (new) - field-mapped governance policy for the registry
-- `docs/architecture/config-schema-validation.md` (new) - schema draft + env substitution contract
-- `docs/architecture/config-deprecation-workflow.md` (new) - deprecation workflow contract
+- `docs/architecture/plans/config-audit-table.csv` (modify) - expand into typed asset registry
+- `ai/shared/resources/policy/03-CONFIG_CAS.md` (reference) - immutable/mutable/CAS model
+- `ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md` (reference) - doc durability + runbook standards
+- `ai/shared/resources/policy/02-ENV_CONTAINMENT.md` (reference) - FR-001 containment requirements
+- `ai/shared/resources/policy/02-ENV_KERNELS.md` (reference) - kernel mode governance
+- `ai/shared/resources/policy/02-ENV_CANONICAL-VARS.md` (reference) - env/secrets rules
+- `ai/shared/resources/policy/04-GOVERNANCE_ASSET-REGISTRY.md` (reference) - field-mapped governance policy for the registry
+- `ai/shared/resources/policy/03-CONFIG_SCHEMA-VALIDATION.md` (reference) - schema draft + env substitution contract
 - `scripts/config/find-provider-authority-conflicts.ps1` (new) - provider authority overlap report
 - `scripts/config/generate-config-readme.ps1` (new) - generate quick reference from registry
 - `config/README.generated.md` (generated) - generated registry-based quick reference
