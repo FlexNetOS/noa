@@ -124,11 +124,28 @@ async fn bootstrap(
     // 3. Create initial roles and permissions
 
     // For now, generate a JWT for the admin
-    let jwt_secret = state.config.raw.get("noa_server")
+    let jwt_secret = match state
+        .config
+        .raw
+        .get("noa_server")
         .and_then(|s| s.get("api"))
         .and_then(|a| a.get("jwt_secret"))
         .and_then(|s| s.as_str())
-        .unwrap_or("default-development-secret-change-in-production");
+    {
+        Some(secret) => secret,
+        None => {
+            // Fail securely rather than using a hard-coded default secret.
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(BootstrapResponse {
+                    success: false,
+                    message: "JWT secret is not configured on the server".to_string(),
+                    token: None,
+                    api_key: None,
+                }),
+            );
+        }
+    };
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
