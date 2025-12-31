@@ -77,8 +77,10 @@ export interface ScheduleFromCalendarEvent extends CalendarIntegrationEvent {
   icon?: string;
 }
 
-export interface ScheduleCustomEvent
-  extends Omit<ScheduleFromCalendarEvent, 'calProviderId'> {
+export interface ScheduleCustomEvent extends Omit<
+  ScheduleFromCalendarEvent,
+  'calProviderId'
+> {
   icon: string;
 }
 

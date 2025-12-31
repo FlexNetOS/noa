@@ -1,0 +1,14 @@
+{
+  "deviceId": "noa-chatllm-computer-4ba836f0f-6669dd9566-5gblb",
+  "platform": "linux",
+  "cpuCores": 8,
+  "memoryGB": 61,
+  "gpuAvailable": false,
+  "location": "local",
+  "capabilities": [
+    "llm-inference",
+    "workflow-execution",
+    "code-generation"
+  ],
+  "created": "2025-12-18T04:36:15.982Z"
+}

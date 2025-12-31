@@ -1,0 +1,18 @@
+{
+  "id": "web_search",
+  "name": "Web Search",
+  "description": "Search the web for information",
+  "parameters": {
+    "query": {
+      "type": "string",
+      "description": "Search query",
+      "required": true
+    },
+    "maxResults": {
+      "type": "number",
+      "description": "Max results to return"
+    }
+  },
+  "handler": "tools.web_search",
+  "category": "research"
+}

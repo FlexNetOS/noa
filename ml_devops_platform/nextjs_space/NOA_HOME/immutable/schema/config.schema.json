@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.dev/schema/config.json",
+  "title": "Configuration Schema",
+  "description": "Defines mutable system configuration",
+  "type": "object",
+  "properties": {
+    "worldModel": {
+      "type": "object",
+      "description": "Machine-readable worldview and metadata",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "entities": {
+          "type": "array"
+        },
+        "relationships": {
+          "type": "array"
+        }
+      }
+    },
+    "deviceProfile": {
+      "type": "object",
+      "description": "Hardware profile, locality, capabilities",
+      "properties": {
+        "deviceId": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "linux",
+            "macos",
+            "windows",
+            "ios",
+            "android"
+          ]
+        },
+        "cpuCores": {
+          "type": "integer"
+        },
+        "memoryGB": {
+          "type": "number"
+        },
+        "gpuAvailable": {
+          "type": "boolean"
+        },
+        "location": {
+          "type": "string"
+        }
+      }
+    },
+    "hiveProfile": {
+      "type": "object",
+      "description": "Identity in the swarm",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "worker",
+            "relay"
+          ]
+        },
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "description": "Natural-language preference records"
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Semantic rules, safety limits, resource caps",
+      "properties": {
+        "maxConcurrentAgents": {
+          "type": "integer"
+        },
+        "maxMemoryMB": {
+          "type": "integer"
+        },
+        "allowedTools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "safetyRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

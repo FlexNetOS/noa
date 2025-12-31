@@ -1,0 +1,19 @@
+{
+  "$schema": "../lib/config/types.ts",
+  "_comment": "AI provider configuration - routes to real Abacus AI by default",
+  "ai": {
+    "type": "abacus",
+    "useMock": false,
+    "model": "gpt-4.1-mini",
+    "temperature": 0.7,
+    "maxTokens": 2048,
+    "useLocal": false,
+    "localUrl": "http://127.0.0.1:8080"
+  },
+  "_localInference": {
+    "description": "Enable useLocal:true for desktop Tauri apps with local Qwen3-1.7B",
+    "model": "Qwen3-1.7B-Instruct-GGUF (~1GB)",
+    "features": ["32K context", "4x faster than 7B", "Q4_K_M quantization"],
+    "requirements": "Rust inference server running on port 8080"
+  }
+}

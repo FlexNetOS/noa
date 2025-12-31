@@ -142,6 +142,21 @@ tmp/
 target/
 **/target/
 
+# Debug build artifacts
+**/target/debug/
+**/target/release/
+*.pdb
+*.ilk
+*.obj
+*.o
+*.d
+*.rlib
+*.rmeta
+*.exe
+*.dll
+*.so
+*.dylib
+
 # Next.js build artifacts
 .next/
 **/.next/

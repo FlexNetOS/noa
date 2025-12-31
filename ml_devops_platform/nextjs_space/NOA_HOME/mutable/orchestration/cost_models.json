@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "providers": {
+    "llamacpp": {
+      "fixedCost": 0,
+      "variableCostPerToken": 0
+    },
+    "abacus": {
+      "fixedCost": 0.0001,
+      "variableCostPerToken": 0.00001
+    },
+    "codex": {
+      "fixedCost": 0.0002,
+      "variableCostPerToken": 0.00002
+    },
+    "claude": {
+      "fixedCost": 0.0003,
+      "variableCostPerToken": 0.00003
+    }
+  },
+  "budgets": {
+    "daily": 10,
+    "perWorkflow": 1,
+    "perAgent": 0.5
+  }
+}

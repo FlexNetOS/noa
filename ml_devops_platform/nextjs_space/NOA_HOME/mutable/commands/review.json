@@ -1,0 +1,11 @@
+{
+  "id": "review",
+  "name": "/review",
+  "description": "Review code or document",
+  "syntax": "/review <file|code>",
+  "examples": [
+    "/review src/app.tsx",
+    "/review \"function add(a,b){return a+b}\""
+  ],
+  "handler": "commands.review"
+}

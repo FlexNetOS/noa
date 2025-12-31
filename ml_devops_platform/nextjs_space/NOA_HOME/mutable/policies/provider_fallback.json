@@ -1,0 +1,11 @@
+{
+  "id": "provider_fallback",
+  "name": "Provider Fallback",
+  "rules": [
+    "If primary provider fails, try next in priority",
+    "Cache responses for 5 minutes",
+    "Rate limit to 60 requests/minute"
+  ],
+  "scope": "provider",
+  "enforcement": "strict"
+}

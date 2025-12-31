@@ -15,9 +15,7 @@ import { md5HashPromise } from '../../../../../util/md5-hash';
 import { PFLog } from '../../../../../core/log';
 import { PrivateCfgByProviderId } from '../../../pfapi.model';
 
-export abstract class LocalFileSyncBase
-  implements SyncProviderServiceInterface<SyncProviderId.LocalFile>
-{
+export abstract class LocalFileSyncBase implements SyncProviderServiceInterface<SyncProviderId.LocalFile> {
   private static readonly LB = 'LocalFileSyncBase';
 
   readonly id = SyncProviderId.LocalFile;

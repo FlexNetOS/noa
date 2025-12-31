@@ -72,7 +72,8 @@ export interface IssueFieldsForTask {
 // Extend the plugin Task type with app-specific fields
 // Omit issue fields from PluginTask to avoid conflict with IssueFieldsForTask
 export interface TaskCopy
-  extends Omit<
+  extends
+    Omit<
       PluginTask,
       | 'issueId'
       | 'issueProviderId'

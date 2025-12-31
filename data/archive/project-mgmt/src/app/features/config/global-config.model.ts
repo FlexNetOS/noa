@@ -238,8 +238,10 @@ export type GlobalSectionConfig =
   | SyncConfig;
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-export interface LimitedFormlyFieldConfig<FormModel>
-  extends Omit<FormlyFieldConfig, 'key'> {
+export interface LimitedFormlyFieldConfig<FormModel> extends Omit<
+  FormlyFieldConfig,
+  'key'
+> {
   key?: keyof FormModel;
 }
 
@@ -262,8 +264,10 @@ export interface ConfigFormSection<FormModel> {
   isHideForAndroidApp?: boolean;
 }
 
-export interface GenericConfigFormSection
-  extends Omit<ConfigFormSection<unknown>, 'items'> {
+export interface GenericConfigFormSection extends Omit<
+  ConfigFormSection<unknown>,
+  'items'
+> {
   items?: FormlyFieldConfig[];
 }
 

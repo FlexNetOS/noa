@@ -1,0 +1,1 @@
+User prefers: Dark mode, concise responses, technical documentation style.

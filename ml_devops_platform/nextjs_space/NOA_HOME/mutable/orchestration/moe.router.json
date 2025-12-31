@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "strategy": "capability-based",
+  "rules": {
+    "agent_planner": {
+      "prefer": [
+        "claude",
+        "abacus"
+      ],
+      "fallback": [
+        "codex"
+      ],
+      "specialize_for": [
+        "planning",
+        "strategy"
+      ]
+    },
+    "agent_coder": {
+      "prefer": [
+        "codex",
+        "claude"
+      ],
+      "fallback": [
+        "abacus",
+        "llamacpp"
+      ],
+      "specialize_for": [
+        "code-generation",
+        "refactor"
+      ]
+    },
+    "agent_analyst": {
+      "prefer": [
+        "claude",
+        "abacus"
+      ],
+      "fallback": [
+        "codex"
+      ],
+      "specialize_for": [
+        "analysis",
+        "reasoning"
+      ]
+    },
+    "agent_reviewer": {
+      "prefer": [
+        "claude",
+        "codex"
+      ],
+      "fallback": [
+        "abacus"
+      ],
+      "specialize_for": [
+        "review",
+        "validation"
+      ]
+    }
+  },
+  "costModels": {
+    "preferLocal": true,
+    "maxCostPerRequest": 0.1,
+    "budgetAllocations": {
+      "planning": 0.3,
+      "generation": 0.5,
+      "review": 0.2
+    }
+  },
+  "routing": {
+    "algorithm": "weighted-round-robin",
+    "weights": {
+      "cost": 0.3,
+      "latency": 0.4,
+      "capability": 0.3
+    }
+  }
+}
