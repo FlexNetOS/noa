@@ -833,9 +833,11 @@ impl AgentStore for PgAgentStore {
         }).collect())
     }
 
-    async fn update(&self, agent: &Agent) -> Result<()> {
-        // Simplified - would need UUID mapping
-        Ok(())
+    async fn update(&self, _agent: &Agent) -> Result<()> {
+        Err(NoaError::Database(DatabaseError::QueryFailed {
+            query: "UPDATE agent".to_string(),
+            error: "Agent update is not supported: missing UUID mapping".to_string(),
+        }))
     }
 
     async fn delete(&self, id: &Uuid) -> Result<bool> {
