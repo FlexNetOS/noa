@@ -192,7 +192,7 @@ impl MLOptimizedCompressor for MLModelCompressor {
         let quantized = self.quantize_weights(&pruned);
         
         // Apply standard compression
-        let compressed = zstd::encode_all(&quantized, 6)?;
+        let compressed = zstd::encode_all(std::io::Cursor::new(&quantized), 6)?;;
         
         let compression_time = start_time.elapsed().as_millis() as u64;
         let compressed_size = compressed.len();
@@ -325,7 +325,7 @@ impl MLOptimizedCompressor for MLPromptCompressor {
         };
         
         // Apply standard compression
-        let final_compressed = zstd::encode_all(&compressed, 3)?;
+        let final_compressed = zstd::encode_all(std::io::Cursor::new(&compressed), 3)?;;
         
         let compression_time = start_time.elapsed().as_millis() as u64;
         let compressed_size = final_compressed.len();
@@ -377,7 +377,7 @@ impl MLPromptCompressor {
         
         // Normalize quotes
         optimized = optimized.replace('"', "\"");
-        optimized = optimized.replace(''', "'");
+        optimized = optimized.replace('\u{2019}', "'");
         
         // Remove common redundant phrases
         let redundancies = vec![

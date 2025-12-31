@@ -166,7 +166,7 @@ impl CompressionManager {
             if let Ok((_, stats)) = self.compress_data(data, algorithm).await {
                 if stats.compression_ratio > best_ratio {
                     best_ratio = stats.compression_ratio;
-                    best_algorithm = algorithm.clone();
+                    best_algorithm = algorithm.to_string();
                 }
             }
         }
@@ -304,16 +304,28 @@ impl StreamingCompressor {
         }
     }
     
-    pub async fn compress_stream(&self, input: async_stream::Stream<Item = Vec<u8>>) -> async_stream::Stream<Result<Vec<u8>, String>> {
+    pub fn compress_stream<S>(&self, input: S) -> impl futures::Stream<Item = Result<Vec<u8>, String>>
+    where
+        S: futures::Stream<Item = Vec<u8>> + Send + 'static,
+    {
         // This would implement streaming compression
-        // For now, return a simple implementation
-        Box::pin(input.map(|chunk| Ok(chunk)))
+        // For now, return a simple implementation  
+        futures::stream::unfold(Box::pin(input), |mut stream| async move {
+            use futures::StreamExt;
+            stream.next().await.map(|chunk| (Ok(chunk), stream))
+        })
     }
     
-    pub async fn decompress_stream(&self, input: async_stream::Stream<Item = Vec<u8>>) -> async_stream::Stream<Result<Vec<u8>, String>> {
+    pub fn decompress_stream<S>(&self, input: S) -> impl futures::Stream<Item = Result<Vec<u8>, String>>
+    where
+        S: futures::Stream<Item = Vec<u8>> + Send + 'static,
+    {
         // This would implement streaming decompression
         // For now, return a simple implementation
-        Box::pin(input.map(|chunk| Ok(chunk)))
+        futures::stream::unfold(Box::pin(input), |mut stream| async move {
+            use futures::StreamExt;
+            stream.next().await.map(|chunk| (Ok(chunk), stream))
+        })
     }
 }
 

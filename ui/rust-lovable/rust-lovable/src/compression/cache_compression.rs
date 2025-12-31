@@ -1,4 +1,5 @@
 use anyhow::Result;
+use serde::{Serialize, Deserialize};
 use crate::compression::{CompressionResult, CompressionStats, CompressionPriority};
 
 pub struct CacheCompressor {
@@ -86,7 +87,8 @@ impl CacheCompressor {
         );
         
         std::io::Write::write_all(&mut encoder, data)?;
-        encoder.finish()?;
+        std::io::Write::flush(&mut encoder)?;
+        drop(encoder); // Ensure all data is written
         
         let compression_time = start_time.elapsed().as_millis() as u64;
         
@@ -208,7 +210,7 @@ impl AdaptiveCacheCompressor {
         Ok(result)
     }
     
-    fn select_best_algorithm(&self, data: &[u8], priority: &CompressionPriority) -> &'static str {
+    fn select_best_algorithm(&self, _data: &[u8], priority: &CompressionPriority) -> &'static str {
         // Analyze recent performance history
         let recent_performance: Vec<_> = self.performance_history.iter()
             .filter(|p| p.timestamp > chrono::Utc::now() - chrono::Duration::hours(1))
@@ -220,18 +222,24 @@ impl AdaptiveCacheCompressor {
         }
         
         // Calculate average performance metrics for each algorithm
-        let mut algorithm_scores = std::collections::HashMap::new();
+        let mut algorithm_scores = std::collections::HashMap::<String, f64>::new();
         
         for perf in recent_performance {
             let score = self.calculate_algorithm_score(perf, priority);
-            *algorithm_scores.entry(&perf.algorithm).or_insert(0.0) += score;
+            *algorithm_scores.entry(perf.algorithm.clone()).or_insert(0.0) += score;
         }
         
         // Choose the algorithm with the best score
-        algorithm_scores.into_iter()
+        let best = algorithm_scores.into_iter()
             .max_by(|(_, score_a), (_, score_b)| score_a.partial_cmp(score_b).unwrap())
-            .map(|(algorithm, _)| algorithm.as_str())
-            .unwrap_or("zstd")
+            .map(|(algorithm, _)| algorithm);
+        
+        match best.as_deref() {
+            Some("lz4") => "lz4",
+            Some("brotli") => "brotli",
+            Some("gzip") => "gzip",
+            _ => "zstd",
+        }
     }
     
     fn calculate_algorithm_score(&self, perf: &CompressionPerformance, priority: &CompressionPriority) -> f64 {

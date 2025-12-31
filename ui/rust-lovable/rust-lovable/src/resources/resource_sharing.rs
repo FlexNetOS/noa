@@ -115,7 +115,7 @@ pub struct SharingEvent {
     pub data: HashMap<String, serde_json::Value>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SharingEventType {
     ResourceShared,

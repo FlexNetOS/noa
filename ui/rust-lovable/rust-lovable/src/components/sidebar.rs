@@ -1,31 +1,31 @@
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-use crate::core::ui_generator::{ComponentType, UIComponent};
+use crate::core::ui_generator::ComponentType;
 
 #[component]
 pub fn Sidebar() -> Element {
-    let expanded_sections = use_signal(HashMap::<String, bool>::new);
-    
+    let mut expanded_sections = use_signal(HashMap::<String, bool>::new);
+
     rsx! {
         div {
             class: "sidebar",
-            
+
             // Project info
             div {
                 class: "project-info",
-                
+
                 h3 { "My Project" }
-                
+
                 div {
                     class: "project-stats",
-                    
+
                     div {
                         class: "stat",
                         span { class: "stat-label", "Components: " }
                         span { class: "stat-value", "12" }
                     }
-                    
+
                     div {
                         class: "stat",
                         span { class: "stat-label", "Pages: " }
@@ -33,7 +33,7 @@ pub fn Sidebar() -> Element {
                     }
                 }
             }
-            
+
             // Component Library
             SidebarSection {
                 title: "Components",
@@ -43,10 +43,10 @@ pub fn Sidebar() -> Element {
                     sections.insert("components".to_string(), !sections.get("components").unwrap_or(&true));
                     expanded_sections.set(sections);
                 },
-                
+
                 ComponentLibrary {}
             }
-            
+
             // Pages
             SidebarSection {
                 title: "Pages",
@@ -56,10 +56,10 @@ pub fn Sidebar() -> Element {
                     sections.insert("pages".to_string(), !sections.get("pages").unwrap_or(&true));
                     expanded_sections.set(sections);
                 },
-                
+
                 PageList {}
             }
-            
+
             // Assets
             SidebarSection {
                 title: "Assets",
@@ -69,7 +69,7 @@ pub fn Sidebar() -> Element {
                     sections.insert("assets".to_string(), !sections.get("assets").unwrap_or(&false));
                     expanded_sections.set(sections);
                 },
-                
+
                 AssetList {}
             }
         }
@@ -81,24 +81,24 @@ pub fn SidebarSection(
     title: String,
     expanded: bool,
     on_toggle: EventHandler<()>,
-    children: Element
+    children: Element,
 ) -> Element {
     rsx! {
         div {
             class: "sidebar-section",
-            
+
             div {
                 class: "section-header",
                 onclick: move |_| on_toggle.call(()),
-                
+
                 h4 { "{title}" }
-                
+
                 div {
                     class: if expanded { "expand-icon expanded" } else { "expand-icon" },
                     "▼"
                 }
             }
-            
+
             if expanded {
                 div {
                     class: "section-content",
@@ -112,42 +112,54 @@ pub fn SidebarSection(
 #[component]
 pub fn ComponentLibrary() -> Element {
     let component_categories = vec![
-        ("Layout", vec![
-            ("Container", ComponentType::Container),
-            ("Flex", ComponentType::Flex),
-            ("Grid", ComponentType::Grid),
-            ("Stack", ComponentType::Stack),
-        ]),
-        ("Basic", vec![
-            ("Text", ComponentType::Text),
-            ("Button", ComponentType::Button),
-            ("Image", ComponentType::Image),
-            ("Icon", ComponentType::Icon),
-        ]),
-        ("Forms", vec![
-            ("Input", ComponentType::Input),
-            ("TextArea", ComponentType::TextArea),
-            ("Select", ComponentType::Select),
-            ("Checkbox", ComponentType::Checkbox),
-        ]),
-        ("Navigation", vec![
-            ("Navbar", ComponentType::Navbar),
-            ("Sidebar", ComponentType::Sidebar),
-            ("Tabs", ComponentType::Tabs),
-            ("Menu", ComponentType::Menu),
-        ]),
+        (
+            "Layout",
+            vec![
+                ("Container", ComponentType::Container),
+                ("Flex", ComponentType::Flex),
+                ("Grid", ComponentType::Grid),
+                ("Stack", ComponentType::Stack),
+            ],
+        ),
+        (
+            "Basic",
+            vec![
+                ("Text", ComponentType::Text),
+                ("Button", ComponentType::Button),
+                ("Image", ComponentType::Image),
+                ("Icon", ComponentType::Icon),
+            ],
+        ),
+        (
+            "Forms",
+            vec![
+                ("Input", ComponentType::Input),
+                ("TextArea", ComponentType::TextArea),
+                ("Select", ComponentType::Select),
+                ("Checkbox", ComponentType::Checkbox),
+            ],
+        ),
+        (
+            "Navigation",
+            vec![
+                ("Navbar", ComponentType::Navbar),
+                ("Sidebar", ComponentType::Sidebar),
+                ("Tabs", ComponentType::Tabs),
+                ("Menu", ComponentType::Menu),
+            ],
+        ),
     ];
-    
+
     rsx! {
         div {
             class: "component-library",
-            
+
             for (category, components) in component_categories {
                 div {
                     class: "component-category",
-                    
+
                     h5 { "{category}" }
-                    
+
                     for (name, component_type) in components {
                         DraggableComponent {
                             name: name.to_string(),
@@ -166,11 +178,11 @@ pub fn DraggableComponent(name: String, component_type: ComponentType) -> Elemen
         div {
             class: "draggable-component",
             draggable: "true",
-            ondragstart: move |event| {
-                // Set drag data
-                event.data_transfer().set_data("text/plain", &name);
+            ondragstart: move |_event| {
+                // TODO(web): set drag data via DataTransfer when supported by the active renderer.
+                let _ = &name;
             },
-            
+
             div {
                 class: "component-icon",
                 // Icon based on component type
@@ -186,7 +198,7 @@ pub fn DraggableComponent(name: String, component_type: ComponentType) -> Elemen
                     _ => "◆",
                 }
             }
-            
+
             div {
                 class: "component-name",
                 "{name}"
@@ -202,25 +214,25 @@ pub fn PageList() -> Element {
         ("About", "/about", false),
         ("Contact", "/contact", false),
     ];
-    
+
     rsx! {
         div {
             class: "page-list",
-            
-            for (name, path, is_active) in pages {
+
+            for (name, _path, is_active) in pages {
                 div {
                     class: if is_active { "page-item active" } else { "page-item" },
-                    
+
                     div {
                         class: "page-icon",
                         "📄"
                     }
-                    
+
                     div {
                         class: "page-name",
                         "{name}"
                     }
-                    
+
                     if is_active {
                         div {
                             class: "page-status",
@@ -229,7 +241,7 @@ pub fn PageList() -> Element {
                     }
                 }
             }
-            
+
             button {
                 class: "add-page-button",
                 onclick: move |_| {
@@ -248,15 +260,15 @@ pub fn AssetList() -> Element {
         ("hero-bg.jpg", "Image", "1.8 MB"),
         ("styles.css", "Stylesheet", "15 KB"),
     ];
-    
+
     rsx! {
         div {
             class: "asset-list",
-            
+
             for (name, asset_type, size) in assets {
                 div {
                     class: "asset-item",
-                    
+
                     div {
                         class: "asset-icon",
                         match asset_type {
@@ -265,15 +277,15 @@ pub fn AssetList() -> Element {
                             _ => "📁",
                         }
                     }
-                    
+
                     div {
                         class: "asset-info",
-                        
+
                         div {
                             class: "asset-name",
                             "{name}"
                         }
-                        
+
                         div {
                             class: "asset-details",
                             "{asset_type} • {size}"
@@ -281,7 +293,7 @@ pub fn AssetList() -> Element {
                     }
                 }
             }
-            
+
             button {
                 class: "add-asset-button",
                 onclick: move |_| {

@@ -1,19 +1,18 @@
 use dioxus::prelude::*;
-use crate::core::conversational_ai::PlatformTarget;
 
 #[component]
 pub fn Toolbar() -> Element {
-    let is_building = use_signal(|| false);
+    let mut is_building = use_signal(|| false);
     let active_project = use_signal(|| String::from("My Project"));
-    
+
     rsx! {
         div {
             class: "toolbar",
-            
+
             // Left section - Project controls
             div {
                 class: "toolbar-left",
-                
+
                 button {
                     class: "toolbar-button",
                     onclick: move |_| {
@@ -22,7 +21,7 @@ pub fn Toolbar() -> Element {
                     title: "New Project",
                     "📝"
                 }
-                
+
                 button {
                     class: "toolbar-button",
                     onclick: move |_| {
@@ -31,7 +30,7 @@ pub fn Toolbar() -> Element {
                     title: "Open Project",
                     "📁"
                 }
-                
+
                 button {
                     class: "toolbar-button",
                     onclick: move |_| {
@@ -40,11 +39,11 @@ pub fn Toolbar() -> Element {
                     title: "Save Project",
                     "💾"
                 }
-                
+
                 div {
                     class: "toolbar-separator"
                 }
-                
+
                 button {
                     class: "toolbar-button",
                     onclick: move |_| {
@@ -53,7 +52,7 @@ pub fn Toolbar() -> Element {
                     title: "Undo",
                     "↶"
                 }
-                
+
                 button {
                     class: "toolbar-button",
                     onclick: move |_| {
@@ -63,51 +62,54 @@ pub fn Toolbar() -> Element {
                     "↷"
                 }
             }
-            
+
             // Center section - Project info
             div {
                 class: "toolbar-center",
-                
+
                 h2 {
                     class: "project-title",
                     "{active_project.read()}"
                 }
-                
+
                 div {
                     class: "project-status",
                     span { class: "status-indicator ready", "●" }
                     span { "Ready" }
                 }
             }
-            
+
             // Right section - Build and deploy
             div {
                 class: "toolbar-right",
-                
+
                 // Platform selector
                 div {
                     class: "platform-selector",
-                    
+
                     select {
-                        onchange: move |event| {
+                        onchange: move |_event| {
                             // Handle platform change
                         },
-                        
+
                         option { value: "web", "Web" }
                         option { value: "desktop", "Desktop" }
                         option { value: "mobile", "Mobile" }
                         option { value: "universal", "Universal" }
                     }
                 }
-                
+
                 div {
                     class: "toolbar-separator"
                 }
-                
+
                 button {
                     class: "toolbar-button build-button",
                     onclick: move |_| {
                         is_building.set(true);
+
+                        // Move a handle into the async task.
+                        let mut is_building = is_building;
                         // Simulate build process
                         spawn(async move {
                             tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
@@ -115,14 +117,14 @@ pub fn Toolbar() -> Element {
                         });
                     },
                     disabled: *is_building.read(),
-                    
+
                     if *is_building.read() {
                         "Building..."
                     } else {
                         "Build"
                     }
                 }
-                
+
                 button {
                     class: "toolbar-button deploy-button",
                     onclick: move |_| {
@@ -130,11 +132,11 @@ pub fn Toolbar() -> Element {
                     },
                     "Deploy"
                 }
-                
+
                 div {
                     class: "toolbar-separator"
                 }
-                
+
                 // Settings
                 button {
                     class: "toolbar-button",
@@ -151,31 +153,29 @@ pub fn Toolbar() -> Element {
 
 #[component]
 pub fn ProjectSelector() -> Element {
-    let projects = vec![
-        "My Project",
-        "Landing Page",
-        "Dashboard",
-        "Mobile App",
-    ];
-    
-    let is_open = use_signal(|| false);
-    
+    let projects = vec!["My Project", "Landing Page", "Dashboard", "Mobile App"];
+
+    let mut is_open = use_signal(|| false);
+
     rsx! {
         div {
             class: "project-selector",
-            
+
             button {
                 class: "project-selector-button",
-                onclick: move |_| is_open.set(!*is_open.read()),
-                
+                onclick: move |_| {
+                    let open = *is_open.read();
+                    is_open.set(!open);
+                },
+
                 span { "My Project" }
                 span { class: if *is_open.read() { "dropdown-icon open" } else { "dropdown-icon" }, "▼" }
             }
-            
+
             if *is_open.read() {
                 div {
                     class: "project-dropdown",
-                    
+
                     for project in projects {
                         div {
                             class: "project-option",
@@ -186,7 +186,7 @@ pub fn ProjectSelector() -> Element {
                             "{project}"
                         }
                     }
-                    
+
                     div {
                         class: "project-option new-project",
                         onclick: move |_| {

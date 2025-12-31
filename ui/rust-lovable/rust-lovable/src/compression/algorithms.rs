@@ -63,7 +63,7 @@ impl CompressionAlgorithm for ZstdAlgorithm {
     }
     
     fn decompress(&self, data: &[u8]) -> Result<Vec<u8>> {
-        zstd::decode_all(data)
+        Ok(zstd::decode_all(std::io::Cursor::new(data))?)
     }
     
     fn get_name(&self) -> &'static str {
@@ -105,7 +105,7 @@ impl CompressionAlgorithm for BrotliAlgorithm {
         );
         
         std::io::Write::write_all(&mut encoder, data)?;
-        encoder.flush()?;
+        std::io::Write::flush(&mut encoder)?;
         drop(encoder); // Ensure all data is written
         
         let compression_time = start_time.elapsed().as_millis() as u64;

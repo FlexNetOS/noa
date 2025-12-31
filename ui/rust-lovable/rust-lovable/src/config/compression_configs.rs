@@ -124,7 +124,7 @@ pub enum MetricType {
 pub struct CompressionAlertingConfig {
     pub enabled: bool,
     pub thresholds: HashMap<String, f64>,
-    def channels: Vec<AlertChannel>,
+    pub channels: Vec<AlertChannel>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -173,7 +173,7 @@ pub struct QuantizationConfig {
     pub enabled: bool,
     pub bits: u8,
     pub method: String,
-    def calibration_method: String,
+    pub calibration_method: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -181,7 +181,7 @@ pub struct KnowledgeDistillationConfig {
     pub enabled: bool,
     pub teacher_student_ratio: f64,
     pub temperature: f64,
-    def alpha: f64,
+    pub alpha: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

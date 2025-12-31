@@ -49,7 +49,7 @@ pub struct AggregationRule {
     pub name: String,
     pub function: AggregationFunction,
     pub window_seconds: u64,
-    def group_by: Vec<String>,
+    pub group_by: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -167,14 +167,14 @@ pub struct LogSamplingConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SamplingPolicy {
     pub name: String,
-    def condition: String,
+    pub condition: String,
     pub rate: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertingConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub rules: Vec<AlertRule>,
     pub notification_channels: Vec<NotificationChannel>,
     pub suppression: AlertSuppressionConfig,
@@ -183,17 +183,17 @@ pub struct AlertingConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertRule {
     pub name: String,
-    def condition: AlertCondition,
+    pub condition: AlertCondition,
     pub severity: AlertSeverity,
     pub duration_seconds: u64,
     pub notification_channels: Vec<String>,
-    def labels: HashMap<String, String>,
+    pub labels: HashMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertCondition {
     pub metric: String,
-    pub operator: ComparisonOperator,
+    pub operator: crate::config::compression_configs::ComparisonOperator,
     pub threshold: f64,
     pub comparison_window_seconds: u64,
 }
@@ -234,7 +234,7 @@ pub struct AlertSuppressionConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaintenanceWindow {
     pub name: String,
-    def start_time: String,
+    pub start_time: String,
     pub end_time: String,
     pub timezone: String,
 }
@@ -242,13 +242,13 @@ pub struct MaintenanceWindow {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DependencyRule {
     pub alert_name: String,
-    def depends_on: Vec<String>,
+    pub depends_on: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DashboardConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub dashboards: Vec<DashboardDefinition>,
     pub refresh_interval_seconds: u64,
 }
@@ -256,7 +256,7 @@ pub struct DashboardConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DashboardDefinition {
     pub name: String,
-    def description: String,
+    pub description: String,
     pub panels: Vec<PanelDefinition>,
     pub variables: Vec<VariableDefinition>,
     pub time_range: TimeRange,
@@ -265,7 +265,7 @@ pub struct DashboardDefinition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PanelDefinition {
     pub name: String,
-    def panel_type: String,
+    pub panel_type: String,
     pub query: String,
     pub visualization: VisualizationConfig,
     pub alerts: Vec<String>,
@@ -274,7 +274,7 @@ pub struct PanelDefinition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualizationConfig {
     pub chart_type: String,
-    def axes: AxesConfig,
+    pub axes: AxesConfig,
     pub legend: LegendConfig,
     pub thresholds: Vec<Threshold>,
 }
@@ -297,20 +297,20 @@ pub struct AxisConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LegendConfig {
     pub enabled: bool,
-    def position: String,
+    pub position: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Threshold {
     pub value: f64,
     pub color: String,
-    def label: String,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VariableDefinition {
     pub name: String,
-    def variable_type: String,
+    pub variable_type: String,
     pub query: String,
     pub default_value: String,
 }
@@ -324,7 +324,7 @@ pub struct TimeRange {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProfilingConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub sampling_rate: f64,
     pub max_profile_duration_seconds: u64,
     pub cpu_profiling: CPUProfilingConfig,
@@ -335,30 +335,30 @@ pub struct ProfilingConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CPUProfilingConfig {
     pub enabled: bool,
-    def sample_frequency_hz: u32,
+    pub sample_frequency_hz: u32,
     pub call_graph_depth: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryProfilingConfig {
     pub enabled: bool,
-    def allocation_tracking: bool,
+    pub allocation_tracking: bool,
     pub leak_detection: bool,
-    def garbage_collection_tracking: bool,
+    pub garbage_collection_tracking: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IOProfilingConfig {
     pub enabled: bool,
-    def track_file_operations: bool,
+    pub track_file_operations: bool,
     pub track_network_operations: bool,
-    def track_database_operations: bool,
+    pub track_database_operations: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthCheckConfig {
     pub enabled: bool,
-    def endpoint: String,
+    pub endpoint: String,
     pub interval_seconds: u64,
     pub timeout_seconds: u64,
     pub checks: Vec<HealthCheck>,
@@ -367,7 +367,7 @@ pub struct HealthCheckConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthCheck {
     pub name: String,
-    def check_type: HealthCheckType,
+    pub check_type: HealthCheckType,
     pub config: HashMap<String, serde_json::Value>,
     pub critical: bool,
 }

@@ -125,7 +125,7 @@ pub struct ComplianceInfo {
 pub struct RetentionPolicy {
     pub retention_period_days: u32,
     pub deletion_method: String,
-    def archival_enabled: bool,
+    pub archival_enabled: bool,
     pub legal_hold: bool,
 }
 

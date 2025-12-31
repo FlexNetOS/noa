@@ -30,7 +30,7 @@ impl StreamingCompressor {
     
     pub fn compress_stream(
         &self,
-        input_stream: impl Stream<Item = Vec<u8>>,
+        input_stream: impl Stream<Item = Vec<u8>> + Send + 'static,
     ) -> impl Stream<Item = Result<Vec<u8>>> {
         let (tx, rx) = mpsc::channel(100);
         let algorithm = self.algorithm.clone();
@@ -89,7 +89,7 @@ impl StreamingCompressor {
     
     pub fn decompress_stream(
         &self,
-        input_stream: impl Stream<Item = Result<Vec<u8>>>,
+        input_stream: impl Stream<Item = Result<Vec<u8>>> + Send + 'static,
     ) -> impl Stream<Item = Result<Vec<u8>>> {
         let (tx, rx) = mpsc::channel(100);
         let algorithm = self.algorithm.clone();
@@ -177,7 +177,7 @@ impl StreamingAlgorithm {
 
 struct StreamingZstd {
     encoder: Option<zstd::stream::write::Encoder<'static, Vec<u8>>>,
-    decoder: Option<zstd::stream::read::Decoder<'static, std::io::Cursor<Vec<u8>>>>,
+    decoder: Option<zstd::stream::read::Decoder<'static, std::io::BufReader<std::io::Cursor<Vec<u8>>>>>,
 }
 
 impl StreamingZstd {

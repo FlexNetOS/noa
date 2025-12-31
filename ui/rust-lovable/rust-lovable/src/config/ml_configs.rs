@@ -200,7 +200,7 @@ pub struct HyperparameterOptimizationConfig {
     pub max_trials: u32,
     pub parallel_trials: u32,
     pub objective_metric: String,
-    def direction: String,
+    pub direction: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -224,7 +224,7 @@ pub struct EarlyStoppingConfig {
     pub enabled: bool,
     pub patience: u32,
     pub min_delta: f64,
-    def restore_best_weights: bool,
+    pub restore_best_weights: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -290,7 +290,7 @@ pub struct QuantizationConfig {
     pub enabled: bool,
     pub bits: u8,
     pub method: String,
-    def calibration_dataset: String,
+    pub calibration_dataset: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -298,7 +298,7 @@ pub struct PruningConfig {
     pub enabled: bool,
     pub sparsity: f64,
     pub method: String,
-    def importance_metric: String,
+    pub importance_metric: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -306,7 +306,7 @@ pub struct DistillationConfig {
     pub enabled: bool,
     pub teacher_model: String,
     pub temperature: f64,
-    def alpha: f64,
+    pub alpha: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -366,14 +366,14 @@ pub struct EvaluationConfig {
     pub enabled: bool,
     pub datasets: Vec<String>,
     pub metrics: Vec<EvaluationMetric>,
-    def cross_validation: CrossValidationConfig,
+    pub cross_validation: CrossValidationConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EvaluationMetric {
     pub name: String,
     pub metric_type: String,
-    def parameters: HashMap<String, serde_json::Value>,
+    pub parameters: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -381,13 +381,13 @@ pub struct CrossValidationConfig {
     pub enabled: bool,
     pub folds: u32,
     pub stratified: bool,
-    def shuffle: bool,
+    pub shuffle: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLMonitoringConfig {
     pub enabled: bool,
-    def metrics: MLMetricsConfig,
+    pub metrics: MLMetricsConfig,
     pub logging: MLLoggingConfig,
     pub alerting: MLAlertingConfig,
 }
@@ -402,14 +402,14 @@ pub struct MLMetricsConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLLoggingConfig {
     pub enabled: bool,
-    def level: String,
+    pub level: String,
     pub outputs: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLAlertingConfig {
     pub enabled: bool,
-    def thresholds: HashMap<String, f64>,
+    pub thresholds: HashMap<String, f64>,
     pub notification_channels: Vec<String>,
 }
 
@@ -425,28 +425,28 @@ pub struct PipelineConfig {
 pub struct PipelineStage {
     pub name: String,
     pub stage_type: String,
-    def dependencies: Vec<String>,
+    pub dependencies: Vec<String>,
     pub config: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PipelineSchedulingConfig {
     pub enabled: bool,
-    def cron_schedule: String,
+    pub cron_schedule: String,
     pub retry_policy: RetryPolicy,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RetryPolicy {
     pub max_attempts: u32,
-    def backoff_strategy: String,
+    pub backoff_strategy: String,
     pub initial_delay_seconds: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FeatureStoreConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub online_store: OnlineStoreConfig,
     pub offline_store: OfflineStoreConfig,
 }
@@ -454,43 +454,43 @@ pub struct FeatureStoreConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OnlineStoreConfig {
     pub provider: String,
-    def connection_string: String,
+    pub connection_string: String,
     pub ttl_seconds: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OfflineStoreConfig {
     pub provider: String,
-    def storage_path: String,
+    pub storage_path: String,
     pub format: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExperimentTrackingConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub experiments: ExperimentConfig,
-    def tracking: TrackingConfig,
+    pub tracking: TrackingConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExperimentConfig {
     pub naming_convention: String,
-    def tags: Vec<String>,
+    pub tags: Vec<String>,
     pub artifact_storage: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrackingConfig {
     pub metrics: Vec<String>,
-    def parameters: Vec<String>,
+    pub parameters: Vec<String>,
     pub artifacts: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelRegistryConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub versioning: ModelVersioningConfig,
     pub deployment: DeploymentConfig,
 }
@@ -498,72 +498,72 @@ pub struct ModelRegistryConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelVersioningConfig {
     pub strategy: String,
-    def stages: Vec<String>,
+    pub stages: Vec<String>,
     pub promotion_criteria: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeploymentConfig {
     pub strategies: Vec<String>,
-    def canary: CanaryConfig,
+    pub canary: CanaryConfig,
     pub rollback: RollbackConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CanaryConfig {
     pub enabled: bool,
-    def traffic_percentage: f64,
-    def success_criteria: HashMap<String, f64>,
+    pub traffic_percentage: f64,
+    pub success_criteria: HashMap<String, f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RollbackConfig {
     pub enabled: bool,
-    def conditions: Vec<String>,
+    pub conditions: Vec<String>,
     pub auto_rollback: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLOpsConfig {
     pub enabled: bool,
-    def ci_cd: CICDConfig,
+    pub ci_cd: CICDConfig,
     pub testing: TestingConfig,
-    def monitoring: MLOpsMonitoringConfig,
+    pub monitoring: MLOpsMonitoringConfig,
     pub governance: GovernanceConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CICDConfig {
     pub enabled: bool,
-    def provider: String,
+    pub provider: String,
     pub pipelines: Vec<CICDPipeline>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CICDPipeline {
     pub name: String,
-    def stages: Vec<String>,
+    pub stages: Vec<String>,
     pub triggers: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TestingConfig {
     pub enabled: bool,
-    def frameworks: Vec<String>,
+    pub frameworks: Vec<String>,
     pub coverage_threshold: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLOpsMonitoringConfig {
     pub enabled: bool,
-    def dashboards: Vec<String>,
+    pub dashboards: Vec<String>,
     pub alerts: Vec<AlertConfig>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertConfig {
     pub name: String,
-    def condition: String,
+    pub condition: String,
     pub severity: String,
     pub notification_channels: Vec<String>,
 }
@@ -571,9 +571,9 @@ pub struct AlertConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GovernanceConfig {
     pub enabled: bool,
-    def compliance: Vec<String>,
+    pub compliance: Vec<String>,
     pub audit_logging: bool,
-    def model_cards: bool,
+    pub model_cards: bool,
 }
 
 impl Default for MLConfig {

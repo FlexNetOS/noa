@@ -48,7 +48,7 @@ pub struct CompressionTask {
     pub streaming: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum CompressionPriority {
     RealTime,
     High,
@@ -195,7 +195,7 @@ impl CompressionManager {
         }
     }
 
-    pub async fn streaming_compress(&self, data_stream: impl futures::Stream<Item = Vec<u8>>) -> impl futures::Stream<Item = Result<Vec<u8>>> {
+    pub async fn streaming_compress(&self, data_stream: impl futures::Stream<Item = Vec<u8>> + Send + 'static) -> impl futures::Stream<Item = Result<Vec<u8>>> {
         let streaming_compressor = StreamingCompressor::new(self.config.default_algorithm.clone());
         streaming_compressor.compress_stream(data_stream)
     }
@@ -249,12 +249,12 @@ impl CompressionManager {
 
     async fn evict_cache_entries(&self, cache: &mut HashMap<String, CompressionStats>) {
         // Simple LRU eviction - remove oldest entries
-        let mut entries: Vec<_> = cache.iter().collect();
-        entries.sort_by_key(|(_, stats)| stats.timestamp);
+        let mut entries: Vec<_> = cache.iter().map(|(k, v)| (k.clone(), v.timestamp)).collect();
+        entries.sort_by_key(|(_, ts)| *ts);
         
         let to_remove = entries.len() / 4; // Remove 25% of entries
         for (key, _) in entries.into_iter().take(to_remove) {
-            cache.remove(key);
+            cache.remove(&key);
         }
     }
 }
