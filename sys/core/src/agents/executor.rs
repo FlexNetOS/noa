@@ -2,7 +2,7 @@
 //!
 //! Orchestrates sequential execution of agent tasks
 
-use crate::agents::{BaseAgent, CommanderChiefAgent, FileIOAgent, TerminalAgent, RAGAgent, ModelSelectorAgent};
+use crate::agents::{BaseAgent, CommanderChiefAgent, FileIOAgent, TerminalAgent, RAGAgent};
 use crate::agents::model_selector::MockModelSelectorAgent;
 use crate::agents::commander::{ExecutionPlan, AgentTask, TaskStatus};
 use crate::error::{NoaError, Result};

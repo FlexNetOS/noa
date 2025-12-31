@@ -1,0 +1,202 @@
+use dioxus::prelude::*;
+use crate::core::conversational_ai::PlatformTarget;
+
+#[component]
+pub fn Toolbar() -> Element {
+    let is_building = use_signal(|| false);
+    let active_project = use_signal(|| String::from("My Project"));
+    
+    rsx! {
+        div {
+            class: "toolbar",
+            
+            // Left section - Project controls
+            div {
+                class: "toolbar-left",
+                
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // New project
+                    },
+                    title: "New Project",
+                    "📝"
+                }
+                
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // Open project
+                    },
+                    title: "Open Project",
+                    "📁"
+                }
+                
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // Save project
+                    },
+                    title: "Save Project",
+                    "💾"
+                }
+                
+                div {
+                    class: "toolbar-separator"
+                }
+                
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // Undo
+                    },
+                    title: "Undo",
+                    "↶"
+                }
+                
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // Redo
+                    },
+                    title: "Redo",
+                    "↷"
+                }
+            }
+            
+            // Center section - Project info
+            div {
+                class: "toolbar-center",
+                
+                h2 {
+                    class: "project-title",
+                    "{active_project.read()}"
+                }
+                
+                div {
+                    class: "project-status",
+                    span { class: "status-indicator ready", "●" }
+                    span { "Ready" }
+                }
+            }
+            
+            // Right section - Build and deploy
+            div {
+                class: "toolbar-right",
+                
+                // Platform selector
+                div {
+                    class: "platform-selector",
+                    
+                    select {
+                        onchange: move |event| {
+                            // Handle platform change
+                        },
+                        
+                        option { value: "web", "Web" }
+                        option { value: "desktop", "Desktop" }
+                        option { value: "mobile", "Mobile" }
+                        option { value: "universal", "Universal" }
+                    }
+                }
+                
+                div {
+                    class: "toolbar-separator"
+                }
+                
+                button {
+                    class: "toolbar-button build-button",
+                    onclick: move |_| {
+                        is_building.set(true);
+                        // Simulate build process
+                        spawn(async move {
+                            tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                            is_building.set(false);
+                        });
+                    },
+                    disabled: *is_building.read(),
+                    
+                    if *is_building.read() {
+                        "Building..."
+                    } else {
+                        "Build"
+                    }
+                }
+                
+                button {
+                    class: "toolbar-button deploy-button",
+                    onclick: move |_| {
+                        // Deploy project
+                    },
+                    "Deploy"
+                }
+                
+                div {
+                    class: "toolbar-separator"
+                }
+                
+                // Settings
+                button {
+                    class: "toolbar-button",
+                    onclick: move |_| {
+                        // Open settings
+                    },
+                    title: "Settings",
+                    "⚙️"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ProjectSelector() -> Element {
+    let projects = vec![
+        "My Project",
+        "Landing Page",
+        "Dashboard",
+        "Mobile App",
+    ];
+    
+    let is_open = use_signal(|| false);
+    
+    rsx! {
+        div {
+            class: "project-selector",
+            
+            button {
+                class: "project-selector-button",
+                onclick: move |_| is_open.set(!*is_open.read()),
+                
+                span { "My Project" }
+                span { class: if *is_open.read() { "dropdown-icon open" } else { "dropdown-icon" }, "▼" }
+            }
+            
+            if *is_open.read() {
+                div {
+                    class: "project-dropdown",
+                    
+                    for project in projects {
+                        div {
+                            class: "project-option",
+                            onclick: move |_| {
+                                // Select project
+                                is_open.set(false);
+                            },
+                            "{project}"
+                        }
+                    }
+                    
+                    div {
+                        class: "project-option new-project",
+                        onclick: move |_| {
+                            // Create new project
+                            is_open.set(false);
+                        },
+                        "+ New Project"
+                    }
+                }
+            }
+        }
+    }
+}
