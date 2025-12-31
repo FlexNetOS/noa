@@ -1,10 +1,10 @@
-# 01-templates
+# 04-templates
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-01-templates component of static resources and policy documents.
+04-templates component of static resources and policy documents.
 
 ## Directory Structure
 
