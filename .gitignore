@@ -86,6 +86,14 @@ Thumbs.db
 *.userosscache
 *.sln.docstates
 
+# Local AI/agent state (user-specific)
+.claude/settings.local.json
+.claude/settings.local.*
+
+# IDE app state and cache (user-specific, machine-generated)
+data/apps/
+data/apps/**
+
 # Local app/IDE state (user-specific)
 # NOTE: These files can contain machine-specific settings and should not be committed.
 data/state/.copilot/

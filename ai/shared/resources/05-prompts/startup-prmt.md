@@ -1,5 +1,5 @@
 ---
-decription:
+description:
 
 ---
 
