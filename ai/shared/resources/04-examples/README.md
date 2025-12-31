@@ -1,10 +1,10 @@
-# 02-examples
+# 04-examples
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-02-examples component of static resources and policy documents.
+04-examples component of static resources and policy documents.
 
 ## Directory Structure
 
