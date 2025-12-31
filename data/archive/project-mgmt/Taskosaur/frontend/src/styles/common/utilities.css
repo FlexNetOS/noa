@@ -1,0 +1,88 @@
+/* ================================
+   Utility Classes
+   ================================ */
+
+@layer utilities {
+  /* Spacing Utilities */
+  .content-spacing {
+    @apply space-y-6;
+  }
+
+  .content-spacing-compact {
+    @apply space-y-4;
+  }
+
+  .section-spacing {
+    @apply space-y-8;
+  }
+
+  /* Text Utilities */
+  .text-primary {
+    @apply text-[var(--primary)];
+  }
+
+  .text-muted {
+    @apply text-[var(--muted-foreground)];
+  }
+
+  .text-success {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .text-warning {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+
+  .text-danger {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  /* Background Utilities */
+  .bg-subtle {
+    @apply bg-[var(--muted)]/30;
+  }
+
+  .bg-surface {
+    @apply bg-[var(--card)];
+  }
+
+  .bg-overlay {
+    @apply bg-black/40 backdrop-blur-sm;
+  }
+
+  /* Line clamp utility for task titles */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Group utilities are provided by Tailwind CSS built-in */
+
+  /* Truncate utilities */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .min-w-0 {
+    min-width: 0px;
+  }
+
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+
+  .flex-1 {
+    flex: 1 1 0%;
+  }
+}

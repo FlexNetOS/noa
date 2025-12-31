@@ -1,6 +1,30 @@
-[package]
-name = "app"
+
+[workspace]
+resolver = "2"
+members = [
+	"crates/noa-ui-paths",
+	"crates/noa-ui-protocol",
+	"crates/noa-ui-lilrep-api",
+	"crates/noa-ui-lilrep-ui",
+	"crates/noa-ui-core",
+	"crates/noa-ui-shell",
+	"bins/noa-ui-desktop",
+	"bins/noa-ui-web",
+	"bins/noa-ui-hived",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+publish = false
 
-[dependencies]
+[workspace.dependencies]
+anyhow = "1.0"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+dioxus = { version = "0.7.2" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1.43", features = ["rt", "macros", "time"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }

@@ -1,0 +1,95 @@
+{
+  "env": {
+    "node": true,
+    "es2020": true,
+    "jest": true
+  },
+  "globals": {
+    "describe": "readonly",
+    "test": "readonly",
+    "expect": "readonly",
+    "jest": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "beforeAll": "readonly",
+    "afterAll": "readonly",
+    "it": "readonly"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "prettier",
+    "jest"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unsafe-assignment": "error",
+    "@typescript-eslint/no-unsafe-member-access": "error",
+    "@typescript-eslint/no-unsafe-call": "error",
+    "@typescript-eslint/no-unsafe-return": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/no-undef": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-console": "off",
+    "no-undef": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "*.config.js",
+    "*.config.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.js", "**/*.spec.ts", "**/*.spec.js"],
+      "extends": ["plugin:jest/recommended", "plugin:jest/style"],
+      "env": {
+        "jest": true
+      },
+      "globals": {
+        "describe": "readonly",
+        "test": "readonly",
+        "expect": "readonly",
+        "jest": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "beforeAll": "readonly",
+        "afterAll": "readonly",
+        "it": "readonly"
+      },
+      "rules": {
+        "jest/expect-expect": "warn",
+        "jest/no-disabled-tests": "warn",
+        "jest/no-focused-tests": "error"
+      }
+    }
+  ]
+}

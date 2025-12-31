@@ -1,0 +1,10 @@
+[package]
+name = "noa-ui-shell"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dioxus = { workspace = true, features = ["router"] }
+noa-ui-core = { path = "../noa-ui-core" }
+noa-ui-lilrep-ui = { path = "../noa-ui-lilrep-ui" }

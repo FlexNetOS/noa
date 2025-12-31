@@ -1,0 +1,62 @@
+<mat-dialog-content [class.isNoMsg]="!data.message">
+  @if (data.message) {
+    <div
+      [innerHtml]="data.message | translate: data.translateParams"
+      class="content"
+    ></div>
+  }
+  <!--  <form-->
+  <!--    #formEl-->
+  <!--    (submit)="formEl.checkValidity() && close(true)"-->
+  <!--  >-->
+  <!--    <mat-form-field>-->
+  <!--      <mat-label>{{ data.placeholder }}</mat-label>-->
+  <!--      <input-->
+  <!--        [(ngModel)]="txtVal"-->
+  <!--        matInput-->
+  <!--        required="true"-->
+  <!--        type="text"-->
+  <!--      />-->
+  <!--    </mat-form-field>-->
+  <!--  </form>-->
+
+  <form
+    #formEl="ngForm"
+    (ngSubmit)="formEl.valid && close(true)"
+  >
+    <mat-form-field>
+      <mat-label>{{ data.placeholder | translate }}</mat-label>
+      <input
+        [(ngModel)]="txtVal"
+        name="txtVal"
+        matInput
+        required
+        [type]="data.type || 'text'"
+      />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <div class="wrap-buttons">
+    <button
+      (click)="close(false)"
+      class="btn btn-primary submit-button"
+      mat-button
+      type="button"
+    >
+      <mat-icon>close</mat-icon>
+      {{ data.cancelTxt || T.G.CANCEL | translate }}
+    </button>
+
+    <button
+      (click)="close(true)"
+      class="btn btn-primary submit-button"
+      color="primary"
+      mat-stroked-button
+    >
+      <mat-icon>check</mat-icon>
+      {{ data.saveTxt || T.G.SAVE | translate }}
+    </button>
+  </div>
+</mat-dialog-actions>

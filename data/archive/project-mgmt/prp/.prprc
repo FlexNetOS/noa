@@ -1,0 +1,247 @@
+{
+  "version": "1.0.0",
+  "agents": [
+    {
+      "id": "claude-code-anthropic-main",
+      "name": "Claude Code Anthropic",
+      "type": "claude-code-anthropic",
+      "role": "orchestrator-agent",
+      "provider": "anthropic",
+      "enabled": true,
+      "capabilities": {
+        "supportsTools": true,
+        "supportsImages": true,
+        "supportsSubAgents": true,
+        "supportsParallel": false,
+        "supportsCodeExecution": false,
+        "maxContextLength": 200000,
+        "supportedModels": [
+          "claude-3-5-sonnet-20241022"
+        ],
+        "supportedFileTypes": [
+          "*"
+        ],
+        "canAccessInternet": true,
+        "canAccessFileSystem": true,
+        "canExecuteCommands": false
+      },
+      "limits": {
+        "maxTokensPerRequest": 100000,
+        "maxRequestsPerHour": 50,
+        "maxRequestsPerDay": 500,
+        "maxCostPerDay": 50,
+        "maxExecutionTime": 600000,
+        "maxMemoryUsage": 2048,
+        "maxConcurrentTasks": 3,
+        "cooldownPeriod": 2000
+      },
+      "authentication": {
+        "type": "api-key",
+        "credentials": {
+          "apiKey": ""
+        },
+        "encrypted": true
+      },
+      "personality": {
+        "tone": "professional",
+        "language": "en",
+        "responseStyle": "detailed",
+        "verbosity": "balanced",
+        "creativity": 0.7,
+        "strictness": 0.6,
+        "proactivity": 0.4,
+        "customInstructions": "You are Claude Code, an AI assistant specialized in software development.",
+        "communicationStyle": {
+          "useEmojis": false,
+          "useFormatting": true,
+          "includeCodeBlocks": true,
+          "includeExplanations": true
+        }
+      },
+      "tools": [
+        {
+          "id": "file-reader",
+          "name": "File Reader",
+          "type": "builtin",
+          "enabled": true,
+          "configuration": {},
+          "permissions": [
+            "read"
+          ]
+        },
+        {
+          "id": "file-writer",
+          "name": "File Writer",
+          "type": "builtin",
+          "enabled": true,
+          "configuration": {},
+          "permissions": [
+            "write"
+          ]
+        }
+      ],
+      "environment": {
+        "workingDirectory": "/Users/dcversus/Documents/GitHub/prp",
+        "shell": "/bin/bash",
+        "envVars": {},
+        "nodeVersion": "18",
+        "pythonVersion": "3.9",
+        "allowedCommands": [
+          "git",
+          "npm",
+          "node",
+          "python",
+          "ls",
+          "cat",
+          "grep"
+        ],
+        "blockedCommands": [
+          "rm -rf",
+          "sudo",
+          "chmod 777",
+          "dd"
+        ],
+        "networkAccess": {
+          "allowedDomains": [],
+          "blockedDomains": [],
+          "allowExternalRequests": true
+        },
+        "fileSystem": {
+          "allowedPaths": [],
+          "blockedPaths": [
+            "/etc",
+            "/usr/bin",
+            "/bin",
+            "/sbin"
+          ],
+          "maxFileSize": 10485760,
+          "allowWrite": true,
+          "allowDelete": false
+        }
+      },
+      "preferences": {
+        "autoSave": true,
+        "autoCommit": false,
+        "preferAsync": true,
+        "useCache": true,
+        "debugMode": false,
+        "logLevel": "info",
+        "notifications": {
+          "enabled": true,
+          "types": [
+            "error",
+            "warning"
+          ],
+          "channels": [
+            "console"
+          ]
+        },
+        "git": {
+          "autoStage": true,
+          "commitMessageFormat": "feat: {description}",
+          "branchNaming": "feature/{name}"
+        }
+      },
+      "metadata": {
+        "version": "1.0.0",
+        "author": "system",
+        "createdAt": "2025-11-03T07:38:26.487Z",
+        "lastModified": "2025-11-03T07:38:26.487Z",
+        "tags": [
+          "default",
+          "anthropic",
+          "claude",
+          "orchestrator"
+        ],
+        "category": "ai-assistant",
+        "description": "Main Claude Code agent for orchestration and development tasks",
+        "documentation": "",
+        "examples": [],
+        "dependencies": [],
+        "compatibility": {
+          "platforms": [
+            "linux",
+            "macos",
+            "windows"
+          ],
+          "nodeVersions": [
+            "16",
+            "18",
+            "20"
+          ],
+          "pythonVersions": [
+            "3.8",
+            "3.9",
+            "3.10",
+            "3.11"
+          ]
+        }
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "claude-code-anthropic",
+      "name": "Claude Code Anthropic Template",
+      "description": "Template for Claude Code Anthropic agents",
+      "category": "ai-assistant",
+      "template": {
+        "type": "claude-code-anthropic",
+        "provider": "anthropic",
+        "role": "{{role}}",
+        "capabilities": {
+          "supportsTools": true,
+          "supportsImages": true,
+          "supportsSubAgents": true,
+          "supportsParallel": false,
+          "supportsCodeExecution": false,
+          "maxContextLength": 200000,
+          "supportedModels": [
+            "claude-3-5-sonnet-20241022"
+          ],
+          "supportedFileTypes": [
+            "*"
+          ],
+          "canAccessInternet": true,
+          "canAccessFileSystem": true,
+          "canExecuteCommands": false
+        },
+        "authentication": {
+          "type": "api-key",
+          "credentials": {
+            "apiKey": "{{apiKey}}"
+          },
+          "encrypted": true
+        }
+      },
+      "variables": [
+        {
+          "name": "apiKey",
+          "type": "secret",
+          "description": "Anthropic API key",
+          "required": true,
+          "placeholder": "sk-ant-..."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "description": "Agent role",
+          "required": true,
+          "defaultValue": "orchestrator-agent",
+          "validation": {
+            "options": [
+              "orchestrator-agent",
+              "task-agent",
+              "specialist-agent",
+              "robo-developer"
+            ]
+          }
+        }
+      ],
+      "requiredFeatures": [
+        "anthropic-api-access"
+      ]
+    }
+  ],
+  "lastModified": "2025-11-03T07:38:26.487Z"
+}

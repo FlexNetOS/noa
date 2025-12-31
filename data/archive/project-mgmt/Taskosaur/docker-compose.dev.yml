@@ -1,0 +1,75 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: taskosaur
+      POSTGRES_PASSWORD: taskosaur
+      POSTGRES_DB: taskosaur
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskosaur"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskosaur-network
+
+  # Redis for Bull Queue
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskosaur-network
+
+  # Application (Backend + Frontend)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Override for Docker (uses service names instead of localhost)
+      DATABASE_URL: postgresql://taskosaur:taskosaur@postgres:5432/taskosaur
+      REDIS_HOST: redis
+      # Frontend environment variable for API connection
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3000/api
+    ports:
+      - "3000:3000"  # Backend
+      - "3001:3001"  # Frontend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/backend/node_modules
+      - /app/frontend/node_modules
+      - app_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - taskosaur-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_uploads:
+    driver: local
+
+networks:
+  taskosaur-network:
+    driver: bridge

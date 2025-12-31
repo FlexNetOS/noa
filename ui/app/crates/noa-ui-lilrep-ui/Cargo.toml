@@ -1,0 +1,12 @@
+[package]
+name = "noa-ui-lilrep-ui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dioxus = { workspace = true }
+noa-ui-lilrep-api = { path = "../noa-ui-lilrep-api" }
+
+[features]
+server = ["noa-ui-lilrep-api/server"]

@@ -1,0 +1,13 @@
+[package]
+name = "noa-ui-desktop"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dioxus = { workspace = true, features = ["router", "fullstack"] }
+noa-ui-shell = { path = "../../crates/noa-ui-shell" }
+
+[features]
+default = []
+desktop = ["dioxus/desktop"]
