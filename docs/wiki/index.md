@@ -41,6 +41,11 @@ All data remains under user control:
 - [Agents](../agents/) — Agent system documentation
 - [ML DevOps](../ml-devops/) — ML platform documentation
 
+## Codebase & Crates
+
+- [Codebase Map](codebase_map.md) — Full file listing of the repository
+- [Crate Plans](crates/index.md) — Detailed plans and documentation for system crates
+
 ---
 
 *This wiki is part of the NOA documentation system.*
