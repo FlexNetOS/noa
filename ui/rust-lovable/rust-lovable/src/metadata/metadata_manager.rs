@@ -196,7 +196,7 @@ impl MetadataManager {
     }
     
     pub async fn get_impact_analysis(&self, entity_id: &str) -> Option<crate::metadata::ImpactAnalysis> {
-        let lineage_tracker = self.lineage_tracker.read().await;
+        let mut lineage_tracker = self.lineage_tracker.write().await;
         lineage_tracker.get_impact_analysis(entity_id)
     }
     
@@ -222,7 +222,7 @@ impl MetadataManager {
         }
     }
     
-    async fn matches_query(&self, metadata: &RichMetadata, query: &MetadataQuery) -> bool {
+    fn matches_query(&self, metadata: &RichMetadata, query: &MetadataQuery) -> bool {
         // Check schema name filter
         if let Some(schema_name) = &query.schema_name {
             if !metadata.schemas.iter().any(|s| &s.name == schema_name) {

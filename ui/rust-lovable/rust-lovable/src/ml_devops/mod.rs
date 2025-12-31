@@ -15,7 +15,7 @@ use pipeline::{Pipeline, PipelineOrchestrator};
 use experiment::{Experiment, ExperimentTracker};
 use model_registry::{ModelRegistry, ModelVersion};
 use monitoring::{MLMonitor, AlertManager};
-use deployment::{DeploymentManager, DeploymentStrategy};
+use deployment::{DeploymentManager, DeploymentStrategy, DeploymentStatus, DeploymentStatistics};
 use feature_store::{FeatureStore, FeatureGroup};
 
 pub struct MLDevOpsManager {
@@ -239,7 +239,7 @@ impl MLDevOpsManager {
     }
     
     pub async fn get_deployment_status(&self, deployment_id: &str) -> Option<DeploymentStatus> {
-        self.deployment_manager.read().await.get_deployment_status(deployment_id).await
+        self.deployment_manager.read().await.get_deployment_status(deployment_id)
     }
     
     pub async fn rollback_deployment(&self, deployment_id: &str) -> Result<()> {
@@ -304,7 +304,7 @@ impl MLDevOpsManager {
         let pipeline_stats = self.pipeline_orchestrator.read().await.get_statistics().await;
         let experiment_stats = self.experiment_tracker.read().await.get_statistics().await;
         let model_stats = self.model_registry.read().await.get_statistics().await;
-        let deployment_stats = self.deployment_manager.read().await.get_statistics().await;
+        let deployment_stats = self.deployment_manager.read().await.get_statistics();
         
         MLDevOpsSummary {
             pipeline_stats,
@@ -420,28 +420,6 @@ pub struct ResourceUsage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DeploymentStatus {
-    pub deployment_id: String,
-    pub status: DeploymentState,
-    pub replicas: u32,
-    pub healthy_replicas: u32,
-    pub endpoint: String,
-    pub metrics: HashMap<String, f64>,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum DeploymentState {
-    Deploying,
-    Running,
-    Failed,
-    Scaling,
-    Updating,
-    Terminating,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MLDevOpsSummary {
     pub pipeline_stats: PipelineStatistics,
     pub experiment_stats: ExperimentStatistics,
@@ -473,14 +451,6 @@ pub struct ModelStatistics {
     pub models_in_production: usize,
     pub models_in_staging: usize,
     pub average_model_size: f64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DeploymentStatistics {
-    pub total_deployments: usize,
-    pub active_deployments: usize,
-    pub failed_deployments: usize,
-    pub average_uptime: f64,
 }
 
 impl Default for MLDevOpsConfig {

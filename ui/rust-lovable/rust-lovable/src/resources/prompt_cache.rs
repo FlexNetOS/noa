@@ -133,33 +133,33 @@ impl PromptCache {
     }
 
     pub fn get_prompts_by_category(&mut self, category: &str) -> Vec<Prompt> {
-        if let Some(ids) = self.category_index.get(category) {
-            ids.iter()
-                .filter_map(|id| self.get_prompt(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let ids: Vec<String> = self.category_index
+            .get(category)
+            .cloned()
+            .unwrap_or_default();
+        ids.iter()
+            .filter_map(|id| self.get_prompt(id))
+            .collect()
     }
 
     pub fn get_prompts_by_tag(&mut self, tag: &str) -> Vec<Prompt> {
-        if let Some(ids) = self.tag_index.get(tag) {
-            ids.iter()
-                .filter_map(|id| self.get_prompt(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let ids: Vec<String> = self.tag_index
+            .get(tag)
+            .cloned()
+            .unwrap_or_default();
+        ids.iter()
+            .filter_map(|id| self.get_prompt(id))
+            .collect()
     }
 
     pub fn get_prompts_by_author(&mut self, author: &str) -> Vec<Prompt> {
-        if let Some(ids) = self.author_index.get(author) {
-            ids.iter()
-                .filter_map(|id| self.get_prompt(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let ids: Vec<String> = self.author_index
+            .get(author)
+            .cloned()
+            .unwrap_or_default();
+        ids.iter()
+            .filter_map(|id| self.get_prompt(id))
+            .collect()
     }
 
     pub fn search_prompts(&self, query: &str, category: Option<&str>, tags: Option<Vec<&str>>) -> Vec<Prompt> {

@@ -100,23 +100,23 @@ impl EmbeddingCache {
 
     pub fn get_embeddings_by_source(&mut self, source_type: &str, source_id: &str) -> Vec<Embedding> {
         let key = format!("{}:{}", source_type, source_id);
-        if let Some(ids) = self.source_index.get(&key) {
-            ids.iter()
-                .filter_map(|id| self.get_embedding(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let ids: Vec<String> = self.source_index
+            .get(&key)
+            .cloned()
+            .unwrap_or_default();
+        ids.iter()
+            .filter_map(|id| self.get_embedding(id))
+            .collect()
     }
 
     pub fn get_embeddings_by_model(&mut self, model: &str) -> Vec<Embedding> {
-        if let Some(ids) = self.model_index.get(model) {
-            ids.iter()
-                .filter_map(|id| self.get_embedding(id))
-                .collect()
-        } else {
-            vec![]
-        }
+        let ids: Vec<String> = self.model_index
+            .get(model)
+            .cloned()
+            .unwrap_or_default();
+        ids.iter()
+            .filter_map(|id| self.get_embedding(id))
+            .collect()
     }
 
     pub fn similarity_search(&self, query_vector: &[f32], top_k: usize, min_similarity: f32) -> Vec<SearchResult> {
@@ -283,6 +283,7 @@ impl Embedding {
         model: String,
         tags: Vec<String>,
     ) -> Self {
+        let dimensions = vector.len();
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             vector,
@@ -290,7 +291,7 @@ impl Embedding {
                 source_type,
                 source_id,
                 model: model.clone(),
-                dimensions: vector.len(),
+                dimensions,
                 token_count: 0,
                 language: None,
                 tags,

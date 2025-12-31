@@ -222,8 +222,8 @@ impl VibeCodingManager {
             session.user_feedback = feedback.clone();
             
             // Extract patterns from corrections
-            for correction in feedback.corrections {
-                self.learn_pattern(&correction).await?;
+            for correction in &feedback.corrections {
+                self.learn_pattern(correction).await?;
             }
             
             // Update learned patterns based on feedback
@@ -267,7 +267,7 @@ impl VibeCodingManager {
     }
     
     async fn calculate_confidence(&self, code: &[GeneratedCode], request: &VibeCodingRequest) -> Result<f64> {
-        let mut confidence = 0.8; // Base confidence
+        let mut confidence: f64 = 0.8; // Base confidence
         
         // Adjust based on task complexity
         if request.task.len() > 100 {

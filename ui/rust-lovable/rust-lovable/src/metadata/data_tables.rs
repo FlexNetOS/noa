@@ -36,6 +36,7 @@ pub enum DataType {
     Array(Box<DataType>),
     Binary,
     Reference(String),
+    Map(Box<DataType>, Box<DataType>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -395,7 +396,7 @@ impl DataTable {
                     return Err(anyhow::anyhow!("Expected array value"));
                 }
             }
-            DataType::Map(value_type) => {
+            DataType::Map(_key_type, value_type) => {
                 if let serde_json::Value::Object(map) = value {
                     for (_, v) in map {
                         self.validate_value_type(v, value_type)?;
@@ -544,7 +545,10 @@ impl DataTable {
                     .try_into().unwrap_or(serde_json::Value::Number(serde_json::Number::from(0)))
             }
             AggregateFunction::DistinctCount => {
-                let unique: std::collections::HashSet<_> = values.iter().cloned().collect();
+                // Use ordered bits to handle f64 uniqueness since f64 doesn't implement Hash
+                let unique: std::collections::HashSet<u64> = values.iter()
+                    .map(|v| v.to_bits())
+                    .collect();
                 serde_json::Value::Number(serde_json::Number::from(unique.len()))
             }
         }

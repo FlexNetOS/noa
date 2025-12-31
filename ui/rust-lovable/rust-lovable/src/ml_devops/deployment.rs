@@ -106,8 +106,12 @@ impl DeploymentManager {
         Ok(deployment_id)
     }
     
-    pub async fn get_deployment(&self, deployment_id: &str) -> Option<&Deployment> {
+    pub fn get_deployment(&self, deployment_id: &str) -> Option<&Deployment> {
         self.deployments.get(deployment_id)
+    }
+    
+    pub fn get_deployment_status(&self, deployment_id: &str) -> Option<DeploymentStatus> {
+        self.deployments.get(deployment_id).map(|d| d.status.clone())
     }
     
     pub async fn rollback_deployment(&mut self, deployment_id: &str) -> Result<()> {

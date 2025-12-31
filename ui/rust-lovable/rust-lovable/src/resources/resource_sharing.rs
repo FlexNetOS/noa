@@ -30,6 +30,22 @@ pub enum ResourceType {
     Configuration,
 }
 
+impl std::fmt::Display for ResourceType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ResourceType::Prompt => write!(f, "prompt"),
+            ResourceType::Embedding => write!(f, "embedding"),
+            ResourceType::Skill => write!(f, "skill"),
+            ResourceType::Agent => write!(f, "agent"),
+            ResourceType::Command => write!(f, "command"),
+            ResourceType::Log => write!(f, "log"),
+            ResourceType::Data => write!(f, "data"),
+            ResourceType::Model => write!(f, "model"),
+            ResourceType::Configuration => write!(f, "configuration"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourceMetadata {
     pub owner_id: String,
@@ -173,7 +189,7 @@ impl ResourceSharingManager {
 
     pub async fn initialize(&mut self) -> Result<()> {
         // Register default providers
-        self.register_provider("local", Box::new(LocalFileProvider::new()));
+        self.register_provider("local".to_string(), Box::new(LocalFileProvider::new()));
         
         // Start sync worker
         self.start_sync_worker();
