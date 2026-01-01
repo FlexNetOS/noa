@@ -169,3 +169,4 @@ target/
 .next/
 **/.next/
 tsconfig.tsbuildinfo
+ui/_archive/
