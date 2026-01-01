@@ -8,22 +8,24 @@ Operational runbooks for common procedures and incident response.
 
 | Runbook | Purpose | Trigger |
 |---------|---------|---------|
-| [system-startup.md](system-startup.md) | Start all NOA services | System boot |
-| [system-shutdown.md](system-shutdown.md) | Graceful shutdown | Maintenance |
+| [system-startup](system-startup.md) | Start all NOA services | System boot |
+| [system-shutdown](system-shutdown.md) | Graceful shutdown | Maintenance |
 
 ### Incident Response
 
 | Runbook | Purpose | Severity |
 |---------|---------|----------|
-| [build-failure.md](build-failure.md) | Handle build failures | S2 |
-| [agent-failure.md](agent-failure.md) | Agent execution failures | S2 |
+| [build-failure](build-failure.md) | Handle build failures | S2 |
+| [agent-failure](agent-failure.md) | Agent execution failures | S2 |
+| [p2p-connectivity](p2p-connectivity.md) | P2P network issues | S2 |
 
 ### Maintenance
 
 | Runbook | Purpose | Schedule |
 |---------|---------|----------|
-| [database-backup.md](database-backup.md) | Backup SQLite database | Daily |
-| [log-rotation.md](log-rotation.md) | Rotate and archive logs | Weekly |
+| [database-backup](database-backup.md) | Backup SQLite database | Daily |
+| [log-rotation](log-rotation.md) | Rotate and archive logs | Weekly |
+| [cache-cleanup](cache-cleanup.md) | Clean model/pip caches | Monthly |
 
 ---
 
