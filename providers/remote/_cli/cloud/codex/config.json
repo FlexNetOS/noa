@@ -1,0 +1,75 @@
+{
+    "name": "codex",
+    "type": "cloud",
+    "priority": 4,
+    "enabled": true,
+    "description": "OpenAI Codex CLI - AI-powered code generation and completion",
+    "repository": "https://github.com/FlexNetOS/codex.git",
+    "cli": {
+        "command": "codex",
+        "package": "@openai/codex",
+        "version": "latest",
+        "installMethods": {
+            "npm": "npm install -g @openai/codex",
+            "clone": "git clone https://github.com/FlexNetOS/codex.git"
+        },
+        "binaryPath": {
+            "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/codex.cmd",
+            "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/codex"
+        }
+    },
+    "modes": {
+        "cli": {
+            "description": "Terminal-based code generation",
+            "command": "codex",
+            "flags": [
+                "--model",
+                "--prompt",
+                "--output"
+            ]
+        },
+        "cloud": {
+            "description": "Cloud API for code completion",
+            "apiEndpoint": "https://api.openai.com/v1/completions",
+            "authMethod": "api_key",
+            "envVar": "OPENAI_API_KEY"
+        },
+        "ide": {
+            "description": "IDE extension integration",
+            "supportedIDEs": [
+                "vscode",
+                "cursor"
+            ],
+            "extensionId": "openai.codex"
+        }
+    },
+    "capabilities": {
+        "textGeneration": false,
+        "codeGeneration": true,
+        "codeCompletion": true,
+        "codeExplanation": true,
+        "codeRefactoring": true,
+        "streaming": true,
+        "multiLanguage": true
+    },
+    "latency": {
+        "target": "<2s",
+        "timeout": 30000
+    },
+    "fallbackPriority": 4,
+  "useCases": [
+    "Code generation",
+    "Code completion",
+    "Code explanation",
+    "Refactoring suggestions",
+    "Test generation"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  }
+}

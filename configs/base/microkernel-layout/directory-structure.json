@@ -1,0 +1,88 @@
+{
+  "version": "1.0.0",
+  "description": "Immutable directory structure baseline for NOA unified architecture",
+  "metadata": {
+    "version": "1.0.0",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "base",
+    "immutable": true
+  },
+  "structure": {
+    "sys/core": {
+      "description": "Trusted microkernel - identity, policy, scheduler, registry, enforcement",
+      "subdirs": [
+        "identity",
+        "policy",
+        "secrets",
+        "audit",
+        "scheduler",
+        "world_model",
+        "registry",
+        "enforcement"
+      ]
+    },
+    "gateway/mcp": {
+      "description": "Tool bus - routes tool calls to MCP servers with authz and routing",
+      "subdirs": [
+        "agentgateway",
+        "proxy",
+        "registry",
+        "routing",
+        "authz",
+        "connectors"
+      ]
+    },
+    "providers": {
+      "description": "Model providers with local, remote, shared resources, and pool",
+      "subdirs": [
+        "local",
+        "remote",
+        "shared",
+        "pool"
+      ]
+    },
+    "sandbox": {
+      "description": "Execution containment - per-task workspaces, limits, snapshots",
+      "subdirs": [
+        "runtime",
+        "snapshots",
+        "policies"
+      ]
+    },
+    "data/cas": {
+      "description": "Content-addressed storage - immutable artifacts with refs and GC",
+      "subdirs": [
+        "blobs",
+        "refs",
+        "index",
+        "gc"
+      ]
+    },
+    "configs": {
+      "description": "3-layer configuration system",
+      "subdirs": [
+        "base",
+        "semantic",
+        "enforcement"
+      ]
+    },
+    "tools": {
+      "description": "Per-tool MCP servers (capability boundaries)",
+      "subdirs": [
+        "spec-kit",
+        "code-scan",
+        "build-test",
+        "db",
+        "vector",
+        "cas"
+      ]
+    }
+  },
+  "invariants": [
+    "Agents never touch the world except through Gateway MCP",
+    "Connectors that agents can call live at gateway/mcp/connectors/",
+    "Execution happens in sandbox; durable outputs go to CAS",
+    "Multiple task apps unify through Task Kernel",
+    "Configs follow Layer1 base + Layer2 semantic + Layer3 enforcement"
+  ]
+}

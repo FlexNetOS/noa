@@ -1,0 +1,41 @@
+{
+  "name": "ollama",
+  "type": "local",
+  "priority": 1,
+  "enabled": true,
+  "config": {
+    "baseUrl": "http://localhost:11434",
+    "modelPath": "${NOA_ROOT}/ai/shared/models/ollama"
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "embeddings": true,
+    "streaming": true,
+    "functionCalling": true
+  },
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "workflows": "${NOA_ROOT}/ai/shared/workflows",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "prompts": "${NOA_ROOT}/ai/shared/prompts"
+  },
+  "cli": {
+    "binaryPath": {
+      "unix": "${NOA_ROOT}/opt/ollama/ollama",
+      "windows": "${NOA_ROOT}/opt/ollama/ollama.exe"
+    },
+    "command": "ollama",
+    "wrapper": {
+      "unix": "${NOA_ROOT}/bin/ollama",
+      "windows": "${NOA_ROOT}/bin/ollama.cmd"
+    }
+  },
+  "latency": {
+    "target": "<2s",
+    "timeout": 60000
+  },
+  "timeout": 60000
+}

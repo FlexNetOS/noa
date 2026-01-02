@@ -1,0 +1,84 @@
+{
+  "version": "1.0.0",
+  "description": "Locality-based routing: local → personal → regional → org",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP request routing with locality and capability awareness",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "routing": {
+    "locality_order": ["local", "personal", "regional", "org"],
+    "prefer_local": true,
+    "fallback_enabled": true,
+    "sticky_sessions": true,
+    "session_affinity_seconds": 3600
+  },
+  "nodes": {
+    "local": {
+      "priority": 1,
+      "latency_target_ms": 10,
+      "max_latency_ms": 50,
+      "health_check_interval_seconds": 5,
+      "providers": ["local/llama_cpp", "local/ollama"]
+    },
+    "personal": {
+      "priority": 2,
+      "latency_target_ms": 50,
+      "max_latency_ms": 200,
+      "health_check_interval_seconds": 10,
+      "providers": [],
+      "p2p_discovery": {
+        "enabled": true,
+        "protocol": "libp2p",
+        "bootstrap_nodes": []
+      }
+    },
+    "regional": {
+      "priority": 3,
+      "latency_target_ms": 200,
+      "max_latency_ms": 1000,
+      "health_check_interval_seconds": 30,
+      "providers": [],
+      "admission": {
+        "required": true,
+        "admission_policy": "${NOA_ROOT}/configs/semantic/capabilities/regional-admission.json"
+      }
+    },
+    "org": {
+      "priority": 4,
+      "latency_target_ms": 500,
+      "max_latency_ms": 2000,
+      "health_check_interval_seconds": 60,
+      "providers": [],
+      "governance": {
+        "required": true,
+        "governance_policy": "${NOA_ROOT}/configs/semantic/capabilities/org-governance.json"
+      }
+    }
+  },
+  "load_balancing": {
+    "algorithm": "weighted_round_robin",
+    "weights": {
+      "local": 10,
+      "personal": 7,
+      "regional": 4,
+      "org": 1
+    },
+    "health_aware": true,
+    "latency_aware": true
+  },
+  "circuit_breaker": {
+    "enabled": true,
+    "failure_threshold": 5,
+    "success_threshold": 2,
+    "timeout_seconds": 30,
+    "half_open_requests": 3
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/routing-metrics.json",
+    "track_routing_decisions": true,
+    "track_locality_distribution": true,
+    "track_fallback_rate": true
+  }
+}

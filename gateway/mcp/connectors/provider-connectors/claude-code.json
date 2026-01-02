@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "description": "Claude Code CLI connector for MCP protocol",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for Anthropic Claude Code CLI",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "claude-code-connector",
+    "name": "Claude Code MCP Connector",
+    "type": "provider",
+    "provider_id": "remote/claude_code_cli",
+    "protocol": "mcp",
+    "transport": "child-process"
+  },
+  "capabilities": [
+    "reasoning",
+    "code_generation",
+    "code_execution",
+    "file_operations",
+    "git_operations",
+    "context_aware",
+    "long_context",
+    "streaming"
+  ],
+  "command": {
+    "executable": "${NOA_ROOT}/providers/remote/claude_code_cli/bin/claude",
+    "args": ["--mcp", "--headless"],
+    "env": {
+      "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+      "NOA_ROOT": "${NOA_ROOT}"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 300
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": true,
+    "prompts_enabled": true,
+    "max_message_size_kb": 1024
+  },
+  "routing": {
+    "locality": "remote",
+    "fallback_provider": "local/llama_cpp",
+    "sticky_sessions": true
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "max_rps": 50,
+    "burst": 100
+  },
+  "monitoring": {
+    "enabled": true,
+    "track_latency": true,
+    "track_success_rate": true,
+    "track_token_usage": true
+  }
+}

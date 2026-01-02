@@ -1,0 +1,92 @@
+{
+  "name": "abacus",
+  "type": "cloud",
+  "priority": 7,
+  "enabled": true,
+  "description": "Abacus AI CLI - Enterprise AI platform with agents and workflows",
+  "cli": {
+    "command": "abacusai",
+    "package": "@abacus-ai/cli",
+    "version": "latest",
+    "installMethods": {
+      "npm": "npm install -g @abacus-ai/cli",
+      "desktop": "Download from https://desktop.abacus.ai/"
+    },
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/abacusai.cmd",
+      "unix": "${NOA_ROOT}/opt/node/node_modules/.bin/abacusai"
+    },
+    "requirements": {
+      "desktop": "https://desktop.abacus.ai/",
+      "note": "CLI requires Abacus Desktop app for initial authentication"
+    }
+  },
+  "desktop": {
+    "description": "Abacus Desktop app for authentication and UI",
+    "binaryPath": {
+      "windows": "${NOA_ROOT}/opt/abacus-desktop/Abacus.exe",
+      "unix": "${NOA_ROOT}/opt/abacus-desktop/bin/abacus"
+    },
+    "wrapper": {
+      "windows": "${NOA_ROOT}/bin/abacus-desktop.cmd",
+      "unix": "${NOA_ROOT}/bin/abacus-desktop"
+    },
+    "downloadUrl": {
+      "windows": "https://desktop.abacus.ai/download/windows/x64/latest",
+      "macos": "https://desktop.abacus.ai/download/macos/dmg/latest",
+      "linux": "https://desktop.abacus.ai/download/linux/appimage/latest"
+    },
+    "installer": {
+      "windows": "${NOA_ROOT}/scripts/bootstrap/installers/dev-tools/abacus-desktop.ps1",
+      "unix": "${NOA_ROOT}/scripts/bootstrap/installers/dev-tools/abacus-desktop.sh"
+    }
+  },
+  "modes": {
+    "cli": {
+      "description": "Command-line interface for AI operations",
+      "command": "abacusai",
+      "documentation": "https://abacus.ai/help/python-sdk/github_cicd"
+    },
+    "cloud": {
+      "description": "Cloud API for enterprise AI",
+      "apiEndpoint": "https://api.abacus.ai",
+      "authMethod": "api_key",
+      "envVar": "ABACUS_API_KEY"
+    },
+    "desktop": {
+      "description": "Desktop app for authentication and interactive use",
+      "authMethod": "desktop_oauth",
+      "note": "CLI requires Abacus Desktop for authentication"
+    }
+  },
+  "capabilities": {
+    "textGeneration": true,
+    "codeGeneration": true,
+    "embeddings": true,
+    "streaming": true,
+    "functionCalling": true,
+    "agents": true,
+    "workflows": true,
+    "dataAnalysis": true
+  },
+  "latency": {
+    "target": "<3s",
+    "timeout": 60000
+  },
+  "fallbackPriority": 7,
+  "useCases": [
+    "Enterprise AI workflows",
+    "Data analysis and insights",
+    "Custom agent development",
+    "CI/CD AI integration",
+    "Numerical and analytical tasks"
+  ],
+  "sharedResourcePath": "${NOA_ROOT}/ai/shared",
+  "sharedResources": {
+    "prompts": "${NOA_ROOT}/ai/shared/prompts",
+    "agents": "${NOA_ROOT}/ai/shared/agents",
+    "tools": "${NOA_ROOT}/ai/shared/tools",
+    "commands": "${NOA_ROOT}/ai/shared/commands",
+    "executionMemory": "${NOA_ROOT}/ai/shared/resources/execution-memory.db"
+  }
+}

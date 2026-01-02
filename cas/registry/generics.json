@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of generic objects stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "registry_type": "generics",
+    "updated_at": "2026-01-02T20:23:51Z"
+  },
+  "objects": [],
+  "statistics": {
+    "total_generics": 0,
+    "total_size_bytes": 0
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "description": "Configuration guardrails and safety policies",
+  "metadata": {
+    "version": "1.0.0",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "enforcement"
+  },
+  "guardrails": {
+    "prevent_layer1_modification": {
+      "enabled": true,
+      "description": "Prevent runtime modification of base layer configs",
+      "layer": "base",
+      "read_only": true
+    },
+    "validate_provider_configs": {
+      "enabled": true,
+      "description": "Validate provider configs have required fields",
+      "required_fields": ["name", "type", "priority", "capabilities", "sharedResources"]
+    },
+    "check_circular_dependencies": {
+      "enabled": true,
+      "description": "Prevent circular dependencies in provider chains"
+    },
+    "enforce_sandbox_limits": {
+      "enabled": true,
+      "description": "Ensure all execution has sandbox limits defined"
+    }
+  },
+  "safety_rails": {
+    "max_config_size_kb": 1024,
+    "max_nesting_depth": 10,
+    "require_semantic_versioning": true
+  }
+}

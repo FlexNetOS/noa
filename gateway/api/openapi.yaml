@@ -1,0 +1,385 @@
+openapi: 3.1.0
+info:
+  title: NOA API
+  description: |
+    Shared API specification for NOA platform.
+    Used by both ml_devops (Next.js) and noa-ui (Dioxus) frontends.
+  version: 1.0.0
+  contact:
+    name: NOA Team
+    url: https://github.com/flexnetos/noa
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+  - url: http://localhost:3000/api
+    description: Next.js API routes (ml_devops)
+
+tags:
+  - name: health
+    description: Health and status endpoints
+  - name: chat
+    description: Chat and inference endpoints
+  - name: providers
+    description: AI provider management
+  - name: tasks
+    description: Task management
+  - name: models
+    description: Model management
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/status:
+    get:
+      tags: [health]
+      summary: System status
+      operationId: getStatus
+      responses:
+        '200':
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /api/v1/chat:
+    post:
+      tags: [chat]
+      summary: Send a chat message
+      operationId: chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/chat/stream:
+    post:
+      tags: [chat]
+      summary: Send a chat message with streaming response
+      operationId: chatStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Streaming chat response (Server-Sent Events)
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/ChatStreamEvent'
+
+  /api/v1/providers:
+    get:
+      tags: [providers]
+      summary: List available providers
+      operationId: listProviders
+      responses:
+        '200':
+          description: List of providers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+
+  /api/v1/providers/{providerId}/models:
+    get:
+      tags: [providers]
+      summary: List models for a provider
+      operationId: listModels
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+        '404':
+          description: Provider not found
+
+  /api/v1/tasks:
+    get:
+      tags: [tasks]
+      summary: List tasks
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, running, completed, failed]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TasksResponse'
+    post:
+      tags: [tasks]
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/v1/tasks/{taskId}:
+    get:
+      tags: [tasks]
+      summary: Get task details
+      operationId: getTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: Task not found
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, version]
+      properties:
+        status:
+          type: string
+          example: healthy
+        version:
+          type: string
+          example: "0.1.0"
+
+    StatusResponse:
+      type: object
+      required: [status, components]
+      properties:
+        status:
+          type: string
+          example: operational
+        components:
+          type: object
+          properties:
+            api:
+              type: boolean
+            database:
+              type: boolean
+            embedder:
+              type: boolean
+            agents:
+              type: boolean
+            p2p:
+              type: boolean
+
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        provider:
+          type: string
+          description: Provider ID (defaults to llama.cpp)
+          example: llama.cpp
+        model:
+          type: string
+          description: Model ID (provider-specific)
+        message:
+          type: string
+          description: User message
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        stream:
+          type: boolean
+          default: false
+
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+        content:
+          type: string
+
+    ChatResponse:
+      type: object
+      required: [content, provider]
+      properties:
+        content:
+          type: string
+        provider:
+          type: string
+        model:
+          type: string
+
+    ChatStreamEvent:
+      type: object
+      properties:
+        event:
+          type: string
+          enum: [token, done, error]
+        data:
+          type: string
+
+    ProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+
+    Provider:
+      type: object
+      required: [id, name, type, status]
+      properties:
+        id:
+          type: string
+          example: llama.cpp
+        name:
+          type: string
+          example: llama.cpp (Local)
+        type:
+          type: string
+          enum: [local, hybrid, cloud]
+        status:
+          type: string
+          enum: [available, unavailable, starting]
+        priority:
+          type: integer
+          example: 1
+
+    ModelsResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+
+    Model:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        size:
+          type: string
+        context_length:
+          type: integer
+
+    TasksResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskResponse'
+
+    CreateTaskRequest:
+      type: object
+      required: [description]
+      properties:
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+
+    TaskResponse:
+      type: object
+      required: [task_id, status]
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        code:
+          type: string

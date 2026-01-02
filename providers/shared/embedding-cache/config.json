@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "description": "Shared embedding cache for vector operations across providers",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Shared vector embedding cache to avoid recomputation",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "cache": {
+    "type": "qdrant",
+    "host": "${NOA_QDRANT_HOST:-localhost}",
+    "port": "${NOA_QDRANT_PORT:-6333}",
+    "api_key": "${NOA_QDRANT_API_KEY:-}",
+    "collection": "noa_embeddings",
+    "vector_size": 768,
+    "distance": "Cosine",
+    "on_disk_payload": true
+  },
+  "providers": {
+    "llama_cpp": {
+      "enabled": true,
+      "model": "all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "normalization": "l2"
+    },
+    "claude_code_cli": {
+      "enabled": true,
+      "model": "voyage-2",
+      "dimensions": 1024,
+      "normalization": "none"
+    },
+    "codex_cli": {
+      "enabled": true,
+      "model": "text-embedding-ada-002",
+      "dimensions": 1536,
+      "normalization": "none"
+    }
+  },
+  "features": {
+    "deduplication": true,
+    "ttl_days": 30,
+    "auto_cleanup": true,
+    "similarity_threshold": 0.95
+  },
+  "indexing": {
+    "hnsw_ef": 128,
+    "hnsw_m": 16,
+    "quantization": "scalar"
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/embedding-cache-metrics.json",
+    "track_hit_rate": true,
+    "track_storage_size": true
+  }
+}

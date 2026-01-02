@@ -1,0 +1,22 @@
+[package]
+name = "noa-hive-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Core types and primitives for NOA-Hive P2P coordination"
+
+[dependencies]
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+prost = { workspace = true }
+
+# P2P identity
+libp2p = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }

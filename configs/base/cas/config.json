@@ -1,0 +1,95 @@
+{
+  "version": "1.0.0",
+  "description": "Content-Addressed Storage (CAS) configuration",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "CAS storage layer configuration per NOA policy",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "base",
+    "immutable": true,
+    "authority": "canonical"
+  },
+  "cas": {
+    "root": "${NOA_ROOT}/cas",
+    "hash_algorithm": "blake3",
+    "compression": {
+      "enabled": true,
+      "algorithm": "zstd",
+      "level": 3,
+      "min_size_bytes": 1024
+    },
+    "encryption": {
+      "enabled": false,
+      "algorithm": "aes-256-gcm",
+      "key_path": "${NOA_ROOT}/sys/core/secrets/cas-key.bin"
+    }
+  },
+  "objects": {
+    "path": "${NOA_ROOT}/cas/objects",
+    "prefix_dirs": 2,
+    "prefix_length": 2,
+    "max_size_mb": 1024,
+    "verify_on_read": true,
+    "verify_on_write": true,
+    "deduplication": true
+  },
+  "refs": {
+    "path": "${NOA_ROOT}/cas/refs",
+    "atomic_updates": true,
+    "reflog_enabled": true,
+    "reflog_max_entries": 100,
+    "ttl_seconds": 0
+  },
+  "tags": {
+    "path": "${NOA_ROOT}/cas/tags",
+    "immutable": true,
+    "require_signature": false,
+    "signature_algorithm": "ed25519"
+  },
+  "registry": {
+    "path": "${NOA_ROOT}/cas/registry",
+    "format": "json",
+    "auto_register": true,
+    "indexes": {
+      "models": "${NOA_ROOT}/cas/registry/models.json",
+      "prompts": "${NOA_ROOT}/cas/registry/prompts.json",
+      "snapshots": "${NOA_ROOT}/cas/registry/snapshots.json",
+      "binaries": "${NOA_ROOT}/cas/registry/binaries.json",
+      "packages": "${NOA_ROOT}/cas/registry/packages.json"
+    }
+  },
+  "gc": {
+    "enabled": true,
+    "interval_hours": 24,
+    "min_age_days": 7,
+    "keep_refs": true,
+    "keep_tags": true,
+    "keep_recent_days": 30,
+    "log_path": "${NOA_ROOT}/cas/gc/sweep.log",
+    "rules_path": "${NOA_ROOT}/cas/gc/gc_rules.json",
+    "orphans_path": "${NOA_ROOT}/cas/gc/orphans.json",
+    "dry_run": false
+  },
+  "merkle": {
+    "path": "${NOA_ROOT}/cas/merkle",
+    "auto_compute": true,
+    "root_hash_path": "${NOA_ROOT}/cas/merkle/root.hash",
+    "tree_path": "${NOA_ROOT}/cas/merkle/tree.json",
+    "graph_path": "${NOA_ROOT}/cas/merkle/graph.dot"
+  },
+  "performance": {
+    "read_cache_size_mb": 256,
+    "write_buffer_size_mb": 64,
+    "max_concurrent_reads": 10,
+    "max_concurrent_writes": 5,
+    "hash_workers": 4
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_HOME}/logs/cas-metrics.json",
+    "track_operations": true,
+    "track_storage_size": true,
+    "track_dedup_ratio": true,
+    "alert_on_errors": true
+  }
+}

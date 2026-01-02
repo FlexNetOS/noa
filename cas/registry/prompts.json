@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of prompt templates stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Prompt template registry with versioning",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "prompts"
+  },
+  "objects": [],
+  "statistics": {
+    "total_prompts": 0,
+    "total_size_bytes": 0,
+    "categories": {}
+  }
+}

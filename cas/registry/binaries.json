@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of binary artifacts stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Binary artifact registry with platform metadata",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "binaries"
+  },
+  "objects": [],
+  "statistics": {
+    "total_binaries": 0,
+    "total_size_bytes": 0,
+    "platforms": {},
+    "architectures": {}
+  }
+}

@@ -1,0 +1,72 @@
+[workspace]
+resolver = "2"
+members = [
+    "noa-hive-core",
+    "noa-hive-stack",
+    "noa-hive-runtime",
+    "noa-hive-config",
+    "noa-hive-sdk",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/flexnetos/noa"
+publish = false
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.43", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+prost = "0.13"
+prost-types = "0.13"
+
+# P2P networking (from noa/p2p rust-libp2p fork)
+libp2p = { version = "0.55", features = [
+    "gossipsub",
+    "kad",
+    "request-response",
+    "identify",
+    "ping",
+    "dns",
+    "tcp",
+    "noise",
+    "yamux",
+    "tokio",
+    "macros",
+] }
+
+# State synchronization
+loro = "1.4"
+iroh = "0.32"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+# gRPC
+tonic = "0.12"
+
+# Internal crates
+noa-hive-core = { path = "noa-hive-core" }
+noa-hive-stack = { path = "noa-hive-stack" }
+noa-hive-runtime = { path = "noa-hive-runtime" }
+noa-hive-config = { path = "noa-hive-config" }
+noa-hive-sdk = { path = "noa-hive-sdk" }
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"

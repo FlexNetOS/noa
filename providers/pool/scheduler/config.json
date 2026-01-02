@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "description": "Provider task scheduling and queue management",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Intelligent task scheduling across providers",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "scheduling": {
+    "algorithm": "priority_capability_match",
+    "queue_type": "redis",
+    "queue_host": "${NOA_REDIS_HOST:-localhost}",
+    "queue_port": "${NOA_REDIS_PORT:-6379}",
+    "max_concurrent_per_provider": 10,
+    "timeout_seconds": 300
+  },
+  "priority_order": [
+    "local/llama_cpp",
+    "remote/claude_code_cli",
+    "remote/codex_cli",
+    "remote/copilot_bridge"
+  ],
+  "capability_matching": {
+    "reasoning": ["remote/claude_code_cli", "local/llama_cpp"],
+    "code_generation": ["remote/codex_cli", "remote/copilot_bridge"],
+    "code_execution": ["remote/claude_code_cli"],
+    "file_operations": ["remote/claude_code_cli"],
+    "git_operations": ["remote/claude_code_cli"],
+    "embeddings": ["local/llama_cpp"]
+  },
+  "load_balancing": {
+    "enabled": true,
+    "strategy": "round_robin",
+    "respect_priority": true,
+    "max_queue_length": 100
+  },
+  "retry": {
+    "enabled": true,
+    "max_attempts": 3,
+    "backoff_strategy": "exponential",
+    "initial_delay_ms": 1000
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/scheduler-metrics.json",
+    "track_queue_depth": true,
+    "track_latency": true,
+    "track_failures": true
+  }
+}

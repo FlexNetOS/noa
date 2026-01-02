@@ -1,0 +1,34 @@
+[package]
+name = "noa-hive-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Runtime for NOA-Hive daemon with service management"
+
+[dependencies]
+# Internal
+noa-hive-core = { workspace = true }
+noa-hive-stack = { workspace = true }
+noa-hive-config = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+
+# State sync
+loro = { workspace = true }
+iroh = { workspace = true }
+
+# gRPC
+tonic = { workspace = true }
+prost = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

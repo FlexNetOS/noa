@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "description": "OpenAI Codex CLI connector for MCP protocol",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for OpenAI Codex CLI",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "codex-connector",
+    "name": "Codex MCP Connector",
+    "type": "provider",
+    "provider_id": "remote/codex_cli",
+    "protocol": "mcp",
+    "transport": "http"
+  },
+  "capabilities": [
+    "code_generation",
+    "code_completion",
+    "refactoring",
+    "documentation"
+  ],
+  "command": {
+    "executable": "${NOA_ROOT}/providers/remote/codex_cli/bin/codex",
+    "args": ["serve", "--mcp"],
+    "env": {
+      "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+      "NOA_ROOT": "${NOA_ROOT}"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 180
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": false,
+    "prompts_enabled": true,
+    "max_message_size_kb": 512
+  },
+  "http_config": {
+    "endpoint": "http://localhost:9091/mcp",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${OPENAI_API_KEY}"
+    }
+  },
+  "routing": {
+    "locality": "remote",
+    "fallback_provider": "remote/copilot_bridge",
+    "sticky_sessions": false
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "max_rps": 30,
+    "burst": 60
+  },
+  "monitoring": {
+    "enabled": true,
+    "track_latency": true,
+    "track_success_rate": true,
+    "track_token_usage": true
+  }
+}

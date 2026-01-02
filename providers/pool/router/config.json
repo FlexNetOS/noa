@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "description": "Provider routing and capability-based request distribution",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Intelligent routing based on capabilities and locality",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "routing": {
+    "locality_preference": ["local", "personal", "regional", "org"],
+    "prefer_local_for_latency_sensitive": true,
+    "capability_matching": true,
+    "load_balancing": "weighted_round_robin"
+  },
+  "locality_nodes": {
+    "local": {
+      "priority": 1,
+      "latency_target_ms": 10,
+      "providers": ["local/llama_cpp", "local/ollama"]
+    },
+    "personal": {
+      "priority": 2,
+      "latency_target_ms": 50,
+      "providers": [],
+      "p2p_discovery": true
+    },
+    "regional": {
+      "priority": 3,
+      "latency_target_ms": 200,
+      "providers": [],
+      "admission_required": true
+    },
+    "org": {
+      "priority": 4,
+      "latency_target_ms": 500,
+      "providers": [],
+      "governance_required": true
+    }
+  },
+  "fallback": {
+    "enabled": true,
+    "strategy": "next_priority",
+    "max_fallback_attempts": 3,
+    "fallback_to_cloud": true
+  },
+  "request_classification": {
+    "latency_sensitive": {
+      "max_latency_ms": 100,
+      "prefer_local": true
+    },
+    "throughput_optimized": {
+      "prefer_cloud": true,
+      "batch_enabled": true
+    },
+    "cost_optimized": {
+      "prefer_local": true,
+      "fallback_on_local_unavailable": true
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/router-metrics.json",
+    "track_routing_decisions": true,
+    "track_fallback_rate": true
+  }
+}

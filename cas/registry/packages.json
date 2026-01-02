@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of package archives stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Package archive registry with dependency tracking",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "packages"
+  },
+  "objects": [],
+  "statistics": {
+    "total_packages": 0,
+    "total_size_bytes": 0,
+    "package_types": {}
+  }
+}

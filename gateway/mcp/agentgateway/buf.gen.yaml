@@ -1,0 +1,8 @@
+version: v1
+plugins:
+- name: go
+  out: go/api
+  opt: paths=source_relative
+- name: golang-jsonshim
+  out: go/api
+  opt: paths=source_relative

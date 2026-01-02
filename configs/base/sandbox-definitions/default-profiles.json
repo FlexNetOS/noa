@@ -1,0 +1,68 @@
+{
+  "version": "1.0.0",
+  "description": "Default sandbox profiles for different execution contexts",
+  "metadata": {
+    "version": "1.0.0",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "base",
+    "immutable": true
+  },
+  "profiles": {
+    "build": {
+      "description": "Build and compilation tasks",
+      "limits": {
+        "time_ms": 300000,
+        "cpu": "80%",
+        "memory_mb": 4096,
+        "disk_mb": 10240
+      },
+      "network": "allowlist",
+      "mounts": ["${NOA_ROOT}/cache", "${NOA_ROOT}/opt"]
+    },
+    "test": {
+      "description": "Test execution tasks",
+      "limits": {
+        "time_ms": 180000,
+        "cpu": "60%",
+        "memory_mb": 2048,
+        "disk_mb": 5120
+      },
+      "network": "off",
+      "mounts": ["${NOA_ROOT}/cache"]
+    },
+    "code-scan": {
+      "description": "Code analysis and scanning",
+      "limits": {
+        "time_ms": 120000,
+        "cpu": "50%",
+        "memory_mb": 1024,
+        "disk_mb": 2048
+      },
+      "network": "off",
+      "mounts": []
+    },
+    "db-migrate": {
+      "description": "Database migration tasks",
+      "limits": {
+        "time_ms": 600000,
+        "cpu": "40%",
+        "memory_mb": 2048,
+        "disk_mb": 5120
+      },
+      "network": "allowlist",
+      "mounts": ["${NOA_ROOT}/data/db"]
+    },
+    "ai-inference": {
+      "description": "AI model inference tasks",
+      "limits": {
+        "time_ms": 30000,
+        "cpu": "90%",
+        "gpu": "available",
+        "memory_mb": 8192,
+        "disk_mb": 2048
+      },
+      "network": "allowlist",
+      "mounts": ["${NOA_ROOT}/cache/models"]
+    }
+  }
+}

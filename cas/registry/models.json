@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of AI models stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Model artifact registry with hashes and metadata",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "models"
+  },
+  "objects": [
+    {
+      "_comment": "Example entry - actual models will be registered during usage",
+      "hash": "example_hash_would_be_here",
+      "type": "model",
+      "name": "llama-3.1-8b-q4",
+      "format": "gguf",
+      "size": 5368709120,
+      "quantization": "Q4_K_M",
+      "provider": "llama_cpp",
+      "created_at": "2026-01-02T00:00:00Z",
+      "tags": ["v3.1", "8b", "quantized"],
+      "metadata": {
+        "architecture": "llama",
+        "parameter_count": "8B",
+        "context_length": 8192,
+        "vocab_size": 128256
+      },
+      "refs": ["model-llama-3.1-8b"],
+      "status": "example"
+    }
+  ],
+  "statistics": {
+    "total_models": 0,
+    "total_size_bytes": 0,
+    "formats": {},
+    "providers": {}
+  }
+}

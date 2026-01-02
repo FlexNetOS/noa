@@ -8,6 +8,7 @@ members = [
 	"crates/noa-ui-styleguide-ui",
 	"crates/noa-ui-core",
 	"crates/noa-ui-shell",
+	"crates/noa-ui-components",
 	"bins/noa-ui-desktop",
 	"bins/noa-ui-web",
 	"bins/noa-ui-hived",
@@ -28,3 +29,23 @@ thiserror = "2.0"
 tokio = { version = "1.43", features = ["rt", "macros", "time"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+# UI Component Libraries
+dioxus-primitives = "0.1"
+daisy_rsx = "0.8"
+
+# P2P and State Sync
+loro = "1.4"
+iroh = "0.32"
+libp2p = { version = "0.55", features = ["gossipsub", "kad", "request-response", "tokio"] }
+
+# HTTP Client
+reqwest = { version = "0.12", features = ["json", "stream"] }
+futures = "0.3"
+
+# Internal crates
+noa-ui-components = { path = "crates/noa-ui-components" }
+noa-ui-core = { path = "crates/noa-ui-core" }
+noa-ui-shell = { path = "crates/noa-ui-shell" }
+noa-ui-protocol = { path = "crates/noa-ui-protocol" }
+noa-api-client = { path = "../../gateway/api/client/rust" }

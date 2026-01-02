@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "description": "JSON Schema validator configuration for Layer 3 enforcement",
+  "metadata": {
+    "version": "1.0.0",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "enforcement"
+  },
+  "validator": {
+    "enabled": true,
+    "strict_mode": true,
+    "schemas_path": "${NOA_ROOT}/configs/base/schemas/"
+  },
+  "rules": {
+    "require_metadata": true,
+    "require_version": true,
+    "require_updated_at": true,
+    "allow_noa_root_var": true,
+    "forbid_absolute_paths": true,
+    "require_description": true
+  },
+  "validation_targets": [
+    "${NOA_ROOT}/configs/base/**/*.json",
+    "${NOA_ROOT}/configs/semantic/**/*.json",
+    "${NOA_ROOT}/providers/**/*.json",
+    "${NOA_ROOT}/gateway/**/*.json",
+    "${NOA_ROOT}/tools/**/*.json"
+  ],
+  "on_validation_failure": "error",
+  "auto_fix": {
+    "enabled": false,
+    "allowed_fixes": []
+  }
+}

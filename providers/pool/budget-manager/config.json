@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0",
+  "description": "Provider budget and rate limit management",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Track and enforce provider usage budgets",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "budgets": {
+    "local/llama_cpp": {
+      "cost_per_token": 0,
+      "cost_per_request": 0,
+      "rate_limit_rps": 100,
+      "daily_token_limit": -1,
+      "monthly_cost_limit": 0
+    },
+    "remote/claude_code_cli": {
+      "cost_per_token": 0.00001,
+      "cost_per_request": 0.001,
+      "rate_limit_rps": 50,
+      "daily_token_limit": 1000000,
+      "monthly_cost_limit": 100
+    },
+    "remote/codex_cli": {
+      "cost_per_token": 0.00002,
+      "cost_per_request": 0.002,
+      "rate_limit_rps": 30,
+      "daily_token_limit": 500000,
+      "monthly_cost_limit": 150
+    },
+    "remote/copilot_bridge": {
+      "cost_per_token": 0,
+      "cost_per_request": 0.0005,
+      "rate_limit_rps": 60,
+      "daily_token_limit": 2000000,
+      "monthly_cost_limit": 50
+    }
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "algorithm": "token_bucket",
+    "burst_multiplier": 2,
+    "enforcement": "soft"
+  },
+  "cost_tracking": {
+    "enabled": true,
+    "storage": "${NOA_ROOT}/data/state/budget-tracking.db",
+    "alert_on_threshold": true,
+    "warning_threshold_percent": 80,
+    "critical_threshold_percent": 95
+  },
+  "alerts": {
+    "enabled": true,
+    "channels": ["log", "metrics"],
+    "alert_on_rate_limit": true,
+    "alert_on_budget_exceeded": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/budget-metrics.json",
+    "track_cost_per_provider": true,
+    "track_token_usage": true,
+    "track_request_count": true
+  }
+}

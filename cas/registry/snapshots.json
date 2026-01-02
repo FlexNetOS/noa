@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of configuration snapshots stored in CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Configuration snapshot registry for rollback",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "snapshots"
+  },
+  "objects": [],
+  "statistics": {
+    "total_snapshots": 0,
+    "total_size_bytes": 0,
+    "snapshot_types": {}
+  }
+}

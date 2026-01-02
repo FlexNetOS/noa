@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0",
+  "description": "Garbage collection rules and policies for CAS",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "GC policies for unreachable object cleanup",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "gc_policy": {
+    "enabled": true,
+    "schedule": {
+      "interval_hours": 24,
+      "preferred_time": "02:00",
+      "max_duration_hours": 2
+    },
+    "retention": {
+      "min_age_days": 7,
+      "keep_recent_days": 30,
+      "keep_refs": true,
+      "keep_tags": true,
+      "keep_pinned": true
+    },
+    "reachability": {
+      "start_from_refs": true,
+      "start_from_tags": true,
+      "start_from_pins": true,
+      "traverse_depth": -1
+    },
+    "safety": {
+      "require_confirmation": false,
+      "dry_run_first": true,
+      "preserve_errors": true,
+      "max_delete_per_run": 10000
+    }
+  },
+  "object_types": {
+    "models": {
+      "min_age_days": 30,
+      "keep_if_referenced": true,
+      "priority": "high"
+    },
+    "snapshots": {
+      "min_age_days": 14,
+      "keep_if_referenced": true,
+      "priority": "medium"
+    },
+    "binaries": {
+      "min_age_days": 7,
+      "keep_if_referenced": true,
+      "priority": "low"
+    },
+    "prompts": {
+      "min_age_days": 7,
+      "keep_if_referenced": false,
+      "priority": "low"
+    },
+    "temporary": {
+      "min_age_days": 1,
+      "keep_if_referenced": false,
+      "priority": "immediate"
+    }
+  },
+  "alerts": {
+    "enabled": true,
+    "alert_on_large_sweep": true,
+    "large_sweep_threshold": 1000,
+    "alert_on_errors": true,
+    "notification_channels": ["log", "metrics"]
+  },
+  "logging": {
+    "log_all_deletions": true,
+    "log_reachability_graph": false,
+    "log_path": "${NOA_ROOT}/cas/gc/sweep.log",
+    "max_log_size_mb": 100,
+    "compress_old_logs": true
+  }
+}

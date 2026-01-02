@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "description": "Tool and server registry with discovery and trust management",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Central registry for MCP tools, servers, and connectors",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "registry": {
+    "storage_type": "sqlite",
+    "database_path": "${NOA_ROOT}/data/registry.db",
+    "auto_migrate": true
+  },
+  "discovery": {
+    "enabled": true,
+    "scan_interval_seconds": 60,
+    "scan_paths": [
+      "${NOA_ROOT}/tools",
+      "${NOA_ROOT}/gateway/mcp/connectors"
+    ],
+    "watch_for_changes": true,
+    "auto_register": true
+  },
+  "trust": {
+    "require_signature": false,
+    "signature_algorithm": "ed25519",
+    "trusted_signers": [],
+    "allowed_sources": ["local", "noa.dev"],
+    "default_trust_level": "unverified"
+  },
+  "tool_metadata": {
+    "required_fields": ["name", "version", "capabilities", "protocol"],
+    "validate_on_registration": true,
+    "schema_path": "${NOA_ROOT}/configs/base/schemas/mcp-tool.json"
+  },
+  "caching": {
+    "enabled": true,
+    "ttl_seconds": 300,
+    "max_entries": 1000
+  },
+  "sync": {
+    "enabled": false,
+    "sync_to_core_registry": true,
+    "core_registry_path": "${NOA_ROOT}/sys/core/registry/registry.db"
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/registry-metrics.json",
+    "track_registrations": true,
+    "track_lookups": true
+  }
+}

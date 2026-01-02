@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "description": "Shared key-value cache for model inference across providers",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Shared KV cache for context and attention state",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "cache": {
+    "type": "redis",
+    "host": "${NOA_REDIS_HOST:-localhost}",
+    "port": "${NOA_REDIS_PORT:-6379}",
+    "db": 0,
+    "password": "${NOA_REDIS_PASSWORD:-}",
+    "ttl_seconds": 3600,
+    "max_memory": "2GB",
+    "eviction_policy": "allkeys-lru"
+  },
+  "providers": {
+    "llama_cpp": {
+      "enabled": true,
+      "namespace": "llama",
+      "cache_context": true,
+      "cache_attention": true
+    },
+    "claude_code_cli": {
+      "enabled": true,
+      "namespace": "claude",
+      "cache_context": true,
+      "cache_reasoning": true
+    },
+    "codex_cli": {
+      "enabled": true,
+      "namespace": "codex",
+      "cache_context": true,
+      "cache_completion": true
+    }
+  },
+  "features": {
+    "compression": "zstd",
+    "encryption": false,
+    "persistence": true,
+    "replication": false
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_path": "${NOA_ROOT}/data/logs/kv-cache-metrics.json",
+    "alert_on_high_memory": true,
+    "alert_threshold_percent": 90
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "description": "Llama.cpp local inference connector for MCP protocol",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for local llama.cpp inference",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "llama-cpp-connector",
+    "name": "Llama.cpp MCP Connector",
+    "type": "provider",
+    "provider_id": "local/llama_cpp",
+    "protocol": "mcp",
+    "transport": "http"
+  },
+  "capabilities": [
+    "reasoning",
+    "embeddings",
+    "chat_completion",
+    "streaming"
+  ],
+  "command": {
+    "executable": "${NOA_ROOT}/providers/local/llama_cpp/bin/llama-server",
+    "args": [
+      "--model", "${NOA_ROOT}/cache/models/llama-3.1-8b.gguf",
+      "--host", "127.0.0.1",
+      "--port", "9092",
+      "--ctx-size", "8192",
+      "--n-gpu-layers", "35"
+    ],
+    "env": {
+      "NOA_ROOT": "${NOA_ROOT}",
+      "CUDA_VISIBLE_DEVICES": "0"
+    },
+    "working_dir": "${NOA_ROOT}/providers/local/llama_cpp",
+    "timeout_seconds": 600
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": true,
+    "prompts_enabled": true,
+    "max_message_size_kb": 2048
+  },
+  "http_config": {
+    "endpoint": "http://localhost:9092/v1/chat/completions",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  },
+  "routing": {
+    "locality": "local",
+    "fallback_provider": null,
+    "sticky_sessions": true
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "max_rps": 100,
+    "burst": 200
+  },
+  "caching": {
+    "kv_cache_enabled": true,
+    "kv_cache_config": "${NOA_ROOT}/providers/shared/kv-cache/config.json"
+  },
+  "monitoring": {
+    "enabled": true,
+    "track_latency": true,
+    "track_success_rate": true,
+    "track_token_usage": true,
+    "track_gpu_usage": true
+  }
+}

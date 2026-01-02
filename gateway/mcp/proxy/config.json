@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "description": "MCP proxy configuration - single ingress for all tool calls",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Gateway proxy using agentgateway for MCP/A2A protocols",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "proxy": {
+    "listen_address": "${NOA_MCP_PROXY_ADDR:-0.0.0.0:9090}",
+    "backend": "agentgateway",
+    "agentgateway_binary": "${NOA_ROOT}/gateway/mcp/agentgateway/target/release/agentgateway-app",
+    "agentgateway_config": "${NOA_ROOT}/configs/semantic/capabilities/agentgateway.json",
+    "max_connections": 1000,
+    "connection_timeout_seconds": 30
+  },
+  "protocols": {
+    "mcp": {
+      "enabled": true,
+      "version": "1.0",
+      "transports": ["sse", "http", "child-process"]
+    },
+    "a2a": {
+      "enabled": true,
+      "version": "1.0",
+      "discovery_enabled": true
+    }
+  },
+  "tls": {
+    "enabled": false,
+    "cert_path": "${NOA_ROOT}/sys/core/secrets/tls/cert.pem",
+    "key_path": "${NOA_ROOT}/sys/core/secrets/tls/key.pem",
+    "client_auth": "optional"
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "global_rps": 1000,
+    "per_client_rps": 100,
+    "burst_multiplier": 2
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "log_path": "${NOA_ROOT}/data/logs/mcp-proxy.log",
+    "structured": true,
+    "include_request_body": false,
+    "include_response_body": false
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_endpoint": "/metrics",
+    "health_endpoint": "/health",
+    "ready_endpoint": "/ready"
+  }
+}

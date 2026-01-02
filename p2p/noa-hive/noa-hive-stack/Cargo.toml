@@ -1,0 +1,29 @@
+[package]
+name = "noa-hive-stack"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "P2P network stack for NOA-Hive (GossipSub, Kademlia, Request-Response)"
+
+[dependencies]
+# Internal
+noa-hive-core = { workspace = true }
+
+# P2P
+libp2p = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
