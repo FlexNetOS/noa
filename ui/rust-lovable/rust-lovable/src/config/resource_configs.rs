@@ -547,14 +547,12 @@ impl Default for ResourceConfig {
             prompts: SharedPromptsConfig {
                 enabled: true,
                 sharing_mode: SharingMode::LocalOnly,
-                categories: vec![
-                    PromptCategory {
-                        name: "ui_generation".to_string(),
-                        description: "UI component generation prompts".to_string(),
-                        tags: vec!["ui".to_string(), "dioxus".to_string()],
-                        access_level: PermissionLevel::Write,
-                    },
-                ],
+                categories: vec![PromptCategory {
+                    name: "ui_generation".to_string(),
+                    description: "UI component generation prompts".to_string(),
+                    tags: vec!["ui".to_string(), "dioxus".to_string()],
+                    access_level: PermissionLevel::Write,
+                }],
                 versioning: PromptVersioningConfig {
                     enabled: true,
                     max_versions: 10,

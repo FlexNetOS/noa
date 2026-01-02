@@ -1,7 +1,7 @@
-use dioxus::events::Key;
 use dioxus::prelude::*;
+use keyboard_types::Key;
 
-use crate::core::conversational_ai::{AIProvider, ConversationalAI, Message, MessageRole};
+use crate::core::conversational_ai::{AIProvider, ConversationalAI, Conversation, ConversationContext, Message, MessageRole};
 
 #[component]
 pub fn ChatInterface() -> Element {
@@ -9,10 +9,10 @@ pub fn ChatInterface() -> Element {
     let mut input_value = use_signal(String::new);
     let is_typing = use_signal(|| false);
 
-    // Initialize AI provider (in a real app, this would be configurable)
-    let _ai = ConversationalAI::new(AIProvider::Local {
-        endpoint: "http://localhost:8080/ai".to_string(),
-    });
+    // Initialize AI provider with Ollama (local inference)
+    let ai = use_signal(|| ConversationalAI::new(AIProvider::Local {
+        endpoint: "http://localhost:11434".to_string(),
+    }));
 
     // Note: we call `send_message_impl` directly from each handler since closures
     // cannot be reused across multiple RSX props without cloning.
@@ -132,15 +132,64 @@ fn send_message_impl(
     // Show typing indicator
     is_typing.set(true);
 
-    // Simulate AI response (in real app, this would call the AI provider)
+    // Call Ollama for AI response
     spawn(async move {
-        // Simulate delay
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
-        let mut current_messages = messages.read().clone();
-        let ai_response = format!("I understand you want to: {}", user_message);
-        current_messages.push(Message::new(MessageRole::Assistant, ai_response));
-        messages.set(current_messages);
+        let client = reqwest::Client::new();
+        let url = "http://localhost:11434/api/generate";
+        
+        let system_prompt = "You are Rust Lovable, an AI assistant that helps users build UIs using Rust and the Dioxus framework. \
+                            IMPORTANT: This is a RUST application using DIOXUS, NOT React or JavaScript. \
+                            Always provide code examples in Rust with Dioxus RSX syntax, not JSX or React. \
+                            Dioxus uses the rsx! macro for component rendering, use_signal for state, and Rust idioms. \
+                            Example Dioxus component: \
+                            ```rust \
+                            use dioxus::prelude::*; \
+                            #[component] \
+                            fn Counter() -> Element { \
+                                let mut count = use_signal(|| 0); \
+                                rsx! { \
+                                    button { onclick: move |_| count += 1, \"Count: {count}\" } \
+                                } \
+                            } \
+                            ``` \
+                            Keep responses concise and actionable. Always use Rust/Dioxus syntax.";
+        
+        let prompt = format!("{}\n\nUser: {}\nAssistant:", system_prompt, user_message);
+        
+        let body = serde_json::json!({
+            "model": "phi3:mini",
+            "prompt": prompt,
+            "stream": false,
+            "options": {
+                "temperature": 0.7,
+                "num_predict": 300
+            }
+        });
+        
+        match client.post(url).json(&body).send().await {
+            Ok(response) => {
+                if let Ok(json) = response.json::<serde_json::Value>().await {
+                    let ai_response = json.get("response")
+                        .and_then(|r| r.as_str())
+                        .unwrap_or("Sorry, I couldn't process that request.")
+                        .to_string();
+                    
+                    let mut current_messages = messages.read().clone();
+                    current_messages.push(Message::new(MessageRole::Assistant, ai_response));
+                    messages.set(current_messages);
+                } else {
+                    let mut current_messages = messages.read().clone();
+                    current_messages.push(Message::new(MessageRole::Assistant, "Error: Could not parse AI response.".to_string()));
+                    messages.set(current_messages);
+                }
+            }
+            Err(e) => {
+                let mut current_messages = messages.read().clone();
+                let error_msg = format!("Error connecting to AI: {}. Make sure Ollama is running with 'ollama serve'.", e);
+                current_messages.push(Message::new(MessageRole::Assistant, error_msg));
+                messages.set(current_messages);
+            }
+        }
 
         is_typing.set(false);
     });

@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use dioxus_router::prelude::*;
+use dioxus_router::{Routable, Router};
 
 use crate::components::canvas::UICanvas;
 use crate::components::chat::ChatInterface;
@@ -7,6 +7,7 @@ use crate::components::sidebar::Sidebar;
 use crate::components::toolbar::Toolbar;
 
 #[derive(Routable, Clone, PartialEq, Debug)]
+#[rustfmt::skip]
 pub enum Route {
     #[route("/")]
     Home {},

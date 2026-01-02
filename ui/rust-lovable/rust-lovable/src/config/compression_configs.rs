@@ -225,7 +225,7 @@ pub struct DictionaryTrainingConfig {
 impl Default for CompressionConfig {
     fn default() -> Self {
         let mut algorithms = HashMap::new();
-        
+
         algorithms.insert(
             "zstd".to_string(),
             AlgorithmConfig {
@@ -236,7 +236,10 @@ impl Default for CompressionConfig {
                     default: 3,
                 },
                 settings: HashMap::from([
-                    ("window_log".to_string(), serde_json::Value::Number(23.into())),
+                    (
+                        "window_log".to_string(),
+                        serde_json::Value::Number(23.into()),
+                    ),
                     ("hash_log".to_string(), serde_json::Value::Number(20.into())),
                 ]),
                 use_cases: vec![
@@ -335,27 +338,24 @@ impl Default for CompressionConfig {
             strategies: vec![
                 CompressionStrategy {
                     name: "ml_embeddings".to_string(),
-                    conditions: vec![
-                        CompressionCondition {
-                            condition_type: ConditionType::DataType,
-                            operator: ComparisonOperator::Equal,
-                            value: serde_json::Value::String("embeddings".to_string()),
-                        },
-                    ],
+                    conditions: vec![CompressionCondition {
+                        condition_type: ConditionType::DataType,
+                        operator: ComparisonOperator::Equal,
+                        value: serde_json::Value::String("embeddings".to_string()),
+                    }],
                     algorithm: "zstd".to_string(),
-                    settings: HashMap::from([
-                        ("level".to_string(), serde_json::Value::Number(6.into())),
-                    ]),
+                    settings: HashMap::from([(
+                        "level".to_string(),
+                        serde_json::Value::Number(6.into()),
+                    )]),
                 },
                 CompressionStrategy {
                     name: "real_time_streaming".to_string(),
-                    conditions: vec![
-                        CompressionCondition {
-                            condition_type: ConditionType::TimeSensitivity,
-                            operator: ComparisonOperator::Equal,
-                            value: serde_json::Value::String("high".to_string()),
-                        },
-                    ],
+                    conditions: vec![CompressionCondition {
+                        condition_type: ConditionType::TimeSensitivity,
+                        operator: ComparisonOperator::Equal,
+                        value: serde_json::Value::String("high".to_string()),
+                    }],
                     algorithm: "lz4".to_string(),
                     settings: HashMap::new(),
                 },

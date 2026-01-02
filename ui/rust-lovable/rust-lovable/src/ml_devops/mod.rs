@@ -1,22 +1,22 @@
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 
-pub mod pipeline;
+pub mod deployment;
 pub mod experiment;
+pub mod feature_store;
 pub mod model_registry;
 pub mod monitoring;
-pub mod deployment;
-pub mod feature_store;
+pub mod pipeline;
 
-use pipeline::{Pipeline, PipelineOrchestrator};
+use deployment::{DeploymentManager, DeploymentStatistics, DeploymentStatus, DeploymentStrategy};
 use experiment::{Experiment, ExperimentTracker};
+use feature_store::{FeatureGroup, FeatureStore};
 use model_registry::{ModelRegistry, ModelVersion};
-use monitoring::{MLMonitor, AlertManager};
-use deployment::{DeploymentManager, DeploymentStrategy, DeploymentStatus, DeploymentStatistics};
-use feature_store::{FeatureStore, FeatureGroup};
+use monitoring::{AlertManager, MLMonitor};
+use pipeline::{Pipeline, PipelineOrchestrator};
 
 pub struct MLDevOpsManager {
     pipeline_orchestrator: Arc<RwLock<PipelineOrchestrator>>,
@@ -134,20 +134,24 @@ impl MLDevOpsManager {
             alert_manager: Arc::new(RwLock::new(AlertManager::new(config.notification_channels))),
         }
     }
-    
+
     pub async fn initialize(&self) -> Result<()> {
         // Initialize all components
-        self.pipeline_orchestrator.write().await.initialize().await?;
+        self.pipeline_orchestrator
+            .write()
+            .await
+            .initialize()
+            .await?;
         self.experiment_tracker.write().await.initialize().await?;
         self.model_registry.write().await.initialize().await?;
         self.ml_monitor.write().await.initialize().await?;
         self.deployment_manager.write().await.initialize().await?;
         self.feature_store.write().await.initialize().await?;
         self.alert_manager.write().await.initialize().await?;
-        
+
         Ok(())
     }
-    
+
     pub async fn cleanup(&self) -> Result<()> {
         // Cleanup all components
         self.pipeline_orchestrator.write().await.cleanup().await?;
@@ -157,162 +161,307 @@ impl MLDevOpsManager {
         self.deployment_manager.write().await.cleanup().await?;
         self.feature_store.write().await.cleanup().await?;
         self.alert_manager.write().await.cleanup().await?;
-        
+
         Ok(())
     }
-    
+
     // Pipeline Management
     pub async fn create_pipeline(&self, pipeline: Pipeline) -> Result<String> {
-        self.pipeline_orchestrator.write().await.create_pipeline(pipeline).await
+        self.pipeline_orchestrator
+            .write()
+            .await
+            .create_pipeline(pipeline)
+            .await
     }
-    
-    pub async fn execute_pipeline(&self, pipeline_id: &str, parameters: HashMap<String, serde_json::Value>) -> Result<String> {
-        self.pipeline_orchestrator.write().await.execute_pipeline(pipeline_id, parameters).await
+
+    pub async fn execute_pipeline(
+        &self,
+        pipeline_id: &str,
+        parameters: HashMap<String, serde_json::Value>,
+    ) -> Result<String> {
+        self.pipeline_orchestrator
+            .write()
+            .await
+            .execute_pipeline(pipeline_id, parameters)
+            .await
     }
-    
+
     pub async fn get_pipeline_status(&self, execution_id: &str) -> Option<PipelineExecution> {
-        self.pipeline_orchestrator.read().await.get_execution_status(execution_id).await
+        self.pipeline_orchestrator
+            .read()
+            .await
+            .get_execution_status(execution_id)
+            .await
     }
-    
+
     pub async fn cancel_pipeline(&self, execution_id: &str) -> Result<()> {
-        self.pipeline_orchestrator.write().await.cancel_execution(execution_id).await
+        self.pipeline_orchestrator
+            .write()
+            .await
+            .cancel_execution(execution_id)
+            .await
     }
-    
+
     // Experiment Management
     pub async fn create_experiment(&self, experiment: Experiment) -> Result<String> {
-        self.experiment_tracker.write().await.create_experiment(experiment).await
+        self.experiment_tracker
+            .write()
+            .await
+            .create_experiment(experiment)
+            .await
     }
-    
-    pub async fn log_experiment_metric(&self, experiment_id: &str, metric: String, value: f64) -> Result<()> {
-        self.experiment_tracker.write().await.log_metric(experiment_id, metric, value).await
+
+    pub async fn log_experiment_metric(
+        &self,
+        experiment_id: &str,
+        metric: String,
+        value: f64,
+    ) -> Result<()> {
+        self.experiment_tracker
+            .write()
+            .await
+            .log_metric(experiment_id, metric, value)
+            .await
     }
-    
-    pub async fn log_experiment_parameter(&self, experiment_id: &str, parameter: String, value: serde_json::Value) -> Result<()> {
-        self.experiment_tracker.write().await.log_parameter(experiment_id, parameter, value).await
+
+    pub async fn log_experiment_parameter(
+        &self,
+        experiment_id: &str,
+        parameter: String,
+        value: serde_json::Value,
+    ) -> Result<()> {
+        self.experiment_tracker
+            .write()
+            .await
+            .log_parameter(experiment_id, parameter, value)
+            .await
     }
-    
-    pub async fn complete_experiment(&self, experiment_id: &str, status: ExecutionStatus) -> Result<()> {
-        self.experiment_tracker.write().await.complete_experiment(experiment_id, status).await
+
+    pub async fn complete_experiment(
+        &self,
+        experiment_id: &str,
+        status: ExecutionStatus,
+    ) -> Result<()> {
+        self.experiment_tracker
+            .write()
+            .await
+            .complete_experiment(experiment_id, status)
+            .await
     }
-    
+
     pub async fn get_experiment(&self, experiment_id: &str) -> Option<Experiment> {
-        self.experiment_tracker.read().await.get_experiment(experiment_id).await
+        self.experiment_tracker
+            .read()
+            .await
+            .get_experiment(experiment_id)
+            .await
     }
-    
-    pub async fn compare_experiments(&self, experiment_ids: Vec<String>) -> Vec<ExperimentComparison> {
-        self.experiment_tracker.read().await.compare_experiments(experiment_ids).await
+
+    pub async fn compare_experiments(
+        &self,
+        experiment_ids: Vec<String>,
+    ) -> Vec<ExperimentComparison> {
+        self.experiment_tracker
+            .read()
+            .await
+            .compare_experiments(experiment_ids)
+            .await
     }
-    
+
     // Model Registry Management
     pub async fn register_model(&self, model: ModelVersion) -> Result<String> {
-        self.model_registry.write().await.register_model(model).await
+        self.model_registry
+            .write()
+            .await
+            .register_model(model)
+            .await
     }
-    
+
     pub async fn promote_model(&self, model_id: &str, stage: String) -> Result<()> {
-        self.model_registry.write().await.promote_model(model_id, stage).await
+        self.model_registry
+            .write()
+            .await
+            .promote_model(model_id, stage)
+            .await
     }
-    
+
     pub async fn get_model(&self, model_id: &str) -> Option<ModelVersion> {
         self.model_registry.read().await.get_model(model_id).await
     }
-    
+
     pub async fn list_models(&self, filters: HashMap<String, String>) -> Vec<ModelVersion> {
         self.model_registry.read().await.list_models(filters).await
     }
-    
+
     // Monitoring
-    pub async fn log_metric(&self, metric: String, value: f64, tags: HashMap<String, String>) -> Result<()> {
-        self.ml_monitor.write().await.log_metric(metric, value, tags).await
+    pub async fn log_metric(
+        &self,
+        metric: String,
+        value: f64,
+        tags: HashMap<String, String>,
+    ) -> Result<()> {
+        self.ml_monitor
+            .write()
+            .await
+            .log_metric(metric, value, tags)
+            .await
     }
-    
+
     pub async fn create_alert(&self, alert: AlertDefinition) -> Result<String> {
         self.alert_manager.write().await.create_alert(alert).await
     }
-    
+
     pub async fn check_alerts(&self) -> Vec<Alert> {
         self.alert_manager.read().await.check_alerts().await
     }
-    
+
     // Deployment Management
-    pub async fn deploy_model(&self, model_id: &str, strategy: DeploymentStrategy) -> Result<String> {
-        self.deployment_manager.write().await.deploy_model(model_id, strategy).await
+    pub async fn deploy_model(
+        &self,
+        model_id: &str,
+        strategy: DeploymentStrategy,
+    ) -> Result<String> {
+        self.deployment_manager
+            .write()
+            .await
+            .deploy_model(model_id, strategy)
+            .await
     }
-    
+
     pub async fn get_deployment_status(&self, deployment_id: &str) -> Option<DeploymentStatus> {
-        self.deployment_manager.read().await.get_deployment_status(deployment_id)
+        self.deployment_manager
+            .read()
+            .await
+            .get_deployment_status(deployment_id)
     }
-    
+
     pub async fn rollback_deployment(&self, deployment_id: &str) -> Result<()> {
-        self.deployment_manager.write().await.rollback_deployment(deployment_id).await
+        self.deployment_manager
+            .write()
+            .await
+            .rollback_deployment(deployment_id)
+            .await
     }
-    
+
     // Feature Store Management
     pub async fn create_feature_group(&self, group: FeatureGroup) -> Result<String> {
-        self.feature_store.write().await.create_feature_group(group).await
+        self.feature_store
+            .write()
+            .await
+            .create_feature_group(group)
+            .await
     }
-    
+
     pub async fn get_feature_group(&self, group_id: &str) -> Option<FeatureGroup> {
-        self.feature_store.read().await.get_feature_group(group_id).await
+        self.feature_store
+            .read()
+            .await
+            .get_feature_group(group_id)
+            .await
     }
-    
-    pub async fn ingest_features(&self, group_id: &str, features: Vec<HashMap<String, serde_json::Value>>) -> Result<()> {
-        self.feature_store.write().await.ingest_features(group_id, features).await
+
+    pub async fn ingest_features(
+        &self,
+        group_id: &str,
+        features: Vec<HashMap<String, serde_json::Value>>,
+    ) -> Result<()> {
+        self.feature_store
+            .write()
+            .await
+            .ingest_features(group_id, features)
+            .await
     }
-    
-    pub async fn get_online_features(&self, group_id: &str, entity_id: &str) -> Option<HashMap<String, serde_json::Value>> {
-        self.feature_store.read().await.get_online_features(group_id, entity_id).await
+
+    pub async fn get_online_features(
+        &self,
+        group_id: &str,
+        entity_id: &str,
+    ) -> Option<HashMap<String, serde_json::Value>> {
+        self.feature_store
+            .read()
+            .await
+            .get_online_features(group_id, entity_id)
+            .await
     }
-    
+
     // ML DevOps Workflow
-    pub async fn run_training_pipeline(&self, experiment_config: ExperimentConfig) -> Result<String> {
+    pub async fn run_training_pipeline(
+        &self,
+        experiment_config: ExperimentConfig,
+    ) -> Result<String> {
         // Create experiment
         let experiment = Experiment::new(experiment_config.name, experiment_config.description);
         let experiment_id = self.create_experiment(experiment).await?;
-        
+
         // Create training pipeline
         let pipeline = Pipeline::training_pipeline(experiment_id.clone());
         let pipeline_id = self.create_pipeline(pipeline).await?;
-        
+
         // Execute pipeline
-        let execution_id = self.execute_pipeline(&pipeline_id, experiment_config.parameters).await?;
-        
+        let execution_id = self
+            .execute_pipeline(&pipeline_id, experiment_config.parameters)
+            .await?;
+
         // Monitor execution
         tokio::spawn(async move {
             // This would be a more sophisticated monitoring loop
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         });
-        
+
         Ok(experiment_id)
     }
-    
-    pub async fn deploy_trained_model(&self, experiment_id: &str, deployment_config: DeploymentConfig) -> Result<String> {
+
+    pub async fn deploy_trained_model(
+        &self,
+        experiment_id: &str,
+        deployment_config: DeploymentConfig,
+    ) -> Result<String> {
         // Get experiment results
-        let experiment = self.get_experiment(experiment_id).await
+        let experiment = self
+            .get_experiment(experiment_id)
+            .await
             .ok_or_else(|| anyhow::anyhow!("Experiment not found"))?;
-        
+
         // Register model
         let model = ModelVersion::from_experiment(&experiment);
         let model_id = self.register_model(model).await?;
-        
+
         // Deploy model
-        let deployment_id = self.deploy_model(&model_id, deployment_config.strategy).await?;
-        
+        let deployment_id = self
+            .deploy_model(&model_id, deployment_config.strategy)
+            .await?;
+
         Ok(deployment_id)
     }
-    
+
     pub async fn get_ml_devops_summary(&self) -> MLDevOpsSummary {
-        let pipeline_stats = self.pipeline_orchestrator.read().await.get_statistics().await;
+        let pipeline_stats = self
+            .pipeline_orchestrator
+            .read()
+            .await
+            .get_statistics()
+            .await;
         let experiment_stats = self.experiment_tracker.read().await.get_statistics().await;
         let model_stats = self.model_registry.read().await.get_statistics().await;
         let deployment_stats = self.deployment_manager.read().await.get_statistics();
-        
+
         MLDevOpsSummary {
             pipeline_stats,
             experiment_stats,
             model_stats,
             deployment_stats,
-            active_alerts: self.alert_manager.read().await.get_active_alert_count().await,
-            feature_groups: self.feature_store.read().await.get_feature_group_count().await,
+            active_alerts: self
+                .alert_manager
+                .read()
+                .await
+                .get_active_alert_count()
+                .await,
+            feature_groups: self
+                .feature_store
+                .read()
+                .await
+                .get_feature_group_count()
+                .await,
         }
     }
 }

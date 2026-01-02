@@ -226,7 +226,7 @@ echo "================================="
 
 # Check main application
 run_check check_string_in_file "src/main.rs" "fn main"
-run_check check_string_in_file "src/app.rs" "pub struct App"
+run_check check_string_in_file "src/app/mod.rs" "pub struct App"
 
 echo
 echo "12. Configuration Files Verification"

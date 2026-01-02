@@ -1,14 +1,14 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
-pub mod schemas;
 pub mod data_tables;
 pub mod metadata_manager;
+pub mod schemas;
 
-use schemas::*;
 use data_tables::*;
 use metadata_manager::MetadataManager;
+use schemas::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichMetadata {
@@ -270,27 +270,27 @@ impl RichMetadata {
             updated_at: now,
         }
     }
-    
+
     pub fn add_schema(&mut self, schema: SchemaDefinition) {
         self.schemas.push(schema);
         self.updated_at = chrono::Utc::now();
     }
-    
+
     pub fn add_data_table(&mut self, table: DataTable) {
         self.data_tables.push(table);
         self.updated_at = chrono::Utc::now();
     }
-    
+
     pub fn add_relationship(&mut self, relationship: Relationship) {
         self.relationships.push(relationship);
         self.updated_at = chrono::Utc::now();
     }
-    
+
     pub fn update_quality_metrics(&mut self, metrics: QualityMetrics) {
         self.quality = metrics;
         self.updated_at = chrono::Utc::now();
     }
-    
+
     pub fn validate(&self) -> MetadataValidationResult {
         let mut result = MetadataValidationResult {
             is_valid: true,
@@ -298,7 +298,7 @@ impl RichMetadata {
             warnings: Vec::new(),
             suggestions: Vec::new(),
         };
-        
+
         // Validate required fields
         if self.schemas.is_empty() {
             result.errors.push(ValidationError {
@@ -309,7 +309,7 @@ impl RichMetadata {
             });
             result.is_valid = false;
         }
-        
+
         // Validate schema consistency
         for schema in &self.schemas {
             if let Err(e) = schema.validate() {
@@ -322,7 +322,7 @@ impl RichMetadata {
                 result.is_valid = false;
             }
         }
-        
+
         // Validate relationships
         for relationship in &self.relationships {
             if relationship.source_id.is_empty() || relationship.target_id.is_empty() {
@@ -335,16 +335,20 @@ impl RichMetadata {
                 result.is_valid = false;
             }
         }
-        
+
         // Add suggestions
         if self.quality.completeness < 0.8 {
-            result.suggestions.push("Consider adding more metadata fields to improve completeness".to_string());
+            result
+                .suggestions
+                .push("Consider adding more metadata fields to improve completeness".to_string());
         }
-        
+
         if self.relationships.is_empty() {
-            result.suggestions.push("Consider adding relationships to improve data connectivity".to_string());
+            result
+                .suggestions
+                .push("Consider adding relationships to improve data connectivity".to_string());
         }
-        
+
         result
     }
 }

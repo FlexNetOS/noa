@@ -5,15 +5,16 @@ edition = "2021"
 
 [dependencies]
 # Core Dioxus dependencies
-dioxus = { version = "0.6" }
-dioxus-logger = "0.6"
-dioxus-router = "0.6"
-dioxus-hooks = "0.6"
-dioxus-signals = "0.6"
+dioxus = { version = "0.7" }
+dioxus-logger = "0.7"
+dioxus-router = "0.7"
+dioxus-hooks = "0.7"
+dioxus-signals = "0.7"
 
 # Web and HTTP
-tokio = { version = "1.0", features = ["full"] }
-reqwest = { version = "0.12", features = ["json", "multipart"] }
+# tokio is optional - only needed for server, doesn't compile for wasm
+tokio = { version = "1.0", features = ["full"], optional = true }
+# reqwest is configured via target-specific dependencies below
 axum = { version = "0.7", optional = true }
 tower = { version = "0.4", optional = true }
 tower-http = { version = "0.5", features = ["cors", "fs"], optional = true }
@@ -22,7 +23,7 @@ hyper = { version = "1.0", optional = true }
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-uuid = { version = "1.0", features = ["v4", "serde"] }
+uuid = { version = "1.0", features = ["v4", "serde", "js"] }
 
 # Compression and capacity management
 flate2 = { version = "1.0", optional = true }
@@ -107,14 +108,14 @@ proc-macro2 = "1.0"
 [features]
 default = ["desktop", "fullstack"]
 
-# Platform targets
-web = ["dioxus/web", "fullstack"]
+# Platform targets - web doesn't include desktop to avoid native TLS on WASM
+web = ["dioxus/web"]
 desktop = ["dioxus/desktop", "fullstack"]
 mobile = ["dioxus/mobile", "fullstack"]
 
 # Fullstack modes
 fullstack = ["dioxus/fullstack"]
-server = ["dioxus/server", "fullstack", "dep:axum", "dep:tower", "dep:tower-http", "dep:hyper"]
+server = ["dioxus/server", "fullstack", "dep:axum", "dep:tower", "dep:tower-http", "dep:hyper", "dep:tokio"]
 
 # Optional integrations
 ai-integrations = ["ruv-fann", "ruvector", "qudag", "libp2p", "ndarray", "candle-core", "candle-nn", "candle-transformers", "tokenizers"]
@@ -128,6 +129,16 @@ ml-devops = ["ai-integrations", "database", "compression", "caching", "monitorin
 [[bin]]
 name = "rust-lovable"
 path = "src/main.rs"
+
+# WASM-specific dependencies - getrandom needs js feature for browser compatibility
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+# reqwest for WASM uses js features
+reqwest = { version = "0.12", features = ["json"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# reqwest for non-wasm
+reqwest = { version = "0.12", features = ["json", "multipart", "native-tls"] }
 
 [dev-dependencies]
 tokio-test = "0.4"

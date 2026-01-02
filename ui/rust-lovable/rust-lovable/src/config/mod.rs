@@ -1,25 +1,25 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use anyhow::Result;
 
 pub mod ai_configs;
-pub mod resource_configs;
-pub mod ml_configs;
 pub mod compression_configs;
+pub mod ml_configs;
 pub mod monitoring_configs;
+pub mod resource_configs;
 
 pub use ai_configs::*;
-pub use resource_configs::*;
-pub use ml_configs::*;
 pub use compression_configs::*;
+pub use ml_configs::*;
 pub use monitoring_configs::*;
+pub use resource_configs::*;
 
 use ai_configs::AIConfig;
-use resource_configs::ResourceConfig;
-use ml_configs::MLConfig;
 use compression_configs::CompressionConfig;
+use ml_configs::MLConfig;
 use monitoring_configs::MonitoringConfig;
+use resource_configs::ResourceConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -94,7 +94,10 @@ impl Default for AppConfig {
                 port: 8080,
                 workers: None,
                 timeout_seconds: 30,
-                cors_origins: vec!["http://localhost:3000".to_string(), "http://127.0.0.1:3000".to_string()],
+                cors_origins: vec![
+                    "http://localhost:3000".to_string(),
+                    "http://127.0.0.1:3000".to_string(),
+                ],
                 rate_limit: RateLimitConfig {
                     requests_per_minute: 60,
                     burst_size: 10,
@@ -111,10 +114,20 @@ impl Default for AppConfig {
                 api_key_encryption_key: "dev-encryption-key-change-in-production".to_string(),
                 max_file_size_mb: 100,
                 allowed_file_types: vec![
-                    "rs".to_string(), "toml".to_string(), "json".to_string(),
-                    "js".to_string(), "ts".to_string(), "jsx".to_string(), "tsx".to_string(),
-                    "html".to_string(), "css".to_string(), "scss".to_string(),
-                    "py".to_string(), "md".to_string(), "yaml".to_string(), "yml".to_string(),
+                    "rs".to_string(),
+                    "toml".to_string(),
+                    "json".to_string(),
+                    "js".to_string(),
+                    "ts".to_string(),
+                    "jsx".to_string(),
+                    "tsx".to_string(),
+                    "html".to_string(),
+                    "css".to_string(),
+                    "scss".to_string(),
+                    "py".to_string(),
+                    "md".to_string(),
+                    "yaml".to_string(),
+                    "yml".to_string(),
                 ],
                 sandbox_enabled: true,
                 sandbox_memory_limit_mb: 512,
@@ -149,12 +162,12 @@ impl AppConfig {
 
     pub fn load_from_env() -> Result<Self> {
         let mut config = AppConfig::default();
-        
+
         // Override from environment variables
         if let Ok(port) = std::env::var("PORT") {
             config.server.port = port.parse()?;
         }
-        
+
         if let Ok(env) = std::env::var("ENVIRONMENT") {
             config.environment = match env.as_str() {
                 "production" => Environment::Production,
@@ -163,15 +176,15 @@ impl AppConfig {
                 _ => Environment::Development,
             };
         }
-        
+
         if let Ok(openai_key) = std::env::var("OPENAI_API_KEY") {
             config.ai.providers.openai.api_key = Some(openai_key);
         }
-        
+
         if let Ok(anthropic_key) = std::env::var("ANTHROPIC_API_KEY") {
             config.ai.providers.anthropic.api_key = Some(anthropic_key);
         }
-        
+
         Ok(config)
     }
 

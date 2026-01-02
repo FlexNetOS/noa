@@ -1,0 +1,24 @@
+{
+  "profile": "high-performance",
+  "timestamp": "2026-01-01T10:40:16Z",
+  "server": {
+    "port": 9000,
+    "max_connections": 10000,
+    "worker_threads": 12,
+    "host": "127.0.0.1"
+  },
+  "logging": {
+    "level": "info",
+    "directory": "N:\\noa\\ui\\rust-lovable\\rust-lovable\\logs",
+    "max_files": 10,
+    "max_size_mb": 100
+  },
+  "cache": {
+    "enabled": true,
+    "size_mb": 51149
+  },
+  "gpu": {
+    "enabled": true,
+    "acceleration": true
+  }
+}

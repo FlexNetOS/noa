@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataItem {
@@ -39,7 +39,8 @@ impl DataStore {
     }
 
     pub fn list(&self, data_type: Option<&str>) -> Vec<DataItem> {
-        self.items.values()
+        self.items
+            .values()
             .filter(|item| data_type.map_or(true, |t| item.data_type == t))
             .cloned()
             .collect()

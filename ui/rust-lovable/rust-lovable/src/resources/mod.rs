@@ -1,24 +1,24 @@
+use anyhow::Result;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::Result;
 
-pub mod prompt_cache;
-pub mod embedding_cache;
-pub mod skill_registry;
 pub mod agent_registry;
 pub mod command_registry;
 pub mod data_store;
+pub mod embedding_cache;
 pub mod log_store;
+pub mod prompt_cache;
 pub mod resource_sharing;
+pub mod skill_registry;
 
-use prompt_cache::PromptCache;
-use embedding_cache::EmbeddingCache;
-use skill_registry::SkillRegistry;
 use agent_registry::AgentRegistry;
 use command_registry::CommandRegistry;
 use data_store::DataStore;
+use embedding_cache::EmbeddingCache;
 use log_store::LogStore;
+use prompt_cache::PromptCache;
 use resource_sharing::ResourceSharingManager;
+use skill_registry::SkillRegistry;
 
 pub struct ResourceManager {
     pub prompt_cache: Arc<RwLock<PromptCache>>,
@@ -55,7 +55,7 @@ impl ResourceManager {
         self.data_store.write().await.initialize().await?;
         self.log_store.write().await.initialize().await?;
         self.sharing_manager.write().await.initialize().await?;
-        
+
         Ok(())
     }
 
@@ -69,7 +69,7 @@ impl ResourceManager {
         self.data_store.write().await.cleanup().await?;
         self.log_store.write().await.cleanup().await?;
         self.sharing_manager.write().await.cleanup().await?;
-        
+
         Ok(())
     }
 }

@@ -1,8 +1,8 @@
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use serde::{Deserialize, Serialize};
-use anyhow::Result;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,7 +154,11 @@ pub struct ResourceSharingManager {
 pub trait SharingProvider: Send + Sync {
     async fn store(&self, resource: SharedResource) -> Result<()>;
     async fn retrieve(&self, resource_id: &str) -> Result<Option<SharedResource>>;
-    async fn update(&self, resource_id: &str, updates: HashMap<String, serde_json::Value>) -> Result<()>;
+    async fn update(
+        &self,
+        resource_id: &str,
+        updates: HashMap<String, serde_json::Value>,
+    ) -> Result<()>;
     async fn delete(&self, resource_id: &str) -> Result<()>;
     async fn list(&self, filters: HashMap<String, String>) -> Result<Vec<SharedResource>>;
     async fn sync(&self, since: chrono::DateTime<chrono::Utc>) -> Result<Vec<ResourceChange>>;
@@ -190,10 +194,10 @@ impl ResourceSharingManager {
     pub async fn initialize(&mut self) -> Result<()> {
         // Register default providers
         self.register_provider("local".to_string(), Box::new(LocalFileProvider::new()));
-        
+
         // Start sync worker
         self.start_sync_worker();
-        
+
         Ok(())
     }
 
@@ -209,10 +213,13 @@ impl ResourceSharingManager {
 
     pub async fn share_resource(&self, resource: SharedResource) -> Result<()> {
         let resource_id = resource.id.clone();
-        
+
         // Store locally
-        self.resources.write().await.insert(resource_id.clone(), resource.clone());
-        
+        self.resources
+            .write()
+            .await
+            .insert(resource_id.clone(), resource.clone());
+
         // Add to change log
         let change = ResourceChange {
             resource_id: resource_id.clone(),
@@ -223,7 +230,7 @@ impl ResourceSharingManager {
             user_id: resource.metadata.owner_id.clone(),
         };
         self.change_log.write().await.push(change);
-        
+
         // Queue for sync
         self.queue_sync_task(SyncTask {
             resource_id: resource_id.clone(),
@@ -232,7 +239,7 @@ impl ResourceSharingManager {
             retry_count: 0,
             max_retries: 3,
         });
-        
+
         // Emit event
         self.emit_event(SharingEvent {
             event_id: Uuid::new_v4().to_string(),
@@ -241,24 +248,29 @@ impl ResourceSharingManager {
             user_id: resource.metadata.owner_id,
             timestamp: chrono::Utc::now(),
             data: HashMap::new(),
-        }).await;
-        
+        })
+        .await;
+
         Ok(())
     }
 
-    pub async fn update_resource(&self, resource_id: &str, updates: HashMap<String, serde_json::Value>) -> Result<()> {
+    pub async fn update_resource(
+        &self,
+        resource_id: &str,
+        updates: HashMap<String, serde_json::Value>,
+    ) -> Result<()> {
         let mut resources = self.resources.write().await;
-        
+
         if let Some(mut resource) = resources.get_mut(resource_id) {
             let old_data = resource.data.clone();
-            
+
             // Apply updates
             for (key, value) in updates {
                 resource.data[key.clone()] = value;
             }
-            
+
             resource.updated_at = chrono::Utc::now();
-            
+
             // Add to change log
             let change = ResourceChange {
                 resource_id: resource_id.to_string(),
@@ -269,7 +281,7 @@ impl ResourceSharingManager {
                 user_id: resource.metadata.owner_id.clone(),
             };
             self.change_log.write().await.push(change);
-            
+
             // Queue for sync
             self.queue_sync_task(SyncTask {
                 resource_id: resource_id.to_string(),
@@ -278,16 +290,20 @@ impl ResourceSharingManager {
                 retry_count: 0,
                 max_retries: 3,
             });
-            
+
             Ok(())
         } else {
             Err(anyhow::anyhow!("Resource not found"))
         }
     }
 
-    pub async fn get_resource(&self, resource_id: &str, user_id: Option<&str>) -> Result<Option<SharedResource>> {
+    pub async fn get_resource(
+        &self,
+        resource_id: &str,
+        user_id: Option<&str>,
+    ) -> Result<Option<SharedResource>> {
         let resources = self.resources.read().await;
-        
+
         if let Some(resource) = resources.get(resource_id) {
             // Check permissions
             if self.check_permissions(resource, user_id, "read").await {
@@ -300,10 +316,14 @@ impl ResourceSharingManager {
         }
     }
 
-    pub async fn list_resources(&self, filters: HashMap<String, String>, user_id: Option<&str>) -> Result<Vec<SharedResource>> {
+    pub async fn list_resources(
+        &self,
+        filters: HashMap<String, String>,
+        user_id: Option<&str>,
+    ) -> Result<Vec<SharedResource>> {
         let resources = self.resources.read().await;
         let mut filtered_resources = Vec::new();
-        
+
         for resource in resources.values() {
             // Apply filters
             let mut matches = true;
@@ -318,28 +338,33 @@ impl ResourceSharingManager {
                     break;
                 }
             }
-            
+
             // Check permissions
             if matches && self.check_permissions(resource, user_id, "read").await {
                 filtered_resources.push(resource.clone());
             }
         }
-        
+
         Ok(filtered_resources)
     }
 
-    pub async fn change_permissions(&self, resource_id: &str, permissions: SharingPermissions, user_id: &str) -> Result<()> {
+    pub async fn change_permissions(
+        &self,
+        resource_id: &str,
+        permissions: SharingPermissions,
+        user_id: &str,
+    ) -> Result<()> {
         let mut resources = self.resources.write().await;
-        
+
         if let Some(resource) = resources.get_mut(resource_id) {
             // Verify ownership
             if resource.metadata.owner_id != user_id {
                 return Err(anyhow::anyhow!("Only the owner can change permissions"));
             }
-            
+
             resource.sharing_config.permissions = permissions;
             resource.updated_at = chrono::Utc::now();
-            
+
             // Emit event
             self.emit_event(SharingEvent {
                 event_id: Uuid::new_v4().to_string(),
@@ -348,8 +373,9 @@ impl ResourceSharingManager {
                 user_id: user_id.to_string(),
                 timestamp: chrono::Utc::now(),
                 data: HashMap::new(),
-            }).await;
-            
+            })
+            .await;
+
             Ok(())
         } else {
             Err(anyhow::anyhow!("Resource not found"))
@@ -360,13 +386,18 @@ impl ResourceSharingManager {
         self.event_handlers.write().await.push(handler);
     }
 
-    pub async fn get_change_history(&self, resource_id: &str, since: Option<chrono::DateTime<chrono::Utc>>) -> Vec<ResourceChange> {
+    pub async fn get_change_history(
+        &self,
+        resource_id: &str,
+        since: Option<chrono::DateTime<chrono::Utc>>,
+    ) -> Vec<ResourceChange> {
         let change_log = self.change_log.read().await;
-        
-        change_log.iter()
+
+        change_log
+            .iter()
             .filter(|change| {
-                change.resource_id == resource_id &&
-                since.map_or(true, |since_time| change.timestamp > since_time)
+                change.resource_id == resource_id
+                    && since.map_or(true, |since_time| change.timestamp > since_time)
             })
             .cloned()
             .collect()
@@ -374,7 +405,7 @@ impl ResourceSharingManager {
 
     pub async fn sync_all(&self) -> Result<()> {
         let resources = self.resources.read().await;
-        
+
         for resource in resources.values() {
             self.queue_sync_task(SyncTask {
                 resource_id: resource.id.clone(),
@@ -384,13 +415,18 @@ impl ResourceSharingManager {
                 max_retries: 3,
             });
         }
-        
+
         Ok(())
     }
 
-    async fn check_permissions(&self, resource: &SharedResource, user_id: Option<&str>, action: &str) -> bool {
+    async fn check_permissions(
+        &self,
+        resource: &SharedResource,
+        user_id: Option<&str>,
+        action: &str,
+    ) -> bool {
         let permissions = &resource.sharing_config.permissions;
-        
+
         match action {
             "read" => permissions.read,
             "write" => permissions.write,
@@ -408,16 +444,16 @@ impl ResourceSharingManager {
         let sync_queue = self.sync_queue.clone();
         let providers = self.providers.clone();
         let resources = self.resources.clone();
-        
+
         tokio::spawn(async move {
             loop {
                 tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                
+
                 let mut queue = sync_queue.write().await;
                 if !queue.is_empty() {
                     let task = queue.remove(0);
                     drop(queue);
-                    
+
                     // Process sync task
                     if let Err(e) = process_sync_task(task, &providers, &resources).await {
                         eprintln!("Sync task failed: {}", e);
@@ -429,7 +465,7 @@ impl ResourceSharingManager {
 
     async fn emit_event(&self, event: SharingEvent) {
         let handlers = self.event_handlers.read().await;
-        
+
         for handler in handlers.iter() {
             let _ = handler.send(event.clone()).await;
         }
@@ -443,24 +479,24 @@ async fn process_sync_task(
 ) -> Result<()> {
     let providers = providers.read().await;
     let resources = resources.read().await;
-    
+
     if let Some(resource) = resources.get(&task.resource_id) {
         for (_, provider) in providers.iter() {
             match task.action {
                 SyncAction::Store => {
                     provider.store(resource.clone()).await?;
-                },
+                }
                 SyncAction::Update => {
                     let updates = HashMap::new(); // Extract updates from resource
                     provider.update(&resource.id, updates).await?;
-                },
+                }
                 SyncAction::Delete => {
                     provider.delete(&resource.id).await?;
-                },
+                }
             }
         }
     }
-    
+
     Ok(())
 }
 
@@ -487,24 +523,28 @@ impl SharingProvider for LocalFileProvider {
 
     async fn retrieve(&self, resource_id: &str) -> Result<Option<SharedResource>> {
         let path = self.base_path.join(format!("{}.json", resource_id));
-        
+
         match tokio::fs::read_to_string(path).await {
             Ok(contents) => {
                 let resource: SharedResource = serde_json::from_str(&contents)?;
                 Ok(Some(resource))
-            },
+            }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
             Err(e) => Err(e.into()),
         }
     }
 
-    async fn update(&self, resource_id: &str, updates: HashMap<String, serde_json::Value>) -> Result<()> {
+    async fn update(
+        &self,
+        resource_id: &str,
+        updates: HashMap<String, serde_json::Value>,
+    ) -> Result<()> {
         if let Some(mut resource) = self.retrieve(resource_id).await? {
             // Apply updates
             for (key, value) in updates {
                 resource.data[key.clone()] = value;
             }
-            
+
             resource.updated_at = chrono::Utc::now();
             self.store(resource).await?;
         }
@@ -519,7 +559,7 @@ impl SharingProvider for LocalFileProvider {
 
     async fn list(&self, filters: HashMap<String, String>) -> Result<Vec<SharedResource>> {
         let mut resources = Vec::new();
-        
+
         let mut entries = tokio::fs::read_dir(&self.base_path).await?;
         while let Some(entry) = entries.next_entry().await? {
             if let Some(extension) = entry.path().extension() {
@@ -531,7 +571,9 @@ impl SharingProvider for LocalFileProvider {
                             let mut matches = true;
                             for (key, value) in &filters {
                                 match key.as_str() {
-                                    "type" => matches = resource.resource_type.to_string() == *value,
+                                    "type" => {
+                                        matches = resource.resource_type.to_string() == *value
+                                    }
                                     "owner" => matches = resource.metadata.owner_id == *value,
                                     _ => continue,
                                 }
@@ -539,7 +581,7 @@ impl SharingProvider for LocalFileProvider {
                                     break;
                                 }
                             }
-                            
+
                             if matches {
                                 resources.push(resource);
                             }
@@ -548,7 +590,7 @@ impl SharingProvider for LocalFileProvider {
                 }
             }
         }
-        
+
         Ok(resources)
     }
 

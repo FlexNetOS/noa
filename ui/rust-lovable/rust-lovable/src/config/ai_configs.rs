@@ -133,9 +133,17 @@ pub struct CacheConfig {
 #[serde(rename_all = "lowercase")]
 pub enum CacheBackend {
     Memory,
-    Redis { url: String, pool_size: u32 },
-    Disk { path: String },
-    Hybrid { memory_size: usize, disk_path: String },
+    Redis {
+        url: String,
+        pool_size: u32,
+    },
+    Disk {
+        path: String,
+    },
+    Hybrid {
+        memory_size: usize,
+        disk_path: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -207,7 +215,7 @@ impl Default for AIConfig {
                 },
             },
         );
-        
+
         openai_models.insert(
             "gpt-4-turbo".to_string(),
             ModelConfig {

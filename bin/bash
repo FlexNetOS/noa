@@ -1,0 +1,3 @@
+#!/bin/sh
+# Wrapper for Git Bash
+exec "C:/Program Files/Git/bin/bash.exe" "$@"

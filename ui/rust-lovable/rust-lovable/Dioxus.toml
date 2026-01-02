@@ -1,0 +1,25 @@
+[application]
+name = "rust-lovable"
+default_platform = "fullstack"
+
+# Asset configuration
+asset_dir = "assets"
+out_dir = "dist"
+
+[web.app]
+title = "Rust Lovable - Conversational UI Builder"
+
+[web.watcher]
+reload_html = true
+watch_path = ["src", "assets"]
+
+# Skip wasm-opt in dev mode (not installed)
+[web.build]
+wasm_opt = false
+
+[web.resource]
+# CSS files to include
+style = ["/assets/styles.css"]
+
+[web.resource.dev]
+style = ["/assets/styles.css"]

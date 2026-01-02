@@ -1,0 +1,442 @@
+---
+title: Cargo Crate Dependencies
+---
+flowchart TD
+    subgraph lib["lib"]
+        causal_emergence["causal-emergence"]
+        codegen["codegen"]
+        conscious_language_interface["conscious-language-interface"]
+        demand_paged_cognition["demand-paged-cognition"]
+        exo_backend_classical["exo-backend-classical"]
+        exo_core["exo-core"]
+        exo_exotic["exo-exotic"]
+        exo_federation["exo-federation"]
+        exo_hypergraph["exo-hypergraph"]
+        exo_manifold["exo-manifold"]
+        exo_node["exo-node"]
+        exo_temporal["exo-temporal"]
+        exo_wasm["exo-wasm"]
+        federated_collective_phi["federated-collective-phi"]
+        hnsw_rs["hnsw_rs"]
+        hyperbolic_attention["hyperbolic-attention"]
+        libsqlite3_sys["libsqlite3-sys"]
+        meta_sim_consciousness["meta-sim-consciousness"]
+        micro_hnsw_wasm["micro-hnsw-wasm"]
+        mincut_examples["mincut-examples"]
+        neuromorphic_spiking["neuromorphic-spiking"]
+        postgres["postgres"]
+        postgres_derive["postgres-derive"]
+        postgres_derive_test["postgres-derive-test"]
+        postgres_native_tls["postgres-native-tls"]
+        postgres_openssl["postgres-openssl"]
+        postgres_protocol["postgres-protocol"]
+        postgres_types["postgres-types"]
+        quantum_cognitive_superposition["quantum-cognitive-superposition"]
+        refrag_pipeline_example["refrag-pipeline-example"]
+        rusqlite["rusqlite"]
+        rusqlite_macros["rusqlite-macros"]
+        ruvector_attention["ruvector-attention"]
+        ruvector_attention_cli["ruvector-attention-cli"]
+        ruvector_attention_integration_test["ruvector-attention-integration-test"]
+        ruvector_attention_node["ruvector-attention-node"]
+        ruvector_attention_unified_wasm["ruvector-attention-unified-wasm"]
+        ruvector_attention_wasm["ruvector-attention-wasm"]
+        ruvector_bench["ruvector-bench"]
+        ruvector_cli["ruvector-cli"]
+        ruvector_cloudrun_gpu["ruvector-cloudrun-gpu"]
+        ruvector_cluster["ruvector-cluster"]
+        ruvector_collections["ruvector-collections"]
+        ruvector_core["ruvector-core"]
+        ruvector_dag["ruvector-dag"]
+        ruvector_dag_wasm["ruvector-dag-wasm"]
+        ruvector_economy_wasm["ruvector-economy-wasm"]
+        ruvector_edge["ruvector-edge"]
+        ruvector_edge_net["ruvector-edge-net"]
+        ruvector_exotic_wasm["ruvector-exotic-wasm"]
+        ruvector_filter["ruvector-filter"]
+        ruvector_gnn["ruvector-gnn"]
+        ruvector_gnn_node["ruvector-gnn-node"]
+        ruvector_gnn_wasm["ruvector-gnn-wasm"]
+        ruvector_graph["ruvector-graph"]
+        ruvector_graph_node["ruvector-graph-node"]
+        ruvector_graph_wasm["ruvector-graph-wasm"]
+        ruvector_ios_wasm["ruvector-ios-wasm"]
+        ruvector_learning_wasm["ruvector-learning-wasm"]
+        ruvector_metrics["ruvector-metrics"]
+        ruvector_mincut["ruvector-mincut"]
+        ruvector_mincut_gated_transformer["ruvector-mincut-gated-transformer"]
+        ruvector_mincut_gated_transformer_wasm["ruvector-mincut-gated-transformer-wasm"]
+        ruvector_mincut_node["ruvector-mincut-node"]
+        ruvector_mincut_wasm["ruvector-mincut-wasm"]
+        ruvector_nervous_system["ruvector-nervous-system"]
+        ruvector_nervous_system_wasm["ruvector-nervous-system-wasm"]
+        ruvector_node["ruvector-node"]
+        ruvector_onnx_embeddings["ruvector-onnx-embeddings"]
+        ruvector_onnx_embeddings_wasm["ruvector-onnx-embeddings-wasm"]
+        ruvector_postgres["ruvector-postgres"]
+        ruvector_raft["ruvector-raft"]
+        ruvector_replication["ruvector-replication"]
+        ruvector_router_cli["ruvector-router-cli"]
+        ruvector_router_core["ruvector-router-core"]
+        ruvector_router_ffi["ruvector-router-ffi"]
+        ruvector_router_wasm["ruvector-router-wasm"]
+        ruvector_scipix["ruvector-scipix"]
+        ruvector_server["ruvector-server"]
+        ruvector_snapshot["ruvector-snapshot"]
+        ruvector_sona["ruvector-sona"]
+        ruvector_tiny_dancer_core["ruvector-tiny-dancer-core"]
+        ruvector_tiny_dancer_node["ruvector-tiny-dancer-node"]
+        ruvector_tiny_dancer_wasm["ruvector-tiny-dancer-wasm"]
+        ruvector_wasm["ruvector-wasm"]
+        ruvllm["ruvllm"]
+        ruvllm_esp32["ruvllm-esp32"]
+        ruvllm_esp32_flash["ruvllm-esp32-flash"]
+        rvlite["rvlite"]
+        sparse_persistent_homology["sparse-persistent-homology"]
+        spiking_network["spiking-network"]
+        sqlx["sqlx"]
+        sqlx_cli["sqlx-cli"]
+        sqlx_core["sqlx-core"]
+        sqlx_example_mysql_todos["sqlx-example-mysql-todos"]
+        sqlx_example_postgres_axum_social["sqlx-example-postgres-axum-social"]
+        sqlx_example_postgres_chat["sqlx-example-postgres-chat"]
+        sqlx_example_postgres_files["sqlx-example-postgres-files"]
+        sqlx_example_postgres_json["sqlx-example-postgres-json"]
+        sqlx_example_postgres_listen["sqlx-example-postgres-listen"]
+        sqlx_example_postgres_mockable_todos["sqlx-example-postgres-mockable-todos"]
+        sqlx_example_postgres_multi_database["sqlx-example-postgres-multi-database"]
+        sqlx_example_postgres_multi_database_accounts["sqlx-example-postgres-multi-database-accounts"]
+        sqlx_example_postgres_multi_database_payments["sqlx-example-postgres-multi-database-payments"]
+        sqlx_example_postgres_multi_tenant["sqlx-example-postgres-multi-tenant"]
+        sqlx_example_postgres_multi_tenant_accounts["sqlx-example-postgres-multi-tenant-accounts"]
+        sqlx_example_postgres_multi_tenant_payments["sqlx-example-postgres-multi-tenant-payments"]
+        sqlx_example_postgres_preferred_crates["sqlx-example-postgres-preferred-crates"]
+        sqlx_example_postgres_preferred_crates_uses_rust_decimal["sqlx-example-postgres-preferred-crates-uses-rust-decimal"]
+        sqlx_example_postgres_preferred_crates_uses_time["sqlx-example-postgres-preferred-crates-uses-time"]
+        sqlx_example_postgres_todos["sqlx-example-postgres-todos"]
+        sqlx_example_postgres_transaction["sqlx-example-postgres-transaction"]
+        sqlx_example_sqlite_extension["sqlx-example-sqlite-extension"]
+        sqlx_example_sqlite_todos["sqlx-example-sqlite-todos"]
+        sqlx_macros["sqlx-macros"]
+        sqlx_macros_core["sqlx-macros-core"]
+        sqlx_mysql["sqlx-mysql"]
+        sqlx_postgres["sqlx-postgres"]
+        sqlx_sqlite["sqlx-sqlite"]
+        sqlx_test["sqlx-test"]
+        subpolynomial_time_mincut_demo["subpolynomial-time-mincut-demo"]
+        temporal_attractors_mincut_demo["temporal-attractors-mincut-demo"]
+        thermodynamic_learning["thermodynamic-learning"]
+        time_crystal_cognition["time-crystal-cognition"]
+        tokio_postgres["tokio-postgres"]
+        ultra_low_latency_sim["ultra-low-latency-sim"]
+    end
+
+    subgraph opt["opt"]
+        alloc_no_stdlib["alloc-no-stdlib"]
+        alloc_stdlib["alloc-stdlib"]
+        ar["ar"]
+        arrayref["arrayref"]
+        as_slice["as-slice"]
+        ascii["ascii"]
+        base_x["base-x"]
+        bincode["bincode"]
+        bit_field["bit_field"]
+        bit_set["bit-set"]
+        bit_vec["bit-vec"]
+        brotli_decompressor["brotli-decompressor"]
+        bzip2["bzip2"]
+        bzip2_sys["bzip2-sys"]
+        cargo["cargo"]
+        cassowary["cassowary"]
+        cesu8["cesu8"]
+        codemap["codemap"]
+        color_quant["color_quant"]
+        cpu_time["cpu-time"]
+        derive_builder["derive_builder"]
+        derive_builder_core["derive_builder_core"]
+        derive_builder_macro["derive_builder_macro"]
+        difference["difference"]
+        directories["directories"]
+        dirs["dirs"]
+        dirs_sys["dirs-sys"]
+        doc_comment["doc-comment"]
+        dtoa_short["dtoa-short"]
+        ego_tree["ego-tree"]
+        embed_resource["embed-resource"]
+        embeddings["embeddings"]
+        error_index_generator["error_index_generator"]
+        fallible_streaming_iterator["fallible-streaming-iterator"]
+        fixedbitset["fixedbitset"]
+        fnv["fnv"]
+        fs2["fs2"]
+        futf["futf"]
+        fxhash["fxhash"]
+        generic_array["generic-array"]
+        hash32["hash32"]
+        headers_core["headers-core"]
+        id_arena["id-arena"]
+        ident_case["ident_case"]
+        if_chain["if_chain"]
+        jni_sys["jni-sys"]
+        lazy_static["lazy_static"]
+        libssh2_sys["libssh2-sys"]
+        llama_cpp_2["llama-cpp-2"]
+        llama_cpp_sys_2["llama-cpp-sys-2"]
+        lru["lru"]
+        mac["mac"]
+        matches["matches"]
+        memmap["memmap"]
+        mime["mime"]
+        mime_guess["mime_guess"]
+        mtmd["mtmd"]
+        nodrop["nodrop"]
+        num_cpus["num_cpus"]
+        number_prefix["number_prefix"]
+        option_ext["option-ext"]
+        path_clean["path-clean"]
+        plain["plain"]
+        precomputed_hash["precomputed-hash"]
+        rawpointer["rawpointer"]
+        reranker["reranker"]
+        rustc_demangle["rustc-demangle"]
+        rustc_hash["rustc-hash"]
+        scopeguard["scopeguard"]
+        seahash["seahash"]
+        selectors["selectors"]
+        send_wrapper["send_wrapper"]
+        servo_arc["servo_arc"]
+        shell_words["shell-words"]
+        simple["simple"]
+        socks["socks"]
+        stable_deref_trait["stable_deref_trait"]
+        static_assertions["static_assertions"]
+        stringprep["stringprep"]
+        strsim["strsim"]
+        substring["substring"]
+        tap["tap"]
+        tendril["tendril"]
+        tinytemplate["tinytemplate"]
+        try_lock["try-lock"]
+        unicode_categories["unicode_categories"]
+        unicode_normalization_alignments["unicode-normalization-alignments"]
+        utf_8["utf-8"]
+        vcpkg["vcpkg"]
+        version_check["version_check"]
+        vlq["vlq"]
+        vswhom["vswhom"]
+        vswhom_sys["vswhom-sys"]
+        winapi["winapi"]
+        y4m["y4m"]
+    end
+
+    subgraph orchestrator["orchestrator"]
+        coordinator_plane["coordinator-plane"]
+    end
+
+    subgraph p2p["p2p"]
+        autonat_example["autonat-example"]
+        autonatv2["autonatv2"]
+        chat_example["chat-example"]
+        dcutr_example["dcutr-example"]
+        distributed_key_value_store_example["distributed-key-value-store-example"]
+        file_sharing_example["file-sharing-example"]
+        hole_punching_tests["hole-punching-tests"]
+        identify_example["identify-example"]
+        ipfs_kad_example["ipfs-kad-example"]
+        ipfs_private_example["ipfs-private-example"]
+        keygen["keygen"]
+        libp2p["libp2p"]
+        libp2p_allow_block_list["libp2p-allow-block-list"]
+        libp2p_autonat["libp2p-autonat"]
+        libp2p_connection_limits["libp2p-connection-limits"]
+        libp2p_core["libp2p-core"]
+        libp2p_dcutr["libp2p-dcutr"]
+        libp2p_dns["libp2p-dns"]
+        libp2p_floodsub["libp2p-floodsub"]
+        libp2p_gossipsub["libp2p-gossipsub"]
+        libp2p_identify["libp2p-identify"]
+        libp2p_identity["libp2p-identity"]
+        libp2p_kad["libp2p-kad"]
+        libp2p_mdns["libp2p-mdns"]
+        libp2p_memory_connection_limits["libp2p-memory-connection-limits"]
+        libp2p_metrics["libp2p-metrics"]
+        libp2p_mplex["libp2p-mplex"]
+        libp2p_muxer_test_harness["libp2p-muxer-test-harness"]
+        libp2p_noise["libp2p-noise"]
+        libp2p_peer_store["libp2p-peer-store"]
+        libp2p_perf["libp2p-perf"]
+        libp2p_ping["libp2p-ping"]
+        libp2p_plaintext["libp2p-plaintext"]
+        libp2p_pnet["libp2p-pnet"]
+        libp2p_quic["libp2p-quic"]
+        libp2p_relay["libp2p-relay"]
+        libp2p_rendezvous["libp2p-rendezvous"]
+        libp2p_request_response["libp2p-request-response"]
+        libp2p_server["libp2p-server"]
+        libp2p_stream["libp2p-stream"]
+        libp2p_swarm["libp2p-swarm"]
+        libp2p_swarm_derive["libp2p-swarm-derive"]
+        libp2p_swarm_test["libp2p-swarm-test"]
+        libp2p_tcp["libp2p-tcp"]
+        libp2p_tls["libp2p-tls"]
+        libp2p_uds["libp2p-uds"]
+        libp2p_upnp["libp2p-upnp"]
+        libp2p_webrtc["libp2p-webrtc"]
+        libp2p_websocket["libp2p-websocket"]
+        libp2p_websocket_websys["libp2p-websocket-websys"]
+        libp2p_webtransport_websys["libp2p-webtransport-websys"]
+        libp2p_yamux["libp2p-yamux"]
+        metrics_example["metrics-example"]
+        multistream_select["multistream-select"]
+        ping_example["ping-example"]
+        quick_protobuf_codec["quick-protobuf-codec"]
+        quickcheck_ext["quickcheck-ext"]
+        relay_server_example["relay-server-example"]
+        rendezvous_example["rendezvous-example"]
+        rw_stream_sink["rw-stream-sink"]
+        stream_example["stream-example"]
+        upnp_example["upnp-example"]
+        webtransport_tests["webtransport-tests"]
+    end
+
+    subgraph sys["sys"]
+        inference_server["inference_server"]
+        ml_devops_platform["ml_devops_platform"]
+        noa_agent["noa-agent"]
+        noa_api["noa-api"]
+        noa_common["noa-common"]
+        noa_core["noa-core"]
+        noa_desktop["noa-desktop"]
+        noa_embedder["noa-embedder"]
+        noa_indexer["noa-indexer"]
+        noa_neural["noa-neural"]
+        noa_trainer["noa-trainer"]
+        noa_virtual_packages["noa-virtual-packages"]
+    end
+
+    subgraph ui["ui"]
+        api["api"]
+        desktop["desktop"]
+        mobile["mobile"]
+        noa_ui_core["noa-ui-core"]
+        noa_ui_desktop["noa-ui-desktop"]
+        noa_ui_hived["noa-ui-hived"]
+        noa_ui_paths["noa-ui-paths"]
+        noa_ui_protocol["noa-ui-protocol"]
+        noa_ui_shell["noa-ui-shell"]
+        noa_ui_styleguide_api["noa-ui-styleguide-api"]
+        noa_ui_styleguide_ui["noa-ui-styleguide-ui"]
+        noa_ui_web["noa-ui-web"]
+        qudag["qudag"]
+        rust_lovable["rust-lovable"]
+        rust_lovable_tauri["rust-lovable-tauri"]
+        ruv_fann["ruv-fann"]
+        ruvector["ruvector"]
+        ui["ui"]
+        web["web"]
+    end
+
+
+    %% Dependencies
+    rusqlite --> rusqlite_macros
+    rusqlite --> libsqlite3_sys
+    postgres --> tokio_postgres
+    postgres_derive_test --> postgres_types
+    postgres_derive_test --> postgres
+    postgres_native_tls --> tokio_postgres
+    postgres_native_tls --> postgres
+    postgres_openssl --> tokio_postgres
+    postgres_openssl --> postgres
+    postgres_types --> postgres_protocol
+    postgres_types --> postgres_derive
+    tokio_postgres --> postgres_protocol
+    tokio_postgres --> postgres_types
+    sqlx --> sqlx_core
+    sqlx --> sqlx_macros_core
+    sqlx --> sqlx_macros
+    sqlx --> sqlx_mysql
+    sqlx --> sqlx_postgres
+    sqlx --> sqlx_sqlite
+    sqlx --> sqlx
+    sqlx --> sqlx_test
+    sqlx_example_mysql_todos --> sqlx
+    sqlx_example_postgres_axum_social --> sqlx
+    sqlx_example_postgres_chat --> sqlx
+    sqlx_example_postgres_files --> sqlx
+    sqlx_example_postgres_json --> sqlx
+    sqlx_example_postgres_listen --> sqlx
+    sqlx_example_postgres_mockable_todos --> sqlx
+    sqlx_example_postgres_todos --> sqlx
+    sqlx_example_postgres_transaction --> sqlx
+    sqlx_example_sqlite_extension --> sqlx
+    sqlx_example_sqlite_todos --> sqlx
+    sqlx_mysql --> sqlx
+    sqlx_test --> sqlx
+    ruvector_attention_cli --> ruvector_attention
+    ruvector_attention_node --> ruvector_attention
+    ruvector_attention_unified_wasm --> ruvector_attention
+    ruvector_attention_unified_wasm --> ruvector_dag
+    ruvector_attention_unified_wasm --> ruvector_gnn
+    ruvector_attention_wasm --> ruvector_attention
+    ruvector_bench --> ruvector_core
+    ruvector_cli --> ruvector_core
+    ruvector_cli --> ruvector_graph
+    ruvector_cli --> ruvector_gnn
+    ruvector_cluster --> ruvector_core
+    ruvector_collections --> ruvector_core
+    ruvector_dag --> ruvector_core
+    ruvector_filter --> ruvector_core
+    ruvector_gnn --> ruvector_core
+    ruvector_gnn_node --> ruvector_gnn
+    ruvector_gnn_wasm --> ruvector_gnn
+    ruvector_graph --> ruvector_core
+    ruvector_graph --> ruvector_raft
+    ruvector_graph --> ruvector_cluster
+    ruvector_graph --> ruvector_replication
+    ruvector_graph_node --> ruvector_core
+    ruvector_graph_node --> ruvector_graph
+    ruvector_graph_wasm --> ruvector_core
+    ruvector_graph_wasm --> ruvector_graph
+    ruvector_mincut --> ruvector_core
+    ruvector_mincut --> ruvector_graph
+    ruvector_mincut_gated_transformer_wasm --> ruvector_mincut_gated_transformer
+    ruvector_mincut_node --> ruvector_mincut
+    ruvector_mincut_wasm --> ruvector_mincut
+    ruvector_node --> ruvector_core
+    ruvector_node --> ruvector_collections
+    ruvector_node --> ruvector_filter
+    ruvector_node --> ruvector_metrics
+    ruvector_postgres --> ruvector_mincut_gated_transformer
+    ruvector_raft --> ruvector_core
+    ruvector_replication --> ruvector_core
+    ruvector_router_cli --> ruvector_router_core
+    ruvector_router_ffi --> ruvector_router_core
+    ruvector_router_wasm --> ruvector_router_core
+    ruvector_server --> ruvector_core
+    ruvector_snapshot --> ruvector_core
+    ruvector_tiny_dancer_node --> ruvector_tiny_dancer_core
+    ruvector_tiny_dancer_wasm --> ruvector_tiny_dancer_core
+    ruvector_wasm --> ruvector_core
+    ruvector_wasm --> ruvector_collections
+    ruvector_wasm --> ruvector_filter
+    rvlite --> ruvector_core
+    ruvector_edge_net --> ruvector_exotic_wasm
+    ruvector_edge_net --> ruvector_learning_wasm
+    ruvector_edge_net --> ruvector_nervous_system_wasm
+    ruvector_edge_net --> ruvector_economy_wasm
+    ruvector_cloudrun_gpu --> ruvector_core
+    ruvector_cloudrun_gpu --> ruvector_gnn
+    ruvector_cloudrun_gpu --> ruvector_attention
+    ruvector_cloudrun_gpu --> ruvector_graph
+    mincut_examples --> ruvector_mincut
+    temporal_attractors_mincut_demo --> ruvector_mincut
+    refrag_pipeline_example --> ruvector_core
+    ruvllm --> ruvector_core
+    ruvllm --> ruvector_gnn
+    ruvllm --> ruvector_attention
+    ruvllm --> ruvector_graph
+    ruvllm --> ruvector_sona
+    spiking_network --> ruvector_core
+    spiking_network --> ruvector_gnn
+    %% ... truncated (106 more edges)
+

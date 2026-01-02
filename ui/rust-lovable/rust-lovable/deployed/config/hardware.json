@@ -1,0 +1,29 @@
+{
+  "cpu": {
+    "max_clock_mhz": 4201,
+    "threads": 48,
+    "cores": 24,
+    "architecture": 64,
+    "model": "AMD Ryzen Threadripper PRO 7965WX 24-Cores     "
+  },
+  "storage": {
+    "total_gb": 2349.51,
+    "usage_percent": 33.6,
+    "free_gb": 1559.52
+  },
+  "timestamp": "2026-01-01T10:40:16Z",
+  "os": {
+    "version": "10.0.26220.0",
+    "name": "Windows",
+    "hostname": "FLEXNETOS-1001"
+  },
+  "gpu": {
+    "memory_mb": 4095.0,
+    "model": "NVIDIA GeForce RTX 5090",
+    "available": true
+  },
+  "memory": {
+    "available_gb": 422.92,
+    "total_gb": 511.49
+  }
+}

@@ -1,0 +1,326 @@
+---
+title: NOA Module Structure
+---
+flowchart TD
+    noa_root{{NOA}}
+
+    cache[[.cache<br/>156 files]]
+    noa_root --> cache
+    cache_microsoft(Microsoft)
+    cache --> cache_microsoft
+    cache_typescript(typescript)
+    cache --> cache_typescript
+
+    config(.config)
+    noa_root --> config
+
+    cursor(.cursor)
+    noa_root --> cursor
+    cursor_commands(commands)
+    cursor --> cursor_commands
+    cursor_rules(rules)
+    cursor --> cursor_rules
+    cursor_terminals(terminals)
+    cursor --> cursor_terminals
+
+    cursor_server[[.cursor-server<br/>112 files]]
+    noa_root --> cursor_server
+    cursor_server_bin(bin)
+    cursor_server --> cursor_server_bin
+    cursor_server_data(data)
+    cursor_server --> cursor_server_data
+
+    github[.github<br/>11 files]
+    noa_root --> github
+    github_actions(actions)
+    github --> github_actions
+    github_issue_template(ISSUE_TEMPLATE)
+    github --> github_issue_template
+    github_org_config(org-config)
+    github --> github_org_config
+    github_scripts(scripts)
+    github --> github_scripts
+    github_workflows(workflows)
+    github --> github_workflows
+
+    npm(.npm)
+    noa_root --> npm
+    npm_cacache(_cacache)
+    npm --> npm_cacache
+    npm_logs(_logs)
+    npm --> npm_logs
+
+    specify(.specify)
+    noa_root --> specify
+    specify_templates(templates)
+    specify --> specify_templates
+
+    vs(.vs)
+    noa_root --> vs
+    vs_copilotsnapshots(CopilotSnapshots)
+    vs --> vs_copilotsnapshots
+    vs_noa(noa)
+    vs --> vs_noa
+    vs_noa_slnx(noa.slnx)
+    vs --> vs_noa_slnx
+
+    vscode(.vscode)
+    noa_root --> vscode
+
+    add_crates_plans(add-crates-plans)
+    noa_root --> add_crates_plans
+
+    ai[ai<br/>45 files]
+    noa_root --> ai
+    ai_agents(agents)
+    ai --> ai_agents
+    ai_providers(providers)
+    ai --> ai_providers
+    ai_shared(shared)
+    ai --> ai_shared
+
+    apps(apps)
+    noa_root --> apps
+
+    bin(bin)
+    noa_root --> bin
+
+    cmd[[cmd<br/>242 files]]
+    noa_root --> cmd
+    cmd_apps(apps)
+    cmd --> cmd_apps
+    cmd_tasks_cli(tasks-cli)
+    cmd --> cmd_tasks_cli
+    cmd_tasks_extension(tasks-extension)
+    cmd --> cmd_tasks_extension
+    cmd_tasks_mcp(tasks-mcp)
+    cmd --> cmd_tasks_mcp
+
+    config(config)
+    noa_root --> config
+    config_providers(providers)
+    config --> config_providers
+    config_schemas(schemas)
+    config --> config_schemas
+    config_templates(templates)
+    config --> config_templates
+
+    containers(containers)
+    noa_root --> containers
+    containers_capsules(capsules)
+    containers --> containers_capsules
+    containers_oci(oci)
+    containers --> containers_oci
+
+    data[[data<br/>4778 files]]
+    noa_root --> data
+    data_appdata(appdata)
+    data --> data_appdata
+    data_apps(apps)
+    data --> data_apps
+    data_archive(archive)
+    data --> data_archive
+    data_cache(cache)
+    data --> data_cache
+    data_mamba(mamba)
+    data --> data_mamba
+
+    deployed_plane(deployed-plane)
+    noa_root --> deployed_plane
+    deployed_plane_bin(bin)
+    deployed_plane --> deployed_plane_bin
+    deployed_plane_config(config)
+    deployed_plane --> deployed_plane_config
+    deployed_plane_data(data)
+    deployed_plane --> deployed_plane_data
+    deployed_plane_logs(logs)
+    deployed_plane --> deployed_plane_logs
+    deployed_plane_tmp(tmp)
+    deployed_plane --> deployed_plane_tmp
+
+    docs(docs)
+    noa_root --> docs
+    docs_adr(adr)
+    docs --> docs_adr
+    docs_agents(agents)
+    docs --> docs_agents
+    docs_api(api)
+    docs --> docs_api
+    docs_architecture(architecture)
+    docs --> docs_architecture
+    docs_assets(assets)
+    docs --> docs_assets
+
+    etc(etc)
+    noa_root --> etc
+    etc_copilot(.copilot)
+    etc --> etc_copilot
+    etc_docker(docker)
+    etc --> etc_docker
+    etc_ssh(ssh)
+    etc --> etc_ssh
+
+    gateway(gateway)
+    noa_root --> gateway
+    gateway_mcp(mcp)
+    gateway --> gateway_mcp
+
+    init(init)
+    noa_root --> init
+    init_bootstrap(bootstrap)
+    init --> init_bootstrap
+    init_migrations(migrations)
+    init --> init_migrations
+
+    lib[[lib<br/>2461 files]]
+    noa_root --> lib
+    lib_flexnetos(flexnetos)
+    lib --> lib_flexnetos
+
+    ml_devops_platform[ml_devops_platform<br/>48 files]
+    noa_root --> ml_devops_platform
+    ml_devops_platform_nextjs_space(nextjs_space)
+    ml_devops_platform --> ml_devops_platform_nextjs_space
+    ml_devops_platform_rust_backend(rust_backend)
+    ml_devops_platform --> ml_devops_platform_rust_backend
+
+    noa_spec_kit_test(noa-spec-kit-test)
+    noa_root --> noa_spec_kit_test
+    noa_spec_kit_test_cursor(.cursor)
+    noa_spec_kit_test --> noa_spec_kit_test_cursor
+    noa_spec_kit_test_specify(.specify)
+    noa_spec_kit_test --> noa_spec_kit_test_specify
+
+    opt[[opt<br/>80715 files]]
+    noa_root --> opt
+    opt_archive(archive)
+    opt --> opt_archive
+    opt_cmake(cmake)
+    opt --> opt_cmake
+    opt_cmake_3_31_3_windows_x86_64(cmake-3.31.3-windows-x86_64)
+    opt --> opt_cmake_3_31_3_windows_x86_64
+    opt_conda(conda)
+    opt --> opt_conda
+    opt_cuda(cuda)
+    opt --> opt_cuda
+
+    orchestrator[orchestrator<br/>13 files]
+    noa_root --> orchestrator
+    orchestrator_bin(bin)
+    orchestrator --> orchestrator_bin
+    orchestrator_config(config)
+    orchestrator --> orchestrator_config
+    orchestrator_data(data)
+    orchestrator --> orchestrator_data
+    orchestrator_logs(logs)
+    orchestrator --> orchestrator_logs
+    orchestrator_src(src)
+    orchestrator --> orchestrator_src
+
+    p2p[[p2p<br/>460 files]]
+    noa_root --> p2p
+    p2p_github(.github)
+    p2p --> p2p_github
+    p2p_core(core)
+    p2p --> p2p_core
+    p2p_docs(docs)
+    p2p --> p2p_docs
+    p2p_examples(examples)
+    p2p --> p2p_examples
+    p2p_hole_punching_tests(hole-punching-tests)
+    p2p --> p2p_hole_punching_tests
+
+    pkg[[pkg<br/>331 files]]
+    noa_root --> pkg
+    pkg_ai_sdk_provider_grok_cli(ai-sdk-provider-grok-cli)
+    pkg --> pkg_ai_sdk_provider_grok_cli
+    pkg_build_config(build-config)
+    pkg --> pkg_build_config
+    pkg_sys(sys)
+    pkg --> pkg_sys
+    pkg_tm_bridge(tm-bridge)
+    pkg --> pkg_tm_bridge
+    pkg_tm_core(tm-core)
+    pkg --> pkg_tm_core
+
+    ruler[[ruler<br/>2055 files]]
+    noa_root --> ruler
+    ruler_github(.github)
+    ruler --> ruler_github
+    ruler_ruler(.ruler)
+    ruler --> ruler_ruler
+    ruler_dist(dist)
+    ruler --> ruler_dist
+    ruler_src(src)
+    ruler --> ruler_src
+    ruler_test_qa(test-qa)
+    ruler --> ruler_test_qa
+
+    sandbox(sandbox)
+    noa_root --> sandbox
+    sandbox_bin(bin)
+    sandbox --> sandbox_bin
+    sandbox_config(config)
+    sandbox --> sandbox_config
+    sandbox_data(data)
+    sandbox --> sandbox_data
+    sandbox_logs(logs)
+    sandbox --> sandbox_logs
+    sandbox_tmp(tmp)
+    sandbox --> sandbox_tmp
+
+    scripts[[scripts<br/>205 files]]
+    noa_root --> scripts
+    scripts_apps(apps)
+    scripts --> scripts_apps
+    scripts_archive(archive)
+    scripts --> scripts_archive
+    scripts_bash(bash)
+    scripts --> scripts_bash
+    scripts_bootstrap(bootstrap)
+    scripts --> scripts_bootstrap
+    scripts_conda(conda)
+    scripts --> scripts_conda
+
+    specs(specs)
+    noa_root --> specs
+    specs_archive(.archive)
+    specs --> specs_archive
+    specs_001_noa_seed_foundation(001-noa-seed-foundation)
+    specs --> specs_001_noa_seed_foundation
+    specs_002_unified_bootstrap(002-unified-bootstrap)
+    specs --> specs_002_unified_bootstrap
+
+    sys[[sys<br/>17459 files]]
+    noa_root --> sys
+    sys_core(core)
+    sys --> sys_core
+    sys_desktop(desktop)
+    sys --> sys_desktop
+    sys_digest(digest)
+    sys --> sys_digest
+    sys_kernel(kernel)
+    sys --> sys_kernel
+    sys_ui(ui)
+    sys --> sys_ui
+
+    tests(tests)
+    noa_root --> tests
+    tests_desktop(desktop)
+    tests --> tests_desktop
+
+    ui[[ui<br/>224 files]]
+    noa_root --> ui
+    ui_archive(_archive)
+    ui --> ui_archive
+    ui_app(app)
+    ui --> ui_app
+    ui_rust_lovable(rust-lovable)
+    ui --> ui_rust_lovable
+
+
+    %% Styling
+    classDef major fill:#4CAF50,stroke:#2E7D32,color:white
+    classDef medium fill:#2196F3,stroke:#1565C0,color:white
+    classDef minor fill:#9E9E9E,stroke:#616161,color:white
+    

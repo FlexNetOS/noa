@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataTable {
@@ -226,23 +226,27 @@ impl DataTable {
             indexes: Vec::new(),
         }
     }
-    
+
     pub fn add_column(&mut self, column: ColumnDefinition) {
         self.columns.push(column);
     }
-    
+
     pub fn add_row(&mut self, row: Row) -> Result<()> {
         // Validate row against schema
         self.validate_row(&row)?;
-        
+
         self.rows.push(row);
         self.metadata.row_count += 1;
         self.metadata.last_updated = chrono::Utc::now();
-        
+
         Ok(())
     }
-    
-    pub fn update_row(&mut self, row_id: &str, updates: HashMap<String, serde_json::Value>) -> Result<()> {
+
+    pub fn update_row(
+        &mut self,
+        row_id: &str,
+        updates: HashMap<String, serde_json::Value>,
+    ) -> Result<()> {
         if let Some(row) = self.rows.iter_mut().find(|r| r.id == row_id) {
             // Apply updates
             for (column, value) in updates {
@@ -250,18 +254,18 @@ impl DataTable {
                     row.values.insert(column, value);
                 }
             }
-            
+
             // Update metadata
             row.version += 1;
             row.metadata.updated_at = chrono::Utc::now();
             self.metadata.last_updated = chrono::Utc::now();
-            
+
             Ok(())
         } else {
             Err(anyhow::anyhow!("Row not found: {}", row_id))
         }
     }
-    
+
     pub fn delete_row(&mut self, row_id: &str) -> Result<()> {
         if let Some(index) = self.rows.iter().position(|r| r.id == row_id) {
             self.rows.remove(index);
@@ -272,71 +276,72 @@ impl DataTable {
             Err(anyhow::anyhow!("Row not found: {}", row_id))
         }
     }
-    
+
     pub fn query(&self, query: DataQuery) -> Vec<Row> {
         let mut results = self.rows.clone();
-        
+
         // Apply filters
         for filter in &query.filters {
             results.retain(|row| self.matches_filter(row, filter));
         }
-        
+
         // Apply sorting
         if !query.sort_by.is_empty() {
             results.sort_by(|a, b| self.compare_rows(a, b, &query.sort_by));
         }
-        
+
         // Apply pagination
         let start = query.offset.unwrap_or(0) as usize;
         let end = query.limit.map_or(results.len(), |l| start + l as usize);
-        
+
         results.into_iter().skip(start).take(end - start).collect()
     }
-    
+
     pub fn aggregate(&self, query: DataQuery) -> HashMap<String, serde_json::Value> {
         let filtered_rows = self.query(query.clone());
         let mut results = HashMap::new();
-        
+
         for aggregate in &query.aggregates {
             let value = self.calculate_aggregate(&filtered_rows, aggregate);
             results.insert(aggregate.alias.clone(), value);
         }
-        
+
         results
     }
-    
+
     pub fn get_column(&self, name: &str) -> Option<&ColumnDefinition> {
         self.columns.iter().find(|c| c.name == name)
     }
-    
+
     pub fn update_quality_metrics(&mut self) {
         // Calculate completeness
         let total_cells = self.rows.len() * self.columns.len();
-        let null_cells = self.rows.iter()
+        let null_cells = self
+            .rows
+            .iter()
             .flat_map(|row| &row.values)
             .filter(|(_, value)| value.is_null())
             .count();
-        
-        self.metadata.data_quality.completeness = 
+
+        self.metadata.data_quality.completeness =
             (total_cells - null_cells) as f64 / total_cells as f64;
-        
+
         // Calculate other metrics based on business rules
         // For now, set them to perfect scores
         self.metadata.data_quality.accuracy = 1.0;
         self.metadata.data_quality.consistency = 1.0;
         self.metadata.data_quality.validity = 1.0;
         self.metadata.data_quality.uniqueness = 1.0;
-        
+
         // Calculate overall score
-        self.metadata.data_quality.overall_score = (
-            self.metadata.data_quality.completeness +
-            self.metadata.data_quality.accuracy +
-            self.metadata.data_quality.consistency +
-            self.metadata.data_quality.validity +
-            self.metadata.data_quality.uniqueness
-        ) / 5.0;
+        self.metadata.data_quality.overall_score = (self.metadata.data_quality.completeness
+            + self.metadata.data_quality.accuracy
+            + self.metadata.data_quality.consistency
+            + self.metadata.data_quality.validity
+            + self.metadata.data_quality.uniqueness)
+            / 5.0;
     }
-    
+
     fn validate_row(&self, row: &Row) -> Result<()> {
         // Check required columns
         for column in &self.columns {
@@ -346,17 +351,17 @@ impl DataTable {
                 }
             }
         }
-        
+
         // Validate data types
         for (column_name, value) in &row.values {
             if let Some(column) = self.get_column(column_name) {
                 self.validate_value_type(value, &column.data_type)?;
             }
         }
-        
+
         Ok(())
     }
-    
+
     fn validate_value_type(&self, value: &serde_json::Value, data_type: &DataType) -> Result<()> {
         match data_type {
             DataType::String => {
@@ -414,35 +419,34 @@ impl DataTable {
                 // References are validated elsewhere
             }
         }
-        
+
         Ok(())
     }
-    
+
     fn matches_filter(&self, row: &Row, filter: &FilterCondition) -> bool {
         let value = row.values.get(&filter.column);
-        
+
         match filter.operator {
-            FilterOperator::Equal => {
-                value.map_or(false, |v| v == &filter.value)
-            }
-            FilterOperator::NotEqual => {
-                value.map_or(true, |v| v != &filter.value)
-            }
+            FilterOperator::Equal => value.map_or(false, |v| v == &filter.value),
+            FilterOperator::NotEqual => value.map_or(true, |v| v != &filter.value),
             FilterOperator::GreaterThan => {
-                self.compare_numeric_values(value, &filter.value) == Some(std::cmp::Ordering::Greater)
+                self.compare_numeric_values(value, &filter.value)
+                    == Some(std::cmp::Ordering::Greater)
             }
-            FilterOperator::GreaterThanOrEqual => {
-                self.compare_numeric_values(value, &filter.value).map_or(false, |o| o != std::cmp::Ordering::Less)
-            }
+            FilterOperator::GreaterThanOrEqual => self
+                .compare_numeric_values(value, &filter.value)
+                .map_or(false, |o| o != std::cmp::Ordering::Less),
             FilterOperator::LessThan => {
                 self.compare_numeric_values(value, &filter.value) == Some(std::cmp::Ordering::Less)
             }
-            FilterOperator::LessThanOrEqual => {
-                self.compare_numeric_values(value, &filter.value).map_or(false, |o| o != std::cmp::Ordering::Greater)
-            }
+            FilterOperator::LessThanOrEqual => self
+                .compare_numeric_values(value, &filter.value)
+                .map_or(false, |o| o != std::cmp::Ordering::Greater),
             FilterOperator::Like => {
                 // Simple string matching for now
-                if let (Some(serde_json::Value::String(s)), serde_json::Value::String(pattern)) = (value, &filter.value) {
+                if let (Some(serde_json::Value::String(s)), serde_json::Value::String(pattern)) =
+                    (value, &filter.value)
+                {
                     s.contains(pattern)
                 } else {
                     false
@@ -462,37 +466,42 @@ impl DataTable {
                     true
                 }
             }
-            FilterOperator::IsNull => {
-                value.map_or(true, |v| v.is_null())
-            }
-            FilterOperator::IsNotNull => {
-                value.map_or(false, |v| !v.is_null())
-            }
+            FilterOperator::IsNull => value.map_or(true, |v| v.is_null()),
+            FilterOperator::IsNotNull => value.map_or(false, |v| !v.is_null()),
         }
     }
-    
-    fn compare_numeric_values(&self, a: Option<&serde_json::Value>, b: &serde_json::Value) -> Option<std::cmp::Ordering> {
+
+    fn compare_numeric_values(
+        &self,
+        a: Option<&serde_json::Value>,
+        b: &serde_json::Value,
+    ) -> Option<std::cmp::Ordering> {
         let a_num = a.and_then(|v| v.as_f64());
         let b_num = b.as_f64();
-        
+
         match (a_num, b_num) {
             (Some(a), Some(b)) => Some(a.partial_cmp(&b).unwrap_or(std::cmp::Ordering::Equal)),
             _ => None,
         }
     }
-    
-    fn compare_rows(&self, a: &Row, b: &Row, sort_conditions: &[SortCondition]) -> std::cmp::Ordering {
+
+    fn compare_rows(
+        &self,
+        a: &Row,
+        b: &Row,
+        sort_conditions: &[SortCondition],
+    ) -> std::cmp::Ordering {
         for condition in sort_conditions {
             let a_value = a.values.get(&condition.column);
             let b_value = b.values.get(&condition.column);
-            
+
             let cmp = match (a_value, b_value) {
                 (Some(va), Some(vb)) => self.compare_values(va, vb),
                 (Some(_), None) => std::cmp::Ordering::Greater,
                 (None, Some(_)) => std::cmp::Ordering::Less,
                 (None, None) => std::cmp::Ordering::Equal,
             };
-            
+
             if cmp != std::cmp::Ordering::Equal {
                 return match condition.direction {
                     SortDirection::Asc => cmp,
@@ -500,55 +509,70 @@ impl DataTable {
                 };
             }
         }
-        
+
         std::cmp::Ordering::Equal
     }
-    
+
     fn compare_values(&self, a: &serde_json::Value, b: &serde_json::Value) -> std::cmp::Ordering {
         match (a, b) {
             (serde_json::Value::String(sa), serde_json::Value::String(sb)) => sa.cmp(sb),
-            (serde_json::Value::Number(na), serde_json::Value::Number(nb)) => {
-                na.as_f64().unwrap_or(0.0).partial_cmp(&nb.as_f64().unwrap_or(0.0))
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            }
+            (serde_json::Value::Number(na), serde_json::Value::Number(nb)) => na
+                .as_f64()
+                .unwrap_or(0.0)
+                .partial_cmp(&nb.as_f64().unwrap_or(0.0))
+                .unwrap_or(std::cmp::Ordering::Equal),
             (serde_json::Value::Bool(ba), serde_json::Value::Bool(bb)) => ba.cmp(bb),
             _ => std::cmp::Ordering::Equal,
         }
     }
-    
-    fn calculate_aggregate(&self, rows: &[Row], aggregate: &AggregateCondition) -> serde_json::Value {
-        let values: Vec<f64> = rows.iter()
+
+    fn calculate_aggregate(
+        &self,
+        rows: &[Row],
+        aggregate: &AggregateCondition,
+    ) -> serde_json::Value {
+        let values: Vec<f64> = rows
+            .iter()
             .filter_map(|row| row.values.get(&aggregate.column))
             .filter_map(|v| v.as_f64())
             .collect();
-        
+
         match aggregate.function {
-            AggregateFunction::Count => serde_json::Value::Number(serde_json::Number::from(values.len())),
+            AggregateFunction::Count => {
+                serde_json::Value::Number(serde_json::Number::from(values.len()))
+            }
             AggregateFunction::Sum => {
                 let sum: f64 = values.iter().sum();
-                serde_json::Value::Number(serde_json::Number::from_f64(sum).unwrap_or(serde_json::Number::from(0)))
+                serde_json::Value::Number(
+                    serde_json::Number::from_f64(sum).unwrap_or(serde_json::Number::from(0)),
+                )
             }
             AggregateFunction::Average => {
                 if values.is_empty() {
                     serde_json::Value::Number(serde_json::Number::from(0))
                 } else {
                     let avg: f64 = values.iter().sum::<f64>() / values.len() as f64;
-                    serde_json::Value::Number(serde_json::Number::from_f64(avg).unwrap_or(serde_json::Number::from(0)))
+                    serde_json::Value::Number(
+                        serde_json::Number::from_f64(avg).unwrap_or(serde_json::Number::from(0)),
+                    )
                 }
             }
-            AggregateFunction::Min => {
-                values.iter().cloned().fold(f64::INFINITY, f64::min)
-                    .try_into().unwrap_or(serde_json::Value::Number(serde_json::Number::from(0)))
-            }
-            AggregateFunction::Max => {
-                values.iter().cloned().fold(f64::NEG_INFINITY, f64::max)
-                    .try_into().unwrap_or(serde_json::Value::Number(serde_json::Number::from(0)))
-            }
+            AggregateFunction::Min => values
+                .iter()
+                .cloned()
+                .fold(f64::INFINITY, f64::min)
+                .try_into()
+                .unwrap_or(serde_json::Value::Number(serde_json::Number::from(0))),
+            AggregateFunction::Max => values
+                .iter()
+                .cloned()
+                .fold(f64::NEG_INFINITY, f64::max)
+                .try_into()
+                .unwrap_or(serde_json::Value::Number(serde_json::Number::from(0))),
             AggregateFunction::DistinctCount => {
                 // Use ordered bits to handle f64 uniqueness since f64 doesn't implement Hash
-                let unique: std::collections::HashSet<u64> = values.iter()
-                    .map(|v| v.to_bits())
-                    .collect();
+                let unique: std::collections::HashSet<u64> =
+                    values.iter().map(|v| v.to_bits()).collect();
                 serde_json::Value::Number(serde_json::Number::from(unique.len()))
             }
         }
@@ -559,7 +583,7 @@ impl Row {
     pub fn new(values: HashMap<String, serde_json::Value>, created_by: String) -> Self {
         let now = chrono::Utc::now();
         let checksum = Self::calculate_checksum(&values);
-        
+
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             values,
@@ -573,33 +597,33 @@ impl Row {
             version: 1,
         }
     }
-    
+
     pub fn update(&mut self, updates: HashMap<String, serde_json::Value>, updated_by: String) {
         for (key, value) in updates {
             self.values.insert(key, value);
         }
-        
+
         self.metadata.updated_at = chrono::Utc::now();
         self.metadata.updated_by = Some(updated_by);
         self.metadata.checksum = Self::calculate_checksum(&self.values);
         self.version += 1;
     }
-    
+
     fn calculate_checksum(values: &HashMap<String, serde_json::Value>) -> String {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
-        
+
         let mut hasher = DefaultHasher::new();
-        
+
         // Sort keys for consistent hashing
         let mut sorted_keys: Vec<_> = values.keys().collect();
         sorted_keys.sort();
-        
+
         for key in sorted_keys {
             key.hash(&mut hasher);
             values[key].to_string().hash(&mut hasher);
         }
-        
+
         format!("{:x}", hasher.finish())
     }
 }

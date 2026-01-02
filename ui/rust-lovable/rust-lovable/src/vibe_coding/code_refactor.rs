@@ -42,21 +42,22 @@ pub struct RefactoringRule {
 
 impl CodeRefactor {
     pub fn new() -> Self {
-        Self {
-            rules: Vec::new(),
-        }
+        Self { rules: Vec::new() }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         self.load_rules();
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
-    pub async fn optimize_performance(&self, code: &str) -> Result<crate::vibe_coding::CodeEnhancement> {
+
+    pub async fn optimize_performance(
+        &self,
+        code: &str,
+    ) -> Result<crate::vibe_coding::CodeEnhancement> {
         Ok(crate::vibe_coding::CodeEnhancement {
             enhancement_type: crate::vibe_coding::EnhancementType::Performance,
             description: "Optimized for better performance".to_string(),
@@ -65,8 +66,11 @@ impl CodeRefactor {
             impact_score: 0.8,
         })
     }
-    
-    pub async fn improve_readability(&self, code: &str) -> Result<crate::vibe_coding::CodeEnhancement> {
+
+    pub async fn improve_readability(
+        &self,
+        code: &str,
+    ) -> Result<crate::vibe_coding::CodeEnhancement> {
         Ok(crate::vibe_coding::CodeEnhancement {
             enhancement_type: crate::vibe_coding::EnhancementType::Readability,
             description: "Improved code readability".to_string(),
@@ -75,8 +79,11 @@ impl CodeRefactor {
             impact_score: 0.7,
         })
     }
-    
-    pub async fn improve_maintainability(&self, code: &str) -> Result<crate::vibe_coding::CodeEnhancement> {
+
+    pub async fn improve_maintainability(
+        &self,
+        code: &str,
+    ) -> Result<crate::vibe_coding::CodeEnhancement> {
         Ok(crate::vibe_coding::CodeEnhancement {
             enhancement_type: crate::vibe_coding::EnhancementType::Maintainability,
             description: "Improved maintainability".to_string(),
@@ -85,8 +92,11 @@ impl CodeRefactor {
             impact_score: 0.6,
         })
     }
-    
-    pub async fn enhance_security(&self, code: &str) -> Result<crate::vibe_coding::CodeEnhancement> {
+
+    pub async fn enhance_security(
+        &self,
+        code: &str,
+    ) -> Result<crate::vibe_coding::CodeEnhancement> {
         Ok(crate::vibe_coding::CodeEnhancement {
             enhancement_type: crate::vibe_coding::EnhancementType::Security,
             description: "Enhanced security".to_string(),
@@ -95,8 +105,11 @@ impl CodeRefactor {
             impact_score: 0.9,
         })
     }
-    
-    pub async fn apply_best_practices(&self, code: &str) -> Result<crate::vibe_coding::CodeEnhancement> {
+
+    pub async fn apply_best_practices(
+        &self,
+        code: &str,
+    ) -> Result<crate::vibe_coding::CodeEnhancement> {
         Ok(crate::vibe_coding::CodeEnhancement {
             enhancement_type: crate::vibe_coding::EnhancementType::BestPractice,
             description: "Applied best practices".to_string(),
@@ -105,7 +118,7 @@ impl CodeRefactor {
             impact_score: 0.75,
         })
     }
-    
+
     fn load_rules(&mut self) {
         // Load refactoring rules
         self.rules.push(RefactoringRule {

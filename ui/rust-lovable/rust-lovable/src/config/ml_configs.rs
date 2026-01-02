@@ -206,10 +206,23 @@ pub struct HyperparameterOptimizationConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HyperparameterRange {
-    Int { min: i64, max: i64, step: Option<i64> },
-    Float { min: f64, max: f64, step: Option<f64> },
-    Choice { values: Vec<serde_json::Value> },
-    LogUniform { min: f64, max: f64 },
+    Int {
+        min: i64,
+        max: i64,
+        step: Option<i64>,
+    },
+    Float {
+        min: f64,
+        max: f64,
+        step: Option<f64>,
+    },
+    Choice {
+        values: Vec<serde_json::Value>,
+    },
+    LogUniform {
+        min: f64,
+        max: f64,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -753,13 +766,11 @@ impl Default for MLConfig {
             evaluation: EvaluationConfig {
                 enabled: true,
                 datasets: vec![],
-                metrics: vec![
-                    EvaluationMetric {
-                        name: "accuracy".to_string(),
-                        metric_type: "classification".to_string(),
-                        parameters: HashMap::new(),
-                    },
-                ],
+                metrics: vec![EvaluationMetric {
+                    name: "accuracy".to_string(),
+                    metric_type: "classification".to_string(),
+                    parameters: HashMap::new(),
+                }],
                 cross_validation: CrossValidationConfig {
                     enabled: false,
                     folds: 5,
@@ -832,7 +843,11 @@ impl Default for MLConfig {
                 provider: "mlflow".to_string(),
                 versioning: ModelVersioningConfig {
                     strategy: "semantic".to_string(),
-                    stages: vec!["development".to_string(), "staging".to_string(), "production".to_string()],
+                    stages: vec![
+                        "development".to_string(),
+                        "staging".to_string(),
+                        "production".to_string(),
+                    ],
                     promotion_criteria: HashMap::new(),
                 },
                 deployment: DeploymentConfig {

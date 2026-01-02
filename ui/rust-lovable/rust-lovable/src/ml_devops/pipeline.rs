@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Pipeline {
@@ -62,24 +62,28 @@ impl PipelineOrchestrator {
             executions: HashMap::new(),
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn create_pipeline(&mut self, pipeline: Pipeline) -> Result<String> {
         let id = pipeline.id.clone();
         self.pipelines.insert(id.clone(), pipeline);
         Ok(id)
     }
-    
-    pub async fn execute_pipeline(&mut self, pipeline_id: &str, parameters: HashMap<String, serde_json::Value>) -> Result<String> {
+
+    pub async fn execute_pipeline(
+        &mut self,
+        pipeline_id: &str,
+        parameters: HashMap<String, serde_json::Value>,
+    ) -> Result<String> {
         let execution_id = uuid::Uuid::new_v4().to_string();
-        
+
         let execution = crate::ml_devops::PipelineExecution {
             id: execution_id.clone(),
             pipeline_id: pipeline_id.to_string(),
@@ -91,22 +95,25 @@ impl PipelineOrchestrator {
             start_time: chrono::Utc::now(),
             end_time: None,
         };
-        
+
         self.executions.insert(execution_id.clone(), execution);
-        
+
         // Start execution in background
         tokio::spawn(async move {
             // Simulate pipeline execution
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         });
-        
+
         Ok(execution_id)
     }
-    
-    pub async fn get_execution_status(&self, execution_id: &str) -> Option<crate::ml_devops::PipelineExecution> {
+
+    pub async fn get_execution_status(
+        &self,
+        execution_id: &str,
+    ) -> Option<crate::ml_devops::PipelineExecution> {
         self.executions.get(execution_id).cloned()
     }
-    
+
     pub async fn cancel_execution(&mut self, execution_id: &str) -> Result<()> {
         if let Some(execution) = self.executions.get_mut(execution_id) {
             execution.status = crate::ml_devops::ExecutionStatus::Cancelled;
@@ -116,35 +123,50 @@ impl PipelineOrchestrator {
             Err(anyhow::anyhow!("Execution not found"))
         }
     }
-    
+
     pub async fn get_statistics(&self) -> crate::ml_devops::PipelineStatistics {
         let total_pipelines = self.pipelines.len();
-        let active_executions = self.executions.values()
+        let active_executions = self
+            .executions
+            .values()
             .filter(|e| matches!(e.status, crate::ml_devops::ExecutionStatus::Running))
             .count();
-        
-        let completed_executions: Vec<_> = self.executions.values()
-            .filter(|e| matches!(e.status, crate::ml_devops::ExecutionStatus::Succeeded | crate::ml_devops::ExecutionStatus::Failed))
+
+        let completed_executions: Vec<_> = self
+            .executions
+            .values()
+            .filter(|e| {
+                matches!(
+                    e.status,
+                    crate::ml_devops::ExecutionStatus::Succeeded
+                        | crate::ml_devops::ExecutionStatus::Failed
+                )
+            })
             .collect();
-        
+
         let success_rate = if !completed_executions.is_empty() {
-            let successful = completed_executions.iter()
+            let successful = completed_executions
+                .iter()
                 .filter(|e| matches!(e.status, crate::ml_devops::ExecutionStatus::Succeeded))
                 .count();
             successful as f64 / completed_executions.len() as f64
         } else {
             0.0
         };
-        
+
         let average_execution_time = if !completed_executions.is_empty() {
-            let total_time: f64 = completed_executions.iter()
-                .filter_map(|e| e.end_time.map(|end| (end - e.start_time).num_seconds() as f64))
+            let total_time: f64 = completed_executions
+                .iter()
+                .filter_map(|e| {
+                    e.end_time
+                        .map(|end| (end - e.start_time).num_seconds() as f64)
+                })
                 .sum();
             total_time / completed_executions.len() as f64
         } else {
             0.0
         };
-        
+
         crate::ml_devops::PipelineStatistics {
             total_pipelines,
             active_executions,

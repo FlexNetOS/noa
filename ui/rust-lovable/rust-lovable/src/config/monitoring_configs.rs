@@ -402,7 +402,11 @@ impl Default for MonitoringConfig {
                         metric_type: MetricType::Counter,
                         description: "Total number of HTTP requests".to_string(),
                         unit: "requests".to_string(),
-                        labels: vec!["method".to_string(), "path".to_string(), "status".to_string()],
+                        labels: vec![
+                            "method".to_string(),
+                            "path".to_string(),
+                            "status".to_string(),
+                        ],
                         enabled: true,
                     },
                     MetricDefinition {

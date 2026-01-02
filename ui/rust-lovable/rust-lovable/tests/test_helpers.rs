@@ -1,24 +1,28 @@
 // Test helper functions for Rust Lovable tests
 
-use std::collections::HashMap;
 use regex::Regex;
+use std::collections::HashMap;
 
 // JavaScript import extraction (moved from packages.rs for testing)
 pub fn extract_js_imports(code: &str, packages: &mut HashMap<String, (u32, Vec<String>)>) {
     // Extract ES6 imports
-    let import_regex = Regex::new(r#"import\s+(?:\{[^}]+\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"];?"#).unwrap();
+    let import_regex =
+        Regex::new(r#"import\s+(?:\{[^}]+\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"];?"#)
+            .unwrap();
     for cap in import_regex.captures_iter(code) {
         if let Some(import_path) = cap.get(1) {
             let path = import_path.as_str();
             if !path.starts_with('.') && !path.starts_with('/') {
                 let package_name = path.split('/').next().unwrap_or(path);
-                let entry = packages.entry(package_name.to_string()).or_insert((0, vec![]));
+                let entry = packages
+                    .entry(package_name.to_string())
+                    .or_insert((0, vec![]));
                 entry.0 += 1;
                 entry.1.push(path.to_string());
             }
         }
     }
-    
+
     // Extract CommonJS requires
     let require_regex = Regex::new(r#"require\s*\(\s*['"]([^'"]+)['"]\s*\);?"#).unwrap();
     for cap in require_regex.captures_iter(code) {
@@ -26,7 +30,9 @@ pub fn extract_js_imports(code: &str, packages: &mut HashMap<String, (u32, Vec<S
             let path = require_path.as_str();
             if !path.starts_with('.') && !path.starts_with('/') {
                 let package_name = path.split('/').next().unwrap_or(path);
-                let entry = packages.entry(package_name.to_string()).or_insert((0, vec![]));
+                let entry = packages
+                    .entry(package_name.to_string())
+                    .or_insert((0, vec![]));
                 entry.0 += 1;
                 entry.1.push(path.to_string());
             }
@@ -53,36 +59,38 @@ pub fn extract_rust_imports(code: &str, packages: &mut HashMap<String, (u32, Vec
 // Vite error analysis (moved from vite.rs for testing)
 pub fn analyze_error(message: &str) -> Vec<String> {
     let mut suggestions = vec![];
-    
+
     if message.contains("Module not found") {
         suggestions.push("Try running 'npm install' to install missing dependencies".to_string());
         suggestions.push("Check if the package name is spelled correctly".to_string());
         suggestions.push("Verify the package is in your package.json".to_string());
     }
-    
+
     if message.contains("Cannot find module") {
         suggestions.push("Install the missing package: npm install <package-name>".to_string());
-        suggestions.push("Clear node_modules and reinstall: rm -rf node_modules && npm install".to_string());
+        suggestions.push(
+            "Clear node_modules and reinstall: rm -rf node_modules && npm install".to_string(),
+        );
     }
-    
+
     if message.contains("SyntaxError") {
         suggestions.push("Check for missing semicolons or brackets".to_string());
         suggestions.push("Verify your TypeScript/JavaScript syntax".to_string());
     }
-    
+
     if message.contains("TypeError") {
         suggestions.push("Check if you're calling a function that doesn't exist".to_string());
         suggestions.push("Verify the variable you're using is defined".to_string());
     }
-    
+
     suggestions
 }
 
 // Auto-fix detection (moved from vite.rs for testing)
 pub fn check_auto_fix(message: &str) -> bool {
-    message.contains("Module not found") || 
-    message.contains("Cannot find module") ||
-    message.contains("missing dependency")
+    message.contains("Module not found")
+        || message.contains("Cannot find module")
+        || message.contains("missing dependency")
 }
 
 // Language detection (moved from files.rs for testing)
@@ -91,7 +99,7 @@ pub fn detect_language(file_path: &str) -> String {
         .extension()
         .and_then(|s| s.to_str())
         .unwrap_or("");
-    
+
     match ext {
         "rs" => "rust",
         "js" => "javascript",
@@ -117,7 +125,7 @@ pub fn basic_hardware_detection() -> String {
     let memory_gb = 8; // Mock value
     let gpu_available = false; // Mock value
     let disk_usage = 45; // Mock value
-    
+
     format!(
         r#"{{
           "cpu": {{"cores": {}}},
@@ -132,7 +140,7 @@ pub fn basic_hardware_detection() -> String {
 // Intent classification for testing
 pub fn classify_intent(message: &str) -> (String, f32) {
     let lower_msg = message.to_lowercase();
-    
+
     if lower_msg.contains("create") || lower_msg.contains("add") {
         ("create_component".to_string(), 0.95)
     } else if lower_msg.contains("change") || lower_msg.contains("modify") {
@@ -166,6 +174,9 @@ pub fn generate_suggested_actions(intent: &str) -> Vec<String> {
             "Apply responsive adaptations".to_string(),
             "Preview changes immediately".to_string(),
         ],
-        _ => vec!["Analyze requirements".to_string(), "Apply changes".to_string()],
+        _ => vec![
+            "Analyze requirements".to_string(),
+            "Apply changes".to_string(),
+        ],
     }
 }

@@ -1,6 +1,6 @@
-use std::collections::VecDeque;
-use serde::{Deserialize, Serialize};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogEntry {
@@ -41,7 +41,8 @@ impl LogStore {
     }
 
     pub fn get_logs(&self, level: Option<&str>, limit: usize) -> Vec<LogEntry> {
-        self.logs.iter()
+        self.logs
+            .iter()
             .rev()
             .filter(|entry| level.map_or(true, |l| entry.level == l))
             .take(limit)
@@ -50,7 +51,8 @@ impl LogStore {
     }
 
     pub fn search_logs(&self, query: &str, limit: usize) -> Vec<LogEntry> {
-        self.logs.iter()
+        self.logs
+            .iter()
             .rev()
             .filter(|entry| entry.message.contains(query))
             .take(limit)

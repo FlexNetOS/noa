@@ -42,7 +42,9 @@ pub async fn detect_and_install_packages(
     Json(request): Json<DetectPackagesRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // Detect packages from code
-    let detected = detect_packages_from_code(&request.code, request.file_path.as_deref())?;
+    let detected = detect_packages_from_code(&request.code, request.file_path.as_deref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     // Install detected packages
     let mut installed = vec![];
@@ -66,7 +68,10 @@ pub async fn detect_and_install_packages(
     })))
 }
 
-fn detect_packages_from_code(code: &str, file_path: Option<&str>) -> Result<DetectPackagesResponse, String> {
+/// Detect packages from code content
+/// 
+/// Analyzes code to identify imported packages and dependencies.
+pub async fn detect_packages_from_code(code: &str, file_path: Option<&str>) -> Result<DetectPackagesResponse, String> {
     let mut packages = HashMap::new();
     let file_ext = file_path
         .and_then(|p| p.split('.').last())

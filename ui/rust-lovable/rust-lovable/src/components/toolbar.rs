@@ -112,7 +112,16 @@ pub fn Toolbar() -> Element {
                         let mut is_building = is_building;
                         // Simulate build process
                         spawn(async move {
-                            tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                            // Note: For WASM compatibility, skip tokio delay
+                            // In production, this would track actual build progress
+                            #[cfg(target_arch = "wasm32")]
+                            {
+                                // Skip delay for WASM
+                            }
+                            #[cfg(not(target_arch = "wasm32"))]
+                            {
+                                // Skip simulated delay for now
+                            }
                             is_building.set(false);
                         });
                     },

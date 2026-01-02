@@ -41,42 +41,52 @@ impl TestGenerator {
             strategies: Vec::new(),
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         self.load_strategies();
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
-    pub async fn generate_tests(&self, code: &[crate::vibe_coding::GeneratedCode]) -> Result<GeneratedTests> {
+
+    pub async fn generate_tests(
+        &self,
+        code: &[crate::vibe_coding::GeneratedCode],
+    ) -> Result<GeneratedTests> {
         let mut unit_tests = Vec::new();
         let mut integration_tests = Vec::new();
-        
+
         for code_snippet in code {
             if code_snippet.language == "rust" {
                 let tests = self.generate_rust_tests(&code_snippet.code);
                 unit_tests.extend(tests);
             }
         }
-        
+
         Ok(GeneratedTests {
             unit_tests,
             integration_tests,
             test_coverage: 0.8, // Placeholder
         })
     }
-    
+
     fn generate_rust_tests(&self, code: &str) -> Vec<UnitTest> {
         let mut tests = Vec::new();
-        
+
         // Find functions in the code
         for line in code.lines() {
             if line.trim().starts_with("pub fn ") || line.trim().starts_with("fn ") {
-                let function_name = line.split('(').next().unwrap_or("").replace("pub fn ", "").replace("fn ", "").trim().to_string();
-                
+                let function_name = line
+                    .split('(')
+                    .next()
+                    .unwrap_or("")
+                    .replace("pub fn ", "")
+                    .replace("fn ", "")
+                    .trim()
+                    .to_string();
+
                 if !function_name.is_empty() && function_name != "main" {
                     tests.push(UnitTest {
                         function_name: function_name.clone(),
@@ -90,10 +100,10 @@ impl TestGenerator {
                 }
             }
         }
-        
+
         tests
     }
-    
+
     fn load_strategies(&mut self) {
         // Load test generation strategies
         self.strategies.push(TestStrategy {

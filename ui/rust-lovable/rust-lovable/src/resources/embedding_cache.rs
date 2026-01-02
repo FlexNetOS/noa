@@ -1,7 +1,7 @@
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
-use serde::{Deserialize, Serialize};
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Embedding {
@@ -78,13 +78,13 @@ impl EmbeddingCache {
 
         // Update indices
         self.update_indices(&embedding, true);
-        
+
         // Add to cache
         self.embeddings.insert(id, cached_embedding);
-        
+
         // Evict if necessary
         self.evict_if_needed();
-        
+
         Ok(())
     }
 
@@ -98,30 +98,29 @@ impl EmbeddingCache {
         }
     }
 
-    pub fn get_embeddings_by_source(&mut self, source_type: &str, source_id: &str) -> Vec<Embedding> {
+    pub fn get_embeddings_by_source(
+        &mut self,
+        source_type: &str,
+        source_id: &str,
+    ) -> Vec<Embedding> {
         let key = format!("{}:{}", source_type, source_id);
-        let ids: Vec<String> = self.source_index
-            .get(&key)
-            .cloned()
-            .unwrap_or_default();
-        ids.iter()
-            .filter_map(|id| self.get_embedding(id))
-            .collect()
+        let ids: Vec<String> = self.source_index.get(&key).cloned().unwrap_or_default();
+        ids.iter().filter_map(|id| self.get_embedding(id)).collect()
     }
 
     pub fn get_embeddings_by_model(&mut self, model: &str) -> Vec<Embedding> {
-        let ids: Vec<String> = self.model_index
-            .get(model)
-            .cloned()
-            .unwrap_or_default();
-        ids.iter()
-            .filter_map(|id| self.get_embedding(id))
-            .collect()
+        let ids: Vec<String> = self.model_index.get(model).cloned().unwrap_or_default();
+        ids.iter().filter_map(|id| self.get_embedding(id)).collect()
     }
 
-    pub fn similarity_search(&self, query_vector: &[f32], top_k: usize, min_similarity: f32) -> Vec<SearchResult> {
+    pub fn similarity_search(
+        &self,
+        query_vector: &[f32],
+        top_k: usize,
+        min_similarity: f32,
+    ) -> Vec<SearchResult> {
         let mut results = Vec::new();
-        
+
         for cached in self.embeddings.values() {
             let similarity = self.cosine_similarity(query_vector, &cached.embedding.vector);
             if similarity >= min_similarity {
@@ -132,10 +131,10 @@ impl EmbeddingCache {
                 });
             }
         }
-        
+
         // Sort by similarity descending
         results.sort_by(|a, b| b.similarity.partial_cmp(&a.similarity).unwrap());
-        
+
         // Return top k
         results.into_iter().take(top_k).collect()
     }
@@ -152,13 +151,17 @@ impl EmbeddingCache {
 
     pub fn get_stats(&self) -> EmbeddingCacheStats {
         let total_embeddings = self.embeddings.len();
-        let total_vectors: usize = self.embeddings.values()
+        let total_vectors: usize = self
+            .embeddings
+            .values()
             .map(|cached| cached.embedding.vector.len())
             .sum();
-        let total_memory: usize = self.embeddings.values()
+        let total_memory: usize = self
+            .embeddings
+            .values()
             .map(|cached| cached.compressed_size)
             .sum();
-        
+
         EmbeddingCacheStats {
             total_embeddings,
             total_vectors,
@@ -166,7 +169,9 @@ impl EmbeddingCache {
             models: self.model_index.len(),
             sources: self.source_index.len(),
             compression_ratio: if self.compression_enabled {
-                let original_size: usize = self.embeddings.values()
+                let original_size: usize = self
+                    .embeddings
+                    .values()
                     .map(|cached| cached.embedding.vector.len() * std::mem::size_of::<f32>())
                     .sum();
                 original_size as f64 / total_memory as f64
@@ -178,9 +183,12 @@ impl EmbeddingCache {
 
     fn update_indices(&mut self, embedding: &Embedding, add: bool) {
         let id = &embedding.id;
-        
+
         // Source index
-        let source_key = format!("{}:{}", embedding.metadata.source_type, embedding.metadata.source_id);
+        let source_key = format!(
+            "{}:{}",
+            embedding.metadata.source_type, embedding.metadata.source_id
+        );
         if add {
             self.source_index
                 .entry(source_key)
@@ -191,7 +199,7 @@ impl EmbeddingCache {
                 index.retain(|embedding_id| embedding_id != id);
             }
         }
-        
+
         // Model index
         if add {
             self.model_index
@@ -207,12 +215,13 @@ impl EmbeddingCache {
 
     fn remove_expired(&mut self) {
         let now = Instant::now();
-        let expired_ids: Vec<String> = self.embeddings
+        let expired_ids: Vec<String> = self
+            .embeddings
             .iter()
             .filter(|(_, cached)| now.duration_since(cached.last_accessed) > self.ttl)
             .map(|(id, _)| id.clone())
             .collect();
-        
+
         for id in expired_ids {
             let _ = self.remove_embedding(&id);
         }
@@ -221,11 +230,12 @@ impl EmbeddingCache {
     fn evict_if_needed(&mut self) {
         if self.embeddings.len() > self.max_size {
             // Find the least recently used embedding
-            let lru_id = self.embeddings
+            let lru_id = self
+                .embeddings
                 .iter()
                 .min_by_key(|(_, cached)| cached.last_accessed)
                 .map(|(id, _)| id.clone());
-            
+
             if let Some(id) = lru_id {
                 let _ = self.remove_embedding(&id);
             }
@@ -235,7 +245,9 @@ impl EmbeddingCache {
     fn compress_embedding(&self, embedding: &Embedding) -> Vec<u8> {
         // Simple quantization for demonstration
         // In production, use proper compression algorithms
-        let quantized: Vec<u8> = embedding.vector.iter()
+        let quantized: Vec<u8> = embedding
+            .vector
+            .iter()
             .map(|&val| ((val + 1.0) * 127.5).clamp(0.0, 255.0) as u8)
             .collect();
         quantized
@@ -245,11 +257,11 @@ impl EmbeddingCache {
         if a.len() != b.len() || a.is_empty() {
             return 0.0;
         }
-        
+
         let dot_product: f32 = a.iter().zip(b.iter()).map(|(&x, &y)| x * y).sum();
         let norm_a: f32 = a.iter().map(|&x| x * x).sum::<f32>().sqrt();
         let norm_b: f32 = b.iter().map(|&x| x * x).sum::<f32>().sqrt();
-        
+
         if norm_a == 0.0 || norm_b == 0.0 {
             0.0
         } else {

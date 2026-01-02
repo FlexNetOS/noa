@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Deployment {
@@ -68,18 +68,22 @@ impl DeploymentManager {
             deployments: HashMap::new(),
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
-    pub async fn deploy_model(&mut self, model_id: &str, strategy: DeploymentStrategy) -> Result<String> {
+
+    pub async fn deploy_model(
+        &mut self,
+        model_id: &str,
+        strategy: DeploymentStrategy,
+    ) -> Result<String> {
         let deployment_id = uuid::Uuid::new_v4().to_string();
-        
+
         let deployment = Deployment {
             id: deployment_id.clone(),
             model_id: model_id.to_string(),
@@ -101,19 +105,21 @@ impl DeploymentManager {
             health_checks: vec![],
             metrics: HashMap::new(),
         };
-        
+
         self.deployments.insert(deployment_id.clone(), deployment);
         Ok(deployment_id)
     }
-    
+
     pub fn get_deployment(&self, deployment_id: &str) -> Option<&Deployment> {
         self.deployments.get(deployment_id)
     }
-    
+
     pub fn get_deployment_status(&self, deployment_id: &str) -> Option<DeploymentStatus> {
-        self.deployments.get(deployment_id).map(|d| d.status.clone())
+        self.deployments
+            .get(deployment_id)
+            .map(|d| d.status.clone())
     }
-    
+
     pub async fn rollback_deployment(&mut self, deployment_id: &str) -> Result<()> {
         if let Some(deployment) = self.deployments.get_mut(deployment_id) {
             deployment.status.state = DeploymentState::Terminating;
@@ -123,22 +129,29 @@ impl DeploymentManager {
             Err(anyhow::anyhow!("Deployment not found"))
         }
     }
-    
+
     pub fn get_statistics(&self) -> DeploymentStatistics {
         let total_deployments = self.deployments.len();
-        let active_deployments = self.deployments.values()
-            .filter(|d| matches!(d.status.state, 
-                DeploymentState::Running | 
-                DeploymentState::Deploying |
-                DeploymentState::Scaling |
-                DeploymentState::Updating
-            ))
+        let active_deployments = self
+            .deployments
+            .values()
+            .filter(|d| {
+                matches!(
+                    d.status.state,
+                    DeploymentState::Running
+                        | DeploymentState::Deploying
+                        | DeploymentState::Scaling
+                        | DeploymentState::Updating
+                )
+            })
             .count();
-        
-        let failed_deployments = self.deployments.values()
+
+        let failed_deployments = self
+            .deployments
+            .values()
             .filter(|d| matches!(d.status.state, DeploymentState::Failed))
             .count();
-        
+
         DeploymentStatistics {
             total_deployments,
             active_deployments,

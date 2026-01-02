@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -173,17 +173,17 @@ impl SkillRegistry {
 
         // Validate skill
         self.validate_skill(&skill)?;
-        
+
         // Update indices
         self.update_indices(&skill, true);
-        
+
         // Add to registry
         self.skills.insert(id.clone(), skill);
         self.name_index.insert(name, id.clone());
-        
+
         // Update dependency graph
         self.update_dependency_graph(&id);
-        
+
         Ok(())
     }
 
@@ -192,42 +192,54 @@ impl SkillRegistry {
     }
 
     pub fn get_skill_by_name(&self, name: &str) -> Option<Skill> {
-        self.name_index.get(name)
-            .and_then(|id| self.get_skill(id))
+        self.name_index.get(name).and_then(|id| self.get_skill(id))
     }
 
     pub fn get_skills_by_category(&self, category: &str) -> Vec<Skill> {
-        self.category_index.get(category)
+        self.category_index
+            .get(category)
             .map(|ids| ids.iter().filter_map(|id| self.get_skill(id)).collect())
             .unwrap_or_default()
     }
 
     pub fn get_skills_by_tag(&self, tag: &str) -> Vec<Skill> {
-        self.tag_index.get(tag)
+        self.tag_index
+            .get(tag)
             .map(|ids| ids.iter().filter_map(|id| self.get_skill(id)).collect())
             .unwrap_or_default()
     }
 
-    pub fn search_skills(&self, query: &str, category: Option<&str>, tags: Option<Vec<&str>>) -> Vec<Skill> {
+    pub fn search_skills(
+        &self,
+        query: &str,
+        category: Option<&str>,
+        tags: Option<Vec<&str>>,
+    ) -> Vec<Skill> {
         let query_lower = query.to_lowercase();
-        
-        self.skills.values()
+
+        self.skills
+            .values()
             .filter(|skill| {
                 // Text search
-                let text_match = skill.name.to_lowercase().contains(&query_lower) ||
-                    skill.description.to_lowercase().contains(&query_lower) ||
-                    skill.metadata.documentation.as_ref()
+                let text_match = skill.name.to_lowercase().contains(&query_lower)
+                    || skill.description.to_lowercase().contains(&query_lower)
+                    || skill
+                        .metadata
+                        .documentation
+                        .as_ref()
                         .map(|doc| doc.to_lowercase().contains(&query_lower))
                         .unwrap_or(false);
-                
+
                 // Category filter
                 let category_match = category.map_or(true, |cat| skill.category == cat);
-                
+
                 // Tags filter
                 let tags_match = tags.as_ref().map_or(true, |search_tags| {
-                    search_tags.iter().all(|tag| skill.tags.contains(&tag.to_string()))
+                    search_tags
+                        .iter()
+                        .all(|tag| skill.tags.contains(&tag.to_string()))
                 });
-                
+
                 text_match && category_match && tags_match
             })
             .cloned()
@@ -235,23 +247,32 @@ impl SkillRegistry {
     }
 
     pub fn execute_skill(&self, context: SkillExecutionContext) -> Result<SkillExecutionResult> {
-        let skill = self.get_skill(&context.skill_id)
+        let skill = self
+            .get_skill(&context.skill_id)
             .ok_or_else(|| anyhow::anyhow!("Skill not found"))?;
-        
+
         // Check permissions
         self.check_permissions(&skill, &context)?;
-        
+
         // Execute based on implementation type
         match &skill.implementation {
-            SkillImplementation::Code { language, code, entry_point, environment } => {
-                self.execute_code_skill(&context, language, code, entry_point, environment)
-            },
-            SkillImplementation::API { endpoint, method, headers, timeout_seconds } => {
-                self.execute_api_skill(&context, endpoint, method, headers, *timeout_seconds)
-            },
-            SkillImplementation::Composite { sub_skills, orchestration, error_handling } => {
-                self.execute_composite_skill(&context, sub_skills, orchestration, error_handling)
-            },
+            SkillImplementation::Code {
+                language,
+                code,
+                entry_point,
+                environment,
+            } => self.execute_code_skill(&context, language, code, entry_point, environment),
+            SkillImplementation::API {
+                endpoint,
+                method,
+                headers,
+                timeout_seconds,
+            } => self.execute_api_skill(&context, endpoint, method, headers, *timeout_seconds),
+            SkillImplementation::Composite {
+                sub_skills,
+                orchestration,
+                error_handling,
+            } => self.execute_composite_skill(&context, sub_skills, orchestration, error_handling),
         }
     }
 
@@ -284,7 +305,7 @@ impl SkillRegistry {
                         tag_index.retain(|skill_id| skill_id != id);
                     }
                 }
-                
+
                 skill.tags = tags;
                 for tag in &skill.tags {
                     self.tag_index
@@ -293,7 +314,7 @@ impl SkillRegistry {
                         .push(id.to_string());
                 }
             }
-            
+
             skill.updated_at = chrono::Utc::now();
             Ok(())
         } else {
@@ -306,10 +327,10 @@ impl SkillRegistry {
             // Remove from indices
             self.update_indices(&skill, false);
             self.name_index.remove(&skill.name);
-            
+
             // Remove from dependency graph
             self.dependency_graph.remove(id);
-            
+
             Ok(())
         } else {
             Err(anyhow::anyhow!("Skill not found"))
@@ -332,7 +353,11 @@ impl SkillRegistry {
         if let Some(deps) = self.dependency_graph.get(skill_id) {
             for dep in deps {
                 if !self.skills.contains_key(dep) {
-                    return Err(anyhow::anyhow!("Dependency {} not found for skill {}", dep, skill_id));
+                    return Err(anyhow::anyhow!(
+                        "Dependency {} not found for skill {}",
+                        dep,
+                        skill_id
+                    ));
                 }
             }
         }
@@ -341,47 +366,49 @@ impl SkillRegistry {
 
     fn load_builtin_skills(&mut self) -> Result<()> {
         // Load built-in skills for common operations
-        let builtin_skills = vec![
-            Skill {
-                id: Uuid::new_v4().to_string(),
-                name: "generate_ui_component".to_string(),
-                description: "Generate a Dioxus UI component from description".to_string(),
-                category: "ui_generation".to_string(),
-                tags: vec!["ui".to_string(), "dioxus".to_string(), "component".to_string()],
-                implementation: SkillImplementation::Code {
-                    language: "rust".to_string(),
-                    code: "// Generated component code".to_string(),
-                    entry_point: "generate".to_string(),
-                    environment: HashMap::new(),
-                },
-                metadata: SkillMetadata {
-                    version: "1.0".to_string(),
-                    author: Some("system".to_string()),
-                    documentation: Some("Generates UI components".to_string()),
-                    examples: vec![],
-                    input_schema: serde_json::json!({}),
-                    output_schema: serde_json::json!({}),
-                    performance_metrics: PerformanceMetrics::default(),
-                    cost_estimate: None,
-                },
-                permissions: SkillPermissions {
-                    public: true,
-                    allowed_users: vec![],
-                    allowed_roles: vec![],
-                    sandbox_required: true,
-                    network_access: false,
-                    file_system_access: false,
-                },
-                dependencies: vec![],
-                created_at: chrono::Utc::now(),
-                updated_at: chrono::Utc::now(),
+        let builtin_skills = vec![Skill {
+            id: Uuid::new_v4().to_string(),
+            name: "generate_ui_component".to_string(),
+            description: "Generate a Dioxus UI component from description".to_string(),
+            category: "ui_generation".to_string(),
+            tags: vec![
+                "ui".to_string(),
+                "dioxus".to_string(),
+                "component".to_string(),
+            ],
+            implementation: SkillImplementation::Code {
+                language: "rust".to_string(),
+                code: "// Generated component code".to_string(),
+                entry_point: "generate".to_string(),
+                environment: HashMap::new(),
             },
-        ];
-        
+            metadata: SkillMetadata {
+                version: "1.0".to_string(),
+                author: Some("system".to_string()),
+                documentation: Some("Generates UI components".to_string()),
+                examples: vec![],
+                input_schema: serde_json::json!({}),
+                output_schema: serde_json::json!({}),
+                performance_metrics: PerformanceMetrics::default(),
+                cost_estimate: None,
+            },
+            permissions: SkillPermissions {
+                public: true,
+                allowed_users: vec![],
+                allowed_roles: vec![],
+                sandbox_required: true,
+                network_access: false,
+                file_system_access: false,
+            },
+            dependencies: vec![],
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        }];
+
         for skill in builtin_skills {
             let _ = self.register_skill(skill);
         }
-        
+
         Ok(())
     }
 
@@ -390,24 +417,24 @@ impl SkillRegistry {
         if skill.name.is_empty() {
             return Err(anyhow::anyhow!("Skill name cannot be empty"));
         }
-        
+
         if skill.description.is_empty() {
             return Err(anyhow::anyhow!("Skill description cannot be empty"));
         }
-        
+
         // Validate dependencies
         for dep in &skill.dependencies {
             if !self.skills.contains_key(&dep.skill_id) {
                 return Err(anyhow::anyhow!("Dependency {} not found", dep.skill_id));
             }
         }
-        
+
         Ok(())
     }
 
     fn update_indices(&mut self, skill: &Skill, add: bool) {
         let id = &skill.id;
-        
+
         // Category index
         if add {
             self.category_index
@@ -419,7 +446,7 @@ impl SkillRegistry {
                 index.retain(|skill_id| skill_id != id);
             }
         }
-        
+
         // Tag index
         for tag in &skill.tags {
             if add {
@@ -437,10 +464,12 @@ impl SkillRegistry {
 
     fn update_dependency_graph(&mut self, skill_id: &str) {
         if let Some(skill) = self.skills.get(skill_id) {
-            let deps: Vec<String> = skill.dependencies.iter()
+            let deps: Vec<String> = skill
+                .dependencies
+                .iter()
                 .map(|dep| dep.skill_id.clone())
                 .collect();
-            
+
             if !deps.is_empty() {
                 self.dependency_graph.insert(skill_id.to_string(), deps);
             }
@@ -457,11 +486,18 @@ impl SkillRegistry {
                 return Err(anyhow::anyhow!("User ID required for non-public skills"));
             }
         }
-        
+
         Ok(())
     }
 
-    fn execute_code_skill(&self, context: &SkillExecutionContext, language: &str, code: &str, entry_point: &str, environment: &HashMap<String, String>) -> Result<SkillExecutionResult> {
+    fn execute_code_skill(
+        &self,
+        context: &SkillExecutionContext,
+        language: &str,
+        code: &str,
+        entry_point: &str,
+        environment: &HashMap<String, String>,
+    ) -> Result<SkillExecutionResult> {
         // Implementation would execute code in sandbox
         Ok(SkillExecutionResult {
             success: true,
@@ -472,7 +508,14 @@ impl SkillRegistry {
         })
     }
 
-    fn execute_api_skill(&self, context: &SkillExecutionContext, endpoint: &str, method: &str, headers: &HashMap<String, String>, timeout_seconds: u64) -> Result<SkillExecutionResult> {
+    fn execute_api_skill(
+        &self,
+        context: &SkillExecutionContext,
+        endpoint: &str,
+        method: &str,
+        headers: &HashMap<String, String>,
+        timeout_seconds: u64,
+    ) -> Result<SkillExecutionResult> {
         // Implementation would make API call
         Ok(SkillExecutionResult {
             success: true,
@@ -483,7 +526,13 @@ impl SkillRegistry {
         })
     }
 
-    fn execute_composite_skill(&self, context: &SkillExecutionContext, sub_skills: &[String], orchestration: &OrchestrationType, error_handling: &ErrorHandlingStrategy) -> Result<SkillExecutionResult> {
+    fn execute_composite_skill(
+        &self,
+        context: &SkillExecutionContext,
+        sub_skills: &[String],
+        orchestration: &OrchestrationType,
+        error_handling: &ErrorHandlingStrategy,
+    ) -> Result<SkillExecutionResult> {
         // Implementation would orchestrate sub-skills
         Ok(SkillExecutionResult {
             success: true,

@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelVersion {
@@ -36,34 +36,34 @@ impl ModelRegistry {
             models: HashMap::new(),
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn register_model(&mut self, model: ModelVersion) -> Result<String> {
         let models = self.models.entry(model.name.clone()).or_default();
         models.push(model);
         Ok(uuid::Uuid::new_v4().to_string())
     }
-    
+
     pub async fn promote_model(&mut self, model_id: &str, stage: String) -> Result<()> {
         // Implementation would update model stage
         Ok(())
     }
-    
+
     pub async fn get_model(&self, model_id: &str) -> Option<ModelVersion> {
         None // Implementation would find and return model
     }
-    
+
     pub async fn list_models(&self, filters: HashMap<String, String>) -> Vec<ModelVersion> {
         Vec::new() // Implementation would filter and return models
     }
-    
+
     pub async fn get_statistics(&self) -> crate::ml_devops::ModelStatistics {
         crate::ml_devops::ModelStatistics {
             total_models: self.models.len(),

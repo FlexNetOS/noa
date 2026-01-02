@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Metric {
@@ -20,33 +20,46 @@ impl MLMonitor {
             metrics: HashMap::new(),
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
-    pub async fn log_metric(&mut self, name: String, value: f64, tags: HashMap<String, String>) -> Result<()> {
+
+    pub async fn log_metric(
+        &mut self,
+        name: String,
+        value: f64,
+        tags: HashMap<String, String>,
+    ) -> Result<()> {
         let metric = Metric {
             name: name.clone(),
             value,
             timestamp: chrono::Utc::now(),
             tags,
         };
-        
+
         self.metrics.entry(name).or_default().push(metric);
         Ok(())
     }
-    
-    pub async fn get_metrics(&self, name: &str, start_time: chrono::DateTime<chrono::Utc>) -> Vec<Metric> {
-        self.metrics.get(name)
-            .map(|metrics| metrics.iter()
-                .filter(|m| m.timestamp >= start_time)
-                .cloned()
-                .collect())
+
+    pub async fn get_metrics(
+        &self,
+        name: &str,
+        start_time: chrono::DateTime<chrono::Utc>,
+    ) -> Vec<Metric> {
+        self.metrics
+            .get(name)
+            .map(|metrics| {
+                metrics
+                    .iter()
+                    .filter(|m| m.timestamp >= start_time)
+                    .cloned()
+                    .collect()
+            })
             .unwrap_or_default()
     }
 }
@@ -65,25 +78,28 @@ impl AlertManager {
             notification_channels,
         }
     }
-    
+
     pub async fn initialize(&mut self) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn cleanup(&mut self) -> Result<()> {
         Ok(())
     }
-    
-    pub async fn create_alert(&mut self, alert: crate::ml_devops::AlertDefinition) -> Result<String> {
+
+    pub async fn create_alert(
+        &mut self,
+        alert: crate::ml_devops::AlertDefinition,
+    ) -> Result<String> {
         let id = alert.id.clone();
         self.alerts.insert(id.clone(), alert);
         Ok(id)
     }
-    
+
     pub async fn check_alerts(&self) -> Vec<crate::ml_devops::Alert> {
         Vec::new() // Implementation would check alert conditions
     }
-    
+
     pub async fn get_active_alert_count(&self) -> usize {
         self.active_alerts.len()
     }

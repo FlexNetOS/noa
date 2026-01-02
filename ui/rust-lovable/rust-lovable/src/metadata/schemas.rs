@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SchemaDefinition {
@@ -143,23 +143,23 @@ impl SchemaDefinition {
             metadata: HashMap::new(),
         }
     }
-    
+
     pub fn add_field(&mut self, field: SchemaField) {
         self.fields.push(field);
     }
-    
+
     pub fn add_constraint(&mut self, constraint: Constraint) {
         self.constraints.push(constraint);
     }
-    
+
     pub fn add_index(&mut self, index: IndexDefinition) {
         self.indexes.push(index);
     }
-    
+
     pub fn add_relationship(&mut self, relationship: SchemaRelationship) {
         self.relationships.push(relationship);
     }
-    
+
     pub fn validate(&self) -> Result<()> {
         // Check for duplicate field names
         let mut field_names = std::collections::HashSet::new();
@@ -168,15 +168,18 @@ impl SchemaDefinition {
                 return Err(anyhow::anyhow!("Duplicate field name: {}", field.name));
             }
         }
-        
+
         // Check for duplicate constraint names
         let mut constraint_names = std::collections::HashSet::new();
         for constraint in &self.constraints {
             if !constraint_names.insert(&constraint.name) {
-                return Err(anyhow::anyhow!("Duplicate constraint name: {}", constraint.name));
+                return Err(anyhow::anyhow!(
+                    "Duplicate constraint name: {}",
+                    constraint.name
+                ));
             }
         }
-        
+
         // Validate field references
         for field in &self.fields {
             if let FieldType::Reference(ref_schema) = &field.field_type {
@@ -185,34 +188,40 @@ impl SchemaDefinition {
                 }
             }
         }
-        
+
         // Validate relationships
         for relationship in &self.relationships {
             // Check if local field exists
-            if !self.fields.iter().any(|f| f.name == relationship.local_field) {
+            if !self
+                .fields
+                .iter()
+                .any(|f| f.name == relationship.local_field)
+            {
                 return Err(anyhow::anyhow!(
-                    "Relationship references non-existent local field: {}", 
+                    "Relationship references non-existent local field: {}",
                     relationship.local_field
                 ));
             }
         }
-        
+
         Ok(())
     }
-    
+
     pub fn get_field(&self, name: &str) -> Option<&SchemaField> {
         self.fields.iter().find(|f| f.name == name)
     }
-    
+
     pub fn is_field_required(&self, name: &str) -> bool {
-        self.fields.iter()
+        self.fields
+            .iter()
             .find(|f| f.name == name)
             .map(|f| !f.nullable && f.default_value.is_none())
             .unwrap_or(false)
     }
-    
+
     pub fn get_primary_key_fields(&self) -> Vec<String> {
-        self.constraints.iter()
+        self.constraints
+            .iter()
             .filter(|c| matches!(c.constraint_type, ConstraintType::PrimaryKey))
             .flat_map(|c| c.fields.clone())
             .collect()
@@ -231,38 +240,38 @@ impl SchemaField {
             tags: Vec::new(),
         }
     }
-    
+
     pub fn required(mut self) -> Self {
         self.nullable = false;
         self
     }
-    
+
     pub fn with_default(mut self, value: serde_json::Value) -> Self {
         self.default_value = Some(value);
         self
     }
-    
+
     pub fn with_description(mut self, description: String) -> Self {
         self.description = Some(description);
         self
     }
-    
+
     pub fn add_validation_rule(mut self, rule: ValidationRule) -> Self {
         self.validation_rules.push(rule);
         self
     }
-    
+
     pub fn validate_value(&self, value: &serde_json::Value) -> Result<()> {
         // Check nullability
         if value.is_null() && !self.nullable {
             return Err(anyhow::anyhow!("Field {} cannot be null", self.name));
         }
-        
+
         // Apply validation rules
         for rule in &self.validation_rules {
             rule.validate_value(value, &self.field_type)?;
         }
-        
+
         Ok(())
     }
 }
@@ -340,27 +349,38 @@ impl ValidationRule {
                 // Other validation types would be implemented similarly
             }
         }
-        
+
         Ok(())
     }
 }
 
 pub fn create_prompt_schema() -> SchemaDefinition {
     let mut schema = SchemaDefinition::new("prompt".to_string(), "1.0".to_string());
-    
+
     schema.add_field(SchemaField::new("id".to_string(), FieldType::UUID).required());
     schema.add_field(SchemaField::new("content".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("category".to_string(), FieldType::String).required());
-    schema.add_field(SchemaField::new("tags".to_string(), FieldType::Array(Box::new(FieldType::String))));
+    schema.add_field(SchemaField::new(
+        "tags".to_string(),
+        FieldType::Array(Box::new(FieldType::String)),
+    ));
     schema.add_field(SchemaField::new("version".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("created_at".to_string(), FieldType::DateTime).required());
     schema.add_field(SchemaField::new("updated_at".to_string(), FieldType::DateTime).required());
     schema.add_field(SchemaField::new("author".to_string(), FieldType::String));
-    schema.add_field(SchemaField::new("description".to_string(), FieldType::String));
-    schema.add_field(SchemaField::new("parameters".to_string(), FieldType::Map(Box::new(FieldType::String))));
-    schema.add_field(SchemaField::new("usage_count".to_string(), FieldType::Integer)
-        .with_default(serde_json::Value::Number(0.into())));
-    
+    schema.add_field(SchemaField::new(
+        "description".to_string(),
+        FieldType::String,
+    ));
+    schema.add_field(SchemaField::new(
+        "parameters".to_string(),
+        FieldType::Map(Box::new(FieldType::String)),
+    ));
+    schema.add_field(
+        SchemaField::new("usage_count".to_string(), FieldType::Integer)
+            .with_default(serde_json::Value::Number(0.into())),
+    );
+
     // Add constraints
     schema.add_constraint(Constraint {
         name: "prompt_pkey".to_string(),
@@ -368,7 +388,7 @@ pub fn create_prompt_schema() -> SchemaDefinition {
         fields: vec!["id".to_string()],
         parameters: HashMap::new(),
     });
-    
+
     // Add indexes
     schema.add_index(IndexDefinition {
         name: "idx_prompt_category".to_string(),
@@ -377,7 +397,7 @@ pub fn create_prompt_schema() -> SchemaDefinition {
         unique: false,
         parameters: HashMap::new(),
     });
-    
+
     schema.add_index(IndexDefinition {
         name: "idx_prompt_created_at".to_string(),
         index_type: IndexType::BTree,
@@ -385,23 +405,35 @@ pub fn create_prompt_schema() -> SchemaDefinition {
         unique: false,
         parameters: HashMap::new(),
     });
-    
+
     schema
 }
 
 pub fn create_embedding_schema() -> SchemaDefinition {
     let mut schema = SchemaDefinition::new("embedding".to_string(), "1.0".to_string());
-    
+
     schema.add_field(SchemaField::new("id".to_string(), FieldType::UUID).required());
-    schema.add_field(SchemaField::new("vector".to_string(), FieldType::Array(Box::new(FieldType::Float))).required());
+    schema.add_field(
+        SchemaField::new(
+            "vector".to_string(),
+            FieldType::Array(Box::new(FieldType::Float)),
+        )
+        .required(),
+    );
     schema.add_field(SchemaField::new("source_type".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("source_id".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("model".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("dimensions".to_string(), FieldType::Integer).required());
-    schema.add_field(SchemaField::new("token_count".to_string(), FieldType::Integer));
-    schema.add_field(SchemaField::new("tags".to_string(), FieldType::Array(Box::new(FieldType::String))));
+    schema.add_field(SchemaField::new(
+        "token_count".to_string(),
+        FieldType::Integer,
+    ));
+    schema.add_field(SchemaField::new(
+        "tags".to_string(),
+        FieldType::Array(Box::new(FieldType::String)),
+    ));
     schema.add_field(SchemaField::new("created_at".to_string(), FieldType::DateTime).required());
-    
+
     // Add constraints
     schema.add_constraint(Constraint {
         name: "embedding_pkey".to_string(),
@@ -409,7 +441,7 @@ pub fn create_embedding_schema() -> SchemaDefinition {
         fields: vec!["id".to_string()],
         parameters: HashMap::new(),
     });
-    
+
     // Add indexes for similarity search
     schema.add_index(IndexDefinition {
         name: "idx_embedding_source".to_string(),
@@ -418,7 +450,7 @@ pub fn create_embedding_schema() -> SchemaDefinition {
         unique: false,
         parameters: HashMap::new(),
     });
-    
+
     schema.add_index(IndexDefinition {
         name: "idx_embedding_model".to_string(),
         index_type: IndexType::BTree,
@@ -426,28 +458,42 @@ pub fn create_embedding_schema() -> SchemaDefinition {
         unique: false,
         parameters: HashMap::new(),
     });
-    
+
     schema
 }
 
 pub fn create_skill_schema() -> SchemaDefinition {
     let mut schema = SchemaDefinition::new("skill".to_string(), "1.0".to_string());
-    
+
     schema.add_field(SchemaField::new("id".to_string(), FieldType::UUID).required());
     schema.add_field(SchemaField::new("name".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("description".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("category".to_string(), FieldType::String).required());
-    schema.add_field(SchemaField::new("tags".to_string(), FieldType::Array(Box::new(FieldType::String))));
-    schema.add_field(SchemaField::new("implementation_type".to_string(), FieldType::Enum(vec![
-        "code".to_string(), "api".to_string(), "composite".to_string()
-    ])).required());
+    schema.add_field(SchemaField::new(
+        "tags".to_string(),
+        FieldType::Array(Box::new(FieldType::String)),
+    ));
+    schema.add_field(
+        SchemaField::new(
+            "implementation_type".to_string(),
+            FieldType::Enum(vec![
+                "code".to_string(),
+                "api".to_string(),
+                "composite".to_string(),
+            ]),
+        )
+        .required(),
+    );
     schema.add_field(SchemaField::new("implementation".to_string(), FieldType::Json).required());
     schema.add_field(SchemaField::new("permissions".to_string(), FieldType::Json).required());
-    schema.add_field(SchemaField::new("dependencies".to_string(), FieldType::Array(Box::new(FieldType::String))));
+    schema.add_field(SchemaField::new(
+        "dependencies".to_string(),
+        FieldType::Array(Box::new(FieldType::String)),
+    ));
     schema.add_field(SchemaField::new("version".to_string(), FieldType::String).required());
     schema.add_field(SchemaField::new("created_at".to_string(), FieldType::DateTime).required());
     schema.add_field(SchemaField::new("updated_at".to_string(), FieldType::DateTime).required());
-    
+
     // Add constraints
     schema.add_constraint(Constraint {
         name: "skill_pkey".to_string(),
@@ -455,13 +501,13 @@ pub fn create_skill_schema() -> SchemaDefinition {
         fields: vec!["id".to_string()],
         parameters: HashMap::new(),
     });
-    
+
     schema.add_constraint(Constraint {
         name: "skill_name_unique".to_string(),
         constraint_type: ConstraintType::Unique,
         fields: vec!["name".to_string()],
         parameters: HashMap::new(),
     });
-    
+
     schema
 }

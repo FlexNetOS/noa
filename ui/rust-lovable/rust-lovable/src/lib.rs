@@ -1,4 +1,5 @@
 pub mod app;
+pub mod app_ui;
 pub mod components;
 pub mod core;
 pub mod utils;
@@ -22,5 +23,6 @@ pub mod ml_devops;
 #[cfg(feature = "ml-devops")]
 pub mod vibe_coding;
 
-// Re-export main app
+// Re-export main structs
 pub use app::App;
+pub use app_ui::Route;

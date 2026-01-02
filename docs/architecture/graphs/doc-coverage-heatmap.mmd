@@ -1,0 +1,35 @@
+---
+title: Documentation Coverage Heatmap
+---
+flowchart TD
+    docs_root{{Documentation}}
+
+    pages["pages<br/>16 files<br/>31.6 KB"]
+    docs_root --> pages
+    pages_adr(adr<br/>4)
+    pages --> pages_adr
+    pages_design(design<br/>4)
+    pages --> pages_design
+    pages_how_tos(how-tos<br/>4)
+    pages --> pages_how_tos
+    pages_integrations(integrations<br/>3)
+    pages --> pages_integrations
+
+    reference["reference<br/>5 files<br/>17.8 KB"]
+    docs_root --> reference
+
+    runbooks["runbooks<br/>9 files<br/>19.6 KB"]
+    docs_root --> runbooks
+
+    wiki["wiki<br/>290 files<br/>9995.5 KB"]
+    docs_root --> wiki
+    wiki_crates(crates<br/>229)
+    wiki --> wiki_crates
+    wiki_internal_crates(internal-crates<br/>59)
+    wiki --> wiki_internal_crates
+
+
+    %% Coverage styling
+    classDef high fill:#4CAF50,stroke:#2E7D32,color:white
+    classDef medium fill:#FFC107,stroke:#FFA000,color:black
+    classDef low fill:#F44336,stroke:#C62828,color:white

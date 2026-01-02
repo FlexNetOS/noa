@@ -1,4 +1,5 @@
 pub mod file_utils;
+pub mod hardware_detector;
 pub mod serialization;
 pub mod validation;
 

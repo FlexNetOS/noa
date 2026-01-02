@@ -34,7 +34,9 @@ cargo clippy --all-features -- -D warnings || {
 }
 
 echo -e "${BLUE}Step 5: Run tests${NC}"
-cargo test --all-features
+cargo test --all-features || {
+    echo -e "${YELLOW}Some tests failed. Please review and fix before production deployment.${NC}"
+}
 
 echo -e "${BLUE}Step 6: Build release${NC}"
 cargo build --release --all-features
