@@ -1,0 +1,43 @@
+{
+  "agents": {
+    "default": {
+      "cpu_limit_ms": 1000,
+      "memory_limit_mb": 512,
+      "disk_limit_mb": 1024,
+      "max_execution_time_secs": 300,
+      "max_concurrent_operations": 5
+    },
+    
+    "planning": {
+      "cpu_limit_ms": 500,
+      "memory_limit_mb": 256,
+      "disk_limit_mb": 100,
+      "max_execution_time_secs": 120,
+      "max_concurrent_operations": 2
+    },
+    
+    "code-generation": {
+      "cpu_limit_ms": 2000,
+      "memory_limit_mb": 2048,
+      "disk_limit_mb": 5120,
+      "max_execution_time_secs": 600,
+      "max_concurrent_operations": 10
+    },
+    
+    "task-execution": {
+      "cpu_limit_ms": 4000,
+      "memory_limit_mb": 4096,
+      "disk_limit_mb": 10240,
+      "max_execution_time_secs": 3600,
+      "max_concurrent_operations": 20
+    }
+  },
+  
+  "global": {
+    "max_agents": 10,
+    "max_total_memory_mb": 8192,
+    "max_total_disk_mb": 20480,
+    "cleanup_interval_secs": 300,
+    "idle_timeout_secs": 600
+  }
+}

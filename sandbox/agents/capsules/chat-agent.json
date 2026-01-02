@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../config/schemas/capsule.schema.json",
+  "name": "chat-agent",
+  "version": "1.0.0",
+  "description": "Capsule for conversational chat agents",
+  "extends": "base",
+  
+  "resources": {
+    "cpu": {
+      "limit": "1000m",
+      "request": "200m"
+    },
+    "memory": {
+      "limit": "1Gi",
+      "request": "256Mi"
+    },
+    "disk": {
+      "limit": "100Mi",
+      "ephemeral": true
+    }
+  },
+  
+  "network": {
+    "enabled": true,
+    "allowedHosts": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "allowedPorts": [3001, 8080, 11434]
+  },
+  
+  "filesystem": {
+    "readOnly": true,
+    "allowedPaths": [
+      "/noa/cache/conversations"
+    ],
+    "blockedPaths": [
+      "/noa/config",
+      "/noa/secrets",
+      "/noa/data"
+    ]
+  },
+  
+  "capabilities": {
+    "tools": [],
+    "apis": [
+      "chat",
+      "completion"
+    ],
+    "models": ["*"]
+  },
+  
+  "security": {
+    "policy": "conversational",
+    "auditLog": true,
+    "maxExecutionTime": 120,
+    "maxOutputSize": "1Mi"
+  },
+  
+  "environment": {
+    "NOA_SANDBOX": "true",
+    "NOA_AGENT_MODE": "chat"
+  }
+}

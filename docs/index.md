@@ -54,11 +54,20 @@ Machine learning and DevOps platform documentation.
 - [ml-devops/](ml-devops/) — Complete ML DevOps documentation (26 files)
 - [ml-devops/QUICKSTART.md](ml-devops/QUICKSTART.md) — ML DevOps quickstart
 - [ml-devops/ARCHITECTURE.md](ml-devops/ARCHITECTURE.md) — Platform architecture
+- [ml-devops/MODEL_INVENTORY.md](ml-devops/MODEL_INVENTORY.md) — Model inventory with CAS integration
+
+### Runbooks
+Operational procedures and runbooks.
+
+- [runbooks/CAS_OPERATIONS.md](runbooks/CAS_OPERATIONS.md) — CAS operations runbook (complete guide)
 
 ### Status
 Project status and history.
 
 - [status/STATUS-HISTORY.md](status/STATUS-HISTORY.md) — Consolidated status history
+- [PHASE_3_COMPLETE.md](../PHASE_3_COMPLETE.md) — Phase 3 implementation summary
+- [PHASE_2.5_COMPLETE.md](../PHASE_2.5_COMPLETE.md) — Phase 2.5 framework alignment
+- [IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md) — Phase 1 & 2 summary
 
 ---
 
@@ -113,8 +122,49 @@ docs/
 | Priority | Document | Purpose |
 |----------|----------|---------|
 | ⭐⭐⭐ | [ML DevOps](ml-devops/) | Platform operations |
+| ⭐⭐⭐ | [CAS Operations](runbooks/CAS_OPERATIONS.md) | CAS operational runbook |
 | ⭐⭐ | [Runbooks](runbooks/) | Operational procedures |
+| ⭐⭐ | [Model Inventory](ml-devops/MODEL_INVENTORY.md) | Model management with CAS |
 
 ---
 
-*Last Updated: 2025-12-31*
+## 🆕 Recent Updates
+
+### Phase 4: System Core & Policy (2026-01-02)
+
+**Phase 4 Complete**: Trusted microkernel implementation
+
+- ✅ Identity management (3 principals, 4 roles, 7 capabilities)
+- ✅ Policy enforcement (6 policy categories, 17 rules)
+- ✅ Audit logging (8 event categories, SOC2/ISO27001 compliant)
+- ✅ System registry (5 services, 3 providers, 4 resources)
+- ✅ Task scheduler (5 scheduled tasks)
+- ✅ Capability-based RBAC with default deny
+- ✅ Complete documentation
+
+**Key Documents**:
+- [PHASE_4_COMPLETE.md](../PHASE_4_COMPLETE.md) - Complete implementation summary
+- [Identity README](../sys/core/identity/README.md) - Identity system guide
+- [Audit README](../sys/core/audit/README.md) - Audit system guide
+
+### Phase 3: CAS & Data Plane (2026-01-02)
+
+**Phase 3 Complete**: Content-Addressed Storage implementation
+
+- ✅ CAS layer with blake3 hashing and zstd compression
+- ✅ 7 utility scripts for object operations
+- ✅ 5 specialized registries (models, prompts, snapshots, binaries, packages)
+- ✅ Garbage collection with reachability analysis
+- ✅ Bounded cache management (6 cache types, 25GB total)
+- ✅ 35 automated tests (100% pass rate)
+- ✅ Complete operational runbook
+
+**Key Documents**:
+- [CAS Operations Runbook](runbooks/CAS_OPERATIONS.md) - Complete operational guide
+- [PHASE_3_COMPLETE.md](../PHASE_3_COMPLETE.md) - Full implementation summary
+- [CAS README](../cas/README.md) - Framework documentation
+- [CAS Scripts README](../scripts/cas/README.md) - Utility scripts guide
+
+---
+
+*Last Updated: 2026-01-02*

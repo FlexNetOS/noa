@@ -1,0 +1,176 @@
+{
+  "version": "1.0.0",
+  "description": "Audit logging configuration for NOA microkernel",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "sys/core"
+  },
+  "audit_enabled": true,
+  "audit_storage": {
+    "type": "file",
+    "base_path": "${NOA_ROOT}/sys/core/audit/logs",
+    "rotation": {
+      "enabled": true,
+      "max_size_mb": 100,
+      "max_age_days": 90,
+      "compress": true
+    },
+    "retention": {
+      "keep_days": 90,
+      "archive_path": "${NOA_ROOT}/sys/core/audit/archive"
+    }
+  },
+  "audit_events": {
+    "authentication": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "login_success",
+        "login_failure",
+        "logout",
+        "session_expired",
+        "token_refresh"
+      ]
+    },
+    "authorization": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "access_granted",
+        "access_denied",
+        "capability_checked",
+        "role_evaluated"
+      ]
+    },
+    "capability_usage": {
+      "enabled": true,
+      "log_level": "INFO",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "code_execution",
+        "file_operations",
+        "git_operations",
+        "embeddings",
+        "tool_discovery"
+      ]
+    },
+    "code_execution": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "sandbox_created",
+        "sandbox_destroyed",
+        "code_executed",
+        "execution_failed",
+        "resource_limit_exceeded"
+      ],
+      "include_metadata": {
+        "sandbox_id": true,
+        "exit_code": true,
+        "duration_ms": true,
+        "resource_usage": true
+      }
+    },
+    "file_operations": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "file_read",
+        "file_write",
+        "file_delete",
+        "directory_create",
+        "directory_delete"
+      ],
+      "include_metadata": {
+        "file_path": true,
+        "file_size": true,
+        "file_hash": false
+      }
+    },
+    "git_operations": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "git_clone",
+        "git_commit",
+        "git_push",
+        "git_pull",
+        "git_branch",
+        "git_merge"
+      ],
+      "include_metadata": {
+        "repository": true,
+        "branch": true,
+        "commit_hash": true,
+        "author": true
+      }
+    },
+    "policy_violations": {
+      "enabled": true,
+      "log_level": "WARN",
+      "events": [
+        "capability_denied",
+        "sandbox_violation",
+        "budget_exceeded",
+        "path_violation",
+        "rate_limit_exceeded"
+      ],
+      "include_metadata": {
+        "rule_id": true,
+        "policy_name": true,
+        "principal_id": true
+      }
+    },
+    "budget_tracking": {
+      "enabled": true,
+      "log_level": "INFO",
+      "events": [
+        "budget_allocated",
+        "budget_spent",
+        "budget_warning",
+        "budget_exceeded"
+      ],
+      "include_metadata": {
+        "amount_usd": true,
+        "remaining_usd": true,
+        "operation_type": true
+      }
+    }
+  },
+  "audit_format": {
+    "format": "json",
+    "timestamp_format": "iso8601",
+    "include_trace_id": true,
+    "include_principal_id": true,
+    "include_session_id": true
+  },
+  "sensitive_data_handling": {
+    "redact_secrets": true,
+    "redact_patterns": [
+      "password",
+      "token",
+      "api_key",
+      "secret",
+      "private_key"
+    ],
+    "hash_pii": true,
+    "pii_fields": [
+      "email",
+      "username",
+      "ip_address"
+    ]
+  },
+  "audit_queries": {
+    "enabled": true,
+    "query_interface": "file_based",
+    "index_events": false
+  },
+  "compliance": {
+    "standards": ["SOC2", "ISO27001"],
+    "tamper_protection": true,
+    "immutable_logs": true,
+    "chain_of_custody": true
+  }
+}

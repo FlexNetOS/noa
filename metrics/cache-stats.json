@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-01-02T20:56:46Z",
+  "total": {
+    "current_bytes": 3375782685,
+    "max_bytes": 24696061952,
+    "usage_percent": 13
+  },
+  "caches": [
+    {
+      "name": "pnpm                       1.9G /       5.0G ( 36%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "pnpm",
+      "current_bytes": 1973723477,
+      "max_bytes": 5368709120,
+      "usage_percent": 36
+    }
+,
+    {
+      "name": "playwright                 1.1G /       2.0G ( 53%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "playwright",
+      "current_bytes": 1157209264,
+      "max_bytes": 2147483648,
+      "usage_percent": 53
+    }
+,
+    {
+      "name": "downloads                  234M /        10G (  2%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "downloads",
+      "current_bytes": 244849944,
+      "max_bytes": 10737418240,
+      "usage_percent": 2
+    }
+,
+    {
+      "name": "build_cache                   0 /       3.0G (  0%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "build_cache",
+      "current_bytes": 0,
+      "max_bytes": 3221225472,
+      "usage_percent": 0
+    }
+,
+    {
+      "name": "model_inference               0 /       2.0G (  0%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "model_inference",
+      "current_bytes": 0,
+      "max_bytes": 2147483648,
+      "usage_percent": 0
+    }
+,
+    {
+      "name": "embeddings                    0 /       1.0G (  0%) [32mOK[0m",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+,
+    {
+      "name": "embeddings",
+      "current_bytes": 0,
+      "max_bytes": 1073741824,
+      "usage_percent": 0
+    }
+,
+    {
+      "name": "",
+      "current_bytes": ,
+      "max_bytes": ,
+      "usage_percent": 
+    }
+
+  ]
+}

@@ -3,11 +3,37 @@ name = "noa-ui-hived"
 version = "0.1.0"
 edition = "2024"
 publish = false
+description = "NOA Hive Daemon - P2P coordination and state sync service"
+
+[[bin]]
+name = "noa-hived"
+path = "src/main.rs"
 
 [dependencies]
+# Internal crates
 noa-ui-paths = { path = "../../crates/noa-ui-paths" }
 noa-ui-protocol = { path = "../../crates/noa-ui-protocol" }
 
+# Async runtime
+tokio = { workspace = true, features = ["rt-multi-thread", "signal", "sync"] }
+
+# Networking
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+reqwest = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
 anyhow = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Config
+directories = "6.0"

@@ -1,0 +1,228 @@
+{
+  "version": "1.0.0",
+  "description": "System core registry for NOA microkernel services and resources",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "sys/core"
+  },
+  "services": {
+    "identity": {
+      "id": "svc:identity",
+      "name": "Identity Management Service",
+      "type": "core_service",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/sys/core/identity/identity.json",
+      "health_endpoint": "/health",
+      "dependencies": []
+    },
+    "policy_enforcement": {
+      "id": "svc:enforcement",
+      "name": "Policy Enforcement Service",
+      "type": "core_service",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/sys/core/enforcement/policy.json",
+      "health_endpoint": "/health",
+      "dependencies": ["svc:identity"]
+    },
+    "audit": {
+      "id": "svc:audit",
+      "name": "Audit Logging Service",
+      "type": "core_service",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/sys/core/audit/audit-config.json",
+      "health_endpoint": "/health",
+      "dependencies": []
+    },
+    "scheduler": {
+      "id": "svc:scheduler",
+      "name": "Task Scheduler Service",
+      "type": "core_service",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/sys/core/scheduler/config.json",
+      "health_endpoint": "/health",
+      "dependencies": ["svc:identity"]
+    },
+    "world_model": {
+      "id": "svc:world_model",
+      "name": "World Model Service",
+      "type": "core_service",
+      "status": "planned",
+      "config_path": "${NOA_ROOT}/sys/core/world_model/config.json",
+      "health_endpoint": "/health",
+      "dependencies": ["svc:identity", "svc:audit"]
+    }
+  },
+  "providers": {
+    "claude_code_cli": {
+      "id": "prov:claude_code_cli",
+      "name": "Claude Code CLI",
+      "type": "remote_provider",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/providers/remote/claude_code_cli/config.json",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "code_execution",
+        "file_operations",
+        "git_operations"
+      ],
+      "mcp_connector": "${NOA_ROOT}/gateway/mcp/connectors/provider-connectors/claude-code.json"
+    },
+    "llama_cpp": {
+      "id": "prov:llama_cpp",
+      "name": "Llama.cpp Local Inference",
+      "type": "local_provider",
+      "status": "active",
+      "config_path": "${NOA_ROOT}/providers/local/llama_cpp/config.json",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "embeddings"
+      ],
+      "mcp_connector": "${NOA_ROOT}/gateway/mcp/connectors/provider-connectors/llama-cpp.json"
+    },
+    "codex_cli": {
+      "id": "prov:codex_cli",
+      "name": "OpenAI Codex CLI",
+      "type": "remote_provider",
+      "status": "planned",
+      "config_path": "${NOA_ROOT}/providers/remote/codex_cli/config.json",
+      "capabilities": [
+        "code_generation"
+      ],
+      "mcp_connector": "${NOA_ROOT}/gateway/mcp/connectors/provider-connectors/codex.json"
+    }
+  },
+  "resources": {
+    "cas": {
+      "id": "res:cas",
+      "name": "Content-Addressed Storage",
+      "type": "storage",
+      "status": "active",
+      "location": "${NOA_ROOT}/cas",
+      "config_path": "${NOA_ROOT}/configs/base/cas/config.json",
+      "capacity_gb": 100,
+      "used_gb": 0.5
+    },
+    "cache_pnpm": {
+      "id": "res:cache_pnpm",
+      "name": "PNPM Package Cache",
+      "type": "cache",
+      "status": "active",
+      "location": "${NOA_ROOT}/cache/pnpm",
+      "config_path": "${NOA_ROOT}/configs/base/cache/cache-policies.json",
+      "max_size_gb": 5,
+      "cleanup_strategy": "lru"
+    },
+    "cache_models": {
+      "id": "res:cache_models",
+      "name": "Model Inference Cache",
+      "type": "cache",
+      "status": "active",
+      "location": "${NOA_ROOT}/cache/inference",
+      "config_path": "${NOA_ROOT}/configs/base/cache/cache-policies.json",
+      "max_size_gb": 2,
+      "cleanup_strategy": "lru"
+    },
+    "sandbox_runtime": {
+      "id": "res:sandbox",
+      "name": "Sandbox Runtime Environment",
+      "type": "runtime",
+      "status": "active",
+      "location": "${NOA_ROOT}/sandbox/runtime",
+      "config_path": "${NOA_ROOT}/configs/base/sandbox-definitions/default-profiles.json",
+      "profiles": ["build", "test", "ai-inference", "general"]
+    }
+  },
+  "mcp_servers": {
+    "filesystem": {
+      "id": "mcp:filesystem",
+      "name": "Filesystem MCP Server",
+      "type": "mcp_server",
+      "status": "planned",
+      "protocol": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${NOA_ROOT}"]
+    },
+    "git": {
+      "id": "mcp:git",
+      "name": "Git MCP Server",
+      "type": "mcp_server",
+      "status": "planned",
+      "protocol": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"]
+    },
+    "brave_search": {
+      "id": "mcp:brave_search",
+      "name": "Brave Search MCP Server",
+      "type": "mcp_server",
+      "status": "planned",
+      "protocol": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    }
+  },
+  "tools": {
+    "cas_store": {
+      "id": "tool:cas_store",
+      "name": "CAS Store Object",
+      "type": "script",
+      "status": "active",
+      "path": "${NOA_ROOT}/scripts/cas/store-object.sh",
+      "capabilities_required": ["file_operations"]
+    },
+    "cas_retrieve": {
+      "id": "tool:cas_retrieve",
+      "name": "CAS Retrieve Object",
+      "type": "script",
+      "status": "active",
+      "path": "${NOA_ROOT}/scripts/cas/retrieve-object.sh",
+      "capabilities_required": ["file_operations"]
+    },
+    "cache_cleanup": {
+      "id": "tool:cache_cleanup",
+      "name": "Cache Cleanup",
+      "type": "script",
+      "status": "active",
+      "path": "${NOA_ROOT}/scripts/cache/cleanup-cache.sh",
+      "capabilities_required": ["file_operations"]
+    },
+    "cache_monitor": {
+      "id": "tool:cache_monitor",
+      "name": "Cache Monitor",
+      "type": "script",
+      "status": "active",
+      "path": "${NOA_ROOT}/scripts/cache/monitor-cache.sh",
+      "capabilities_required": ["file_operations"]
+    }
+  },
+  "health_checks": {
+    "enabled": true,
+    "interval_seconds": 60,
+    "timeout_seconds": 10,
+    "endpoints": [
+      {
+        "service_id": "svc:identity",
+        "url": "http://localhost:9001/health"
+      },
+      {
+        "service_id": "svc:enforcement",
+        "url": "http://localhost:9002/health"
+      },
+      {
+        "service_id": "svc:audit",
+        "url": "http://localhost:9003/health"
+      }
+    ]
+  },
+  "discovery": {
+    "enabled": true,
+    "auto_register": true,
+    "ttl_seconds": 300
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "description": "Task scheduler for NOA microkernel",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "sys/core"
+  },
+  "scheduler": {
+    "enabled": true,
+    "backend": "file_based",
+    "schedule_path": "${NOA_ROOT}/sys/core/scheduler/schedules",
+    "task_queue_path": "${NOA_ROOT}/sys/core/scheduler/queue",
+    "max_concurrent_tasks": 10,
+    "task_timeout_seconds": 3600
+  },
+  "scheduled_tasks": {
+    "cas_gc": {
+      "id": "task:cas_gc",
+      "name": "CAS Garbage Collection",
+      "schedule": "0 2 * * *",
+      "command": "bash ${NOA_ROOT}/scripts/cas/gc-run.sh",
+      "enabled": true,
+      "timeout_seconds": 1800,
+      "retry_on_failure": true,
+      "max_retries": 3,
+      "requires_capability": ["file_operations"]
+    },
+    "cache_cleanup": {
+      "id": "task:cache_cleanup",
+      "name": "Cache Cleanup",
+      "schedule": "0 */6 * * *",
+      "command": "bash ${NOA_ROOT}/scripts/cache/cleanup-cache.sh",
+      "enabled": true,
+      "timeout_seconds": 600,
+      "retry_on_failure": true,
+      "max_retries": 2,
+      "requires_capability": ["file_operations"]
+    },
+    "cache_monitor": {
+      "id": "task:cache_monitor",
+      "name": "Cache Usage Monitoring",
+      "schedule": "*/15 * * * *",
+      "command": "bash ${NOA_ROOT}/scripts/cache/monitor-cache.sh --export-metrics",
+      "enabled": true,
+      "timeout_seconds": 60,
+      "retry_on_failure": false,
+      "requires_capability": ["file_operations"]
+    },
+    "audit_rotation": {
+      "id": "task:audit_rotation",
+      "name": "Audit Log Rotation",
+      "schedule": "0 0 * * *",
+      "command": "bash ${NOA_ROOT}/sys/core/audit/scripts/rotate-logs.sh",
+      "enabled": true,
+      "timeout_seconds": 300,
+      "retry_on_failure": true,
+      "max_retries": 3,
+      "requires_capability": ["file_operations"]
+    },
+    "health_check": {
+      "id": "task:health_check",
+      "name": "System Health Check",
+      "schedule": "*/5 * * * *",
+      "command": "bash ${NOA_ROOT}/sys/core/scripts/health-check.sh",
+      "enabled": true,
+      "timeout_seconds": 30,
+      "retry_on_failure": false,
+      "requires_capability": ["file_operations"]
+    }
+  },
+  "task_execution": {
+    "principal_id": "sys:noa",
+    "sandbox_profile": "general",
+    "capture_output": true,
+    "log_execution": true,
+    "log_path": "${NOA_ROOT}/sys/core/scheduler/logs"
+  },
+  "notifications": {
+    "on_failure": {
+      "enabled": true,
+      "channels": ["email", "log"],
+      "email_to": "${ADMIN_EMAIL}",
+      "include_output": true
+    },
+    "on_success": {
+      "enabled": false,
+      "channels": ["log"]
+    }
+  },
+  "cron_schedule_format": {
+    "description": "Standard cron format: minute hour day month weekday",
+    "examples": {
+      "every_minute": "* * * * *",
+      "hourly": "0 * * * *",
+      "daily_2am": "0 2 * * *",
+      "every_6_hours": "0 */6 * * *",
+      "every_15_minutes": "*/15 * * * *",
+      "weekdays_9am": "0 9 * * 1-5",
+      "monthly_1st": "0 0 1 * *"
+    }
+  }
+}

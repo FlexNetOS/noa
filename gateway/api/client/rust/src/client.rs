@@ -2,7 +2,7 @@
 
 use reqwest::Client as HttpClient;
 use futures::StreamExt;
-use tracing::{debug, error};
+use tracing::debug;
 
 use crate::types::*;
 use crate::{Error, Result};

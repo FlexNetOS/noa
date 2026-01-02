@@ -1,0 +1,97 @@
+{
+  "$schema": "../../../config/schemas/capsule.schema.json",
+  "name": "task-agent",
+  "version": "1.0.0",
+  "description": "Capsule for task execution agents",
+  "extends": "base",
+  
+  "resources": {
+    "cpu": {
+      "limit": "4000m",
+      "request": "1000m"
+    },
+    "memory": {
+      "limit": "4Gi",
+      "request": "1Gi"
+    },
+    "disk": {
+      "limit": "10Gi",
+      "ephemeral": false
+    }
+  },
+  
+  "network": {
+    "enabled": true,
+    "allowedHosts": ["*"],
+    "allowedPorts": ["*"],
+    "rateLimit": {
+      "requests": 100,
+      "perSeconds": 60
+    }
+  },
+  
+  "filesystem": {
+    "readOnly": false,
+    "allowedPaths": ["*"],
+    "writablePaths": [
+      "/noa/sandbox",
+      "/noa/tmp",
+      "/noa/data/tasks"
+    ],
+    "blockedPaths": [
+      "/noa/secrets",
+      "/noa/bin/system"
+    ]
+  },
+  
+  "capabilities": {
+    "tools": [
+      "read_file",
+      "write_file",
+      "list_dir",
+      "grep_search",
+      "semantic_search",
+      "replace_string_in_file",
+      "run_in_terminal",
+      "create_file",
+      "create_directory",
+      "run_tests",
+      "fetch_webpage"
+    ],
+    "apis": [
+      "chat",
+      "completion",
+      "embedding",
+      "tasks",
+      "providers"
+    ],
+    "models": ["*"]
+  },
+  
+  "security": {
+    "policy": "task-execution",
+    "auditLog": true,
+    "maxExecutionTime": 3600,
+    "maxOutputSize": "100Mi",
+    "allowedCommands": ["*"],
+    "blockedCommands": [
+      "rm -rf /",
+      "format c:",
+      "shutdown",
+      "reboot",
+      "dd if=/dev/zero"
+    ],
+    "requireApproval": [
+      "delete_file",
+      "rm",
+      "git push --force"
+    ]
+  },
+  
+  "environment": {
+    "NOA_SANDBOX": "true",
+    "NOA_AGENT_MODE": "task-execution",
+    "NOA_ALLOW_WRITE": "true",
+    "NOA_ALLOW_NETWORK": "true"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.flexnetos.com/schemas/capsule.schema.json",
+  "title": "NOA Agent Capsule",
+  "description": "Schema for agent capsule definitions",
+  "type": "object",
+  
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "name": {
+      "type": "string",
+      "description": "Capsule name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Capsule version (semver)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Capsule description"
+    },
+    "extends": {
+      "type": "string",
+      "description": "Base capsule to extend"
+    },
+    
+    "resources": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "object",
+          "properties": {
+            "limit": { "type": "string" },
+            "request": { "type": "string" }
+          }
+        },
+        "memory": {
+          "type": "object",
+          "properties": {
+            "limit": { "type": "string" },
+            "request": { "type": "string" }
+          }
+        },
+        "disk": {
+          "type": "object",
+          "properties": {
+            "limit": { "type": "string" },
+            "ephemeral": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    
+    "network": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "allowedHosts": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowedPorts": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "integer" },
+              { "type": "string" }
+            ]
+          }
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requests": { "type": "integer" },
+            "perSeconds": { "type": "integer" }
+          }
+        }
+      }
+    },
+    
+    "filesystem": {
+      "type": "object",
+      "properties": {
+        "readOnly": { "type": "boolean" },
+        "allowedPaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "writablePaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "blockedPaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "apis": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "models": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    
+    "security": {
+      "type": "object",
+      "properties": {
+        "policy": { "type": "string" },
+        "auditLog": { "type": "boolean" },
+        "maxExecutionTime": { "type": "integer" },
+        "maxOutputSize": { "type": "string" },
+        "allowedCommands": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "blockedCommands": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requireApproval": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    
+    "environment": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  
+  "required": ["name", "version"]
+}

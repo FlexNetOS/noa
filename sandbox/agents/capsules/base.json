@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../config/schemas/capsule.schema.json",
+  "name": "base",
+  "version": "1.0.0",
+  "description": "Base capsule template for agent isolation",
+  
+  "resources": {
+    "cpu": {
+      "limit": "1000m",
+      "request": "100m"
+    },
+    "memory": {
+      "limit": "512Mi",
+      "request": "128Mi"
+    },
+    "disk": {
+      "limit": "1Gi",
+      "ephemeral": true
+    }
+  },
+  
+  "network": {
+    "enabled": false,
+    "allowedHosts": [],
+    "allowedPorts": []
+  },
+  
+  "filesystem": {
+    "readOnly": true,
+    "allowedPaths": [
+      "/noa/data/state",
+      "/noa/cache"
+    ],
+    "blockedPaths": [
+      "/noa/config",
+      "/noa/secrets"
+    ]
+  },
+  
+  "capabilities": {
+    "tools": [],
+    "apis": [],
+    "models": ["*"]
+  },
+  
+  "security": {
+    "policy": "default",
+    "auditLog": true,
+    "maxExecutionTime": 300,
+    "maxOutputSize": "10Mi"
+  },
+  
+  "environment": {
+    "NOA_SANDBOX": "true",
+    "NOA_AGENT_MODE": "isolated"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "permissions": {
+    "filesystem": {
+      "read": {
+        "description": "Read files from allowed paths",
+        "default": true,
+        "requires_audit": false
+      },
+      "write": {
+        "description": "Write files to allowed paths",
+        "default": false,
+        "requires_audit": true
+      },
+      "delete": {
+        "description": "Delete files from allowed paths",
+        "default": false,
+        "requires_audit": true,
+        "requires_approval": true
+      },
+      "execute": {
+        "description": "Execute files/commands",
+        "default": false,
+        "requires_audit": true
+      }
+    },
+    
+    "network": {
+      "localhost": {
+        "description": "Connect to localhost services",
+        "default": true,
+        "requires_audit": false
+      },
+      "external": {
+        "description": "Connect to external hosts",
+        "default": false,
+        "requires_audit": true
+      }
+    },
+    
+    "tools": {
+      "read_file": {
+        "description": "Read file contents",
+        "default": true,
+        "requires_audit": false
+      },
+      "write_file": {
+        "description": "Write/create files",
+        "default": false,
+        "requires_audit": true
+      },
+      "run_in_terminal": {
+        "description": "Execute terminal commands",
+        "default": false,
+        "requires_audit": true,
+        "requires_approval": ["rm", "delete", "format"]
+      },
+      "semantic_search": {
+        "description": "Search codebase semantically",
+        "default": true,
+        "requires_audit": false
+      },
+      "grep_search": {
+        "description": "Text search in files",
+        "default": true,
+        "requires_audit": false
+      },
+      "fetch_webpage": {
+        "description": "Fetch external web content",
+        "default": false,
+        "requires_audit": true
+      }
+    },
+    
+    "apis": {
+      "chat": {
+        "description": "Use chat/completion APIs",
+        "default": true,
+        "requires_audit": false
+      },
+      "embedding": {
+        "description": "Use embedding APIs",
+        "default": true,
+        "requires_audit": false
+      },
+      "providers": {
+        "description": "List/manage providers",
+        "default": true,
+        "requires_audit": false
+      },
+      "tasks": {
+        "description": "Create/manage tasks",
+        "default": false,
+        "requires_audit": true
+      }
+    }
+  },
+  
+  "roles": {
+    "readonly": {
+      "filesystem": ["read"],
+      "network": ["localhost"],
+      "tools": ["read_file", "semantic_search", "grep_search"],
+      "apis": ["chat", "embedding"]
+    },
+    
+    "developer": {
+      "filesystem": ["read", "write"],
+      "network": ["localhost", "external"],
+      "tools": ["read_file", "write_file", "run_in_terminal", "semantic_search", "grep_search"],
+      "apis": ["chat", "embedding", "providers", "tasks"]
+    },
+    
+    "admin": {
+      "filesystem": ["read", "write", "delete", "execute"],
+      "network": ["localhost", "external"],
+      "tools": ["*"],
+      "apis": ["*"]
+    }
+  }
+}

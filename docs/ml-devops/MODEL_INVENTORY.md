@@ -113,6 +113,80 @@ let model_name = "Qwen3-0.6B-BF16.gguf".to_string();
 
 ---
 
+## 💾 CAS Integration (Content-Addressed Storage)
+
+### Storing Models in CAS
+
+All models should be stored in the NOA CAS for versioning and deduplication:
+
+```bash
+# Store a model in CAS
+cd /n/noa
+HASH=$(bash scripts/cas/store-object.sh \
+  ml_devops_platform/rust_backend/models/Qwen3-0.6B-BF16.gguf \
+  model \
+  '{"name":"Qwen3-0.6B","quantization":"BF16","size_mb":1142.68}')
+
+# Create version tag
+bash scripts/cas/create-tag.sh qwen3-0.6b-v1 "$HASH" "Qwen3 0.6B BF16 quantization"
+
+# Update current model pointer
+bash scripts/cas/update-ref.sh models/qwen3/current "$HASH" "Deploy Qwen3 0.6B"
+```
+
+### Retrieving Models from CAS
+
+```bash
+# Retrieve by hash
+bash scripts/cas/retrieve-object.sh $HASH /tmp/model.gguf
+
+# Retrieve by tag
+HASH=$(grep -oP '"object":\s*"\K[a-f0-9]{64}' cas/tags/qwen3-0.6b-v1)
+bash scripts/cas/retrieve-object.sh "$HASH" /tmp/model.gguf
+
+# Retrieve by ref
+HASH=$(cat cas/refs/models/qwen3/current)
+bash scripts/cas/retrieve-object.sh "$HASH" /tmp/model.gguf
+```
+
+### Batch Store All Models
+
+```bash
+# Store all models from inventory
+cd /n/noa
+
+for model in ml_devops_platform/rust_backend/models/*.gguf; do
+  MODEL_NAME=$(basename "$model" .gguf)
+  echo "Storing: $MODEL_NAME"
+
+  HASH=$(bash scripts/cas/store-object.sh "$model" model "{\"name\":\"$MODEL_NAME\"}")
+
+  # Create tag
+  TAG=$(echo "$MODEL_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
+  bash scripts/cas/create-tag.sh "$TAG" "$HASH" "Model: $MODEL_NAME"
+
+  echo "  Hash: $HASH"
+  echo "  Tag: $TAG"
+done
+```
+
+### Model Registry
+
+Check stored models in CAS registry:
+
+```bash
+# View models registry
+cat /n/noa/cas/registry/models.json
+
+# List all model tags
+ls -lh /n/noa/cas/tags/ | grep -E "(qwen|gemma|deepseek|phi)"
+
+# List all model refs
+find /n/noa/cas/refs/models -type f
+```
+
+---
+
 ## 📊 Performance Estimates
 
 | Model | Size | Quantization | Est. RAM | Est. Speed |

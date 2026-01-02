@@ -1,0 +1,96 @@
+{
+  "$schema": "../../../config/schemas/capsule.schema.json",
+  "name": "code-agent",
+  "version": "1.0.0",
+  "description": "Capsule for code generation agents",
+  "extends": "base",
+  
+  "resources": {
+    "cpu": {
+      "limit": "2000m",
+      "request": "500m"
+    },
+    "memory": {
+      "limit": "2Gi",
+      "request": "512Mi"
+    },
+    "disk": {
+      "limit": "5Gi",
+      "ephemeral": true
+    }
+  },
+  
+  "network": {
+    "enabled": true,
+    "allowedHosts": [
+      "localhost",
+      "127.0.0.1",
+      "api.github.com",
+      "raw.githubusercontent.com"
+    ],
+    "allowedPorts": [3001, 8080, 11434]
+  },
+  
+  "filesystem": {
+    "readOnly": false,
+    "allowedPaths": [
+      "/noa/data/state",
+      "/noa/cache",
+      "/noa/tmp",
+      "/noa/sandbox/tmp"
+    ],
+    "writablePaths": [
+      "/noa/sandbox/tmp",
+      "/noa/tmp/agent-output"
+    ],
+    "blockedPaths": [
+      "/noa/config",
+      "/noa/secrets",
+      "/noa/bin"
+    ]
+  },
+  
+  "capabilities": {
+    "tools": [
+      "read_file",
+      "write_file",
+      "list_dir",
+      "grep_search",
+      "semantic_search",
+      "replace_string_in_file",
+      "run_in_terminal"
+    ],
+    "apis": [
+      "chat",
+      "completion",
+      "embedding"
+    ],
+    "models": ["*"]
+  },
+  
+  "security": {
+    "policy": "code-execution",
+    "auditLog": true,
+    "maxExecutionTime": 600,
+    "maxOutputSize": "50Mi",
+    "allowedCommands": [
+      "cargo",
+      "npm",
+      "pnpm",
+      "python",
+      "git"
+    ],
+    "blockedCommands": [
+      "rm -rf",
+      "format",
+      "shutdown",
+      "reboot"
+    ]
+  },
+  
+  "environment": {
+    "NOA_SANDBOX": "true",
+    "NOA_AGENT_MODE": "code-generation",
+    "NOA_ALLOW_WRITE": "true"
+  }
+}

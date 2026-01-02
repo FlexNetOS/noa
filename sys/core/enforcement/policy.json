@@ -1,0 +1,229 @@
+{
+  "version": "1.0.0",
+  "description": "Policy enforcement for NOA microkernel",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "sys/core"
+  },
+  "enforcement_mode": "strict",
+  "policies": {
+    "capability_enforcement": {
+      "enabled": true,
+      "description": "Enforce capability-based access control",
+      "rules": [
+        {
+          "id": "cap-001",
+          "description": "Verify principal has required capability",
+          "condition": "principal.capabilities contains requested_capability",
+          "action": "DENY",
+          "message": "Principal lacks required capability"
+        },
+        {
+          "id": "cap-002",
+          "description": "Verify capability allows resource type",
+          "condition": "capability.resource_types contains resource.type",
+          "action": "DENY",
+          "message": "Capability does not allow resource type"
+        },
+        {
+          "id": "cap-003",
+          "description": "Verify capability allows operation",
+          "condition": "capability.operations contains requested_operation",
+          "action": "DENY",
+          "message": "Capability does not allow operation"
+        }
+      ]
+    },
+    "sandbox_enforcement": {
+      "enabled": true,
+      "description": "Enforce sandbox isolation for code execution",
+      "rules": [
+        {
+          "id": "sandbox-001",
+          "description": "Code execution requires sandbox",
+          "condition": "capability == 'code_execution' AND NOT sandbox.active",
+          "action": "DENY",
+          "message": "Code execution requires active sandbox"
+        },
+        {
+          "id": "sandbox-002",
+          "description": "Sandbox must match profile",
+          "condition": "sandbox.profile IN allowed_profiles",
+          "action": "DENY",
+          "message": "Invalid sandbox profile"
+        },
+        {
+          "id": "sandbox-003",
+          "description": "Sandbox resource limits",
+          "condition": "sandbox.cpu <= profile.limits.cpu AND sandbox.memory <= profile.limits.memory",
+          "action": "DENY",
+          "message": "Sandbox exceeds resource limits"
+        }
+      ],
+      "allowed_profiles": ["build", "test", "ai-inference", "general"]
+    },
+    "budget_enforcement": {
+      "enabled": true,
+      "description": "Enforce budget limits for agent operations",
+      "rules": [
+        {
+          "id": "budget-001",
+          "description": "Check daily budget",
+          "condition": "principal.budget.daily_spent < principal.budget.daily_limit",
+          "action": "DENY",
+          "message": "Daily budget exceeded"
+        },
+        {
+          "id": "budget-002",
+          "description": "Check per-operation cost",
+          "condition": "operation.estimated_cost <= principal.budget.per_operation_max",
+          "action": "DENY",
+          "message": "Operation cost exceeds limit"
+        },
+        {
+          "id": "budget-003",
+          "description": "Check monthly budget",
+          "condition": "principal.budget.monthly_spent < principal.budget.monthly_limit",
+          "action": "DENY",
+          "message": "Monthly budget exceeded"
+        }
+      ],
+      "default_limits": {
+        "daily_limit_usd": 10.0,
+        "monthly_limit_usd": 100.0,
+        "per_operation_max_usd": 1.0
+      }
+    },
+    "path_restrictions": {
+      "enabled": true,
+      "description": "Enforce file path restrictions",
+      "rules": [
+        {
+          "id": "path-001",
+          "description": "File operations restricted to NOA_ROOT",
+          "condition": "path STARTS_WITH '${NOA_ROOT}' OR path STARTS_WITH '/tmp'",
+          "action": "DENY",
+          "message": "File access outside allowed paths"
+        },
+        {
+          "id": "path-002",
+          "description": "Block system directory access",
+          "condition": "path NOT STARTS_WITH '/etc' AND path NOT STARTS_WITH '/sys' AND path NOT STARTS_WITH '/proc'",
+          "action": "DENY",
+          "message": "System directory access forbidden"
+        },
+        {
+          "id": "path-003",
+          "description": "Block secret file access",
+          "condition": "path NOT MATCHES '.*\\.(key|pem|crt|secret|password)$'",
+          "action": "DENY",
+          "message": "Secret file access forbidden"
+        }
+      ],
+      "allowed_paths": [
+        "${NOA_ROOT}/**",
+        "/tmp/**"
+      ],
+      "blocked_paths": [
+        "/etc/**",
+        "/sys/**",
+        "/proc/**",
+        "**/.ssh/**",
+        "**/*.key",
+        "**/*.pem",
+        "**/*secret*",
+        "**/*password*"
+      ]
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "description": "Rate limit operations per principal",
+      "rules": [
+        {
+          "id": "rate-001",
+          "description": "Limit LLM queries per minute",
+          "condition": "operation.type == 'llm_query' AND requests_per_minute <= 60",
+          "action": "DENY",
+          "message": "LLM query rate limit exceeded"
+        },
+        {
+          "id": "rate-002",
+          "description": "Limit file operations per minute",
+          "condition": "operation.type == 'file_op' AND requests_per_minute <= 1000",
+          "action": "DENY",
+          "message": "File operation rate limit exceeded"
+        },
+        {
+          "id": "rate-003",
+          "description": "Limit code executions per minute",
+          "condition": "operation.type == 'code_exec' AND requests_per_minute <= 10",
+          "action": "DENY",
+          "message": "Code execution rate limit exceeded"
+        }
+      ],
+      "limits": {
+        "llm_query_per_minute": 60,
+        "file_op_per_minute": 1000,
+        "code_exec_per_minute": 10,
+        "git_op_per_minute": 20
+      }
+    },
+    "audit_requirements": {
+      "enabled": true,
+      "description": "Require audit logging for sensitive operations",
+      "rules": [
+        {
+          "id": "audit-001",
+          "description": "Audit git operations",
+          "condition": "capability == 'git_operations'",
+          "action": "AUDIT",
+          "message": "Git operation logged"
+        },
+        {
+          "id": "audit-002",
+          "description": "Audit code execution",
+          "condition": "capability == 'code_execution'",
+          "action": "AUDIT",
+          "message": "Code execution logged"
+        },
+        {
+          "id": "audit-003",
+          "description": "Audit file deletions",
+          "condition": "operation == 'delete'",
+          "action": "AUDIT",
+          "message": "File deletion logged"
+        }
+      ]
+    }
+  },
+  "enforcement_actions": {
+    "DENY": {
+      "description": "Deny request and return error",
+      "log_level": "WARN",
+      "notify_admin": false
+    },
+    "ALLOW": {
+      "description": "Allow request to proceed",
+      "log_level": "INFO",
+      "notify_admin": false
+    },
+    "AUDIT": {
+      "description": "Log to audit system",
+      "log_level": "INFO",
+      "notify_admin": false
+    },
+    "BLOCK": {
+      "description": "Block request and alert admin",
+      "log_level": "ERROR",
+      "notify_admin": true
+    }
+  },
+  "violation_handling": {
+    "on_violation": "DENY",
+    "log_violations": true,
+    "violation_log_path": "${NOA_ROOT}/sys/core/enforcement/violations.log",
+    "alert_on_repeated_violations": true,
+    "violation_threshold": 5
+  }
+}

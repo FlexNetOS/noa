@@ -1,0 +1,158 @@
+{
+  "version": "1.0.0",
+  "description": "Identity management for NOA microkernel",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "layer": "sys/core"
+  },
+  "identity_providers": {
+    "local": {
+      "type": "filesystem",
+      "enabled": true,
+      "identity_store": "${NOA_ROOT}/sys/core/identity/identities",
+      "cache_duration_seconds": 300
+    },
+    "remote": {
+      "type": "oidc",
+      "enabled": false,
+      "discovery_url": "${OIDC_DISCOVERY_URL}",
+      "client_id": "${OIDC_CLIENT_ID}",
+      "scopes": ["openid", "profile", "email"]
+    }
+  },
+  "principals": {
+    "system": {
+      "id": "sys:noa",
+      "type": "system",
+      "name": "NOA System",
+      "roles": ["system_admin"],
+      "capabilities": ["*"],
+      "created_at": "2026-01-02T00:00:00Z"
+    },
+    "agent": {
+      "id": "agent:default",
+      "type": "agent",
+      "name": "Default Agent",
+      "roles": ["agent"],
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "code_execution",
+        "file_operations",
+        "git_operations",
+        "embeddings",
+        "tool_discovery"
+      ],
+      "constraints": {
+        "sandbox_required": true,
+        "audit_required": true,
+        "budget_limited": true
+      },
+      "created_at": "2026-01-02T00:00:00Z"
+    },
+    "user": {
+      "id": "user:${USERNAME}",
+      "type": "user",
+      "name": "${USER_DISPLAY_NAME}",
+      "roles": ["user"],
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "file_operations",
+        "git_operations"
+      ],
+      "created_at": "2026-01-02T00:00:00Z"
+    }
+  },
+  "roles": {
+    "system_admin": {
+      "description": "System administrator with full access",
+      "capabilities": ["*"],
+      "inherits": []
+    },
+    "agent": {
+      "description": "AI agent with capability-based restrictions",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "code_execution",
+        "file_operations",
+        "git_operations",
+        "embeddings",
+        "tool_discovery"
+      ],
+      "inherits": []
+    },
+    "user": {
+      "description": "Human user with standard permissions",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "file_operations",
+        "git_operations"
+      ],
+      "inherits": []
+    },
+    "readonly": {
+      "description": "Read-only access for monitoring",
+      "capabilities": [
+        "reasoning",
+        "embeddings"
+      ],
+      "inherits": []
+    }
+  },
+  "capabilities": {
+    "reasoning": {
+      "description": "Access to LLM reasoning and inference",
+      "resource_types": ["llm", "inference"],
+      "operations": ["query", "stream"]
+    },
+    "code_generation": {
+      "description": "Generate code via LLM",
+      "resource_types": ["llm", "codegen"],
+      "operations": ["generate", "complete"]
+    },
+    "code_execution": {
+      "description": "Execute code in sandbox",
+      "resource_types": ["sandbox", "runtime"],
+      "operations": ["execute", "build"],
+      "requires_sandbox": true
+    },
+    "file_operations": {
+      "description": "Read and write files",
+      "resource_types": ["filesystem"],
+      "operations": ["read", "write", "delete"],
+      "path_restrictions": ["${NOA_ROOT}/**"]
+    },
+    "git_operations": {
+      "description": "Git version control operations",
+      "resource_types": ["git"],
+      "operations": ["clone", "commit", "push", "pull"],
+      "requires_audit": true
+    },
+    "embeddings": {
+      "description": "Generate and query embeddings",
+      "resource_types": ["embeddings", "vector_store"],
+      "operations": ["embed", "search"]
+    },
+    "tool_discovery": {
+      "description": "Discover and invoke MCP tools",
+      "resource_types": ["mcp", "tools"],
+      "operations": ["list", "invoke"]
+    }
+  },
+  "authentication": {
+    "methods": ["service_account", "api_key", "oidc"],
+    "session_duration_seconds": 3600,
+    "refresh_enabled": true,
+    "mfa_required": false
+  },
+  "authorization": {
+    "model": "capability_based_rbac",
+    "default_deny": true,
+    "capability_inheritance": true,
+    "audit_denied_access": true
+  }
+}
