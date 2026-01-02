@@ -1,8 +1,6 @@
 //! Main inference page component.
 
 use dioxus::prelude::*;
-use noa_api_client::Provider;
-use std::sync::Arc;
 
 use crate::chat::hooks::{use_api_client, use_providers_state, fetch_providers};
 use crate::chat::ProviderSelector;
@@ -16,34 +14,37 @@ pub fn InferencePage() -> Element {
     let mut selected_model = use_signal(|| None::<String>);
     
     // Load providers on mount
-    use_effect(move || {
+    {
         let client = client.clone();
-        spawn(async move {
-            providers_state.write().is_loading = true;
-            
-            match fetch_providers(client).await {
-                Ok(providers) => {
-                    let mut state = providers_state.write();
-                    state.providers = providers.clone();
-                    state.is_loading = false;
-                    
-                    // Select first local provider if available
-                    if state.selected_provider.is_none() {
-                        if let Some(p) = providers.iter().find(|p| p.provider_type == "local" && p.status == "available") {
-                            state.selected_provider = Some(p.id.clone());
-                        } else if let Some(p) = providers.iter().find(|p| p.status == "available") {
-                            state.selected_provider = Some(p.id.clone());
+        use_effect(move || {
+            let client = client.clone();
+            spawn(async move {
+                providers_state.write().is_loading = true;
+                
+                match fetch_providers(client).await {
+                    Ok(providers) => {
+                        let mut state = providers_state.write();
+                        state.providers = providers.clone();
+                        state.is_loading = false;
+                        
+                        // Select first local provider if available
+                        if state.selected_provider.is_none() {
+                            if let Some(p) = providers.iter().find(|p| p.provider_type == "local" && p.status == "available") {
+                                state.selected_provider = Some(p.id.clone());
+                            } else if let Some(p) = providers.iter().find(|p| p.status == "available") {
+                                state.selected_provider = Some(p.id.clone());
+                            }
                         }
                     }
+                    Err(e) => {
+                        let mut state = providers_state.write();
+                        state.error = Some(e);
+                        state.is_loading = false;
+                    }
                 }
-                Err(e) => {
-                    let mut state = providers_state.write();
-                    state.error = Some(e);
-                    state.is_loading = false;
-                }
-            }
+            });
         });
-    });
+    }
     
     // Handle provider selection
     let handle_provider_select = move |provider_id: String| {

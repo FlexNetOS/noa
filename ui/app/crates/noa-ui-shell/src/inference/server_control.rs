@@ -1,8 +1,6 @@
 //! Inference server control component.
 
 use dioxus::prelude::*;
-use noa_api_client::Client;
-use std::sync::Arc;
 
 use crate::chat::hooks::use_api_client;
 

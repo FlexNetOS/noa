@@ -15,7 +15,7 @@
 
 > Link to the goals this policy supports. Policy exists to achieve goals.
 
-- **Goals Document:** [{topic}-goals.md](../01-goals/{topic}-goals.md)
+- **Goals Document:** [{topic}-goals.md](../01-goals/%7Btopic%7D-goals.md)
 - **Supported Goals:**
   - G-{TOPIC}-001: {Goal name} — this policy enables via §{N}
   - G-{TOPIC}-002: {Goal name} — this policy enables via §{N}
@@ -26,7 +26,7 @@
 
 > Link to rules that enforce this policy. Rules make policy actionable.
 
-- **Rules Document:** [{topic}-rule.md](../03-rules/{topic}-rule.md)
+- **Rules Document:** [{topic}-rule.md](../03-rules/%7Btopic%7D-rule.md)
 - **Enforcement Mapping:**
 
 | Policy Section | Enforced By | Severity |

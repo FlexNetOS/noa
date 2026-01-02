@@ -30,9 +30,9 @@ tokio = { version = "1.43", features = ["rt", "macros", "time"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 
-# UI Component Libraries
-dioxus-primitives = "0.1"
-daisy_rsx = "0.8"
+# UI Component Libraries (optional - use native DaisyUI classes directly)
+# dioxus-primitives = "0.0"  # Not yet released
+# daisy_rsx = "0.1"  # Use DaisyUI classes directly instead
 
 # P2P and State Sync
 loro = "1.4"

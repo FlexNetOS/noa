@@ -10,7 +10,8 @@ use crate::{Error, Result};
 /// NOA API client.
 pub struct Client {
     http: HttpClient,
-    base_url: String,
+    /// The base URL for API requests.
+    pub base_url: String,
 }
 
 impl Client {

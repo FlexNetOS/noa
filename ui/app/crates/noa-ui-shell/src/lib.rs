@@ -7,6 +7,9 @@ pub mod metrics;
 pub mod settings;
 pub mod styleguide;
 
+#[cfg(test)]
+mod tests;
+
 pub use app::App;
 pub use chat::{ChatPage, ChatInput, ChatMessages, ProviderSelector};
 pub use inference::{InferencePage, ServerControl, ModelSelector, CompletionPanel};

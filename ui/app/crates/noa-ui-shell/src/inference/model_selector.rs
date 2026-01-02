@@ -1,8 +1,7 @@
 //! Model selector component.
 
 use dioxus::prelude::*;
-use noa_api_client::{Model, ModelsResponse};
-use std::sync::Arc;
+use noa_api_client::Model;
 
 use crate::chat::hooks::use_api_client;
 

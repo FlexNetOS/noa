@@ -6,7 +6,7 @@ mod chat_page;
 mod chat_input;
 mod chat_messages;
 mod providers;
-mod hooks;
+pub mod hooks;
 
 pub use chat_page::ChatPage;
 pub use chat_input::ChatInput;

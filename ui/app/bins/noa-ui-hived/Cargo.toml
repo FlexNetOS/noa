@@ -37,3 +37,10 @@ clap = { version = "4.5", features = ["derive", "env"] }
 
 # Config
 directories = "6.0"
+
+# Time
+chrono = { workspace = true }
+
+[dev-dependencies]
+axum-test = "16.0"
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

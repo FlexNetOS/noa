@@ -23,6 +23,9 @@ mod config;
 mod server;
 mod state;
 
+#[cfg(test)]
+mod tests;
+
 use anyhow::Result;
 use clap::Parser;
 use tracing::{info, error};

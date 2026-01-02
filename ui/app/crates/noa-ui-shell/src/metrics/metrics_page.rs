@@ -71,21 +71,21 @@ pub fn MetricsPage() -> Element {
                 
                 StatusCard {
                     title: "API Server".to_string(),
-                    status: if status.read().api_healthy { "healthy" } else { "error" }.to_string(),
-                    value: if status.read().api_healthy { "Online" } else { "Offline" }.to_string(),
+                    status: (if status.read().api_healthy { "healthy" } else { "error" }).to_string(),
+                    value: (if status.read().api_healthy { "Online" } else { "Offline" }).to_string(),
                     icon: "🌐".to_string(),
                 }
                 
                 StatusCard {
                     title: "LLM Engine".to_string(),
-                    status: if status.read().llama_healthy { "healthy" } else { "error" }.to_string(),
-                    value: if status.read().llama_healthy { "Running" } else { "Stopped" }.to_string(),
+                    status: (if status.read().llama_healthy { "healthy" } else { "error" }).to_string(),
+                    value: (if status.read().llama_healthy { "Running" } else { "Stopped" }).to_string(),
                     icon: "🧠".to_string(),
                 }
                 
                 StatusCard {
                     title: "P2P Peers".to_string(),
-                    status: if status.read().p2p_peers > 0 { "healthy" } else { "warning" }.to_string(),
+                    status: (if status.read().p2p_peers > 0 { "healthy" } else { "warning" }).to_string(),
                     value: status.read().p2p_peers.to_string(),
                     icon: "🔗".to_string(),
                 }

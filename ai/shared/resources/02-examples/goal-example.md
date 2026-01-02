@@ -112,7 +112,7 @@
 
 > Link to the policy document that governs how these goals are achieved.
 
-- **Policy Document:** [{topic}-policy.md](../02-policy/{topic}-policy.md)
+- **Policy Document:** [{topic}-policy.md](../02-policy/%7Btopic%7D-policy.md)
 - **Key Sections:**
   - §{N} - {Section name relevant to goal 1}
   - §{N} - {Section name relevant to goal 2}
@@ -122,7 +122,7 @@
 
 > Link to the rules document that enforces these goals.
 
-- **Rules Document:** [{topic}-rule.md](../03-rules/{topic}-rule.md)
+- **Rules Document:** [{topic}-rule.md](../03-rules/%7Btopic%7D-rule.md)
 - **Key Rules:**
   - {TOPIC}-001: {Rule name} — enforces {goal reference}
   - {TOPIC}-002: {Rule name} — enforces {goal reference}

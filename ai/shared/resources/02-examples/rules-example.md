@@ -8,7 +8,7 @@
 
 > Link to the goals these rules help achieve.
 
-- **Goals Document:** [{topic}-goals.md](../01-goals/{topic}-goals.md)
+- **Goals Document:** [{topic}-goals.md](../01-goals/%7Btopic%7D-goals.md)
 - **Goal Enforcement:**
 
 | Goal ID | Goal Name | Enforced By Rules |
@@ -23,7 +23,7 @@
 
 > Link to the policy these rules enforce.
 
-- **Policy Document:** [{topic}-policy.md](../02-policy/{topic}-policy.md)
+- **Policy Document:** [{topic}-policy.md](../02-policy/%7Btopic%7D-policy.md)
 - **Policy Enforcement:**
 
 | Policy Section | Section Name | Enforced By Rules |

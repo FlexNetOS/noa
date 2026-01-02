@@ -14,21 +14,24 @@ pub fn ProviderSettings() -> Element {
     let mut error = use_signal(|| None::<String>);
     
     // Load providers
-    use_effect(move || {
+    {
         let client = client.clone();
-        spawn(async move {
-            match fetch_providers(client).await {
-                Ok(p) => {
-                    providers.set(p);
-                    is_loading.set(false);
+        use_effect(move || {
+            let client = client.clone();
+            spawn(async move {
+                match fetch_providers(client).await {
+                    Ok(p) => {
+                        providers.set(p);
+                        is_loading.set(false);
+                    }
+                    Err(e) => {
+                        error.set(Some(e));
+                        is_loading.set(false);
+                    }
                 }
-                Err(e) => {
-                    error.set(Some(e));
-                    is_loading.set(false);
-                }
-            }
+            });
         });
-    });
+    }
     
     rsx! {
         div {

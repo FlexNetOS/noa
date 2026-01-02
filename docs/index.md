@@ -65,6 +65,8 @@ Operational procedures and runbooks.
 Project status and history.
 
 - [status/STATUS-HISTORY.md](status/STATUS-HISTORY.md) — Consolidated status history
+- [PHASE_5_COMPLETE.md](../PHASE_5_COMPLETE.md) — Phase 5 implementation summary
+- [PHASE_4_COMPLETE.md](../PHASE_4_COMPLETE.md) — Phase 4 implementation summary
 - [PHASE_3_COMPLETE.md](../PHASE_3_COMPLETE.md) — Phase 3 implementation summary
 - [PHASE_2.5_COMPLETE.md](../PHASE_2.5_COMPLETE.md) — Phase 2.5 framework alignment
 - [IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md) — Phase 1 & 2 summary
@@ -129,6 +131,22 @@ docs/
 ---
 
 ## 🆕 Recent Updates
+
+### Phase 5: Resource Registry & Agent Templates (2026-01-02)
+
+**Phase 5 Complete**: Resource management implementation
+
+- ✅ Resource registry (3 agent templates, 18 tool definitions, 3 prompt templates)
+- ✅ Agent deployment workflow (6-step automated deployment)
+- ✅ Model deployment workflow (5-step CAS deployment)
+- ✅ Tool definition schema (JSON Schema validation)
+- ✅ Resource quotas (agent limits, budget defaults)
+- ✅ Deployment scripts (agent & model)
+- ✅ Complete documentation
+
+**Key Documents**:
+- [PHASE_5_COMPLETE.md](../PHASE_5_COMPLETE.md) - Complete implementation summary
+- [Resource Registry](../data/resources/registry.json) - Central resource catalog
 
 ### Phase 4: System Core & Policy (2026-01-02)
 

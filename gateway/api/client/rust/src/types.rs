@@ -46,7 +46,7 @@ pub struct ChatRequest {
 }
 
 /// Chat message in conversation history.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChatMessage {
     pub role: String,
     pub content: String,
@@ -75,7 +75,7 @@ pub struct ProvidersResponse {
 }
 
 /// AI provider.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Provider {
     pub id: String,
     pub name: String,
@@ -93,7 +93,7 @@ pub struct ModelsResponse {
 }
 
 /// AI model.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Model {
     pub id: String,
     pub name: String,

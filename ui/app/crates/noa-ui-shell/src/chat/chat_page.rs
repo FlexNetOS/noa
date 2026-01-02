@@ -2,9 +2,8 @@
 
 use dioxus::prelude::*;
 use noa_api_client::ChatMessage;
-use std::sync::Arc;
 
-use super::hooks::{use_api_client, use_chat_state, use_providers_state, send_message, fetch_providers, ChatState, ProvidersState};
+use super::hooks::{use_api_client, use_chat_state, use_providers_state, send_message, fetch_providers};
 use super::{ChatMessages, ChatInput, ProviderSelector};
 
 /// Full chat page with provider selection and message history.
@@ -18,32 +17,35 @@ pub fn ChatPage() -> Element {
     let mut providers_state = use_providers_state();
     
     // Load providers on mount
-    use_effect(move || {
+    {
         let client = client.clone();
-        spawn(async move {
-            providers_state.write().is_loading = true;
-            
-            match fetch_providers(client).await {
-                Ok(providers) => {
-                    let mut state = providers_state.write();
-                    state.providers = providers.clone();
-                    state.is_loading = false;
-                    
-                    // Select first available provider
-                    if state.selected_provider.is_none() {
-                        if let Some(p) = providers.iter().find(|p| p.status == "available") {
-                            state.selected_provider = Some(p.id.clone());
+        use_effect(move || {
+            let client = client.clone();
+            spawn(async move {
+                providers_state.write().is_loading = true;
+                
+                match fetch_providers(client).await {
+                    Ok(providers) => {
+                        let mut state = providers_state.write();
+                        state.providers = providers.clone();
+                        state.is_loading = false;
+                        
+                        // Select first available provider
+                        if state.selected_provider.is_none() {
+                            if let Some(p) = providers.iter().find(|p| p.status == "available") {
+                                state.selected_provider = Some(p.id.clone());
+                            }
                         }
                     }
+                    Err(e) => {
+                        let mut state = providers_state.write();
+                        state.error = Some(e);
+                        state.is_loading = false;
+                    }
                 }
-                Err(e) => {
-                    let mut state = providers_state.write();
-                    state.error = Some(e);
-                    state.is_loading = false;
-                }
-            }
+            });
         });
-    });
+    }
     
     // Handle sending messages
     let handle_send = {

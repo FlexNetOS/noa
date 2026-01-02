@@ -3,14 +3,10 @@ name = "noa-ui-components"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
-description = "NOA unified component library - wraps dioxus-primitives (ARIA behaviors) and daisy_rsx (DaisyUI styling)"
+description = "NOA unified component library - DaisyUI styling with native Dioxus"
 
 [dependencies]
 dioxus = { workspace = true }
-dioxus-primitives = { workspace = true }
-daisy_rsx = { workspace = true }
 
 [features]
-default = ["primitives", "daisy"]
-primitives = []
-daisy = []
+default = []

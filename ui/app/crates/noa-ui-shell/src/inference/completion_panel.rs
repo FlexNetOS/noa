@@ -1,8 +1,7 @@
 //! Completion panel for direct text completion.
 
 use dioxus::prelude::*;
-use noa_api_client::{ChatRequest, ChatResponse};
-use std::sync::Arc;
+use noa_api_client::ChatRequest;
 
 use crate::chat::hooks::use_api_client;
 

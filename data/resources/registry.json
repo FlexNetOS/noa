@@ -1,0 +1,433 @@
+{
+  "version": "1.0.0",
+  "description": "Resource registry for NOA platform - tools, templates, and definitions",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z",
+    "registry_type": "resources"
+  },
+  "agent_templates": {
+    "claude_code_agent": {
+      "id": "tmpl:claude_code_agent",
+      "name": "Claude Code Agent",
+      "version": "1.0.0",
+      "provider": "claude_code_cli",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "code_execution",
+        "file_operations",
+        "git_operations"
+      ],
+      "configuration": {
+        "model": "claude-sonnet-4.5",
+        "max_tokens": 8192,
+        "temperature": 0.7,
+        "system_prompt": "You are a helpful AI coding assistant running in the NOA framework.",
+        "tools_enabled": true
+      },
+      "constraints": {
+        "sandbox_profile": "build",
+        "max_execution_time_seconds": 300,
+        "budget_limit_per_session_usd": 1.0
+      },
+      "deployment": {
+        "deployment_type": "remote",
+        "health_check_enabled": true,
+        "auto_restart": true
+      }
+    },
+    "local_reasoning_agent": {
+      "id": "tmpl:local_reasoning_agent",
+      "name": "Local Reasoning Agent",
+      "version": "1.0.0",
+      "provider": "llama_cpp",
+      "capabilities": [
+        "reasoning",
+        "code_generation",
+        "embeddings"
+      ],
+      "configuration": {
+        "model_path": "${NOA_ROOT}/cas/refs/models/llama/current",
+        "context_size": 8192,
+        "gpu_layers": 32,
+        "threads": 8,
+        "batch_size": 512
+      },
+      "constraints": {
+        "max_memory_mb": 8192,
+        "max_execution_time_seconds": 60
+      },
+      "deployment": {
+        "deployment_type": "local",
+        "health_check_enabled": true,
+        "auto_restart": true
+      }
+    },
+    "embedding_agent": {
+      "id": "tmpl:embedding_agent",
+      "name": "Embedding Agent",
+      "version": "1.0.0",
+      "provider": "llama_cpp",
+      "capabilities": [
+        "embeddings"
+      ],
+      "configuration": {
+        "model_path": "${NOA_ROOT}/models/embeddings/nomic-embed-text-v1.5.gguf",
+        "embedding_only": true,
+        "normalize": true
+      },
+      "constraints": {
+        "max_memory_mb": 2048,
+        "max_batch_size": 128
+      },
+      "deployment": {
+        "deployment_type": "local",
+        "health_check_enabled": false,
+        "auto_restart": true
+      }
+    }
+  },
+  "tool_definitions": {
+    "cas_operations": {
+      "id": "tool_group:cas_ops",
+      "name": "CAS Operations Tools",
+      "tools": [
+        {
+          "id": "tool:cas_store",
+          "name": "store_object",
+          "description": "Store object in content-addressed storage",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cas/store-object.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "file_path": {"type": "string", "description": "Path to file to store"},
+                "object_type": {"type": "string", "enum": ["model", "prompt", "snapshot", "binary", "package"]},
+                "metadata": {"type": "object", "description": "Optional metadata"}
+              },
+              "required": ["file_path", "object_type"]
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "hash": {"type": "string", "description": "Object hash"},
+                "size": {"type": "integer", "description": "Object size in bytes"}
+              }
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:cas_retrieve",
+          "name": "retrieve_object",
+          "description": "Retrieve object from CAS by hash",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cas/retrieve-object.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "hash": {"type": "string", "description": "Object hash"},
+                "output_path": {"type": "string", "description": "Output file path"}
+              },
+              "required": ["hash"]
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:cas_create_tag",
+          "name": "create_tag",
+          "description": "Create named tag for CAS object",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cas/create-tag.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "tag_name": {"type": "string"},
+                "hash": {"type": "string"},
+                "message": {"type": "string"}
+              },
+              "required": ["tag_name", "hash"]
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:cas_gc",
+          "name": "garbage_collect",
+          "description": "Run CAS garbage collection",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cas/gc-run.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "dry_run": {"type": "boolean", "default": true}
+              }
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        }
+      ]
+    },
+    "cache_management": {
+      "id": "tool_group:cache_mgmt",
+      "name": "Cache Management Tools",
+      "tools": [
+        {
+          "id": "tool:cache_monitor",
+          "name": "monitor_cache",
+          "description": "Monitor cache usage and export metrics",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cache/monitor-cache.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "export_metrics": {"type": "boolean", "default": false}
+              }
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "total_usage_percent": {"type": "integer"},
+                "caches": {"type": "array"}
+              }
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:cache_cleanup",
+          "name": "cleanup_cache",
+          "description": "Clean up bounded caches",
+          "type": "script",
+          "executable": "${NOA_ROOT}/scripts/cache/cleanup-cache.sh",
+          "schema": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "cache_name": {"type": "string", "enum": ["all", "pnpm", "playwright", "downloads", "build_cache", "model_inference", "embeddings"]},
+                "dry_run": {"type": "boolean", "default": true},
+                "force": {"type": "boolean", "default": false}
+              }
+            }
+          },
+          "capabilities_required": ["file_operations"]
+        }
+      ]
+    },
+    "file_operations": {
+      "id": "tool_group:file_ops",
+      "name": "File Operations Tools",
+      "tools": [
+        {
+          "id": "tool:read_file",
+          "name": "read_file",
+          "description": "Read file contents",
+          "type": "mcp",
+          "mcp_server": "mcp:filesystem",
+          "tool_name": "read_file",
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:write_file",
+          "name": "write_file",
+          "description": "Write file contents",
+          "type": "mcp",
+          "mcp_server": "mcp:filesystem",
+          "tool_name": "write_file",
+          "capabilities_required": ["file_operations"]
+        },
+        {
+          "id": "tool:list_directory",
+          "name": "list_directory",
+          "description": "List directory contents",
+          "type": "mcp",
+          "mcp_server": "mcp:filesystem",
+          "tool_name": "list_directory",
+          "capabilities_required": ["file_operations"]
+        }
+      ]
+    },
+    "git_operations": {
+      "id": "tool_group:git_ops",
+      "name": "Git Operations Tools",
+      "tools": [
+        {
+          "id": "tool:git_status",
+          "name": "git_status",
+          "description": "Get repository status",
+          "type": "mcp",
+          "mcp_server": "mcp:git",
+          "tool_name": "status",
+          "capabilities_required": ["git_operations"]
+        },
+        {
+          "id": "tool:git_commit",
+          "name": "git_commit",
+          "description": "Create git commit",
+          "type": "mcp",
+          "mcp_server": "mcp:git",
+          "tool_name": "commit",
+          "capabilities_required": ["git_operations"]
+        },
+        {
+          "id": "tool:git_diff",
+          "name": "git_diff",
+          "description": "Show git diff",
+          "type": "mcp",
+          "mcp_server": "mcp:git",
+          "tool_name": "diff",
+          "capabilities_required": ["git_operations"]
+        },
+        {
+          "id": "tool:git_log",
+          "name": "git_log",
+          "description": "View commit log",
+          "type": "mcp",
+          "mcp_server": "mcp:git",
+          "tool_name": "log",
+          "capabilities_required": ["git_operations"]
+        }
+      ]
+    },
+    "search_operations": {
+      "id": "tool_group:search_ops",
+      "name": "Search Operations Tools",
+      "tools": [
+        {
+          "id": "tool:brave_search",
+          "name": "brave_search",
+          "description": "Search the web with Brave",
+          "type": "mcp",
+          "mcp_server": "mcp:brave_search",
+          "tool_name": "brave_web_search",
+          "capabilities_required": ["tool_discovery"]
+        }
+      ]
+    }
+  },
+  "prompt_templates": {
+    "code_review": {
+      "id": "prompt:code_review",
+      "name": "Code Review Template",
+      "version": "1.0.0",
+      "description": "Comprehensive code review prompt",
+      "template": "Review the following code for:\n- Correctness and logic errors\n- Security vulnerabilities (OWASP Top 10)\n- Performance issues\n- Code style and best practices\n- Test coverage\n\nCode:\n{{code}}\n\nProvide detailed feedback with specific suggestions.",
+      "variables": ["code"],
+      "use_case": "code_review"
+    },
+    "commit_message": {
+      "id": "prompt:commit_message",
+      "name": "Commit Message Generator",
+      "version": "1.0.0",
+      "description": "Generate conventional commit messages",
+      "template": "Generate a concise commit message for the following changes:\n\nDiff:\n{{diff}}\n\nFollow conventional commits format:\n<type>(<scope>): <subject>\n\n<body>\n\nTypes: feat, fix, docs, style, refactor, test, chore",
+      "variables": ["diff"],
+      "use_case": "git_operations"
+    },
+    "documentation": {
+      "id": "prompt:documentation",
+      "name": "Documentation Generator",
+      "version": "1.0.0",
+      "description": "Generate documentation from code",
+      "template": "Generate comprehensive documentation for:\n\n{{code}}\n\nInclude:\n- Function/class description\n- Parameters with types\n- Return values\n- Usage examples\n- Edge cases and error handling",
+      "variables": ["code"],
+      "use_case": "documentation"
+    }
+  },
+  "deployment_workflows": {
+    "deploy_agent": {
+      "id": "workflow:deploy_agent",
+      "name": "Deploy Agent",
+      "version": "1.0.0",
+      "description": "Deploy agent from template",
+      "steps": [
+        {
+          "step": 1,
+          "action": "validate_template",
+          "description": "Validate agent template"
+        },
+        {
+          "step": 2,
+          "action": "check_capabilities",
+          "description": "Verify required capabilities available"
+        },
+        {
+          "step": 3,
+          "action": "allocate_resources",
+          "description": "Allocate compute resources"
+        },
+        {
+          "step": 4,
+          "action": "initialize_agent",
+          "description": "Initialize agent instance"
+        },
+        {
+          "step": 5,
+          "action": "register_with_registry",
+          "description": "Register agent in sys/core/registry"
+        },
+        {
+          "step": 6,
+          "action": "health_check",
+          "description": "Verify agent health"
+        }
+      ]
+    },
+    "deploy_model": {
+      "id": "workflow:deploy_model",
+      "name": "Deploy Model to CAS",
+      "version": "1.0.0",
+      "description": "Deploy model file to CAS with versioning",
+      "steps": [
+        {
+          "step": 1,
+          "action": "validate_model_file",
+          "description": "Verify model file integrity"
+        },
+        {
+          "step": 2,
+          "action": "store_in_cas",
+          "description": "Store model in CAS",
+          "tool": "tool:cas_store"
+        },
+        {
+          "step": 3,
+          "action": "create_version_tag",
+          "description": "Tag model with version",
+          "tool": "tool:cas_create_tag"
+        },
+        {
+          "step": 4,
+          "action": "update_current_ref",
+          "description": "Update current model pointer"
+        },
+        {
+          "step": 5,
+          "action": "update_registry",
+          "description": "Register model in CAS registry"
+        }
+      ]
+    }
+  },
+  "resource_quotas": {
+    "agent_defaults": {
+      "max_concurrent_agents": 10,
+      "max_memory_per_agent_mb": 4096,
+      "max_cpu_per_agent_percent": 50,
+      "max_session_duration_seconds": 3600
+    },
+    "budget_defaults": {
+      "daily_limit_usd": 10.0,
+      "monthly_limit_usd": 100.0,
+      "per_operation_max_usd": 1.0,
+      "warning_threshold_percent": 80
+    }
+  }
+}

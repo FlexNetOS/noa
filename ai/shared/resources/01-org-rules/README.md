@@ -1,19 +1,17 @@
-# 02-examples
+# Organization Rules
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-02-examples component of static resources and policy documents.
+06-rules component of static resources and policy documents.
 
 ## Directory Structure
 
 ### Files
 
 ```
-goal-example.md
-policy-example.md
-rules-example.md
+env-rule.md
 ```
 
 ## Related Policies

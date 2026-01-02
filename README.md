@@ -107,7 +107,41 @@ npm run build
 
 ## 🧪 Testing
 
-**API Health Check:**
+### Unit Tests
+
+```bash
+# All unit tests
+cargo test
+
+# Specific crate tests
+cargo test -p noa-api-client    # API client
+cargo test -p noa-ui-shell      # UI shell components
+cargo test -p noa-ui-hived      # Daemon
+```
+
+### Integration Tests
+
+```bash
+# Sandbox capsule validation
+cargo test --test sandbox_integration_test
+
+# E2E tests (requires running services)
+cargo test --test ui_e2e_test -- --ignored
+```
+
+### Test Files
+
+| Location | Description |
+|----------|-------------|
+| `gateway/api/client/rust/src/tests.rs` | API client unit tests |
+| `ui/app/crates/noa-ui-shell/src/tests.rs` | UI component tests |
+| `ui/app/bins/noa-ui-hived/src/tests.rs` | Daemon tests |
+| `tests/sandbox_integration_test.rs` | Agent sandbox tests |
+| `tests/ui_e2e_test.rs` | End-to-end UI tests |
+
+See [tests/README.md](tests/README.md) for full documentation.
+
+### API Health Check
 
 ```powershell
 Invoke-WebRequest -Uri http://localhost:3001/health -UseBasicParsing

@@ -1,52 +1,67 @@
 use dioxus::prelude::*;
 
-const MAIN_CSS: Asset = asset!("/assets/styleguide/main.css");
-const BLOG_CSS: Asset = asset!("/assets/styleguide/blog.css");
-
-/// A small Dioxus styleguide area (derived from the default Dioxus workspace template).
+/// A small Dioxus styleguide area.
 #[component]
 pub fn StyleguideLayout() -> Element {
     rsx! {
-        document::Link { rel: "stylesheet", href: MAIN_CSS }
+        div {
+            class: "styleguide-layout",
+            
+            // Simple navbar
+            nav {
+                class: "navbar bg-base-200",
+                div {
+                    class: "navbar-start",
+                    Link { to: crate::app::Route::StyleguideHome {}, class: "btn btn-ghost", "Home" }
+                    Link { to: crate::app::Route::StyleguideBlog { id: 1 }, class: "btn btn-ghost", "Blog" }
+                }
+            }
 
-        noa_ui_styleguide_ui::Navbar {
-            Link { to: crate::app::Route::StyleguideHome {}, "Home" }
-            Link { to: crate::app::Route::StyleguideBlog { id: 1 }, "Blog" }
+            Outlet::<crate::app::Route> {}
         }
-
-        Outlet::<crate::app::Route> {}
     }
 }
 
 #[component]
 pub fn StyleguideHome() -> Element {
     rsx! {
-        noa_ui_styleguide_ui::Hero {}
-        noa_ui_styleguide_ui::Echo {}
+        div {
+            class: "hero min-h-96 bg-base-200",
+            div {
+                class: "hero-content text-center",
+                div {
+                    class: "max-w-md",
+                    h1 { class: "text-5xl font-bold", "NOA Styleguide" }
+                    p { class: "py-6", "Component library and design system for the NOA platform." }
+                }
+            }
+        }
     }
 }
 
 #[component]
 pub fn StyleguideBlog(id: i32) -> Element {
     rsx! {
-        document::Link { rel: "stylesheet", href: BLOG_CSS }
-
         div {
-            id: "blog",
+            class: "p-6",
 
             // Content
-            h1 { "This is blog #{id}!" }
-            p { "In blog #{id}, we show how the Dioxus router works and how URL parameters can be passed as props to our route components." }
+            h1 { class: "text-3xl font-bold mb-4", "This is blog #{id}!" }
+            p { class: "mb-4", "In blog #{id}, we show how the Dioxus router works and how URL parameters can be passed as props to our route components." }
 
             // Navigation links
-            Link {
-                to: crate::app::Route::StyleguideBlog { id: id - 1 },
-                "Previous"
-            }
-            span { " <---> " }
-            Link {
-                to: crate::app::Route::StyleguideBlog { id: id + 1 },
-                "Next"
+            div {
+                class: "flex gap-4",
+                Link {
+                    to: crate::app::Route::StyleguideBlog { id: id - 1 },
+                    class: "btn btn-outline",
+                    "Previous"
+                }
+                Link {
+                    to: crate::app::Route::StyleguideBlog { id: id + 1 },
+                    class: "btn btn-outline",
+                    "Next"
+                }
             }
         }
     }

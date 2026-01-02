@@ -1,6 +1,45 @@
-# Phase 3 Verification Tests
+# NOA Platform Tests
 
-This directory contains test scripts and utilities for verifying Phase 3 (US1 - Initialize NOA Seed Environment) implementation.
+This directory contains test scripts and verification utilities.
+
+## Test Structure
+
+### Unit Tests (In-Crate)
+
+| Crate | Location | Description |
+|-------|----------|-------------|
+| noa-api-client | `gateway/api/client/rust/src/tests.rs` | API client unit tests with wiremock |
+| noa-ui-shell | `ui/app/crates/noa-ui-shell/src/tests.rs` | UI component tests |
+| noa-ui-hived | `ui/app/bins/noa-ui-hived/src/tests.rs` | Daemon unit tests |
+
+### Integration Tests
+
+| Test File | Description |
+|-----------|-------------|
+| `sandbox_integration_test.rs` | Agent sandbox capsule validation |
+| `ui_e2e_test.rs` | End-to-end UI integration tests |
+
+### Running Tests
+
+```bash
+# All unit tests
+cargo test
+
+# Specific crate tests
+cargo test -p noa-api-client
+cargo test -p noa-ui-shell
+cargo test -p noa-ui-hived
+
+# Integration tests (requires services running)
+cargo test --test sandbox_integration_test
+cargo test --test ui_e2e_test -- --ignored  # E2E tests
+```
+
+---
+
+## Phase 3 Verification Tests
+
+This directory also contains test scripts for verifying Phase 3 (US1 - Initialize NOA Seed Environment) implementation.
 
 ## Test Scripts
 

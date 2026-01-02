@@ -28,6 +28,9 @@ mod client;
 mod types;
 mod error;
 
+#[cfg(test)]
+mod tests;
+
 pub use client::Client;
 pub use types::*;
 pub use error::{Error, Result};

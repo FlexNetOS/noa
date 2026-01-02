@@ -1,19 +1,19 @@
-# 02-examples
+# 01-templates
 
 > **Last Updated:** 2025-12-19
 
 ## Purpose
 
-02-examples component of static resources and policy documents.
+01-templates component of static resources and policy documents.
 
 ## Directory Structure
 
 ### Files
 
 ```
-goal-example.md
-policy-example.md
-rules-example.md
+goal-template.md
+policy-template.md
+rules-template.md
 ```
 
 ## Related Policies
