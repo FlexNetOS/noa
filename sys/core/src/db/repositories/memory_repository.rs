@@ -47,7 +47,7 @@ impl MemoryType {
         }
     }
 
-    fn from_str(s: &str) -> Result<Self> {
+    pub fn from_str(s: &str) -> Result<Self> {
         match s {
             "interaction" => Ok(MemoryType::Interaction),
             "decision" => Ok(MemoryType::Decision),

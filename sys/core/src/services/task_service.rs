@@ -15,7 +15,7 @@ impl TaskService {
     pub fn list(&self) -> Result<Vec<String>> {
         let conn = self.pool.get()?;
         let repo = TaskRepository::new(&conn);
-        let tasks = repo.list()?;
+        let tasks = repo.list(0, 100)?;
         Ok(tasks.into_iter().map(|t| t.title).collect())
     }
 

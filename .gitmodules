@@ -7,3 +7,6 @@
 [submodule "opt/wiki-rs"]
 	path = opt/wiki-rs
 	url = https://github.com/FlexNetOS/wiki-rs.git
+[submodule "opt/sqlx"]
+	path = opt/sqlx
+	url = https://github.com/FlexNetOS/sqlx.git

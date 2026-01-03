@@ -163,6 +163,13 @@ enum Commands {
         #[command(subcommand)]
         command: CrmCommands,
     },
+
+    #[cfg(feature = "full")]
+    /// Wiki documentation generation commands
+    Wiki {
+        #[command(subcommand)]
+        command: WikiCommands,
+    },
 }
 
 #[cfg(feature = "full")]
@@ -252,6 +259,34 @@ enum CrmCommands {
     Toggle { mode: String },
     /// Roll back CRM
     Rollback,
+}
+
+#[cfg(feature = "full")]
+#[derive(Subcommand)]
+enum WikiCommands {
+    /// Generate full documentation from scratch
+    GenerateFull {
+        /// Force regeneration even if up to date
+        #[arg(short, long)]
+        force: bool,
+        /// Run in sequential mode (ignore adaptive)
+        #[arg(short, long)]
+        sequential: bool,
+    },
+    /// Generate documentation for changed files only
+    GenerateIncremental {
+        /// Git ref to compare against (default: HEAD~1)
+        #[arg(short, long)]
+        since: Option<String>,
+    },
+    /// Show generation status
+    Status,
+    /// Cancel ongoing generation
+    Cancel,
+    /// List manual edit sections
+    ManualEdits,
+    /// Validate generated documentation
+    Validate,
 }
 
 #[cfg(feature = "full")]
@@ -382,6 +417,8 @@ async fn main() -> Result<()> {
         Commands::Capsule { command } => handle_capsule_command(command).await,
         #[cfg(feature = "full")]
         Commands::Crm { command } => handle_crm_command(command).await,
+        #[cfg(feature = "full")]
+        Commands::Wiki { command } => handle_wiki_command(command).await,
     }
 }
 
@@ -506,6 +543,23 @@ async fn handle_crm_command(command: CrmCommands) -> Result<()> {
     match command {
         CrmCommands::Toggle { mode } => cli::crm::execute(CrmCmd::Toggle { mode }).await,
         CrmCommands::Rollback => cli::crm::execute(CrmCmd::Rollback).await,
+    }
+}
+
+#[cfg(feature = "full")]
+async fn handle_wiki_command(command: WikiCommands) -> Result<()> {
+    use cli::wiki::WikiCmd;
+    match command {
+        WikiCommands::GenerateFull { force, sequential } => {
+            cli::wiki::execute(WikiCmd::GenerateFull { force, sequential }).await
+        }
+        WikiCommands::GenerateIncremental { since } => {
+            cli::wiki::execute(WikiCmd::GenerateIncremental { since }).await
+        }
+        WikiCommands::Status => cli::wiki::execute(WikiCmd::Status).await,
+        WikiCommands::Cancel => cli::wiki::execute(WikiCmd::Cancel).await,
+        WikiCommands::ManualEdits => cli::wiki::execute(WikiCmd::ManualEdits).await,
+        WikiCommands::Validate => cli::wiki::execute(WikiCmd::Validate).await,
     }
 }
 

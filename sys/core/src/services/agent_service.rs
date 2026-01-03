@@ -2,6 +2,7 @@
 use crate::db::repositories::{AgentRepository, AgentLogRepository};
 use crate::db::ConnectionPool;
 use crate::error::Result;
+use uuid::Uuid;
 
 pub struct AgentService {
     pool: ConnectionPool,
@@ -19,7 +20,7 @@ impl AgentService {
         Ok(agents.into_iter().map(|a| a.name).collect())
     }
 
-    pub fn log(&self, agent_id: i64, message: &str, level: &str) -> Result<()> {
+    pub fn log(&self, agent_id: &Uuid, message: &str, level: &str) -> Result<()> {
         let conn = self.pool.get()?;
         let repo = AgentLogRepository::new(&conn);
         repo.append(agent_id, message, level)

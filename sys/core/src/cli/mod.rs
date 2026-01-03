@@ -46,6 +46,8 @@ pub mod capsule;
 pub mod crm;
 #[cfg(feature = "full")]
 pub mod workflow;
+#[cfg(feature = "full")]
+pub mod wiki;
 
 pub use context::CliContext;
 

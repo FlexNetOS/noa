@@ -60,7 +60,7 @@ toml = "0.8"
 
 # Database
 rusqlite = { version = "0.32", features = ["bundled", "vtab", "functions"] }
-sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "migrate"] }
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "migrate", "uuid", "json", "chrono"] }
 
 # Vector embeddings
 fastembed = "4"

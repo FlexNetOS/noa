@@ -12,7 +12,10 @@ mod backend;
 #[cfg(feature = "full")]
 mod postgres;
 
-#[cfg(feature = "full")]
+// TODO: postgres_stores is disabled until the struct mismatches are resolved.
+// The implementation expects different field types than the actual repository structs.
+// Tracked in: https://github.com/FlexNetOS/noa/issues/XXX
+#[cfg(all(feature = "full", feature = "postgres_stores_enabled"))]
 pub mod postgres_stores;
 
 pub mod vector_search;
