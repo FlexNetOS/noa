@@ -54,3 +54,68 @@ fn to_db_err(context: &'static str) -> impl Fn(rusqlite::Error) -> NoaError {
         error: err.to_string(),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS task_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_id INTEGER NOT NULL,
+                kind TEXT NOT NULL,
+                message TEXT
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_task_event_append() {
+        let conn = setup_test_db();
+        let repo = TaskEventRepository::new(&conn);
+
+        repo.append(1, "started", Some("Task execution started")).unwrap();
+        repo.append(1, "progress", Some("50% complete")).unwrap();
+        repo.append(1, "completed", None).unwrap();
+
+        let events = repo.list(1).unwrap();
+        assert_eq!(events.len(), 3);
+        assert_eq!(events[0].kind, "started");
+        assert_eq!(events[1].kind, "progress");
+        assert_eq!(events[2].kind, "completed");
+    }
+
+    #[test]
+    fn test_task_event_list_empty() {
+        let conn = setup_test_db();
+        let repo = TaskEventRepository::new(&conn);
+
+        let events = repo.list(999).unwrap();
+        assert!(events.is_empty());
+    }
+
+    #[test]
+    fn test_task_event_multiple_tasks() {
+        let conn = setup_test_db();
+        let repo = TaskEventRepository::new(&conn);
+
+        repo.append(1, "started", None).unwrap();
+        repo.append(2, "started", None).unwrap();
+        repo.append(1, "completed", None).unwrap();
+
+        let task1_events = repo.list(1).unwrap();
+        let task2_events = repo.list(2).unwrap();
+        
+        assert_eq!(task1_events.len(), 2);
+        assert_eq!(task2_events.len(), 1);
+    }
+}

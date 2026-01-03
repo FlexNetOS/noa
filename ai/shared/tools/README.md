@@ -26,6 +26,7 @@ All tools are available to any provider (llama.cpp, Ollama, OpenAI, Anthropic, e
 | [database-migrate-tool](#database-migrate-tool) | Database | 1.0.0 | Schema migrations with version tracking | `database:write`, `database:admin` | 10/min |
 | [database-backup-tool](#database-backup-tool) | Database | 1.0.0 | Create/restore backups with integrity verification | `database:read`, `database:write`, `database:admin` | 5/min |
 | [vector-search-tool](#vector-search-tool) | Database | 1.0.0 | Semantic vector search for knowledge retrieval | `database:read` | 60/min |
+| [sqlx-cli-tool](#sqlx-cli-tool) | Database | 0.8.3 | SQLx CLI for database/migration management + offline mode | `database:*`, `file:*` | 30/min |
 
 ### Tool Capabilities Matrix
 
@@ -36,6 +37,11 @@ All tools are available to any provider (llama.cpp, Ollama, OpenAI, Anthropic, e
 | documentation-generator | Rust, Markdown | RustDoc, Clippy, Fmt | llama.cpp → copilot → anthropic → openai → git | 4 Rust subagents |
 | backupctl | Python, Bash | — | — | — |
 | sandboxctl | Python | — | — | — |
+| database-query-tool | SQL | — | — | — |
+| database-migrate-tool | SQL | — | — | — |
+| database-backup-tool | N/A | — | — | — |
+| vector-search-tool | N/A | — | — | — |
+| sqlx-cli-tool | SQL | — | — | — |
 
 ---
 
@@ -386,6 +392,97 @@ noa vector search "async database connection pool" \
 
 ---
 
+### sqlx-cli-tool
+
+**SQLx's command-line utility for managing databases, migrations, and enabling offline compile-time verification.**
+
+| Property | Value |
+|----------|-------|
+| **File** | `sqlx-cli-tool.json` |
+| **Category** | Database |
+| **Implementation** | Binary (`opt/sqlx/target/release/sqlx`) |
+| **Source** | `opt/sqlx/sqlx-cli` (git submodule) |
+| **Version** | 0.8.3 |
+
+**Supported Databases:**
+
+| Database | URL Format |
+|----------|------------|
+| PostgreSQL | `postgres://[user[:password]@][host][:port]/database` |
+| SQLite | `sqlite://path/to/database.db` or `sqlite::memory:` |
+| MySQL/MariaDB | `mysql://[user[:password]@][host][:port]/database` |
+
+**Database Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `sqlx database create` | Creates the database specified in DATABASE_URL |
+| `sqlx database drop [-y] [-f]` | Drops the database (-f for PostgreSQL force drop) |
+| `sqlx database reset [-y]` | Drops, re-creates, and runs pending migrations |
+| `sqlx database setup` | Creates the database and runs pending migrations |
+
+**Migration Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `sqlx migrate add <name>` | Create a new migration |
+| `sqlx migrate add -r <name>` | Create reversible migration (up/down pair) |
+| `sqlx migrate run` | Run all pending migrations |
+| `sqlx migrate revert` | Revert the latest reversible migration |
+| `sqlx migrate info` | List all migrations and their status |
+| `sqlx migrate build-script` | Generate build.rs for recompilation triggers |
+
+**Offline Mode Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `sqlx prepare` | Generate query metadata for offline verification |
+| `sqlx prepare --check` | Check if metadata is up-to-date |
+| `sqlx prepare --workspace` | Generate workspace-level .sqlx folder |
+
+**Environment Variables:**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | ✅ | Database connection URL |
+| `SQLX_OFFLINE` | ❌ | Set to `true` or `1` for offline mode |
+
+**Examples:**
+
+```bash
+# Set database URL
+export DATABASE_URL="postgres://postgres@localhost/myapp"
+
+# Create and setup database
+sqlx database create
+sqlx database setup
+
+# Create a reversible migration
+sqlx migrate add -r add_users_table
+
+# Run migrations
+sqlx migrate run
+
+# Check migration status
+sqlx migrate info
+
+# Prepare for offline compilation
+sqlx prepare --workspace
+
+# Reset database (drops, recreates, migrates)
+sqlx database reset -y
+```
+
+**Build from Source:**
+
+```bash
+cd opt/sqlx
+cargo build --release -p sqlx-cli
+# Binary at: opt/sqlx/target/release/sqlx
+```
+
+---
+
 ## Tool Definition Format
 
 Tools are defined as JSON files following MCP schema:
@@ -439,11 +536,11 @@ Tools are defined as JSON files following MCP schema:
 | **Analysis** | Reasoning, problem-solving | reasoning-tool |
 | **Documentation** | Doc generation, wiki management | documentation-generator |
 | **Operations** | Backup, sandbox, deployment | backupctl, sandboxctl |
+| **Database** | Query, migrate, backup, vector search | database-query-tool, database-migrate-tool, database-backup-tool, vector-search-tool |
 | **File Operations** | Read, write, search files | (builtin) |
 | **Git Operations** | Commit, diff, branch management | (builtin) |
 | **Shell Commands** | Execute system commands | (builtin) |
 | **HTTP Requests** | API calls, web scraping | (builtin) |
-| **Database** | Query, insert, update data | (builtin) |
 
 ---
 
@@ -451,7 +548,7 @@ Tools are defined as JSON files following MCP schema:
 
 | Type | Description | Example |
 |------|-------------|---------|
-| `builtin` | Implemented in NOA core | File operations |
+| `builtin` | Implemented in NOA core | database-query-tool, file operations |
 | `agent` | Delegated to AI agent | code-generation-tool |
 | `script` | External script (bash, python) | backupctl |
 | `http` | HTTP endpoint call | External APIs |
@@ -472,6 +569,9 @@ Tools require explicit permissions. Available permissions:
 | `network:http` | HTTP requests | Medium |
 | `git:read` | Git read operations | Low |
 | `git:write` | Git write operations | Medium |
+| `database:read` | Database read operations | Low |
+| `database:write` | Database write operations | Medium |
+| `database:admin` | Database admin operations (migrate, reset) | High |
 
 ---
 
@@ -482,6 +582,16 @@ Tools require explicit permissions. Available permissions:
 3. Specify implementation type and permissions
 4. Register in `../resources/resource-registry.json`
 5. Update this README with tool documentation
+6. Add entry to `tools-registry.csv` and `tools-registry.xml`
+
+---
+
+## Data Files
+
+| File | Format | Purpose |
+|------|--------|---------|
+| `tools-registry.csv` | CSV | Flat table for database import (PostgreSQL COPY, SQLite .import) |
+| `tools-registry.xml` | XML | Rich structured data with full schema for complex DB mappings |
 
 ---
 
@@ -493,4 +603,6 @@ Tools require explicit permissions. Available permissions:
 | `../workflows/` | Workflows that invoke tools |
 | `../resources/resource-registry.json` | Central registry |
 | `../models/README.md` | Available models for tool inference |
+| `tools-registry.csv` | Database-importable tool list |
+| `tools-registry.xml` | Full XML schema for tools |
 

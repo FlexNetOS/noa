@@ -117,6 +117,9 @@ pub trait AgentStore: Send + Sync {
     /// Find agent by ID.
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Agent>>;
 
+    /// Find agent by name.
+    async fn find_by_name(&self, name: &str) -> Result<Option<Agent>>;
+
     /// List all agents.
     async fn list(&self) -> Result<Vec<Agent>>;
 

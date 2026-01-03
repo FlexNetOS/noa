@@ -1,0 +1,240 @@
+{
+  "name": "sqlx-cli-tool",
+  "version": "0.8.3",
+  "description": "SQLx's command-line utility for managing databases, migrations, and enabling offline compile-time verification",
+  "category": "database",
+  "implementation": {
+    "type": "binary",
+    "binary": "opt/sqlx/target/release/sqlx",
+    "source": "opt/sqlx/sqlx-cli",
+    "buildCommand": "cargo build --release -p sqlx-cli",
+    "dependencies": ["sqlx-core", "sqlx-sqlite", "sqlx-postgres", "sqlx-mysql"]
+  },
+  "subcommands": {
+    "database": {
+      "description": "Commands for creating and dropping databases",
+      "commands": {
+        "create": {
+          "description": "Creates the database specified in DATABASE_URL",
+          "syntax": "sqlx database create",
+          "permissions": ["database:admin"]
+        },
+        "drop": {
+          "description": "Drops the database specified in DATABASE_URL",
+          "syntax": "sqlx database drop [-y] [-f]",
+          "options": {
+            "-y": "Skip confirmation prompt",
+            "-f": "PostgreSQL only: force drops the database"
+          },
+          "permissions": ["database:admin"]
+        },
+        "reset": {
+          "description": "Drops the database, re-creates it, and runs pending migrations",
+          "syntax": "sqlx database reset [-y] [-f]",
+          "permissions": ["database:admin"]
+        },
+        "setup": {
+          "description": "Creates the database and runs pending migrations",
+          "syntax": "sqlx database setup",
+          "permissions": ["database:admin"]
+        }
+      }
+    },
+    "migrate": {
+      "description": "Commands for creating and running migrations",
+      "commands": {
+        "add": {
+          "description": "Create a new migration with the given description",
+          "syntax": "sqlx migrate add <name> [-r] [-s] [-t]",
+          "options": {
+            "-r, --reversible": "Create up/down migration pair",
+            "-s, --sequential": "Use sequential versioning",
+            "-t, --timestamp": "Use timestamp versioning (YYYYMMDDHHMMSS)"
+          },
+          "permissions": ["file:write"]
+        },
+        "run": {
+          "description": "Run all pending migrations",
+          "syntax": "sqlx migrate run [--source <path>] [--dry-run] [--target-version <n>]",
+          "options": {
+            "--source": "Path to migrations folder (default: migrations/)",
+            "--dry-run": "List migrations without applying",
+            "--target-version": "Apply up to specified version"
+          },
+          "permissions": ["database:write"]
+        },
+        "revert": {
+          "description": "Revert the latest migration with a down file",
+          "syntax": "sqlx migrate revert [--source <path>] [--dry-run] [--target-version <n>]",
+          "options": {
+            "--source": "Path to migrations folder",
+            "--dry-run": "List migration to revert without applying",
+            "--target-version": "Revert down to specified version (0 = all)"
+          },
+          "permissions": ["database:write"]
+        },
+        "info": {
+          "description": "List all available migrations and their status",
+          "syntax": "sqlx migrate info [--source <path>]",
+          "permissions": ["database:read"]
+        },
+        "build-script": {
+          "description": "Generate build.rs to trigger recompilation on new migrations",
+          "syntax": "sqlx migrate build-script [--force]",
+          "permissions": ["file:write"]
+        }
+      }
+    },
+    "prepare": {
+      "description": "Generate query metadata for offline compile-time verification",
+      "syntax": "sqlx prepare [--check] [--workspace] [--all]",
+      "options": {
+        "--check": "Exit with 0 if metadata is up-to-date, 1 if needs updating",
+        "--workspace": "Generate workspace-level .sqlx folder",
+        "--all": "Prepare query macros in dependencies outside current crate"
+      },
+      "permissions": ["file:write", "database:read"]
+    }
+  },
+  "input": {
+    "type": "object",
+    "required": ["subcommand"],
+    "properties": {
+      "subcommand": {
+        "type": "string",
+        "enum": ["database create", "database drop", "database reset", "database setup", "migrate add", "migrate run", "migrate revert", "migrate info", "migrate build-script", "prepare"],
+        "description": "The sqlx-cli subcommand to execute"
+      },
+      "database_url": {
+        "type": "string",
+        "description": "Database connection URL (or set DATABASE_URL env var)"
+      },
+      "source": {
+        "type": "string",
+        "default": "migrations/",
+        "description": "Path to migrations folder"
+      },
+      "name": {
+        "type": "string",
+        "description": "Migration name (for migrate add)"
+      },
+      "reversible": {
+        "type": "boolean",
+        "default": false,
+        "description": "Create reversible migration with up/down scripts"
+      },
+      "dry_run": {
+        "type": "boolean",
+        "default": false,
+        "description": "Preview without applying changes"
+      },
+      "target_version": {
+        "type": "integer",
+        "description": "Target migration version"
+      },
+      "force": {
+        "type": "boolean",
+        "default": false,
+        "description": "Force operation (skip confirmation, force drop)"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the command succeeded"
+      },
+      "output": {
+        "type": "string",
+        "description": "Command output"
+      },
+      "migrations_applied": {
+        "type": "array",
+        "description": "List of migrations applied (for migrate run)"
+      },
+      "migrations_reverted": {
+        "type": "array",
+        "description": "List of migrations reverted (for migrate revert)"
+      },
+      "migration_created": {
+        "type": "string",
+        "description": "Path to created migration file(s)"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if command failed"
+      }
+    }
+  },
+  "environment": {
+    "DATABASE_URL": {
+      "required": true,
+      "description": "Database connection URL (postgres://user:pass@host/db, sqlite://path.db, mysql://...)"
+    },
+    "SQLX_OFFLINE": {
+      "required": false,
+      "description": "Set to 'true' or '1' to use offline mode with cached metadata"
+    }
+  },
+  "supportedDatabases": [
+    {
+      "name": "PostgreSQL",
+      "urlFormat": "postgres://[user[:password]@][host][:port]/database",
+      "features": ["migrations", "prepare", "advisory_lock", "listen/notify"]
+    },
+    {
+      "name": "SQLite",
+      "urlFormat": "sqlite://path/to/database.db or sqlite::memory:",
+      "features": ["migrations", "prepare", "bundled"]
+    },
+    {
+      "name": "MySQL/MariaDB",
+      "urlFormat": "mysql://[user[:password]@][host][:port]/database",
+      "features": ["migrations", "prepare"]
+    }
+  ],
+  "examples": [
+    {
+      "name": "Create database",
+      "command": "sqlx database create",
+      "env": { "DATABASE_URL": "postgres://postgres@localhost/myapp" }
+    },
+    {
+      "name": "Run migrations",
+      "command": "sqlx migrate run --source migrations/",
+      "env": { "DATABASE_URL": "sqlite://data/app.db" }
+    },
+    {
+      "name": "Create reversible migration",
+      "command": "sqlx migrate add -r add_users_table"
+    },
+    {
+      "name": "Check migration status",
+      "command": "sqlx migrate info"
+    },
+    {
+      "name": "Prepare for offline mode",
+      "command": "sqlx prepare --workspace"
+    },
+    {
+      "name": "Reset database",
+      "command": "sqlx database reset -y"
+    }
+  ],
+  "permissions": ["database:read", "database:write", "database:admin", "file:read", "file:write"],
+  "rateLimit": {
+    "requestsPerMinute": 30
+  },
+  "providers": "all",
+  "status": "active",
+  "metadata": {
+    "author": "LaunchBadge / FlexNetOS",
+    "created": "2026-01-02",
+    "repository": "https://github.com/FlexNetOS/sqlx",
+    "upstream": "https://github.com/launchbadge/sqlx",
+    "license": "MIT OR Apache-2.0",
+    "tags": ["database", "sql", "migrations", "postgres", "sqlite", "mysql", "cli", "offline"]
+  }
+}

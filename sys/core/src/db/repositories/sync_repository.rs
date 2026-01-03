@@ -361,3 +361,89 @@ impl SyncRepository {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS sync_state (
+                id TEXT PRIMARY KEY,
+                device_id TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                last_sync TEXT,
+                local_version INTEGER NOT NULL,
+                remote_version INTEGER,
+                pending_ops TEXT,
+                conflicts TEXT
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_sync_state_create_and_find() {
+        let conn = setup_test_db();
+        let repo = SyncRepository::new(conn);
+
+        let sync_state = SyncState {
+            id: Uuid::new_v4(),
+            device_id: Uuid::new_v4(),
+            entity_type: "memory".to_string(),
+            last_sync: Some(Utc::now()),
+            local_version: 1,
+            remote_version: Some(1),
+            pending_ops: None,
+            conflicts: None,
+        };
+
+        let id = repo.create(&sync_state).unwrap();
+        assert_eq!(id, sync_state.id);
+
+        let found = repo.find_by_id(&sync_state.id).unwrap().unwrap();
+        assert_eq!(found.entity_type, "memory");
+        assert_eq!(found.local_version, 1);
+    }
+
+    #[test]
+    fn test_sync_state_find_by_device_and_type() {
+        let conn = setup_test_db();
+        let repo = SyncRepository::new(conn);
+
+        let device_id = Uuid::new_v4();
+        
+        let sync_state = SyncState {
+            id: Uuid::new_v4(),
+            device_id,
+            entity_type: "task".to_string(),
+            last_sync: None,
+            local_version: 5,
+            remote_version: Some(3),
+            pending_ops: None,
+            conflicts: None,
+        };
+
+        repo.create(&sync_state).unwrap();
+
+        let found = repo.find_by_device_and_type(&device_id, "task").unwrap();
+        assert!(found.is_some());
+        assert_eq!(found.unwrap().local_version, 5);
+    }
+
+    #[test]
+    fn test_sync_state_find_nonexistent() {
+        let conn = setup_test_db();
+        let repo = SyncRepository::new(conn);
+
+        let result = repo.find_by_id(&Uuid::new_v4()).unwrap();
+        assert!(result.is_none());
+    }
+}
+

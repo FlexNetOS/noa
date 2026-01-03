@@ -1,14 +1,29 @@
 //! SQLite Store Implementations
 //!
 //! Wraps the existing SQLite repositories to implement the backend-agnostic traits.
+//! This module provides SQLite implementations of all backend store traits,
+//! enabling local-first operation with full offline capability.
+//!
+//! # Architecture
+//!
+//! Each store wraps the corresponding repository pattern implementation and
+//! adapts it to the async trait interface expected by the backend abstraction.
+//!
+//! # Features
+//!
+//! - **Local-first**: All operations work without network connectivity
+//! - **Memory-efficient**: Uses connection pooling for concurrent access
+//! - **Portable**: SQLite database can be easily backed up or moved
+//!
 //! §3.2: SQLite backend implementation
+//! §3.3: Local-First & Offline-Capable
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::error::{Result, DatabaseError, NoaError};
+use crate::error::{Result, DatabaseError, NoaError, ValidationError};
 use super::backend::{
     DatabaseKind, DatabaseBackend, DatabaseHealth, HealthCheckResult,
     MemoryStore, ModelStore, TaskStore, AgentStore, AuditLogStore, VectorStore,
@@ -24,6 +39,16 @@ use super::repositories::{
     EmbeddingRepository,
 };
 use super::{ConnectionPool, check_integrity, get_stats};
+
+/// Default vector dimension for embedding storage.
+///
+/// This matches the output dimension of common embedding models:
+/// - nomic-embed-text: 384 dimensions
+/// - all-MiniLM-L6-v2: 384 dimensions
+///
+/// For other models, use `SqliteVectorStore::with_dimension()` or
+/// `SqliteBackend::with_vector_dimension()`.
+pub const DEFAULT_VECTOR_DIMENSION: usize = 384;
 
 /// SQLite-based memory store.
 pub struct SqliteMemoryStore {
@@ -251,6 +276,12 @@ impl AgentStore for SqliteAgentStore {
         repo.find_by_id(id)
     }
 
+    async fn find_by_name(&self, name: &str) -> Result<Option<Agent>> {
+        let conn = self.pool.get()?;
+        let repo = AgentRepository::new(&conn);
+        repo.find_by_name(name)
+    }
+
     async fn list(&self) -> Result<Vec<Agent>> {
         let conn = self.pool.get()?;
         let repo = AgentRepository::new(&conn);
@@ -318,14 +349,41 @@ impl AuditLogStore for SqliteAuditLogStore {
     }
 }
 
-/// SQLite-based vector store.
+/// SQLite-based vector store with configurable dimensions.
+///
+/// Supports vector similarity search using brute-force cosine distance
+/// computation in SQLite. For large-scale deployments, consider using
+/// PostgreSQL with pgvector.
 pub struct SqliteVectorStore {
     pool: Arc<ConnectionPool>,
+    dimension: usize,
 }
 
 impl SqliteVectorStore {
+    /// Create a new vector store with default dimension (384).
     pub fn new(pool: Arc<ConnectionPool>) -> Self {
-        Self { pool }
+        Self::with_dimension(pool, DEFAULT_VECTOR_DIMENSION)
+    }
+
+    /// Create a new vector store with custom dimension.
+    ///
+    /// # Arguments
+    /// * `pool` - Connection pool for database access
+    /// * `dimension` - Expected dimension of embedding vectors
+    ///
+    /// # Common dimensions
+    /// - 384: nomic-embed-text, all-MiniLM-L6-v2
+    /// - 768: all-mpnet-base-v2, e5-base
+    /// - 1024: e5-large
+    /// - 1536: text-embedding-ada-002 (OpenAI)
+    /// - 3072: text-embedding-3-large (OpenAI)
+    pub fn with_dimension(pool: Arc<ConnectionPool>, dimension: usize) -> Self {
+        Self { pool, dimension }
+    }
+
+    /// Get the configured vector dimension.
+    pub fn dimension(&self) -> usize {
+        self.dimension
     }
 }
 
@@ -339,12 +397,28 @@ impl VectorStore for SqliteVectorStore {
         model_id: Option<Uuid>,
         vector: &[f32],
     ) -> Result<()> {
+        // Validate vector dimension
+        if vector.len() != self.dimension {
+            return Err(NoaError::Validation(ValidationError::new(
+                "vector",
+                format!("dimension mismatch: expected {}, got {}", self.dimension, vector.len()),
+                "VECTOR_DIMENSION_MISMATCH",
+            )));
+        }
         let conn = self.pool.get()?;
         let repo = EmbeddingRepository::new(&conn);
         repo.store(id, source_type, source_id, model_id, vector)
     }
 
     async fn find_similar(&self, query_vector: &[f32], limit: usize) -> Result<Vec<VectorSearchResult>> {
+        // Validate query vector dimension
+        if query_vector.len() != self.dimension {
+            return Err(NoaError::Validation(ValidationError::new(
+                "query_vector",
+                format!("dimension mismatch: expected {}, got {}", self.dimension, query_vector.len()),
+                "VECTOR_DIMENSION_MISMATCH",
+            )));
+        }
         let conn = self.pool.get()?;
         let repo = EmbeddingRepository::new(&conn);
         let results = repo.find_similar(query_vector, limit)?;
@@ -357,12 +431,28 @@ impl VectorStore for SqliteVectorStore {
     }
 
     async fn find_similar_memories(&self, query_vector: &[f32], limit: usize) -> Result<Vec<(Uuid, f64)>> {
+        // Validate query vector dimension
+        if query_vector.len() != self.dimension {
+            return Err(NoaError::Validation(ValidationError::new(
+                "query_vector",
+                format!("dimension mismatch: expected {}, got {}", self.dimension, query_vector.len()),
+                "VECTOR_DIMENSION_MISMATCH",
+            )));
+        }
         let conn = self.pool.get()?;
         let repo = EmbeddingRepository::new(&conn);
         repo.find_similar_by_type(query_vector, "memory", limit)
     }
 
     async fn find_similar_knowledge(&self, query_vector: &[f32], limit: usize) -> Result<Vec<(Uuid, f64)>> {
+        // Validate query vector dimension
+        if query_vector.len() != self.dimension {
+            return Err(NoaError::Validation(ValidationError::new(
+                "query_vector",
+                format!("dimension mismatch: expected {}, got {}", self.dimension, query_vector.len()),
+                "VECTOR_DIMENSION_MISMATCH",
+            )));
+        }
         let conn = self.pool.get()?;
         let repo = EmbeddingRepository::new(&conn);
         repo.find_similar_by_type(query_vector, "knowledge_node", limit)
@@ -474,6 +564,10 @@ impl DatabaseHealth for SqliteHealth {
 }
 
 /// The complete SQLite database backend.
+///
+/// Provides a unified interface to all SQLite-backed data stores.
+/// Use `new()` for default settings or `with_vector_dimension()` for
+/// custom embedding model configurations.
 pub struct SqliteBackend {
     pool: Arc<ConnectionPool>,
     memories: Arc<SqliteMemoryStore>,
@@ -486,7 +580,26 @@ pub struct SqliteBackend {
 }
 
 impl SqliteBackend {
+    /// Create a new SQLite backend with default settings.
+    ///
+    /// Uses the default vector dimension (384) for embedding storage.
     pub fn new(pool: ConnectionPool) -> Self {
+        Self::with_vector_dimension(pool, DEFAULT_VECTOR_DIMENSION)
+    }
+
+    /// Create a new SQLite backend with custom vector dimension.
+    ///
+    /// # Arguments
+    /// * `pool` - The SQLite connection pool
+    /// * `vector_dimension` - The dimension of vectors for embedding storage
+    ///
+    /// # Common dimensions
+    /// - 384: nomic-embed-text, all-MiniLM-L6-v2
+    /// - 768: all-mpnet-base-v2, e5-base
+    /// - 1024: e5-large
+    /// - 1536: text-embedding-ada-002 (OpenAI)
+    /// - 3072: text-embedding-3-large (OpenAI)
+    pub fn with_vector_dimension(pool: ConnectionPool, vector_dimension: usize) -> Self {
         let pool = Arc::new(pool);
         Self {
             memories: Arc::new(SqliteMemoryStore::new(pool.clone())),
@@ -494,7 +607,7 @@ impl SqliteBackend {
             tasks: Arc::new(SqliteTaskStore::new(pool.clone())),
             agents: Arc::new(SqliteAgentStore::new(pool.clone())),
             audit_logs: Arc::new(SqliteAuditLogStore::new(pool.clone())),
-            vectors: Arc::new(SqliteVectorStore::new(pool.clone())),
+            vectors: Arc::new(SqliteVectorStore::with_dimension(pool.clone(), vector_dimension)),
             health: Arc::new(SqliteHealth::new(pool.clone())),
             pool,
         }
@@ -558,5 +671,37 @@ mod tests {
 
         let result = health.check_connection().await.unwrap();
         assert!(result.healthy);
+    }
+
+    #[test]
+    fn test_default_vector_dimension() {
+        assert_eq!(DEFAULT_VECTOR_DIMENSION, 384);
+    }
+
+    #[test]
+    fn test_sqlite_vector_store_dimension() {
+        let pool = create_test_pool();
+        let arc_pool = Arc::new(pool);
+
+        // Default dimension
+        let store = SqliteVectorStore::new(arc_pool.clone());
+        assert_eq!(store.dimension(), DEFAULT_VECTOR_DIMENSION);
+
+        // Custom dimension
+        let custom_store = SqliteVectorStore::with_dimension(arc_pool.clone(), 768);
+        assert_eq!(custom_store.dimension(), 768);
+
+        // OpenAI dimensions
+        let openai_store = SqliteVectorStore::with_dimension(arc_pool.clone(), 1536);
+        assert_eq!(openai_store.dimension(), 1536);
+    }
+
+    #[test]
+    fn test_sqlite_backend_with_dimension() {
+        let pool = create_test_pool();
+
+        // Test with_vector_dimension factory
+        let backend = SqliteBackend::with_vector_dimension(pool, 1024);
+        assert_eq!(backend.kind(), DatabaseKind::Sqlite);
     }
 }

@@ -318,3 +318,81 @@ impl KnowledgeNodeRepository {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS knowledge_node (
+                id TEXT PRIMARY KEY,
+                node_type TEXT NOT NULL,
+                name TEXT NOT NULL,
+                qualified_name TEXT,
+                description TEXT,
+                source_digest TEXT,
+                location TEXT,
+                properties TEXT,
+                embedding_id TEXT,
+                created_at TEXT NOT NULL
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_knowledge_node_create_and_find() {
+        let conn = setup_test_db();
+        let repo = KnowledgeNodeRepository::new(conn);
+
+        let node = KnowledgeNode {
+            id: Uuid::new_v4(),
+            node_type: KnowledgeNodeType::Function,
+            name: "process_data".to_string(),
+            qualified_name: Some("app::process_data".to_string()),
+            description: Some("Processes input data".to_string()),
+            source_digest: None,
+            location: None,
+            properties: None,
+            embedding_id: None,
+            created_at: Utc::now(),
+        };
+
+        let id = repo.create(&node).unwrap();
+        assert_eq!(id, node.id);
+
+        let found = repo.find_by_id(&node.id).unwrap().unwrap();
+        assert_eq!(found.name, "process_data");
+        assert_eq!(found.node_type, KnowledgeNodeType::Function);
+    }
+
+    #[test]
+    fn test_knowledge_node_types() {
+        assert_eq!(KnowledgeNodeType::Function.as_str(), "function");
+        assert_eq!(KnowledgeNodeType::Class.as_str(), "class");
+        assert_eq!(KnowledgeNodeType::Module.as_str(), "module");
+        assert_eq!(KnowledgeNodeType::File.as_str(), "file");
+        assert_eq!(KnowledgeNodeType::Repo.as_str(), "repo");
+        assert_eq!(KnowledgeNodeType::Concept.as_str(), "concept");
+        
+        assert!(matches!(KnowledgeNodeType::from_str("function"), Ok(KnowledgeNodeType::Function)));
+        assert!(KnowledgeNodeType::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_knowledge_node_find_nonexistent() {
+        let conn = setup_test_db();
+        let repo = KnowledgeNodeRepository::new(conn);
+
+        let result = repo.find_by_id(&Uuid::new_v4()).unwrap();
+        assert!(result.is_none());
+    }
+}
+

@@ -13,6 +13,8 @@ description = "NOA Core - Autonomous Agentic Operating System"
 default = ["minimal"]
 minimal = []
 full = ["dep:sqlx"]
+# Enable postgres_stores after running: cargo sqlx prepare --database-url $DATABASE_URL
+postgres_stores_enabled = ["dep:sqlx"]
 
 [[bin]]
 name = "noa"
@@ -174,6 +176,7 @@ noa-virtual-packages = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.10"
+testcontainers = "0.15"
 
 [profile.release]
 opt-level = 3

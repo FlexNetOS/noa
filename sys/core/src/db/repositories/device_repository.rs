@@ -456,3 +456,103 @@ impl DeviceRepository {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS device (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                type TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                peer_id TEXT NOT NULL,
+                status TEXT NOT NULL,
+                last_seen TEXT,
+                capabilities TEXT,
+                resources TEXT,
+                is_local INTEGER NOT NULL DEFAULT 0
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_device_create_and_find() {
+        let conn = setup_test_db();
+        let repo = DeviceRepository::new(conn);
+
+        let device = Device {
+            id: Uuid::new_v4(),
+            name: "Test Workstation".to_string(),
+            device_type: DeviceType::Desktop,
+            platform: Platform::Windows,
+            peer_id: "12D3KooWTest".to_string(),
+            status: DeviceStatus::Online,
+            last_seen: Some(Utc::now()),
+            capabilities: None,
+            resources: None,
+            is_local: true,
+        };
+
+        let id = repo.create(&device).unwrap();
+        assert_eq!(id, device.id);
+
+        let found = repo.find_by_id(&device.id).unwrap().unwrap();
+        assert_eq!(found.name, "Test Workstation");
+        assert_eq!(found.device_type, DeviceType::Desktop);
+        assert_eq!(found.platform, Platform::Windows);
+        assert!(found.is_local);
+    }
+
+    #[test]
+    fn test_device_types() {
+        assert_eq!(DeviceType::Desktop.as_str(), "desktop");
+        assert_eq!(DeviceType::Laptop.as_str(), "laptop");
+        assert_eq!(DeviceType::Mobile.as_str(), "mobile");
+        assert_eq!(DeviceType::Server.as_str(), "server");
+        
+        assert!(matches!(DeviceType::from_str("desktop"), Ok(DeviceType::Desktop)));
+        assert!(DeviceType::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_platform_types() {
+        assert_eq!(Platform::Windows.as_str(), "windows");
+        assert_eq!(Platform::MacOS.as_str(), "macos");
+        assert_eq!(Platform::Linux.as_str(), "linux");
+        assert_eq!(Platform::IOS.as_str(), "ios");
+        assert_eq!(Platform::Android.as_str(), "android");
+        
+        assert!(matches!(Platform::from_str("windows"), Ok(Platform::Windows)));
+        assert!(Platform::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_device_status_types() {
+        assert_eq!(DeviceStatus::Online.as_str(), "online");
+        assert_eq!(DeviceStatus::Offline.as_str(), "offline");
+        assert_eq!(DeviceStatus::Syncing.as_str(), "syncing");
+        
+        assert!(matches!(DeviceStatus::from_str("online"), Ok(DeviceStatus::Online)));
+        assert!(DeviceStatus::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_device_find_nonexistent() {
+        let conn = setup_test_db();
+        let repo = DeviceRepository::new(conn);
+
+        let result = repo.find_by_id(&Uuid::new_v4()).unwrap();
+        assert!(result.is_none());
+    }
+}
+

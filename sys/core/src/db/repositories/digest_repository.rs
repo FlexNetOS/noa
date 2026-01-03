@@ -460,3 +460,95 @@ impl DigestRepository {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS digest_source (
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL,
+                uri TEXT NOT NULL,
+                name TEXT NOT NULL,
+                status TEXT NOT NULL,
+                last_digest TEXT,
+                version TEXT,
+                profile TEXT,
+                sbom TEXT,
+                security_report TEXT,
+                stats TEXT
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_digest_source_create_and_find() {
+        let conn = setup_test_db();
+        let repo = DigestRepository::new(conn);
+
+        let source = DigestSource {
+            id: Uuid::new_v4(),
+            source_type: DigestSourceType::Repository,
+            uri: "https://github.com/flexnetos/noa".to_string(),
+            name: "noa".to_string(),
+            status: DigestStatus::Pending,
+            last_digest: None,
+            version: Some("1.0.0".to_string()),
+            profile: None,
+            sbom: None,
+            security_report: None,
+            stats: None,
+        };
+
+        let id = repo.create(&source).unwrap();
+        assert_eq!(id, source.id);
+
+        let found = repo.find_by_id(&source.id).unwrap().unwrap();
+        assert_eq!(found.name, "noa");
+        assert_eq!(found.source_type, DigestSourceType::Repository);
+        assert_eq!(found.status, DigestStatus::Pending);
+    }
+
+    #[test]
+    fn test_digest_source_types() {
+        assert_eq!(DigestSourceType::Repository.as_str(), "repository");
+        assert_eq!(DigestSourceType::File.as_str(), "file");
+        assert_eq!(DigestSourceType::Api.as_str(), "api");
+        assert_eq!(DigestSourceType::Document.as_str(), "document");
+        
+        assert!(matches!(DigestSourceType::from_str("repository"), Ok(DigestSourceType::Repository)));
+        assert!(DigestSourceType::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_digest_status_types() {
+        assert_eq!(DigestStatus::Pending.as_str(), "pending");
+        assert_eq!(DigestStatus::Fetching.as_str(), "fetching");
+        assert_eq!(DigestStatus::Parsing.as_str(), "parsing");
+        assert_eq!(DigestStatus::Analyzing.as_str(), "analyzing");
+        assert_eq!(DigestStatus::Complete.as_str(), "complete");
+        assert_eq!(DigestStatus::Failed.as_str(), "failed");
+        
+        assert!(matches!(DigestStatus::from_str("complete"), Ok(DigestStatus::Complete)));
+        assert!(DigestStatus::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_digest_find_nonexistent() {
+        let conn = setup_test_db();
+        let repo = DigestRepository::new(conn);
+
+        let result = repo.find_by_id(&Uuid::new_v4()).unwrap();
+        assert!(result.is_none());
+    }
+}
+

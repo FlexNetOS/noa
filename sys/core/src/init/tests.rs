@@ -8,7 +8,6 @@ mod integration_tests {
     #[cfg(feature = "full")]
     use crate::services::InitService;
     use std::fs;
-    use std::path::Path;
     use tempfile::TempDir;
 
     /// VER001: Verify all 8 directories are created

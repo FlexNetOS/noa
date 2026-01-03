@@ -312,3 +312,92 @@ impl KnowledgeEdgeRepository {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE IF NOT EXISTS knowledge_edge (
+                id TEXT PRIMARY KEY,
+                source_node TEXT NOT NULL,
+                target_node TEXT NOT NULL,
+                relationship TEXT NOT NULL,
+                weight REAL NOT NULL,
+                properties TEXT
+            );
+            "#,
+        ).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_knowledge_edge_create_and_find() {
+        let conn = setup_test_db();
+        let repo = KnowledgeEdgeRepository::new(conn);
+
+        let source = Uuid::new_v4();
+        let target = Uuid::new_v4();
+        
+        let edge = KnowledgeEdge {
+            id: Uuid::new_v4(),
+            source_node: source,
+            target_node: target,
+            relationship: RelationshipType::Calls,
+            weight: 1.0,
+            properties: None,
+        };
+
+        let id = repo.create(&edge).unwrap();
+        assert_eq!(id, edge.id);
+
+        let found = repo.find_by_id(&edge.id).unwrap().unwrap();
+        assert_eq!(found.source_node, source);
+        assert_eq!(found.target_node, target);
+        assert_eq!(found.relationship, RelationshipType::Calls);
+    }
+
+    #[test]
+    fn test_relationship_types() {
+        assert_eq!(RelationshipType::Calls.as_str(), "calls");
+        assert_eq!(RelationshipType::Imports.as_str(), "imports");
+        assert_eq!(RelationshipType::Extends.as_str(), "extends");
+        assert_eq!(RelationshipType::Implements.as_str(), "implements");
+        assert_eq!(RelationshipType::Contains.as_str(), "contains");
+        assert_eq!(RelationshipType::References.as_str(), "references");
+        
+        assert!(matches!(RelationshipType::from_str("calls"), Ok(RelationshipType::Calls)));
+        assert!(RelationshipType::from_str("invalid").is_err());
+    }
+
+    #[test]
+    fn test_knowledge_edge_find_by_source() {
+        let conn = setup_test_db();
+        let repo = KnowledgeEdgeRepository::new(conn);
+
+        let source = Uuid::new_v4();
+        
+        // Create multiple edges from same source
+        for i in 0..3 {
+            let edge = KnowledgeEdge {
+                id: Uuid::new_v4(),
+                source_node: source,
+                target_node: Uuid::new_v4(),
+                relationship: RelationshipType::References,
+                weight: 1.0 - (i as f64 * 0.1),
+                properties: None,
+            };
+            repo.create(&edge).unwrap();
+        }
+
+        let edges = repo.find_by_source_node(&source).unwrap();
+        assert_eq!(edges.len(), 3);
+    }
+}
+

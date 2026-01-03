@@ -123,3 +123,90 @@ impl<'a> StackRepository<'a> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn setup_test_db() -> Connection {
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let conn = Connection::open(&db_path).unwrap();
+        std::mem::forget(dir);
+        conn
+    }
+
+    #[test]
+    fn test_stack_init_and_create() {
+        let conn = setup_test_db();
+        let repo = StackRepository::new(&conn);
+        
+        repo.init_table().unwrap();
+        
+        let id = repo.create("rust", "language", Some("1.75.0"), None).unwrap();
+        assert!(id > 0);
+    }
+
+    #[test]
+    fn test_stack_list() {
+        let conn = setup_test_db();
+        let repo = StackRepository::new(&conn);
+        
+        repo.init_table().unwrap();
+        repo.create("rust", "language", Some("1.75.0"), None).unwrap();
+        repo.create("python", "language", Some("3.12"), None).unwrap();
+        repo.create("nodejs", "runtime", Some("20.0"), None).unwrap();
+        
+        let stacks = repo.list().unwrap();
+        assert_eq!(stacks.len(), 3);
+    }
+
+    #[test]
+    fn test_stack_get_by_name() {
+        let conn = setup_test_db();
+        let repo = StackRepository::new(&conn);
+        
+        repo.init_table().unwrap();
+        repo.create("sqlx", "library", Some("0.8.0"), Some(r#"{"async": true}"#)).unwrap();
+        
+        let found = repo.get_by_name("sqlx").unwrap();
+        assert!(found.is_some());
+        let stack = found.unwrap();
+        assert_eq!(stack.name, "sqlx");
+        assert_eq!(stack.version, Some("0.8.0".to_string()));
+    }
+
+    #[test]
+    fn test_stack_update() {
+        let conn = setup_test_db();
+        let repo = StackRepository::new(&conn);
+        
+        repo.init_table().unwrap();
+        let id = repo.create("tokio", "runtime", Some("1.0.0"), None).unwrap();
+        
+        repo.update(id, Some("1.35.0"), Some(r#"{"rt-multi-thread": true}"#)).unwrap();
+        
+        // Verify update via raw query since get_by_name returns by name
+        let stacks = repo.list().unwrap();
+        let tokio = stacks.iter().find(|s| s.name == "tokio").unwrap();
+        assert_eq!(tokio.version, Some("1.35.0".to_string()));
+    }
+
+    #[test]
+    fn test_stack_delete() {
+        let conn = setup_test_db();
+        let repo = StackRepository::new(&conn);
+        
+        repo.init_table().unwrap();
+        let id = repo.create("temp-stack", "test", None, None).unwrap();
+        
+        let before = repo.list().unwrap();
+        assert_eq!(before.len(), 1);
+        
+        repo.delete(id).unwrap();
+        
+        let after = repo.list().unwrap();
+        assert_eq!(after.len(), 0);
+    }
+}

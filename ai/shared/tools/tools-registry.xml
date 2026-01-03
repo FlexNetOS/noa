@@ -466,6 +466,96 @@
                 <tags>database,vector,search,embeddings,rag,semantic</tags>
             </metadata>
         </tool>
+        
+        <tool id="10">
+            <name>sqlx-cli-tool</name>
+            <version>0.8.3</version>
+            <category>database</category>
+            <description>SQLx's command-line utility for managing databases, migrations, and enabling offline compile-time verification</description>
+            <implementation>
+                <type>binary</type>
+                <binary>opt/sqlx/target/release/sqlx</binary>
+                <source>opt/sqlx/sqlx-cli</source>
+                <buildCommand>cargo build --release -p sqlx-cli</buildCommand>
+                <file>sqlx-cli-tool.json</file>
+                <dependencies>sqlx-core,sqlx-sqlite,sqlx-postgres,sqlx-mysql</dependencies>
+            </implementation>
+            <subcommands>
+                <subcommand name="database">
+                    <description>Commands for creating and dropping databases</description>
+                    <command name="create">
+                        <syntax>sqlx database create</syntax>
+                        <description>Creates the database specified in DATABASE_URL</description>
+                    </command>
+                    <command name="drop">
+                        <syntax>sqlx database drop [-y] [-f]</syntax>
+                        <description>Drops the database specified in DATABASE_URL</description>
+                    </command>
+                    <command name="reset">
+                        <syntax>sqlx database reset [-y] [-f]</syntax>
+                        <description>Drops the database, re-creates it, and runs pending migrations</description>
+                    </command>
+                    <command name="setup">
+                        <syntax>sqlx database setup</syntax>
+                        <description>Creates the database and runs pending migrations</description>
+                    </command>
+                </subcommand>
+                <subcommand name="migrate">
+                    <description>Commands for creating and running migrations</description>
+                    <command name="add">
+                        <syntax>sqlx migrate add &lt;name&gt; [-r] [-s] [-t]</syntax>
+                        <description>Create a new migration with the given description</description>
+                    </command>
+                    <command name="run">
+                        <syntax>sqlx migrate run [--source &lt;path&gt;] [--dry-run] [--target-version &lt;n&gt;]</syntax>
+                        <description>Run all pending migrations</description>
+                    </command>
+                    <command name="revert">
+                        <syntax>sqlx migrate revert [--source &lt;path&gt;] [--dry-run] [--target-version &lt;n&gt;]</syntax>
+                        <description>Revert the latest migration with a down file</description>
+                    </command>
+                    <command name="info">
+                        <syntax>sqlx migrate info [--source &lt;path&gt;]</syntax>
+                        <description>List all available migrations and their status</description>
+                    </command>
+                    <command name="build-script">
+                        <syntax>sqlx migrate build-script [--force]</syntax>
+                        <description>Generate build.rs for recompilation on new migrations</description>
+                    </command>
+                </subcommand>
+                <subcommand name="prepare">
+                    <syntax>sqlx prepare [--check] [--workspace] [--all]</syntax>
+                    <description>Generate query metadata for offline compile-time verification</description>
+                </subcommand>
+            </subcommands>
+            <environment>
+                <var name="DATABASE_URL" required="true">Database connection URL</var>
+                <var name="SQLX_OFFLINE" required="false">Set to 'true' for offline mode</var>
+            </environment>
+            <supportedDatabases>
+                <database name="PostgreSQL" urlFormat="postgres://[user[:password]@][host][:port]/database"/>
+                <database name="SQLite" urlFormat="sqlite://path/to/database.db"/>
+                <database name="MySQL" urlFormat="mysql://[user[:password]@][host][:port]/database"/>
+            </supportedDatabases>
+            <permissions>
+                <permission>database:read</permission>
+                <permission>database:write</permission>
+                <permission>database:admin</permission>
+                <permission>file:read</permission>
+                <permission>file:write</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="30"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>LaunchBadge / FlexNetOS</author>
+                <created>2026-01-02</created>
+                <repository>https://github.com/FlexNetOS/sqlx</repository>
+                <upstream>https://github.com/launchbadge/sqlx</upstream>
+                <license>MIT OR Apache-2.0</license>
+                <tags>database,sql,migrations,postgres,sqlite,mysql,cli,offline</tags>
+            </metadata>
+        </tool>
     </tools>
     
     <categories>

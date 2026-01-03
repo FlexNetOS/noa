@@ -9,13 +9,18 @@ mod migrations;
 mod repository;
 mod backend;
 
+#[cfg(test)]
+pub mod test_fixtures;
+
 #[cfg(feature = "full")]
 mod postgres;
 
-// TODO: postgres_stores is disabled until the struct mismatches are resolved.
-// The implementation expects different field types than the actual repository structs.
-// Tracked in: https://github.com/FlexNetOS/noa/issues/XXX
-#[cfg(all(feature = "full", feature = "postgres_stores_enabled"))]
+// PostgreSQL stores module
+// NOTE: This module requires either:
+// 1. A PostgreSQL database connection (DATABASE_URL env var) for compile-time verification, OR
+// 2. Pre-generated SQLx cache via `cargo sqlx prepare` with SQLX_OFFLINE=true
+// To enable: add `postgres_stores_enabled` feature and ensure SQLx cache is available
+#[cfg(feature = "postgres_stores_enabled")]
 pub mod postgres_stores;
 
 pub mod vector_search;
