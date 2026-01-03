@@ -65,6 +65,7 @@ Operational procedures and runbooks.
 Project status and history.
 
 - [status/STATUS-HISTORY.md](status/STATUS-HISTORY.md) — Consolidated status history
+- [PHASE_6_COMPLETE.md](../PHASE_6_COMPLETE.md) — Phase 6 implementation summary
 - [PHASE_5_COMPLETE.md](../PHASE_5_COMPLETE.md) — Phase 5 implementation summary
 - [PHASE_4_COMPLETE.md](../PHASE_4_COMPLETE.md) — Phase 4 implementation summary
 - [PHASE_3_COMPLETE.md](../PHASE_3_COMPLETE.md) — Phase 3 implementation summary
@@ -131,6 +132,21 @@ docs/
 ---
 
 ## 🆕 Recent Updates
+
+### Phase 6: Third-Party Tool Integration (2026-01-02)
+
+**Phase 6 Complete**: Third-party integrations configured
+
+- ✅ MCP SDK integration (protocol implementation, tool discovery)
+- ✅ Qdrant integration (3 vector collections, semantic search, RAG)
+- ✅ SQLx integration (5 database tables, audit archival, analytics)
+- ✅ libp2p integration (4 protocols, P2P networking, distributed CAS)
+- ✅ Security configurations (capability requirements, audit logging)
+- ✅ Complete integration guide
+
+**Key Documents**:
+- [PHASE_6_COMPLETE.md](../PHASE_6_COMPLETE.md) - Complete implementation summary
+- [Integration Guide](../tools/third-party/INTEGRATION_GUIDE.md) - Setup and usage guide
 
 ### Phase 5: Resource Registry & Agent Templates (2026-01-02)
 

@@ -7,13 +7,21 @@
 #   --force   - Skip safety checks and delete immediately
 #
 # Environment:
-#   NOA_ROOT      - Root directory (default: /n/noa)
+#   NOA_ROOT      - Root directory (auto-detected via noa-tools.sh)
 #   CAS_ROOT      - CAS directory (default: ${NOA_ROOT}/cas)
 
 set -euo pipefail
 
+# Source noa-tools.sh for cross-platform path resolution
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$SCRIPT_DIR/../lib/noa-tools.sh" ]]; then
+    source "$SCRIPT_DIR/../lib/noa-tools.sh"
+else
+    # Fallback if noa-tools.sh not available
+    NOA_ROOT="${NOA_ROOT:-/n/noa}"
+fi
+
 # Configuration
-NOA_ROOT="${NOA_ROOT:-/n/noa}"
 CAS_ROOT="${CAS_ROOT:-${NOA_ROOT}/cas}"
 OBJECTS_DIR="${CAS_ROOT}/objects"
 REFS_DIR="${CAS_ROOT}/refs"

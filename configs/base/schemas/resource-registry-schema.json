@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.framework/schemas/resource-registry.json",
+  "title": "Resource Registry Schema",
+  "description": "JSON Schema for NOA resource registry configuration",
+  "type": "object",
+  "required": ["version", "description", "metadata"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {"type": "string"},
+    "metadata": {
+      "type": "object",
+      "required": ["created_at", "updated_at", "registry_type"],
+      "properties": {
+        "created_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"},
+        "registry_type": {"type": "string"}
+      }
+    },
+    "agent_templates": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["id", "name", "version", "provider", "capabilities", "configuration"],
+          "properties": {
+            "id": {"type": "string", "pattern": "^tmpl:.+$"},
+            "name": {"type": "string"},
+            "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+            "provider": {"type": "string"},
+            "capabilities": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "configuration": {"type": "object"},
+            "constraints": {"type": "object"},
+            "deployment": {
+              "type": "object",
+              "required": ["deployment_type"],
+              "properties": {
+                "deployment_type": {"type": "string", "enum": ["local", "remote"]},
+                "health_check_enabled": {"type": "boolean"},
+                "auto_restart": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "tool_definitions": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["id", "name", "tools"],
+          "properties": {
+            "id": {"type": "string", "pattern": "^tool_group:.+$"},
+            "name": {"type": "string"},
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "name", "description", "type", "capabilities_required"],
+                "properties": {
+                  "id": {"type": "string", "pattern": "^tool:.+$"},
+                  "name": {"type": "string"},
+                  "description": {"type": "string"},
+                  "type": {"type": "string", "enum": ["script", "mcp"]},
+                  "executable": {"type": "string"},
+                  "mcp_server": {"type": "string"},
+                  "schema": {"type": "object"},
+                  "capabilities_required": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -532,7 +532,7 @@ scripts/cas/update-ref.sh models/current "$OLD_HASH" "Restore"
 - [CAS Utility Scripts Guide](scripts/cas/README.md)
 - [NOA Architecture](README.md)
 - [Phase 2.5 Summary](PHASE_2.5_COMPLETE.md)
-- [Provider Shared Resources Fix Plan](ai/shared/resources/07-plans/provider-shared-resources-fix-plan.md)
+- [Provider Shared Resources Fix Plan](ai/shared/resources/09-plans/provider-shared-resources-fix-plan.md)
 
 ---
 

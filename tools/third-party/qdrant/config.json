@@ -1,0 +1,141 @@
+{
+  "version": "1.0.0",
+  "description": "Qdrant vector database integration for NOA",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "integration_type": "vector_database",
+    "repository": "https://github.com/qdrant/qdrant"
+  },
+  "database": {
+    "name": "qdrant",
+    "version": "1.7.0",
+    "type": "vector_database",
+    "license": "Apache-2.0",
+    "client": {
+      "language": "rust",
+      "crate": "qdrant-client",
+      "version": "1.7.0"
+    }
+  },
+  "connection": {
+    "host": "${QDRANT_HOST:-localhost}",
+    "port": "${QDRANT_PORT:-6334}",
+    "url": "http://${QDRANT_HOST:-localhost}:${QDRANT_PORT:-6334}",
+    "api_key": "${QDRANT_API_KEY}",
+    "timeout_seconds": 30,
+    "max_connections": 10
+  },
+  "collections": {
+    "embeddings": {
+      "name": "noa_embeddings",
+      "vector_size": 768,
+      "distance": "Cosine",
+      "on_disk_payload": true,
+      "optimizers_config": {
+        "deleted_threshold": 0.2,
+        "vacuum_min_vector_number": 1000,
+        "default_segment_number": 2
+      },
+      "hnsw_config": {
+        "m": 16,
+        "ef_construct": 100,
+        "full_scan_threshold": 10000
+      }
+    },
+    "code_embeddings": {
+      "name": "noa_code_embeddings",
+      "vector_size": 384,
+      "distance": "Cosine",
+      "on_disk_payload": true,
+      "payload_schema": {
+        "file_path": "keyword",
+        "language": "keyword",
+        "function_name": "text",
+        "code_snippet": "text",
+        "created_at": "integer"
+      }
+    },
+    "document_embeddings": {
+      "name": "noa_document_embeddings",
+      "vector_size": 768,
+      "distance": "Cosine",
+      "on_disk_payload": false,
+      "payload_schema": {
+        "document_id": "keyword",
+        "title": "text",
+        "content": "text",
+        "tags": "keyword",
+        "created_at": "integer"
+      }
+    }
+  },
+  "operations": {
+    "upsert": {
+      "batch_size": 100,
+      "wait": true
+    },
+    "search": {
+      "limit": 10,
+      "score_threshold": 0.7,
+      "exact": false,
+      "hnsw_ef": 128
+    },
+    "scroll": {
+      "limit": 100,
+      "with_payload": true,
+      "with_vector": false
+    }
+  },
+  "cache_integration": {
+    "enabled": true,
+    "cache_path": "${NOA_ROOT}/providers/shared/embedding-cache",
+    "ttl_days": 30,
+    "deduplication": {
+      "enabled": true,
+      "similarity_threshold": 0.95
+    }
+  },
+  "use_cases": {
+    "semantic_search": {
+      "collection": "noa_embeddings",
+      "description": "Semantic search across documents and code",
+      "capabilities_required": ["embeddings"]
+    },
+    "code_search": {
+      "collection": "noa_code_embeddings",
+      "description": "Search code by semantic similarity",
+      "capabilities_required": ["embeddings", "file_operations"]
+    },
+    "rag": {
+      "collection": "noa_document_embeddings",
+      "description": "Retrieval-augmented generation",
+      "capabilities_required": ["embeddings", "reasoning"]
+    }
+  },
+  "embedding_models": {
+    "default": {
+      "model": "nomic-embed-text-v1.5",
+      "dimension": 768,
+      "model_path": "${NOA_ROOT}/models/embeddings/nomic-embed-text-v1.5.gguf",
+      "normalize": true
+    },
+    "code": {
+      "model": "code-embedding-ada-002",
+      "dimension": 384,
+      "provider": "openai",
+      "api_key": "${OPENAI_API_KEY}"
+    }
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "collection_stats_interval_seconds": 300,
+    "log_slow_queries": true,
+    "slow_query_threshold_ms": 1000
+  },
+  "backup": {
+    "enabled": true,
+    "schedule": "0 2 * * *",
+    "backup_path": "${NOA_ROOT}/data/backups/qdrant",
+    "retention_days": 7
+  }
+}

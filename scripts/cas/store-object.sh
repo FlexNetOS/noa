@@ -48,8 +48,9 @@ elif command -v blake3 >/dev/null 2>&1; then
     HASH=$(blake3 "$INPUT_FILE" | awk '{print $1}')
 else
     # Fallback to sha256 if blake3 not available
+    # sha256sum may prefix hash with \ on Windows for paths with special chars
     echo "Warning: blake3 not found, using sha256 fallback" >&2
-    HASH=$(sha256sum "$INPUT_FILE" | awk '{print $1}')
+    HASH=$(sha256sum "$INPUT_FILE" | awk '{print $1}' | sed 's/^\\//g')
 fi
 
 # Create object path: objects/<h0h1>/<h2h3>/<full_hash>

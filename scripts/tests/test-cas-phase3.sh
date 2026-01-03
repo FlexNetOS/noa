@@ -1,11 +1,19 @@
 #!/bin/bash
 # test-cas-phase3.sh - Test CAS implementation (Phase 3)
 # Usage: test-cas-phase3.sh [--verbose]
+# Respects NOA Constitution §3.1 - uses portable tools from noa_root
 
 set -euo pipefail
 
-# Configuration
-NOA_ROOT="${NOA_ROOT:-/n/noa}"
+# Source portable tool resolver
+TEST_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$TEST_SCRIPT_DIR/../lib/noa-tools.sh" ]]; then
+    source "$TEST_SCRIPT_DIR/../lib/noa-tools.sh"
+else
+    echo "ERROR: noa-tools.sh not found. Run from NOA repository." >&2
+    exit 1
+fi
+
 CAS_ROOT="${CAS_ROOT:-${NOA_ROOT}/cas}"
 SCRIPT_DIR="${NOA_ROOT}/scripts/cas"
 VERBOSE=false

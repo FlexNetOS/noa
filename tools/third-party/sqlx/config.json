@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "description": "SQLx database integration for NOA",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "integration_type": "sql_database",
+    "repository": "https://github.com/launchbadge/sqlx"
+  },
+  "database": {
+    "name": "sqlx",
+    "version": "0.7.0",
+    "type": "async_sql",
+    "language": "rust",
+    "license": "MIT/Apache-2.0",
+    "supported_databases": [
+      "postgresql",
+      "mysql",
+      "sqlite",
+      "mssql"
+    ]
+  },
+  "connections": {
+    "postgres": {
+      "enabled": true,
+      "url": "${DATABASE_URL:-postgresql://localhost/noa}",
+      "max_connections": 10,
+      "min_connections": 2,
+      "connect_timeout_seconds": 30,
+      "idle_timeout_seconds": 600,
+      "max_lifetime_seconds": 1800,
+      "sqlx_logging": true
+    },
+    "sqlite": {
+      "enabled": true,
+      "path": "${NOA_ROOT}/data/db/noa.db",
+      "create_if_missing": true,
+      "journal_mode": "WAL",
+      "synchronous": "NORMAL",
+      "max_connections": 5
+    }
+  },
+  "schema": {
+    "migrations_path": "${NOA_ROOT}/data/db/migrations",
+    "auto_migrate": true,
+    "migration_table": "_sqlx_migrations"
+  },
+  "tables": {
+    "audit_logs": {
+      "database": "postgres",
+      "description": "Audit log archive from sys/core/audit",
+      "schema": {
+        "id": "BIGSERIAL PRIMARY KEY",
+        "timestamp": "TIMESTAMP NOT NULL",
+        "event_type": "VARCHAR(50) NOT NULL",
+        "event": "VARCHAR(100) NOT NULL",
+        "principal_id": "VARCHAR(100) NOT NULL",
+        "session_id": "VARCHAR(100)",
+        "capability": "VARCHAR(50)",
+        "result": "VARCHAR(20)",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP DEFAULT NOW()"
+      },
+      "indexes": [
+        "CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp)",
+        "CREATE INDEX idx_audit_principal ON audit_logs(principal_id)",
+        "CREATE INDEX idx_audit_event_type ON audit_logs(event_type)"
+      ]
+    },
+    "budget_tracking": {
+      "database": "postgres",
+      "description": "Budget and cost tracking",
+      "schema": {
+        "id": "BIGSERIAL PRIMARY KEY",
+        "principal_id": "VARCHAR(100) NOT NULL",
+        "operation_type": "VARCHAR(50) NOT NULL",
+        "amount_usd": "DECIMAL(10,4) NOT NULL",
+        "timestamp": "TIMESTAMP NOT NULL",
+        "session_id": "VARCHAR(100)",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP DEFAULT NOW()"
+      },
+      "indexes": [
+        "CREATE INDEX idx_budget_principal ON budget_tracking(principal_id)",
+        "CREATE INDEX idx_budget_timestamp ON budget_tracking(timestamp)"
+      ]
+    },
+    "agent_registry": {
+      "database": "sqlite",
+      "description": "Active agent instances",
+      "schema": {
+        "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+        "agent_id": "TEXT NOT NULL UNIQUE",
+        "name": "TEXT NOT NULL",
+        "template_id": "TEXT NOT NULL",
+        "provider": "TEXT NOT NULL",
+        "status": "TEXT NOT NULL",
+        "configuration": "TEXT",
+        "created_at": "INTEGER NOT NULL",
+        "updated_at": "INTEGER NOT NULL"
+      },
+      "indexes": [
+        "CREATE INDEX idx_agent_status ON agent_registry(status)",
+        "CREATE INDEX idx_agent_template ON agent_registry(template_id)"
+      ]
+    },
+    "model_registry": {
+      "database": "sqlite",
+      "description": "Model deployment tracking",
+      "schema": {
+        "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+        "model_name": "TEXT NOT NULL",
+        "version": "TEXT NOT NULL",
+        "hash": "TEXT NOT NULL",
+        "size_bytes": "INTEGER NOT NULL",
+        "deployed_at": "INTEGER NOT NULL",
+        "metadata": "TEXT",
+        "UNIQUE": "(model_name, version)"
+      },
+      "indexes": [
+        "CREATE INDEX idx_model_hash ON model_registry(hash)",
+        "CREATE INDEX idx_model_deployed ON model_registry(deployed_at)"
+      ]
+    },
+    "cache_stats": {
+      "database": "sqlite",
+      "description": "Cache usage statistics",
+      "schema": {
+        "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+        "cache_name": "TEXT NOT NULL",
+        "timestamp": "INTEGER NOT NULL",
+        "size_bytes": "INTEGER NOT NULL",
+        "usage_percent": "INTEGER NOT NULL",
+        "total_items": "INTEGER"
+      },
+      "indexes": [
+        "CREATE INDEX idx_cache_timestamp ON cache_stats(timestamp)",
+        "CREATE INDEX idx_cache_name ON cache_stats(cache_name)"
+      ]
+    }
+  },
+  "queries": {
+    "audit_search": {
+      "description": "Search audit logs by principal and date range",
+      "sql": "SELECT * FROM audit_logs WHERE principal_id = $1 AND timestamp BETWEEN $2 AND $3 ORDER BY timestamp DESC LIMIT $4"
+    },
+    "budget_summary": {
+      "description": "Get budget summary for principal",
+      "sql": "SELECT principal_id, SUM(amount_usd) as total_spent, COUNT(*) as operation_count FROM budget_tracking WHERE principal_id = $1 AND timestamp >= $2 GROUP BY principal_id"
+    },
+    "active_agents": {
+      "description": "List active agents",
+      "sql": "SELECT * FROM agent_registry WHERE status = 'active' ORDER BY created_at DESC"
+    },
+    "model_versions": {
+      "description": "List model versions",
+      "sql": "SELECT model_name, version, hash, deployed_at FROM model_registry WHERE model_name = $1 ORDER BY deployed_at DESC"
+    }
+  },
+  "operations": {
+    "audit_archival": {
+      "enabled": true,
+      "schedule": "0 3 * * *",
+      "description": "Archive audit logs older than 90 days to database",
+      "source": "${NOA_ROOT}/sys/core/audit/logs",
+      "target_table": "audit_logs",
+      "age_threshold_days": 90
+    },
+    "budget_aggregation": {
+      "enabled": true,
+      "schedule": "0 1 * * *",
+      "description": "Aggregate budget data daily",
+      "target_table": "budget_tracking"
+    },
+    "cache_stats_collection": {
+      "enabled": true,
+      "schedule": "*/15 * * * *",
+      "description": "Collect cache statistics",
+      "source": "${NOA_ROOT}/metrics/cache-stats.json",
+      "target_table": "cache_stats"
+    }
+  },
+  "security": {
+    "use_prepared_statements": true,
+    "sql_injection_protection": true,
+    "audit_all_queries": true,
+    "capabilities_required": ["database_operations"]
+  },
+  "monitoring": {
+    "log_slow_queries": true,
+    "slow_query_threshold_ms": 500,
+    "connection_pool_metrics": true,
+    "query_metrics": true
+  }
+}

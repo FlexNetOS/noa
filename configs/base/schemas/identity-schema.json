@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.framework/schemas/identity.json",
+  "title": "Identity Configuration Schema",
+  "description": "JSON Schema for NOA identity management configuration",
+  "type": "object",
+  "required": ["version", "description", "metadata", "principals", "roles", "capabilities"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version number"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created_at", "updated_at", "layer"],
+      "properties": {
+        "created_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"},
+        "layer": {"type": "string", "enum": ["sys/core"]}
+      }
+    },
+    "principals": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["id", "type", "name", "roles", "capabilities", "created_at"],
+          "properties": {
+            "id": {"type": "string", "pattern": "^(sys|agent|user):.+$"},
+            "type": {"type": "string", "enum": ["system", "agent", "user"]},
+            "name": {"type": "string", "minLength": 1},
+            "roles": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "capabilities": {
+              "type": "array",
+              "items": {"type": "string"},
+              "minItems": 1
+            },
+            "constraints": {
+              "type": "object",
+              "properties": {
+                "sandbox_required": {"type": "boolean"},
+                "audit_required": {"type": "boolean"},
+                "budget_limited": {"type": "boolean"}
+              }
+            },
+            "created_at": {"type": "string", "format": "date-time"}
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["description", "capabilities", "inherits"],
+          "properties": {
+            "description": {"type": "string", "minLength": 1},
+            "capabilities": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "inherits": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["description", "resource_types", "operations"],
+          "properties": {
+            "description": {"type": "string", "minLength": 1},
+            "resource_types": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "operations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "requires_sandbox": {"type": "boolean"},
+            "requires_audit": {"type": "boolean"},
+            "path_restrictions": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    }
+  }
+}

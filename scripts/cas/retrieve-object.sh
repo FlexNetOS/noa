@@ -85,7 +85,8 @@ if [[ "$CAS_VERIFY" == "true" ]] && [[ -n "$VERIFY_FILE" ]]; then
     elif command -v blake3 >/dev/null 2>&1; then
         COMPUTED_HASH=$(blake3 "$VERIFY_FILE" | awk '{print $1}')
     else
-        COMPUTED_HASH=$(sha256sum "$VERIFY_FILE" | awk '{print $1}')
+        # sha256sum may prefix hash with \ on Windows for paths with special chars
+        COMPUTED_HASH=$(sha256sum "$VERIFY_FILE" | awk '{print $1}' | sed 's/^\\//g')
     fi
 
     if [[ "$COMPUTED_HASH" != "$HASH" ]]; then

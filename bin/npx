@@ -1,0 +1,9 @@
+#!/bin/bash
+# Constitution §3.1 - NOA-hosted npx wrapper
+# Delegates to opt/node/npx with proper NOA_ROOT resolution
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NOA_ROOT="$(dirname "$SCRIPT_DIR")"
+export NOA_ROOT
+
+exec "$NOA_ROOT/opt/node/npx" "$@"

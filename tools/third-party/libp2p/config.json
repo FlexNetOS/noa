@@ -1,0 +1,169 @@
+{
+  "version": "1.0.0",
+  "description": "libp2p networking integration for NOA",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "integration_type": "p2p_networking",
+    "repository": "https://github.com/libp2p/rust-libp2p"
+  },
+  "library": {
+    "name": "rust-libp2p",
+    "version": "0.53.0",
+    "type": "p2p_networking",
+    "language": "rust",
+    "license": "MIT",
+    "protocols": [
+      "tcp",
+      "websocket",
+      "quic",
+      "noise",
+      "yamux",
+      "mplex",
+      "kad",
+      "mdns",
+      "gossipsub",
+      "request-response"
+    ]
+  },
+  "network_configuration": {
+    "peer_id": {
+      "generate_on_start": true,
+      "persist_to": "${NOA_ROOT}/data/p2p/peer_id.json",
+      "key_type": "ed25519"
+    },
+    "listening": {
+      "tcp": {
+        "enabled": true,
+        "port": "${LIBP2P_TCP_PORT:-9000}",
+        "address": "0.0.0.0"
+      },
+      "websocket": {
+        "enabled": true,
+        "port": "${LIBP2P_WS_PORT:-9001}",
+        "address": "0.0.0.0"
+      },
+      "quic": {
+        "enabled": false,
+        "port": "${LIBP2P_QUIC_PORT:-9002}",
+        "address": "0.0.0.0"
+      }
+    },
+    "external_addresses": [
+      "/ip4/${PUBLIC_IP}/tcp/${LIBP2P_TCP_PORT:-9000}"
+    ]
+  },
+  "protocols": {
+    "kademlia": {
+      "enabled": true,
+      "description": "Distributed hash table for peer and content discovery",
+      "protocol_name": "/noa/kad/1.0.0",
+      "replication_factor": 20,
+      "query_timeout_seconds": 60,
+      "bootstrap_peers": [
+        "/ip4/127.0.0.1/tcp/9000/p2p/12D3KooWBootstrapPeer1",
+        "/ip4/127.0.0.1/tcp/9000/p2p/12D3KooWBootstrapPeer2"
+      ]
+    },
+    "mdns": {
+      "enabled": true,
+      "description": "Local network peer discovery",
+      "service_name": "noa-p2p",
+      "query_interval_seconds": 60
+    },
+    "gossipsub": {
+      "enabled": true,
+      "description": "Pub/sub messaging",
+      "protocol_name": "/noa/gossipsub/1.0.0",
+      "topics": [
+        "noa/agents/events",
+        "noa/models/updates",
+        "noa/tasks/broadcast"
+      ],
+      "mesh_size": 6,
+      "message_id_fn": "hash"
+    },
+    "request_response": {
+      "enabled": true,
+      "description": "Request-response pattern",
+      "protocol_name": "/noa/rpc/1.0.0",
+      "timeout_seconds": 30,
+      "max_concurrent": 100
+    }
+  },
+  "use_cases": {
+    "agent_discovery": {
+      "protocol": "kademlia",
+      "description": "Discover agent instances across network",
+      "capabilities_required": ["p2p_networking"]
+    },
+    "model_sharing": {
+      "protocol": "request_response",
+      "description": "Share models between NOA instances",
+      "capabilities_required": ["p2p_networking", "file_operations"]
+    },
+    "task_coordination": {
+      "protocol": "gossipsub",
+      "description": "Coordinate tasks across distributed agents",
+      "capabilities_required": ["p2p_networking", "reasoning"]
+    },
+    "local_discovery": {
+      "protocol": "mdns",
+      "description": "Discover NOA instances on local network",
+      "capabilities_required": ["p2p_networking"]
+    }
+  },
+  "security": {
+    "transport_encryption": {
+      "enabled": true,
+      "protocol": "noise",
+      "cipher": "xx"
+    },
+    "peer_authentication": {
+      "enabled": true,
+      "require_peer_id": true,
+      "allowed_peers": []
+    },
+    "message_signing": {
+      "enabled": true,
+      "verify_signatures": true
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "max_connections": 50,
+      "max_incoming_per_second": 10
+    }
+  },
+  "content_routing": {
+    "dht_enabled": true,
+    "content_providers": true,
+    "provider_record_ttl_seconds": 86400,
+    "cas_integration": {
+      "enabled": true,
+      "description": "Use libp2p for distributed CAS",
+      "provide_objects": true,
+      "fetch_objects": true,
+      "cas_root": "${NOA_ROOT}/cas"
+    }
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "metrics_port": 9003,
+    "peer_count_tracking": true,
+    "bandwidth_tracking": true,
+    "protocol_stats": true
+  },
+  "experimental": {
+    "webrtc": {
+      "enabled": false,
+      "description": "WebRTC transport for browser connectivity"
+    },
+    "circuit_relay": {
+      "enabled": false,
+      "description": "Relay protocol for NAT traversal"
+    },
+    "autonat": {
+      "enabled": false,
+      "description": "Automatic NAT detection"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "description": "MCP SDK integration for NOA",
+  "metadata": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "integration_type": "protocol",
+    "repository": "https://github.com/modelcontextprotocol/rust-sdk"
+  },
+  "sdk": {
+    "name": "rust-mcp-sdk",
+    "version": "0.1.0",
+    "language": "rust",
+    "license": "MIT",
+    "installation": {
+      "method": "cargo",
+      "dependencies": [
+        "serde",
+        "serde_json",
+        "tokio",
+        "async-trait"
+      ]
+    }
+  },
+  "integration_points": {
+    "gateway": {
+      "location": "${NOA_ROOT}/gateway/mcp",
+      "purpose": "MCP protocol implementation",
+      "components": [
+        "mcp_server",
+        "mcp_client",
+        "transport_layer",
+        "message_router"
+      ]
+    },
+    "tools": {
+      "location": "${NOA_ROOT}/tools",
+      "purpose": "Tool registration and discovery",
+      "components": [
+        "tool_registry",
+        "tool_schema",
+        "tool_executor"
+      ]
+    },
+    "providers": {
+      "location": "${NOA_ROOT}/providers",
+      "purpose": "Provider MCP endpoints",
+      "components": [
+        "provider_wrapper",
+        "capability_mapper",
+        "request_handler"
+      ]
+    }
+  },
+  "protocol_support": {
+    "mcp_version": "1.0",
+    "transport_protocols": [
+      "stdio",
+      "http",
+      "websocket"
+    ],
+    "message_types": [
+      "initialize",
+      "tools/list",
+      "tools/call",
+      "resources/list",
+      "resources/read",
+      "prompts/list",
+      "prompts/get",
+      "logging/setLevel"
+    ]
+  },
+  "server_configuration": {
+    "name": "noa-mcp-server",
+    "version": "1.0.0",
+    "capabilities": {
+      "tools": {
+        "enabled": true,
+        "tool_discovery": true
+      },
+      "resources": {
+        "enabled": true,
+        "subscribe": false
+      },
+      "prompts": {
+        "enabled": true,
+        "list_changed": false
+      }
+    },
+    "stdio_transport": {
+      "enabled": true,
+      "buffer_size": 8192
+    },
+    "http_transport": {
+      "enabled": true,
+      "host": "localhost",
+      "port": 8080,
+      "cors_enabled": true
+    }
+  },
+  "client_configuration": {
+    "timeout_seconds": 30,
+    "retry_attempts": 3,
+    "retry_delay_ms": 1000,
+    "max_concurrent_requests": 10
+  },
+  "tool_registration": {
+    "auto_discover": true,
+    "registry_path": "${NOA_ROOT}/data/resources/registry.json",
+    "tool_prefix": "noa:",
+    "capability_mapping": {
+      "file_operations": ["read_file", "write_file", "list_directory"],
+      "git_operations": ["git_status", "git_commit", "git_diff", "git_log"],
+      "code_execution": ["execute_code", "run_tests"],
+      "reasoning": ["query_llm", "generate_code"]
+    }
+  },
+  "security": {
+    "require_authentication": true,
+    "capability_enforcement": true,
+    "audit_all_requests": true,
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60
+    }
+  }
+}
