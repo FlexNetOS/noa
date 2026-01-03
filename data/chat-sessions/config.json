@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../config/schemas/chat-sessions.schema.json",
+  "version": "1.0.0",
+  "description": "Unified chat session storage for all AI providers - Constitution §4 Memory Sovereignty",
+  
+  "storage": {
+    "root": "${NOA_ROOT}/data/chat-sessions",
+    "conversations": "conversations/",
+    "memory": "memory/",
+    "history": "history/"
+  },
+  
+  "provider_sync": {
+    "vscode_copilot": {
+      "source": "${LOCALAPPDATA}/Programs/Microsoft VS Code/.vs/noa.slnx/copilot-chat",
+      "enabled": false,
+      "sync_interval_mins": 5,
+      "notes": "VS Code Copilot chat history - sync disabled by default"
+    },
+    "cursor": {
+      "source": "${APPDATA}/Cursor/User/workspaceStorage",
+      "enabled": false,
+      "sync_interval_mins": 5
+    },
+    "claude_desktop": {
+      "source": "${APPDATA}/Claude",
+      "enabled": false,
+      "sync_interval_mins": 5
+    }
+  },
+  
+  "session_format": {
+    "file_extension": ".session.json",
+    "naming_pattern": "{timestamp}_{provider}_{hash}.session.json",
+    "max_sessions": 1000,
+    "retention_days": 365
+  },
+  
+  "memory_format": {
+    "knowledge_graph": "memory/knowledge-graph.json",
+    "embeddings_dir": "memory/embeddings/",
+    "index_file": "memory/index.json"
+  },
+  
+  "export": {
+    "formats": ["json", "markdown", "html"],
+    "include_metadata": true,
+    "include_tool_calls": true
+  }
+}

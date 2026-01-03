@@ -170,3 +170,4 @@ target/
 **/.next/
 tsconfig.tsbuildinfo
 ui/_archive/
+.pixi/etc/claude/desktop/Code Cache/etc/claude/desktop/*.jsonetc/claude/desktop/*-wal

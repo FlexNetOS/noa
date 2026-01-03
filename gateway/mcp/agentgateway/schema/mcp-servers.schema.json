@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noa.flexnetos.com/schema/mcp-servers.schema.json",
+  "title": "NOA MCP Server Configuration",
+  "description": "Schema for configuring MCP servers in the NOA AgentGateway",
+  "type": "object",
+  "required": ["version", "servers"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the config format"
+    },
+    "description": {
+      "type": "string"
+    },
+    "servers": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/McpServer"
+      }
+    },
+    "provider_mappings": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ProviderMapping"
+      }
+    },
+    "defaults": {
+      "$ref": "#/definitions/Defaults"
+    }
+  },
+  "definitions": {
+    "McpServer": {
+      "type": "object",
+      "required": ["name", "type", "command"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the server"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["stdio", "http", "websocket"],
+          "description": "Transport type for the MCP server"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command to execute (supports ${NOA_ROOT} variable)"
+        },
+        "args": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["vscode", "cursor", "claude", "codex", "all"]
+          },
+          "description": "Which AI providers should have access to this server"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Implementation notes or requirements"
+        }
+      }
+    },
+    "ProviderMapping": {
+      "type": "object",
+      "required": ["config_path", "format"],
+      "properties": {
+        "config_path": {
+          "type": "string",
+          "description": "Path to provider-specific config file"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["vscode-mcp", "cursor-mcp", "claude-mcp"],
+          "description": "Config format for this provider"
+        },
+        "auto_generate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically generate provider config from master"
+        }
+      }
+    },
+    "Defaults": {
+      "type": "object",
+      "properties": {
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1000
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "health_check_interval_ms": {
+          "type": "integer",
+          "minimum": 5000
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/mcp-servers.schema.json",
+  "version": "1.0.0",
+  "description": "NOA MCP Server Configuration - Constitution §3.1 Compliant",
+  
+  "servers": {
+    "filesystem": {
+      "name": "Filesystem MCP",
+      "description": "File system access within NOA_ROOT",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${NOA_ROOT}"
+      ],
+      "env": {},
+      "enabled": true,
+      "providers": ["vscode", "cursor", "claude", "codex"]
+    },
+    
+    "github": {
+      "name": "GitHub MCP",
+      "description": "GitHub API access for issues, PRs, repos",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "enabled": true,
+      "providers": ["vscode", "cursor", "claude", "codex"]
+    },
+    
+    "memory": {
+      "name": "Memory MCP",
+      "description": "Persistent memory/knowledge graph",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE": "${NOA_ROOT}/data/memory/knowledge-graph.json"
+      },
+      "enabled": true,
+      "providers": ["vscode", "cursor", "claude", "codex"]
+    },
+    
+    "pylance": {
+      "name": "Pylance MCP",
+      "description": "Python language server integration",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/bin/npx",
+      "args": [
+        "-y",
+        "@anthropic/mcp-server-pylance"
+      ],
+      "env": {},
+      "enabled": true,
+      "providers": ["vscode", "cursor", "claude"]
+    },
+    
+    "noa-model-registry": {
+      "name": "NOA Model Registry",
+      "description": "Local model management and MOE orchestration",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/sys/core/target/release/noa-model-registry-mcp",
+      "args": [],
+      "env": {
+        "NOA_ROOT": "${NOA_ROOT}",
+        "RUST_LOG": "info"
+      },
+      "enabled": false,
+      "providers": ["vscode", "cursor", "claude", "codex"],
+      "notes": "Enable when noa-model-registry-mcp binary is built"
+    },
+    
+    "noa-hive": {
+      "name": "NOA Hive P2P",
+      "description": "P2P model discovery and sharing",
+      "type": "stdio",
+      "command": "${NOA_ROOT}/p2p/noa-hive/target/release/noa-hive-mcp",
+      "args": [],
+      "env": {
+        "NOA_ROOT": "${NOA_ROOT}"
+      },
+      "enabled": false,
+      "providers": ["vscode", "cursor", "claude"],
+      "notes": "Enable when noa-hive-mcp is built"
+    }
+  },
+  
+  "provider_mappings": {
+    "vscode": {
+      "config_path": "${NOA_ROOT}/.vscode/mcp.json",
+      "format": "vscode-mcp",
+      "auto_generate": true
+    },
+    "cursor": {
+      "config_path": "${NOA_ROOT}/.cursor/mcp.json",
+      "format": "cursor-mcp",
+      "auto_generate": true
+    },
+    "claude": {
+      "config_path": "${NOA_ROOT}/etc/claude/mcp.json",
+      "format": "claude-mcp",
+      "auto_generate": true
+    }
+  },
+  
+  "defaults": {
+    "timeout_ms": 30000,
+    "retry_count": 3,
+    "health_check_interval_ms": 60000
+  }
+}
