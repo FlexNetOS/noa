@@ -1,0 +1,33 @@
+{
+  "$schema": "https://claude.ai/config/schema.json",
+  "_comment": "NOA Centralized Claude Configuration - Constitution §3.1 compliant",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-filesystem",
+        "N:/noa"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-github"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-memory"
+      ]
+    }
+  },
+  "preferences": {
+    "defaultModel": "claude-sonnet-4-20250514",
+    "theme": "system",
+    "telemetry": false
+  }
+}

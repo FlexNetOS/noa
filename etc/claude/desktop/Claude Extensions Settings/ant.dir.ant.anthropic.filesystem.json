@@ -1,0 +1,12 @@
+{
+  "isEnabled": true,
+  "userConfig": {
+    "allowed_directories": [
+      "C:\\Users\\De-Flex.Net\\OneDrive",
+      "E:\\",
+      "V:\\",
+      "C:\\",
+      "N:\\noa"
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+	"scale": 0,
+	"locale": "en-US",
+	"userThemeMode": "system",
+	"dxt:allowlistEnabled": false,
+	"dxt:allowlistLastUpdated": "2026-01-03T14:39:37.109Z",
+	"dxt:allowlistCache": "djEw+syqTb/CIIJXc/oUcUrAxwy28lYGry5c7NhlaGRb1A4zJx6kDzCMImkykG/mwcJ/xBC+o0z7E+7A2feEXoxtQY8ry6kZKrVbsPqcxWH6rwsOKsDoL1JEH86FjmJmv/eGmwnOpYOYbqIqyZL8A89tZisF8tN9pur5pYpmoCzcM0ulGnRf3YWeqstggTiA89BQCbB+esZ89LL9WaIGQx2+Ud1tUuzOws53T2UpoD4WSQKXkz/Byfy74AfrpEI239kakfvmEVpSqbNvtC1T7xASgeva9KvZPp5nNHw1P7AoQEPhiJPJcAg2LpPYznLllOcwFwswD00dqWgIuvqDK47flHXxyruNC6/CBv21D/YzKfJ5H6XLKncw2WiWb1sli0r9",
+	"hasTrackedInitialActivation": true,
+	"oauth:tokenCache": "djEwdRYGyJ72b7vYKBFekmB/l1leiN+SQtDhRp/W/7DWDeu7oH/bEsgW42WfuHwutgQcYS8k0VvAINOqW0RvFvGT8Gq5uhpgdufYPEAk52nGeeXYTzGsxBlC/mZXozhf3Ni9MlclmfpLsB7DfEMpcXmg5mx0JgpQFlouak0J4qN9FyUT/7bcKece9EJwYMJqGGKp8z+96tZjtAXxSAHUf+IqF/ME1LSdHk7bONfidLjfa3vQULrlkEZ88wdKiKifzEr8ouTOTF5C4MvdvJ2YAObGF0qNhfdGhruwg8S1mU9mv1xyVlORyoUpZSVDAnUTzhEcOYuJlCOp7oAjNo0NjGNqpsWOrms1F2jAikyhPxiehUX4Z7uAJEjpDH+no1kghuPhMnEape9iFwJUDpAtEz8zjaK78saXiSZNG83IMELsRIFaNqvtCuG41U9vFatGzeulWBDVgWQ=",
+	"quickWindowPosition": {
+		"absolutePointInWorkspace": {
+			"x": 1417,
+			"y": 461
+		},
+		"monitor": {
+			"accelerometerSupport": "unknown",
+			"bounds": {
+				"x": 0,
+				"y": 0,
+				"width": 3440,
+				"height": 1440
+			},
+			"colorDepth": 24,
+			"colorSpace": "{primaries:BT709, transfer:SRGB, matrix:RGB, range:FULL}",
+			"depthPerComponent": 8,
+			"detected": true,
+			"displayFrequency": 60,
+			"id": 136596421,
+			"internal": false,
+			"label": "Q34DB45-1",
+			"maximumCursorSize": {
+				"width": 0,
+				"height": 0
+			},
+			"monochrome": false,
+			"nativeOrigin": {
+				"x": 0,
+				"y": 0
+			},
+			"rotation": 0,
+			"scaleFactor": 1,
+			"size": {
+				"width": 3440,
+				"height": 1440
+			},
+			"workArea": {
+				"x": 0,
+				"y": 0,
+				"width": 3440,
+				"height": 1392
+			},
+			"workAreaSize": {
+				"width": 3440,
+				"height": 1392
+			},
+			"touchSupport": "unknown"
+		},
+		"relativePointFromMonitor": {
+			"x": 1417,
+			"y": 461
+		}
+	}
+}

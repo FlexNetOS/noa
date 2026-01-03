@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<trusted-keys xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://zero-install.sourceforge.net/2007/injector/trust https://docs.0install.net/specifications/trust.xsd" xmlns="http://zero-install.sourceforge.net/2007/injector/trust">
+  <key fingerprint="88C8A1F375928691D7365C0259AA3927C24E4E1E">
+    <domain value="apps.0install.net" />
+  </key>
+</trusted-keys>

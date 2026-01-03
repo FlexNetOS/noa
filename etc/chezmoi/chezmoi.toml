@@ -1,0 +1,25 @@
+# NOA chezmoi configuration
+# Constitution §3.1 compliant: all paths resolve under noa_root
+
+[sourceDir]
+path = "N:/noa/etc/dotfiles"
+
+[destDir]
+path = "N:/noa"
+
+[edit]
+command = "code"
+args = ["--wait"]
+
+[git]
+autoCommit = true
+autoPush = false
+commitMessageTemplate = "chore(dotfiles): {{ .numChanged }} file(s) updated"
+
+[data]
+name = "NOA Platform"
+email = "noa+ai@flexnetos.com"
+
+[data.noa]
+root = "N:/noa"
+version = "2.1.0"
