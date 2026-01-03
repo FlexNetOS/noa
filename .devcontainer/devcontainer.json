@@ -1,0 +1,172 @@
+{
+    "name": "NOA Development Container",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ENVIRONMENT VARIABLES - XDG Compliance per ADR-0013
+    // ═══════════════════════════════════════════════════════════════════
+    "containerEnv": {
+        "NOA_ROOT": "/workspaces/noa",
+
+        // XDG Base Directory Specification
+        "XDG_CONFIG_HOME": "/workspaces/noa/etc/config",
+        "XDG_CACHE_HOME": "/workspaces/noa/cache",
+        "XDG_DATA_HOME": "/workspaces/noa/data",
+        "XDG_STATE_HOME": "/workspaces/noa/data/state",
+
+        // Tool-specific cache locations
+        "CARGO_HOME": "/workspaces/noa/cache/rust/cargo",
+        "RUSTUP_HOME": "/workspaces/noa/cache/rust/rustup",
+        "npm_config_cache": "/workspaces/noa/cache/npm",
+        "PNPM_HOME": "/workspaces/noa/cache/pnpm",
+        "PIXI_CACHE_DIR": "/workspaces/noa/cache/pixi",
+        "PIP_CACHE_DIR": "/workspaces/noa/cache/pip",
+        "HUGGINGFACE_HUB_CACHE": "/workspaces/noa/cache/huggingface",
+
+        // AI Provider configs
+        "OLLAMA_MODELS": "/workspaces/noa/cache/ollama/models",
+        "CLAUDE_CONFIG_DIR": "/workspaces/noa/etc/dotfiles/claude",
+
+        // Telemetry opt-out
+        "DO_NOT_TRACK": "1",
+        "NEXT_TELEMETRY_DISABLED": "1"
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // FEATURES - Shared across all compatible IDEs
+    // ═══════════════════════════════════════════════════════════════════
+    "features": {
+        // Rust development
+        "ghcr.io/devcontainers/features/rust:1": {
+            "version": "latest",
+            "profile": "default"
+        },
+
+        // Node.js for TypeScript/JavaScript
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts",
+            "nodeGypDependencies": true
+        },
+
+        // Python for ML/AI
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.12",
+            "installTools": true
+        },
+
+        // Common CLI tools
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "installOhMyZsh": true,
+            "configureZshAsDefaultShell": true
+        },
+
+        // GitHub CLI
+        "ghcr.io/devcontainers/features/github-cli:1": { },
+
+        // Docker-in-Docker for container builds
+        "ghcr.io/devcontainers/features/docker-in-docker:2": { }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // VS CODE EXTENSIONS - Works in VS Code, Cursor, Codespaces
+    // ═══════════════════════════════════════════════════════════════════
+    "customizations": {
+        "vscode": {
+            "settings": {
+                // Rust
+                "rust-analyzer.cargo.features": "all",
+                "rust-analyzer.check.command": "clippy",
+
+                // TypeScript
+                "typescript.preferences.importModuleSpecifier": "relative",
+
+                // Python
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.analysis.typeCheckingMode": "basic",
+
+                // Editor
+                "editor.formatOnSave": true,
+                "editor.rulers": [ 100 ],
+                "files.trimTrailingWhitespace": true,
+
+                // Terminal
+                "terminal.integrated.defaultProfile.linux": "zsh"
+            },
+            "extensions": [
+                // Rust
+                "rust-lang.rust-analyzer",
+                "tamasfe.even-better-toml",
+                "vadimcn.vscode-lldb",
+
+                // TypeScript/JavaScript
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+
+                // Python
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+
+                // AI/ML
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+
+                // Git
+                "eamodio.gitlens",
+                "github.vscode-pull-request-github",
+
+                // General
+                "EditorConfig.EditorConfig",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // MOUNTS - Persist caches across container rebuilds
+    // ═══════════════════════════════════════════════════════════════════
+    "mounts": [
+        // Persist Cargo cache
+        "source=noa-cargo-cache,target=/workspaces/noa/cache/rust/cargo,type=volume",
+        // Persist npm cache
+        "source=noa-npm-cache,target=/workspaces/noa/cache/npm,type=volume",
+        // Persist model cache
+        "source=noa-model-cache,target=/workspaces/noa/cache/huggingface,type=volume"
+    ],
+
+    // ═══════════════════════════════════════════════════════════════════
+    // LIFECYCLE HOOKS
+    // ═══════════════════════════════════════════════════════════════════
+    "postCreateCommand": "bash -c 'cd /workspaces/noa && ./init/noa-init'",
+    "postStartCommand": "bash -c 'cd /workspaces/noa && echo \"NOA container ready\"'",
+
+    // ═══════════════════════════════════════════════════════════════════
+    // PORT FORWARDING
+    // ═══════════════════════════════════════════════════════════════════
+    "forwardPorts": [
+        3000, // UI Dashboard
+        3001, // NOA API
+        8080, // rust-lovable
+        11434 // Ollama
+    ],
+    "portsAttributes": {
+        "3000": { "label": "NOA Dashboard", "onAutoForward": "notify" },
+        "3001": { "label": "NOA API", "onAutoForward": "silent" },
+        "8080": { "label": "rust-lovable UI", "onAutoForward": "notify" },
+        "11434": { "label": "Ollama", "onAutoForward": "silent" }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SECURITY & ISOLATION
+    // ═══════════════════════════════════════════════════════════════════
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt", "seccomp=unconfined"
+    ],
+
+    // User configuration
+    "remoteUser": "vscode"
+}
