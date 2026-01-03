@@ -17,8 +17,8 @@ pub mod task_repository;
 pub mod task_event_repository;
 pub mod stack_repository;
 
-pub use memory_repository::{MemoryRepository, Memory};
-pub use embedding_repository::{EmbeddingRepository, Embedding};
+pub use memory_repository::{MemoryRepository, Memory, MemoryType};
+pub use embedding_repository::{EmbeddingRepository, Embedding, SimilarityResult};
 pub use device_repository::{DeviceRepository, Device, DeviceType, Platform, DeviceStatus};
 pub use sync_repository::SyncRepository;
 pub use model_repository::{ModelRepository, Model, ModelStatus, ModelType};

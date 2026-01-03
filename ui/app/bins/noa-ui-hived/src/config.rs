@@ -13,14 +13,17 @@ pub struct DaemonConfig {
     pub data_dir: PathBuf,
     
     /// P2P configuration.
+    #[allow(dead_code)]
     pub p2p: P2pConfig,
     
     /// State sync configuration.
+    #[allow(dead_code)]
     pub state: StateConfig,
 }
 
 /// P2P network configuration.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct P2pConfig {
     /// Enable P2P networking.
     pub enabled: bool,
@@ -37,6 +40,7 @@ pub struct P2pConfig {
 
 /// State synchronization configuration.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct StateConfig {
     /// Enable state sync.
     pub enabled: bool,
@@ -83,6 +87,7 @@ impl DaemonConfig {
     }
     
     /// Get peer ID file path.
+    #[allow(dead_code)]
     pub fn peer_id_path(&self) -> PathBuf {
         self.data_dir.join("peer_id.key")
     }

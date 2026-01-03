@@ -8,5 +8,11 @@ description = "NOA unified component library - DaisyUI styling with native Dioxu
 [dependencies]
 dioxus = { workspace = true }
 
+# Optional dependencies for feature-gated re-exports
+# dioxus-primitives = { version = "0.1", optional = true }
+# daisy-rsx = { version = "0.1", optional = true }
+
 [features]
 default = []
+primitives = []
+daisy = []

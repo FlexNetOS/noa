@@ -29,7 +29,7 @@ mod tests;
 use anyhow::Result;
 use clap::Parser;
 use tracing::{info, error};
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::EnvFilter;
 
 use cli::{Cli, Command};
 

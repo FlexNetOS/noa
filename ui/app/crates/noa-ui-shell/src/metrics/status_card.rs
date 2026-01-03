@@ -10,7 +10,7 @@ pub fn StatusCard(
     value: String,
     icon: String,
 ) -> Element {
-    let status_color = match status.as_str() {
+    let _status_color = match status.as_str() {
         "healthy" => "success",
         "warning" => "warning",
         "error" => "error",

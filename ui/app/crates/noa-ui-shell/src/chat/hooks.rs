@@ -1,7 +1,7 @@
 //! Chat hooks for API integration.
 
 use dioxus::prelude::*;
-use noa_api_client::{Client, ChatRequest, ChatResponse, ChatMessage, ProvidersResponse, Provider};
+use noa_api_client::{Client, ChatRequest, ChatResponse, ChatMessage, Provider};
 use std::sync::Arc;
 
 /// API client context.

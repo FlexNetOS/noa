@@ -34,21 +34,21 @@ pub struct InferenceStats {
 /// Metrics page with real-time monitoring.
 #[component]
 pub fn MetricsPage() -> Element {
-    let mut status = use_signal(|| SystemStatus {
+    let status = use_signal(|| SystemStatus {
         api_healthy: true,
         llama_healthy: true,
         p2p_peers: 0,
         active_agents: 2,
     });
     
-    let mut resources = use_signal(|| ResourceUsage {
+    let resources = use_signal(|| ResourceUsage {
         cpu_percent: 25.0,
         memory_percent: 42.0,
         disk_percent: 35.0,
         gpu_percent: Some(15.0),
     });
     
-    let mut inference = use_signal(|| InferenceStats {
+    let inference = use_signal(|| InferenceStats {
         total_requests: 1247,
         avg_latency_ms: 125.3,
         tokens_per_second: 42.5,

@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "description": "Memory/Knowledge Graph MCP tool connector",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for persistent memory and knowledge graph",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "memory-connector",
+    "name": "Memory MCP Connector",
+    "type": "tool",
+    "tool_id": "memory",
+    "protocol": "mcp",
+    "transport": "stdio"
+  },
+  "capabilities": [
+    "create_entities",
+    "create_relations",
+    "add_observations",
+    "delete_entities",
+    "delete_observations",
+    "delete_relations",
+    "read_graph",
+    "search_nodes",
+    "open_nodes"
+  ],
+  "command": {
+    "executable": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"],
+    "env": {
+      "NOA_ROOT": "${NOA_ROOT}",
+      "MEMORY_FILE_PATH": "${NOA_ROOT}/data/memory/knowledge-graph.json"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 60
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": false,
+    "prompts_enabled": false,
+    "max_message_size_kb": 2048
+  },
+  "storage": {
+    "type": "file",
+    "path": "${NOA_ROOT}/data/memory/knowledge-graph.json",
+    "auto_persist": true,
+    "backup_enabled": true
+  },
+  "routing": {
+    "locality": "local",
+    "priority": 1
+  }
+}

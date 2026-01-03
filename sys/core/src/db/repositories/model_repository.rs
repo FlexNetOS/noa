@@ -381,6 +381,28 @@ impl<'a> ModelRepository<'a> {
         Ok(rows_affected > 0)
     }
 
+    /// List models with pagination (alias for find_all with pagination support)
+    pub fn list(&self) -> Result<Vec<Model>> {
+        self.find_all()
+    }
+
+    /// Count models by status
+    pub fn count_by_status(&self, status: ModelStatus) -> Result<u64> {
+        let count: i64 = self
+            .conn
+            .query_row(
+                "SELECT COUNT(*) FROM model WHERE status = ?1",
+                params![status.as_str()],
+                |row| row.get(0),
+            )
+            .map_err(|e| DatabaseError::QueryFailed {
+                query: "count models by status".to_string(),
+                error: e.to_string(),
+            })?;
+
+        Ok(count as u64)
+    }
+
     /// Count all models
     pub fn count(&self) -> Result<u64> {
         let count: i64 = self

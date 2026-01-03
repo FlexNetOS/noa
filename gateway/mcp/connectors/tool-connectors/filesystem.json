@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "description": "Filesystem MCP tool connector",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for filesystem operations",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "filesystem-connector",
+    "name": "Filesystem MCP Connector",
+    "type": "tool",
+    "tool_id": "filesystem",
+    "protocol": "mcp",
+    "transport": "stdio"
+  },
+  "capabilities": [
+    "read_file",
+    "read_multiple_files",
+    "write_file",
+    "create_directory",
+    "list_directory",
+    "directory_tree",
+    "move_file",
+    "search_files",
+    "get_file_info",
+    "list_allowed_directories"
+  ],
+  "command": {
+    "executable": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "${NOA_ROOT}"],
+    "env": {
+      "NOA_ROOT": "${NOA_ROOT}"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 60
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": true,
+    "prompts_enabled": false,
+    "max_message_size_kb": 1024
+  },
+  "permissions": {
+    "allowed_paths": ["${NOA_ROOT}"],
+    "read_only": false,
+    "require_sandbox": false
+  },
+  "routing": {
+    "locality": "local",
+    "priority": 1
+  }
+}

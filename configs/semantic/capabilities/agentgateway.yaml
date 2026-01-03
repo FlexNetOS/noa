@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=${NOA_ROOT}/gateway/mcp/agentgateway/schema/local.json
+# NOA Agentgateway Configuration
+# Configures the MCP/A2A gateway for NOA's provider orchestration
+
+# Enable IPv6 support
+enableIpv6: true
+
+# Admin server configuration
+adminAddr: "127.0.0.1:9091"
+statsAddr: "127.0.0.1:9092"
+readinessAddr: "127.0.0.1:9093"
+
+# Connection management
+connectionTerminationDeadline: "30s"
+connectionMinTerminationDeadline: "5s"
+
+# Worker threads (0 = auto-detect based on CPU cores)
+workerThreads: 0
+
+# Tracing configuration
+tracing:
+  otlpEndpoint: "http://localhost:4317"
+  headers: {}
+  protocol: "grpc"
+
+# Logging configuration
+logging:
+  level: "info"
+  format: "json"
+
+# Metrics configuration
+metrics:
+  enabled: true
+  includeLabels: true
+
+# Backend configuration
+backend:
+  keepalives:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+  connectTimeout: "10s"
+  poolIdleTimeout: "90s"
+  poolMaxSize: 100
+
+# MCP server bindings
+binds:
+# Main MCP proxy endpoint
+- port: 9090
+  listeners:
+  - routes:
+    # Health and metrics endpoints
+    - matches:
+      - path:
+          exact: /health
+      backends:
+      - static:
+          body: '{"status": "healthy"}'
+          contentType: "application/json"
+    
+    - matches:
+      - path:
+          exact: /metrics
+      backends:
+      - static:
+          body: '{"version": "1.0.0"}'
+          contentType: "application/json"
+    
+    # Local llama.cpp provider
+    - matches:
+      - path:
+          prefix: /v1/local/llama
+      policies:
+        cors:
+          allowOrigins: ["*"]
+          allowHeaders:
+            - content-type
+            - authorization
+      backends:
+      - http:
+          host: http://127.0.0.1:9094
+          path: /v1
+    
+    # MCP tools endpoint - stdio-based tools
+    - matches:
+      - path:
+          prefix: /mcp
+      policies:
+        cors:
+          allowOrigins: ["*"]
+          allowHeaders:
+            - mcp-protocol-version
+            - content-type
+            - cache-control
+            - authorization
+      backends:
+      - mcp:
+          targets:
+          # Filesystem MCP server
+          - name: filesystem
+            stdio:
+              cmd: npx
+              args: ["-y", "@modelcontextprotocol/server-filesystem", "${NOA_ROOT}"]
+          # Git MCP server
+          - name: git
+            stdio:
+              cmd: npx
+              args: ["-y", "@modelcontextprotocol/server-git", "--repository", "${NOA_ROOT}"]
+          # Memory MCP server
+          - name: memory
+            stdio:
+              cmd: npx
+              args: ["-y", "@modelcontextprotocol/server-memory"]
+
+# SSE endpoint for streaming
+- port: 9095
+  listeners:
+  - routes:
+    - matches:
+      - path:
+          prefix: /sse
+      policies:
+        cors:
+          allowOrigins: ["*"]
+          allowHeaders:
+            - content-type
+            - cache-control
+      backends:
+      - mcp:
+          targets:
+          - name: everything
+            stdio:
+              cmd: npx
+              args: ["-y", "@modelcontextprotocol/server-everything"]

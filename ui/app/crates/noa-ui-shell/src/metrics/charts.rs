@@ -66,7 +66,7 @@ pub fn Sparkline(values: Vec<f32>, height: u32) -> Element {
         div {
             class: "sparkline flex items-end gap-px h-{height}",
             
-            for (i, value) in values.iter().enumerate() {
+            for (_i, value) in values.iter().enumerate() {
                 {
                     let normalized = ((value - min) / range * 100.0).max(5.0);
                     rsx! {

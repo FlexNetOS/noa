@@ -11,6 +11,7 @@ use clap::Subcommand;
 use crate::config::NoaConfig;
 use crate::db::{self, MigrationRunner};
 use crate::error::{NoaError, Result};
+#[cfg(feature = "full")]
 use crate::init::paths::NoaPaths;
 
 /// Database subcommands

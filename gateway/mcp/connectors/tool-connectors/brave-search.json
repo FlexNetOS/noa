@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "description": "Brave Search MCP tool connector",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for web search via Brave Search API",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "brave-search-connector",
+    "name": "Brave Search MCP Connector",
+    "type": "tool",
+    "tool_id": "brave-search",
+    "protocol": "mcp",
+    "transport": "stdio"
+  },
+  "capabilities": [
+    "brave_web_search",
+    "brave_local_search"
+  ],
+  "command": {
+    "executable": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+    "env": {
+      "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 30
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": false,
+    "prompts_enabled": false,
+    "max_message_size_kb": 256
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "requests_per_minute": 60,
+    "requests_per_day": 2000
+  },
+  "routing": {
+    "locality": "remote",
+    "priority": 2,
+    "requires_network": true
+  }
+}

@@ -10,7 +10,7 @@
     "listen_address": "${NOA_MCP_PROXY_ADDR:-0.0.0.0:9090}",
     "backend": "agentgateway",
     "agentgateway_binary": "${NOA_ROOT}/gateway/mcp/agentgateway/target/release/agentgateway-app",
-    "agentgateway_config": "${NOA_ROOT}/configs/semantic/capabilities/agentgateway.json",
+    "agentgateway_config": "${NOA_ROOT}/configs/semantic/capabilities/agentgateway.yaml",
     "max_connections": 1000,
     "connection_timeout_seconds": 30
   },

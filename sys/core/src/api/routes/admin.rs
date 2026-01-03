@@ -124,26 +124,12 @@ async fn bootstrap(
     // 3. Create initial roles and permissions
 
     // For now, generate a JWT for the admin
-    let jwt_secret = match state
+    let jwt_secret = state
         .config
         .raw
         .get("noa_server")
         .and_then(|s| s.get("api"))
         .and_then(|a| a.get("jwt_secret"))
-        .and_then(|s| s.as_str())
-    {
-        Some(secret) => secret,
-        None => {
-            // Fail securely rather than using a hard-coded default secret.
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(BootstrapResponse {
-                    success: false,
-                    message: "JWT secret is not configured on the server".to_string(),
-                    token: None,
-                    api_key: None,
-                }),
-            );
         .and_then(|s| s.as_str());
 
     let jwt_secret = match jwt_secret {

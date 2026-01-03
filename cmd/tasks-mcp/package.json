@@ -1,0 +1,49 @@
+{
+  "name": "@noa/tasks-mcp",
+  "version": "1.0.0",
+  "description": "NOA Tasks MCP Server - Model Context Protocol server for task management",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "bin": {
+    "tasks-mcp": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src",
+    "format": "biome format --write src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "inspector": "npx @anthropic/mcp-inspector tsx src/index.ts"
+  },
+  "dependencies": {
+    "fastmcp": "^3.23.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.10"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "noa",
+    "mcp",
+    "mcp-server",
+    "tasks",
+    "ruler"
+  ],
+  "author": "NOA Platform",
+  "license": "Apache-2.0"
+}

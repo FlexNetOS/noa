@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "description": "Git MCP tool connector",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "MCP connector for git operations",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
+  "connector": {
+    "id": "git-connector",
+    "name": "Git MCP Connector",
+    "type": "tool",
+    "tool_id": "git",
+    "protocol": "mcp",
+    "transport": "stdio"
+  },
+  "capabilities": [
+    "git_status",
+    "git_diff_unstaged",
+    "git_diff_staged",
+    "git_diff",
+    "git_commit",
+    "git_add",
+    "git_reset",
+    "git_log",
+    "git_create_branch",
+    "git_checkout",
+    "git_show",
+    "git_init",
+    "git_clone"
+  ],
+  "command": {
+    "executable": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-git", "--repository", "${NOA_ROOT}"],
+    "env": {
+      "NOA_ROOT": "${NOA_ROOT}"
+    },
+    "working_dir": "${NOA_ROOT}",
+    "timeout_seconds": 120
+  },
+  "mcp_config": {
+    "version": "1.0",
+    "tools_enabled": true,
+    "resources_enabled": false,
+    "prompts_enabled": false,
+    "max_message_size_kb": 512
+  },
+  "permissions": {
+    "allowed_repositories": ["${NOA_ROOT}"],
+    "allow_commits": true,
+    "require_audit": true
+  },
+  "routing": {
+    "locality": "local",
+    "priority": 1
+  }
+}

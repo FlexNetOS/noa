@@ -147,6 +147,7 @@ impl StateManager {
     }
     
     /// Remove a peer.
+    #[allow(dead_code)]
     pub async fn remove_peer(&self, id: &str) -> Result<()> {
         self.update(|state| {
             state.peers.remove(id);
@@ -154,6 +155,7 @@ impl StateManager {
     }
     
     /// Get peer count.
+    #[allow(dead_code)]
     pub async fn peer_count(&self) -> usize {
         self.state.read().await.peers.len()
     }

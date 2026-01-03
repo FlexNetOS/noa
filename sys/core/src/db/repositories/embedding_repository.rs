@@ -21,6 +21,30 @@ pub struct Embedding {
     pub source_id: Uuid,
 }
 
+/// Similarity search result
+#[derive(Debug, Clone)]
+pub struct SimilarityResult {
+    pub id: Uuid,
+    pub source_type: String,
+    pub source_id: Uuid,
+    pub distance: f64,
+}
+
+/// Compute cosine distance between two vectors
+fn cosine_distance(a: &[f32], b: &[f32]) -> f64 {
+    if a.len() != b.len() || a.is_empty() {
+        return 1.0; // Maximum distance for invalid vectors
+    }
+    let dot_product: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
+    let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
+    let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+    if norm_a == 0.0 || norm_b == 0.0 {
+        return 1.0;
+    }
+    let similarity = dot_product / (norm_a * norm_b);
+    (1.0 - similarity) as f64 // Convert similarity to distance
+}
+
 /// Embedding repository for CRUD operations
 pub struct EmbeddingRepository<'a> {
     conn: &'a Connection,
@@ -189,6 +213,144 @@ impl<'a> EmbeddingRepository<'a> {
             })?;
 
         Ok(count as u64)
+    }
+
+    /// Store a new embedding (alias for create with simpler API)
+    pub fn store(
+        &self,
+        id: Uuid,
+        source_type: &str,
+        source_id: Uuid,
+        _model_id: Option<Uuid>,
+        vector: &[f32],
+    ) -> Result<()> {
+        let embedding = Embedding {
+            id,
+            created_at: Utc::now(),
+            vector: vector.to_vec(),
+            model: "default".to_string(),
+            source_type: source_type.to_string(),
+            source_id,
+        };
+        self.create(&embedding)?;
+        Ok(())
+    }
+
+    /// Search result for similarity queries
+    pub fn find_similar(&self, query_vector: &[f32], limit: usize) -> Result<Vec<SimilarityResult>> {
+        // Load all embeddings and compute cosine similarity (brute force for SQLite)
+        let embeddings = self.find_all()?;
+        let mut results: Vec<SimilarityResult> = embeddings
+            .iter()
+            .map(|e| {
+                let distance = cosine_distance(&e.vector, query_vector);
+                SimilarityResult {
+                    id: e.id,
+                    source_type: e.source_type.clone(),
+                    source_id: e.source_id,
+                    distance,
+                }
+            })
+            .collect();
+        results.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap_or(std::cmp::Ordering::Equal));
+        results.truncate(limit);
+        Ok(results)
+    }
+
+    /// Find similar embeddings by source type
+    pub fn find_similar_by_type(
+        &self,
+        query_vector: &[f32],
+        source_type: &str,
+        limit: usize,
+    ) -> Result<Vec<(Uuid, f64)>> {
+        let embeddings = self.find_by_source_type(source_type)?;
+        let mut results: Vec<(Uuid, f64)> = embeddings
+            .iter()
+            .map(|e| {
+                let distance = cosine_distance(&e.vector, query_vector);
+                (e.source_id, distance)
+            })
+            .collect();
+        results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+        results.truncate(limit);
+        Ok(results)
+    }
+
+    /// Find embeddings by source type
+    pub fn find_by_source_type(&self, source_type: &str) -> Result<Vec<Embedding>> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                r#"
+                SELECT id, created_at, vector, model, source_type, source_id
+                FROM embedding
+                WHERE source_type = ?1
+                "#,
+            )
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM embedding".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
+
+        let rows = stmt
+            .query_map(params![source_type], |row| self.row_to_embedding(row))
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM embedding".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
+
+        Ok(rows.filter_map(std::result::Result::ok).collect())
+    }
+
+    /// Find all embeddings
+    pub fn find_all(&self) -> Result<Vec<Embedding>> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                r#"
+                SELECT id, created_at, vector, model, source_type, source_id
+                FROM embedding
+                "#,
+            )
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM embedding".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
+
+        let rows = stmt
+            .query_map([], |row| self.row_to_embedding(row))
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "SELECT FROM embedding".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
+
+        Ok(rows.filter_map(std::result::Result::ok).collect())
+    }
+
+    /// Delete embeddings by source type and ID
+    pub fn delete_by_source(&self, source_type: &str, source_id: &Uuid) -> Result<bool> {
+        let rows_affected = self
+            .conn
+            .execute(
+                "DELETE FROM embedding WHERE source_type = ?1 AND source_id = ?2",
+                params![source_type, source_id.to_string()],
+            )
+            .map_err(|e| {
+                NoaError::Database(DatabaseError::QueryFailed {
+                    query: "DELETE FROM embedding".to_string(),
+                    error: e.to_string(),
+                })
+            })?;
+        Ok(rows_affected > 0)
     }
 
     /// Convert database row to Embedding entity
