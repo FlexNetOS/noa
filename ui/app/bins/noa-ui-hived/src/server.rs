@@ -5,7 +5,7 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, post},
+    routing::{get, post, delete},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
@@ -17,12 +17,14 @@ use tower_http::trace::TraceLayer;
 use tracing::{info, warn};
 
 use crate::config::DaemonConfig;
+use crate::sandbox::SandboxManager;
 use crate::state::{AgentStatus, StateManager};
 
 /// Shared application state.
 struct AppState {
     config: DaemonConfig,
     state_manager: StateManager,
+    sandbox_manager: SandboxManager,
     shutdown_tx: broadcast::Sender<()>,
 }
 
@@ -33,6 +35,7 @@ pub async fn run(config: DaemonConfig, state_manager: StateManager) -> Result<()
     let app_state = Arc::new(AppState {
         config: config.clone(),
         state_manager,
+        sandbox_manager: SandboxManager::new(),
         shutdown_tx,
     });
     
@@ -54,6 +57,12 @@ pub async fn run(config: DaemonConfig, state_manager: StateManager) -> Result<()
         // State sync
         .route("/state", get(get_state))
         .route("/state/sync", post(sync_state))
+        
+        // Sandbox management
+        .route("/sandboxes", get(list_sandboxes))
+        .route("/sandboxes", post(create_sandbox))
+        .route("/sandboxes/:id", delete(delete_sandbox))
+        .route("/sandboxes/:id/execute", post(execute_in_sandbox))
         
         // Shutdown
         .route("/shutdown", post(shutdown))
@@ -224,4 +233,72 @@ async fn shutdown(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     warn!("Shutdown requested");
     let _ = state.shutdown_tx.send(());
     Json(serde_json::json!({"shutting_down": true}))
+}
+
+// === Sandbox Management ===
+
+async fn list_sandboxes(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let sandboxes = state.sandbox_manager.list().await;
+    Json(serde_json::json!({"sandboxes": sandboxes}))
+}
+
+#[derive(Deserialize)]
+struct CreateSandboxRequest {
+    id: Option<String>,
+}
+
+async fn create_sandbox(
+    State(state): State<Arc<AppState>>,
+    Json(req): Json<CreateSandboxRequest>,
+) -> impl IntoResponse {
+    let id = req.id.unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+    
+    match state.sandbox_manager.create(&id).await {
+        Ok(sandbox_id) => (
+            StatusCode::CREATED,
+            Json(serde_json::json!({"id": sandbox_id, "success": true})),
+        ),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        ),
+    }
+}
+
+async fn delete_sandbox(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(id): axum::extract::Path<String>,
+) -> impl IntoResponse {
+    match state.sandbox_manager.remove(&id).await {
+        Ok(_) => (StatusCode::OK, Json(serde_json::json!({"success": true}))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        ),
+    }
+}
+
+#[derive(Deserialize)]
+struct ExecuteRequest {
+    code: String,
+    language: String,
+}
+
+async fn execute_in_sandbox(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(id): axum::extract::Path<String>,
+    Json(req): Json<ExecuteRequest>,
+) -> impl IntoResponse {
+    match state.sandbox_manager.execute(&id, &req.code, &req.language).await {
+        Ok(result) => (StatusCode::OK, Json(serde_json::json!({
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "exit_code": result.exit_code,
+            "execution_time_ms": result.execution_time_ms,
+        }))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        ),
+    }
 }

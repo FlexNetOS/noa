@@ -1,0 +1,132 @@
+{
+  "$schema": "../resources/spec/tool-schema.json",
+  "name": "database-query-tool",
+  "version": "1.0.0",
+  "description": "Execute SQL queries against SQLite, PostgreSQL, or in-memory databases with parameterized queries and result formatting",
+  "category": "database",
+  "implementation": {
+    "type": "builtin",
+    "module": "noa.tools.database.query",
+    "handler": "execute_query",
+    "dependencies": ["rusqlite", "sqlx"]
+  },
+  "input": {
+    "type": "object",
+    "required": ["query"],
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "SQL query to execute (SELECT, INSERT, UPDATE, DELETE, CREATE, etc.)"
+      },
+      "database": {
+        "type": "string",
+        "description": "Database connection identifier or path",
+        "default": "primary"
+      },
+      "parameters": {
+        "type": "array",
+        "description": "Parameterized query values (prevents SQL injection)",
+        "items": {
+          "type": ["string", "number", "boolean", "null"]
+        }
+      },
+      "driver": {
+        "type": "string",
+        "enum": ["sqlite", "postgres", "memory"],
+        "default": "sqlite",
+        "description": "Database driver to use"
+      },
+      "format": {
+        "type": "string",
+        "enum": ["json", "csv", "table", "raw"],
+        "default": "json",
+        "description": "Output format for query results"
+      },
+      "limit": {
+        "type": "integer",
+        "default": 1000,
+        "description": "Maximum rows to return (safety limit)"
+      },
+      "timeout_ms": {
+        "type": "integer",
+        "default": 30000,
+        "description": "Query timeout in milliseconds"
+      },
+      "readonly": {
+        "type": "boolean",
+        "default": false,
+        "description": "Enforce read-only mode (only SELECT allowed)"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the query executed successfully"
+      },
+      "rows": {
+        "type": "array",
+        "description": "Query result rows (for SELECT queries)"
+      },
+      "row_count": {
+        "type": "integer",
+        "description": "Number of rows returned or affected"
+      },
+      "columns": {
+        "type": "array",
+        "description": "Column names from the result set"
+      },
+      "last_insert_id": {
+        "type": "integer",
+        "description": "Last inserted row ID (for INSERT queries)"
+      },
+      "execution_time_ms": {
+        "type": "number",
+        "description": "Query execution time in milliseconds"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if query failed"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Select with parameters",
+      "input": {
+        "query": "SELECT * FROM users WHERE status = ? AND created_at > ?",
+        "parameters": ["active", "2025-01-01"],
+        "format": "json"
+      }
+    },
+    {
+      "name": "Insert with returning",
+      "input": {
+        "query": "INSERT INTO tasks (title, status) VALUES (?, ?) RETURNING id",
+        "parameters": ["New Task", "pending"],
+        "driver": "sqlite"
+      }
+    },
+    {
+      "name": "Read-only mode",
+      "input": {
+        "query": "SELECT COUNT(*) FROM logs",
+        "readonly": true,
+        "timeout_ms": 5000
+      }
+    }
+  ],
+  "permissions": ["database:read", "database:write"],
+  "rateLimit": {
+    "requestsPerMinute": 120
+  },
+  "providers": "all",
+  "status": "active",
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2026-01-02",
+    "tags": ["database", "sql", "query", "sqlite", "postgres"]
+  }
+}

@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools-registry 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    version="1.0.0"
+    lastUpdated="2026-01-02T00:00:00Z"
+    schema="https://noa.local/schemas/tools-registry.xsd">
+    
+    <metadata>
+        <description>NOA Shared Tools Registry - MCP Tool Definitions for AI Agents</description>
+        <maintainer>NOA Team</maintainer>
+        <repository>https://github.com/FlexNetOS/noa</repository>
+    </metadata>
+    
+    <tools>
+        <tool id="1">
+            <name>code-generation-tool</name>
+            <version>1.0.0</version>
+            <category>development</category>
+            <description>Generate code from natural language descriptions or specifications</description>
+            <implementation>
+                <type>agent</type>
+                <agent>code-generation-agent</agent>
+                <handler>noa.tools.codegen.generate</handler>
+                <file>code-generation-tool.json</file>
+            </implementation>
+            <input>
+                <parameter name="description" type="string" required="true">Natural language description of code to generate</parameter>
+                <parameter name="language" type="enum" required="true" values="python,typescript,javascript,rust,go,java,csharp">Target programming language</parameter>
+                <parameter name="context" type="string" required="false">Existing code context or file contents</parameter>
+                <parameter name="style" type="enum" required="false" default="documented" values="minimal,documented,verbose">Code style preference</parameter>
+                <parameter name="include_tests" type="boolean" required="false" default="false">Include unit tests for generated code</parameter>
+                <parameter name="framework" type="string" required="false">Specific framework to use</parameter>
+            </input>
+            <output>
+                <field name="code" type="string">Generated source code</field>
+                <field name="explanation" type="string">Explanation of the generated code</field>
+                <field name="dependencies" type="array">Required dependencies or imports</field>
+                <field name="tests" type="string">Unit tests if requested</field>
+                <field name="usage_example" type="string">Example of how to use the generated code</field>
+            </output>
+            <permissions>
+                <permission>file:read</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="60"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2025-12-17</created>
+                <tags>code,generation,development</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="2">
+            <name>reasoning-tool</name>
+            <version>1.0.0</version>
+            <category>analysis</category>
+            <description>Complex reasoning and analysis tool for structured problem-solving</description>
+            <implementation>
+                <type>agent</type>
+                <agent>reasoning-agent</agent>
+                <handler>noa.tools.reasoning.analyze</handler>
+                <file>reasoning-tool.json</file>
+            </implementation>
+            <input>
+                <parameter name="problem" type="string" required="true">The problem or question to analyze</parameter>
+                <parameter name="context" type="string" required="false">Additional context or constraints</parameter>
+                <parameter name="reasoning_type" type="enum" required="false" default="deductive" values="deductive,inductive,abductive,analogical">Type of reasoning to apply</parameter>
+                <parameter name="depth" type="enum" required="false" default="normal" values="shallow,normal,deep">Depth of analysis</parameter>
+                <parameter name="output_format" type="enum" required="false" default="structured" values="structured,narrative,bullet_points">Output format preference</parameter>
+            </input>
+            <output>
+                <field name="analysis" type="string">Detailed analysis of the problem</field>
+                <field name="conclusions" type="array">Key conclusions drawn</field>
+                <field name="confidence" type="number" min="0" max="1">Confidence level in conclusions</field>
+                <field name="reasoning_chain" type="array">Step-by-step reasoning chain</field>
+                <field name="alternatives" type="array">Alternative interpretations or solutions</field>
+            </output>
+            <permissions/>
+            <rateLimit requestsPerMinute="30"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2025-12-17</created>
+                <tags>reasoning,analysis,problem-solving</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="3">
+            <name>documentation-generator</name>
+            <version>1.0.0</version>
+            <category>documentation</category>
+            <description>AI-driven documentation generator using Litho/wiki-rs with adaptive multi-pass execution</description>
+            <implementation>
+                <type>binary</type>
+                <binary>opt/wiki-rs/target/release/litho</binary>
+                <adapter>ai/providers/litho/</adapter>
+                <configFile>config/litho.toml</configFile>
+                <file>documentation-generator.json</file>
+            </implementation>
+            <model>
+                <default>qwen2.5-coder:1.5b</default>
+                <maxParams>3B</maxParams>
+                <fallbackChain>
+                    <provider priority="1" local="true">
+                        <name>llama.cpp</name>
+                        <model>qwen2.5-coder:1.5b</model>
+                    </provider>
+                    <provider priority="2" local="false">
+                        <name>copilot</name>
+                        <model>gpt-4</model>
+                    </provider>
+                    <provider priority="3" local="false">
+                        <name>anthropic</name>
+                        <model>claude-3-haiku</model>
+                    </provider>
+                    <provider priority="4" local="false">
+                        <name>openai</name>
+                        <model>gpt-4o-mini</model>
+                    </provider>
+                    <provider priority="5" local="true">
+                        <name>git</name>
+                        <model>template-based</model>
+                    </provider>
+                </fallbackChain>
+            </model>
+            <execution>
+                <mode>adaptive</mode>
+                <parallelThreshold>0.35</parallelThreshold>
+                <checkIntervalMs>500</checkIntervalMs>
+                <maxParallelPasses>3</maxParallelPasses>
+                <transitions mode="graceful_drain" drainTimeoutSec="5" cooldownBeforeParallel="3"/>
+                <limits maxMemoryMb="512" maxCpuPercent="25" pauseOnForeground="true"/>
+            </execution>
+            <passes>
+                <pass id="1" name="structure" parallelizable="false" required="true">
+                    <description>Extract dependency tree, SBOM, crate metadata</description>
+                    <subagent>RustCrateScannerAgent</subagent>
+                    <tools>tree-sitter</tools>
+                </pass>
+                <pass id="2" name="analysis" parallelizable="true" dependsOn="1">
+                    <description>Code quality signals for doc annotations</description>
+                    <subagent>RustClippyAgent</subagent>
+                    <tools>clippy,rustfmt</tools>
+                </pass>
+                <pass id="3" name="generation" parallelizable="true" dependsOn="1">
+                    <description>Rustdoc + Litho markdown generation</description>
+                    <subagent>RustDocAgent</subagent>
+                    <tools>mermaid-fixer,markdown-lint</tools>
+                </pass>
+                <pass id="4" name="validation" parallelizable="true" dependsOn="1">
+                    <description>Cross-reference validation, link checking</description>
+                    <subagent>RustFmtAgent</subagent>
+                    <tools>link-checker,cross-ref-validator</tools>
+                </pass>
+            </passes>
+            <manualEditMarker>
+                <start>&lt;!-- provider:add-manual-edit --&gt;</start>
+                <end>&lt;!-- /provider:add-manual-edit --&gt;</end>
+                <behavior>preserve</behavior>
+                <validation>fail_on_loss</validation>
+            </manualEditMarker>
+            <errorHandlers>
+                <handler type="OOM" action="graceful_drain" postAction="reduce_batch_size" subagent="OOM Subagent"/>
+                <handler type="RateLimited" action="backoff" strategy="exponential" maxRetries="5" subagent="RateLimited Subagent"/>
+                <handler type="FileLockContention" action="serialize_writes" queueSize="100" subagent="FileLockContention Subagent"/>
+                <handler type="RetryableIOError" action="retry" maxRetries="3" backoffMs="1000" subagent="RetryableIOError Subagent"/>
+            </errorHandlers>
+            <permissions>
+                <permission>file:read</permission>
+                <permission>file:write</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="20"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2026-01-02</created>
+                <tags>documentation,wiki,litho,rust,markdown</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="4">
+            <name>backupctl</name>
+            <version>1.0.0</version>
+            <category>operations</category>
+            <description>Workspace backup orchestration with hash-verified manifests and approval tokens</description>
+            <implementation>
+                <type>script</type>
+                <language>python</language>
+                <script>backupctl/backupctl.py</script>
+                <directory>backupctl/</directory>
+            </implementation>
+            <commands>
+                <command name="run">
+                    <syntax>backupctl run --operation &lt;op&gt; --target &lt;name&gt;</syntax>
+                    <description>Execute full backup pipeline</description>
+                </command>
+                <command name="push">
+                    <syntax>backupctl push &lt;op-id&gt; [--exec] --mark</syntax>
+                    <description>Sync artifacts via rclone</description>
+                </command>
+                <command name="approve">
+                    <syntax>backupctl approve --id &lt;op-id&gt; --approver &lt;name&gt;</syntax>
+                    <description>Emit signed approval token</description>
+                </command>
+                <command name="list">
+                    <syntax>backupctl list</syntax>
+                    <description>Display recent backups</description>
+                </command>
+                <command name="verify">
+                    <syntax>backupctl verify --id &lt;op-id&gt;</syntax>
+                    <description>Recalculate hashes against manifest</description>
+                </command>
+            </commands>
+            <fileLayout>
+                <path purpose="archives">.backups/archives/</path>
+                <path purpose="manifests">.backups/manifests/</path>
+                <path purpose="logs">logs/backups/</path>
+                <path purpose="scripts">tools/backupctl/scripts/</path>
+            </fileLayout>
+            <scripts>
+                <script name="hourly-incremental" file="scripts/hourly-incremental-backup.sh"/>
+                <script name="nightly-full" file="scripts/nightly-full-backup.sh"/>
+            </scripts>
+            <permissions>
+                <permission>file:read</permission>
+                <permission>file:write</permission>
+                <permission>shell:execute</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="10"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2025-12-17</created>
+                <tags>backup,operations,hash,manifest</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="5">
+            <name>sandboxctl</name>
+            <version>1.0.0</version>
+            <category>operations</category>
+            <description>Sandbox lifecycle management with backup enforcement policy</description>
+            <implementation>
+                <type>script</type>
+                <language>python</language>
+                <script>sandboxctl/sandboxctl.py</script>
+                <directory>sandboxctl/</directory>
+            </implementation>
+            <commands>
+                <command name="init">
+                    <syntax>sandboxctl init &lt;name&gt;</syntax>
+                    <description>Initialize new sandbox</description>
+                </command>
+                <command name="list">
+                    <syntax>sandboxctl list</syntax>
+                    <description>List all sandboxes</description>
+                </command>
+                <command name="destroy">
+                    <syntax>sandboxctl destroy &lt;name&gt; --backup-token &lt;token&gt;</syntax>
+                    <description>Destroy sandbox (requires backup token)</description>
+                </command>
+                <command name="prune">
+                    <syntax>sandboxctl prune --backup-token &lt;token&gt;</syntax>
+                    <description>Prune unused sandboxes</description>
+                </command>
+            </commands>
+            <features>
+                <feature>Backup-before-destructive policy enforcement</feature>
+                <feature>SHA-512 manifest + Sigstore signature verification</feature>
+                <feature>Dry-run mode (--dry-run)</feature>
+            </features>
+            <permissions>
+                <permission>shell:execute</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="10"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2025-12-17</created>
+                <tags>sandbox,operations,lifecycle,container</tags>
+            </metadata>
+        </tool>
+        
+        <!-- DATABASE TOOLS -->
+        
+        <tool id="6">
+            <name>database-query-tool</name>
+            <version>1.0.0</version>
+            <category>database</category>
+            <description>Execute SQL queries against SQLite, PostgreSQL, or in-memory databases with parameterized queries and result formatting</description>
+            <implementation>
+                <type>builtin</type>
+                <module>noa.tools.database.query</module>
+                <handler>execute_query</handler>
+                <file>database-query-tool.json</file>
+                <dependencies>rusqlite,sqlx</dependencies>
+            </implementation>
+            <input>
+                <parameter name="query" type="string" required="true">SQL query to execute</parameter>
+                <parameter name="database" type="string" required="false" default="primary">Database connection identifier or path</parameter>
+                <parameter name="parameters" type="array" required="false">Parameterized query values (prevents SQL injection)</parameter>
+                <parameter name="driver" type="enum" required="false" default="sqlite" values="sqlite,postgres,memory">Database driver to use</parameter>
+                <parameter name="format" type="enum" required="false" default="json" values="json,csv,table,raw">Output format for query results</parameter>
+                <parameter name="limit" type="integer" required="false" default="1000">Maximum rows to return (safety limit)</parameter>
+                <parameter name="timeout_ms" type="integer" required="false" default="30000">Query timeout in milliseconds</parameter>
+                <parameter name="readonly" type="boolean" required="false" default="false">Enforce read-only mode</parameter>
+            </input>
+            <output>
+                <field name="success" type="boolean">Whether the query executed successfully</field>
+                <field name="rows" type="array">Query result rows</field>
+                <field name="row_count" type="integer">Number of rows returned or affected</field>
+                <field name="columns" type="array">Column names from the result set</field>
+                <field name="last_insert_id" type="integer">Last inserted row ID</field>
+                <field name="execution_time_ms" type="number">Query execution time</field>
+            </output>
+            <permissions>
+                <permission>database:read</permission>
+                <permission>database:write</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="120"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2026-01-02</created>
+                <tags>database,sql,query,sqlite,postgres</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="7">
+            <name>database-migrate-tool</name>
+            <version>1.0.0</version>
+            <category>database</category>
+            <description>Manage database schema migrations with version tracking, rollback support, and integrity verification</description>
+            <implementation>
+                <type>builtin</type>
+                <module>noa.tools.database.migrate</module>
+                <handler>run_migration</handler>
+                <file>database-migrate-tool.json</file>
+                <dependencies>sqlx</dependencies>
+            </implementation>
+            <input>
+                <parameter name="action" type="enum" required="true" values="run,rollback,status,create,verify,reset">Migration action to perform</parameter>
+                <parameter name="database" type="string" required="false" default="primary">Database connection identifier</parameter>
+                <parameter name="migrations_path" type="string" required="false" default="${NOA_ROOT}/sys/core/migrations">Path to migrations directory</parameter>
+                <parameter name="target_version" type="string" required="false">Target migration version</parameter>
+                <parameter name="name" type="string" required="false">Migration name (for create action)</parameter>
+                <parameter name="dry_run" type="boolean" required="false" default="false">Preview changes without applying</parameter>
+                <parameter name="force" type="boolean" required="false" default="false">Force migration even with warnings</parameter>
+            </input>
+            <output>
+                <field name="success" type="boolean">Whether the migration action succeeded</field>
+                <field name="current_version" type="string">Current schema version</field>
+                <field name="applied_migrations" type="array">List of migrations applied</field>
+                <field name="pending_migrations" type="array">List of pending migrations</field>
+                <field name="rollback_performed" type="boolean">Whether a rollback was performed</field>
+            </output>
+            <permissions>
+                <permission>database:write</permission>
+                <permission>database:admin</permission>
+                <permission>file:read</permission>
+                <permission>file:write</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="10"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2026-01-02</created>
+                <tags>database,migration,schema,sqlx</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="8">
+            <name>database-backup-tool</name>
+            <version>1.0.0</version>
+            <category>database</category>
+            <description>Create and restore database backups with integrity verification and compression</description>
+            <implementation>
+                <type>builtin</type>
+                <module>noa.tools.database.backup</module>
+                <handler>backup_database</handler>
+                <file>database-backup-tool.json</file>
+                <dependencies>rusqlite</dependencies>
+            </implementation>
+            <input>
+                <parameter name="action" type="enum" required="true" values="create,restore,list,verify,prune">Backup action to perform</parameter>
+                <parameter name="database" type="string" required="false" default="primary">Database connection identifier</parameter>
+                <parameter name="backup_path" type="string" required="false" default="${NOA_ROOT}/data/backups/database">Path to backup directory</parameter>
+                <parameter name="backup_id" type="string" required="false">Specific backup ID</parameter>
+                <parameter name="compression" type="enum" required="false" default="zstd" values="none,gzip,zstd,lz4">Compression algorithm</parameter>
+                <parameter name="verify_after" type="boolean" required="false" default="true">Verify backup integrity after creation</parameter>
+                <parameter name="retention_days" type="integer" required="false" default="30">Days to retain backups</parameter>
+                <parameter name="include_wal" type="boolean" required="false" default="true">Include WAL file in backup</parameter>
+            </input>
+            <output>
+                <field name="success" type="boolean">Whether the backup action succeeded</field>
+                <field name="backup_id" type="string">Generated backup identifier</field>
+                <field name="backup_path" type="string">Full path to backup file</field>
+                <field name="size_bytes" type="integer">Backup file size</field>
+                <field name="checksum" type="string">SHA-256 checksum of backup</field>
+                <field name="verified" type="boolean">Whether backup was verified</field>
+                <field name="backups" type="array">List of available backups</field>
+                <field name="pruned_count" type="integer">Number of backups pruned</field>
+            </output>
+            <permissions>
+                <permission>database:read</permission>
+                <permission>database:write</permission>
+                <permission>database:admin</permission>
+                <permission>file:read</permission>
+                <permission>file:write</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="5"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2026-01-02</created>
+                <tags>database,backup,restore,integrity</tags>
+            </metadata>
+        </tool>
+        
+        <tool id="9">
+            <name>vector-search-tool</name>
+            <version>1.0.0</version>
+            <category>database</category>
+            <description>Semantic vector search for knowledge retrieval using embedded vectors and similarity matching</description>
+            <implementation>
+                <type>builtin</type>
+                <module>noa.tools.database.vector</module>
+                <handler>vector_search</handler>
+                <file>vector-search-tool.json</file>
+                <dependencies>ruvector,noa-embedder</dependencies>
+            </implementation>
+            <input>
+                <parameter name="query" type="string" required="true">Natural language query to search for</parameter>
+                <parameter name="collection" type="string" required="false" default="default">Vector collection/index to search</parameter>
+                <parameter name="top_k" type="integer" required="false" default="10">Number of top results to return</parameter>
+                <parameter name="similarity_threshold" type="number" required="false" default="0.7" min="0" max="1">Minimum similarity score</parameter>
+                <parameter name="filter" type="object" required="false">Metadata filter for results</parameter>
+                <parameter name="embedding_model" type="string" required="false" default="nomic-embed-text">Model for query embedding</parameter>
+                <parameter name="include_metadata" type="boolean" required="false" default="true">Include document metadata</parameter>
+                <parameter name="include_vectors" type="boolean" required="false" default="false">Include raw vectors</parameter>
+            </input>
+            <output>
+                <field name="success" type="boolean">Whether the search succeeded</field>
+                <field name="results" type="array">Search results ordered by similarity</field>
+                <field name="total_matches" type="integer">Total matches before top_k filtering</field>
+                <field name="query_embedding_time_ms" type="number">Time to embed the query</field>
+                <field name="search_time_ms" type="number">Vector search execution time</field>
+            </output>
+            <permissions>
+                <permission>database:read</permission>
+            </permissions>
+            <rateLimit requestsPerMinute="60"/>
+            <providers>all</providers>
+            <status>active</status>
+            <metadata>
+                <author>NOA Team</author>
+                <created>2026-01-02</created>
+                <tags>database,vector,search,embeddings,rag,semantic</tags>
+            </metadata>
+        </tool>
+    </tools>
+    
+    <categories>
+        <category id="development" description="Code generation, refactoring, development tools"/>
+        <category id="analysis" description="Reasoning, problem-solving, analysis tools"/>
+        <category id="documentation" description="Documentation generation, wiki management"/>
+        <category id="operations" description="Backup, sandbox, deployment, infrastructure"/>
+        <category id="file" description="File system operations"/>
+        <category id="git" description="Version control operations"/>
+        <category id="shell" description="System command execution"/>
+        <category id="http" description="Network and API operations"/>
+        <category id="database" description="Database query, migration, backup, and vector search"/>
+    </categories>
+    
+    <implementationTypes>
+        <type id="builtin" description="Implemented in NOA core"/>
+        <type id="agent" description="Delegated to AI agent"/>
+        <type id="script" description="External script (bash, python)"/>
+        <type id="http" description="HTTP endpoint call"/>
+        <type id="mcp" description="Delegate to MCP server"/>
+        <type id="binary" description="Native binary execution"/>
+    </implementationTypes>
+    
+    <permissions>
+        <permission id="file:read" description="Read file system" riskLevel="low"/>
+        <permission id="file:write" description="Write file system" riskLevel="medium"/>
+        <permission id="shell:execute" description="Command execution" riskLevel="high"/>
+        <permission id="network:http" description="HTTP requests" riskLevel="medium"/>
+        <permission id="git:read" description="Git read operations" riskLevel="low"/>
+        <permission id="git:write" description="Git write operations" riskLevel="medium"/>
+        <permission id="database:read" description="Database read operations" riskLevel="low"/>
+        <permission id="database:write" description="Database write operations" riskLevel="medium"/>
+        <permission id="database:admin" description="Database admin operations" riskLevel="high"/>
+    </permissions>
+</tools-registry>

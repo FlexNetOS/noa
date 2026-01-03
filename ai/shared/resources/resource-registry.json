@@ -55,6 +55,31 @@
                     "type": "tool",
                     "providers": ["all"],
                     "description": "Code generation from natural language"
+                },
+                {
+                    "name": "documentation-generator",
+                    "file": "documentation-generator.json",
+                    "type": "tool",
+                    "providers": ["all"],
+                    "description": "AI-driven documentation generator using Litho/wiki-rs",
+                    "config": {
+                        "adapter": "ai/providers/litho/",
+                        "binary": "opt/wiki-rs/",
+                        "configFile": "config/litho.toml"
+                    },
+                    "subagents": {
+                        "pass1_structure": "RustCrateScannerAgent",
+                        "pass2_analysis": "RustClippyAgent",
+                        "pass3_generation": "RustDocAgent",
+                        "pass4_validation": "RustFmtAgent"
+                    },
+                    "errorHandlers": [
+                        "OOM",
+                        "RateLimited",
+                        "FileLockContention",
+                        "RetryableIOError"
+                    ],
+                    "fallbackChain": ["llama.cpp", "copilot", "anthropic", "openai", "git"]
                 }
             ]
         },

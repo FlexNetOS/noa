@@ -1,0 +1,154 @@
+{
+    "$schema": "https://noa.local/schemas/tool.json",
+    "name": "documentation-generator",
+    "version": "1.0.0",
+    "description": "AI-driven documentation generator using Litho/wiki-rs with adaptive multi-pass execution",
+    "type": "tool",
+    "providers": ["all"],
+    
+    "implementation": {
+        "binary": "opt/wiki-rs/target/release/litho",
+        "adapter": "ai/providers/litho/",
+        "configFile": "config/litho.toml"
+    },
+    
+    "model": {
+        "default": "qwen2.5-coder:1.5b",
+        "maxParams": "3B",
+        "fallbackChain": [
+            {
+                "provider": "llama.cpp",
+                "model": "qwen2.5-coder:1.5b",
+                "priority": 1,
+                "local": true
+            },
+            {
+                "provider": "copilot",
+                "model": "gpt-4",
+                "priority": 2,
+                "local": false
+            },
+            {
+                "provider": "anthropic",
+                "model": "claude-3-haiku",
+                "priority": 3,
+                "local": false
+            },
+            {
+                "provider": "openai",
+                "model": "gpt-4o-mini",
+                "priority": 4,
+                "local": false
+            },
+            {
+                "provider": "git",
+                "model": "template-based",
+                "priority": 5,
+                "local": true,
+                "description": "Fallback to git-based template generation without LLM"
+            }
+        ]
+    },
+    
+    "execution": {
+        "mode": "adaptive",
+        "parallelThreshold": 0.35,
+        "checkIntervalMs": 500,
+        "maxParallelPasses": 3,
+        "transitions": {
+            "mode": "graceful_drain",
+            "drainTimeoutSec": 5,
+            "cooldownBeforeParallel": 3
+        },
+        "limits": {
+            "maxMemoryMb": 512,
+            "maxCpuPercent": 25,
+            "pauseOnForeground": true
+        }
+    },
+    
+    "passes": [
+        {
+            "id": 1,
+            "name": "structure",
+            "description": "Extract dependency tree, SBOM, crate metadata",
+            "subagent": "RustCrateScannerAgent",
+            "tools": ["tree-sitter"],
+            "parallelizable": false,
+            "required": true
+        },
+        {
+            "id": 2,
+            "name": "analysis",
+            "description": "Code quality signals for doc annotations",
+            "subagent": "RustClippyAgent",
+            "tools": ["clippy", "rustfmt"],
+            "parallelizable": true,
+            "dependsOn": [1]
+        },
+        {
+            "id": 3,
+            "name": "generation",
+            "description": "Rustdoc + Litho markdown generation",
+            "subagent": "RustDocAgent",
+            "tools": ["mermaid-fixer", "markdown-lint"],
+            "parallelizable": true,
+            "dependsOn": [1]
+        },
+        {
+            "id": 4,
+            "name": "validation",
+            "description": "Cross-reference validation, link checking",
+            "subagent": "RustFmtAgent",
+            "tools": ["link-checker", "cross-ref-validator"],
+            "parallelizable": true,
+            "dependsOn": [1]
+        }
+    ],
+    
+    "manualEditMarker": {
+        "start": "<!-- provider:add-manual-edit -->",
+        "end": "<!-- /provider:add-manual-edit -->",
+        "behavior": "preserve",
+        "validation": "fail_on_loss"
+    },
+    
+    "errorHandlers": {
+        "OOM": {
+            "action": "graceful_drain",
+            "postAction": "reduce_batch_size",
+            "subagent": "OOM Subagent"
+        },
+        "RateLimited": {
+            "action": "backoff",
+            "strategy": "exponential",
+            "maxRetries": 5,
+            "subagent": "RateLimited Subagent"
+        },
+        "FileLockContention": {
+            "action": "serialize_writes",
+            "queueSize": 100,
+            "subagent": "FileLockContention Subagent"
+        },
+        "RetryableIOError": {
+            "action": "retry",
+            "maxRetries": 3,
+            "backoffMs": 1000,
+            "subagent": "RetryableIOError Subagent"
+        }
+    },
+    
+    "output": {
+        "directory": "docs/wiki/",
+        "generatedSubdir": "generated/",
+        "inlineWithManual": true,
+        "addTimestamps": true
+    },
+    
+    "commands": {
+        "generate_full": "noa wiki generate --full",
+        "generate_incremental": "noa wiki generate --incremental",
+        "status": "noa wiki status",
+        "cancel": "noa wiki cancel"
+    }
+}

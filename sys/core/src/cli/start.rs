@@ -77,6 +77,13 @@ pub async fn execute(args: StartArgs) -> Result<()> {
                     cors_origins: vec![],
                     enable_tracing: true,
                     shutdown_timeout_secs: 30,
+                    max_body_size: 10 * 1024 * 1024, // 10MB
+                    max_concurrent_requests: 1000,
+                    enable_rate_limiting: false,
+                    rate_limit_requests_per_minute: 60,
+                    rate_limit_expensive_per_minute: 10,
+                    enable_auth: false,
+                    jwt_secret: None,
                 };
 
                 println!("Starting NOA API server on {}:{} (PostgreSQL)", args.host, args.port);
@@ -127,6 +134,13 @@ pub async fn execute(args: StartArgs) -> Result<()> {
             cors_origins: vec![],
             enable_tracing: true,
             shutdown_timeout_secs: 30,
+            max_body_size: 10 * 1024 * 1024, // 10MB
+            max_concurrent_requests: 1000,
+            enable_rate_limiting: false,
+            rate_limit_requests_per_minute: 60,
+            rate_limit_expensive_per_minute: 10,
+            enable_auth: false,
+            jwt_secret: None,
         };
 
         println!("Starting NOA API server on {}:{}", args.host, args.port);

@@ -1,0 +1,22 @@
+[package]
+name = "noa-ui-vibe-coding"
+description = "AI-powered vibe-based coding assistance for NOA UI"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Workspace dependencies
+anyhow.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+# Additional dependencies
+uuid = { version = "1.0", features = ["v4"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread"] }

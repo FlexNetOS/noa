@@ -1,0 +1,91 @@
+# NOA Sandbox Capsule Definition
+# Provides isolated execution environment for running untrusted code
+
+name: noa-sandbox
+description: Isolated sandbox for code execution
+
+isolation:
+  # Memory limit for the sandbox
+  memory_limit: "256Mi"
+  
+  # CPU limit (1.0 = 1 full CPU core)
+  cpu_limit: 1.0
+  
+  # Maximum execution time in seconds
+  timeout_seconds: 30
+  
+  # Network access mode: none, host, bridge
+  network: none
+  
+  # Filesystem access mode: readonly, readwrite
+  filesystem: readonly
+
+mounts:
+  # Temporary writable directory for execution artifacts
+  - source: /tmp/noa-sandbox
+    target: /tmp
+    readonly: false
+  
+  # Code workspace (read-only)
+  - source: ${SANDBOX_WORKSPACE}
+    target: /workspace
+    readonly: true
+
+# Security constraints
+security:
+  # Drop all capabilities except essential ones
+  drop_capabilities:
+    - ALL
+  
+  # Add back only what's needed
+  add_capabilities: []
+  
+  # No new privileges
+  no_new_privileges: true
+  
+  # Read-only root filesystem
+  read_only_rootfs: true
+  
+  # Seccomp profile
+  seccomp_profile: runtime/default
+
+# Resource limits
+resources:
+  # Maximum number of processes/threads
+  pids_limit: 64
+  
+  # Maximum file descriptors
+  nofile_limit: 1024
+  
+  # Maximum file size (bytes)
+  fsize_limit: 10485760  # 10MB
+
+# Supported languages and their runtime images
+runtimes:
+  python:
+    image: python:3.11-slim
+    command: python
+    extension: .py
+    
+  javascript:
+    image: node:20-slim
+    command: node
+    extension: .js
+    
+  typescript:
+    image: node:20-slim
+    command: npx ts-node
+    extension: .ts
+    
+  rust:
+    image: rust:1.75-slim
+    command: rustc
+    extension: .rs
+    compile_step: rustc ${FILE} -o /tmp/output && /tmp/output
+
+# Health check for the sandbox container
+healthcheck:
+  command: "true"
+  interval: 30s
+  timeout: 5s
+  retries: 3

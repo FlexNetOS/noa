@@ -1,0 +1,25 @@
+[application]
+name = "noa-ui"
+default_platform = "fullstack"
+
+# Asset configuration
+asset_dir = "assets"
+out_dir = "dist"
+
+[web.app]
+title = "NOA - Conversational UI"
+
+[web.watcher]
+reload_html = true
+watch_path = ["src", "assets", "crates", "bins"]
+
+# Skip wasm-opt in dev mode
+[web.build]
+wasm_opt = false
+
+[web.resource]
+# CSS files to include
+style = ["/assets/styles.css"]
+
+[web.resource.dev]
+style = ["/assets/styles.css"]

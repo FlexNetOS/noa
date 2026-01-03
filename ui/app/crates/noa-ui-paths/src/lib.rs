@@ -9,6 +9,20 @@ pub enum NoaPathsError {
 
     #[error("NOA_DATA path is not absolute: {0}")]
     NoaDataNotAbsolute(String),
+
+    #[error("NOA_ROOT is not set; cannot determine NOA root directory")]
+    NoaRootNotSet,
+}
+
+/// Resolve the NOA root directory.
+///
+/// Uses `NOA_ROOT` environment variable.
+pub fn noa_root() -> Result<PathBuf, NoaPathsError> {
+    let raw = std::env::var("NOA_ROOT")
+        .ok()
+        .ok_or(NoaPathsError::NoaRootNotSet)?;
+
+    Ok(PathBuf::from(&raw))
 }
 
 /// Resolve the NOA data directory.

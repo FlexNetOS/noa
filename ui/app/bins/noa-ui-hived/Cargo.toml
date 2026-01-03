@@ -15,7 +15,7 @@ noa-ui-paths = { path = "../../crates/noa-ui-paths" }
 noa-ui-protocol = { path = "../../crates/noa-ui-protocol" }
 
 # Async runtime
-tokio = { workspace = true, features = ["rt-multi-thread", "signal", "sync"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "signal", "sync", "process", "fs", "io-util"] }
 
 # Networking
 axum = "0.8"
@@ -26,6 +26,7 @@ reqwest = { workspace = true }
 # Serialization
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_yaml = "0.9"
 
 # Logging
 anyhow = { workspace = true }
@@ -40,6 +41,9 @@ directories = "6.0"
 
 # Time
 chrono = { workspace = true }
+
+# UUID
+uuid = { version = "1.0", features = ["v4"] }
 
 [dev-dependencies]
 axum-test = "16.0"

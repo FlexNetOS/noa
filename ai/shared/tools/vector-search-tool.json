@@ -1,0 +1,141 @@
+{
+  "$schema": "../resources/spec/tool-schema.json",
+  "name": "vector-search-tool",
+  "version": "1.0.0",
+  "description": "Semantic vector search for knowledge retrieval using embedded vectors and similarity matching",
+  "category": "database",
+  "implementation": {
+    "type": "builtin",
+    "module": "noa.tools.database.vector",
+    "handler": "vector_search",
+    "dependencies": ["ruvector", "noa-embedder"]
+  },
+  "input": {
+    "type": "object",
+    "required": ["query"],
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "Natural language query to search for"
+      },
+      "collection": {
+        "type": "string",
+        "description": "Vector collection/index to search",
+        "default": "default"
+      },
+      "top_k": {
+        "type": "integer",
+        "default": 10,
+        "description": "Number of top results to return"
+      },
+      "similarity_threshold": {
+        "type": "number",
+        "default": 0.7,
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Minimum similarity score (0-1)"
+      },
+      "filter": {
+        "type": "object",
+        "description": "Metadata filter for results",
+        "properties": {
+          "source": { "type": "string" },
+          "type": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "embedding_model": {
+        "type": "string",
+        "default": "nomic-embed-text",
+        "description": "Model to use for query embedding"
+      },
+      "include_metadata": {
+        "type": "boolean",
+        "default": true,
+        "description": "Include document metadata in results"
+      },
+      "include_vectors": {
+        "type": "boolean",
+        "default": false,
+        "description": "Include raw vectors in results"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the search succeeded"
+      },
+      "results": {
+        "type": "array",
+        "description": "Search results ordered by similarity",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "content": { "type": "string" },
+            "score": { "type": "number" },
+            "metadata": { "type": "object" },
+            "vector": { "type": "array", "items": { "type": "number" } }
+          }
+        }
+      },
+      "total_matches": {
+        "type": "integer",
+        "description": "Total matches before top_k filtering"
+      },
+      "query_embedding_time_ms": {
+        "type": "number",
+        "description": "Time to embed the query"
+      },
+      "search_time_ms": {
+        "type": "number",
+        "description": "Vector search execution time"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if search failed"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Basic semantic search",
+      "input": {
+        "query": "How to configure database connections",
+        "top_k": 5
+      }
+    },
+    {
+      "name": "Filtered search with threshold",
+      "input": {
+        "query": "error handling best practices",
+        "collection": "documentation",
+        "filter": { "type": "markdown" },
+        "similarity_threshold": 0.8
+      }
+    },
+    {
+      "name": "Code search",
+      "input": {
+        "query": "async database connection pool",
+        "collection": "codebase",
+        "filter": { "source": "rust" },
+        "top_k": 20
+      }
+    }
+  ],
+  "permissions": ["database:read"],
+  "rateLimit": {
+    "requestsPerMinute": 60
+  },
+  "providers": "all",
+  "status": "active",
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2026-01-02",
+    "tags": ["database", "vector", "search", "embeddings", "rag", "semantic"]
+  }
+}

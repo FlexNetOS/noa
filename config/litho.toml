@@ -1,0 +1,128 @@
+# Litho Configuration for NOA
+# AI-driven documentation generator with adaptive multi-pass execution
+# See: opt/wiki-rs/ for Litho source
+
+[litho]
+target_language = "en"
+output_dir = "docs/wiki"
+disable_preset_tools = false
+
+[litho.scanning]
+include = [
+    "sys/core/",
+    "lib/flexnetos/",
+    "ai/",
+    "ui/app/",
+    "gateway/",
+    "orchestrator/",
+    "ruler/",
+    "p2p/"
+]
+exclude = [
+    "node_modules",
+    "target",
+    ".git",
+    "cache",
+    "tmp",
+    "*.log",
+    "*.lock"
+]
+
+[litho.generation]
+# C4 model diagram levels
+c4_context = true
+c4_container = true
+c4_component = true
+c4_code = false  # Too verbose for large codebase
+
+# Mermaid diagrams
+mermaid_enabled = true
+mermaid_fixer = true  # Auto-fix syntax errors
+
+# Documentation depth
+include_examples = true
+include_tests = false
+include_private = false
+
+[model]
+# SLM under 3B per NOA constitution §3.3
+name = "qwen2.5-coder:1.5b"
+passes = 4
+context_length = 4096
+
+[model.tools]
+tree_sitter = true
+mermaid_fixer = true
+link_checker = true
+cross_ref_validator = true
+
+[model.provider]
+# Primary: local llama.cpp
+primary = "llama.cpp"
+llm_api_base_url = "http://localhost:8080/v1"
+
+# Fallback chain
+fallback = ["copilot", "anthropic", "openai", "git"]
+
+[runtime]
+mode = "background"
+execution = "adaptive"  # sequential | parallel | adaptive
+parallel_threshold = 0.35  # Parallelize when resource usage < 35%
+check_interval_ms = 500
+max_parallel_passes = 3
+batch_size = 5  # Files per batch
+
+[runtime.transitions]
+mode = "graceful_drain"
+drain_timeout_sec = 5
+cooldown_before_parallel = 3  # Seconds below threshold before re-parallelizing
+
+[runtime.limits]
+max_memory_mb = 512
+max_cpu_percent = 25
+pause_on_foreground = true
+
+[incremental]
+enabled = true
+use_git_diff = true
+# Only regenerate docs for files changed since last run
+track_file = ".litho-state.json"
+
+[manual_edits]
+# Preserve manually-added content between regenerations
+marker_start = "<!-- provider:add-manual-edit -->"
+marker_end = "<!-- /provider:add-manual-edit -->"
+behavior = "preserve"
+validation = "fail_on_loss"
+
+[subagents]
+# Rust Pack subagent mappings for each pass
+pass1_structure = "RustCrateScannerAgent"
+pass2_analysis = "RustClippyAgent"
+pass3_generation = "RustDocAgent"
+pass4_validation = "RustFmtAgent"
+
+[subagents.error_handlers]
+oom = "OOM Subagent"
+rate_limited = "RateLimited Subagent"
+file_lock = "FileLockContention Subagent"
+io_error = "RetryableIOError Subagent"
+
+[output]
+# Unified navigation - merge with existing manual docs
+inline_with_manual = true
+add_timestamps = true
+timestamp_format = "%Y-%m-%d %H:%M:%S UTC"
+
+[output.paths]
+crates = "docs/wiki/crates/"
+internal = "docs/wiki/internal-crates/"
+architecture = "docs/wiki/architecture/"
+diagrams = "docs/wiki/diagrams/"
+
+[ci]
+# GitHub Actions integration
+on_push = "incremental"
+on_release = "full"
+commit_generated = true
+branch = "docs-update"

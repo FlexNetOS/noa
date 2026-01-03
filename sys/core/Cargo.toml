@@ -10,7 +10,7 @@ license.workspace = true
 description = "NOA Core - Autonomous Agentic Operating System"
 
 [features]
-default = ["full"]
+default = ["minimal"]
 minimal = []
 full = ["dep:sqlx"]
 

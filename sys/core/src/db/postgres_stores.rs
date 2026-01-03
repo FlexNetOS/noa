@@ -331,22 +331,6 @@ impl MemoryStore for PgMemoryStore {
     }
 }
 
-impl MemoryType {
-    fn from_str(s: &str) -> Result<Self> {
-        match s {
-            "interaction" => Ok(MemoryType::Interaction),
-            "decision" => Ok(MemoryType::Decision),
-            "learning" => Ok(MemoryType::Learning),
-            "artifact" => Ok(MemoryType::Artifact),
-            _ => Err(NoaError::Validation(crate::error::ValidationError::new(
-                "memory_type",
-                format!("Invalid memory type: {}", s),
-                "INVALID_TYPE",
-            ))),
-        }
-    }
-}
-
 /// PostgreSQL-based model store.
 pub struct PgModelStore {
     pool: PgPool,

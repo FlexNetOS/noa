@@ -4,3 +4,6 @@
 [submodule "opt/llama-cpp-rs"]
 	path = opt/llama-cpp-rs
 	url = https://github.com/FlexNetOS/llama-cpp-rs.git
+[submodule "opt/wiki-rs"]
+	path = opt/wiki-rs
+	url = https://github.com/FlexNetOS/wiki-rs.git

@@ -2,9 +2,29 @@
 
 This wiki provides conceptual documentation and reference material for the NOA platform.
 
+> **Auto-Generated Documentation**: This wiki can be automatically generated and updated using the Litho documentation generator.
+> Run `noa wiki generate-full` for complete regeneration or `noa wiki generate-incremental` for changed files only.
+> Manual edits wrapped in `<!-- provider:add-manual-edit -->` markers are preserved during regeneration.
+
 ## Overview
 
 NOA (Neural Orchestration Architecture) is an AI-native operating system designed for autonomous agent orchestration, local-first computation, and total memory sovereignty.
+
+## Quick Start
+
+```bash
+# Generate full documentation
+noa wiki generate-full
+
+# Generate only for changed files
+noa wiki generate-incremental
+
+# Check generation status
+noa wiki status
+
+# Validate documentation
+noa wiki validate
+```
 
 ## Core Concepts
 
@@ -36,16 +56,50 @@ All data remains under user control:
 
 ## Navigation
 
+### Reference
 - [Architecture](../architecture/) — System design documents
 - [Guides](../guides/) — How-to guides
 - [Agents](../agents/) — Agent system documentation
 - [ML DevOps](../ml-devops/) — ML platform documentation
 
-## Codebase & Crates
-
+### Codebase & Crates
 - [Codebase Map](codebase_map.md) — Full file listing of the repository
 - [Crate Plans](crates/index.md) — Detailed plans and documentation for system crates
+- [Internal Crates](internal-crates/) — Documentation for internal crate dependencies
+
+### Generated Documentation
+- [API Reference](generated/api/) — Auto-generated API documentation
+- [Crate Docs](generated/crates/) — Rustdoc for all crates
+- [Diagrams](generated/diagrams/) — Architecture diagrams (Mermaid)
+
+## Documentation Generation
+
+This wiki uses **Litho** (wiki-rs) for AI-powered documentation generation.
+
+### Multi-Pass Pipeline
+| Pass | Subagent | Purpose |
+|------|----------|---------|
+| 1 | RustCrateScannerAgent | Structure analysis (sequential) |
+| 2 | RustClippyAgent | Code analysis (parallel) |
+| 3 | RustDocAgent | Doc generation (parallel) |
+| 4 | RustFmtAgent | Validation (parallel) |
+
+### Provider Fallback Chain
+1. **llama.cpp** (local) - qwen2.5-coder:1.5b
+2. **copilot** - IDE integration
+3. **anthropic** - Cloud fallback
+4. **openai** - Secondary cloud
+5. **git** - Template-based fallback
+
+### Manual Edit Preservation
+Wrap manual edits to preserve them during regeneration:
+
+```markdown
+<!-- provider:add-manual-edit -->
+Your custom content here will be preserved.
+<!-- /provider:add-manual-edit -->
+```
 
 ---
 
-*This wiki is part of the NOA documentation system.*
+*This wiki is part of the NOA documentation system. Last generated: (never)*

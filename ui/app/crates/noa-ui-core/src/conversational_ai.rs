@@ -208,25 +208,197 @@ impl ConversationalAI {
         context
     }
 
-    async fn call_ai_provider(&self, _context: &str, _user_input: &str) -> Result<String, AIError> {
+    async fn call_ai_provider(&self, context: &str, user_input: &str) -> Result<String, AIError> {
         match &self.provider {
-            AIProvider::OpenAI { .. } => {
-                // Implementation for OpenAI API
-                Ok("OpenAI response would go here".to_string())
+            AIProvider::OpenAI { api_key, model } => {
+                self.call_openai(api_key, model, context, user_input).await
             }
-            AIProvider::Anthropic { .. } => {
-                // Implementation for Anthropic API
-                Ok("Anthropic response would go here".to_string())
+            AIProvider::Anthropic { api_key, model } => {
+                self.call_anthropic(api_key, model, context, user_input).await
             }
-            AIProvider::Groq { .. } => {
-                // Implementation for Groq API
-                Ok("Groq response would go here".to_string())
+            AIProvider::Groq { api_key, model } => {
+                self.call_groq(api_key, model, context, user_input).await
             }
-            AIProvider::Local { .. } => {
-                // Implementation for local AI endpoint
-                Ok("Local AI response would go here".to_string())
+            AIProvider::Local { endpoint } => {
+                self.call_ollama(endpoint, context, user_input).await
             }
         }
+    }
+
+    #[cfg(feature = "http-client")]
+    async fn call_ollama(&self, endpoint: &str, context: &str, user_input: &str) -> Result<String, AIError> {
+        let client = reqwest::Client::new();
+        let url = format!("{}/api/generate", endpoint);
+        
+        let prompt = format!("{}\n\nUser: {}\nAssistant:", context, user_input);
+        
+        let body = serde_json::json!({
+            "model": "phi3:mini",
+            "prompt": prompt,
+            "stream": false,
+            "options": {
+                "temperature": 0.7,
+                "num_predict": 500
+            }
+        });
+        
+        let response = client.post(&url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Network(e.to_string()))?;
+            
+        if !response.status().is_success() {
+            return Err(AIError::Api(format!("Ollama returned status: {}", response.status())));
+        }
+        
+        let json: serde_json::Value = response.json()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Parsing(e.to_string()))?;
+            
+        json.get("response")
+            .and_then(|r: &serde_json::Value| r.as_str())
+            .map(|s: &str| s.to_string())
+            .ok_or_else(|| AIError::Parsing("No response field in Ollama output".to_string()))
+    }
+
+    #[cfg(not(feature = "http-client"))]
+    async fn call_ollama(&self, _endpoint: &str, _context: &str, _user_input: &str) -> Result<String, AIError> {
+        Err(AIError::Api("HTTP client feature not enabled. Enable 'http-client' feature for AI provider calls.".to_string()))
+    }
+
+    #[cfg(feature = "http-client")]
+    async fn call_openai(&self, api_key: &str, model: &str, context: &str, user_input: &str) -> Result<String, AIError> {
+        let client = reqwest::Client::new();
+        let url = "https://api.openai.com/v1/chat/completions";
+        
+        let body = serde_json::json!({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": context},
+                {"role": "user", "content": user_input}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 500
+        });
+        
+        let response = client.post(url)
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Network(e.to_string()))?;
+            
+        if !response.status().is_success() {
+            return Err(AIError::Api(format!("OpenAI returned status: {}", response.status())));
+        }
+        
+        let json: serde_json::Value = response.json()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Parsing(e.to_string()))?;
+            
+        json.get("choices")
+            .and_then(|c: &serde_json::Value| c.get(0))
+            .and_then(|c: &serde_json::Value| c.get("message"))
+            .and_then(|m: &serde_json::Value| m.get("content"))
+            .and_then(|c: &serde_json::Value| c.as_str())
+            .map(|s: &str| s.to_string())
+            .ok_or_else(|| AIError::Parsing("No response in OpenAI output".to_string()))
+    }
+
+    #[cfg(not(feature = "http-client"))]
+    async fn call_openai(&self, _api_key: &str, _model: &str, _context: &str, _user_input: &str) -> Result<String, AIError> {
+        Err(AIError::Api("HTTP client feature not enabled. Enable 'http-client' feature for AI provider calls.".to_string()))
+    }
+
+    #[cfg(feature = "http-client")]
+    async fn call_anthropic(&self, api_key: &str, model: &str, context: &str, user_input: &str) -> Result<String, AIError> {
+        let client = reqwest::Client::new();
+        let url = "https://api.anthropic.com/v1/messages";
+        
+        let body = serde_json::json!({
+            "model": model,
+            "max_tokens": 500,
+            "system": context,
+            "messages": [
+                {"role": "user", "content": user_input}
+            ]
+        });
+        
+        let response = client.post(url)
+            .header("x-api-key", api_key)
+            .header("anthropic-version", "2023-06-01")
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Network(e.to_string()))?;
+            
+        if !response.status().is_success() {
+            return Err(AIError::Api(format!("Anthropic returned status: {}", response.status())));
+        }
+        
+        let json: serde_json::Value = response.json()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Parsing(e.to_string()))?;
+            
+        json.get("content")
+            .and_then(|c: &serde_json::Value| c.get(0))
+            .and_then(|c: &serde_json::Value| c.get("text"))
+            .and_then(|t: &serde_json::Value| t.as_str())
+            .map(|s: &str| s.to_string())
+            .ok_or_else(|| AIError::Parsing("No response in Anthropic output".to_string()))
+    }
+
+    #[cfg(not(feature = "http-client"))]
+    async fn call_anthropic(&self, _api_key: &str, _model: &str, _context: &str, _user_input: &str) -> Result<String, AIError> {
+        Err(AIError::Api("HTTP client feature not enabled. Enable 'http-client' feature for AI provider calls.".to_string()))
+    }
+
+    #[cfg(feature = "http-client")]
+    async fn call_groq(&self, api_key: &str, model: &str, context: &str, user_input: &str) -> Result<String, AIError> {
+        let client = reqwest::Client::new();
+        let url = "https://api.groq.com/openai/v1/chat/completions";
+        
+        let body = serde_json::json!({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": context},
+                {"role": "user", "content": user_input}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 500
+        });
+        
+        let response = client.post(url)
+            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Content-Type", "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Network(e.to_string()))?;
+            
+        if !response.status().is_success() {
+            return Err(AIError::Api(format!("Groq returned status: {}", response.status())));
+        }
+        
+        let json: serde_json::Value = response.json()
+            .await
+            .map_err(|e: reqwest::Error| AIError::Parsing(e.to_string()))?;
+            
+        json.get("choices")
+            .and_then(|c: &serde_json::Value| c.get(0))
+            .and_then(|c: &serde_json::Value| c.get("message"))
+            .and_then(|m: &serde_json::Value| m.get("content"))
+            .and_then(|c: &serde_json::Value| c.as_str())
+            .map(|s: &str| s.to_string())
+            .ok_or_else(|| AIError::Parsing("No response in Groq output".to_string()))
+    }
+
+    #[cfg(not(feature = "http-client"))]
+    async fn call_groq(&self, _api_key: &str, _model: &str, _context: &str, _user_input: &str) -> Result<String, AIError> {
+        Err(AIError::Api("HTTP client feature not enabled. Enable 'http-client' feature for AI provider calls.".to_string()))
     }
 
     fn trim_context(&self, conversation: &mut Conversation) {

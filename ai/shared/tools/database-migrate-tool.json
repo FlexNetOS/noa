@@ -1,0 +1,121 @@
+{
+  "$schema": "../resources/spec/tool-schema.json",
+  "name": "database-migrate-tool",
+  "version": "1.0.0",
+  "description": "Manage database schema migrations with version tracking, rollback support, and integrity verification",
+  "category": "database",
+  "implementation": {
+    "type": "builtin",
+    "module": "noa.tools.database.migrate",
+    "handler": "run_migration",
+    "dependencies": ["sqlx"]
+  },
+  "input": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["run", "rollback", "status", "create", "verify", "reset"],
+        "description": "Migration action to perform"
+      },
+      "database": {
+        "type": "string",
+        "description": "Database connection identifier",
+        "default": "primary"
+      },
+      "migrations_path": {
+        "type": "string",
+        "description": "Path to migrations directory",
+        "default": "${NOA_ROOT}/sys/core/migrations"
+      },
+      "target_version": {
+        "type": "string",
+        "description": "Target migration version (for run/rollback)"
+      },
+      "name": {
+        "type": "string",
+        "description": "Migration name (for create action)"
+      },
+      "dry_run": {
+        "type": "boolean",
+        "default": false,
+        "description": "Preview changes without applying"
+      },
+      "force": {
+        "type": "boolean",
+        "default": false,
+        "description": "Force migration even with warnings"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the migration action succeeded"
+      },
+      "current_version": {
+        "type": "string",
+        "description": "Current schema version after operation"
+      },
+      "applied_migrations": {
+        "type": "array",
+        "description": "List of migrations applied in this run"
+      },
+      "pending_migrations": {
+        "type": "array",
+        "description": "List of pending migrations"
+      },
+      "rollback_performed": {
+        "type": "boolean",
+        "description": "Whether a rollback was performed"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if action failed"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Run all pending migrations",
+      "input": {
+        "action": "run"
+      }
+    },
+    {
+      "name": "Check migration status",
+      "input": {
+        "action": "status",
+        "database": "primary"
+      }
+    },
+    {
+      "name": "Rollback last migration",
+      "input": {
+        "action": "rollback",
+        "target_version": "20251231120000"
+      }
+    },
+    {
+      "name": "Create new migration",
+      "input": {
+        "action": "create",
+        "name": "add_user_preferences_table"
+      }
+    }
+  ],
+  "permissions": ["database:write", "database:admin", "file:read", "file:write"],
+  "rateLimit": {
+    "requestsPerMinute": 10
+  },
+  "providers": "all",
+  "status": "active",
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2026-01-02",
+    "tags": ["database", "migration", "schema", "sqlx"]
+  }
+}

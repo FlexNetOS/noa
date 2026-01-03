@@ -9,6 +9,7 @@
 //! - CRDT state synchronization (loro)
 //! - Local gRPC/HTTP API
 //! - Agent sandbox coordination
+//! - Code execution in isolated capsules
 //!
 //! # Usage
 //!
@@ -18,8 +19,10 @@
 //! noa-hived status
 //! ```
 
+mod capsule;
 mod cli;
 mod config;
+mod sandbox;
 mod server;
 mod state;
 

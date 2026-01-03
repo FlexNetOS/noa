@@ -1,0 +1,10 @@
+id,name,version,category,description,implementation_type,handler,permissions,rate_limit_per_min,providers,status,created_date,author
+1,code-generation-tool,1.0.0,development,"Generate code from natural language descriptions or specifications",agent,noa.tools.codegen.generate,file:read,60,all,active,2025-12-17,NOA Team
+2,reasoning-tool,1.0.0,analysis,"Complex reasoning and analysis tool for structured problem-solving",agent,noa.tools.reasoning.analyze,,30,all,active,2025-12-17,NOA Team
+3,documentation-generator,1.0.0,documentation,"AI-driven documentation generator using Litho/wiki-rs with adaptive multi-pass execution",binary,opt/wiki-rs/target/release/litho,"file:read,file:write",20,all,active,2026-01-02,NOA Team
+4,backupctl,1.0.0,operations,"Workspace backup orchestration with hash-verified manifests and approval tokens",script,backupctl/backupctl.py,"file:read,file:write,shell:execute",10,all,active,2025-12-17,NOA Team
+5,sandboxctl,1.0.0,operations,"Sandbox lifecycle management with backup enforcement policy",script,sandboxctl/sandboxctl.py,shell:execute,10,all,active,2025-12-17,NOA Team
+6,database-query-tool,1.0.0,database,"Execute SQL queries against SQLite/PostgreSQL with parameterized queries and result formatting",builtin,noa.tools.database.query,"database:read,database:write",120,all,active,2026-01-02,NOA Team
+7,database-migrate-tool,1.0.0,database,"Manage database schema migrations with version tracking and rollback support",builtin,noa.tools.database.migrate,"database:write,database:admin,file:read,file:write",10,all,active,2026-01-02,NOA Team
+8,database-backup-tool,1.0.0,database,"Create and restore database backups with integrity verification and compression",builtin,noa.tools.database.backup,"database:read,database:write,database:admin,file:read,file:write",5,all,active,2026-01-02,NOA Team
+9,vector-search-tool,1.0.0,database,"Semantic vector search for knowledge retrieval using embedded vectors and similarity matching",builtin,noa.tools.database.vector,database:read,60,all,active,2026-01-02,NOA Team

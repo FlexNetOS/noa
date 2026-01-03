@@ -1,0 +1,142 @@
+{
+  "$schema": "../resources/spec/tool-schema.json",
+  "name": "database-backup-tool",
+  "version": "1.0.0",
+  "description": "Create and restore database backups with integrity verification and compression",
+  "category": "database",
+  "implementation": {
+    "type": "builtin",
+    "module": "noa.tools.database.backup",
+    "handler": "backup_database",
+    "dependencies": ["rusqlite"]
+  },
+  "input": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["create", "restore", "list", "verify", "prune"],
+        "description": "Backup action to perform"
+      },
+      "database": {
+        "type": "string",
+        "description": "Database connection identifier",
+        "default": "primary"
+      },
+      "backup_path": {
+        "type": "string",
+        "description": "Path to backup file or directory",
+        "default": "${NOA_ROOT}/data/backups/database"
+      },
+      "backup_id": {
+        "type": "string",
+        "description": "Specific backup ID (for restore/verify)"
+      },
+      "compression": {
+        "type": "string",
+        "enum": ["none", "gzip", "zstd", "lz4"],
+        "default": "zstd",
+        "description": "Compression algorithm to use"
+      },
+      "verify_after": {
+        "type": "boolean",
+        "default": true,
+        "description": "Verify backup integrity after creation"
+      },
+      "retention_days": {
+        "type": "integer",
+        "default": 30,
+        "description": "Days to retain backups (for prune action)"
+      },
+      "include_wal": {
+        "type": "boolean",
+        "default": true,
+        "description": "Include WAL file in backup (SQLite)"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the backup action succeeded"
+      },
+      "backup_id": {
+        "type": "string",
+        "description": "Generated backup identifier"
+      },
+      "backup_path": {
+        "type": "string",
+        "description": "Full path to backup file"
+      },
+      "size_bytes": {
+        "type": "integer",
+        "description": "Backup file size in bytes"
+      },
+      "checksum": {
+        "type": "string",
+        "description": "SHA-256 checksum of backup"
+      },
+      "verified": {
+        "type": "boolean",
+        "description": "Whether backup was verified"
+      },
+      "backups": {
+        "type": "array",
+        "description": "List of available backups (for list action)"
+      },
+      "pruned_count": {
+        "type": "integer",
+        "description": "Number of backups pruned"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if action failed"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Create compressed backup",
+      "input": {
+        "action": "create",
+        "compression": "zstd",
+        "verify_after": true
+      }
+    },
+    {
+      "name": "List available backups",
+      "input": {
+        "action": "list",
+        "database": "primary"
+      }
+    },
+    {
+      "name": "Restore from specific backup",
+      "input": {
+        "action": "restore",
+        "backup_id": "20260101_120000_primary"
+      }
+    },
+    {
+      "name": "Prune old backups",
+      "input": {
+        "action": "prune",
+        "retention_days": 7
+      }
+    }
+  ],
+  "permissions": ["database:read", "database:write", "database:admin", "file:read", "file:write"],
+  "rateLimit": {
+    "requestsPerMinute": 5
+  },
+  "providers": "all",
+  "status": "active",
+  "metadata": {
+    "author": "NOA Team",
+    "created": "2026-01-02",
+    "tags": ["database", "backup", "restore", "integrity"]
+  }
+}
