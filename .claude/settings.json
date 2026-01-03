@@ -1,0 +1,26 @@
+{
+  "$schema": "https://code.claude.com/settings-schema.json",
+  "env": {
+    "NOA_ROOT": "N:/noa",
+    "PIXI_HOME": "N:/noa/opt/pixi",
+    "CARGO_HOME": "N:/noa/.pixi/envs/default/Library",
+    "RUSTUP_HOME": "N:/noa/opt/rust/rustup",
+    "PATH": "N:/noa/.pixi/envs/default/bin;N:/noa/.pixi/envs/default/Library/bin;N:/noa/.pixi/envs/default/Scripts;N:/noa/bin",
+    "CLAUDE_CODE_SHELL_PREFIX": "N:/noa/.pixi/envs/default/bin/nu.exe -c 'source N:/noa/bin/activate.nu;'"
+  },
+  "bashTool": {
+    "loginShell": false
+  },
+  "permissions": {
+    "allow": [
+      "Bash(nu:*)",
+      "Bash(cargo:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo test:*)",
+      "Bash(pixi:*)",
+      "Bash(pixi run:*)",
+      "Bash(pixi shell:*)"
+    ]
+  }
+}
