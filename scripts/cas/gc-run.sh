@@ -21,12 +21,12 @@ else
     NOA_ROOT="${NOA_ROOT:-/n/noa}"
 fi
 
-# Configuration
+# configsuration
 CAS_ROOT="${CAS_ROOT:-${NOA_ROOT}/cas}"
 OBJECTS_DIR="${CAS_ROOT}/objects"
 REFS_DIR="${CAS_ROOT}/refs"
 TAGS_DIR="${CAS_ROOT}/tags"
-GC_CONFIG="${CAS_ROOT}/gc/gc_rules.json"
+GC_configs="${CAS_ROOT}/gc/gc_rules.json"
 
 DRY_RUN=false
 FORCE=false
@@ -50,10 +50,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Load GC configuration (simplified - would use jq in production)
+# Load GC configsuration (simplified - would use jq in production)
 MIN_AGE_DAYS=7
-if [[ -f "$GC_CONFIG" ]]; then
-    echo "Using GC config: $GC_CONFIG" >&2
+if [[ -f "$GC_configs" ]]; then
+    echo "Using GC configs: $GC_configs" >&2
 fi
 
 # Find all objects

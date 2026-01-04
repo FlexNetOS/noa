@@ -57,9 +57,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_behaviour(|key| Behaviour::new(key.public()))?
         .build();
@@ -93,13 +93,13 @@ struct Behaviour {
 impl Behaviour {
     fn new(local_public_key: identity::PublicKey) -> Self {
         Self {
-            identify: identify::Behaviour::new(identify::Config::new(
+            identify: identify::Behaviour::new(identify::configs::new(
                 "/ipfs/0.1.0".into(),
                 local_public_key.clone(),
             )),
             auto_nat: autonat::Behaviour::new(
                 local_public_key.to_peer_id(),
-                autonat::Config {
+                autonat::configs {
                     retry_interval: Duration::from_secs(10),
                     refresh_interval: Duration::from_secs(30),
                     boot_delay: Duration::from_secs(5),

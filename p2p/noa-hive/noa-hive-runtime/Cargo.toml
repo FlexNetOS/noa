@@ -10,7 +10,7 @@ description = "Runtime for NOA-Hive daemon with service management"
 # Internal
 noa-hive-core = { workspace = true }
 noa-hive-stack = { workspace = true }
-noa-hive-config = { workspace = true }
+noa-hive-configs = { workspace = true }
 
 # Async
 tokio = { workspace = true }

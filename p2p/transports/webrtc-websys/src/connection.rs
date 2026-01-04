@@ -13,7 +13,7 @@ use send_wrapper::SendWrapper;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
-    RtcConfiguration, RtcDataChannel, RtcDataChannelEvent, RtcDataChannelInit, RtcDataChannelType,
+    Rtcconfigsuration, RtcDataChannel, RtcDataChannelEvent, RtcDataChannelInit, RtcDataChannelType,
     RtcSessionDescriptionInit,
 };
 
@@ -190,13 +190,13 @@ impl RtcPeerConnection {
 
         let certificate = JsFuture::from(certificate_promise).await?;
 
-        let config = RtcConfiguration::default();
-        // wrap certificate in a js Array first before adding it to the config object
+        let configs = Rtcconfigsuration::default();
+        // wrap certificate in a js Array first before adding it to the configs object
         let certificate_arr = js_sys::Array::new();
         certificate_arr.push(&certificate);
-        config.set_certificates(&certificate_arr);
+        configs.set_certificates(&certificate_arr);
 
-        let inner = web_sys::RtcPeerConnection::new_with_configuration(&config)?;
+        let inner = web_sys::RtcPeerConnection::new_with_configsuration(&configs)?;
 
         Ok(Self { inner })
     }

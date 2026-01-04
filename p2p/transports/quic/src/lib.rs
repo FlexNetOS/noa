@@ -36,8 +36,8 @@
 //! use libp2p_quic as quic;
 //!
 //! let keypair = libp2p_identity::Keypair::generate_ed25519();
-//! let quic_config = quic::Config::new(&keypair);
-//! let mut quic_transport = quic::tokio::Transport::new(quic_config);
+//! let quic_configs = quic::configs::new(&keypair);
+//! let mut quic_transport = quic::tokio::Transport::new(quic_configs);
 //! let addr = "/ip4/127.0.0.1/udp/12345/quic-v1"
 //!     .parse()
 //!     .expect("address should be valid");
@@ -56,11 +56,11 @@
 //!
 //! Note that QUIC provides transport, security, and multiplexing in a single protocol.  Therefore,
 //! QUIC connections do not need to be upgraded. You will get a compile-time error if you try.
-//! Instead, you must pass all needed configuration into the constructor.
+//! Instead, you must pass all needed configsuration into the constructor.
 
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
-mod config;
+mod configs;
 mod connection;
 mod hole_punching;
 mod provider;
@@ -68,7 +68,7 @@ mod transport;
 
 use std::net::SocketAddr;
 
-pub use config::Config;
+pub use configs::configs;
 pub use connection::{Connecting, Connection, Stream};
 #[cfg(feature = "tokio")]
 pub use provider::tokio;

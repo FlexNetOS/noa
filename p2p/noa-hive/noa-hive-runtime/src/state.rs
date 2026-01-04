@@ -1,6 +1,6 @@
 //! State management using loro CRDT.
 
-use noa_hive_config::Config;
+use noa_hive_configs::configs;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tracing::{debug, info};
@@ -9,16 +9,16 @@ use tracing::{debug, info};
 pub struct StateManager {
     /// Active state rooms.
     rooms: Arc<RwLock<HashMap<String, StateRoom>>>,
-    /// Configuration.
-    config: Config,
+    /// configsuration.
+    configs: configs,
 }
 
 impl StateManager {
     /// Create a new state manager.
-    pub fn new(config: &Config) -> anyhow::Result<Self> {
+    pub fn new(configs: &configs) -> anyhow::Result<Self> {
         Ok(Self {
             rooms: Arc::new(RwLock::new(HashMap::new())),
-            config: config.clone(),
+            configs: configs.clone(),
         })
     }
 

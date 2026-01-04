@@ -143,7 +143,7 @@ AutoNAT where port reuse is disabled. This information is now passed by the beha
 
 - Update to `libp2p-request-response` `v0.18.0`.
 
-- Add `Config::only_global_ips` to skip peers that are observed at a private IP-address
+- Add `configs::only_global_ips` to skip peers that are observed at a private IP-address
   (see [PR 2618]).
 
 [PR 2618]: https://github.com/libp2p/rust-libp2p/pull/2618

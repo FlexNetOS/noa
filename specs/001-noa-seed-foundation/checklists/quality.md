@@ -4,7 +4,7 @@
 **Created**: 2025-12-09
 **Type**: Quality Assurance / Requirements Validation / Error Correction
 **Based On**: Universal Task Execution Policy (§0-§13)
-**Coverage**: Evidence Rules, Truth Gate, Triple-Verification, Code Quality, Metadata, Config Schema
+**Coverage**: Evidence Rules, Truth Gate, Triple-Verification, Code Quality, Metadata, configs Schema
 
 ---
 
@@ -13,7 +13,7 @@
 1. **Pre-Commit**: Run CHK001-CHK025 (Evidence & Documentation)
 2. **Pre-PR**: Run CHK026-CHK050 (Truth Gate & Verification)
 3. **Code Review**: Run CHK051-CHK075 (Code Quality & Consistency)
-4. **Pre-Merge**: Run CHK076-CHK100 (Config & Schema Validation)
+4. **Pre-Merge**: Run CHK076-CHK100 (configs & Schema Validation)
 5. **Release Gate**: Run CHK101-CHK130 (Final Verification & Audit)
 
 ---
@@ -132,40 +132,40 @@
 ### Schema & Contract Metadata
 
 - [ ] CHK058 - Do all JSON schemas include `$schema` reference? [Metadata, Schema]
-- [ ] CHK059 - Do all configs include `version` field for migration tracking? [Metadata]
+- [ ] CHK059 - Do all configss include `version` field for migration tracking? [Metadata]
 - [ ] CHK060 - Do all API contracts include version in URL or header? [Metadata]
 - [ ] CHK061 - Are deprecation warnings documented with removal dates? [Metadata]
 
 ### Traceability Metadata
 
 - [ ] CHK062 - Do all tasks reference their source FR/SC/US? [Traceability]
-- [ ] CHK063 - Are all config changes logged with reason and timestamp? [Traceability, Change Control §12]
+- [ ] CHK063 - Are all configs changes logged with reason and timestamp? [Traceability, Change Control §12]
 - [ ] CHK064 - Is every output versioned with delta records? [Change Control §12]
 - [ ] CHK065 - Are changelogs maintained for all major files? [Change Control §12]
 
 ---
 
-## Category 6: Configuration Standardization
+## Category 6: configsuration Standardization
 
-### Config File Structure
+### configs File Structure
 
-- [ ] CHK066 - Do all JSON configs follow the established schema pattern? [Config Quality]
-- [ ] CHK067 - Are environment-specific values using `${ENV_VAR}` syntax consistently? [Config Quality]
-- [ ] CHK068 - Are config files validated against JSON Schema on load? [Config Quality]
-- [ ] CHK069 - Are sensitive values stored in separate, gitignored files? [Config Quality, Security]
+- [ ] CHK066 - Do all JSON configss follow the established schema pattern? [configs Quality]
+- [ ] CHK067 - Are environment-specific values using `${ENV_VAR}` syntax consistently? [configs Quality]
+- [ ] CHK068 - Are configs files validated against JSON Schema on load? [configs Quality]
+- [ ] CHK069 - Are sensitive values stored in separate, gitignored files? [configs Quality, Security]
 
-### Config Consistency
+### configs Consistency
 
-- [ ] CHK070 - Are path patterns consistent (`noa_root/` vs `${NOA_ROOT}/`)? [Config Consistency]
-- [ ] CHK071 - Are boolean configs using consistent naming (`enabled`, not `isEnabled`)? [Config Consistency]
-- [ ] CHK072 - Are timeouts/durations using consistent units (always ms or always s)? [Config Consistency]
-- [ ] CHK073 - Are priority/order fields using consistent scale (1-10 or low/medium/high)? [Config Consistency]
+- [ ] CHK070 - Are path patterns consistent (`noa_root/` vs `${NOA_ROOT}/`)? [configs Consistency]
+- [ ] CHK071 - Are boolean configss using consistent naming (`enabled`, not `isEnabled`)? [configs Consistency]
+- [ ] CHK072 - Are timeouts/durations using consistent units (always ms or always s)? [configs Consistency]
+- [ ] CHK073 - Are priority/order fields using consistent scale (1-10 or low/medium/high)? [configs Consistency]
 
-### Config Documentation
+### configs Documentation
 
-- [ ] CHK074 - Does each config file have an accompanying README or inline comments? [Config Documentation]
-- [ ] CHK075 - Are all config options documented with type, default, and purpose? [Config Documentation]
-- [ ] CHK076 - Are config migration procedures documented for schema changes? [Config Documentation]
+- [ ] CHK074 - Does each configs file have an accompanying README or inline comments? [configs Documentation]
+- [ ] CHK075 - Are all configs options documented with type, default, and purpose? [configs Documentation]
+- [ ] CHK076 - Are configs migration procedures documented for schema changes? [configs Documentation]
 
 ---
 
@@ -280,18 +280,18 @@
 
 ---
 
-## Category 14: AI Provider Config Quality (NOA-Specific)
+## Category 14: AI Provider configs Quality (NOA-Specific)
 
-### Provider Config Schema
+### Provider configs Schema
 
-- [ ] CHK122 - Do all provider configs include: name, type, priority, enabled, description? [Provider Config]
-- [ ] CHK123 - Do all provider configs include: cli (command, package, version, binaryPath)? [Provider Config]
-- [ ] CHK124 - Do all provider configs include: modes (cli, cloud, ide where applicable)? [Provider Config]
-- [ ] CHK125 - Do all provider configs include: capabilities object? [Provider Config]
-- [ ] CHK126 - Do all provider configs include: sharedResources paths? [Provider Config]
-- [ ] CHK127 - Do all provider configs include: latency targets and timeout? [Provider Config]
+- [ ] CHK122 - Do all provider configss include: name, type, priority, enabled, description? [Provider configs]
+- [ ] CHK123 - Do all provider configss include: cli (command, package, version, binaryPath)? [Provider configs]
+- [ ] CHK124 - Do all provider configss include: modes (cli, cloud, ide where applicable)? [Provider configs]
+- [ ] CHK125 - Do all provider configss include: capabilities object? [Provider configs]
+- [ ] CHK126 - Do all provider configss include: sharedResources paths? [Provider configs]
+- [ ] CHK127 - Do all provider configss include: latency targets and timeout? [Provider configs]
 
-### Provider Config Consistency
+### Provider configs Consistency
 
 - [ ] CHK128 - Are priority values unique across all providers (no duplicates)? [Provider Consistency]
 - [ ] CHK129 - Are binaryPath values using correct ${NOA_ROOT} syntax? [Provider Consistency]

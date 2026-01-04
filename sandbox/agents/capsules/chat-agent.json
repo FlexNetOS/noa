@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../config/schemas/capsule.schema.json",
+  "$schema": "../../../configs/schemas/capsule.schema.json",
   "name": "chat-agent",
   "version": "1.0.0",
   "description": "Capsule for conversational chat agents",
@@ -35,7 +35,7 @@
       "/noa/cache/conversations"
     ],
     "blockedPaths": [
-      "/noa/config",
+      "/noa/configs",
       "/noa/secrets",
       "/noa/data"
     ]

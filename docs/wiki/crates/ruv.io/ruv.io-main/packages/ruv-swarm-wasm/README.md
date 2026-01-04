@@ -95,7 +95,7 @@ import { RuvSwarmWasm } from '@deflex.net/ruv-swarm-wasm'
 
 // Create an instance
 const client = new RuvSwarmWasm({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -122,19 +122,19 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
-import { RuvSwarmWasm, Config } from '@deflex.net/ruv-swarm-wasm'
+import { RuvSwarmWasm, configs } from '@deflex.net/ruv-swarm-wasm'
 
-const config: Config = {
-  // Detailed configuration
+const configs: configs = {
+  // Detailed configsuration
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
 }
 
-const client = new RuvSwarmWasm(config)
+const client = new RuvSwarmWasm(configs)
 ```
 
 
@@ -153,7 +153,7 @@ First, import the package in your TypeScript/JavaScript file:
 
 ```typescript
 // ES Modules
-import { RuvSwarmWasm, Config } from '@deflex.net/ruv-swarm-wasm'
+import { RuvSwarmWasm, configs } from '@deflex.net/ruv-swarm-wasm'
 
 // CommonJS
 const { RuvSwarmWasm } = require('@deflex.net/ruv-swarm-wasm')
@@ -161,11 +161,11 @@ const { RuvSwarmWasm } = require('@deflex.net/ruv-swarm-wasm')
 
 ### Create an Instance
 
-Create a new instance with optional configuration:
+Create a new instance with optional configsuration:
 
 ```typescript
 const client = new RuvSwarmWasm({
-  // Configuration options
+  // configsuration options
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
@@ -234,13 +234,13 @@ try {
 #### Constructor
 
 ```typescript
-constructor(config?: Config)
+constructor(configs?: configs)
 ```
 
 Creates a new instance of `RuvSwarmWasm`.
 
 **Parameters:**
-- `config` (optional): Configuration object
+- `configs` (optional): configsuration object
 
 **Returns:**
 - Instance of `RuvSwarmWasm`
@@ -298,10 +298,10 @@ Close the client and release resources.
 await client.close()
 ```
 
-### Configuration Interface
+### configsuration Interface
 
 ```typescript
-interface Config {
+interface configs {
   timeout?: number        // Operation timeout in ms (default: 5000)
   retries?: number        // Number of retries (default: 3)
   logLevel?: LogLevel    // Logging level (default: 'info')
@@ -450,12 +450,12 @@ try {
 }
 ```
 
-### Example 5: Advanced Configuration
+### Example 5: Advanced configsuration
 
 ```typescript
-import { RuvSwarmWasm, Config, LogLevel } from '@deflex.net/ruv-swarm-wasm'
+import { RuvSwarmWasm, configs, LogLevel } from '@deflex.net/ruv-swarm-wasm'
 
-const config: Config = {
+const configs: configs = {
   timeout: 10000,
   retries: 5,
   logLevel: 'debug',
@@ -466,7 +466,7 @@ const config: Config = {
   cacheSize: 100
 }
 
-const client = new RuvSwarmWasm(config)
+const client = new RuvSwarmWasm(configs)
 
 // Process with advanced features
 const result = await client.process(data, {

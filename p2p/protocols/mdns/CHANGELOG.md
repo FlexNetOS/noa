@@ -199,7 +199,7 @@ and move and rename `Mdns` to `async_io::Behaviour`. See [PR 3096].
 - Update dependencies.
 
 - Add support for IPv6. To enable set the multicast address
-  in `MdnsConfig` to `IPV6_MDNS_MULTICAST_ADDRESS`.
+  in `Mdnsconfigs` to `IPV6_MDNS_MULTICAST_ADDRESS`.
   See [PR 2161] for details.
 
 - Prevent timers from firing at the same time. See [PR 2212] for details.
@@ -223,23 +223,23 @@ and move and rename `Mdns` to `async_io::Behaviour`. See [PR 3096].
 
 ## 0.30.0 [2021-04-13]
 
-- Derive `Debug` and `Clone` for `MdnsConfig`.
+- Derive `Debug` and `Clone` for `Mdnsconfigs`.
 
 - Update `libp2p-swarm`.
 
 ## 0.29.0 [2021-03-17]
 
-- Introduce `MdnsConfig` with configurable TTL of discovered peer
-  records and configurable multicast query interval. The default
+- Introduce `Mdnsconfigs` with configsurable TTL of discovered peer
+  records and configsurable multicast query interval. The default
   query interval is increased from 20 seconds to 5 minutes, to
   significantly reduce bandwidth usage. To ensure timely peer
   discovery in the majority of cases, a multicast query is
   initiated whenever a change on a network interface is detected,
   which includes MDNS initialisation at node startup. If necessary
-  the MDNS query interval can be reduced via the `MdnsConfig`.
+  the MDNS query interval can be reduced via the `Mdnsconfigs`.
   The `MdnsService` has been removed from the public API, making
   it compulsory that all uses occur through the `Mdns` `NetworkBehaviour`.
-  An `MdnsConfig` must now be given to `Mdns::new()`.
+  An `Mdnsconfigs` must now be given to `Mdns::new()`.
   [PR 1977](https://github.com/libp2p/rust-libp2p/pull/1977).
 
 - Update `libp2p-swarm`.

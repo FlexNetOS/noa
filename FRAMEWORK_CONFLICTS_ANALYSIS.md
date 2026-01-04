@@ -11,7 +11,7 @@
 After reviewing the NOA policy documents (`ai/shared/resources/policy/`), several **conflicts and gaps** were identified between the implementation and the canonical NOA framework requirements.
 
 **Critical Findings:**
-1. ✅ **Aligned:** 3-layer config, provider structure, gateway MCP
+1. ✅ **Aligned:** 3-layer configs, provider structure, gateway MCP
 2. ⚠️ **Conflict:** CAS location and structure
 3. ⚠️ **Gap:** Missing sys/core microkernel subdirectories
 4. ⚠️ **Gap:** Constitution compliance not enforced
@@ -21,7 +21,7 @@ After reviewing the NOA policy documents (`ai/shared/resources/policy/`), severa
 
 ## 1. CAS (Content-Addressed Storage) Conflicts
 
-### Policy Requirement (03-CONFIG_CAS.md)
+### Policy Requirement (03-configs_CAS.md)
 
 **Canonical CAS Structure:**
 ```
@@ -31,7 +31,7 @@ ${NOA_ROOT}/
       ab/12cd34ef...              # Hash prefixes
     refs/                         # Mutable pointers
       latest-kernel
-      active-config
+      active-configs
       agent-commander
     tags/                         # Named stable references
       v1.0.0
@@ -71,14 +71,14 @@ data/cas/                         # ❌ WRONG LOCATION
    - `cas/registry/` (was `index/`)
    - `cas/gc/` (keep)
    - `cas/merkle/` (add)
-3. Update all references in configs
+3. Update all references in configss
 4. Document `data/cas/` as DEPRECATED
 
 ---
 
 ## 2. Provider Structure Conflicts
 
-### Policy Requirement (03-CONFIG_CAS.md)
+### Policy Requirement (03-configs_CAS.md)
 
 **Canonical Provider Location:**
 ```
@@ -126,38 +126,38 @@ providers/
 
 ---
 
-## 3. Configs vs Config Conflict
+## 3. configss vs configs Conflict
 
 ### Policy Framework
 
 **Constitution references:**
-- Section 3.8: "Centralized, immutable configuration baseline"
+- Section 3.8: "Centralized, immutable configsuration baseline"
 - Section 3.9: "Mutable semantic layer on top of baseline"
 - Section 3.10: "Enforcement layer validates and compiles"
 
 **CAS Policy references:**
 - "Immutable base + AI-Native mutable layer"
-- "3-layer hybrid configuration model"
+- "3-layer hybrid configsuration model"
 
 ### Current State
 
 **Old location (still exists):**
-- `config/` - Original configs (DEPRECATED but not removed)
+- `configs/` - Original configss (DEPRECATED but not removed)
 
 **New location (we created):**
-- `configs/` - 3-layer architecture
-  - `configs/base/` - Immutable
-  - `configs/semantic/` - Mutable
-  - `configs/enforcement/` - Validation
+- `configss/` - 3-layer architecture
+  - `configss/base/` - Immutable
+  - `configss/semantic/` - Mutable
+  - `configss/enforcement/` - Validation
 
 ### Resolution
 
-**Decision:** KEEP `configs/` (plural), DEPRECATE `config/` (singular)
+**Decision:** KEEP `configss/` (plural), DEPRECATE `configs/` (singular)
 
 **Action Required:**
-1. Add deprecation notice to `config/README.md`
+1. Add deprecation notice to `configs/README.md`
 2. Document migration path in constitution
-3. Plan `config/` removal after full migration
+3. Plan `configs/` removal after full migration
 
 ---
 
@@ -205,7 +205,7 @@ sys/core/
 
 **Action Required:**
 1. Create subdirectories in sys/core
-2. Move scheduler config from providers/pool → sys/core/scheduler
+2. Move scheduler configs from providers/pool → sys/core/scheduler
 3. Implement registry database
 4. Set up audit logging structure
 5. Define world model schema
@@ -214,7 +214,7 @@ sys/core/
 
 ## 5. NOA_ROOT vs NOA_HOME Gap
 
-### Policy Requirement (03-CONFIG_CAS.md)
+### Policy Requirement (03-configs_CAS.md)
 
 **Distinction:**
 - `NOA_ROOT` = Ecosystem base install anchor (shared, persistent)
@@ -225,10 +225,10 @@ sys/core/
 ### Current Implementation
 
 **What we use:**
-- `${NOA_ROOT}` - Used throughout all configs ✅
+- `${NOA_ROOT}` - Used throughout all configss ✅
 - `${NOA_HOME}` - NOT used ❌
 
-**Examples from our configs:**
+**Examples from our configss:**
 ```json
 "path": "${NOA_ROOT}/providers/local"
 "database": "${NOA_ROOT}/data/registry.db"
@@ -243,7 +243,7 @@ sys/core/
 # Shared, persistent (use NOA_ROOT)
 ${NOA_ROOT}/cas/
 ${NOA_ROOT}/providers/
-${NOA_ROOT}/configs/base/
+${NOA_ROOT}/configss/base/
 ${NOA_ROOT}/data/
 
 # Instance-specific (use NOA_HOME)
@@ -254,7 +254,7 @@ ${NOA_HOME}/tmp/
 ```
 
 **Action Required:**
-1. Update configs to use NOA_HOME where appropriate
+1. Update configss to use NOA_HOME where appropriate
 2. Document variable distinction
 3. Set default: `NOA_HOME=${NOA_ROOT}` for single-folder installs
 
@@ -298,14 +298,14 @@ ${NOA_HOME}/tmp/
 - All actions logged (who, why, what changed)
 - Human-reviewable
 
-**Status:** ⚠️ Partial (audit config exists, not enforced)
+**Status:** ⚠️ Partial (audit configs exists, not enforced)
 
 ### Resolution
 
 **Decision:** DOCUMENT constitution gaps, implement incrementally
 
 **Immediate Actions:**
-1. Add offline fallbacks to Redis/Qdrant configs
+1. Add offline fallbacks to Redis/Qdrant configss
 2. Document audit enforcement in Phase 4
 3. Plan self-improvement loop for later phase
 
@@ -337,7 +337,7 @@ ${NOA_HOME}/tmp/
 
 ## 8. Data Directory Structure Conflicts
 
-### Policy Requirement (03-CONFIG_CAS.md)
+### Policy Requirement (03-configs_CAS.md)
 
 **Canonical data structure:**
 ```
@@ -434,9 +434,9 @@ sandbox/
 sandbox/                          # Directory exists (empty)
 ```
 
-**What we have in configs:**
+**What we have in configss:**
 ```
-configs/base/sandbox-definitions/
+configss/base/sandbox-definitions/
   default-profiles.json           # ✅ Sandbox profiles defined
 ```
 
@@ -446,7 +446,7 @@ configs/base/sandbox-definitions/
 
 **Action Required:**
 1. Create subdirectories in `sandbox/`
-2. Link to `configs/base/sandbox-definitions/`
+2. Link to `configss/base/sandbox-definitions/`
 3. Implement sandbox runtime (Phase 3+)
 
 ---
@@ -463,9 +463,9 @@ configs/base/sandbox-definitions/
 ### High Priority (Should Fix)
 
 5. **NOA_HOME Variable** - Introduce for instance-specific paths
-6. **Config Deprecation** - Mark `config/` as deprecated
+6. **configs Deprecation** - Mark `configs/` as deprecated
 7. **Sandbox Runtime** - Create directory structure
-8. **Offline Fallbacks** - Add to Redis/Qdrant configs
+8. **Offline Fallbacks** - Add to Redis/Qdrant configss
 
 ### Medium Priority (Plan for Later)
 
@@ -487,8 +487,8 @@ mkdir -p cas/{objects,refs,tags,registry,gc,merkle}
 # 2. Move data/cas content (if any)
 # Note: data/cas/ was created but may be empty
 
-# 3. Update all config references
-# Update: configs, gateway, providers configs
+# 3. Update all configs references
+# Update: configss, gateway, providers configss
 ```
 
 **Priority 2: sys/core Structure**
@@ -496,7 +496,7 @@ mkdir -p cas/{objects,refs,tags,registry,gc,merkle}
 # 1. Create microkernel subdirectories
 mkdir -p sys/core/{identity,policy,secrets,audit,scheduler,world_model,registry,enforcement}
 
-# 2. Create initial configs for each
+# 2. Create initial configss for each
 # (Will implement in Phase 4)
 ```
 
@@ -512,7 +512,7 @@ mkdir -p data/{indexes,knowledge/docs,db/postgres,db/sqlite,vectors,object-store
 **Priority 4: Variable Distinction**
 ```bash
 # 1. Document NOA_ROOT vs NOA_HOME
-# 2. Update configs to use NOA_HOME for:
+# 2. Update configss to use NOA_HOME for:
 #    - logs/, cache/, tmp/, settings/resolved/
 ```
 
@@ -538,7 +538,7 @@ ${NOA_ROOT}/
 │  ├─ gc/                         # Garbage collection
 │  └─ merkle/                     # DAG structures
 │
-├─ configs/                       # ✅ 3-layer (not config/)
+├─ configss/                       # ✅ 3-layer (not configs/)
 │  ├─ base/
 │  ├─ semantic/
 │  └─ enforcement/
@@ -572,11 +572,11 @@ ${NOA_ROOT}/
 ├─ sandbox/                       # ⚠️ NEEDS runtime structure
 │  ├─ runtime/                    # NEW
 │  ├─ snapshots/                  # NEW
-│  └─ policies/                   # Link to configs/base/
+│  └─ policies/                   # Link to configss/base/
 │
 ├─ cache/                         # ✅ At root (correct)
 ├─ logs/                          # ✅ At root (correct)
-└─ settings/                      # ✅ Runtime configs
+└─ settings/                      # ✅ Runtime configss
 ```
 
 ---
@@ -584,7 +584,7 @@ ${NOA_ROOT}/
 ## 13. Constitution Compliance Checklist
 
 ### Self-Contained & Autonomous (3.1)
-- ✅ All configs use `${NOA_ROOT}`
+- ✅ All configss use `${NOA_ROOT}`
 - ⚠️ Need `${NOA_HOME}` for instance-specific
 - ✅ No hardcoded absolute paths
 
@@ -596,16 +596,16 @@ ${NOA_ROOT}/
 ### Agentic Orchestration & Hive-Mind (3.3)
 - ✅ Gateway ready for agent coordination
 - ❌ Permanent agents not yet implemented
-- ❌ Provider orchestration mode not configured
+- ❌ Provider orchestration mode not configsured
 - ⚠️ llama.cpp integration pending
 
 ### Adaptive & Self-Improving (3.4)
 - ❌ Self-modification not implemented
-- ❌ Hourly reinvention not configured
+- ❌ Hourly reinvention not configsured
 - ❌ Rollback mechanism not implemented
 
 ### Transparent & Auditable (3.5)
-- ⚠️ Audit configs exist
+- ⚠️ Audit configss exist
 - ❌ Audit enforcement not active
 - ❌ Decision logging not implemented
 
@@ -624,7 +624,7 @@ ${NOA_ROOT}/
 
 2. **Create sys/core Structure**
    - Add all subdirectories
-   - Create placeholder configs
+   - Create placeholder configss
    - Plan Phase 4 implementation
 
 3. **Update Data Directory**
@@ -669,7 +669,7 @@ ${NOA_ROOT}/
 3. **README.md**
    - Update architecture section
    - Add NOA_ROOT vs NOA_HOME explanation
-   - Document config/ → configs/ migration
+   - Document configs/ → configss/ migration
 
 4. **Gateway Integration (INTEGRATION.md)**
    - Link to sys/core/registry

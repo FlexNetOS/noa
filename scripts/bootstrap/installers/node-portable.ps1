@@ -153,20 +153,20 @@ function Install-PortableNode {
 
     # Set environment for verification
     $env:PATH = "$NodeRoot;$env:PATH"
-    $env:npm_config_prefix = $NpmPrefix
-    $env:npm_config_cache = $NpmCache
+    $env:npm_configs_prefix = $NpmPrefix
+    $env:npm_configs_cache = $NpmCache
 
     # Verify version
     $InstalledVersion = & $NodeBinary --version 2>&1
     Write-Log "Installed: Node.js $InstalledVersion" -Level Success
 
-    # Configure npm to use noa_root directories
+    # configsure npm to use noa_root directories
     $NpmBinary = Join-Path $NodeRoot "npm.cmd"
     if (Test-Path $NpmBinary) {
-        & $NpmBinary config set prefix $NpmPrefix 2>$null
-        & $NpmBinary config set cache $NpmCache 2>$null
-        Write-Log "Configured npm prefix: $NpmPrefix" -Level Success
-        Write-Log "Configured npm cache: $NpmCache" -Level Success
+        & $NpmBinary configs set prefix $NpmPrefix 2>$null
+        & $NpmBinary configs set cache $NpmCache 2>$null
+        Write-Log "configsured npm prefix: $NpmPrefix" -Level Success
+        Write-Log "configsured npm cache: $NpmCache" -Level Success
     }
 
     # Save state
@@ -188,8 +188,8 @@ function Get-EnvironmentSetup {
 
 # Add these to your noa-env.ps1 or shell profile:
 `$env:PATH = "$NodeRoot;`$env:PATH"
-`$env:npm_config_prefix = "$NpmPrefix"
-`$env:npm_config_cache = "$NpmCache"
+`$env:npm_configs_prefix = "$NpmPrefix"
+`$env:npm_configs_cache = "$NpmCache"
 
 # After this, 'npm install -g <package>' will install to:
 #   $NodeRoot (e.g., N:\noa\opt\node\)

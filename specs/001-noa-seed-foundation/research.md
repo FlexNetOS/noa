@@ -56,7 +56,7 @@ This document captures research decisions for the NOA Seed Foundation implementa
 - **vLLM**: Better throughput but heavier; overkill for single-user
 - **ONNX Runtime**: Good performance but model conversion complexity
 
-**Configuration**:
+**configsuration**:
 ```json
 {
   "default_model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
@@ -74,7 +74,7 @@ This document captures research decisions for the NOA Seed Foundation implementa
 ### Decision: SQLite with sqlite-vss for Vector Search
 
 **Rationale**:
-- Zero configuration, single-file database
+- Zero configsuration, single-file database
 - Excellent read performance for memory recall
 - sqlite-vss extension provides vector similarity search
 - Cross-platform, embedded in binary
@@ -278,7 +278,7 @@ NOA (CECCA) - Root Orchestrator
 |---------------|--------|------------|
 | Core Runtime | Rust | Performance + safety |
 | LLM Inference | llama.cpp | Offline, cross-platform |
-| Database | SQLite + sqlite-vss | Zero-config, embedded |
+| Database | SQLite + sqlite-vss | Zero-configs, embedded |
 | P2P Layer | libp2p (Go) | Mature, NAT traversal |
 | UI Framework | Next.js + React | DX, SSR, ecosystem |
 | Digest Pipeline | Python + Tree-sitter | ML ecosystem, multi-lang |

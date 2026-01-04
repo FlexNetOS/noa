@@ -62,8 +62,8 @@ use crate::web_context::WebContext;
 /// let local_key = Keypair::generate_ed25519();
 /// let transport = libp2p_websocket_websys::Transport::default()
 ///     .upgrade(Version::V1)
-///     .authenticate(noise::Config::new(&local_key).unwrap())
-///     .multiplex(yamux::Config::default())
+///     .authenticate(noise::configs::new(&local_key).unwrap())
+///     .multiplex(yamux::configs::default())
 ///     .boxed();
 /// ```
 #[derive(Default)]

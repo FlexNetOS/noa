@@ -24,10 +24,10 @@ pub async fn run(libp2p_endpoint: String) -> Result<(), JsError> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_wasm_bindgen()
         .with_other_transport(|key| {
-            webrtc_websys::Transport::new(webrtc_websys::Config::new(&key))
+            webrtc_websys::Transport::new(webrtc_websys::configs::new(&key))
         })?
-        .with_behaviour(|_| ping::Behaviour::new(ping::Config::new()))?
-        .with_swarm_config(|c| c.with_idle_connection_timeout(ping_duration))
+        .with_behaviour(|_| ping::Behaviour::new(ping::configs::new()))?
+        .with_swarm_configs(|c| c.with_idle_connection_timeout(ping_duration))
         .build();
 
     let addr = libp2p_endpoint.parse::<Multiaddr>()?;

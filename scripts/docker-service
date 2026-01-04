@@ -11,9 +11,9 @@ case "$1" in
   start)
     echo "Starting Docker (contained in $NOA_ROOT)..."
     mkdir -p $NOA_ROOT/containers/{docker-data,docker-exec}
-    $CONTAINERD_BIN --config $NOA_ROOT/etc/docker/containerd.toml &
+    $CONTAINERD_BIN --configs $NOA_ROOT/etc/docker/containerd.toml &
     sleep 2
-    $DOCKER_BIN daemon --config-file $NOA_ROOT/etc/docker/daemon.json &
+    $DOCKER_BIN daemon --configs-file $NOA_ROOT/etc/docker/daemon.json &
     ;;
   stop)
     echo "Stopping Docker..."

@@ -6,7 +6,7 @@
     Installs the Abacus AI CLI (@abacus-ai/cli) via npm.
     Requires Abacus Desktop app for initial authentication.
 
-    Provider Config: ai/providers/cloud/abacus/config.json
+    Provider configs: ai/providers/cloud/abacus/configs.json
 
 .PARAMETER NoaRoot
     Root directory for NOA installation. Defaults to N:\noa
@@ -44,9 +44,9 @@ function Write-Log {
     Write-Host "[$Level] $Message" -ForegroundColor $color
 }
 
-# Configuration
+# configsuration
 $NpmPackage = "@abacus-ai/cli"
-$ProviderConfigPath = Join-Path $NoaRoot "ai/providers/cloud/abacus"
+$ProviderconfigsPath = Join-Path $NoaRoot "ai/providers/cloud/abacus"
 
 Write-Log "Installing Abacus AI CLI..." -Level Info
 Write-Log "  Method: $Method" -Level Info
@@ -59,7 +59,7 @@ $nodePath = Join-Path $optPath "node"
 $devToolsPath = Join-Path $optPath "dev-tools"
 $npmGlobalPath = Join-Path $devToolsPath "npm-global"
 
-foreach ($dir in @($optPath, $binPath, $ProviderConfigPath, $npmGlobalPath)) {
+foreach ($dir in @($optPath, $binPath, $ProviderconfigsPath, $npmGlobalPath)) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
         Write-Log "  Created: $dir" -Level Success
@@ -83,8 +83,8 @@ switch ($Method) {
         # Set npm prefix
         $npmCache = Join-Path $optPath "npm-cache"
         New-Item -ItemType Directory -Force -Path $npmGlobalPath, $npmCache | Out-Null
-        $env:npm_config_prefix = $npmGlobalPath
-        $env:npm_config_cache = $npmCache
+        $env:npm_configs_prefix = $npmGlobalPath
+        $env:npm_configs_cache = $npmCache
 
         # Install abacus-ai
         try {
@@ -136,7 +136,7 @@ if ($abacusCmd) {
 }
 
 Write-Log "Abacus AI CLI installation complete!" -Level Success
-Write-Log "  Provider config: $ProviderConfigPath" -Level Info
+Write-Log "  Provider configs: $ProviderconfigsPath" -Level Info
 Write-Log "  Shared resources: $NoaRoot\ai\shared" -Level Info
 Write-Log ""
 Write-Log "Important: Download Abacus Desktop from https://desktop.abacus.ai/ for authentication" -Level Warning

@@ -3,13 +3,13 @@
 
 NOA_ROOT="${HOME}"
 GITEA_BIN="$NOA_ROOT/bin/gitea"
-GITEA_CONFIG="$NOA_ROOT/git/gitea/config/app.ini"
+GITEA_configs="$NOA_ROOT/git/gitea/configs/app.ini"
 
 case "$1" in
   start)
     echo "Starting Gitea (contained in $NOA_ROOT)..."
     cd $NOA_ROOT/git/gitea
-    $GITEA_BIN web --config $GITEA_CONFIG &
+    $GITEA_BIN web --configs $GITEA_configs &
     ;;
   stop)
     echo "Stopping Gitea..."

@@ -134,10 +134,10 @@ EOF
 chmod +x "$WRAPPER_PATH"
 echo "  [OK] Created wrapper: $WRAPPER_PATH"
 
-# Update provider config
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/cloud/abacus/config.json"
-if [[ -f "$PROVIDER_CONFIG" ]]; then
-    echo "  [INFO] Updating provider configuration..."
+# Update provider configs
+PROVIDER_configs="$NOA_ROOT/ai/providers/cloud/abacus/configs.json"
+if [[ -f "$PROVIDER_configs" ]]; then
+    echo "  [INFO] Updating provider configsuration..."
 
     # Use jq if available, otherwise manual JSON update
     if command -v jq &>/dev/null; then
@@ -151,12 +151,12 @@ if [[ -f "$PROVIDER_CONFIG" ]]; then
                     windows: "${NOA_ROOT}/bin/abacus-desktop.cmd",
                     unix: $wrapper
                 }
-            }' "$PROVIDER_CONFIG" > "$PROVIDER_CONFIG.tmp"
+            }' "$PROVIDER_configs" > "$PROVIDER_configs.tmp"
 
-        mv "$PROVIDER_CONFIG.tmp" "$PROVIDER_CONFIG"
-        echo "  [OK] Updated provider config"
+        mv "$PROVIDER_configs.tmp" "$PROVIDER_configs"
+        echo "  [OK] Updated provider configs"
     else
-        echo "  [WARN] jq not available, skipping config update"
+        echo "  [WARN] jq not available, skipping configs update"
     fi
 fi
 

@@ -45,13 +45,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_behaviour(|key| MyBehaviour {
             rendezvous: rendezvous::client::Behaviour::new(key.clone()),
-            ping: ping::Behaviour::new(ping::Config::new().with_interval(Duration::from_secs(1))),
+            ping: ping::Behaviour::new(ping::configs::new().with_interval(Duration::from_secs(1))),
         })?
         .build();
 

@@ -24,9 +24,9 @@ use crate::codec::MAX_FRAME_SIZE;
 
 pub(crate) const DEFAULT_MPLEX_PROTOCOL_NAME: &str = "/mplex/6.7.0";
 
-/// Configuration for the multiplexer.
+/// configsuration for the multiplexer.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// Maximum number of simultaneously used substreams.
     pub(crate) max_substreams: usize,
     /// Maximum number of frames buffered per substream.
@@ -40,9 +40,9 @@ pub struct Config {
     pub(crate) protocol_name: &'static str,
 }
 
-impl Config {
-    /// Builds the default configuration.
-    pub fn new() -> Config {
+impl configs {
+    /// Builds the default configsuration.
+    pub fn new() -> configs {
         Default::default()
     }
 
@@ -93,9 +93,9 @@ impl Config {
     /// Set the protocol name.
     ///
     /// ```rust
-    /// use libp2p_mplex::MplexConfig;
-    /// let mut muxer_config = MplexConfig::new();
-    /// muxer_config.set_protocol_name("/mplex/6.7.0");
+    /// use libp2p_mplex::Mplexconfigs;
+    /// let mut muxer_configs = Mplexconfigs::new();
+    /// muxer_configs.set_protocol_name("/mplex/6.7.0");
     /// ```
     pub fn set_protocol_name(&mut self, protocol_name: &'static str) -> &mut Self {
         self.protocol_name = protocol_name;
@@ -108,7 +108,7 @@ impl Config {
 pub enum MaxBufferBehaviour {
     /// Reset the substream whose frame buffer overflowed.
     ///
-    /// > **Note**: If more than [`Config::set_max_buffer_size()`] frames
+    /// > **Note**: If more than [`configs::set_max_buffer_size()`] frames
     /// > are received in succession for a substream in the context of
     /// > trying to read data from a different substream, the former substream
     /// > may be reset before application code had a chance to read from the
@@ -130,9 +130,9 @@ pub enum MaxBufferBehaviour {
     Block,
 }
 
-impl Default for Config {
-    fn default() -> Config {
-        Config {
+impl Default for configs {
+    fn default() -> configs {
+        configs {
             max_substreams: 128,
             max_buffer_len: 32,
             max_buffer_behaviour: MaxBufferBehaviour::Block,

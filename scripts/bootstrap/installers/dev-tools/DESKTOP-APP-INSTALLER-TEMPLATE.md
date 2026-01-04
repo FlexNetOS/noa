@@ -59,7 +59,7 @@ noa_root/
 │   ├── {app-name}-desktop.cmd    # Windows wrapper
 │   └── {app-name}-desktop        # Unix wrapper
 │
-└── ai/providers/.../config.json  # Provider config (if AI provider)
+└── ai/providers/.../configs.json  # Provider configs (if AI provider)
 ```
 
 ### Installation Flow
@@ -68,7 +68,7 @@ noa_root/
 1. Download installer → opt/{App}Setup-latest.exe
 2. Install/Extract  → opt/{app-name}-desktop/
 3. Create wrapper   → bin/{app-name}-desktop.cmd
-4. Update config    → ai/providers/.../config.json (if applicable)
+4. Update configs    → ai/providers/.../configs.json (if applicable)
 5. Verify           → Test wrapper execution
 ```
 
@@ -105,7 +105,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # ============================================================================
-# CONFIGURATION - Update these values for your app
+# configsURATION - Update these values for your app
 # ============================================================================
 
 $APP_NAME = "{app-name}"                           # e.g., "abacus", "claude", "chatgpt"
@@ -245,21 +245,21 @@ $wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
 Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
 
 # ============================================================================
-# UPDATE PROVIDER CONFIG (if AI provider)
+# UPDATE PROVIDER configs (if AI provider)
 # ============================================================================
 
 # Uncomment and adjust if this is an AI provider
 <#
-$providerConfig = Join-Path $NoaRoot "ai\providers\{cloud|local|hybrid}\$APP_NAME\config.json"
-if (Test-Path $providerConfig) {
+$providerconfigs = Join-Path $NoaRoot "ai\providers\{cloud|local|hybrid}\$APP_NAME\configs.json"
+if (Test-Path $providerconfigs) {
     try {
-        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+        $configs = Get-Content $providerconfigs -Raw | ConvertFrom-Json
 
-        if (-not $config.PSObject.Properties['desktop']) {
-            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        if (-not $configs.PSObject.Properties['desktop']) {
+            $configs | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
         }
 
-        $config.desktop = @{
+        $configs.desktop = @{
             binaryPath = @{
                 windows = "`${NOA_ROOT}/opt/$APP_NAME-desktop/$($appExe.Name)"
                 unix = "`${NOA_ROOT}/opt/$APP_NAME-desktop/bin/$APP_NAME"
@@ -270,10 +270,10 @@ if (Test-Path $providerConfig) {
             }
         }
 
-        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
-        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+        $configs | ConvertTo-Json -Depth 10 | Set-Content $providerconfigs -Encoding UTF8
+        Write-Host "  [OK] Updated provider configs" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] Failed to update provider configs: $_" -ForegroundColor Yellow
     }
 }
 #>
@@ -311,7 +311,7 @@ Write-Host ""
 set -euo pipefail
 
 # ============================================================================
-# CONFIGURATION - Update these values for your app
+# configsURATION - Update these values for your app
 # ============================================================================
 
 APP_NAME="{app-name}"                              # e.g., "abacus", "claude"
@@ -468,14 +468,14 @@ chmod +x "$WRAPPER_PATH"
 echo "  [OK] Created wrapper: $WRAPPER_PATH"
 
 # ============================================================================
-# UPDATE PROVIDER CONFIG (if AI provider)
+# UPDATE PROVIDER configs (if AI provider)
 # ============================================================================
 
 # Uncomment and adjust if this is an AI provider
 : <<'COMMENT'
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/{cloud|local|hybrid}/$APP_NAME/config.json"
-if [[ -f "$PROVIDER_CONFIG" ]]; then
-    echo "  [INFO] Updating provider configuration..."
+PROVIDER_configs="$NOA_ROOT/ai/providers/{cloud|local|hybrid}/$APP_NAME/configs.json"
+if [[ -f "$PROVIDER_configs" ]]; then
+    echo "  [INFO] Updating provider configsuration..."
 
     if command -v jq &>/dev/null; then
         jq --arg bin "$APP_BIN" --arg wrapper "$WRAPPER_PATH" \
@@ -488,12 +488,12 @@ if [[ -f "$PROVIDER_CONFIG" ]]; then
                     windows: "${NOA_ROOT}/bin/'"$APP_NAME"'-desktop.cmd",
                     unix: $wrapper
                 }
-            }' "$PROVIDER_CONFIG" > "$PROVIDER_CONFIG.tmp"
+            }' "$PROVIDER_configs" > "$PROVIDER_configs.tmp"
 
-        mv "$PROVIDER_CONFIG.tmp" "$PROVIDER_CONFIG"
-        echo "  [OK] Updated provider config"
+        mv "$PROVIDER_configs.tmp" "$PROVIDER_configs"
+        echo "  [OK] Updated provider configs"
     else
-        echo "  [WARN] jq not available, skipping config update"
+        echo "  [WARN] jq not available, skipping configs update"
     fi
 fi
 COMMENT
@@ -560,7 +560,7 @@ See the following reference implementations:
 - [ ] Verify executable name and location after install
 - [ ] Create both PowerShell (.ps1) and Bash (.sh) versions
 - [ ] Test wrapper script execution
-- [ ] Update AI provider config if applicable
+- [ ] Update AI provider configs if applicable
 - [ ] Add to bootstrap master script
 - [ ] Document any special requirements (subscriptions, auth, etc.)
 - [ ] Follow cross-platform parity (FR-088, FR-089)
@@ -599,7 +599,7 @@ See the following reference implementations:
 - Search for "{InstallerName} silent install flags"
 
 ### App won't run from custom location
-- Some apps hardcode paths - may need registry or config file edits
+- Some apps hardcode paths - may need registry or configs file edits
 - Use symbolic links as workaround if necessary
 - Consider requesting portable version from vendor
 

@@ -106,7 +106,7 @@ mod ipv4_global {
     /// Returns [`true`] if the address appears to be globally reachable
     /// as specified by the [IANA IPv4 Special-Purpose Address Registry].
     /// Whether or not an address is practically reachable will depend on your network
-    /// configuration.
+    /// configsuration.
     ///
     /// Most IPv4 addresses are globally reachable;
     /// unless they are specifically defined as *not* globally reachable.
@@ -214,7 +214,7 @@ mod ipv6_global {
     /// Returns [`true`] if the address appears to be globally reachable
     /// as specified by the [IANA IPv6 Special-Purpose Address Registry].
     /// Whether or not an address is practically reachable will depend on your network
-    /// configuration.
+    /// configsuration.
     ///
     /// Most IPv6 addresses are globally reachable;
     /// unless they are specifically defined as *not* globally reachable.

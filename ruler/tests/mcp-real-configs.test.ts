@@ -1,27 +1,31 @@
-// Comprehensive test to validate MCP propagation uses actual configs, not examples
+// Comprehensive test to validate MCP propagation uses actual configss, not examples
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import os from 'os';
-import { applyAllAgentConfigs } from '../src/lib';
+import { applyAllAgentconfigss } from '../src/lib';
 
-describe('MCP Propagation Integration - Real vs Example Configs', () => {
+describe( 'MCP Propagation Integration - Real vs Example configss', () =>
+{
   let tmpDir: string;
 
-  beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-real-test-'));
-  });
+  beforeEach( async () =>
+  {
+    tmpDir = await fs.mkdtemp( path.join( os.tmpdir(), 'mcp-real-test-' ) );
+  } );
 
-  afterEach(async () => {
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  });
+  afterEach( async () =>
+  {
+    await fs.rm( tmpDir, { recursive: true, force: true } );
+  } );
 
-  it('should propagate actual TOML configurations, never example configs', async () => {
+  it( 'should propagate actual TOML configsurations, never example configss', async () =>
+  {
     // Create .ruler directory with custom MCP servers
-    const rulerDir = path.join(tmpDir, '.ruler');
-    await fs.mkdir(rulerDir);
+    const rulerDir = path.join( tmpDir, '.ruler' );
+    await fs.mkdir( rulerDir );
 
     // Create AGENTS.md 
-    await fs.writeFile(path.join(rulerDir, 'AGENTS.md'), '# Test instructions');
+    await fs.writeFile( path.join( rulerDir, 'AGENTS.md' ), '# Test instructions' );
 
     // Create ruler.toml with REAL, user-defined MCP servers (not examples)
     const tomlContent = `
@@ -34,12 +38,12 @@ command = "uvx"
 args = ["real-api-server"]
 env = { API_TOKEN = "real-token-12345" }
 `;
-    await fs.writeFile(path.join(rulerDir, 'ruler.toml'), tomlContent);
+    await fs.writeFile( path.join( rulerDir, 'ruler.toml' ), tomlContent );
 
-    // Apply ruler configuration for OpenHands
-    await applyAllAgentConfigs(
+    // Apply ruler configsuration for OpenHands
+    await applyAllAgentconfigss(
       tmpDir,
-      ['openhands'],
+      [ 'openhands' ],
       undefined,
       true, // mcp enabled
       undefined,
@@ -49,35 +53,36 @@ env = { API_TOKEN = "real-token-12345" }
       true   // local only
     );
 
-    // Verify OpenHands config exists and contains ONLY the user-defined servers
-    const openHandsConfigPath = path.join(tmpDir, 'config.toml');
-    const configExists = await fs.access(openHandsConfigPath).then(() => true).catch(() => false);
-    expect(configExists).toBe(true);
+    // Verify OpenHands configs exists and contains ONLY the user-defined servers
+    const openHandsconfigsPath = path.join( tmpDir, 'configs.toml' );
+    const configsExists = await fs.access( openHandsconfigsPath ).then( () => true ).catch( () => false );
+    expect( configsExists ).toBe( true );
 
-    const configContent = await fs.readFile(openHandsConfigPath, 'utf8');
-    
+    const configsContent = await fs.readFile( openHandsconfigsPath, 'utf8' );
+
     // Should contain the REAL user-defined servers
-    expect(configContent).toContain('user_real_filesystem');
-    expect(configContent).toContain('user_real_api');
-    expect(configContent).toContain('real-filesystem-server');
-    expect(configContent).toContain('real-api-server');
-    expect(configContent).toContain('API_TOKEN = "real-token-12345"');
+    expect( configsContent ).toContain( 'user_real_filesystem' );
+    expect( configsContent ).toContain( 'user_real_api' );
+    expect( configsContent ).toContain( 'real-filesystem-server' );
+    expect( configsContent ).toContain( 'real-api-server' );
+    expect( configsContent ).toContain( 'API_TOKEN = "real-token-12345"' );
 
     // Should NOT contain any example server names or commands
-    expect(configContent).not.toContain('example_stdio');
-    expect(configContent).not.toContain('example_remote');
-    expect(configContent).not.toContain('filesystem_server'); // from integration test
-    expect(configContent).not.toContain('remote_api'); // from integration test
-    expect(configContent).not.toContain('scripts/your-mcp-server.js');
-    expect(configContent).not.toContain('api.example.com');
-  });
+    expect( configsContent ).not.toContain( 'example_stdio' );
+    expect( configsContent ).not.toContain( 'example_remote' );
+    expect( configsContent ).not.toContain( 'filesystem_server' ); // from integration test
+    expect( configsContent ).not.toContain( 'remote_api' ); // from integration test
+    expect( configsContent ).not.toContain( 'scripts/your-mcp-server.js' );
+    expect( configsContent ).not.toContain( 'api.example.com' );
+  } );
 
-  it('should merge TOML and JSON sources correctly, not use examples', async () => {
+  it( 'should merge TOML and JSON sources correctly, not use examples', async () =>
+  {
     // Create .ruler directory
-    const rulerDir = path.join(tmpDir, '.ruler');
-    await fs.mkdir(rulerDir);
+    const rulerDir = path.join( tmpDir, '.ruler' );
+    await fs.mkdir( rulerDir );
 
-    await fs.writeFile(path.join(rulerDir, 'AGENTS.md'), '# Test instructions');
+    await fs.writeFile( path.join( rulerDir, 'AGENTS.md' ), '# Test instructions' );
 
     // Create ruler.toml with one server
     const tomlContent = `
@@ -85,23 +90,23 @@ env = { API_TOKEN = "real-token-12345" }
 command = "npx"
 args = ["toml-mcp-tool"]
 `;
-    await fs.writeFile(path.join(rulerDir, 'ruler.toml'), tomlContent);
+    await fs.writeFile( path.join( rulerDir, 'ruler.toml' ), tomlContent );
 
     // Create legacy mcp.json with another server
     const mcpJson = {
       mcpServers: {
         json_server: {
-          command: "uvx", 
-          args: ["json-mcp-tool"]
+          command: "uvx",
+          args: [ "json-mcp-tool" ]
         }
       }
     };
-    await fs.writeFile(path.join(rulerDir, 'mcp.json'), JSON.stringify(mcpJson));
+    await fs.writeFile( path.join( rulerDir, 'mcp.json' ), JSON.stringify( mcpJson ) );
 
-    // Apply ruler configuration for OpenHands
-    await applyAllAgentConfigs(
+    // Apply ruler configsuration for OpenHands
+    await applyAllAgentconfigss(
       tmpDir,
-      ['openhands'],
+      [ 'openhands' ],
       undefined,
       true, // mcp enabled
       undefined,
@@ -111,39 +116,40 @@ args = ["toml-mcp-tool"]
       true   // local only
     );
 
-    const openHandsConfigPath = path.join(tmpDir, 'config.toml');
-    const configContent = await fs.readFile(openHandsConfigPath, 'utf8');
-    
+    const openHandsconfigsPath = path.join( tmpDir, 'configs.toml' );
+    const configsContent = await fs.readFile( openHandsconfigsPath, 'utf8' );
+
     // Should contain BOTH user-defined servers from merged sources
-    expect(configContent).toContain('toml_server');
-    expect(configContent).toContain('json_server');
-    expect(configContent).toContain('toml-mcp-tool');
-    expect(configContent).toContain('json-mcp-tool');
+    expect( configsContent ).toContain( 'toml_server' );
+    expect( configsContent ).toContain( 'json_server' );
+    expect( configsContent ).toContain( 'toml-mcp-tool' );
+    expect( configsContent ).toContain( 'json-mcp-tool' );
 
-    // Should NOT contain example configs
-    expect(configContent).not.toContain('example');
-    expect(configContent).not.toContain('filesystem_server');
-    expect(configContent).not.toContain('remote_api');
-  });
+    // Should NOT contain example configss
+    expect( configsContent ).not.toContain( 'example' );
+    expect( configsContent ).not.toContain( 'filesystem_server' );
+    expect( configsContent ).not.toContain( 'remote_api' );
+  } );
 
-  it('should create no OpenHands config when no MCP servers are defined', async () => {
+  it( 'should create no OpenHands configs when no MCP servers are defined', async () =>
+  {
     // Create .ruler directory with NO MCP servers
-    const rulerDir = path.join(tmpDir, '.ruler');
-    await fs.mkdir(rulerDir);
+    const rulerDir = path.join( tmpDir, '.ruler' );
+    await fs.mkdir( rulerDir );
 
-    await fs.writeFile(path.join(rulerDir, 'AGENTS.md'), '# Test instructions');
+    await fs.writeFile( path.join( rulerDir, 'AGENTS.md' ), '# Test instructions' );
 
     // ruler.toml with NO mcp_servers section
     const tomlContent = `
 # No MCP servers defined at all
 default_agents = ["openhands"]
 `;
-    await fs.writeFile(path.join(rulerDir, 'ruler.toml'), tomlContent);
+    await fs.writeFile( path.join( rulerDir, 'ruler.toml' ), tomlContent );
 
-    // Apply ruler configuration for OpenHands
-    await applyAllAgentConfigs(
+    // Apply ruler configsuration for OpenHands
+    await applyAllAgentconfigss(
       tmpDir,
-      ['openhands'],
+      [ 'openhands' ],
       undefined,
       true, // mcp enabled
       undefined,
@@ -153,9 +159,9 @@ default_agents = ["openhands"]
       true   // local only
     );
 
-    // Should NOT create OpenHands config file when no servers are defined
-    const openHandsConfigPath = path.join(tmpDir, 'config.toml');
-    const configExists = await fs.access(openHandsConfigPath).then(() => true).catch(() => false);
-    expect(configExists).toBe(false);
-  });
-});
+    // Should NOT create OpenHands configs file when no servers are defined
+    const openHandsconfigsPath = path.join( tmpDir, 'configs.toml' );
+    const configsExists = await fs.access( openHandsconfigsPath ).then( () => true ).catch( () => false );
+    expect( configsExists ).toBe( false );
+  } );
+} );

@@ -3,7 +3,7 @@
   "type": "local",
   "priority": 1,
   "enabled": true,
-  "config": {
+  "configs": {
     "baseUrl": "http://localhost:11434",
     "modelPath": "${NOA_ROOT}/ai/shared/models/ollama"
   },

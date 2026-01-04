@@ -39,7 +39,7 @@ cas/
 └─ merkle/         # DAG structures (NEW)
 ```
 
-**Compliance:** ✅ FULL (matches 03-CONFIG_CAS.md)
+**Compliance:** ✅ FULL (matches 03-configs_CAS.md)
 
 ---
 
@@ -77,7 +77,7 @@ sys/core/
 
 ### 3. Data Directory Structure
 
-**Policy Requirement:** `indexes/`, `knowledge/` per 03-CONFIG_CAS.md
+**Policy Requirement:** `indexes/`, `knowledge/` per 03-configs_CAS.md
 
 **Actions Taken:**
 - ✅ Created `data/indexes/` for search indexes
@@ -131,7 +131,7 @@ sandbox/
 └─ policies/
 ```
 
-**Link:** → `configs/base/sandbox-definitions/`
+**Link:** → `configss/base/sandbox-definitions/`
 
 **Compliance:** ✅ FULL (ready for implementation)
 
@@ -150,7 +150,7 @@ sandbox/
 **Mapping:**
 | Resource Type | Variable |
 |--------------|----------|
-| CAS, providers, base configs | `${NOA_ROOT}` |
+| CAS, providers, base configss | `${NOA_ROOT}` |
 | Logs, cache, runtime | `${NOA_HOME}` |
 
 **Default:**
@@ -163,7 +163,7 @@ NOA_HOME=${NOA_ROOT}  # Single-folder install
 NOA_HOME=${NOA_ROOT}/instances/v1.0.0
 ```
 
-**Compliance:** ✅ DOCUMENTED (implementation in config updates)
+**Compliance:** ✅ DOCUMENTED (implementation in configs updates)
 
 ---
 
@@ -181,7 +181,7 @@ ${NOA_ROOT}/
 │  ├─ gc/                         ✅
 │  └─ merkle/                     ✅ NEW
 │
-├─ configs/                       ✅ 3-layer
+├─ configss/                       ✅ 3-layer
 │  ├─ base/
 │  ├─ semantic/
 │  └─ enforcement/
@@ -218,7 +218,7 @@ ${NOA_ROOT}/
 │  ├─ snapshots/                  ✅ NEW
 │  └─ policies/                   ✅ NEW
 │
-├─ settings/                      ✅ Runtime configs
+├─ settings/                      ✅ Runtime configss
 ├─ cache/                         ✅ At root
 └─ logs/                          ✅ At root
 ```
@@ -251,7 +251,7 @@ ls -la sandbox/
 3. **`docs/NOA_ROOT_vs_NOA_HOME.md`**
    - Variable distinction explained
    - Usage patterns and best practices
-   - Configuration examples
+   - configsuration examples
    - Migration guide
 
 4. **`PHASE_2.5_COMPLETE.md`** (this file)
@@ -292,7 +292,7 @@ ls -la sandbox/
 ### Old Structure Still Exists
 
 **For safety, old directories not removed:**
-- `config/` → Deprecated (use `configs/`)
+- `configs/` → Deprecated (use `configss/`)
 - `data/cas/` → Empty (use `cas/`)
 - `ai/providers/` → Migrated (use `providers/`)
 
@@ -300,11 +300,11 @@ ls -la sandbox/
 ```bash
 # Backup old structure
 mkdir -p .backups/pre-phase-2.5
-mv config .backups/pre-phase-2.5/
+mv configs .backups/pre-phase-2.5/
 rm -rf data/cas  # If empty
 
 # Or mark as deprecated
-echo "DEPRECATED: Use configs/ instead" > config/DEPRECATED.txt
+echo "DEPRECATED: Use configss/ instead" > configs/DEPRECATED.txt
 ```
 
 ---
@@ -377,7 +377,7 @@ echo "DEPRECATED: Use configs/ instead" > config/DEPRECATED.txt
    - Add snapshot registry
 
 3. **Create Refs and Tags**
-   - Set up initial refs (latest-kernel, active-config)
+   - Set up initial refs (latest-kernel, active-configs)
    - Create version tags (v1.0.0)
 
 4. **Implement Bounded Cache**
@@ -400,7 +400,7 @@ echo "DEPRECATED: Use configs/ instead" > config/DEPRECATED.txt
 
 3. **Implement sys/core/policy**
    - Capability-based policies
-   - Link to configs/semantic/capabilities
+   - Link to configss/semantic/capabilities
    - Enforcement hooks
 
 ---

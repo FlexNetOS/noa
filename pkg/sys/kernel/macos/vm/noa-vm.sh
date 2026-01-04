@@ -115,7 +115,7 @@ create_vm() {
         tart clone ghcr.io/cirruslabs/ubuntu:latest "$VM_NAME"
     fi
 
-    # Configure resources
+    # configsure resources
     tart set "$VM_NAME" --memory "$MEMORY" --cpu "$CPUS"
 
     echo -e "${GREEN}  [OK] VM created: $VM_NAME${NC}"
@@ -176,7 +176,7 @@ status_vm() {
         echo -e "  State: ${YELLOW}Stopped${NC}"
     fi
 
-    # Show config
+    # Show configs
     tart get "$VM_NAME" 2>/dev/null | grep -E "cpu|memory" | while read line; do
         echo -e "  ${GRAY}$line${NC}"
     done

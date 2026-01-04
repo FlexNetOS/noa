@@ -41,14 +41,14 @@ I did my best to be gentle in my review 🖕, but there are some serious stinks 
 
 ## Overzealous Revert Deletes Real Files
 
-⛈️ **Revert tries to “clean up” `config.toml`, risking deletion of legitimate project files.**
+⛈️ **Revert tries to “clean up” `configs.toml`, risking deletion of legitimate project files.**
 
-- The revert engine includes a hard-coded list of extra files to remove, including a generic `config.toml`. Seriously?! ☠️ This is risky: projects often have a real root TOML config unrelated to Ruler. 🤦
+- The revert engine includes a hard-coded list of extra files to remove, including a generic `configs.toml`. Seriously?! ☠️ This is risky: projects often have a real root TOML configs unrelated to Ruler. 🤦
 - While backups are restored if present, otherwise the file is unlinked outright. Insane!!! 👿 This can cause unexpected data loss in real repos after a trial run of Ruler.
 
 ### Files
 - `src/core/revert-engine.ts`
-- `src/paths/mcp.ts` (OpenHands uses `config.toml` in project root)
+- `src/paths/mcp.ts` (OpenHands uses `configs.toml` in project root)
 - `src/core/apply-engine.ts`
 
 ### Code
@@ -62,15 +62,15 @@ I did my best to be gentle in my review 🖕, but there are some serious stinks 
       '.vscode/mcp.json',
       '.cursor/mcp.json',
       '.kilocode/mcp.json',
-      'config.toml',
+      'configs.toml',
     ];
     ```
-- OpenHands target path is exactly `config.toml`:
+- OpenHands target path is exactly `configs.toml`:
   - Lines 38–41: https://github.com/intellectronica/ruler/blob/main/src/paths/mcp.ts#L38-L41
     ```typescript
     case 'Open Hands':
-      // For Open Hands, we target the main config file, not a separate mcp.json
-      candidates.push(path.join(projectRoot, 'config.toml'));
+      // For Open Hands, we target the main configs file, not a separate mcp.json
+      candidates.push(path.join(projectRoot, 'configs.toml'));
     ```
 
 ### Recommendations
@@ -78,7 +78,7 @@ I did my best to be gentle in my review 🖕, but there are some serious stinks 
   - Have a Ruler provenance marker (write one when creating).
   - Or have a corresponding `.bak`.
   - Or match a manifest recorded during `apply`.
-- In `removeAdditionalAgentFiles`, gate `config.toml` removal behind “contains OpenHands MCP markers” (e.g., known section keys) or backup presence only.
+- In `removeAdditionalAgentFiles`, gate `configs.toml` removal behind “contains OpenHands MCP markers” (e.g., known section keys) or backup presence only.
 - Add an explicit warning + `--force-extra-cleanup` flag before removing any “generic” files.
 ```
 

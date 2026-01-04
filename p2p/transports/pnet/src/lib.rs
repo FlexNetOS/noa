@@ -20,7 +20,7 @@
 
 //! Implementation of the [pnet](https://github.com/libp2p/specs/blob/master/pnet/Private-Networks-PSK-V1.md) protocol.
 //| The `pnet` protocol implements *Pre-shared Key Based Private Networks in libp2p*.
-//! Libp2p nodes configured with a pre-shared key can only communicate with other nodes with
+//! Libp2p nodes configsured with a pre-shared key can only communicate with other nodes with
 //! the same key.
 
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
@@ -65,7 +65,7 @@ impl PreSharedKey {
     /// Compute PreSharedKey fingerprint identical to the go-libp2p fingerprint.
     /// The computation of the fingerprint is not specified in the spec.
     ///
-    /// This provides a way to check that private keys are properly configured
+    /// This provides a way to check that private keys are properly configsured
     /// without dumping the key itself to the console.
     pub fn fingerprint(&self) -> Fingerprint {
         use std::io::{Read, Write};
@@ -187,13 +187,13 @@ impl error::Error for KeyParseError {
     }
 }
 
-/// Private network configuration
+/// Private network configsuration
 #[derive(Debug, Copy, Clone)]
-pub struct PnetConfig {
+pub struct Pnetconfigs {
     /// the PreSharedKey to use for encryption
     key: PreSharedKey,
 }
-impl PnetConfig {
+impl Pnetconfigs {
     pub fn new(key: PreSharedKey) -> Self {
         Self { key }
     }

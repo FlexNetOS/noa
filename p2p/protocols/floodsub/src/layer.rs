@@ -46,7 +46,7 @@ use crate::{
         FloodsubSubscriptionAction,
     },
     topic::Topic,
-    Config,
+    configs,
 };
 
 #[deprecated = "Use `Behaviour` instead."]
@@ -57,7 +57,7 @@ pub struct Behaviour {
     /// Events that need to be yielded to the outside when polling.
     events: VecDeque<ToSwarm<Event, FloodsubRpc>>,
 
-    config: Config,
+    configs: configs,
 
     /// List of peers to send messages to.
     target_peers: FnvHashSet<PeerId>,
@@ -77,16 +77,16 @@ pub struct Behaviour {
 }
 
 impl Behaviour {
-    /// Creates a `Floodsub` with default configuration.
+    /// Creates a `Floodsub` with default configsuration.
     pub fn new(local_peer_id: PeerId) -> Self {
-        Self::from_config(Config::new(local_peer_id))
+        Self::from_configs(configs::new(local_peer_id))
     }
 
-    /// Creates a `Floodsub` with the given configuration.
-    pub fn from_config(config: Config) -> Self {
+    /// Creates a `Floodsub` with the given configsuration.
+    pub fn from_configs(configs: configs) -> Self {
         Behaviour {
             events: VecDeque::new(),
-            config,
+            configs,
             target_peers: FnvHashSet::default(),
             connected_peers: HashMap::new(),
             subscribed_topics: SmallVec::new(),
@@ -221,7 +221,7 @@ impl Behaviour {
         check_self_subscriptions: bool,
     ) {
         let message = FloodsubMessage {
-            source: self.config.local_peer_id,
+            source: self.configs.local_peer_id,
             data: data.into(),
             // If the sequence numbers are predictable, then an attacker could flood the network
             // with packets with the predetermined sequence numbers and absorb our legitimate
@@ -242,7 +242,7 @@ impl Behaviour {
                     e,
                 );
             }
-            if self.config.subscribe_local_messages {
+            if self.configs.subscribe_local_messages {
                 self.events
                     .push_back(ToSwarm::GenerateEvent(Event::Message(message.clone())));
             }

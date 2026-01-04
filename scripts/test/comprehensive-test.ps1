@@ -81,7 +81,7 @@ Test-Component "Directory Structure" {
     (Test-Path "sys/core") -and 
     (Test-Path "sys/ui") -and 
     (Test-Path "init") -and 
-    (Test-Path "config") -and 
+    (Test-Path "configs") -and 
     (Test-Path "bin")
 }
 
@@ -217,10 +217,10 @@ Test-Component "Specification" {
     Test-Path "specs/001-noa-seed-foundation/spec.md"
 }
 
-Write-Host "`n=== PHASE 10: CONFIGURATION ===" -ForegroundColor Cyan
+Write-Host "`n=== PHASE 10: configsURATION ===" -ForegroundColor Cyan
 
-Test-Component "Config Directory" {
-    Test-Path "config"
+Test-Component "configs Directory" {
+    Test-Path "configs"
 }
 
 Test-Component "Data Directory" {

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../config/schemas/capsule.schema.json",
+  "$schema": "../../../configs/schemas/capsule.schema.json",
   "name": "task-agent",
   "version": "1.0.0",
   "description": "Capsule for task execution agents",

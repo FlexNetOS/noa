@@ -11,7 +11,7 @@
 
 - Add `hide_listen_addrs` option to prevent leaking (local) listen addresses.
   See [PR 5507](https://github.com/libp2p/rust-libp2p/pull/5507).
-- Make `identify::Config` fields private and add getter functions.
+- Make `identify::configs` fields private and add getter functions.
   See [PR 5663](https://github.com/libp2p/rust-libp2p/pull/5663).
 - Discard `Info`s received from remote peers that contain a public key that doesn't match their peer ID.
   See [PR 5707](https://github.com/libp2p/rust-libp2p/pull/5707).
@@ -31,7 +31,7 @@
 ## 0.44.2
 
 - Emit `ToSwarm::NewExternalAddrOfPeer` for all external addresses of remote peers.
-  For this work, the address cache must be enabled via `identify::Config::with_cache_size`.
+  For this work, the address cache must be enabled via `identify::configs::with_cache_size`.
   The default is 0, i.e. disabled.
   See [PR 4371](https://github.com/libp2p/rust-libp2p/pull/4371).
 
@@ -125,7 +125,7 @@
 
 ## 0.41.0
 
-- Change default `cache_size` of `Config` to 100. See [PR 2995].
+- Change default `cache_size` of `configs` to 100. See [PR 2995].
 
 - Update to `prost-codec` `v0.3.0`.
 
@@ -252,7 +252,7 @@
 
 ## 0.29.0 [2021-04-13]
 
-- Add support for configurable automatic push to connected peers
+- Add support for configsurable automatic push to connected peers
   on listen addr changes. Disabled by default.
   [PR 2004](https://github.com/libp2p/rust-libp2p/pull/2004)
 

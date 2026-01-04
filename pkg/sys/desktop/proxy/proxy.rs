@@ -1,4 +1,4 @@
-use crate::proxy_config::{load_rules, ProxyConfig, ProxyRule};
+use crate::proxy_configs::{load_rules, Proxyconfigs, ProxyRule};
 use anyhow::Result;
 use hyper::body::to_bytes;
 use hyper::client::HttpConnector;
@@ -14,14 +14,14 @@ use tracing::{error, info};
 #[derive(Clone)]
 pub(crate) struct SharedState {
     client: Client<HttpConnector>,
-    config: ProxyConfig,
+    configs: Proxyconfigs,
     rules: Arc<RwLock<Vec<ProxyRule>>>,
 }
 
 /// Start a lightweight HTTP proxy for desktop apps.
-pub async fn start_proxy(config: ProxyConfig) -> Result<()> {
-    let addr: SocketAddr = format!("{}:{}", config.host, config.port).parse()?;
-    let rules_dir = config.rules_directory.clone();
+pub async fn start_proxy(configs: Proxyconfigs) -> Result<()> {
+    let addr: SocketAddr = format!("{}:{}", configs.host, configs.port).parse()?;
+    let rules_dir = configs.rules_directory.clone();
     let rules = if let Some(dir) = rules_dir {
         load_rules(&dir)?
     } else {
@@ -30,7 +30,7 @@ pub async fn start_proxy(config: ProxyConfig) -> Result<()> {
 
     let shared = SharedState {
         client: Client::new(),
-        config: config.clone(),
+        configs: configs.clone(),
         rules: Arc::new(RwLock::new(rules)),
     };
 
@@ -67,16 +67,16 @@ async fn handle_request(req: Request<Body>, state: SharedState) -> Result<Respon
         return Ok(resp);
     }
 
-    // If no upstream configured, bail out early
+    // If no upstream configsured, bail out early
     let upstream = match state
-        .config
+        .configs
         .default_upstream
         .as_ref()
         .and_then(|u| u.parse::<Uri>().ok())
     {
         Some(uri) => uri,
         None => {
-            let body = Body::from("no upstream configured for NDCL proxy");
+            let body = Body::from("no upstream configsured for NDCL proxy");
             let resp = Response::builder()
                 .status(502)
                 .body(body)

@@ -10,7 +10,7 @@ Desktop applications typically store data in system-wide locations **OUTSIDE** `
 
 ### Windows Default Behavior (❌ VIOLATES FR-001)
 ```
-C:\Users\{username}\AppData\Roaming\{App}\   # Application configs, sync data
+C:\Users\{username}\AppData\Roaming\{App}\   # Application configss, sync data
 C:\Users\{username}\AppData\Local\{App}\     # Cache, logs, local data
 C:\Users\{username}\AppData\LocalLow\{App}\  # Low integrity data
 C:\Users\{username}\AppData\Local\Temp\      # Temporary files
@@ -18,7 +18,7 @@ C:\Users\{username}\AppData\Local\Temp\      # Temporary files
 
 ###Unix Default Behavior (❌ VIOLATES FR-001)
 ```
-~/.config/{app}/       # XDG_CONFIG_HOME
+~/.configs/{app}/       # XDG_configs_HOME
 ~/.local/share/{app}/  # XDG_DATA_HOME
 ~/.cache/{app}/        # XDG_CACHE_HOME
 ~/.local/state/{app}/  # XDG_STATE_HOME
@@ -54,7 +54,7 @@ After:  N:\noa\data\appdata\roaming\Claude\      ✅ CONTAINED
 ```bash
 # XDG Base Directory specification (FR-001: Self-contained operation)
 export XDG_DATA_HOME=$NOA_ROOT/data
-export XDG_CONFIG_HOME=$NOA_ROOT/etc
+export XDG_configs_HOME=$NOA_ROOT/etc
 export XDG_CACHE_HOME=$NOA_ROOT/data/cache
 export XDG_STATE_HOME=$NOA_ROOT/data/state
 export XDG_RUNTIME_DIR=$NOA_ROOT/tmp/runtime
@@ -65,7 +65,7 @@ export TMP=$NOA_ROOT/tmp
 
 **Result**:
 ```
-Before: ~/.config/claude/
+Before: ~/.configs/claude/
 After:  /path/to/noa/etc/claude/                ✅ CONTAINED
 ```
 
@@ -76,9 +76,9 @@ noa_root/
 ├── data/                       # Persistent application data
 │   ├── appdata/                # Windows AppData hierarchy
 │   │   ├── roaming/            # Sync-able data ($APPDATA)
-│   │   │   ├── Claude/         # Claude Desktop config
-│   │   │   ├── Abacus/         # Abacus Desktop config
-│   │   │   └── OpenAI/         # ChatGPT Desktop config
+│   │   │   ├── Claude/         # Claude Desktop configs
+│   │   │   ├── Abacus/         # Abacus Desktop configs
+│   │   │   └── OpenAI/         # ChatGPT Desktop configs
 │   │   └── local/              # Machine-local data ($LOCALAPPDATA)
 │   │       ├── Claude/         # Claude cache/logs
 │   │       ├── Abacus/         # Abacus cache/logs
@@ -89,10 +89,10 @@ noa_root/
 │   ├── knowledge/              # Knowledge graphs
 │   └── artifacts/              # CAS artifacts
 │
-├── etc/                        # XDG_CONFIG_HOME (Unix)
-│   ├── claude/                 # Claude config (Unix)
-│   ├── abacus/                 # Abacus config (Unix)
-│   └── chatgpt/                # ChatGPT config (Unix)
+├── etc/                        # XDG_configs_HOME (Unix)
+│   ├── claude/                 # Claude configs (Unix)
+│   ├── abacus/                 # Abacus configs (Unix)
+│   └── chatgpt/                # ChatGPT configs (Unix)
 │
 └── tmp/                        # TEMP, TMP, TMPDIR
     ├── runtime/                # XDG_RUNTIME_DIR
@@ -121,7 +121,7 @@ Desktop apps launched through NOA wrappers inherit redirected environment:
 # bin/claude-desktop.cmd
 "N:\noa\opt\claude-desktop\Claude.exe" %*
 # ↑ Inherits $env:APPDATA = N:\noa\data\appdata\roaming
-# ↓ Writes config to N:\noa\data\appdata\roaming\Claude\
+# ↓ Writes configs to N:\noa\data\appdata\roaming\Claude\
 ```
 
 ### 3. Automatic Containment
@@ -129,8 +129,8 @@ Desktop apps launched through NOA wrappers inherit redirected environment:
 Applications automatically write to NOA directories:
 
 ```
-App tries to access: %APPDATA%\Claude\config.json
-Windows resolves:    N:\noa\data\appdata\roaming\Claude\config.json
+App tries to access: %APPDATA%\Claude\configs.json
+Windows resolves:    N:\noa\data\appdata\roaming\Claude\configs.json
 ✅ Contained within noa_root
 ```
 
@@ -140,7 +140,7 @@ Desktop app installers MUST use redirected paths:
 
 ### ❌ WRONG (System AppData)
 ```powershell
-$configPath = "$env:APPDATA\Claude\config.json"
+$configsPath = "$env:APPDATA\Claude\configs.json"
 # If run BEFORE sourcing noa-env.ps1, writes to C:\Users\...
 ```
 
@@ -148,34 +148,34 @@ $configPath = "$env:APPDATA\Claude\config.json"
 ```powershell
 # Option 1: Source noa-env.ps1 first (recommended)
 . "$NoaRoot\noa-env.ps1"
-$configPath = "$env:APPDATA\Claude\config.json"
-# → N:\noa\data\appdata\roaming\Claude\config.json
+$configsPath = "$env:APPDATA\Claude\configs.json"
+# → N:\noa\data\appdata\roaming\Claude\configs.json
 
 # Option 2: Explicit NOA path construction
 $noaAppData = Join-Path $NoaRoot "data\appdata\roaming"
-$configPath = Join-Path $noaAppData "Claude\config.json"
-# → N:\noa\data\appdata\roaming\Claude\config.json
+$configsPath = Join-Path $noaAppData "Claude\configs.json"
+# → N:\noa\data\appdata\roaming\Claude\configs.json
 ```
 
-## Example: Claude Desktop MCP Config
+## Example: Claude Desktop MCP configs
 
 **Updated installer** (`claude-desktop.ps1:135-143`):
 
 ```powershell
 # Use NOA AppData (FR-001: Self-contained within noa_root)
 $noaAppData = Join-Path $NoaRoot "data\appdata\roaming"
-$mcpConfigPath = Join-Path $noaAppData "Claude\claude_desktop_config.json"
+$mcpconfigsPath = Join-Path $noaAppData "Claude\claude_desktop_configs.json"
 
 # Create directory within NOA
-$mcpConfigDir = Split-Path -Parent $mcpConfigPath
-if (-not (Test-Path $mcpConfigDir)) {
-    New-Item -ItemType Directory -Path $mcpConfigDir -Force | Out-Null
+$mcpconfigsDir = Split-Path -Parent $mcpconfigsPath
+if (-not (Test-Path $mcpconfigsDir)) {
+    New-Item -ItemType Directory -Path $mcpconfigsDir -Force | Out-Null
 }
 ```
 
 **Result**:
 ```
-Config location: N:\noa\data\appdata\roaming\Claude\claude_desktop_config.json
+configs location: N:\noa\data\appdata\roaming\Claude\claude_desktop_configs.json
 ✅ CONTAINED within noa_root
 ```
 
@@ -214,7 +214,7 @@ Config location: N:\noa\data\appdata\roaming\Claude\claude_desktop_config.json
 - `$env:TEMP` → `noa_root/tmp`
 
 ### Unix (Linux/macOS)
-- `XDG_CONFIG_HOME` → `noa_root/etc`
+- `XDG_configs_HOME` → `noa_root/etc`
 - `XDG_DATA_HOME` → `noa_root/data`
 - `XDG_CACHE_HOME` → `noa_root/data/cache`
 - `XDG_STATE_HOME` → `noa_root/data/state`
@@ -234,7 +234,7 @@ Write-Host $env:APPDATA
 
 # Unix
 source .noa-env
-echo $XDG_CONFIG_HOME
+echo $XDG_configs_HOME
 # Expected: /path/to/noa/etc
 ```
 
@@ -243,7 +243,7 @@ echo $XDG_CONFIG_HOME
 ```powershell
 # After installing Claude Desktop
 Get-ChildItem -Recurse N:\noa\data\appdata\roaming\Claude
-# Should show: claude_desktop_config.json
+# Should show: claude_desktop_configs.json
 ```
 
 ### Test Containment
@@ -270,11 +270,11 @@ Get-ChildItem C:\Users\$env:USERNAME\AppData -Recurse -Filter "*abacus*"
 claude-desktop
 ```
 
-### Config not found after moving noa_root
+### configs not found after moving noa_root
 
-**Cause**: Absolute paths in config files
+**Cause**: Absolute paths in configs files
 
-**Fix**: Use `${NOA_ROOT}` variable in configs:
+**Fix**: Use `${NOA_ROOT}` variable in configss:
 ```json
 {
   "path": "${NOA_ROOT}/ai/mcp/server.js"
@@ -286,7 +286,7 @@ claude-desktop
 **Cause**: App hardcodes paths
 
 **Solutions**:
-1. Check app settings for config location override
+1. Check app settings for configs location override
 2. Use symbolic links: `mklink /D "C:\Users\...\AppData\Roaming\App" "N:\noa\data\appdata\roaming\App"`
 3. Request portable version from vendor
 

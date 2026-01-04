@@ -1,4 +1,4 @@
-import { IAgentConfig } from './IAgent';
+import { IAgentconfigs } from './IAgent';
 import { AgentsMdAgent } from './AgentsMdAgent';
 
 /**
@@ -6,44 +6,51 @@ import { AgentsMdAgent } from './AgentsMdAgent';
  * Leverages the standardized AGENTS.md approach supported natively by Cursor.
  * See: https://docs.cursor.com/en/cli/using
  */
-export class CursorAgent extends AgentsMdAgent {
-  getIdentifier(): string {
+export class CursorAgent extends AgentsMdAgent
+{
+  getIdentifier (): string
+  {
     return 'cursor';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'Cursor';
   }
 
-  async applyRulerConfig(
+  async applyRulerconfigs (
     concatenatedRules: string,
     projectRoot: string,
     _rulerMcpJson: Record<string, unknown> | null,
-    agentConfig?: IAgentConfig,
+    agentconfigs?: IAgentconfigs,
     backup = true,
-  ): Promise<void> {
+  ): Promise<void>
+  {
     // Write AGENTS.md via base class
     // Cursor natively reads AGENTS.md from the project root
-    await super.applyRulerConfig(
+    await super.applyRulerconfigs(
       concatenatedRules,
       projectRoot,
       null,
       {
-        outputPath: agentConfig?.outputPath,
+        outputPath: agentconfigs?.outputPath,
       },
       backup,
     );
   }
 
-  getMcpServerKey(): string {
+  getMcpServerKey (): string
+  {
     return 'mcpServers';
   }
 
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return true;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return true;
   }
 }

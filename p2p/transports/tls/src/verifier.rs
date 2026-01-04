@@ -47,7 +47,7 @@ use crate::certificate;
 /// > Endpoints MUST NOT negotiate lower TLS versions.
 pub(crate) static PROTOCOL_VERSIONS: &[&SupportedProtocolVersion] = &[&rustls::version::TLS13];
 /// A list of the TLS 1.3 cipher suites supported by rustls.
-// By default rustls creates client/server configs with both
+// By default rustls creates client/server configss with both
 // TLS 1.3 __and__ 1.2 cipher suites. But we don't need 1.2.
 pub(crate) static CIPHERSUITES: &[SupportedCipherSuite] = &[
     // TLS1.3 suites
@@ -58,7 +58,7 @@ pub(crate) static CIPHERSUITES: &[SupportedCipherSuite] = &[
 
 /// Implementation of the `rustls` certificate verification traits for libp2p.
 ///
-/// Only TLS 1.3 is supported. TLS 1.2 should be disabled in the configuration of `rustls`.
+/// Only TLS 1.3 is supported. TLS 1.2 should be disabled in the configsuration of `rustls`.
 #[derive(Debug)]
 pub(crate) struct Libp2pCertificateVerifier {
     /// The peer ID we intend to connect to

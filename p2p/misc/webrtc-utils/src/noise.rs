@@ -39,7 +39,7 @@ pub async fn inbound<T>(
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
-    let noise = noise::Config::new(&id_keys)
+    let noise = noise::configs::new(&id_keys)
         .unwrap()
         .with_prologue(noise_prologue(client_fingerprint, server_fingerprint));
     let info = noise.protocol_info().next().unwrap();
@@ -61,7 +61,7 @@ pub async fn outbound<T>(
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
-    let noise = noise::Config::new(&id_keys)
+    let noise = noise::configs::new(&id_keys)
         .unwrap()
         .with_prologue(noise_prologue(client_fingerprint, server_fingerprint));
     let info = noise.protocol_info().next().unwrap();

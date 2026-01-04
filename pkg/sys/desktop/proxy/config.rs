@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::{fs, io};
 
-/// Proxy configuration loaded from config/desktop-apps.json
+/// Proxy configsuration loaded from configs/desktop-apps.json
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProxyConfig {
+pub struct Proxyconfigs {
     pub host: String,
     pub port: u16,
     #[serde(default)]
@@ -55,9 +55,9 @@ pub fn load_rules(dir: &Path) -> anyhow::Result<Vec<ProxyRule>> {
     Ok(rules)
 }
 
-/// Build a default proxy configuration when config is missing.
-pub fn default_proxy_config() -> ProxyConfig {
-    ProxyConfig {
+/// Build a default proxy configsuration when configs is missing.
+pub fn default_proxy_configs() -> Proxyconfigs {
+    Proxyconfigs {
         host: "127.0.0.1".into(),
         port: 8085,
         rules_directory: None,

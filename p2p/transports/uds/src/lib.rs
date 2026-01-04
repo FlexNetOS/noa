@@ -26,9 +26,9 @@
 //!
 //! # Usage
 //!
-//! The `Config` transport supports multiaddresses of the form `/unix//tmp/foo`.
+//! The `configs` transport supports multiaddresses of the form `/unix//tmp/foo`.
 //!
-//! The `Config` structs implements the `Transport` trait of the `core` library. See the
+//! The `configs` structs implements the `Transport` trait of the `core` library. See the
 //! documentation of `core` and of libp2p in general to learn how to use the `Transport` trait.
 
 #![cfg(all(unix, not(target_os = "emscripten"), feature = "tokio"))]
@@ -62,28 +62,28 @@ pub type Listener<T> = BoxStream<
 >;
 
 macro_rules! codegen {
-    ($feature_name:expr, $config:ident, $build_listener:expr, $unix_stream:ty, $($mut_or_not:tt)*) => {
-        /// Represents the configuration for a Unix domain sockets transport capability for libp2p.
-        pub struct $config {
+    ($feature_name:expr, $configs:ident, $build_listener:expr, $unix_stream:ty, $($mut_or_not:tt)*) => {
+        /// Represents the configsuration for a Unix domain sockets transport capability for libp2p.
+        pub struct $configs {
             listeners: VecDeque<(ListenerId, Listener<Self>)>,
         }
 
-        impl $config {
-            /// Creates a new configuration object for Unix domain sockets.
-            pub fn new() -> $config {
-                $config {
+        impl $configs {
+            /// Creates a new configsuration object for Unix domain sockets.
+            pub fn new() -> $configs {
+                $configs {
                     listeners: VecDeque::new(),
                 }
             }
         }
 
-        impl Default for $config {
+        impl Default for $configs {
             fn default() -> Self {
                 Self::new()
             }
         }
 
-        impl Transport for $config {
+        impl Transport for $configs {
             type Output = $unix_stream;
             type Error = io::Error;
             type ListenerUpgrade = Ready<Result<Self::Output, Self::Error>>;
@@ -204,15 +204,15 @@ macro_rules! codegen {
 #[cfg(feature = "tokio")]
 codegen!(
     "tokio",
-    Config,
+    configs,
     |addr| async move { tokio::net::UnixListener::bind(&addr) },
     tokio::net::UnixStream,
 );
 
 // Deprecated type alias for backward compatibility
 #[cfg(feature = "tokio")]
-#[deprecated(since = "0.43.1", note = "Use `libp2p::uds::Config` instead")]
-pub type TokioUdsConfig = Config;
+#[deprecated(since = "0.43.1", note = "Use `libp2p::uds::configs` instead")]
+pub type TokioUdsconfigs = configs;
 
 /// Turns a `Multiaddr` containing a single `Unix` component into a path.
 ///
@@ -249,7 +249,7 @@ mod tests {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
     use super::multiaddr_to_path;
-    use crate::Config;
+    use crate::configs;
 
     #[test]
     fn multiaddr_to_path_conversion() {
@@ -278,7 +278,7 @@ mod tests {
         let (tx, rx) = oneshot::channel();
 
         let listener = async move {
-            let mut transport = Config::new().boxed();
+            let mut transport = configs::new().boxed();
             transport.listen_on(ListenerId::next(), addr).unwrap();
 
             let listen_addr = transport
@@ -302,7 +302,7 @@ mod tests {
         };
 
         let dialer = async move {
-            let mut uds = Config::new();
+            let mut uds = configs::new();
             let addr = rx.await.unwrap();
             let mut socket = uds
                 .dial(
@@ -324,7 +324,7 @@ mod tests {
     #[test]
     #[ignore] // TODO: for the moment unix addresses fail to parse
     fn larger_addr_denied() {
-        let mut uds = Config::new();
+        let mut uds = configs::new();
 
         let addr = "/unix//foo/bar".parse::<Multiaddr>().unwrap();
         assert!(uds.listen_on(ListenerId::next(), addr).is_err());

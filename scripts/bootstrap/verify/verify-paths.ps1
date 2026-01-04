@@ -45,7 +45,7 @@ $envVars = @(
     "NOA_ROOT",
     "NOA_BIN",
     "NOA_OPT",
-    "NOA_CONFIG",
+    "NOA_configs",
     "NOA_LOGS",
     "CARGO_HOME",
     "RUSTUP_HOME",
@@ -54,7 +54,7 @@ $envVars = @(
     "GOBIN",
     "GOCACHE",
     "GOMODCACHE",
-    "npm_config_cache",
+    "npm_configs_cache",
     "PIP_CACHE_DIR",
     "OLLAMA_MODELS",
     "HF_HOME"
@@ -74,34 +74,34 @@ foreach ($var in $envVars) {
     }
 }
 
-# Check config files for external paths
+# Check configs files for external paths
 Write-Host ""
-Write-Host "Checking configuration files..." -ForegroundColor Yellow
+Write-Host "Checking configsuration files..." -ForegroundColor Yellow
 
-$configFiles = @(
-    "config/ai-providers.json",
-    "config/shared-resources.json",
-    "config/bootstrap-tools.json"
+$configsFiles = @(
+    "configs/ai-providers.json",
+    "configs/shared-resources.json",
+    "configs/bootstrap-tools.json"
 )
 
-foreach ($configFile in $configFiles) {
-    $configPath = Join-Path $NoaRoot $configFile
-    if (Test-Path $configPath) {
-        $content = Get-Content $configPath -Raw
+foreach ($configsFile in $configsFiles) {
+    $configsPath = Join-Path $NoaRoot $configsFile
+    if (Test-Path $configsPath) {
+        $content = Get-Content $configsPath -Raw
 
         # Check for absolute paths not starting with ${NOA_ROOT} or noa_root
         $absolutePaths = [regex]::Matches($content, '(?<!"[^"]*)[A-Z]:\\[^"]+|/(?:usr|opt|home|etc)/[^"]+')
 
         if ($absolutePaths.Count -eq 0) {
-            Write-Host "  [OK] $configFile - No external paths" -ForegroundColor Green
+            Write-Host "  [OK] $configsFile - No external paths" -ForegroundColor Green
         } else {
             foreach ($match in $absolutePaths) {
-                Write-Host "  [!!] $configFile contains external path: $($match.Value)" -ForegroundColor Red
-                $violations += "CONFIG: $configFile contains $($match.Value)"
+                Write-Host "  [!!] $configsFile contains external path: $($match.Value)" -ForegroundColor Red
+                $violations += "configs: $configsFile contains $($match.Value)"
             }
         }
     } else {
-        Write-Host "  [--] $configFile (not found)" -ForegroundColor Gray
+        Write-Host "  [--] $configsFile (not found)" -ForegroundColor Gray
     }
 }
 

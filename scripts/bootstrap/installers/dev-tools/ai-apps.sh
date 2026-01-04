@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Detect and configure AI desktop applications (ChatGPT, Claude) for NOA.
+# Detect and configsure AI desktop applications (ChatGPT, Claude) for NOA.
 #
-# These apps must be manually installed; this script just detects and configures.
+# These apps must be manually installed; this script just detects and configsures.
 #
 # Usage:
 #   ./ai-apps.sh
@@ -47,14 +47,14 @@ echo ""
 echo -e "\033[33mClaude Desktop:\033[0m"
 
 CLAUDE_FOUND=false
-CLAUDE_CONFIG=""
+CLAUDE_configs=""
 
 case "$OS" in
     Darwin)
         if [[ -d "/Applications/Claude.app" ]]; then
             echo -e "  \033[32m[OK]\033[0m Found: /Applications/Claude.app"
             CLAUDE_FOUND=true
-            CLAUDE_CONFIG="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
+            CLAUDE_configs="$HOME/Library/Application Support/Claude/claude_desktop_configs.json"
         fi
         ;;
     Linux)
@@ -68,20 +68,20 @@ case "$OS" in
             if [[ -x "$path" ]]; then
                 echo -e "  \033[32m[OK]\033[0m Found: $path"
                 CLAUDE_FOUND=true
-                CLAUDE_CONFIG="$HOME/.config/claude/claude_desktop_config.json"
+                CLAUDE_configs="$HOME/.configs/claude/claude_desktop_configs.json"
                 break
             fi
         done
         ;;
 esac
 
-if $CLAUDE_FOUND && [[ -n "$CLAUDE_CONFIG" ]]; then
-    if [[ -f "$CLAUDE_CONFIG" ]]; then
-        echo -e "  \033[32m[OK]\033[0m MCP config found: $CLAUDE_CONFIG"
+if $CLAUDE_FOUND && [[ -n "$CLAUDE_configs" ]]; then
+    if [[ -f "$CLAUDE_configs" ]]; then
+        echo -e "  \033[32m[OK]\033[0m MCP configs found: $CLAUDE_configs"
     else
-        echo -e "  \033[33m[INFO]\033[0m Creating MCP config template..."
-        mkdir -p "$(dirname "$CLAUDE_CONFIG")"
-        cat > "$CLAUDE_CONFIG" << EOF
+        echo -e "  \033[33m[INFO]\033[0m Creating MCP configs template..."
+        mkdir -p "$(dirname "$CLAUDE_configs")"
+        cat > "$CLAUDE_configs" << EOF
 {
   "mcpServers": {
     "noa-tools": {
@@ -94,7 +94,7 @@ if $CLAUDE_FOUND && [[ -n "$CLAUDE_CONFIG" ]]; then
   }
 }
 EOF
-        echo -e "  \033[32m[OK]\033[0m Created: $CLAUDE_CONFIG"
+        echo -e "  \033[32m[OK]\033[0m Created: $CLAUDE_configs"
     fi
 elif ! $CLAUDE_FOUND; then
     echo -e "  \033[33m[SKIP]\033[0m Claude Desktop not found"

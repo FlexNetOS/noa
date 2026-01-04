@@ -41,7 +41,7 @@ use smallvec::SmallVec;
 
 use crate::{
     codec::{Codec, Frame, LocalStreamId, RemoteStreamId},
-    Config, MaxBufferBehaviour,
+    configs, MaxBufferBehaviour,
 };
 /// A connection identifier.
 ///
@@ -69,8 +69,8 @@ pub(crate) struct Multiplexed<C> {
     status: Status,
     /// The underlying multiplexed I/O stream.
     io: Fuse<Framed<C, Codec>>,
-    /// The configuration.
-    config: Config,
+    /// The configsuration.
+    configs: configs,
     /// The buffer of new inbound substreams that have not yet
     /// been drained by `poll_next_stream`. This buffer is
     /// effectively bounded by `max_substreams - substreams.len()`.
@@ -99,7 +99,7 @@ pub(crate) struct Multiplexed<C> {
     /// Registry of wakers for pending tasks interested in writing.
     notifier_write: Arc<NotifierWrite>,
     /// Registry of wakers for pending tasks interested in opening
-    /// an outbound substream, when the configured limit is reached.
+    /// an outbound substream, when the configsured limit is reached.
     ///
     /// As soon as the number of substreams drops below this limit,
     /// these tasks are woken.
@@ -122,12 +122,12 @@ where
     C: AsyncRead + AsyncWrite + Unpin,
 {
     /// Creates a new multiplexed I/O stream.
-    pub(crate) fn new(io: C, config: Config) -> Self {
+    pub(crate) fn new(io: C, configs: configs) -> Self {
         let id = ConnectionId(rand::random());
         tracing::debug!(connection=%id, "New multiplexed connection");
         Multiplexed {
             id,
-            config,
+            configs,
             status: Status::Open,
             io: Framed::new(io, Codec::new()).fuse(),
             open_buffer: Default::default(),
@@ -205,7 +205,7 @@ where
     /// Waits for a new inbound substream, returning the corresponding `LocalStreamId`.
     ///
     /// If the number of already used substreams (i.e. substreams that have not
-    /// yet been dropped via `drop_substream`) reaches the configured
+    /// yet been dropped via `drop_substream`) reaches the configsured
     /// `max_substreams`, any further inbound substreams are immediately reset
     /// until existing substreams are dropped.
     ///
@@ -231,7 +231,7 @@ where
             // buffer while waiting for the next inbound stream,
             // yield to give the current task a chance to read
             // from the respective substreams.
-            if num_buffered == self.config.max_buffer_len {
+            if num_buffered == self.configs.max_buffer_len {
                 cx.waker().wake_by_ref();
                 return Poll::Pending;
             }
@@ -260,11 +260,11 @@ where
         self.guard_open()?;
 
         // Check the stream limits.
-        if self.substreams.len() >= self.config.max_substreams {
+        if self.substreams.len() >= self.configs.max_substreams {
             tracing::debug!(
                 connection=%self.id,
                 total_substreams=%self.substreams.len(),
-                max_substreams=%self.config.max_substreams,
+                max_substreams=%self.configs.max_substreams,
                 "Maximum number of substreams reached"
             );
             self.notifier_open.register(cx.waker());
@@ -342,7 +342,7 @@ where
             Some(state) => {
                 // If we fell below the substream limit, notify tasks that had
                 // interest in opening an outbound substream earlier.
-                let below_limit = self.substreams.len() == self.config.max_substreams - 1;
+                let below_limit = self.substreams.len() == self.configs.max_substreams - 1;
                 if below_limit {
                     self.notifier_open.wake_all();
                 }
@@ -403,7 +403,7 @@ where
         }
 
         // Determine the size of the frame to send.
-        let frame_len = cmp::min(buf.len(), self.config.split_send_size);
+        let frame_len = cmp::min(buf.len(), self.configs.split_send_size);
 
         // Send the data frame.
         ready!(self.poll_send_frame(cx, || {
@@ -427,7 +427,7 @@ where
     /// stream's full buffer first.
     ///
     /// New inbound substreams (i.e. `Open` frames) read in the context of
-    /// this method call are buffered up to the configured `max_substreams`
+    /// this method call are buffered up to the configsured `max_substreams`
     /// and under consideration of the number of already used substreams,
     /// thereby waking the task that last called `poll_next_stream`, if any.
     /// Inbound substreams received in excess of that limit are immediately reset.
@@ -461,7 +461,7 @@ where
             // buffer of another substream while waiting for the
             // next frame for `id`, yield to give the current task
             // a chance to read from the other substream(s).
-            if num_buffered == self.config.max_buffer_len {
+            if num_buffered == self.configs.max_buffer_len {
                 cx.waker().wake_by_ref();
                 return Poll::Pending;
             }
@@ -718,10 +718,10 @@ where
             ));
         }
 
-        if self.substreams.len() >= self.config.max_substreams {
+        if self.substreams.len() >= self.configs.max_substreams {
             tracing::debug!(
                 connection=%self.id,
-                max_substreams=%self.config.max_substreams,
+                max_substreams=%self.configs.max_substreams,
                 "Maximum number of substreams exceeded"
             );
             self.check_max_pending_frames()?;
@@ -898,7 +898,7 @@ where
     /// Checks that the permissible limit for pending outgoing frames
     /// has not been reached.
     fn check_max_pending_frames(&mut self) -> io::Result<()> {
-        if self.pending_frames.len() >= self.config.max_substreams + EXTRA_PENDING_FRAMES {
+        if self.pending_frames.len() >= self.configs.max_substreams + EXTRA_PENDING_FRAMES {
             return self.on_error(io::Error::other("Too many pending frames."));
         }
         Ok(())
@@ -907,7 +907,7 @@ where
     /// Buffers a data frame for a particular substream, if possible.
     ///
     /// If the new data frame exceeds the `max_buffer_len` for the buffer
-    /// of the substream, the behaviour depends on the configured
+    /// of the substream, the behaviour depends on the configsured
     /// [`MaxBufferBehaviour`]. Note that the excess frame is still
     /// buffered in that case (but no further frames will be).
     ///
@@ -934,7 +934,7 @@ where
             return Ok(());
         };
 
-        debug_assert!(buf.len() <= self.config.max_buffer_len);
+        debug_assert!(buf.len() <= self.configs.max_buffer_len);
         tracing::trace!(
             connection=%self.id,
             substream=%id,
@@ -944,13 +944,13 @@ where
         );
         buf.push(data);
         self.notifier_read.wake_read_stream(id);
-        if buf.len() > self.config.max_buffer_len {
+        if buf.len() > self.configs.max_buffer_len {
             tracing::debug!(
                 connection=%self.id,
                 substream=%id,
                 "Frame buffer of substream is full"
             );
-            match self.config.max_buffer_behaviour {
+            match self.configs.max_buffer_behaviour {
                 MaxBufferBehaviour::ResetStream => {
                     let buf = buf.clone();
                     self.check_max_pending_frames()?;
@@ -1138,7 +1138,7 @@ impl NotifierOpen {
 }
 
 /// The maximum number of pending reset or close frames to send
-/// we are willing to buffer beyond the configured substream limit.
+/// we are willing to buffer beyond the configsured substream limit.
 /// This extra leeway bounds resource usage while allowing some
 /// back-pressure when sending out these frames.
 ///
@@ -1164,14 +1164,14 @@ mod tests {
         }
     }
 
-    impl Arbitrary for Config {
-        fn arbitrary(g: &mut Gen) -> Config {
-            Config {
+    impl Arbitrary for configs {
+        fn arbitrary(g: &mut Gen) -> configs {
+            configs {
                 max_substreams: g.gen_range(1..100),
                 max_buffer_len: g.gen_range(1..1000),
                 max_buffer_behaviour: MaxBufferBehaviour::arbitrary(g),
                 split_send_size: g.gen_range(1..10000),
-                protocol_name: crate::config::DEFAULT_MPLEX_PROTOCOL_NAME,
+                protocol_name: crate::configs::DEFAULT_MPLEX_PROTOCOL_NAME,
             }
         }
     }
@@ -1232,7 +1232,7 @@ mod tests {
             .with_env_filter(EnvFilter::from_default_env())
             .try_init();
 
-        fn prop(cfg: Config, overflow: NonZeroU8) {
+        fn prop(cfg: configs, overflow: NonZeroU8) {
             let mut r_buf = BytesMut::new();
             let mut codec = Codec::new();
 
@@ -1371,7 +1371,7 @@ mod tests {
             .with_env_filter(EnvFilter::from_default_env())
             .try_init();
 
-        fn prop(cfg: Config, num_streams: NonZeroU8) {
+        fn prop(cfg: configs, num_streams: NonZeroU8) {
             let num_streams = cmp::min(cfg.max_substreams, num_streams.get() as usize);
 
             // Setup the multiplexed connection.

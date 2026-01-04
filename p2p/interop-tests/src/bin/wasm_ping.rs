@@ -22,7 +22,7 @@ use tokio::{
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-mod config;
+mod configs;
 
 const BIND_ADDR: &str = "127.0.0.1:8080";
 
@@ -36,7 +36,7 @@ struct WasmPackage;
 #[derive(Clone)]
 struct TestState {
     redis_client: Client,
-    config: config::Config,
+    configs: configs::configs,
     results_tx: mpsc::Sender<Result<Report, String>>,
 }
 
@@ -49,17 +49,17 @@ async fn main() -> Result<()> {
         .init();
 
     // read env variables
-    let config = config::Config::from_env()?;
-    let test_timeout = Duration::from_secs(config.test_timeout);
+    let configs = configs::configs::from_env()?;
+    let test_timeout = Duration::from_secs(configs.test_timeout);
 
     // create a redis client
     let redis_client =
-        Client::open(config.redis_addr.as_str()).context("Could not connect to redis")?;
+        Client::open(configs.redis_addr.as_str()).context("Could not connect to redis")?;
     let (results_tx, mut results_rx) = mpsc::channel(1);
 
     let state = TestState {
         redis_client,
-        config,
+        configs,
         results_tx,
     };
 
@@ -179,7 +179,7 @@ async fn post_results(
 
 /// Serve the main page which loads our javascript
 async fn serve_index_html(state: State<TestState>) -> Result<impl IntoResponse, StatusCode> {
-    let config::Config {
+    let configs::configs {
         transport,
         ip,
         is_dialer,
@@ -187,7 +187,7 @@ async fn serve_index_html(state: State<TestState>) -> Result<impl IntoResponse, 
         sec_protocol,
         muxer,
         ..
-    } = state.0.config;
+    } = state.0.configs;
 
     let sec_protocol = sec_protocol
         .map(|p| format!(r#""{p}""#))

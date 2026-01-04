@@ -46,12 +46,12 @@ pub struct Behaviour {
     registrations: Registrations,
 }
 
-pub struct Config {
+pub struct configs {
     min_ttl: Ttl,
     max_ttl: Ttl,
 }
 
-impl Config {
+impl configs {
     pub fn with_min_ttl(mut self, min_ttl: Ttl) -> Self {
         self.min_ttl = min_ttl;
         self
@@ -63,7 +63,7 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
             min_ttl: MIN_TTL,
@@ -74,15 +74,15 @@ impl Default for Config {
 
 impl Behaviour {
     /// Create a new instance of the rendezvous [`NetworkBehaviour`].
-    pub fn new(config: Config) -> Self {
+    pub fn new(configs: configs) -> Self {
         Self {
             inner: libp2p_request_response::Behaviour::with_codec(
                 crate::codec::Codec::default(),
                 iter::once((crate::PROTOCOL_IDENT, ProtocolSupport::Inbound)),
-                libp2p_request_response::Config::default(),
+                libp2p_request_response::configs::default(),
             ),
 
-            registrations: Registrations::with_config(config),
+            registrations: Registrations::with_configs(configs),
         }
     }
 }
@@ -370,17 +370,17 @@ pub enum TtlOutOfRange {
 
 impl Default for Registrations {
     fn default() -> Self {
-        Registrations::with_config(Config::default())
+        Registrations::with_configs(configs::default())
     }
 }
 
 impl Registrations {
-    pub fn with_config(config: Config) -> Self {
+    pub fn with_configs(configs: configs) -> Self {
         Self {
             registrations_for_peer: Default::default(),
             registrations: Default::default(),
-            min_ttl: config.min_ttl,
-            max_ttl: config.max_ttl,
+            min_ttl: configs.min_ttl,
+            max_ttl: configs.max_ttl,
             cookies: Default::default(),
             next_expiry: FuturesUnordered::from_iter(vec![futures::future::pending().boxed()]),
         }
@@ -646,7 +646,7 @@ mod tests {
 
     #[tokio::test]
     async fn given_two_registration_ttls_one_expires_one_lives() {
-        let mut registrations = Registrations::with_config(Config {
+        let mut registrations = Registrations::with_configs(configs {
             min_ttl: 0,
             max_ttl: 4,
         });
@@ -682,7 +682,7 @@ mod tests {
 
     #[tokio::test]
     async fn given_peer_unregisters_before_expiry_do_not_emit_registration_expired() {
-        let mut registrations = Registrations::with_config(Config {
+        let mut registrations = Registrations::with_configs(configs {
             min_ttl: 1,
             max_ttl: 10,
         });
@@ -704,7 +704,7 @@ mod tests {
     #[tokio::test]
     async fn given_all_registrations_expired_then_successfully_handle_new_registration_and_expiry()
     {
-        let mut registrations = Registrations::with_config(Config {
+        let mut registrations = Registrations::with_configs(configs {
             min_ttl: 0,
             max_ttl: 10,
         });
@@ -721,7 +721,7 @@ mod tests {
 
     #[tokio::test]
     async fn cookies_are_cleaned_up_if_registrations_expire() {
-        let mut registrations = Registrations::with_config(Config {
+        let mut registrations = Registrations::with_configs(configs {
             min_ttl: 1,
             max_ttl: 10,
         });

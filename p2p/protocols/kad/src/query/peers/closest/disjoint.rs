@@ -27,7 +27,7 @@ use std::{
 use super::*;
 
 /// Wraps around a set of [`ClosestPeersIter`], enforcing a disjoint discovery
-/// path per configured parallelism according to the S/Kademlia paper.
+/// path per configsured parallelism according to the S/Kademlia paper.
 pub(crate) struct ClosestDisjointPeersIter {
     target: KeyBytes,
 
@@ -47,22 +47,22 @@ pub(crate) struct ClosestDisjointPeersIter {
 }
 
 impl ClosestDisjointPeersIter {
-    /// Creates a new iterator with a default configuration.
+    /// Creates a new iterator with a default configsuration.
     #[cfg(test)]
     pub(crate) fn new<I>(target: KeyBytes, known_closest_peers: I) -> Self
     where
         I: IntoIterator<Item = Key<PeerId>>,
     {
-        Self::with_config(
-            ClosestPeersIterConfig::default(),
+        Self::with_configs(
+            ClosestPeersIterconfigs::default(),
             target,
             known_closest_peers,
         )
     }
 
-    /// Creates a new iterator with the given configuration.
-    pub(crate) fn with_config<I, T>(
-        config: ClosestPeersIterConfig,
+    /// Creates a new iterator with the given configsuration.
+    pub(crate) fn with_configs<I, T>(
+        configs: ClosestPeersIterconfigs,
         target: T,
         known_closest_peers: I,
     ) -> Self
@@ -74,13 +74,13 @@ impl ClosestDisjointPeersIter {
             .into_iter()
             .take(K_VALUE.get())
             .collect::<Vec<_>>();
-        let iters = (0..config.parallelism.get())
+        let iters = (0..configs.parallelism.get())
             // NOTE: All [`ClosestPeersIter`] share the same set of peers at
             // initialization. The [`ClosestDisjointPeersIter.contacted_peers`]
             // mapping ensures that a successful response from a peer is only
             // ever passed to a single [`ClosestPeersIter`]. See
             // [`ClosestDisjointPeersIter::on_success`] for details.
-            .map(|_| ClosestPeersIter::with_config(config.clone(), target.clone(), peers.clone()))
+            .map(|_| ClosestPeersIter::with_configs(configs.clone(), target.clone(), peers.clone()))
             .collect::<Vec<_>>();
 
         let iters_len = iters.len();
@@ -588,9 +588,9 @@ mod tests {
         }
     }
 
-    impl Arbitrary for ClosestPeersIterConfig {
+    impl Arbitrary for ClosestPeersIterconfigs {
         fn arbitrary(g: &mut Gen) -> Self {
-            ClosestPeersIterConfig {
+            ClosestPeersIterconfigs {
                 parallelism: Parallelism::arbitrary(g).0,
                 num_results: NumResults::arbitrary(g).0,
                 peer_timeout: Duration::from_secs(1),
@@ -612,14 +612,14 @@ mod tests {
 
         let known_closest_peers = pool.split_off(pool.len() - 3);
 
-        let config = ClosestPeersIterConfig {
+        let configs = ClosestPeersIterconfigs {
             parallelism: NonZeroUsize::new(3).unwrap(),
             num_results: NonZeroUsize::new(3).unwrap(),
-            ..ClosestPeersIterConfig::default()
+            ..ClosestPeersIterconfigs::default()
         };
 
         let mut peers_iter =
-            ClosestDisjointPeersIter::with_config(config, target, known_closest_peers.clone());
+            ClosestDisjointPeersIter::with_configs(configs, target, known_closest_peers.clone());
 
         ////////////////////////////////////////////////////////////////////////
         // First round.
@@ -857,14 +857,14 @@ mod tests {
                 .collect::<Vec<_>>();
             known_closest_peers.sort_unstable_by_key(|a| target.distance(a));
 
-            let cfg = ClosestPeersIterConfig {
+            let cfg = ClosestPeersIterconfigs {
                 parallelism: parallelism.0,
                 num_results: num_results.0,
-                ..ClosestPeersIterConfig::default()
+                ..ClosestPeersIterconfigs::default()
             };
 
             let closest = drive_to_finish(
-                PeerIterator::Closest(ClosestPeersIter::with_config(
+                PeerIterator::Closest(ClosestPeersIter::with_configs(
                     cfg.clone(),
                     target,
                     known_closest_peers.clone(),
@@ -874,7 +874,7 @@ mod tests {
             );
 
             let disjoint = drive_to_finish(
-                PeerIterator::Disjoint(ClosestDisjointPeersIter::with_config(
+                PeerIterator::Disjoint(ClosestDisjointPeersIter::with_configs(
                     cfg,
                     target,
                     known_closest_peers.clone(),

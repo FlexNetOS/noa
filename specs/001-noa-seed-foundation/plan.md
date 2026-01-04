@@ -155,13 +155,13 @@ UPDATE_EXISTING=1 ./scripts/setup/install-all-tools.sh ai-providers
 ./scripts/setup/install-all-tools.sh shared-resources
 ```
 
-**Provider Config Paths**:
-- Claude Code: `noa_root/ai/providers/cloud/claude-code/config.json`
-- Codex CLI: `noa_root/ai/providers/cloud/codex/config.json`
-- Cursor CLI: `noa_root/ai/providers/hybrid/cursor/config.json`
-- VS Code Copilot: `noa_root/ai/providers/ide/vscode-copilot/config.json`
-- Git CLI: `noa_root/ai/providers/local/git-cli/config.json`
-- Abacus CLI: `noa_root/ai/providers/cloud/abacus/config.json`
+**Provider configs Paths**:
+- Claude Code: `noa_root/ai/providers/cloud/claude-code/configs.json`
+- Codex CLI: `noa_root/ai/providers/cloud/codex/configs.json`
+- Cursor CLI: `noa_root/ai/providers/hybrid/cursor/configs.json`
+- VS Code Copilot: `noa_root/ai/providers/ide/vscode-copilot/configs.json`
+- Git CLI: `noa_root/ai/providers/local/git-cli/configs.json`
+- Abacus CLI: `noa_root/ai/providers/cloud/abacus/configs.json`
 
 ### Dev Tools / IDEs (B059-B067b, gitignored)
 
@@ -211,7 +211,7 @@ ai/shared/
 ├── prompts/          # Shared prompt templates
 ├── skills/           # Shared skill definitions
 ├── tools/            # Shared MCP tools and functions
-├── models/           # Shared model configs/adapters
+├── models/           # Shared model configss/adapters
 ├── commands/         # Shared command definitions
 └── resources/        # Execution memory and state
     ├── execution-memory.db   # Shared execution memory bus (SQLite)
@@ -281,7 +281,7 @@ This plan implements the NOA Seed Foundation - a **100% autonomous agentic opera
 ### Unified Architecture (baseline from prompt)
 - Single environment at `${PROJECT_ROOT}/.project-mgmt-env` (Node modules, python venv, Cargo, `.env`/`.env.example`).
 - `project-mgmt/` apps: web (Angular PWA), desktop (Electron), mobile (Capacitor), cli, mcp.
-- `project-mgmt/core/`: ai-shared linkage, providers (auto-detect, priority), memory (never forget, instant recall), tasks/goals/policy/rules/specs/backlog, sync (vector clock, encryption/compression), config, state (NgRx), time-tracking (pomodoro/focus/idle/break/worklog), imex, util.
+- `project-mgmt/core/`: ai-shared linkage, providers (auto-detect, priority), memory (never forget, instant recall), tasks/goals/policy/rules/specs/backlog, sync (vector clock, encryption/compression), configs, state (NgRx), time-tracking (pomodoro/focus/idle/break/worklog), imex, util.
 - AI layer: providers (claude, openai, ollama, llama.cpp, etc.), prompts (system/fusion/triggers), fusion engine.
 
 ### Provider Systems (must implement)
@@ -346,7 +346,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 | Model | Full Name | Purpose | AER Reference |
 |-------|-----------|---------|---------------|
-| **EOM** | Env Orchestrator Model | Plans, coordinates, and reconfigures the environment. Proposes module changes, resource allocation, agent graph mutations | §9.1 |
+| **EOM** | Env Orchestrator Model | Plans, coordinates, and reconfigsures the environment. Proposes module changes, resource allocation, agent graph mutations | §9.1 |
 | **TSM** | Tool & Code Synthesizer Model | Generates tools, pipelines, DAGs, and microservice code within strict boundaries. Works with build/test pipeline | §9.2 |
 | **PSM** | Policy & Safety Model | Evaluates proposals from EOM/TSM (`ALLOW`/`DENY`/`REQUIRE_HUMAN_REVIEW`). Enforces data boundaries, sensitive capability use, compliance | §9.3 |
 
@@ -393,7 +393,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - **B038-B055**: Quality & security tools
 - **B057a-B057j**: AI Provider CLIs (Claude Code, Cursor, Codex, Abacus - FR-039)
 - **B058-B067**: Dev tools (**Cursor IDE**, **VS Code IDE**, Docker, AI apps - gitignored)
-- **B068-B077**: Cache & log configuration, environment generation
+- **B068-B077**: Cache & log configsuration, environment generation
 - **B078-B090**: Main orchestrator & verification
 - **B091-B100**: Documentation & constitutional verification
 - **B101-B120**: Cross-platform script parity (all scripts mirrored)
@@ -512,7 +512,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 **Phase**: 2.6 (Shared Providers)
 **Tasks**: T771-T775
 
-- Per-provider rate limits with configurable token/request budgets
+- Per-provider rate limits with configsurable token/request budgets
 - Exponential backoff on HTTP 429 (initial 1s, max 60s, factor 2x)
 - P2P throttling based on peer-reported capacity
 - Self-generated goal rate-limit (max 10 new goals/hour)
@@ -536,7 +536,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - Full keyboard navigation with visible focus (7:1 contrast)
 - Screen reader compatibility with ARIA labels
 - High contrast mode and OS accessibility preferences
-- i18n with externalized strings (`config/i18n/{locale}.json`)
+- i18n with externalized strings (`configs/i18n/{locale}.json`)
 - Bundled translations: English, Spanish, Chinese, Arabic, Hebrew
 - RTL layout support
 
@@ -594,7 +594,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - Add OpenTelemetry with OTLP exporter for distributed tracing (FR-153, FR-155)
 - Add `opentelemetry-prometheus` for metrics exposition (FR-153)
 - Expose Prometheus-format metrics at `GET /metrics` endpoint (FR-154)
-- Export traces via OTLP to configurable endpoint (Tempo, Jaeger) (FR-155)
+- Export traces via OTLP to configsurable endpoint (Tempo, Jaeger) (FR-155)
 - Persist metrics to SQLite store (`noa_root/data/metrics.db`) for offline analysis (FR-156)
 - No Docker required for core observability (FR-157)
 - Provide built-in metrics dashboard in UI when Grafana unavailable (FR-158)
@@ -614,7 +614,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - Priority 2: Container (lightweight isolation, faster startup)
 - Priority 3: Sandbox (per-operation isolation, ephemeral environments)
 - Priority 4: Native/Host (default, trusted environment, performance-critical)
-- Selection logic documented in `config/kernel-selection-policy.json`
+- Selection logic documented in `configs/kernel-selection-policy.json`
 
 **FR-161: External Dependency Boundary** (CHK019 resolution)
 - Internal = under `noa_root` directory tree, managed by NOA bootstrap
@@ -631,7 +631,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - Internal versions preferred even if older than global
 
 **FR-163: Internal Tool Upgrade Mechanism** (CHK041 resolution)
-- Version requirements in `config/bootstrap-tools.json`
+- Version requirements in `configs/bootstrap-tools.json`
 - Explicit upgrade via `install-all-tools.ps1 -UpdateExisting` / `UPDATE_EXISTING=1`
 - Version checks on bootstrap (warn if outdated, no auto-upgrade)
 - Previous versions archived to `noa_root/opt/archive/{tool}-{version}/`
@@ -649,7 +649,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 - Above NKAL: full privileges within `noa_root`
 - Below NKAL: host kernel accessed only through NKAL interface
 - Input sanitization and output verification at boundary crossing
-- Privileged operations require capability grants in `config/nkal-capabilities.json`
+- Privileged operations require capability grants in `configs/nkal-capabilities.json`
 
 **FR-166: Host Kernel vs NOA Portable Dependency Policy** (from /clarify 2025-12-09)
 - **Host Kernel MAY Be Used For:**
@@ -663,7 +663,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
   - All packages (npm → `noa_root/opt/node`, pip → `noa_root/opt/venv`, cargo → `noa_root/opt/rust`)
   - All services (llama-server, ollama, gitea) → `noa_root/init/services/`
   - Network stack (VM/container mode) → NKAL abstraction
-  - All settings/configs → `noa_root/config/`
+  - All settings/configss → `noa_root/configs/`
   - All persistent state/data → `noa_root/data/`
 - **Platform Coverage**: ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware (x64, ARM, GPU)
 - **Independence Guarantee**: NOA achieves 100% independent functionality by bundling portable dependencies
@@ -685,13 +685,13 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 **FR-169: Environment Redirection**
 - Windows: Override `APPDATA`, `LOCALAPPDATA`, `USERPROFILE` to `noa_root` paths
-- Unix: Override `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `HOME` to `noa_root` paths
+- Unix: Override `XDG_configs_HOME`, `XDG_DATA_HOME`, `HOME` to `noa_root` paths
 - Bind mounts (container mode) for data directory isolation
 
 **FR-170: Network Isolation**
 - Desktop app traffic MAY route through NOA proxy service
 - Proxy provides: traffic inspection, rate limiting, logging, P2P routing
-- Configuration: per-app allowlist/blocklist in `config/desktop-apps.json`
+- configsuration: per-app allowlist/blocklist in `configs/desktop-apps.json`
 
 **FR-171: OAuth Proxy Service**
 - NDCL MUST intercept OAuth redirects from hosted apps
@@ -707,7 +707,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 **FR-173: Installation Scripts**
 - Portable installers for each hosted app
 - Extract to `noa_root/opt/apps/{app}/`
-- Register in `config/desktop-apps.json`
+- Register in `configs/desktop-apps.json`
 - Create launch wrappers in `noa_root/bin/`
 
 **FR-174: Kernel-Required Exceptions (IDE & Virtualization)**
@@ -774,11 +774,11 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 | Task | Description | Dependencies |
 |------|-------------|--------------|
-| **B153** | Add `config/kernel-selection-policy.json` schema with precedence rules | B121 |
+| **B153** | Add `configs/kernel-selection-policy.json` schema with precedence rules | B121 |
 | **B154** | Implement kernel selection logic in `noa-kernel-params.ps1` based on FR-160 | B153 |
 | **B155** | Implement kernel selection logic in `noa-kernel-params` (bash) | B154 |
 | **B156** | Add `--allow-global` flag to all tool detection scripts | B078 |
-| **B157** | Create `config/bootstrap-tools.json` with version pinning schema | B014 |
+| **B157** | Create `configs/bootstrap-tools.json` with version pinning schema | B014 |
 | **B158** | Implement `-UpdateExisting` flag in `install-all-tools.ps1` | B157 |
 | **B159** | Implement tool archival to `noa_root/opt/archive/` before upgrade | B158 |
 | **B160** | Add upgrade rollback via `install-all-tools.ps1 -Rollback -Tool <name>` | B159 |
@@ -797,7 +797,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 | **B166** | Create `scripts/bootstrap/installers/mingw-portable.ps1` to install MinGW-w64 to `opt/mingw/` | B161 |
 | **B167** | Create `scripts/bootstrap/installers/llvm-portable.ps1` to install LLVM/Clang to `opt/llvm/` | B161 |
 | **B168** | Create `bin/cmake.cmd` and `bin/ninja.cmd` wrappers | B161, B163 |
-| **B169** | Add CMake, Ninja, Make to `config/bootstrap-tools.json` version registry | B157, B161 |
+| **B169** | Add CMake, Ninja, Make to `configs/bootstrap-tools.json` version registry | B157, B161 |
 | **B170** | Update `install-all-tools.ps1` to support `-Tool cmake`, `-Tool ninja`, `-Tool mingw` | B161-B167 |
 
 ### Phase 0: llama.cpp Build (B171-B175) - PRIORITY 1 LOCAL PROVIDER
@@ -816,13 +816,13 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 
 | Task | Description | Dependencies |
 |------|-------------|--------------|
-| **T835** | Create NKAL capability grant schema `config/nkal-capabilities.json` | T001 |
+| **T835** | Create NKAL capability grant schema `configs/nkal-capabilities.json` | T001 |
 | **T836** | Implement NKAL trust boundary validation in `sys/core/src/nkal/` | T835, T022 |
 | **T837** | Add input sanitization layer at NKAL boundary | T836 |
 | **T838** | Add output verification layer at NKAL boundary | T837 |
 | **T839** | Create `.kernel-switch-state.json` checkpoint on mode change | T836 |
 | **T840** | Implement state verification after kernel mode switch | T839 |
-| **T841** | Add shared volume mount configuration for VM/container modes | T840, B125 |
+| **T841** | Add shared volume mount configsuration for VM/container modes | T840, B125 |
 | **T842** | Implement graceful shutdown requirement before mode switch | T841 |
 
 ### Documentation & Verification
@@ -901,7 +901,7 @@ The NOA runtime is orchestrated by three core small language models (< 3B params
 | **AI Provider CLIs** | **B057a-B057n** | **14** | **Claude Code, Cursor, Codex, VS Code Copilot, Git CLI, Abacus CLIs (FR-039)** |
 | **Shared Resources** | **B058a-B058t** | **20** | **Shared execution memory, provider state sync (FR-037-042)** |
 | Dev Tools | B059-B067b | 12 | **Cursor IDE, VS Code IDE**, Docker, AI apps (gitignored) |
-| Configuration | B068-B077 | 10 | Cache, logs, environment files |
+| configsuration | B068-B077 | 10 | Cache, logs, environment files |
 | Orchestrator | B078-B090 | 13 | Main bootstrap script, verification |
 | Documentation | B091-B094 | 4 | README, guides, tool docs |
 | Constitutional | B095-B100 | 6 | Constitutional verification |
@@ -1038,7 +1038,7 @@ def connect_provider(
 | **SK004** | Implement parallel spec broadcast to all connected providers | SK003 |
 | **SK005** | Add spec locking mechanism for write coordination | SK004 |
 | **SK006** | Create audit logging for provider spec access | SK005 |
-| **SK007** | Update AGENT_CONFIG in spec-kit to use shared resources | SK002 |
+| **SK007** | Update AGENT_configs in spec-kit to use shared resources | SK002 |
 | **SK008** | Add `--connect-providers` flag to `specify init` | SK001 |
 | **SK009** | Implement provider health check before spec distribution | SK004 |
 | **SK010** | Create spec-kit MCP tool for provider orchestration | SK006 |

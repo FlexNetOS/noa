@@ -79,7 +79,7 @@ Comprehensive policy enforcement with 6 policy categories:
 
 ### 3. Audit Logging (`sys/core/audit/`)
 
-**File**: `sys/core/audit/audit-config.json`
+**File**: `sys/core/audit/audit-configs.json`
 
 Comprehensive audit system with 8 event categories:
 
@@ -174,7 +174,7 @@ Centralized registry for all NOA services and resources:
 
 ### 5. Task Scheduler (`sys/core/scheduler/`)
 
-**File**: `sys/core/scheduler/config.json`
+**File**: `sys/core/scheduler/configs.json`
 
 Automated task scheduling with 5 scheduled tasks:
 
@@ -191,7 +191,7 @@ Automated task scheduling with 5 scheduled tasks:
 **Features**:
 - Standard cron format
 - Max 10 concurrent tasks
-- Retry on failure (configurable)
+- Retry on failure (configsurable)
 - Output capture and logging
 - Email notifications on failure
 - Capability-based execution (runs as `sys:noa`)
@@ -291,11 +291,11 @@ Enables CAS script execution with path validation.
 - `tool_discovery` → MCP tool listing
 - `reasoning` → LLM tool invocation
 
-### Phase 1 Integration (Configs)
+### Phase 1 Integration (configss)
 
-**3-Layer Config → System Core**:
-- Layer 1 (Base): `configs/base/` → System core configs
-- Layer 3 (Enforcement): `configs/enforcement/` → Policy enforcement rules
+**3-Layer configs → System Core**:
+- Layer 1 (Base): `configss/base/` → System core configss
+- Layer 3 (Enforcement): `configss/enforcement/` → Policy enforcement rules
 
 ---
 
@@ -307,12 +307,12 @@ Enables CAS script execution with path validation.
 |-----------|-------|---------|
 | Identity | 2 files | `identity.json`, `README.md` |
 | Enforcement | 1 file | `policy.json` |
-| Audit | 2 files | `audit-config.json`, `README.md` |
+| Audit | 2 files | `audit-configs.json`, `README.md` |
 | Registry | 1 file | `registry.json` |
-| Scheduler | 1 file | `config.json` |
+| Scheduler | 1 file | `configs.json` |
 | Summary | 1 file | `PHASE_4_COMPLETE.md` |
 
-**Total Lines**: ~2,500 lines (configs + documentation)
+**Total Lines**: ~2,500 lines (configss + documentation)
 
 ---
 
@@ -372,10 +372,10 @@ jq '.providers.claude_code_cli.capabilities' sys/core/registry/registry.json
 
 ```bash
 # List all scheduled tasks
-jq '.scheduled_tasks | keys' sys/core/scheduler/config.json
+jq '.scheduled_tasks | keys' sys/core/scheduler/configs.json
 
 # Get CAS GC schedule
-jq '.scheduled_tasks.cas_gc.schedule' sys/core/scheduler/config.json
+jq '.scheduled_tasks.cas_gc.schedule' sys/core/scheduler/configs.json
 # Output: "0 2 * * *"  (Daily at 2 AM)
 ```
 
@@ -454,9 +454,9 @@ Phase 4 supports ISO 27001:
 | Metric | Value |
 |--------|-------|
 | Files Created | 10 |
-| Configuration Files | 6 |
+| configsuration Files | 6 |
 | Documentation Files | 4 |
-| Lines of Code/Config | ~2,500 |
+| Lines of Code/configs | ~2,500 |
 | Principals Defined | 3 |
 | Roles Defined | 4 |
 | Capabilities Defined | 7 |
@@ -479,7 +479,7 @@ Phase 4 supports ISO 27001:
 # Verify all core directories exist
 ls -ld sys/core/{identity,enforcement,audit,registry,scheduler}
 
-# Verify config files exist
+# Verify configs files exist
 find sys/core -name "*.json" | sort
 
 # Validate JSON syntax
@@ -502,9 +502,9 @@ done
 
 ## Known Limitations
 
-1. **File-Based Storage**: All configs stored as JSON files. Production should use database.
+1. **File-Based Storage**: All configss stored as JSON files. Production should use database.
 
-2. **No Service Implementation**: Configs defined but services not yet implemented as running processes.
+2. **No Service Implementation**: configss defined but services not yet implemented as running processes.
 
 3. **Manual Registry Updates**: Services must be manually added to registry. Auto-discovery not yet implemented.
 

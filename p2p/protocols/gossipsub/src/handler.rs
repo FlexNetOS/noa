@@ -36,7 +36,7 @@ use libp2p_swarm::{
 use web_time::Instant;
 
 use crate::{
-    protocol::{GossipsubCodec, ProtocolConfig},
+    protocol::{GossipsubCodec, Protocolconfigs},
     queue::Queue,
     rpc_proto::proto,
     types::{PeerKind, RawMessage, RpcIn, RpcOut},
@@ -92,8 +92,8 @@ pub struct EnabledHandler {
     /// Remote `PeerId` for this `ConnectionHandler`.
     peer_id: PeerId,
 
-    /// Upgrade configuration for the gossipsub protocol.
-    listen_protocol: ProtocolConfig,
+    /// Upgrade configsuration for the gossipsub protocol.
+    listen_protocol: Protocolconfigs,
 
     /// The single long-lived outbound substream.
     outbound_substream: Option<OutboundSubstreamState>,
@@ -167,12 +167,12 @@ impl Handler {
     /// Builds a new [`Handler`].
     pub(crate) fn new(
         peer_id: PeerId,
-        protocol_config: ProtocolConfig,
+        protocol_configs: Protocolconfigs,
         message_queue: Queue,
     ) -> Self {
         Handler::Enabled(EnabledHandler {
             peer_id,
-            listen_protocol: protocol_config,
+            listen_protocol: protocol_configs,
             inbound_substream: None,
             outbound_substream: None,
             outbound_substream_establishing: false,
@@ -427,9 +427,9 @@ impl ConnectionHandler for Handler {
     type FromBehaviour = HandlerIn;
     type ToBehaviour = HandlerEvent;
     type InboundOpenInfo = ();
-    type InboundProtocol = either::Either<ProtocolConfig, DeniedUpgrade>;
+    type InboundProtocol = either::Either<Protocolconfigs, DeniedUpgrade>;
     type OutboundOpenInfo = ();
-    type OutboundProtocol = ProtocolConfig;
+    type OutboundProtocol = Protocolconfigs;
 
     fn listen_protocol(&self) -> SubstreamProtocol<Self::InboundProtocol> {
         match self {

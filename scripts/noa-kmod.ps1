@@ -225,7 +225,7 @@ switch ($Action) {
                         Write-Host "  [X] $name : not available" -ForegroundColor Red
                     }
                 } else {
-                    Write-Host "  [--] $name : needs configuration" -ForegroundColor Yellow
+                    Write-Host "  [--] $name : needs configsuration" -ForegroundColor Yellow
                 }
             }
         }

@@ -58,7 +58,7 @@ FileOperationResult {
 
 **Features Implemented**:
 - Secure command execution with whitelist
-- Timeout support (configurable, default 60s)
+- Timeout support (configsurable, default 60s)
 - Working directory and environment variable support
 - Process lifecycle management (spawn, wait, kill on timeout)
 - Security features:
@@ -96,7 +96,7 @@ TerminalResult {
 - Retrieval-Augmented Generation scaffold
 - Context-based prompt generation
 - Query formatting and structuring
-- Embedding model configuration
+- Embedding model configsuration
 - **Query structure** (JSON):
   ```json
   {
@@ -206,8 +206,8 @@ Aggregated Results
 
 ### File Operations
 ```json
-// Read a configuration file
-{"op": "read", "path": "config/noa.yaml"}
+// Read a configsuration file
+{"op": "read", "path": "configs/noa.yaml"}
 
 // Write deployment manifest
 {"op": "write", "path": "deploy.yaml", "content": "..."}
@@ -241,7 +241,7 @@ Aggregated Results
 }
 
 // Generates plan:
-// 1. [file-io] Read deployment config
+// 1. [file-io] Read deployment configs
 // 2. [terminal] Run build command
 // 3. [terminal] Execute deployment script
 // 4. [rag] Retrieve deployment checklist

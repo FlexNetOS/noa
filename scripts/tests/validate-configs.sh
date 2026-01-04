@@ -1,6 +1,6 @@
 #!/bin/bash
-# validate-configs.sh - Validate all JSON configurations
-# Usage: validate-configs.sh [--verbose]
+# validate-configss.sh - Validate all JSON configsurations
+# Usage: validate-configss.sh [--verbose]
 # Respects NOA Constitution §3.1 - uses portable tools from noa_root
 
 set -euo pipefail
@@ -63,57 +63,57 @@ validate_json() {
     fi
 }
 
-echo "=== NOA Configuration Validation ==="
+echo "=== NOA configsuration Validation ==="
 echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "NOA_ROOT: $NOA_ROOT"
 echo "Platform: $NOA_PLATFORM"
 echo ""
 
-# Validate Phase 3 configs
+# Validate Phase 3 configss
 echo "[Phase 3] CAS & Data Plane"
-validate_json "$NOA_ROOT/configs/base/cas/config.json"
+validate_json "$NOA_ROOT/configss/base/cas/configs.json"
 validate_json "$NOA_ROOT/cas/gc/gc_rules.json"
 validate_json "$NOA_ROOT/cas/registry/models.json"
 validate_json "$NOA_ROOT/cas/registry/prompts.json"
 validate_json "$NOA_ROOT/cas/registry/snapshots.json"
 validate_json "$NOA_ROOT/cas/registry/binaries.json"
 validate_json "$NOA_ROOT/cas/registry/packages.json"
-validate_json "$NOA_ROOT/configs/base/cache/cache-policies.json"
+validate_json "$NOA_ROOT/configss/base/cache/cache-policies.json"
 echo ""
 
-# Validate Phase 4 configs
+# Validate Phase 4 configss
 echo "[Phase 4] System Core & Policy"
 validate_json "$NOA_ROOT/sys/core/identity/identity.json"
 validate_json "$NOA_ROOT/sys/core/enforcement/policy.json"
-validate_json "$NOA_ROOT/sys/core/audit/audit-config.json"
+validate_json "$NOA_ROOT/sys/core/audit/audit-configs.json"
 validate_json "$NOA_ROOT/sys/core/registry/registry.json"
-validate_json "$NOA_ROOT/sys/core/scheduler/config.json"
+validate_json "$NOA_ROOT/sys/core/scheduler/configs.json"
 echo ""
 
-# Validate Phase 5 configs
+# Validate Phase 5 configss
 echo "[Phase 5] Resource Registry"
 validate_json "$NOA_ROOT/data/resources/registry.json"
 echo ""
 
-# Validate Phase 6 configs
+# Validate Phase 6 configss
 echo "[Phase 6] Third-Party Integrations"
-validate_json "$NOA_ROOT/tools/third-party/mcp-sdk/config.json"
-validate_json "$NOA_ROOT/tools/third-party/qdrant/config.json"
-validate_json "$NOA_ROOT/tools/third-party/sqlx/config.json"
-validate_json "$NOA_ROOT/tools/third-party/libp2p/config.json"
+validate_json "$NOA_ROOT/tools/third-party/mcp-sdk/configs.json"
+validate_json "$NOA_ROOT/tools/third-party/qdrant/configs.json"
+validate_json "$NOA_ROOT/tools/third-party/sqlx/configs.json"
+validate_json "$NOA_ROOT/tools/third-party/libp2p/configs.json"
 echo ""
 
 # Summary
 echo "=== Validation Summary ==="
-echo "Total configs:  $TOTAL"
+echo "Total configss:  $TOTAL"
 echo "Passed:         $PASSED"
 echo "Failed:         $FAILED"
 echo ""
 
 if [[ $FAILED -eq 0 ]]; then
-    echo "✓ All configurations valid!"
+    echo "✓ All configsurations valid!"
     exit 0
 else
-    echo "✗ Some configurations failed validation"
+    echo "✗ Some configsurations failed validation"
     exit 1
 fi

@@ -3,12 +3,12 @@
 
 NOA_ROOT="${HOME}"
 SSHD_BIN="/usr/sbin/sshd"
-SSHD_CONFIG="$NOA_ROOT/etc/ssh/sshd_config"
+SSHD_configs="$NOA_ROOT/etc/ssh/sshd_configs"
 
 case "$1" in
   start)
     echo "Starting NOA SSH server..."
-    $SSHD_BIN -f $SSHD_CONFIG -D &
+    $SSHD_BIN -f $SSHD_configs -D &
     echo $! > $NOA_ROOT/init/run/sshd.pid
     ;;
   stop)

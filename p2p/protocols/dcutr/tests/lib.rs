@@ -30,7 +30,7 @@ use libp2p_identity as identity;
 use libp2p_identity::PeerId;
 use libp2p_plaintext as plaintext;
 use libp2p_relay as relay;
-use libp2p_swarm::{Config, NetworkBehaviour, Swarm, SwarmEvent};
+use libp2p_swarm::{configs, NetworkBehaviour, Swarm, SwarmEvent};
 use libp2p_swarm_test::SwarmExt as _;
 use tracing_subscriber::EnvFilter;
 
@@ -107,12 +107,12 @@ fn build_relay() -> Swarm<Relay> {
         Relay {
             relay: relay::Behaviour::new(
                 local_peer_id,
-                relay::Config {
+                relay::configs {
                     reservation_duration: Duration::from_secs(2),
                     ..Default::default()
                 },
             ),
-            identify: identify::Behaviour::new(identify::Config::new(
+            identify: identify::Behaviour::new(identify::configs::new(
                 "/relay".to_owned(),
                 identity.public(),
             )),
@@ -137,8 +137,8 @@ fn build_client() -> Swarm<Client> {
         .or_transport(MemoryTransport::default())
         .or_transport(libp2p_tcp::tokio::Transport::default())
         .upgrade(Version::V1)
-        .authenticate(plaintext::Config::new(&local_key))
-        .multiplex(libp2p_yamux::Config::default())
+        .authenticate(plaintext::configs::new(&local_key))
+        .multiplex(libp2p_yamux::configs::default())
         .boxed();
 
     Swarm::new(
@@ -146,13 +146,13 @@ fn build_client() -> Swarm<Client> {
         Client {
             relay: behaviour,
             dcutr: dcutr::Behaviour::new(local_peer_id),
-            identify: identify::Behaviour::new(identify::Config::new(
+            identify: identify::Behaviour::new(identify::configs::new(
                 "/client".to_owned(),
                 local_key.public(),
             )),
         },
         local_peer_id,
-        Config::with_tokio_executor(),
+        configs::with_tokio_executor(),
     )
 }
 

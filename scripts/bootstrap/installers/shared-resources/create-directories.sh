@@ -27,9 +27,9 @@ declare -A SHARED_DIRS=(
     ["tools"]="MCP tool definitions"
     ["workflows"]="Orchestration workflows"
     ["skills"]="Agent skill modules"
-    ["models"]="Model adapters and configs"
+    ["models"]="Model adapters and configss"
     ["commands"]="Shared commands"
-    ["resources"]="Configuration and data"
+    ["resources"]="configsuration and data"
     ["resources/schema"]="Database schemas"
 )
 

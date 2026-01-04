@@ -2,6 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "2.1.0",
   "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
+  "metadata": {
+    "version": "2.1.0",
+    "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
+    "layer": "base",
+    "immutable": true,
+    "updated_at": "2025-12-09T00:00:00Z"
+  },
   "strategy": "All tools downloaded to noa_root. NO winget, choco, brew, or apt.",
   "lastUpdated": "2025-12-09T00:00:00Z",
   "versionPinning": {

@@ -1,6 +1,6 @@
 ## 0.43.1
 
-- Rename Config to match naming convention in [discussion 2174](https://github.com/libp2p/rust-libp2p/discussions/2174).
+- Rename configs to match naming convention in [discussion 2174](https://github.com/libp2p/rust-libp2p/discussions/2174).
   See [PR 6190](https://github.com/libp2p/rust-libp2p/pull/6190).
 
 ## 0.43.0
@@ -58,7 +58,7 @@
 - Update dependencies.
 - Update to `libp2p-core` `v0.34.0`.
 - Add `Transport::poll` and `Transport::remove_listener` and remove `Transport::Listener` for
-  `UdsConfig` Drive listener streams in `UdsConfig` directly. See [PR 2652].
+  `Udsconfigs` Drive listener streams in `Udsconfigs` directly. See [PR 2652].
 
 [PR 2652]: https://github.com/libp2p/rust-libp2p/pull/2652
 

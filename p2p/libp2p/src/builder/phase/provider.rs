@@ -9,7 +9,7 @@ use crate::SwarmBuilder;
 pub enum NoProviderSpecified {}
 
 // Define enums for each of the possible runtime environments. These are used as markers in the
-// type-state pattern, allowing compile-time checks for the appropriate environment configuration.
+// type-state pattern, allowing compile-time checks for the appropriate environment configsuration.
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "tokio"))]
 /// Represents the Tokio runtime environment.
@@ -23,7 +23,7 @@ pub enum WasmBindgen {}
 pub struct ProviderPhase {}
 
 impl SwarmBuilder<NoProviderSpecified, ProviderPhase> {
-    /// Configures the SwarmBuilder to use the Tokio runtime.
+    /// configsures the SwarmBuilder to use the Tokio runtime.
     /// This method is only available when compiling for non-Wasm
     /// targets with the `tokio` feature enabled
     #[cfg(all(not(target_arch = "wasm32"), feature = "tokio"))]
@@ -35,7 +35,7 @@ impl SwarmBuilder<NoProviderSpecified, ProviderPhase> {
         }
     }
 
-    /// Configures the SwarmBuilder for WebAssembly using WasmBindgen.
+    /// configsures the SwarmBuilder for WebAssembly using WasmBindgen.
     /// This method is available when the `wasm-bindgen` feature is enabled.
     #[cfg(feature = "wasm-bindgen")]
     pub fn with_wasm_bindgen(self) -> SwarmBuilder<WasmBindgen, TcpPhase> {

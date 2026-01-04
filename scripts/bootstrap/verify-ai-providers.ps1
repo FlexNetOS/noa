@@ -3,7 +3,7 @@
     Verify all AI provider CLIs are installed and functional.
 
 .DESCRIPTION
-    Checks each configured AI provider CLI for availability and version.
+    Checks each configsured AI provider CLI for availability and version.
     Reports status of local, cloud, hybrid, and IDE providers.
 
 .PARAMETER NoaRoot
@@ -137,26 +137,26 @@ foreach ($provider in $providerChecks) {
     $results.providers[$provider.Name] = $status
 }
 
-# Check provider config files
-$configDirs = @("local", "cloud", "hybrid", "ide")
-$configuredProviders = @()
+# Check provider configs files
+$configsDirs = @("local", "cloud", "hybrid", "ide")
+$configsuredProviders = @()
 
-foreach ($dir in $configDirs) {
+foreach ($dir in $configsDirs) {
     $dirPath = Join-Path $PROVIDERS_DIR $dir
     if (Test-Path $dirPath) {
-        $configs = Get-ChildItem -Path $dirPath -Filter "config.json" -Recurse
-        foreach ($config in $configs) {
-            $providerName = Split-Path -Parent $config.FullName | Split-Path -Leaf
-            $configuredProviders += @{
+        $configss = Get-ChildItem -Path $dirPath -Filter "configs.json" -Recurse
+        foreach ($configs in $configss) {
+            $providerName = Split-Path -Parent $configs.FullName | Split-Path -Leaf
+            $configsuredProviders += @{
                 name = $providerName
                 type = $dir
-                config_path = $config.FullName
+                configs_path = $configs.FullName
             }
         }
     }
 }
 
-$results.configured_providers = $configuredProviders
+$results.configsured_providers = $configsuredProviders
 
 if (-not $Json) {
     Write-Host ""
@@ -166,7 +166,7 @@ if (-not $Json) {
     Write-Host "  Missing (required): $($results.summary.missing)" -ForegroundColor $(if ($results.summary.missing -gt 0) { "Red" } else { "Gray" })
     Write-Host "  Missing (optional): $($results.summary.optional_missing)" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Configured provider configs found: $($configuredProviders.Count)" -ForegroundColor Gray
+    Write-Host "configsured provider configss found: $($configsuredProviders.Count)" -ForegroundColor Gray
 }
 
 if ($Json) {

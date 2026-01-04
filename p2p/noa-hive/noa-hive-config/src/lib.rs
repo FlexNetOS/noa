@@ -1,43 +1,43 @@
-//! Configuration management for NOA-Hive.
+//! configsuration management for NOA-Hive.
 //!
-//! Provides configuration loading from TOML files with environment variable
+//! Provides configsuration loading from TOML files with environment variable
 //! expansion and sensible defaults.
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-/// Main configuration for the NOA-Hive daemon.
+/// Main configsuration for the NOA-Hive daemon.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct Config {
-    /// Network configuration.
-    pub network: NetworkConfig,
-    /// Storage configuration.
-    pub storage: StorageConfig,
-    /// gRPC server configuration.
-    pub grpc: GrpcConfig,
-    /// loro CRDT configuration.
-    pub loro: LoroConfig,
-    /// iroh blob storage configuration.
-    pub iroh: IrohConfig,
+pub struct configs {
+    /// Network configsuration.
+    pub network: Networkconfigs,
+    /// Storage configsuration.
+    pub storage: Storageconfigs,
+    /// gRPC server configsuration.
+    pub grpc: Grpcconfigs,
+    /// loro CRDT configsuration.
+    pub loro: Loroconfigs,
+    /// iroh blob storage configsuration.
+    pub iroh: Irohconfigs,
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
-            network: NetworkConfig::default(),
-            storage: StorageConfig::default(),
-            grpc: GrpcConfig::default(),
-            loro: LoroConfig::default(),
-            iroh: IrohConfig::default(),
+            network: Networkconfigs::default(),
+            storage: Storageconfigs::default(),
+            grpc: Grpcconfigs::default(),
+            loro: Loroconfigs::default(),
+            iroh: Irohconfigs::default(),
         }
     }
 }
 
-/// Network configuration.
+/// Network configsuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct NetworkConfig {
+pub struct Networkconfigs {
     /// Addresses to listen on.
     pub listen_addrs: Vec<String>,
     /// Bootstrap peers for initial connection.
@@ -48,7 +48,7 @@ pub struct NetworkConfig {
     pub enable_relay: bool,
 }
 
-impl Default for NetworkConfig {
+impl Default for Networkconfigs {
     fn default() -> Self {
         Self {
             listen_addrs: vec![
@@ -62,10 +62,10 @@ impl Default for NetworkConfig {
     }
 }
 
-/// Storage configuration.
+/// Storage configsuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct StorageConfig {
+pub struct Storageconfigs {
     /// Data directory for persistent storage.
     pub data_dir: PathBuf,
     /// State database filename.
@@ -74,7 +74,7 @@ pub struct StorageConfig {
     pub identity_file: String,
 }
 
-impl Default for StorageConfig {
+impl Default for Storageconfigs {
     fn default() -> Self {
         let data_dir = dirs::data_dir()
             .unwrap_or_else(|| PathBuf::from("."))
@@ -89,17 +89,17 @@ impl Default for StorageConfig {
     }
 }
 
-/// gRPC server configuration.
+/// gRPC server configsuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct GrpcConfig {
+pub struct Grpcconfigs {
     /// Address to listen on.
     pub listen_addr: String,
     /// Enable reflection for debugging.
     pub enable_reflection: bool,
 }
 
-impl Default for GrpcConfig {
+impl Default for Grpcconfigs {
     fn default() -> Self {
         Self {
             listen_addr: "127.0.0.1:50051".to_string(),
@@ -108,17 +108,17 @@ impl Default for GrpcConfig {
     }
 }
 
-/// loro CRDT configuration.
+/// loro CRDT configsuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct LoroConfig {
+pub struct Loroconfigs {
     /// Enable loro state synchronization.
     pub enable: bool,
     /// Sync interval in milliseconds.
     pub sync_interval_ms: u64,
 }
 
-impl Default for LoroConfig {
+impl Default for Loroconfigs {
     fn default() -> Self {
         Self {
             enable: true,
@@ -127,17 +127,17 @@ impl Default for LoroConfig {
     }
 }
 
-/// iroh blob storage configuration.
+/// iroh blob storage configsuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-pub struct IrohConfig {
+pub struct Irohconfigs {
     /// Enable iroh blob storage.
     pub enable: bool,
     /// Blob storage directory.
     pub blob_store: PathBuf,
 }
 
-impl Default for IrohConfig {
+impl Default for Irohconfigs {
     fn default() -> Self {
         let blob_store = dirs::cache_dir()
             .unwrap_or_else(|| PathBuf::from("."))
@@ -151,34 +151,34 @@ impl Default for IrohConfig {
     }
 }
 
-impl Config {
-    /// Load configuration from a TOML file.
-    pub fn load(path: &std::path::Path) -> Result<Self, ConfigError> {
+impl configs {
+    /// Load configsuration from a TOML file.
+    pub fn load(path: &std::path::Path) -> Result<Self, configsError> {
         let content = std::fs::read_to_string(path)?;
-        let config: Config = toml::from_str(&content)?;
-        Ok(config)
+        let configs: configs = toml::from_str(&content)?;
+        Ok(configs)
     }
 
-    /// Load configuration from the default location.
-    pub fn load_default() -> Result<Self, ConfigError> {
-        let config_path = Self::default_config_path();
-        if config_path.exists() {
-            Self::load(&config_path)
+    /// Load configsuration from the default location.
+    pub fn load_default() -> Result<Self, configsError> {
+        let configs_path = Self::default_configs_path();
+        if configs_path.exists() {
+            Self::load(&configs_path)
         } else {
-            Ok(Config::default())
+            Ok(configs::default())
         }
     }
 
-    /// Get the default configuration file path.
-    pub fn default_config_path() -> PathBuf {
-        dirs::config_dir()
+    /// Get the default configsuration file path.
+    pub fn default_configs_path() -> PathBuf {
+        dirs::configs_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join("noa")
             .join("hive.toml")
     }
 
-    /// Save configuration to a TOML file.
-    pub fn save(&self, path: &std::path::Path) -> Result<(), ConfigError> {
+    /// Save configsuration to a TOML file.
+    pub fn save(&self, path: &std::path::Path) -> Result<(), configsError> {
         let content = toml::to_string_pretty(self)?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -188,9 +188,9 @@ impl Config {
     }
 }
 
-/// Configuration errors.
+/// configsuration errors.
 #[derive(Debug, thiserror::Error)]
-pub enum ConfigError {
+pub enum configsError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 

@@ -77,8 +77,8 @@ async fn connected_peers() -> (quic::Connection, quic::Connection) {
 
 fn new_transport() -> quic::tokio::Transport {
     let keypair = libp2p_identity::Keypair::generate_ed25519();
-    let mut config = quic::Config::new(&keypair);
-    config.handshake_timeout = Duration::from_secs(1);
+    let mut configs = quic::configs::new(&keypair);
+    configs.handshake_timeout = Duration::from_secs(1);
 
-    quic::tokio::Transport::new(config)
+    quic::tokio::Transport::new(configs)
 }

@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Configure Docker for NOA integration.
+# configsure Docker for NOA integration.
 #
-# Verifies Docker installation and creates configuration for NOA.
+# Verifies Docker installation and creates configsuration for NOA.
 #
 # Usage:
 #   ./docker.sh
@@ -13,7 +13,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../../.." && pwd)}"
 
-echo -e "\033[36mConfiguring Docker integration...\033[0m"
+echo -e "\033[36mconfigsuring Docker integration...\033[0m"
 
 # Check if docker is available
 if ! command -v docker &> /dev/null; then
@@ -46,13 +46,13 @@ else
     echo -e "  \033[90m[INFO]\033[0m docker-compose not found (optional)"
 fi
 
-# Create NOA Docker config directory
-NOA_DOCKER_CONFIG="$NOA_ROOT/etc/docker"
-if [[ ! -d "$NOA_DOCKER_CONFIG" ]]; then
-    mkdir -p "$NOA_DOCKER_CONFIG"
-    echo -e "  \033[32m[OK]\033[0m Created Docker config dir: $NOA_DOCKER_CONFIG"
+# Create NOA Docker configs directory
+NOA_DOCKER_configs="$NOA_ROOT/etc/docker"
+if [[ ! -d "$NOA_DOCKER_configs" ]]; then
+    mkdir -p "$NOA_DOCKER_configs"
+    echo -e "  \033[32m[OK]\033[0m Created Docker configs dir: $NOA_DOCKER_configs"
 fi
 
 echo ""
-echo -e "\033[32mDocker integration configured.\033[0m"
+echo -e "\033[32mDocker integration configsured.\033[0m"
 

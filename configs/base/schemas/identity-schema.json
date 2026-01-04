@@ -3,6 +3,13 @@
   "$id": "https://noa.framework/schemas/identity.json",
   "title": "Identity Configuration Schema",
   "description": "JSON Schema for NOA identity management configuration",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "JSON Schema for NOA identity management configuration",
+    "layer": "base",
+    "immutable": true,
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
   "type": "object",
   "required": ["version", "description", "metadata", "principals", "roles", "capabilities"],
   "properties": {

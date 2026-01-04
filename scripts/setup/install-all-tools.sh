@@ -204,7 +204,7 @@ install_python() {
   download_and_extract "https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz" "$tool_dir" "Python-3.12.7"
   if command -v make >/dev/null 2>&1; then
     pushd "$tool_dir/Python-3.12.7" >/dev/null
-    ./configure --prefix="$tool_dir/python-build" >/dev/null
+    ./configsure --prefix="$tool_dir/python-build" >/dev/null
     make -s -j"$(nproc)" >/dev/null
     make -s install >/dev/null
     popd >/dev/null
@@ -222,12 +222,12 @@ install_eslint() {
   fi
   local npm_bin
   npm_bin="$(dirname "$(command -v npm)")"
-  NPM_CONFIG_PREFIX="$DEVTOOLS_DIR/npm-global"
-  mkdir -p "$NPM_CONFIG_PREFIX"
-  PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+  NPM_configs_PREFIX="$DEVTOOLS_DIR/npm-global"
+  mkdir -p "$NPM_configs_PREFIX"
+  PATH="$NPM_configs_PREFIX/bin:$PATH"
   npm install -g eslint@9.13.0
-  if [[ -x "$NPM_CONFIG_PREFIX/bin/eslint" ]]; then
-    link_bin "$NPM_CONFIG_PREFIX/bin/eslint" eslint
+  if [[ -x "$NPM_configs_PREFIX/bin/eslint" ]]; then
+    link_bin "$NPM_configs_PREFIX/bin/eslint" eslint
   fi
 }
 
@@ -257,8 +257,8 @@ install_claude_code() {
   local npm_cache="$OPT_DIR/npm-cache"
   local npm_prefix="$DEVTOOLS_DIR/npm-global"
   mkdir -p "$npm_cache" "$npm_prefix"
-  NPM_CONFIG_CACHE="$npm_cache"
-  NPM_CONFIG_PREFIX="$npm_prefix"
+  NPM_configs_CACHE="$npm_cache"
+  NPM_configs_PREFIX="$npm_prefix"
   PATH="$npm_prefix/bin:$PATH"
 
   npm install -g @anthropic-ai/claude-code
@@ -268,11 +268,11 @@ install_claude_code() {
     ok "Claude Code CLI installed"
   fi
 
-  # Ensure provider config directory exists
-  local provider_config_dir="$NOA_ROOT/ai/providers/cloud/claude-code"
-  if [[ ! -d "$provider_config_dir" ]]; then
-    mkdir -p "$provider_config_dir"
-    info "  Created provider config directory: $provider_config_dir"
+  # Ensure provider configs directory exists
+  local provider_configs_dir="$NOA_ROOT/ai/providers/cloud/claude-code"
+  if [[ ! -d "$provider_configs_dir" ]]; then
+    mkdir -p "$provider_configs_dir"
+    info "  Created provider configs directory: $provider_configs_dir"
   fi
 }
 
@@ -300,8 +300,8 @@ install_codex_cli() {
   local npm_cache="$OPT_DIR/npm-cache"
   local npm_prefix="$DEVTOOLS_DIR/npm-global"
   mkdir -p "$npm_cache" "$npm_prefix"
-  NPM_CONFIG_CACHE="$npm_cache"
-  NPM_CONFIG_PREFIX="$npm_prefix"
+  NPM_configs_CACHE="$npm_cache"
+  NPM_configs_PREFIX="$npm_prefix"
   PATH="$npm_prefix/bin:$PATH"
 
   # Try @openai/codex first, fallback to codex-cli
@@ -314,11 +314,11 @@ install_codex_cli() {
     warn "Codex CLI install pending (binary not found after npm). Will retry on next run."
   fi
 
-  # Ensure provider config directory exists
-  local provider_config_dir="$NOA_ROOT/ai/providers/cloud/codex"
-  if [[ ! -d "$provider_config_dir" ]]; then
-    mkdir -p "$provider_config_dir"
-    info "  Created provider config directory: $provider_config_dir"
+  # Ensure provider configs directory exists
+  local provider_configs_dir="$NOA_ROOT/ai/providers/cloud/codex"
+  if [[ ! -d "$provider_configs_dir" ]]; then
+    mkdir -p "$provider_configs_dir"
+    info "  Created provider configs directory: $provider_configs_dir"
   fi
 }
 
@@ -348,8 +348,8 @@ install_abacus_cli() {
   local npm_cache="$OPT_DIR/npm-cache"
   local npm_prefix="$DEVTOOLS_DIR/npm-global"
   mkdir -p "$npm_cache" "$npm_prefix"
-  NPM_CONFIG_CACHE="$npm_cache"
-  NPM_CONFIG_PREFIX="$npm_prefix"
+  NPM_configs_CACHE="$npm_cache"
+  NPM_configs_PREFIX="$npm_prefix"
   PATH="$npm_prefix/bin:$PATH"
 
   npm install -g @abacus-ai/cli
@@ -412,11 +412,11 @@ install_vscode_with_copilot() {
     warn "VS Code download failed. Manual install: https://code.visualstudio.com/download"
   fi
 
-  # Ensure provider config directory exists
-  local provider_config_dir="$NOA_ROOT/ai/providers/ide/vscode-copilot"
-  if [[ ! -d "$provider_config_dir" ]]; then
-    mkdir -p "$provider_config_dir"
-    info "  Created provider config directory: $provider_config_dir"
+  # Ensure provider configs directory exists
+  local provider_configs_dir="$NOA_ROOT/ai/providers/ide/vscode-copilot"
+  if [[ ! -d "$provider_configs_dir" ]]; then
+    mkdir -p "$provider_configs_dir"
+    info "  Created provider configs directory: $provider_configs_dir"
   fi
 }
 
@@ -428,16 +428,16 @@ install_git_cli_provider() {
     install_git
   fi
 
-  info "Configuring Git CLI as AI provider (Priority 6)..."
+  info "configsuring Git CLI as AI provider (Priority 6)..."
 
-  # Ensure provider config directory exists
-  local provider_config_dir="$NOA_ROOT/ai/providers/local/git-cli"
-  if [[ ! -d "$provider_config_dir" ]]; then
-    mkdir -p "$provider_config_dir"
-    info "  Created provider config directory: $provider_config_dir"
+  # Ensure provider configs directory exists
+  local provider_configs_dir="$NOA_ROOT/ai/providers/local/git-cli"
+  if [[ ! -d "$provider_configs_dir" ]]; then
+    mkdir -p "$provider_configs_dir"
+    info "  Created provider configs directory: $provider_configs_dir"
   fi
 
-  ok "Git CLI configured as AI provider"
+  ok "Git CLI configsured as AI provider"
 }
 
 install_all_ai_providers() {
@@ -502,10 +502,10 @@ install_shared_resources() {
     info "  Created execution memory database: $db_path"
   fi
 
-  # Create shared resources config
-  local config_path="$NOA_ROOT/config/shared-resources.json"
-  if [[ ! -f "$config_path" ]]; then
-    cat > "$config_path" << 'EOF'
+  # Create shared resources configs
+  local configs_path="$NOA_ROOT/configs/shared-resources.json"
+  if [[ ! -f "$configs_path" ]]; then
+    cat > "$configs_path" << 'EOF'
 {
   "version": "1.0.0",
   "basePath": "${NOA_ROOT}/ai/shared",
@@ -525,10 +525,10 @@ install_shared_resources() {
   }
 }
 EOF
-    info "  Created shared resources config: $config_path"
+    info "  Created shared resources configs: $configs_path"
   fi
 
-  # Update provider configs to reference shared resources
+  # Update provider configss to reference shared resources
   local -a providers=(
     "ai/providers/cloud/claude-code"
     "ai/providers/cloud/codex"
@@ -595,6 +595,6 @@ for t in "${TO_INSTALL[@]}"; do
 done
 
 ok "Install finished. Ensure $BIN_DIR is first in PATH for this session."
-info "AI Provider configs located at: $NOA_ROOT/ai/providers/"
+info "AI Provider configss located at: $NOA_ROOT/ai/providers/"
 info "Shared resources at: $NOA_ROOT/ai/shared/"
 

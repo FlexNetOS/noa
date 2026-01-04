@@ -5,12 +5,12 @@ use serde::Deserialize;
 
 #[derive(Clone, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub(crate) struct Config {
+pub(crate) struct configs {
     pub(crate) identity: Identity,
     pub(crate) addresses: Addresses,
 }
 
-impl Config {
+impl configs {
     pub(crate) fn from_file(path: &Path) -> Result<Self, Box<dyn Error>> {
         Ok(serde_json::from_str(&std::fs::read_to_string(path)?)?)
     }
@@ -31,7 +31,7 @@ pub(crate) struct Addresses {
     pub(crate) append_announce: Vec<Multiaddr>,
 }
 
-impl zeroize::Zeroize for Config {
+impl zeroize::Zeroize for configs {
     fn zeroize(&mut self) {
         self.identity.peer_id.zeroize();
         self.identity.priv_key.zeroize();

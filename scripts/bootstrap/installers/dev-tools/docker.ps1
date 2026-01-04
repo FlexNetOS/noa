@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Configure Docker for NOA integration.
+    configsure Docker for NOA integration.
 
 .DESCRIPTION
-    Verifies Docker installation and creates configuration for NOA.
+    Verifies Docker installation and creates configsuration for NOA.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -26,9 +26,9 @@ if (-not $NoaRoot) {
 }
 
 $BIN_DIR = Join-Path $NoaRoot "bin"
-$CONFIG_DIR = Join-Path $NoaRoot "config"
+$configs_DIR = Join-Path $NoaRoot "configs"
 
-Write-Host "Configuring Docker integration..." -ForegroundColor Cyan
+Write-Host "configsuring Docker integration..." -ForegroundColor Cyan
 
 # Check if docker is available
 $dockerCmd = Get-Command docker -ErrorAction SilentlyContinue
@@ -77,13 +77,13 @@ if ($composeCmd) {
     }
 }
 
-# Create NOA Docker config directory
-$noaDockerConfig = Join-Path $NoaRoot "etc/docker"
-if (-not (Test-Path $noaDockerConfig)) {
-    New-Item -ItemType Directory -Path $noaDockerConfig -Force | Out-Null
-    Write-Host "  [OK] Created Docker config dir: $noaDockerConfig" -ForegroundColor Green
+# Create NOA Docker configs directory
+$noaDockerconfigs = Join-Path $NoaRoot "etc/docker"
+if (-not (Test-Path $noaDockerconfigs)) {
+    New-Item -ItemType Directory -Path $noaDockerconfigs -Force | Out-Null
+    Write-Host "  [OK] Created Docker configs dir: $noaDockerconfigs" -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "Docker integration configured." -ForegroundColor Green
+Write-Host "Docker integration configsured." -ForegroundColor Green
 

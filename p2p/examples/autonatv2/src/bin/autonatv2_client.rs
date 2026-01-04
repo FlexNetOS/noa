@@ -40,14 +40,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_quic()
         .with_dns()?
         .with_behaviour(|key| Behaviour::new(key.public(), opt.probe_interval))?
-        .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(10)))
+        .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(10)))
         .build();
 
     swarm.listen_on(
@@ -102,10 +102,10 @@ impl Behaviour {
         Self {
             autonat: autonat::v2::client::Behaviour::new(
                 OsRng,
-                autonat::v2::client::Config::default()
+                autonat::v2::client::configs::default()
                     .with_probe_interval(Duration::from_secs(probe_interval)),
             ),
-            identify: identify::Behaviour::new(identify::Config::new("/ipfs/0.1.0".into(), key)),
+            identify: identify::Behaviour::new(identify::configs::new("/ipfs/0.1.0".into(), key)),
         }
     }
 }

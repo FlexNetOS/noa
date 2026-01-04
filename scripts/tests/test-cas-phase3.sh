@@ -108,11 +108,11 @@ test_case "GC directory exists" "[[ -d '$CAS_ROOT/gc' ]]"
 test_case "Merkle directory exists" "[[ -d '$CAS_ROOT/merkle' ]]"
 echo ""
 
-# Test 2: Configuration files
-echo "=== Test Group: Configuration Files ==="
-test_case "CAS config exists" "[[ -f '$NOA_ROOT/configs/base/cas/config.json' ]]"
+# Test 2: configsuration files
+echo "=== Test Group: configsuration Files ==="
+test_case "CAS configs exists" "[[ -f '$NOA_ROOT/configss/base/cas/configs.json' ]]"
 test_case "GC rules exist" "[[ -f '$CAS_ROOT/gc/gc_rules.json' ]]"
-test_case "Cache policies exist" "[[ -f '$NOA_ROOT/configs/base/cache/cache-policies.json' ]]"
+test_case "Cache policies exist" "[[ -f '$NOA_ROOT/configss/base/cache/cache-policies.json' ]]"
 echo ""
 
 # Test 3: Registry files

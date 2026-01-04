@@ -22,7 +22,7 @@ mod memory;
 
 use std::borrow::Cow;
 
-pub use memory::{MemoryStore, MemoryStoreConfig};
+pub use memory::{MemoryStore, MemoryStoreconfigs};
 use thiserror::Error;
 
 use super::*;

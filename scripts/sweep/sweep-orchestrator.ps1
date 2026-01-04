@@ -41,7 +41,7 @@ param(
     [switch]$Force
 )
 
-#region Configuration
+#region configsuration
 $ErrorActionPreference = 'Stop'
 $script:NoaRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
 $script:SweepDir = "$script:NoaRoot\scripts\sweep"
@@ -65,7 +65,7 @@ $script:ProcessExtensions = @{
     JavaScript = @('.js', '.jsx', '.mjs', '.cjs')
     Python     = @('.py', '.pyi')
     Markdown   = @('.md', '.mdx')
-    Config     = @('.json', '.yaml', '.yml', '.toml')
+    configs     = @('.json', '.yaml', '.yml', '.toml')
     Shell      = @('.ps1', '.sh', '.bash')
 }
 #endregion

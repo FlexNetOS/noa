@@ -42,7 +42,7 @@ To see the span data collected as part of the `Swarm`s activity, start up an ope
 docker compose up
 ```
 
-Then, configure tracing to output spans:
+Then, configsure tracing to output spans:
 
 ```shell
 export RUST_LOG=info,[ConnectionHandler::poll]=trace,[NetworkBehaviour::poll]=trace

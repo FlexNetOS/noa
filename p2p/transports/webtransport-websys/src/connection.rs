@@ -106,7 +106,7 @@ impl ConnectionInner {
             .map_err(Error::from_js_value)?;
 
         let stream = poll_fn(|cx| self.poll_create_bidirectional_stream(cx)).await?;
-        let mut noise = libp2p_noise::Config::new(keypair)?;
+        let mut noise = libp2p_noise::configs::new(keypair)?;
 
         if !certhashes.is_empty() {
             noise = noise.with_webtransport_certhashes(certhashes);

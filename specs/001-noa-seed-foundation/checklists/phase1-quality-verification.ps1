@@ -167,7 +167,7 @@ if ($hasDocs) {
     $results.Notes += "CHK046 : No doc comments found in sample Rust files"
 }
 
-# CHK047: Linting - check for lint configs
+# CHK047: Linting - check for lint configss
 Test-Phase1File ".github/workflows/ci.yml" "CHK047"
 Test-Phase1File "sys/core/rustfmt.toml" "CHK047"
 Test-Phase1File "sys/ui/.eslintrc.json" "CHK047"
@@ -215,10 +215,10 @@ $results.N_A += "CHK056"  # May not apply to all files
 Test-FileContent "sys/core/Cargo.toml" "authors" "CHK057" "Author field"
 
 # CHK058: JSON schema $schema
-Test-FileContent "config/schemas/config_schema.json" '\$schema' "CHK058" "Schema reference"
+Test-FileContent "configs/schemas/configs_schema.json" '\$schema' "CHK058" "Schema reference"
 
-# CHK059: Config version field
-Test-FileContent "config/noa-server.json" "version" "CHK059" "Config version"
+# CHK059: configs version field
+Test-FileContent "configs/noa-server.json" "version" "CHK059" "configs version"
 
 # CHK060: API version
 $results.N_A += "CHK060"  # May not apply to Phase 1
@@ -232,14 +232,14 @@ Test-FileContent "specs/001-noa-seed-foundation/tasks.md" "FR-|SC-|US" "CHK062" 
 # CHK063-CHK065: Change control
 $results.N_A += "CHK063", "CHK064", "CHK065"  # Process-level checks
 
-# Category 6: Configuration Standardization (CHK066-CHK076)
-Write-Host "Category 6: Configuration Standardization..." -ForegroundColor Yellow
+# Category 6: configsuration Standardization (CHK066-CHK076)
+Write-Host "Category 6: configsuration Standardization..." -ForegroundColor Yellow
 
-# CHK066: JSON config schema pattern
-Test-Phase1File "config/schemas/config_schema.json" "CHK066"
+# CHK066: JSON configs schema pattern
+Test-Phase1File "configs/schemas/configs_schema.json" "CHK066"
 
 # CHK067: Environment variable syntax
-Test-FileContent "config/noa-server.json" '\$\{.*\}' "CHK067" "ENV var syntax"
+Test-FileContent "configs/noa-server.json" '\$\{.*\}' "CHK067" "ENV var syntax"
 
 # CHK068: Schema validation on load
 $results.N_A += "CHK068"  # Requires code review
@@ -248,7 +248,7 @@ $results.N_A += "CHK068"  # Requires code review
 Test-FileContent ".gitignore" "\.env|secrets|\.key" "CHK069" "Sensitive files"
 
 # CHK070: Path pattern consistency
-Test-FileContent "config/noa-server.json" "noa_root|\$\{NOA_ROOT\}" "CHK070" "Path patterns"
+Test-FileContent "configs/noa-server.json" "noa_root|\$\{NOA_ROOT\}" "CHK070" "Path patterns"
 
 # CHK071: Boolean naming
 $results.N_A += "CHK071"  # Requires code review
@@ -259,27 +259,27 @@ $results.N_A += "CHK072"  # Requires code review
 # CHK073: Priority scale
 $results.N_A += "CHK073"  # Requires code review
 
-# CHK074-CHK076: Config documentation
-Test-Phase1File "config/README.md" "CHK074"
+# CHK074-CHK076: configs documentation
+Test-Phase1File "configs/README.md" "CHK074"
 $results.N_A += "CHK075", "CHK076"  # Requires detailed review
 
 # Category 7: Schema Quality (CHK077-CHK087)
 Write-Host "Category 7: Schema Quality..." -ForegroundColor Yellow
 
 # CHK077: JSON Schema draft-07
-Test-FileContent "config/schemas/config_schema.json" "draft-07|draft-2020" "CHK077" "Schema version"
+Test-FileContent "configs/schemas/configs_schema.json" "draft-07|draft-2020" "CHK077" "Schema version"
 
 # CHK078: Required fields
-Test-FileContent "config/schemas/config_schema.json" '"required"' "CHK078" "Required array"
+Test-FileContent "configs/schemas/configs_schema.json" '"required"' "CHK078" "Required array"
 
 # CHK079: Property descriptions
-Test-FileContent "config/schemas/config_schema.json" '"description"' "CHK079" "Property descriptions"
+Test-FileContent "configs/schemas/configs_schema.json" '"description"' "CHK079" "Property descriptions"
 
 # CHK080: Enums for fixed values
-Test-FileContent "config/schemas/config_schema.json" '"enum"' "CHK080" "Enum usage"
+Test-FileContent "configs/schemas/configs_schema.json" '"enum"' "CHK080" "Enum usage"
 
 # CHK081: Numeric ranges
-Test-FileContent "config/schemas/config_schema.json" '"minimum"|"maximum"' "CHK081" "Numeric constraints"
+Test-FileContent "configs/schemas/configs_schema.json" '"minimum"|"maximum"' "CHK081" "Numeric constraints"
 
 # CHK082-CHK084: Schema validation
 $results.N_A += "CHK082", "CHK083", "CHK084"  # Requires runtime check
@@ -356,17 +356,17 @@ $results.N_A += "CHK118"  # May not apply to all downloads
 # CHK119-CHK121: Idempotency
 $results.N_A += "CHK119", "CHK120", "CHK121"  # Requires testing
 
-# Category 14: AI Provider Config (CHK122-CHK130)
-Write-Host "Category 14: AI Provider Config Quality..." -ForegroundColor Yellow
+# Category 14: AI Provider configs (CHK122-CHK130)
+Write-Host "Category 14: AI Provider configs Quality..." -ForegroundColor Yellow
 
 # Check ai-providers.json structure
-Test-Phase1File "config/ai-providers.json" "CHK122"
-Test-FileContent "config/ai-providers.json" '"name"|"type"|"priority"|"enabled"|"description"' "CHK122" "Provider fields"
-Test-FileContent "config/ai-providers.json" '"cli"' "CHK123" "CLI config"
-Test-FileContent "config/ai-providers.json" '"modes"' "CHK124" "Modes config"
-Test-FileContent "config/ai-providers.json" '"capabilities"' "CHK125" "Capabilities"
-Test-FileContent "config/ai-providers.json" '"sharedResources"' "CHK126" "Shared resources"
-Test-FileContent "config/ai-providers.json" '"timeout"|"latency"' "CHK127" "Timeout/latency"
+Test-Phase1File "configs/ai-providers.json" "CHK122"
+Test-FileContent "configs/ai-providers.json" '"name"|"type"|"priority"|"enabled"|"description"' "CHK122" "Provider fields"
+Test-FileContent "configs/ai-providers.json" '"cli"' "CHK123" "CLI configs"
+Test-FileContent "configs/ai-providers.json" '"modes"' "CHK124" "Modes configs"
+Test-FileContent "configs/ai-providers.json" '"capabilities"' "CHK125" "Capabilities"
+Test-FileContent "configs/ai-providers.json" '"sharedResources"' "CHK126" "Shared resources"
+Test-FileContent "configs/ai-providers.json" '"timeout"|"latency"' "CHK127" "Timeout/latency"
 
 # CHK128-CHK130: Consistency checks
 $results.N_A += "CHK128", "CHK129", "CHK130"  # Requires detailed review

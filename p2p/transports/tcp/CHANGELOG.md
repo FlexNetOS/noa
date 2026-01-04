@@ -53,7 +53,7 @@
 
 - Update to `if-watch`  `v3.0.0` and pass through `tokio` and `async-io` features. See [PR 3101].
 
-- Deprecate types with `Tcp` prefix (`GenTcpConfig`, `TcpTransport` and `TokioTcpTransport`) in favor of referencing them by module / crate. See [PR 2961].
+- Deprecate types with `Tcp` prefix (`GenTcpconfigs`, `TcpTransport` and `TokioTcpTransport`) in favor of referencing them by module / crate. See [PR 2961].
 
 - Remove `TcpListenStream` and `TcpListenerEvent` from public API. See [PR 2961].
 
@@ -99,7 +99,7 @@
   establishment errors early. See also [PR 2458] for the related async-io
   change.
 
-- Split `GenTcpConfig` into `GenTcpConfig` and `GenTcpTransport`. Drive the `TcpListenStream`s
+- Split `GenTcpconfigs` into `GenTcpconfigs` and `GenTcpTransport`. Drive the `TcpListenStream`s
   within the `GenTcpTransport`. Add `Transport::poll` and `Transport::remove_listener`
   for `GenTcpTransport`. See [PR 2652].
 
@@ -109,7 +109,7 @@
 
 - Update to `libp2p-core` `v0.33.0`.
 
-- Remove implementation of `Clone` on `GenTcpConfig`. See [PR 2682].
+- Remove implementation of `Clone` on `GenTcpconfigs`. See [PR 2682].
 
 [PR 2682]: https://github.com/libp2p/rust-libp2p/pull/2682
 

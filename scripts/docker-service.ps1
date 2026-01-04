@@ -35,7 +35,7 @@ if (-not $NoaRoot) {
 $DOCKER_BIN = Join-Path $NoaRoot "bin/docker.exe"
 $DOCKERD_BIN = Join-Path $NoaRoot "bin/dockerd.exe"
 $DOCKER_DATA = Join-Path $NoaRoot "containers/docker-data"
-$DOCKER_CONFIG = Join-Path $NoaRoot "etc/docker/daemon.json"
+$DOCKER_configs = Join-Path $NoaRoot "etc/docker/daemon.json"
 $DOCKER_PID = Join-Path $NoaRoot "init/run/dockerd.pid"
 $DOCKER_PIPE = "\\.\pipe\noa-docker"
 
@@ -63,8 +63,8 @@ switch ($Action) {
                 "--data-root", $DOCKER_DATA,
                 "--host", "npipe://$DOCKER_PIPE"
             )
-            if (Test-Path $DOCKER_CONFIG) {
-                $args += "--config-file", $DOCKER_CONFIG
+            if (Test-Path $DOCKER_configs) {
+                $args += "--configs-file", $DOCKER_configs
             }
 
             $process = Start-Process -FilePath $DOCKERD_BIN -ArgumentList $args -PassThru -WindowStyle Hidden

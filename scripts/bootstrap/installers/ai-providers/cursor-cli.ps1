@@ -3,17 +3,17 @@
     Install Cursor CLI to noa_root/opt/
 
 .DESCRIPTION
-    Downloads or configures Cursor CLI for headless operation.
-    Cursor is typically installed as an IDE; this configures the CLI component.
+    Downloads or configsures Cursor CLI for headless operation.
+    Cursor is typically installed as an IDE; this configsures the CLI component.
 
-    Provider Config: ai/providers/hybrid/cursor/config.json
+    Provider configs: ai/providers/hybrid/cursor/configs.json
 
 .PARAMETER NoaRoot
     Root directory for NOA installation. Defaults to N:\noa
 
 .PARAMETER Method
     Installation method: detect (default), manual
-    - detect: Look for existing Cursor installation and configure CLI
+    - detect: Look for existing Cursor installation and configsure CLI
     - manual: Provide manual download instructions
 
 .EXAMPLE
@@ -44,8 +44,8 @@ function Write-Log {
     Write-Host "[$Level] $Message" -ForegroundColor $color
 }
 
-# Configuration
-$ProviderConfigPath = Join-Path $NoaRoot "ai/providers/hybrid/cursor"
+# configsuration
+$ProviderconfigsPath = Join-Path $NoaRoot "ai/providers/hybrid/cursor"
 
 Write-Log "Setting up Cursor CLI..." -Level Info
 Write-Log "  Method: $Method" -Level Info
@@ -56,7 +56,7 @@ $optPath = Join-Path $NoaRoot "opt"
 $binPath = Join-Path $NoaRoot "bin"
 $cursorOptPath = Join-Path $optPath "cursor-cli"
 
-foreach ($dir in @($optPath, $binPath, $ProviderConfigPath, $cursorOptPath)) {
+foreach ($dir in @($optPath, $binPath, $ProviderconfigsPath, $cursorOptPath)) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
         Write-Log "  Created: $dir" -Level Success
@@ -115,14 +115,14 @@ REM Launches Cursor with CLI arguments
     }
 }
 
-# Create provider config if not exists
-$configFile = Join-Path $ProviderConfigPath "config.json"
-if (-not (Test-Path $configFile)) {
-    Write-Log "Provider config already exists at ai/providers/hybrid/cursor/" -Level Info
+# Create provider configs if not exists
+$configsFile = Join-Path $ProviderconfigsPath "configs.json"
+if (-not (Test-Path $configsFile)) {
+    Write-Log "Provider configs already exists at ai/providers/hybrid/cursor/" -Level Info
 }
 
 Write-Log "Cursor CLI setup complete!" -Level Success
-Write-Log "  Provider config: $ProviderConfigPath" -Level Info
+Write-Log "  Provider configs: $ProviderconfigsPath" -Level Info
 Write-Log "  Shared resources: $NoaRoot\ai\shared" -Level Info
 
 exit 0

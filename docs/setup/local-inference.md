@@ -18,7 +18,7 @@ NOA can use a local `llama-server` (from the `opt/llama.cpp` submodule) to provi
 
    - `opt/models/default.gguf`
 
-2. Configure the model path via environment:
+2. configsure the model path via environment:
 
    - `NOA_LLAMA_MODEL_PATH=opt/models/default.gguf`
 
@@ -37,7 +37,7 @@ NOA can use a local `llama-server` (from the `opt/llama.cpp` submodule) to provi
 
    The UI calls `POST /api/v1/chat` and `POST /api/v1/chat/stream`.
 
-   A `next.config.mjs` rewrite proxies `/api/*` from the UI dev server to the Rust API server at `http://127.0.0.1:3001`.
+   A `next.configs.mjs` rewrite proxies `/api/*` from the UI dev server to the Rust API server at `http://127.0.0.1:3001`.
 
 ## Useful endpoints
 
@@ -54,4 +54,4 @@ NOA can use a local `llama-server` (from the `opt/llama.cpp` submodule) to provi
   - Build llama.cpp, or set `NOA_LLAMA_SERVER_PATH`.
 
 - **UI still 404s on `/api/v1/chat`**
-  - Restart `next dev` after adding `next.config.mjs`.
+  - Restart `next dev` after adding `next.configs.mjs`.

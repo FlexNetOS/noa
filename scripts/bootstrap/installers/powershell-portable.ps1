@@ -8,7 +8,7 @@
 
 .NOTES
     Per NOA Constitution §3.1: Self-Contained Installation
-    "All dependencies, caches, and configurations reside within noa_root."
+    "All dependencies, caches, and configsurations reside within noa_root."
 #>
 
 [CmdletBinding()]

@@ -10,7 +10,7 @@ use crate::SwarmBuilder;
 pub struct BuildPhase<T, B> {
     pub(crate) behaviour: B,
     pub(crate) transport: T,
-    pub(crate) swarm_config: libp2p_swarm::Config,
+    pub(crate) swarm_configs: libp2p_swarm::configs,
     pub(crate) connection_timeout: Duration,
 }
 
@@ -28,7 +28,7 @@ impl<Provider, T: AuthenticatedMultiplexedTransport, B: libp2p_swarm::NetworkBeh
             TransportTimeout::new(self.phase.transport, self.phase.connection_timeout).boxed(),
             self.phase.behaviour,
             self.keypair.public().to_peer_id(),
-            self.phase.swarm_config,
+            self.phase.swarm_configs,
         )
     }
 }

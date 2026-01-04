@@ -42,40 +42,40 @@ foreach ($pType in $providerTypes) {
         continue
     }
 
-    # Find all provider configs
-    $configs = Get-ChildItem -Path $pTypeDir -Filter "config.json" -Recurse -ErrorAction SilentlyContinue
+    # Find all provider configss
+    $configss = Get-ChildItem -Path $pTypeDir -Filter "configs.json" -Recurse -ErrorAction SilentlyContinue
 
-    foreach ($config in $configs) {
-        $providerName = (Split-Path -Parent $config.FullName) | Split-Path -Leaf
+    foreach ($configs in $configss) {
+        $providerName = (Split-Path -Parent $configs.FullName) | Split-Path -Leaf
         Write-Host "  Updating: $pType/$providerName" -ForegroundColor Gray
 
         try {
-            $configContent = Get-Content $config.FullName -Raw | ConvertFrom-Json
+            $configsContent = Get-Content $configs.FullName -Raw | ConvertFrom-Json
 
             # Ensure sharedResources section exists and points to correct paths
             $updated = $false
 
-            if (-not $configContent.sharedResourcePath) {
-                $configContent | Add-Member -NotePropertyName "sharedResourcePath" -NotePropertyValue "`${NOA_ROOT}/ai/shared" -Force
+            if (-not $configsContent.sharedResourcePath) {
+                $configsContent | Add-Member -NotePropertyName "sharedResourcePath" -NotePropertyValue "`${NOA_ROOT}/ai/shared" -Force
                 $updated = $true
             }
 
-            if (-not $configContent.sharedResources) {
+            if (-not $configsContent.sharedResources) {
                 $sharedResources = @{}
                 foreach ($rt in $resourceTypes) {
                     $sharedResources[$rt] = "`${NOA_ROOT}/ai/shared/$rt"
                 }
                 $sharedResources["executionMemory"] = "`${NOA_ROOT}/ai/shared/resources/execution-memory.db"
 
-                $configContent | Add-Member -NotePropertyName "sharedResources" -NotePropertyValue $sharedResources -Force
+                $configsContent | Add-Member -NotePropertyName "sharedResources" -NotePropertyValue $sharedResources -Force
                 $updated = $true
             }
 
             if ($updated) {
-                $configContent | ConvertTo-Json -Depth 10 | Set-Content -Path $config.FullName -Encoding UTF8
-                Write-Host "    [OK] Updated config" -ForegroundColor Green
+                $configsContent | ConvertTo-Json -Depth 10 | Set-Content -Path $configs.FullName -Encoding UTF8
+                Write-Host "    [OK] Updated configs" -ForegroundColor Green
             } else {
-                Write-Host "    [OK] Already configured" -ForegroundColor Gray
+                Write-Host "    [OK] Already configsured" -ForegroundColor Gray
             }
         } catch {
             Write-Host "    [!!] Failed to update: $_" -ForegroundColor Yellow
@@ -84,20 +84,20 @@ foreach ($pType in $providerTypes) {
 }
 
 # Update main ai-providers.json
-$mainConfigPath = Join-Path $NoaRoot "config/ai-providers.json"
-if (Test-Path $mainConfigPath) {
+$mainconfigsPath = Join-Path $NoaRoot "configs/ai-providers.json"
+if (Test-Path $mainconfigsPath) {
     try {
-        $mainConfig = Get-Content $mainConfigPath -Raw | ConvertFrom-Json
+        $mainconfigs = Get-Content $mainconfigsPath -Raw | ConvertFrom-Json
 
-        if (-not $mainConfig.sharedResources.commands) {
-            $mainConfig.sharedResources | Add-Member -NotePropertyName "commands" -NotePropertyValue "`${NOA_ROOT}/ai/shared/commands" -Force
-            $mainConfig.sharedResources | Add-Member -NotePropertyName "resources" -NotePropertyValue "`${NOA_ROOT}/ai/shared/resources" -Force
+        if (-not $mainconfigs.sharedResources.commands) {
+            $mainconfigs.sharedResources | Add-Member -NotePropertyName "commands" -NotePropertyValue "`${NOA_ROOT}/ai/shared/commands" -Force
+            $mainconfigs.sharedResources | Add-Member -NotePropertyName "resources" -NotePropertyValue "`${NOA_ROOT}/ai/shared/resources" -Force
 
-            $mainConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $mainConfigPath -Encoding UTF8
+            $mainconfigs | ConvertTo-Json -Depth 10 | Set-Content -Path $mainconfigsPath -Encoding UTF8
             Write-Host "  [OK] Updated main ai-providers.json" -ForegroundColor Green
         }
     } catch {
-        Write-Host "  [!!] Failed to update main config: $_" -ForegroundColor Yellow
+        Write-Host "  [!!] Failed to update main configs: $_" -ForegroundColor Yellow
     }
 }
 

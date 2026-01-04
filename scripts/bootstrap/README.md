@@ -43,7 +43,7 @@ scripts/bootstrap/
 │   ├── platform.ps1       # Platform detection
 │   ├── state.ps1          # State management
 │   └── verification.ps1   # Tool verification
-├── config/                # Configuration scripts
+├── configs/                # configsuration scripts
 │   ├── cache-setup.ps1    # Cache directory setup
 │   ├── provider-cache.ps1 # AI provider caches
 │   └── log-setup.ps1      # Logging setup
@@ -78,7 +78,7 @@ Bootstrap runs in phases:
 7. **Verification** - Verify all installations
 8. **Report** - Generate installation report
 
-## Configuration
+## configsuration
 
 ### bootstrap-tools.json
 
@@ -138,7 +138,7 @@ After bootstrap, verify with:
 
 ## Related Files
 
-- `config/bootstrap-tools.json` - Tool versions and URLs
-- `config/bootstrap-state.json` - Installation state
+- `configs/bootstrap-tools.json` - Tool versions and URLs
+- `configs/bootstrap-state.json` - Installation state
 - `noa-env.ps1` / `.noa-env` - Generated environment scripts
 

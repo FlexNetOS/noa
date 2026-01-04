@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Configure Cursor IDE for NOA integration.
+    configsure Cursor IDE for NOA integration.
 
 .DESCRIPTION
-    Detects Cursor installation and configures CLI integration.
+    Detects Cursor installation and configsures CLI integration.
     Creates wrapper script in NOA bin directory.
 
 .PARAMETER NoaRoot
@@ -29,7 +29,7 @@ if (-not $NoaRoot) {
 $BIN_DIR = Join-Path $NoaRoot "bin"
 $WRAPPER_PATH = Join-Path $BIN_DIR "cursor.cmd"
 
-Write-Host "Configuring Cursor IDE integration..." -ForegroundColor Cyan
+Write-Host "configsuring Cursor IDE integration..." -ForegroundColor Cyan
 
 # Common Cursor installation paths
 $cursorPaths = @(
@@ -61,7 +61,7 @@ if (-not (Test-Path $BIN_DIR)) {
 
 # Check if wrapper already exists
 if (Test-Path $WRAPPER_PATH) {
-    Write-Host "  [EXISTS] Cursor wrapper already configured" -ForegroundColor Gray
+    Write-Host "  [EXISTS] Cursor wrapper already configsured" -ForegroundColor Gray
     return
 }
 

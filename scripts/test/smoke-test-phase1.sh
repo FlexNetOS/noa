@@ -60,8 +60,8 @@ test_check "init/seeds directory exists" "test -d $NOA_ROOT/init/seeds"
 # FR-033: containers/ directory
 test_check "containers directory exists" "test -d $NOA_ROOT/containers"
 
-# FR-034: config/ directory
-test_check "config directory exists" "test -d $NOA_ROOT/config"
+# FR-034: configs/ directory
+test_check "configs directory exists" "test -d $NOA_ROOT/configs"
 
 # FR-035: bin/ directory
 test_check "bin directory exists" "test -d $NOA_ROOT/bin"
@@ -87,12 +87,12 @@ test_check "package.json exists" "test -f $NOA_ROOT/sys/ui/package.json"
 test_check "pyproject.toml exists" "test -f $NOA_ROOT/sys/digest/pyproject.toml"
 
 echo ""
-echo "Testing configuration files (T016)..."
+echo "Testing configsuration files (T016)..."
 echo ""
 
-test_check "noa-server.json exists" "test -f $NOA_ROOT/config/noa-server.json"
-test_check "ai-providers.json exists" "test -f $NOA_ROOT/config/ai-providers.json"
-test_check "features.json exists" "test -f $NOA_ROOT/config/features.json"
+test_check "noa-server.json exists" "test -f $NOA_ROOT/configs/noa-server.json"
+test_check "ai-providers.json exists" "test -f $NOA_ROOT/configs/ai-providers.json"
+test_check "features.json exists" "test -f $NOA_ROOT/configs/features.json"
 
 echo ""
 echo "Testing scripts (T015, T673-T674)..."

@@ -2,7 +2,7 @@ import csv
 import pathlib
 import sys
 
-CSV_PATH = pathlib.Path(__file__).resolve().parents[2] / "docs" / "plans" / "config-audit-table.csv"
+CSV_PATH = pathlib.Path(__file__).resolve().parents[2] / "docs" / "plans" / "configs-audit-table.csv"
 
 
 def normalize_row(row, width):

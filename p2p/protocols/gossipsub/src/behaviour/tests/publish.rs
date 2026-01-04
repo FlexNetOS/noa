@@ -22,7 +22,7 @@
 
 use super::DefaultBehaviourTestBuilder;
 use crate::{
-    config::{Config, ConfigBuilder},
+    configs::{configs, configsBuilder},
     topic::TopicHash,
     transform::DataTransform,
     types::RpcOut,
@@ -37,7 +37,7 @@ fn test_publish_without_flood_publishing() {
     // - Insert message into gs.mcache and gs.received
 
     // turn off flood publish to test old behaviour
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
         .build()
         .unwrap();
@@ -47,7 +47,7 @@ fn test_publish_without_flood_publishing() {
         .peer_no(20)
         .topics(vec![publish_topic.clone()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     assert!(
@@ -92,12 +92,12 @@ fn test_publish_without_flood_publishing() {
         )
         .unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
     assert_eq!(
         publishes.len(),
-        config.mesh_n(),
+        configs.mesh_n(),
         "Should send a publish message to at least mesh_n peers"
     );
 
@@ -116,7 +116,7 @@ fn test_fanout() {
     // - Insert message into gs.mcache and gs.received
 
     // turn off flood publish to test fanout behaviour
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
         .build()
         .unwrap();
@@ -126,7 +126,7 @@ fn test_fanout() {
         .peer_no(20)
         .topics(vec![fanout_topic.clone()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     assert!(
@@ -149,7 +149,7 @@ fn test_fanout() {
             .get(&TopicHash::from_raw(fanout_topic))
             .unwrap()
             .len(),
-        gs.config.mesh_n(),
+        gs.configs.mesh_n(),
         "Fanout should contain `mesh_n` peers for fanout topic"
     );
 
@@ -176,11 +176,11 @@ fn test_fanout() {
         )
         .unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
     assert_eq!(
         publishes.len(),
-        gs.config.mesh_n(),
+        gs.configs.mesh_n(),
         "Should send a publish message to `mesh_n` fanout peers"
     );
 
@@ -192,12 +192,12 @@ fn test_fanout() {
 
 #[test]
 fn test_flood_publish() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     let topic = "test";
     // Adds more peers than mesh can hold to test flood publishing
     let (mut gs, _, queues, _) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high() + 10)
+        .peer_no(configs.mesh_n_high() + 10)
         .topics(vec![topic.into()])
         .to_subscribe(true)
         .create_network();
@@ -229,12 +229,12 @@ fn test_flood_publish() {
         )
         .unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
     assert_eq!(
         publishes.len(),
-        config.mesh_n_high() + 10,
+        configs.mesh_n_high() + 10,
         "Should send a publish message to all known peers"
     );
 

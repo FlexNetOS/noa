@@ -19,7 +19,7 @@ This document outlines the comprehensive strategy for using [E2B (End-to-End Bui
 
 ### E2B Features Used
 
-- **Custom Templates**: Pre-configured Rust + napi-rs environment
+- **Custom Templates**: Pre-configsured Rust + napi-rs environment
 - **File System API**: Upload code, download artifacts
 - **Process API**: Execute build commands
 - **Timeout Control**: Prevent runaway builds
@@ -70,7 +70,7 @@ This document outlines the comprehensive strategy for using [E2B (End-to-End Bui
 
 ---
 
-## E2B Template Configuration
+## E2B Template configsuration
 
 ### Dockerfile
 
@@ -88,7 +88,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     build-essential \
-    pkg-config \
+    pkg-configs \
     libssl-dev \
     python3 \
     python3-pip \
@@ -136,8 +136,8 @@ RUN cargo install cross
 # Set up workspace
 WORKDIR /workspace
 
-# Configure cargo for cross-compilation
-RUN mkdir -p /root/.cargo && cat > /root/.cargo/config.toml <<EOF
+# configsure cargo for cross-compilation
+RUN mkdir -p /root/.cargo && cat > /root/.cargo/configs.toml <<EOF
 [target.aarch64-unknown-linux-gnu]
 linker = "aarch64-linux-gnu-gcc"
 
@@ -217,7 +217,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["/bin/bash"]
 ```
 
-### E2B Template Configuration
+### E2B Template configsuration
 
 **File**: `e2b/template.json`
 
@@ -336,14 +336,14 @@ class SandboxBuildError extends Error {
 
 async function buildInSandbox(
   crateName: string,
-  config: BuildConfig
+  configs: Buildconfigs
 ): Promise<BuildResult> {
   let sandbox: E2BSandbox | null = null
 
   try {
     sandbox = await E2BSandbox.create({
       template: 'rust-napi-builder',
-      timeout: config.timeout
+      timeout: configs.timeout
     })
 
     // ... build process ...
@@ -378,7 +378,7 @@ async function buildInSandbox(
 ```typescript
 async function buildWithRetry(
   crateName: string,
-  config: BuildConfig,
+  configs: Buildconfigs,
   maxRetries: number = 3
 ): Promise<BuildResult> {
   let lastError: Error | null = null
@@ -387,7 +387,7 @@ async function buildWithRetry(
     try {
       console.log(`[${crateName}] Build attempt ${attempt}/${maxRetries}`)
 
-      const result = await buildInSandbox(crateName, config)
+      const result = await buildInSandbox(crateName, configs)
 
       console.log(`[${crateName}] ✅ Build succeeded on attempt ${attempt}`)
       return result
@@ -558,10 +558,10 @@ class SandboxMonitor {
 
 ## Cross-Platform Builds
 
-### Platform-Specific Configuration
+### Platform-Specific configsuration
 
 ```typescript
-const PLATFORM_CONFIGS = {
+const PLATFORM_configsS = {
   'linux-x64-gnu': {
     target: 'x86_64-unknown-linux-gnu',
     linker: 'x86_64-linux-gnu-gcc',
@@ -604,21 +604,21 @@ async function buildForPlatform(
   crateName: string,
   platform: string
 ): Promise<void> {
-  const config = PLATFORM_CONFIGS[platform]
-  if (!config) {
+  const configs = PLATFORM_configsS[platform]
+  if (!configs) {
     throw new Error(`Unsupported platform: ${platform}`)
   }
 
   // Set up environment
   const env = {
-    CARGO_BUILD_TARGET: config.target,
-    RUSTFLAGS: config.rustflags.join(' '),
-    CC: config.linker
+    CARGO_BUILD_TARGET: configs.target,
+    RUSTFLAGS: configs.rustflags.join(' '),
+    CC: configs.linker
   }
 
   // Run build
   const result = await sandbox.process.start({
-    cmd: `cd /workspace/${crateName} && cargo build --release --target ${config.target}`,
+    cmd: `cd /workspace/${crateName} && cargo build --release --target ${configs.target}`,
     env
   })
 

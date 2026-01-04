@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
         .with_tokio()
         .with_quic()
         .with_behaviour(|_| stream::Behaviour::new())?
-        .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(10)))
+        .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(10)))
         .build();
 
     swarm.listen_on("/ip4/127.0.0.1/udp/0/quic-v1".parse()?)?;

@@ -41,7 +41,7 @@ pub trait SwarmExt {
     /// Create a new [`Swarm`] with an ephemeral identity and the `tokio` runtime.
     ///
     /// The swarm will use a [`libp2p_core::transport::MemoryTransport`] together with a
-    /// [`libp2p_plaintext::Config`] authentication layer and [`libp2p_yamux::Config`] as the
+    /// [`libp2p_plaintext::configs`] authentication layer and [`libp2p_yamux::configs`] as the
     /// multiplexer. However, these details should not be relied
     /// upon by the test and may change at any time.
     #[cfg(feature = "tokio")]
@@ -102,7 +102,7 @@ pub trait SwarmExt {
 ///
 /// ## Number of events
 ///
-/// The number of events is configured via const generics based on the array size of the return
+/// The number of events is configsured via const generics based on the array size of the return
 /// type. This allows the compiler to infer how many events you are expecting based on how you use
 /// this function. For example, if you expect the first [`Swarm`] to emit 2 events, you should
 /// assign the first variable of the returned tuple value to an array of size 2. This works
@@ -226,8 +226,8 @@ where
         let transport = MemoryTransport::default()
             .or_transport(libp2p_tcp::tokio::Transport::default())
             .upgrade(Version::V1)
-            .authenticate(libp2p_plaintext::Config::new(&identity))
-            .multiplex(libp2p_yamux::Config::default())
+            .authenticate(libp2p_plaintext::configs::new(&identity))
+            .multiplex(libp2p_yamux::configs::default())
             .timeout(Duration::from_secs(20))
             .boxed();
 
@@ -235,7 +235,7 @@ where
             transport,
             behaviour_fn(identity),
             peer_id,
-            libp2p_swarm::Config::with_tokio_executor(),
+            libp2p_swarm::configs::with_tokio_executor(),
         )
     }
 
@@ -366,7 +366,7 @@ impl<S> ListenFuture<S> {
     ///
     /// This is typically "safe" for tests because within a process, memory addresses are "globally"
     /// reachable. However, some tests depend on which addresses are external and need this to
-    /// be configurable so it is not a good default.
+    /// be configsurable so it is not a good default.
     pub fn with_memory_addr_external(mut self) -> Self {
         self.add_memory_external = true;
 
@@ -378,7 +378,7 @@ impl<S> ListenFuture<S> {
     ///
     /// This is typically "safe" for tests because on the same machine, 127.0.0.1 is reachable for
     /// other [`Swarm`]s. However, some tests depend on which addresses are external and need
-    /// this to be configurable so it is not a good default.
+    /// this to be configsurable so it is not a good default.
     pub fn with_tcp_addr_external(mut self) -> Self {
         self.add_tcp_external = true;
 

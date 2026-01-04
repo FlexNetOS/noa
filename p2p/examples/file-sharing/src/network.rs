@@ -44,9 +44,9 @@ pub(crate) async fn new(
     let mut swarm = libp2p::SwarmBuilder::with_existing_identity(id_keys)
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_behaviour(|key| Behaviour {
             kademlia: kad::Behaviour::new(
@@ -58,10 +58,10 @@ pub(crate) async fn new(
                     StreamProtocol::new("/file-exchange/1"),
                     ProtocolSupport::Full,
                 )],
-                request_response::Config::default(),
+                request_response::configs::default(),
             ),
         })?
-        .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(60)))
+        .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(60)))
         .build();
 
     swarm

@@ -15,7 +15,7 @@ sandbox/agents/
 ├── policies/           # Security policies for agents
 │   ├── default.rego    # Default OPA policy
 │   └── restricted.rego # Restricted execution policy
-├── runtime/            # Agent runtime configuration
+├── runtime/            # Agent runtime configsuration
 │   ├── limits.json     # Resource limits
 │   └── permissions.json# Capability permissions
 └── templates/          # Agent templates

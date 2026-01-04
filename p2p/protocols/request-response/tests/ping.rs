@@ -44,7 +44,7 @@ async fn is_response_outbound() {
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(
             [(StreamProtocol::new("/ping/1"), ProtocolSupport::Full)],
-            request_response::Config::default(),
+            request_response::configs::default(),
         )
     });
 
@@ -88,7 +88,7 @@ async fn ping_protocol() {
     let pong = Pong("pong".to_string().into_bytes());
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let cfg = request_response::Config::default();
+    let cfg = request_response::configs::default();
 
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), cfg.clone())
@@ -185,7 +185,7 @@ async fn ping_protocol_explicit_address() {
     let pong = Pong("pong".to_string().into_bytes());
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let cfg = request_response::Config::default();
+    let cfg = request_response::configs::default();
 
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), cfg.clone())
@@ -303,7 +303,7 @@ async fn emits_inbound_connection_closed_failure() {
     let ping = Ping("ping".to_string().into_bytes());
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let cfg = request_response::Config::default();
+    let cfg = request_response::configs::default();
 
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), cfg.clone())
@@ -369,7 +369,7 @@ async fn emits_inbound_connection_closed_if_channel_is_dropped() {
     let ping = Ping("ping".to_string().into_bytes());
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let cfg = request_response::Config::default();
+    let cfg = request_response::configs::default();
 
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), cfg.clone())
@@ -430,7 +430,7 @@ async fn concurrent_ping_protocol() {
     use libp2p_swarm::{dial_opts::PeerCondition, DialError};
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let cfg = request_response::Config::default();
+    let cfg = request_response::configs::default();
 
     let mut swarm1 = Swarm::new_ephemeral_tokio(|_| {
         request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), cfg.clone())

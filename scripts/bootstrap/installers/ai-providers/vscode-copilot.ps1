@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    Install/Configure VS Code with GitHub Copilot to noa_root/opt/
+    Install/configsure VS Code with GitHub Copilot to noa_root/opt/
 
 .DESCRIPTION
     Downloads VS Code portable and installs GitHub Copilot extensions.
     Per NOA Constitution 3.3: IDE provider integration.
 
-    Provider Config: ai/providers/ide/vscode-copilot/config.json
+    Provider configs: ai/providers/ide/vscode-copilot/configs.json
 
 .PARAMETER NoaRoot
     Root directory for NOA installation. Defaults to N:\noa
@@ -14,7 +14,7 @@
 .PARAMETER Method
     Installation method: portable (default), detect, manual
     - portable: Download VS Code portable to opt/dev-tools/vscode/
-    - detect: Look for existing VS Code and configure
+    - detect: Look for existing VS Code and configsure
     - manual: Provide instructions only
 
 .EXAMPLE
@@ -45,8 +45,8 @@ function Write-Log {
     Write-Host "[$Level] $Message" -ForegroundColor $color
 }
 
-# Configuration
-$ProviderConfigPath = Join-Path $NoaRoot "ai/providers/ide/vscode-copilot"
+# configsuration
+$ProviderconfigsPath = Join-Path $NoaRoot "ai/providers/ide/vscode-copilot"
 $VsCodePortablePath = Join-Path $NoaRoot "opt/dev-tools/vscode"
 
 Write-Log "Setting up VS Code with GitHub Copilot..." -Level Info
@@ -58,7 +58,7 @@ $optPath = Join-Path $NoaRoot "opt"
 $binPath = Join-Path $NoaRoot "bin"
 $devToolsPath = Join-Path $optPath "dev-tools"
 
-foreach ($dir in @($optPath, $binPath, $ProviderConfigPath, $devToolsPath)) {
+foreach ($dir in @($optPath, $binPath, $ProviderconfigsPath, $devToolsPath)) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
         Write-Log "  Created: $dir" -Level Success
@@ -128,7 +128,7 @@ switch ($Method) {
 }
 
 Write-Log "VS Code Copilot setup complete!" -Level Success
-Write-Log "  Provider config: $ProviderConfigPath" -Level Info
+Write-Log "  Provider configs: $ProviderconfigsPath" -Level Info
 
 exit 0
 

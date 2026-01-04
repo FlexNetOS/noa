@@ -47,7 +47,7 @@ mod tests;
 const TIME_CACHE_DURATION: u64 = 120;
 
 /// Represents the state of the peer scoring system, which can either be active
-/// with a configured `PeerScore`, or disabled entirely.
+/// with a configsured `PeerScore`, or disabled entirely.
 pub(crate) enum PeerScoreState {
     Active(Box<PeerScore>),
     Disabled,
@@ -976,7 +976,7 @@ impl PeerScore {
 /// The reason a Gossipsub message has been rejected.
 #[derive(Clone, Copy)]
 pub(crate) enum RejectReason {
-    /// The message failed the configured validation during decoding.
+    /// The message failed the configsured validation during decoding.
     ValidationError(ValidationError),
     /// The message source is us.
     SelfOrigin,

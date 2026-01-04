@@ -504,8 +504,8 @@ function Install-Eslint {
     New-Item -ItemType Directory -Force -Path $npmCache | Out-Null
     $npmPrefix = Join-Path $DevToolsDir "npm-global"
     New-Item -ItemType Directory -Force -Path $npmPrefix | Out-Null
-    $env:NPM_CONFIG_CACHE = $npmCache
-    $env:NPM_CONFIG_PREFIX = $npmPrefix
+    $env:NPM_configs_CACHE = $npmCache
+    $env:NPM_configs_PREFIX = $npmPrefix
     & $nodeExe (Join-Path (Split-Path $nodeExe -Parent) "npm") install -g eslint@9.13.0
     $eslintPath = Join-Path $npmPrefix "node_modules" ".bin" "eslint.cmd"
     if (Test-Path $eslintPath) { Add-Link $eslintPath "eslint.cmd" }
@@ -654,8 +654,8 @@ function Install-ClaudeCode {
     $npmCache = Join-Path $OptDir "npm-cache"
     $npmPrefix = Join-Path $DevToolsDir "npm-global"
     New-Item -ItemType Directory -Force -Path $npmCache, $npmPrefix | Out-Null
-    $env:NPM_CONFIG_CACHE = $npmCache
-    $env:NPM_CONFIG_PREFIX = $npmPrefix
+    $env:NPM_configs_CACHE = $npmCache
+    $env:NPM_configs_PREFIX = $npmPrefix
 
     $npmCmd = Join-Path (Split-Path $nodeExe -Parent) "npm.cmd"
     & $npmCmd install -g @anthropic-ai/claude-code
@@ -666,11 +666,11 @@ function Install-ClaudeCode {
         Write-Ok "Claude Code CLI installed"
     }
 
-    # Ensure provider config directory exists
-    $providerConfigDir = Join-Path $NoaRoot "ai/providers/cloud/claude-code"
-    if (-not (Test-Path $providerConfigDir)) {
-        New-Item -ItemType Directory -Force -Path $providerConfigDir | Out-Null
-        Write-Info "  Created provider config directory: $providerConfigDir"
+    # Ensure provider configs directory exists
+    $providerconfigsDir = Join-Path $NoaRoot "ai/providers/cloud/claude-code"
+    if (-not (Test-Path $providerconfigsDir)) {
+        New-Item -ItemType Directory -Force -Path $providerconfigsDir | Out-Null
+        Write-Info "  Created provider configs directory: $providerconfigsDir"
     }
 }
 
@@ -719,8 +719,8 @@ function Install-CodexCli {
     $npmCache = Join-Path $OptDir "npm-cache"
     $npmPrefix = Join-Path $DevToolsDir "npm-global"
     New-Item -ItemType Directory -Force -Path $npmCache, $npmPrefix | Out-Null
-    $env:NPM_CONFIG_CACHE = $npmCache
-    $env:NPM_CONFIG_PREFIX = $npmPrefix
+    $env:NPM_configs_CACHE = $npmCache
+    $env:NPM_configs_PREFIX = $npmPrefix
 
     $npmCmd = Join-Path (Split-Path $nodeExe -Parent) "npm.cmd"
 
@@ -740,11 +740,11 @@ function Install-CodexCli {
         Write-Warn "Codex CLI install pending (binary not found after npm). Will retry on next run."
     }
 
-    # Ensure provider config directory exists
-    $providerConfigDir = Join-Path $NoaRoot "ai/providers/cloud/codex"
-    if (-not (Test-Path $providerConfigDir)) {
-        New-Item -ItemType Directory -Force -Path $providerConfigDir | Out-Null
-        Write-Info "  Created provider config directory: $providerConfigDir"
+    # Ensure provider configs directory exists
+    $providerconfigsDir = Join-Path $NoaRoot "ai/providers/cloud/codex"
+    if (-not (Test-Path $providerconfigsDir)) {
+        New-Item -ItemType Directory -Force -Path $providerconfigsDir | Out-Null
+        Write-Info "  Created provider configs directory: $providerconfigsDir"
     }
 }
 
@@ -768,8 +768,8 @@ function Install-AbacusCli {
     $npmCache = Join-Path $OptDir "npm-cache"
     $npmPrefix = Join-Path $DevToolsDir "npm-global"
     New-Item -ItemType Directory -Force -Path $npmCache, $npmPrefix | Out-Null
-    $env:NPM_CONFIG_CACHE = $npmCache
-    $env:NPM_CONFIG_PREFIX = $npmPrefix
+    $env:NPM_configs_CACHE = $npmCache
+    $env:NPM_configs_PREFIX = $npmPrefix
 
     $npmCmd = Join-Path (Split-Path $nodeExe -Parent) "npm.cmd"
     & $npmCmd install -g @abacus-ai/cli
@@ -831,11 +831,11 @@ function Install-VSCodeWithCopilot {
         Write-Warn "Manual install: https://code.visualstudio.com/download"
     }
 
-    # Ensure provider config directory exists
-    $providerConfigDir = Join-Path $NoaRoot "ai/providers/ide/vscode-copilot"
-    if (-not (Test-Path $providerConfigDir)) {
-        New-Item -ItemType Directory -Force -Path $providerConfigDir | Out-Null
-        Write-Info "  Created provider config directory: $providerConfigDir"
+    # Ensure provider configs directory exists
+    $providerconfigsDir = Join-Path $NoaRoot "ai/providers/ide/vscode-copilot"
+    if (-not (Test-Path $providerconfigsDir)) {
+        New-Item -ItemType Directory -Force -Path $providerconfigsDir | Out-Null
+        Write-Info "  Created provider configs directory: $providerconfigsDir"
     }
 }
 
@@ -851,16 +851,16 @@ function Install-GitCliProvider {
         Install-Git
     }
 
-    Write-Info "Configuring Git CLI as AI provider (Priority 6)..."
+    Write-Info "configsuring Git CLI as AI provider (Priority 6)..."
 
-    # Ensure provider config directory exists
-    $providerConfigDir = Join-Path $NoaRoot "ai/providers/local/git-cli"
-    if (-not (Test-Path $providerConfigDir)) {
-        New-Item -ItemType Directory -Force -Path $providerConfigDir | Out-Null
-        Write-Info "  Created provider config directory: $providerConfigDir"
+    # Ensure provider configs directory exists
+    $providerconfigsDir = Join-Path $NoaRoot "ai/providers/local/git-cli"
+    if (-not (Test-Path $providerconfigsDir)) {
+        New-Item -ItemType Directory -Force -Path $providerconfigsDir | Out-Null
+        Write-Info "  Created provider configs directory: $providerconfigsDir"
     }
 
-    Write-Ok "Git CLI configured as AI provider"
+    Write-Ok "Git CLI configsured as AI provider"
 }
 
 function Install-AllAiProviders {
@@ -936,10 +936,10 @@ function Install-SharedResources {
         Write-Info "  Created execution memory database: $dbPath"
     }
 
-    # Create shared resources config
-    $configPath = Join-Path $NoaRoot "config/shared-resources.json"
-    if (-not (Test-Path $configPath)) {
-        $config = @{
+    # Create shared resources configs
+    $configsPath = Join-Path $NoaRoot "configs/shared-resources.json"
+    if (-not (Test-Path $configsPath)) {
+        $configs = @{
             version = "1.0.0"
             basePath = "`${NOA_ROOT}/ai/shared"
             executionMemory = @{
@@ -957,11 +957,11 @@ function Install-SharedResources {
                 resources = "`${NOA_ROOT}/ai/shared/resources"
             }
         }
-        $config | ConvertTo-Json -Depth 10 | Set-Content -Path $configPath -Encoding UTF8
-        Write-Info "  Created shared resources config: $configPath"
+        $configs | ConvertTo-Json -Depth 10 | Set-Content -Path $configsPath -Encoding UTF8
+        Write-Info "  Created shared resources configs: $configsPath"
     }
 
-    # Update provider configs to reference shared resources
+    # Update provider configss to reference shared resources
     $providers = @(
         "ai/providers/cloud/claude-code",
         "ai/providers/cloud/codex",
@@ -1075,6 +1075,6 @@ foreach ($t in $targets) {
 }
 
 Write-Ok "Install finished. Ensure $BinDir is first in PATH for this session."
-Write-Info "AI Provider configs located at: $NoaRoot\ai\providers\"
+Write-Info "AI Provider configss located at: $NoaRoot\ai\providers\"
 Write-Info "Shared resources at: $NoaRoot\ai\shared\"
 

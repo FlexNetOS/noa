@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Verify shared AI resources are properly configured.
+# Verify shared AI resources are properly configsured.
 #
-# Checks that all shared resource directories exist and contain valid configurations.
-# Validates resource registry and provider configs reference shared paths.
+# Checks that all shared resource directories exist and contain valid configsurations.
+# Validates resource registry and provider configss reference shared paths.
 #
 # Usage:
 #   ./verify-shared-resources.sh
@@ -126,18 +126,18 @@ for file_spec in "${EXPECTED_FILES[@]}"; do
     fi
 done
 
-# Check provider configs
+# Check provider configss
 if ! $JSON_OUTPUT; then
     echo ""
-    echo -e "${YELLOW}Checking provider configurations...${NC}"
+    echo -e "${YELLOW}Checking provider configsurations...${NC}"
 fi
 
 for provider_type in local cloud hybrid ide; do
     type_dir="$PROVIDERS_DIR/$provider_type"
     if [[ -d "$type_dir" ]]; then
-        for config in $(find "$type_dir" -name "config.json" 2>/dev/null); do
-            provider_name=$(basename "$(dirname "$config")")
-            if grep -q "sharedResource" "$config" 2>/dev/null; then
+        for configs in $(find "$type_dir" -name "configs.json" 2>/dev/null); do
+            provider_name=$(basename "$(dirname "$configs")")
+            if grep -q "sharedResource" "$configs" 2>/dev/null; then
                 if ! $JSON_OUTPUT; then
                     echo -e "  ${GREEN}[OK]${NC} $provider_name ($provider_type) - uses shared resources"
                 fi
@@ -173,7 +173,7 @@ if ! $JSON_OUTPUT; then
         echo -e "${RED}Some required resources are missing. Run:${NC}"
         echo -e "  ${YELLOW}./scripts/bootstrap/installers/shared-resources/create-directories.sh${NC}"
     else
-        echo -e "${GREEN}All required shared resources are configured.${NC}"
+        echo -e "${GREEN}All required shared resources are configsured.${NC}"
     fi
 fi
 

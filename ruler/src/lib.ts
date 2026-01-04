@@ -1,18 +1,19 @@
 import * as path from 'path';
-import { IAgent, IAgentConfig } from './agents/IAgent';
+import { IAgent, IAgentconfigs } from './agents/IAgent';
 import { allAgents } from './agents';
 import { McpStrategy } from './types';
 import { logVerbose, logWarn } from './constants';
-import {
-  loadSingleConfiguration,
-  processHierarchicalConfigurations,
-  processSingleConfiguration,
-  updateGitignore,
-  loadNestedConfigurations,
-  HierarchicalRulerConfiguration,
-} from './core/apply-engine';
-import { type LoadedConfig } from './core/ConfigLoader';
-import { mapRawAgentConfigs } from './core/config-utils';
+import
+  {
+    loadSingleconfigsuration,
+    processHierarchicalconfigsurations,
+    processSingleconfigsuration,
+    updateGitignore,
+    loadNestedconfigsurations,
+    HierarchicalRulerconfigsuration,
+  } from './core/apply-engine';
+import { type Loadedconfigs } from './core/configsLoader';
+import { mapRawAgentconfigss } from './core/configs-utils';
 import { resolveSelectedAgents } from './core/agent-selection';
 
 const agents: IAgent[] = allAgents;
@@ -22,30 +23,31 @@ export { allAgents };
 /**
  * Resolves skills enabled state based on precedence: CLI flag > ruler.toml > default (enabled)
  */
-function resolveSkillsEnabled(
+function resolveSkillsEnabled (
   cliFlag: boolean | undefined,
-  configSetting: boolean | undefined,
-): boolean {
+  configsSetting: boolean | undefined,
+): boolean
+{
   return cliFlag !== undefined
     ? cliFlag
-    : configSetting !== undefined
-      ? configSetting
+    : configsSetting !== undefined
+      ? configsSetting
       : true; // default to enabled
 }
 
 /**
- * Applies ruler configurations for all supported AI agents.
+ * Applies ruler configsurations for all supported AI agents.
  * @param projectRoot Root directory of the project
  */
 /**
- * Applies ruler configurations for selected AI agents.
+ * Applies ruler configsurations for selected AI agents.
  * @param projectRoot Root directory of the project
  * @param includedAgents Optional list of agent name filters (case-insensitive substrings)
  */
-export async function applyAllAgentConfigs(
+export async function applyAllAgentconfigss (
   projectRoot: string,
   includedAgents?: string[],
-  configPath?: string,
+  configsPath?: string,
   cliMcpEnabled = true,
   cliMcpStrategy?: McpStrategy,
   cliGitignoreEnabled?: boolean,
@@ -55,30 +57,34 @@ export async function applyAllAgentConfigs(
   nested = false,
   backup = true,
   skillsEnabled?: boolean,
-): Promise<void> {
-  // Load configuration and rules
+): Promise<void>
+{
+  // Load configsuration and rules
   logVerbose(
-    `Loading configuration from project root: ${projectRoot}`,
+    `Loading configsuration from project root: ${ projectRoot }`,
     verbose,
   );
-  if (configPath) {
-    logVerbose(`Using custom config path: ${configPath}`, verbose);
+  if ( configsPath )
+  {
+    logVerbose( `Using custom configs path: ${ configsPath }`, verbose );
   }
 
   let selectedAgents: IAgent[];
   let generatedPaths: string[];
-  let loadedConfig: LoadedConfig;
+  let loadedconfigs: Loadedconfigs;
 
-  if (nested) {
-    const hierarchicalConfigs = await loadNestedConfigurations(
+  if ( nested )
+  {
+    const hierarchicalconfigss = await loadNestedconfigsurations(
       projectRoot,
-      configPath,
+      configsPath,
       localOnly,
       nested,
     );
 
-    if (hierarchicalConfigs.length === 0) {
-      throw new Error('No .ruler directories found');
+    if ( hierarchicalconfigss.length === 0 )
+    {
+      throw new Error( 'No .ruler directories found' );
     }
 
     logWarn(
@@ -86,46 +92,49 @@ export async function applyAllAgentConfigs(
       dryRun,
     );
 
-    // Use the root config for agent selection (all levels share the same agent settings)
-    const rootConfigEntry = selectRootConfiguration(
-      hierarchicalConfigs,
+    // Use the root configs for agent selection (all levels share the same agent settings)
+    const rootconfigsEntry = selectRootconfigsuration(
+      hierarchicalconfigss,
       projectRoot,
     );
-    const rootConfig = rootConfigEntry.config;
-    loadedConfig = rootConfig;
-    rootConfig.cliAgents = includedAgents;
+    const rootconfigs = rootconfigsEntry.configs;
+    loadedconfigs = rootconfigs;
+    rootconfigs.cliAgents = includedAgents;
 
     logVerbose(
-      `Loaded ${hierarchicalConfigs.length} .ruler directory configurations`,
+      `Loaded ${ hierarchicalconfigss.length } .ruler directory configsurations`,
       verbose,
     );
     logVerbose(
-      `Root configuration has ${Object.keys(rootConfig.agentConfigs).length} agent configs`,
+      `Root configsuration has ${ Object.keys( rootconfigs.agentconfigss ).length } agent configss`,
       verbose,
     );
 
-    for (const configEntry of hierarchicalConfigs) {
-      normalizeAgentConfigs(configEntry.config, agents);
+    for ( const configsEntry of hierarchicalconfigss )
+    {
+      normalizeAgentconfigss( configsEntry.configs, agents );
     }
 
-    selectedAgents = resolveSelectedAgents(rootConfig, agents);
+    selectedAgents = resolveSelectedAgents( rootconfigs, agents );
     logVerbose(
-      `Selected ${selectedAgents.length} agents: ${selectedAgents.map((a) => a.getName()).join(', ')}`,
+      `Selected ${ selectedAgents.length } agents: ${ selectedAgents.map( ( a ) => a.getName() ).join( ', ' ) }`,
       verbose,
     );
 
     // Propagate skills if enabled - do this for each nested directory
     const skillsEnabledResolved = resolveSkillsEnabled(
       skillsEnabled,
-      rootConfig.skills?.enabled,
+      rootconfigs.skills?.enabled,
     );
-    if (skillsEnabledResolved) {
-      const { propagateSkills } = await import('./core/SkillsProcessor');
+    if ( skillsEnabledResolved )
+    {
+      const { propagateSkills } = await import( './core/SkillsProcessor' );
       // Propagate skills for each nested .ruler directory
-      for (const configEntry of hierarchicalConfigs) {
-        const nestedRoot = path.dirname(configEntry.rulerDir);
+      for ( const configsEntry of hierarchicalconfigss )
+      {
+        const nestedRoot = path.dirname( configsEntry.rulerDir );
         logVerbose(
-          `Propagating skills for nested directory: ${nestedRoot}`,
+          `Propagating skills for nested directory: ${ nestedRoot }`,
           verbose,
         );
         await propagateSkills(
@@ -138,9 +147,9 @@ export async function applyAllAgentConfigs(
       }
     }
 
-    generatedPaths = await processHierarchicalConfigurations(
+    generatedPaths = await processHierarchicalconfigsurations(
       selectedAgents,
-      hierarchicalConfigs,
+      hierarchicalconfigss,
       verbose,
       dryRun,
       cliMcpEnabled,
@@ -148,40 +157,42 @@ export async function applyAllAgentConfigs(
       backup,
       skillsEnabledResolved,
     );
-  } else {
-    const singleConfig = await loadSingleConfiguration(
+  } else
+  {
+    const singleconfigs = await loadSingleconfigsuration(
       projectRoot,
-      configPath,
+      configsPath,
       localOnly,
     );
 
-    loadedConfig = singleConfig.config;
-    singleConfig.config.cliAgents = includedAgents;
+    loadedconfigs = singleconfigs.configs;
+    singleconfigs.configs.cliAgents = includedAgents;
 
     logVerbose(
-      `Loaded configuration with ${Object.keys(singleConfig.config.agentConfigs).length} agent configs`,
+      `Loaded configsuration with ${ Object.keys( singleconfigs.configs.agentconfigss ).length } agent configss`,
       verbose,
     );
     logVerbose(
-      `Found .ruler directory with ${singleConfig.concatenatedRules.length} characters of rules`,
+      `Found .ruler directory with ${ singleconfigs.concatenatedRules.length } characters of rules`,
       verbose,
     );
 
-    normalizeAgentConfigs(singleConfig.config, agents);
+    normalizeAgentconfigss( singleconfigs.configs, agents );
 
-    selectedAgents = resolveSelectedAgents(singleConfig.config, agents);
+    selectedAgents = resolveSelectedAgents( singleconfigs.configs, agents );
     logVerbose(
-      `Selected ${selectedAgents.length} agents: ${selectedAgents.map((a) => a.getName()).join(', ')}`,
+      `Selected ${ selectedAgents.length } agents: ${ selectedAgents.map( ( a ) => a.getName() ).join( ', ' ) }`,
       verbose,
     );
 
     // Propagate skills if enabled
     const skillsEnabledResolved = resolveSkillsEnabled(
       skillsEnabled,
-      singleConfig.config.skills?.enabled,
+      singleconfigs.configs.skills?.enabled,
     );
-    if (skillsEnabledResolved) {
-      const { propagateSkills } = await import('./core/SkillsProcessor');
+    if ( skillsEnabledResolved )
+    {
+      const { propagateSkills } = await import( './core/SkillsProcessor' );
       await propagateSkills(
         projectRoot,
         selectedAgents,
@@ -191,9 +202,9 @@ export async function applyAllAgentConfigs(
       );
     }
 
-    generatedPaths = await processSingleConfiguration(
+    generatedPaths = await processSingleconfigsuration(
       selectedAgents,
-      singleConfig,
+      singleconfigs,
       projectRoot,
       verbose,
       dryRun,
@@ -208,68 +219,76 @@ export async function applyAllAgentConfigs(
   let allGeneratedPaths = generatedPaths;
   const skillsEnabledForGitignore = resolveSkillsEnabled(
     skillsEnabled,
-    loadedConfig.skills?.enabled,
+    loadedconfigs.skills?.enabled,
   );
-  if (skillsEnabledForGitignore) {
+  if ( skillsEnabledForGitignore )
+  {
     // Skills enabled by default or explicitly
-    const { getSkillsGitignorePaths } = await import('./core/SkillsProcessor');
-    const skillsPaths = await getSkillsGitignorePaths(projectRoot);
-    allGeneratedPaths = [...generatedPaths, ...skillsPaths];
+    const { getSkillsGitignorePaths } = await import( './core/SkillsProcessor' );
+    const skillsPaths = await getSkillsGitignorePaths( projectRoot );
+    allGeneratedPaths = [ ...generatedPaths, ...skillsPaths ];
   }
 
   await updateGitignore(
     projectRoot,
     allGeneratedPaths,
-    loadedConfig,
+    loadedconfigs,
     cliGitignoreEnabled,
     dryRun,
   );
 }
 
 /**
- * Normalizes per-agent config keys to agent identifiers for consistent lookup.
+ * Normalizes per-agent configs keys to agent identifiers for consistent lookup.
  * Maps both exact identifier matches and substring matches with agent names.
- * @param config The configuration object to normalize
+ * @param configs The configsuration object to normalize
  * @param agents Array of available agents
  */
-function normalizeAgentConfigs(
-  config: { agentConfigs: Record<string, IAgentConfig> },
+function normalizeAgentconfigss (
+  configs: { agentconfigss: Record<string, IAgentconfigs>; },
   agents: IAgent[],
-): void {
-  // Normalize per-agent config keys to agent identifiers (exact match or substring match)
-  config.agentConfigs = mapRawAgentConfigs(config.agentConfigs, agents);
+): void
+{
+  // Normalize per-agent configs keys to agent identifiers (exact match or substring match)
+  configs.agentconfigss = mapRawAgentconfigss( configs.agentconfigss, agents );
 }
 
-function selectRootConfiguration(
-  configurations: HierarchicalRulerConfiguration[],
+function selectRootconfigsuration (
+  configsurations: HierarchicalRulerconfigsuration[],
   projectRoot: string,
-): HierarchicalRulerConfiguration {
-  if (configurations.length === 0) {
-    throw new Error('No hierarchical configurations available');
+): HierarchicalRulerconfigsuration
+{
+  if ( configsurations.length === 0 )
+  {
+    throw new Error( 'No hierarchical configsurations available' );
   }
 
-  const normalizedProjectRoot = path.resolve(projectRoot);
+  const normalizedProjectRoot = path.resolve( projectRoot );
   let bestIndex = -1;
   let bestDepth = Number.POSITIVE_INFINITY;
 
-  for (let i = 0; i < configurations.length; i++) {
-    const entry = configurations[i];
-    const normalizedDir = path.resolve(entry.rulerDir);
+  for ( let i = 0; i < configsurations.length; i++ )
+  {
+    const entry = configsurations[ i ];
+    const normalizedDir = path.resolve( entry.rulerDir );
 
-    if (!normalizedDir.startsWith(normalizedProjectRoot)) {
+    if ( !normalizedDir.startsWith( normalizedProjectRoot ) )
+    {
       continue;
     }
 
-    const depth = normalizedDir.split(path.sep).length;
-    if (depth < bestDepth) {
+    const depth = normalizedDir.split( path.sep ).length;
+    if ( depth < bestDepth )
+    {
       bestDepth = depth;
       bestIndex = i;
     }
   }
 
-  if (bestIndex === -1) {
-    return configurations[0];
+  if ( bestIndex === -1 )
+  {
+    return configsurations[ 0 ];
   }
 
-  return configurations[bestIndex];
+  return configsurations[ bestIndex ];
 }

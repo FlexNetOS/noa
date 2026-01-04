@@ -172,7 +172,7 @@ impl fmt::Display for Kind {
 
 impl std::error::Error for Exceeded {}
 
-/// The configurable connection limits.
+/// The configsurable connection limits.
 #[derive(Debug, Clone, Default)]
 pub struct ConnectionLimits {
     max_pending_incoming: Option<u32>,
@@ -184,31 +184,31 @@ pub struct ConnectionLimits {
 }
 
 impl ConnectionLimits {
-    /// Configures the maximum number of concurrently incoming connections being established.
+    /// configsures the maximum number of concurrently incoming connections being established.
     pub fn with_max_pending_incoming(mut self, limit: Option<u32>) -> Self {
         self.max_pending_incoming = limit;
         self
     }
 
-    /// Configures the maximum number of concurrently outgoing connections being established.
+    /// configsures the maximum number of concurrently outgoing connections being established.
     pub fn with_max_pending_outgoing(mut self, limit: Option<u32>) -> Self {
         self.max_pending_outgoing = limit;
         self
     }
 
-    /// Configures the maximum number of concurrent established inbound connections.
+    /// configsures the maximum number of concurrent established inbound connections.
     pub fn with_max_established_incoming(mut self, limit: Option<u32>) -> Self {
         self.max_established_incoming = limit;
         self
     }
 
-    /// Configures the maximum number of concurrent established outbound connections.
+    /// configsures the maximum number of concurrent established outbound connections.
     pub fn with_max_established_outgoing(mut self, limit: Option<u32>) -> Self {
         self.max_established_outgoing = limit;
         self
     }
 
-    /// Configures the maximum number of concurrent established connections (both
+    /// configsures the maximum number of concurrent established connections (both
     /// inbound and outbound).
     ///
     /// Note: This should be used in conjunction with
@@ -219,7 +219,7 @@ impl ConnectionLimits {
         self
     }
 
-    /// Configures the maximum number of concurrent established connections per peer,
+    /// configsures the maximum number of concurrent established connections per peer,
     /// regardless of direction (incoming or outgoing).
     pub fn with_max_established_per_peer(mut self, limit: Option<u32>) -> Self {
         self.max_established_per_peer = limit;

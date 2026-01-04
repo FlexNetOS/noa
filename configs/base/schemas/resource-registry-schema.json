@@ -3,6 +3,13 @@
   "$id": "https://noa.framework/schemas/resource-registry.json",
   "title": "Resource Registry Schema",
   "description": "JSON Schema for NOA resource registry configuration",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "JSON Schema for NOA resource registry configuration",
+    "layer": "base",
+    "immutable": true,
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
   "type": "object",
   "required": ["version", "description", "metadata"],
   "properties": {

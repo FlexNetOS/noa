@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configure VS Code for NOA integration.
+# configsure VS Code for NOA integration.
 #
 # Detects VS Code installation and creates CLI wrapper in NOA bin.
 #
@@ -15,7 +15,7 @@ NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../../.." && pwd)}"
 BIN_DIR="$NOA_ROOT/bin"
 WRAPPER_PATH="$BIN_DIR/code"
 
-echo -e "\033[36mConfiguring VS Code integration...\033[0m"
+echo -e "\033[36mconfigsuring VS Code integration...\033[0m"
 
 # Check if code command is already available
 if command -v code &> /dev/null; then
@@ -25,7 +25,7 @@ if command -v code &> /dev/null; then
     mkdir -p "$BIN_DIR"
 
     if [[ -f "$WRAPPER_PATH" ]]; then
-        echo -e "  \033[90m[EXISTS]\033[0m VS Code wrapper already configured"
+        echo -e "  \033[90m[EXISTS]\033[0m VS Code wrapper already configsured"
         exit 0
     fi
 

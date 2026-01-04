@@ -11,8 +11,8 @@ flowchart TD
     cache_typescript(typescript)
     cache --> cache_typescript
 
-    config(.config)
-    noa_root --> config
+    configs(.configs)
+    noa_root --> configs
 
     cursor(.cursor)
     noa_root --> cursor
@@ -36,8 +36,8 @@ flowchart TD
     github --> github_actions
     github_issue_template(ISSUE_TEMPLATE)
     github --> github_issue_template
-    github_org_config(org-config)
-    github --> github_org_config
+    github_org_configs(org-configs)
+    github --> github_org_configs
     github_scripts(scripts)
     github --> github_scripts
     github_workflows(workflows)
@@ -96,14 +96,14 @@ flowchart TD
     cmd_tasks_mcp(tasks-mcp)
     cmd --> cmd_tasks_mcp
 
-    config(config)
-    noa_root --> config
-    config_providers(providers)
-    config --> config_providers
-    config_schemas(schemas)
-    config --> config_schemas
-    config_templates(templates)
-    config --> config_templates
+    configs(configs)
+    noa_root --> configs
+    configs_providers(providers)
+    configs --> configs_providers
+    configs_schemas(schemas)
+    configs --> configs_schemas
+    configs_templates(templates)
+    configs --> configs_templates
 
     containers(containers)
     noa_root --> containers
@@ -129,8 +129,8 @@ flowchart TD
     noa_root --> deployed_plane
     deployed_plane_bin(bin)
     deployed_plane --> deployed_plane_bin
-    deployed_plane_config(config)
-    deployed_plane --> deployed_plane_config
+    deployed_plane_configs(configs)
+    deployed_plane --> deployed_plane_configs
     deployed_plane_data(data)
     deployed_plane --> deployed_plane_data
     deployed_plane_logs(logs)
@@ -208,8 +208,8 @@ flowchart TD
     noa_root --> orchestrator
     orchestrator_bin(bin)
     orchestrator --> orchestrator_bin
-    orchestrator_config(config)
-    orchestrator --> orchestrator_config
+    orchestrator_configs(configs)
+    orchestrator --> orchestrator_configs
     orchestrator_data(data)
     orchestrator --> orchestrator_data
     orchestrator_logs(logs)
@@ -234,8 +234,8 @@ flowchart TD
     noa_root --> pkg
     pkg_ai_sdk_provider_grok_cli(ai-sdk-provider-grok-cli)
     pkg --> pkg_ai_sdk_provider_grok_cli
-    pkg_build_config(build-config)
-    pkg --> pkg_build_config
+    pkg_build_configs(build-configs)
+    pkg --> pkg_build_configs
     pkg_sys(sys)
     pkg --> pkg_sys
     pkg_tm_bridge(tm-bridge)
@@ -260,8 +260,8 @@ flowchart TD
     noa_root --> sandbox
     sandbox_bin(bin)
     sandbox --> sandbox_bin
-    sandbox_config(config)
-    sandbox --> sandbox_config
+    sandbox_configs(configs)
+    sandbox --> sandbox_configs
     sandbox_data(data)
     sandbox --> sandbox_data
     sandbox_logs(logs)

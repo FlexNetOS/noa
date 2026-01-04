@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "2.0.0",
-  "description": "NOA Bootstrap Tool Configuration - 100% Self-Contained (NO system-wide installations)",
+  "description": "NOA Bootstrap Tool configsuration - 100% Self-Contained (NO system-wide installations)",
   "strategy": "All tools downloaded to noa_root. NO winget, choco, brew, or apt.",
 
   "portable_toolchains": {
@@ -92,8 +92,8 @@
       "install_to": "${NOA_ROOT}/opt/node",
       "env_vars": {
         "NODE_PATH": "${NOA_ROOT}/opt/node/node_modules",
-        "npm_config_prefix": "${NOA_ROOT}/opt/node",
-        "npm_config_cache": "${NOA_ROOT}/opt/npm-cache"
+        "npm_configs_prefix": "${NOA_ROOT}/opt/node",
+        "npm_configs_cache": "${NOA_ROOT}/opt/npm-cache"
       },
       "path_additions": ["${NOA_ROOT}/opt/node", "${NOA_ROOT}/opt/node/node_modules/.bin"],
       "downloads": {
@@ -475,7 +475,7 @@
       "install_to": "${NOA_ROOT}/opt/node/node_modules",
       "category": "ai_provider",
       "repository": "https://github.com/FlexNetOS/claude-code.git",
-      "provider_config": "${NOA_ROOT}/ai/providers/cloud/claude-code/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/cloud/claude-code/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "alternative_installs": {
         "windows_native": "irm https://claude.ai/install.ps1 | iex",
@@ -497,7 +497,7 @@
       "install_to": "${NOA_ROOT}/opt/node/node_modules",
       "category": "ai_provider",
       "repository": "https://github.com/FlexNetOS/codex.git",
-      "provider_config": "${NOA_ROOT}/ai/providers/cloud/codex/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/cloud/codex/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "verify_cmd": {
         "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/codex.cmd --version",
@@ -513,7 +513,7 @@
       "npm_name": "@abacus-ai/cli",
       "install_to": "${NOA_ROOT}/opt/node/node_modules",
       "category": "ai_provider",
-      "provider_config": "${NOA_ROOT}/ai/providers/cloud/abacus/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/cloud/abacus/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "verify_cmd": {
         "windows": "${NOA_ROOT}/opt/node/node_modules/.bin/abacus.cmd --version",
@@ -529,7 +529,7 @@
       "min_version": "latest",
       "install_to": "${NOA_ROOT}/opt/cursor-cli",
       "category": "ai_provider",
-      "provider_config": "${NOA_ROOT}/ai/providers/hybrid/cursor/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/hybrid/cursor/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "install_method": "manual",
       "download_url": "https://cursor.com/docs/cli/headless",
@@ -546,7 +546,7 @@
       "min_version": "latest",
       "install_to": "${NOA_ROOT}/opt/dev-tools/vscode",
       "category": "ai_provider",
-      "provider_config": "${NOA_ROOT}/ai/providers/ide/vscode-copilot/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/ide/vscode-copilot/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "install_method": "portable",
       "download_url": "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive",
@@ -564,7 +564,7 @@
       "min_version": "2.40.0",
       "install_to": "${NOA_ROOT}/opt/dev-tools/git",
       "category": "ai_provider",
-      "provider_config": "${NOA_ROOT}/ai/providers/local/git-cli/config.json",
+      "provider_configs": "${NOA_ROOT}/ai/providers/local/git-cli/configs.json",
       "shared_resources": "${NOA_ROOT}/ai/shared",
       "install_method": "portable",
       "download_url": "https://github.com/git-for-windows/git/releases",
@@ -647,7 +647,7 @@
   "directories": {
     "required": [
       "bin",
-      "config",
+      "configs",
       "logs",
       "opt",
       "opt/rust",
@@ -690,7 +690,7 @@
     "directories": {
       "agents": {
         "path": "${NOA_ROOT}/ai/shared/agents",
-        "description": "Shared agent definitions and configurations",
+        "description": "Shared agent definitions and configsurations",
         "access": "read-write"
       },
       "workflows": {
@@ -715,7 +715,7 @@
       },
       "models": {
         "path": "${NOA_ROOT}/ai/shared/models",
-        "description": "Shared model configurations and adapters",
+        "description": "Shared model configsurations and adapters",
         "access": "read-write"
       },
       "commands": {

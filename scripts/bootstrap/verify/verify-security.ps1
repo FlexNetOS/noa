@@ -35,9 +35,9 @@ $issues = @()
 # Check bootstrap-tools.json for HTTPS URLs
 Write-Host "Checking download URLs..." -ForegroundColor Yellow
 
-$toolsConfigPath = Join-Path $NoaRoot "config/bootstrap-tools.json"
-if (Test-Path $toolsConfigPath) {
-    $content = Get-Content $toolsConfigPath -Raw
+$toolsconfigsPath = Join-Path $NoaRoot "configs/bootstrap-tools.json"
+if (Test-Path $toolsconfigsPath) {
+    $content = Get-Content $toolsconfigsPath -Raw
 
     # Find all URLs
     $httpUrls = [regex]::Matches($content, 'http://[^\s"]+')
@@ -78,11 +78,11 @@ if (-not $hasChecksumVerification) {
     Write-Host "  [INFO] No checksum verification found in download scripts" -ForegroundColor Yellow
 }
 
-# Check for sensitive data in configs
+# Check for sensitive data in configss
 Write-Host ""
 Write-Host "Checking for exposed secrets..." -ForegroundColor Yellow
 
-$configFiles = Get-ChildItem -Path $NoaRoot -Filter "*.json" -Recurse -ErrorAction SilentlyContinue |
+$configsFiles = Get-ChildItem -Path $NoaRoot -Filter "*.json" -Recurse -ErrorAction SilentlyContinue |
     Where-Object { $_.FullName -notmatch "node_modules|\.git" }
 
 $sensitivePatterns = @(
@@ -93,7 +93,7 @@ $sensitivePatterns = @(
 )
 
 $exposedSecrets = 0
-foreach ($file in $configFiles) {
+foreach ($file in $configsFiles) {
     $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
     foreach ($pattern in $sensitivePatterns) {
         if ($content -match $pattern) {
@@ -116,8 +116,8 @@ Write-Host ""
 Write-Host "Checking file permissions..." -ForegroundColor Yellow
 
 $sensitiveFiles = @(
-    "config/noa-server.json",
-    "config/ai-providers.json"
+    "configs/noa-server.json",
+    "configs/ai-providers.json"
 )
 
 foreach ($file in $sensitiveFiles) {

@@ -25,7 +25,7 @@ This was done because:
 | `002-unified-bootstrap/spec.md` | `001-noa-seed-foundation/spec.md` (FR-076 to FR-094) |
 | `002-unified-bootstrap/plan.md` | `001-noa-seed-foundation/plan.md` (Phase 0 section) |
 | `002-unified-bootstrap/tasks.md` | `001-noa-seed-foundation/tasks.md` (B001-B150) |
-| `002-unified-bootstrap/config/tools.json` | `001-noa-seed-foundation/config/tools.json` + `config/bootstrap-tools.json` |
+| `002-unified-bootstrap/configs/tools.json` | `001-noa-seed-foundation/configs/tools.json` + `configs/bootstrap-tools.json` |
 | `002-unified-bootstrap/kernel-independence.md` | `001-noa-seed-foundation/kernel-independence.md` (moved 2025-12-08) |
 
 ---

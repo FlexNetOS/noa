@@ -35,12 +35,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_behaviour(|key| {
-            identify::Behaviour::new(identify::Config::new(
+            identify::Behaviour::new(identify::configs::new(
                 "/ipfs/id/1.0.0".to_string(),
                 key.public(),
             ))

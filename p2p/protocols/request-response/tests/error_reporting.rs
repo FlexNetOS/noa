@@ -166,12 +166,12 @@ async fn report_outbound_failure_on_max_streams() {
         .try_init();
 
     // `swarm2` will be able to handle only 1 stream per time.
-    let swarm2_config = request_response::Config::default()
+    let swarm2_configs = request_response::configs::default()
         .with_request_timeout(Duration::from_millis(100))
         .with_max_concurrent_streams(1);
 
     let (peer1_id, mut swarm1) = new_swarm();
-    let (peer2_id, mut swarm2) = new_swarm_with_config(swarm2_config);
+    let (peer2_id, mut swarm2) = new_swarm_with_configs(swarm2_configs);
 
     swarm1.listen().with_memory_addr_external().await;
     swarm2.connect(&mut swarm1).await;
@@ -515,8 +515,8 @@ impl Codec for TestCodec {
     }
 }
 
-fn new_swarm_with_config(
-    cfg: request_response::Config,
+fn new_swarm_with_configs(
+    cfg: request_response::configs,
 ) -> (PeerId, Swarm<request_response::Behaviour<TestCodec>>) {
     let protocols = iter::once((StreamProtocol::new("/test/1"), ProtocolSupport::Full));
 
@@ -531,8 +531,8 @@ fn new_swarm_with_config(
 fn new_swarm_with_timeout(
     timeout: Duration,
 ) -> (PeerId, Swarm<request_response::Behaviour<TestCodec>>) {
-    let cfg = request_response::Config::default().with_request_timeout(timeout);
-    new_swarm_with_config(cfg)
+    let cfg = request_response::configs::default().with_request_timeout(timeout);
+    new_swarm_with_configs(cfg)
 }
 
 fn new_swarm() -> (PeerId, Swarm<request_response::Behaviour<TestCodec>>) {

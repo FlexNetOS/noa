@@ -3,7 +3,7 @@
     Verify entire NOA environment installation.
 
 .DESCRIPTION
-    Runs all verification checks to ensure NOA is properly installed and configured.
+    Runs all verification checks to ensure NOA is properly installed and configsured.
     Checks toolchains, AI providers, shared resources, and environment setup.
 
 .PARAMETER NoaRoot
@@ -103,7 +103,7 @@ function Run-Check {
 # 1. Directory Structure
 if (-not $Json) { Write-Host "Checking directory structure..." -ForegroundColor Yellow }
 
-$requiredDirs = @("bin", "config", "ai", "ai/shared", "ai/providers", "logs", "specs")
+$requiredDirs = @("bin", "configs", "ai", "ai/shared", "ai/providers", "logs", "specs")
 foreach ($dir in $requiredDirs) {
     Run-Check -Name "dir_$($dir -replace '/','-')" -Description "Directory: $dir" -Test {
         $path = Join-Path $NoaRoot $dir
@@ -138,7 +138,7 @@ foreach ($tool in $coreTools) {
     }
 }
 
-# 3. AI Provider Configs
+# 3. AI Provider configss
 if (-not $Json) { Write-Host "" ; Write-Host "Checking AI providers..." -ForegroundColor Yellow }
 
 $verifyProviders = Join-Path $BOOTSTRAP_DIR "verify-ai-providers.ps1"
@@ -147,7 +147,7 @@ if (Test-Path $verifyProviders) {
         $null = & pwsh -NoLogo -NoProfile -File $verifyProviders -Json 2>&1
         $exitCode = $LASTEXITCODE
         if ($exitCode -eq 0) {
-            return @{ success = $true; details = "All required providers configured" }
+            return @{ success = $true; details = "All required providers configsured" }
         } else {
             return @{ success = $false; error = "Some providers missing" }
         }
@@ -163,7 +163,7 @@ if (Test-Path $verifyShared) {
         $null = & pwsh -NoLogo -NoProfile -File $verifyShared -Json 2>&1
         $exitCode = $LASTEXITCODE
         if ($exitCode -eq 0) {
-            return @{ success = $true; details = "All shared resources configured" }
+            return @{ success = $true; details = "All shared resources configsured" }
         } else {
             return @{ success = $false; error = "Some resources missing" }
         }

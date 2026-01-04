@@ -26,11 +26,11 @@ gateway/api/
 | `/api/v1/tasks` | GET/POST | Task management |
 | `/api/v1/tasks/{id}` | GET | Task details |
 
-## Server Configuration
+## Server configsuration
 
 The API is served by `sys/core/crates/api` on port 3001.
 
-### Provider Priority (from config/ai-providers.json)
+### Provider Priority (from configs/ai-providers.json)
 
 1. **Local** (llama.cpp @ localhost:8080) - Always available offline
 2. **Hybrid** (Cursor) - IDE context awareness

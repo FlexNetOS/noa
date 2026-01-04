@@ -234,36 +234,36 @@ echo "Model deployed: $HASH"
 echo "Access via: models/llama/current or tag v3.2-q4"
 ```
 
-### Snapshot Configuration
+### Snapshot configsuration
 
 ```bash
 #!/bin/bash
-# Create configuration snapshot
+# Create configsuration snapshot
 
-CONFIG_DIR="/n/noa/configs"
+configs_DIR="/n/noa/configss"
 SNAPSHOT_FILE=$(mktemp)
 
 # Create tarball
-tar czf "$SNAPSHOT_FILE" -C "$CONFIG_DIR" .
+tar czf "$SNAPSHOT_FILE" -C "$configs_DIR" .
 
 # Store in CAS
 HASH=$(./store-object.sh "$SNAPSHOT_FILE" snapshot '{
-  "type": "full_config",
+  "type": "full_configs",
   "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
 }')
 
 # Tag with timestamp
 TAG="snapshot-$(date +%Y%m%d-%H%M%S)"
-./create-tag.sh "$TAG" "$HASH" "Configuration snapshot"
+./create-tag.sh "$TAG" "$HASH" "configsuration snapshot"
 
 # Update latest
-./update-ref.sh snapshots/latest "$HASH" "Latest config snapshot"
+./update-ref.sh snapshots/latest "$HASH" "Latest configs snapshot"
 
 rm "$SNAPSHOT_FILE"
 echo "Snapshot created: $TAG ($HASH)"
 ```
 
-### Rollback Configuration
+### Rollback configsuration
 
 ```bash
 #!/bin/bash
@@ -285,8 +285,8 @@ fi
 TEMP_SNAPSHOT=$(mktemp)
 ./retrieve-object.sh "$HASH" "$TEMP_SNAPSHOT"
 
-# Extract to configs
-tar xzf "$TEMP_SNAPSHOT" -C /n/noa/configs/
+# Extract to configss
+tar xzf "$TEMP_SNAPSHOT" -C /n/noa/configss/
 
 rm "$TEMP_SNAPSHOT"
 echo "Rolled back to: $TAG ($HASH)"
@@ -363,6 +363,6 @@ cargo install b3sum
 ## See Also
 
 - [CAS Framework Documentation](../../cas/README.md)
-- [CAS Configuration](../../configs/base/cas/config.json)
+- [CAS configsuration](../../configss/base/cas/configs.json)
 - [GC Rules](../../cas/gc/gc_rules.json)
 - [NOA Architecture](../../README.md)

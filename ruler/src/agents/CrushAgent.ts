@@ -1,20 +1,24 @@
-import { IAgent, IAgentConfig } from './IAgent';
+import { IAgent, IAgentconfigs } from './IAgent';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-export class CrushAgent implements IAgent {
-  getIdentifier(): string {
+export class CrushAgent implements IAgent
+{
+  getIdentifier (): string
+  {
     return 'crush';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'Crush';
   }
 
-  getDefaultOutputPath(projectRoot: string): Record<string, string> {
+  getDefaultOutputPath ( projectRoot: string ): Record<string, string>
+  {
     return {
-      instructions: path.join(projectRoot, 'CRUSH.md'),
-      mcp: path.join(projectRoot, '.crush.json'),
+      instructions: path.join( projectRoot, 'CRUSH.md' ),
+      mcp: path.join( projectRoot, '.crush.json' ),
     };
   }
 
@@ -22,13 +26,16 @@ export class CrushAgent implements IAgent {
    * Transform MCP server types for Crush compatibility.
    * Crush expects "http" for HTTP servers and "sse" for SSE servers, not "remote".
    */
-  private transformMcpServersForCrush(
+  private transformMcpServersForCrush (
     mcpServers: Record<string, unknown>,
-  ): Record<string, unknown> {
+  ): Record<string, unknown>
+  {
     const transformedServers: Record<string, unknown> = {};
 
-    for (const [name, serverDef] of Object.entries(mcpServers)) {
-      if (serverDef && typeof serverDef === 'object') {
+    for ( const [ name, serverDef ] of Object.entries( mcpServers ) )
+    {
+      if ( serverDef && typeof serverDef === 'object' )
+      {
         const server = serverDef as Record<string, unknown>;
         const transformedServer = { ...server };
 
@@ -37,84 +44,97 @@ export class CrushAgent implements IAgent {
           server.type === 'remote' &&
           server.url &&
           typeof server.url === 'string'
-        ) {
+        )
+        {
           const url = server.url as string;
 
           // Check if URL suggests SSE (contains /sse path segment)
-          if (/\/sse(\/|$)/i.test(url)) {
+          if ( /\/sse(\/|$)/i.test( url ) )
+          {
             transformedServer.type = 'sse';
-          } else {
+          } else
+          {
             transformedServer.type = 'http';
           }
         }
 
-        transformedServers[name] = transformedServer;
-      } else {
-        transformedServers[name] = serverDef;
+        transformedServers[ name ] = transformedServer;
+      } else
+      {
+        transformedServers[ name ] = serverDef;
       }
     }
 
     return transformedServers;
   }
 
-  async applyRulerConfig(
+  async applyRulerconfigs (
     concatenatedRules: string,
     projectRoot: string,
     rulerMcpJson: Record<string, unknown> | null,
-    agentConfig?: IAgentConfig,
-  ): Promise<void> {
-    const outputPaths = this.getDefaultOutputPath(projectRoot);
+    agentconfigs?: IAgentconfigs,
+  ): Promise<void>
+  {
+    const outputPaths = this.getDefaultOutputPath( projectRoot );
     const instructionsPath =
-      agentConfig?.outputPathInstructions ?? outputPaths['instructions'];
-    const mcpPath = agentConfig?.outputPathConfig ?? outputPaths['mcp'];
+      agentconfigs?.outputPathInstructions ?? outputPaths[ 'instructions' ];
+    const mcpPath = agentconfigs?.outputPathconfigs ?? outputPaths[ 'mcp' ];
 
-    await fs.writeFile(instructionsPath, concatenatedRules);
+    await fs.writeFile( instructionsPath, concatenatedRules );
 
     // Always transform from mcpServers ({ mcpServers: ... }) to { mcp: ... } for Crush
-    let finalMcpConfig: { mcp: Record<string, unknown> } = { mcp: {} };
+    let finalMcpconfigs: { mcp: Record<string, unknown>; } = { mcp: {} };
 
-    try {
-      const existingMcpConfig = JSON.parse(await fs.readFile(mcpPath, 'utf-8'));
-      if (existingMcpConfig && typeof existingMcpConfig === 'object') {
+    try
+    {
+      const existingMcpconfigs = JSON.parse( await fs.readFile( mcpPath, 'utf-8' ) );
+      if ( existingMcpconfigs && typeof existingMcpconfigs === 'object' )
+      {
         const transformedServers = this.transformMcpServersForCrush(
-          (rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>,
+          ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown>,
         );
-        finalMcpConfig = {
-          ...existingMcpConfig,
+        finalMcpconfigs = {
+          ...existingMcpconfigs,
           mcp: {
-            ...(existingMcpConfig.mcp || {}),
+            ...( existingMcpconfigs.mcp || {} ),
             ...transformedServers,
           },
         };
-      } else if (rulerMcpJson) {
+      } else if ( rulerMcpJson )
+      {
         const transformedServers = this.transformMcpServersForCrush(
-          (rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>,
+          ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown>,
         );
-        finalMcpConfig = {
+        finalMcpconfigs = {
           mcp: transformedServers,
         };
       }
-    } catch {
-      if (rulerMcpJson) {
+    } catch
+    {
+      if ( rulerMcpJson )
+      {
         const transformedServers = this.transformMcpServersForCrush(
-          (rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>,
+          ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown>,
         );
-        finalMcpConfig = {
+        finalMcpconfigs = {
           mcp: transformedServers,
         };
       }
     }
 
-    if (Object.keys(finalMcpConfig.mcp).length > 0) {
-      await fs.writeFile(mcpPath, JSON.stringify(finalMcpConfig, null, 2));
+    if ( Object.keys( finalMcpconfigs.mcp ).length > 0 )
+    {
+      await fs.writeFile( mcpPath, JSON.stringify( finalMcpconfigs, null, 2 ) );
     }
   }
 
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return true;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return true;
   }
 }

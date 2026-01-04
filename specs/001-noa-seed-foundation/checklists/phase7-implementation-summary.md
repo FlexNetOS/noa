@@ -18,7 +18,7 @@
   3. Triple-Verification Protocol (Q7-026 to Q7-039)
   4. Code Quality Requirements (Q7-040 to Q7-053)
   5. Metadata Quality Requirements (Q7-054 to Q7-065)
-  6. Configuration Standardization (Q7-066 to Q7-076)
+  6. configsuration Standardization (Q7-066 to Q7-076)
   7. Schema Quality Requirements (Q7-077 to Q7-087)
   8. Prohibitions Compliance (Q7-088 to Q7-093)
   9. Fallbacks & Refusals (Q7-094 to Q7-096)
@@ -34,8 +34,8 @@
 
 ### 2. Testing Infrastructure ✅
 
-#### Jest Configuration
-- **File**: `sys/ui/jest.config.js`
+#### Jest configsuration
+- **File**: `sys/ui/jest.configs.js`
 - Next.js integration
 - TypeScript support
 - Coverage thresholds (70% minimum)
@@ -126,7 +126,7 @@ Comprehensive testing guide including:
 1. ✅ `specs/001-noa-seed-foundation/checklists/phase7-quality.md` (609 lines)
 2. ✅ `specs/001-noa-seed-foundation/checklists/phase7-testing-guide.md` (500+ lines)
 3. ✅ `specs/001-noa-seed-foundation/checklists/phase7-implementation-summary.md` (this file)
-4. ✅ `sys/ui/jest.config.js`
+4. ✅ `sys/ui/jest.configs.js`
 5. ✅ `sys/ui/jest.setup.js`
 6. ✅ `sys/ui/__tests__/smoke/phase7-smoke.test.ts`
 7. ✅ `sys/ui/__tests__/unit/lib/api.test.ts`
@@ -206,7 +206,7 @@ npm run test:ci
 - ✅ Triple-Verification: 3/14
 - ✅ Code Quality: 8/14
 - ✅ Metadata: 4/12
-- ✅ Configuration: 6/11
+- ✅ configsuration: 6/11
 - ✅ Schema: 0/11 (N/A)
 - ✅ Prohibitions: 6/6
 - ✅ Fallbacks: 3/3
@@ -232,7 +232,7 @@ npm run test:ci
 5. ⚠️ Add React.memo optimizations (Q7-124)
 
 #### Low Priority (Nice to Have)
-1. ⚠️ Add config documentation (Q7-074, Q7-075)
+1. ⚠️ Add configs documentation (Q7-074, Q7-075)
 2. ⚠️ Standardize timeout units (Q7-072)
 3. ⚠️ Add AbortController support (Q7-120)
 4. ⚠️ Add input sanitization (Q7-128)
@@ -271,8 +271,8 @@ npm run test:ci
 - ✅ PowerShell: 2 scripts
 - ✅ Bash: 1 script
 
-### Configuration
-- ✅ Jest config: Created
+### configsuration
+- ✅ Jest configs: Created
 - ✅ Jest setup: Created
 - ✅ Package.json: Updated with test scripts
 

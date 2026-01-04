@@ -52,9 +52,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_quic()
         .with_behaviour(|key| {
@@ -65,8 +65,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 gossipsub::MessageId::from(s.finish().to_string())
             };
 
-            // Set a custom gossipsub configuration
-            let gossipsub_config = gossipsub::ConfigBuilder::default()
+            // Set a custom gossipsub configsuration
+            let gossipsub_configs = gossipsub::configsBuilder::default()
                 .heartbeat_interval(Duration::from_secs(10)) // This is set to aid debugging by not cluttering the log space
                 .validation_mode(gossipsub::ValidationMode::Strict) // This sets the kind of message validation. The default is Strict (enforce message
                 // signing)
@@ -77,11 +77,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             // build a gossipsub network behaviour
             let gossipsub = gossipsub::Behaviour::new(
                 gossipsub::MessageAuthenticity::Signed(key.clone()),
-                gossipsub_config,
+                gossipsub_configs,
             )?;
 
             let mdns =
-                mdns::tokio::Behaviour::new(mdns::Config::default(), key.public().to_peer_id())?;
+                mdns::tokio::Behaviour::new(mdns::configs::default(), key.public().to_peer_id())?;
             Ok(MyBehaviour { gossipsub, mdns })
         })?
         .build();

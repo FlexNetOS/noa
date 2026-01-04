@@ -1,6 +1,12 @@
 {
     "$schema": "https://noa.local/schemas/features.json",
     "version": "1.0.0",
+    "metadata": {
+        "version": "1.0.0",
+        "description": "Feature flags and preferences",
+        "layer": "semantic",
+        "updated_at": "2026-01-02T00:00:00Z"
+    },
     "providers": {
         "sharedExecutionMemory": true,
         "collaborativeReasoning": true,

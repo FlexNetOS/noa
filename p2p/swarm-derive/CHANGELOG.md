@@ -55,7 +55,7 @@
 
 ## 0.31.0
 
-- Add `prelude` configuration option.
+- Add `prelude` configsuration option.
   The derive-macro generates code that needs to refer to various symbols. See [PR 3055].
 
 - Update `rust-version` to reflect the actual MSRV: 1.60.0. See [PR 3090].

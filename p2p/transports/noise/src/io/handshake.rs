@@ -118,7 +118,7 @@ where
 
         // Check WebTransport certhashes that responder reported back to us.
         if is_initiator {
-            // We check only if we care (i.e. Config::with_webtransport_certhashes was used).
+            // We check only if we care (i.e. configs::with_webtransport_certhashes was used).
             if let Some(expected_certhashes) = self.responder_webtransport_certhashes {
                 let ext = self.remote_extensions.ok_or_else(|| {
                     Error::UnknownWebTransportCerthashes(

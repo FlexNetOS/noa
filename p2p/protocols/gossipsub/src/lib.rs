@@ -42,10 +42,10 @@
 //! This section outlines the current implementation's potential discrepancies from that of other
 //! implementations, due to undefined elements in the current specification.
 //!
-//! - **Topics** -  In gossipsub, topics configurable by the `hash_topics` configuration parameter.
+//! - **Topics** -  In gossipsub, topics configsurable by the `hash_topics` configsuration parameter.
 //!   Topics are of type [`TopicHash`]. The current go implementation uses raw utf-8 strings, and
-//!   this is default configuration in rust-libp2p. Topics can be hashed (SHA256 hashed then base64
-//!   encoded) by setting the `hash_topics` configuration parameter to true.
+//!   this is default configsuration in rust-libp2p. Topics can be hashed (SHA256 hashed then base64
+//!   encoded) by setting the `hash_topics` configsuration parameter to true.
 //!
 //! - **Sequence Numbers** - A message on the gossipsub network is identified by the source
 //!   [`PeerId`](libp2p_identity::PeerId) and a nonce (sequence number) of the message. The sequence
@@ -69,22 +69,22 @@
 //!
 //! # Using Gossipsub
 //!
-//! ## Gossipsub Config
+//! ## Gossipsub configs
 //!
-//! The [`Config`] struct specifies various network performance/tuning configuration
+//! The [`configs`] struct specifies various network performance/tuning configsuration
 //! parameters. Specifically it specifies:
 //!
-//! [`Config`]: struct.Config.html
+//! [`configs`]: struct.configs.html
 //!
 //! This struct implements the [`Default`] trait and can be initialised via
-//! [`Config::default()`].
+//! [`configs::default()`].
 //!
 //!
 //! ## Behaviour
 //!
 //! The [`Behaviour`] struct implements the [`libp2p_swarm::NetworkBehaviour`] trait allowing it to
 //! act as the routing behaviour in a [`libp2p_swarm::Swarm`]. This struct requires an instance of
-//! [`PeerId`](libp2p_identity::PeerId) and [`Config`].
+//! [`PeerId`](libp2p_identity::PeerId) and [`configs`].
 //!
 //! [`Behaviour`]: struct.Behaviour.html
 
@@ -96,7 +96,7 @@
 
 mod backoff;
 mod behaviour;
-mod config;
+mod configs;
 mod error;
 mod gossip_promises;
 mod handler;
@@ -114,12 +114,12 @@ mod transform;
 mod types;
 
 #[cfg(feature = "metrics")]
-pub use metrics::Config as MetricsConfig;
+pub use metrics::configs as Metricsconfigs;
 
 pub use self::{
     behaviour::{Behaviour, Event, MessageAuthenticity},
-    config::{Config, ConfigBuilder, ValidationMode, Version},
-    error::{ConfigBuilderError, PublishError, SubscriptionError, ValidationError},
+    configs::{configs, configsBuilder, ValidationMode, Version},
+    error::{configsBuilderError, PublishError, SubscriptionError, ValidationError},
     peer_score::{
         score_parameter_decay, score_parameter_decay_with_base, PeerScoreParams,
         PeerScoreThresholds, TopicScoreParams,

@@ -37,7 +37,7 @@ pub(crate) mod disjoint;
 /// distance to a chosen target.
 #[derive(Debug, Clone)]
 pub struct ClosestPeersIter {
-    config: ClosestPeersIterConfig,
+    configs: ClosestPeersIterconfigs,
 
     /// The target whose distance to any peer determines the position of
     /// the peer in the iterator.
@@ -53,9 +53,9 @@ pub struct ClosestPeersIter {
     num_waiting: usize,
 }
 
-/// Configuration for a `ClosestPeersIter`.
+/// configsuration for a `ClosestPeersIter`.
 #[derive(Debug, Clone)]
-pub struct ClosestPeersIterConfig {
+pub struct ClosestPeersIterconfigs {
     /// Allowed level of parallelism.
     ///
     /// The `α` parameter in the Kademlia paper. The maximum number of peers that
@@ -78,9 +78,9 @@ pub struct ClosestPeersIterConfig {
     pub peer_timeout: Duration,
 }
 
-impl Default for ClosestPeersIterConfig {
+impl Default for ClosestPeersIterconfigs {
     fn default() -> Self {
-        ClosestPeersIterConfig {
+        ClosestPeersIterconfigs {
             parallelism: ALPHA_VALUE,
             num_results: K_VALUE,
             peer_timeout: Duration::from_secs(10),
@@ -89,21 +89,21 @@ impl Default for ClosestPeersIterConfig {
 }
 
 impl ClosestPeersIter {
-    /// Creates a new iterator with a default configuration.
+    /// Creates a new iterator with a default configsuration.
     pub fn new<I>(target: KeyBytes, known_closest_peers: I) -> Self
     where
         I: IntoIterator<Item = Key<PeerId>>,
     {
-        Self::with_config(
-            ClosestPeersIterConfig::default(),
+        Self::with_configs(
+            ClosestPeersIterconfigs::default(),
             target,
             known_closest_peers,
         )
     }
 
-    /// Creates a new iterator with the given configuration.
-    pub fn with_config<I, T>(
-        config: ClosestPeersIterConfig,
+    /// Creates a new iterator with the given configsuration.
+    pub fn with_configs<I, T>(
+        configs: ClosestPeersIterconfigs,
         target: T,
         known_closest_peers: I,
     ) -> Self
@@ -129,7 +129,7 @@ impl ClosestPeersIter {
         let state = State::Iterating { no_progress: 0 };
 
         ClosestPeersIter {
-            config,
+            configs,
             target,
             state,
             closest_peers,
@@ -181,7 +181,7 @@ impl ClosestPeersIter {
         }
 
         let mut cur_range = distance;
-        let num_results = self.config.num_results.get();
+        let num_results = self.configs.num_results.get();
         // furthest_peer is the furthest peer in range among the closest_peers
         let furthest_peer = self
             .closest_peers
@@ -201,7 +201,7 @@ impl ClosestPeersIter {
         //   OR
         //     2, any of the new peers is closer to the target than any peer seen so far
         //        (i.e. is the first entry after being incorporated)
-        let mut progress = self.closest_peers.len() < self.config.num_results.get();
+        let mut progress = self.closest_peers.len() < self.configs.num_results.get();
         for peer in closer_peers {
             let key = peer.into();
             let distance = self.target.distance(&key);
@@ -225,7 +225,7 @@ impl ClosestPeersIter {
         self.state = match self.state {
             State::Iterating { no_progress } => {
                 let no_progress = if progress { 0 } else { no_progress + 1 };
-                if no_progress >= self.config.parallelism.get() {
+                if no_progress >= self.configs.parallelism.get() {
                     State::Stalled
                 } else {
                     State::Iterating { no_progress }
@@ -344,7 +344,7 @@ impl ClosestPeersIter {
                         *cnt += 1;
                         // If `num_results` successful results have been delivered for the
                         // closest peers, the iterator is done.
-                        if *cnt >= self.config.num_results.get() {
+                        if *cnt >= self.configs.num_results.get() {
                             self.state = State::Finished;
                             return PeersIterState::Finished;
                         }
@@ -353,7 +353,7 @@ impl ClosestPeersIter {
 
                 PeerState::NotContacted => {
                     if !at_capacity {
-                        let timeout = now + self.config.peer_timeout;
+                        let timeout = now + self.configs.peer_timeout;
                         peer.state = PeerState::Waiting(timeout);
                         self.num_waiting += 1;
                         return PeersIterState::Waiting(Some(Cow::Borrowed(peer.key.preimage())));
@@ -402,7 +402,7 @@ impl ClosestPeersIter {
                     None
                 }
             })
-            .take(self.config.num_results.get())
+            .take(self.configs.num_results.get())
     }
 
     /// Checks if the iterator is at capacity w.r.t. the permitted parallelism.
@@ -415,9 +415,9 @@ impl ClosestPeersIter {
         match self.state {
             State::Stalled => {
                 self.num_waiting
-                    >= usize::max(self.config.num_results.get(), self.config.parallelism.get())
+                    >= usize::max(self.configs.num_results.get(), self.configs.parallelism.get())
             }
-            State::Iterating { .. } => self.num_waiting >= self.config.parallelism.get(),
+            State::Iterating { .. } => self.num_waiting >= self.configs.parallelism.get(),
             State::Finished => true,
         }
     }
@@ -481,7 +481,7 @@ enum PeerState {
     /// The iterator is waiting for a result from the peer.
     Waiting(Instant),
 
-    /// A result was not delivered for the peer within the configured timeout.
+    /// A result was not delivered for the peer within the configsured timeout.
     ///
     /// The peer is not taken into account for the termination conditions
     /// of the iterator until and unless it responds.
@@ -542,12 +542,12 @@ mod tests {
                 .map(|_| Key::from(ArbitraryPeerId::arbitrary(g).0))
                 .collect::<Vec<_>>();
             let target = Key::from(ArbitraryPeerId::arbitrary(g).0);
-            let config = ClosestPeersIterConfig {
+            let configs = ClosestPeersIterconfigs {
                 parallelism: NonZeroUsize::new(g.gen_range(1..10)).unwrap(),
                 num_results: NonZeroUsize::new(g.gen_range(1..25)).unwrap(),
                 peer_timeout: Duration::from_secs(g.gen_range(10..30)),
             };
-            ClosestPeersIter::with_config(config, target, known_closest_peers)
+            ClosestPeersIter::with_configs(configs, target, known_closest_peers)
         }
     }
 
@@ -606,7 +606,7 @@ mod tests {
                 .map(|e| e.key)
                 .collect::<Vec<_>>();
             let num_known = expected.len();
-            let max_parallelism = usize::min(iter.config.parallelism.get(), num_known);
+            let max_parallelism = usize::min(iter.configs.parallelism.get(), num_known);
 
             let target = iter.target;
             let mut remaining;
@@ -646,7 +646,7 @@ mod tests {
                 // peers or an error, thus finishing the "in-flight requests".
                 for (i, k) in expected.iter().enumerate() {
                     if rng.gen_bool(0.75) {
-                        let num_closer = rng.gen_range(0..iter.config.num_results.get() + 1);
+                        let num_closer = rng.gen_range(0..iter.configs.num_results.get() + 1);
                         let closer_peers = random_peers(num_closer, &mut rng);
                         remaining.extend(closer_peers.iter().cloned().map(Key::from));
                         iter.on_success(k.preimage(), closer_peers);
@@ -676,7 +676,7 @@ mod tests {
                 .all(|e| !matches!(e.state, PeerState::NotContacted | PeerState::Waiting { .. }));
 
             let target = iter.target;
-            let num_results = iter.config.num_results;
+            let num_results = iter.configs.num_results;
             let result = iter.into_result();
             let closest = result.map(Key::from).collect::<Vec<_>>();
 
@@ -761,7 +761,7 @@ mod tests {
             }
 
             // Artificially advance the clock.
-            now += iter.config.peer_timeout;
+            now += iter.configs.peer_timeout;
 
             // Advancing the iterator again should mark the first peer as unresponsive.
             let _ = iter.next(now);
@@ -820,7 +820,7 @@ mod tests {
         fn prop(mut iter: ClosestPeersIter) {
             iter.state = State::Stalled;
 
-            for i in 0..usize::max(iter.config.parallelism.get(), iter.config.num_results.get()) {
+            for i in 0..usize::max(iter.configs.parallelism.get(), iter.configs.num_results.get()) {
                 iter.num_waiting = i;
                 assert!(
                     !iter.at_capacity(),
@@ -830,7 +830,7 @@ mod tests {
             }
 
             iter.num_waiting =
-                usize::max(iter.config.parallelism.get(), iter.config.num_results.get());
+                usize::max(iter.configs.parallelism.get(), iter.configs.num_results.get());
             assert!(
                 iter.at_capacity(),
                 "Iterator should be at capacity if `max(parallelism, num_results)` requests are \

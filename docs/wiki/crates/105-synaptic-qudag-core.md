@@ -42,12 +42,12 @@ export * from './lib'
 // Expected main exports (to be determined from Cargo.toml)
 // Example structure:
 export class Client {
-  constructor(config?: Config)
+  constructor(configs?: configs)
   // Methods based on Rust public API
 }
 
-export interface Config {
-  // Configuration options
+export interface configs {
+  // configsuration options
 }
 ```
 
@@ -83,8 +83,8 @@ Target platforms:
 
 ```
 packages/synaptic-qudag-core/
-├── Cargo.toml              # Rust crate configuration
-├── package.json            # NPM package configuration
+├── Cargo.toml              # Rust crate configsuration
+├── package.json            # NPM package configsuration
 ├── build.rs                # Build script (if needed)
 ├── src/
 │   ├── lib.rs              # napi-rs bindings
@@ -121,9 +121,9 @@ pub struct Client {
 #[napi]
 impl Client {
   #[napi(constructor)]
-  pub fn new(config: Option<JsObject>) -> Result<Self> {
-    // Parse configuration
-    let cfg = parse_config(config)?;
+  pub fn new(configs: Option<JsObject>) -> Result<Self> {
+    // Parse configsuration
+    let cfg = parse_configs(configs)?;
     
     // Initialize Rust client
     let client = InnerClient::new(cfg)
@@ -156,9 +156,9 @@ impl Client {
 }
 
 // Helper functions
-fn parse_config(config: Option<JsObject>) -> Result<Config> {
-  // Parse JS config to Rust types
-  todo!("Implement config parsing")
+fn parse_configs(configs: Option<JsObject>) -> Result<configs> {
+  // Parse JS configs to Rust types
+  todo!("Implement configs parsing")
 }
 ```
 
@@ -167,12 +167,12 @@ fn parse_config(config: Option<JsObject>) -> Result<Config> {
 ```typescript
 // src/index.ts
 
-export interface Config {
-  // Configuration options based on Rust struct
+export interface configs {
+  // configsuration options based on Rust struct
 }
 
 export class Client {
-  constructor(config?: Config)
+  constructor(configs?: configs)
   
   /**
    * Process input data
@@ -250,7 +250,7 @@ User Code (JS/TS)
 pub enum PackageError {
   InvalidInput(String),
   ProcessingFailed(String),
-  ConfigError(String),
+  configsError(String),
 }
 
 impl From<PackageError> for napi::Error {
@@ -260,7 +260,7 @@ impl From<PackageError> for napi::Error {
         Error::new(Status::InvalidArg, msg),
       PackageError::ProcessingFailed(msg) => 
         Error::new(Status::GenericFailure, msg),
-      PackageError::ConfigError(msg) => 
+      PackageError::configsError(msg) => 
         Error::new(Status::InvalidArg, msg),
     }
   }
@@ -408,7 +408,7 @@ describe('Performance', () => {
 3. Basic usage
 4. API overview
 5. Examples
-6. Configuration
+6. configsuration
 7. Performance considerations
 8. Troubleshooting
 
@@ -416,7 +416,7 @@ describe('Performance', () => {
 1. Complete type definitions
 2. Method documentation
 3. Error codes
-4. Configuration options
+4. configsuration options
 5. Advanced usage
 
 ---
@@ -428,9 +428,9 @@ describe('Performance', () => {
 **Setup**:
 - [ ] Create package directory structure
 - [ ] Initialize Cargo.toml with napi-rs dependencies
-- [ ] Initialize package.json with napi configuration
-- [ ] Set up TypeScript configuration
-- [ ] Configure build scripts
+- [ ] Initialize package.json with napi configsuration
+- [ ] Set up TypeScript configsuration
+- [ ] configsure build scripts
 
 **Implementation**:
 - [ ] Implement napi-rs bindings in src/lib.rs
@@ -455,9 +455,9 @@ describe('Performance', () => {
 
 **CI/CD**:
 - [ ] Set up GitHub Actions workflow
-- [ ] Configure cross-platform builds
+- [ ] configsure cross-platform builds
 - [ ] Set up automated testing
-- [ ] Configure NPM publishing
+- [ ] configsure NPM publishing
 - [ ] Set up automated releases
 
 **Quality Assurance**:
@@ -535,7 +535,7 @@ pnpm build:all
 pnpm publish
 ```
 
-#### 5.5 Package.json Configuration
+#### 5.5 Package.json configsuration
 
 ```json
 {

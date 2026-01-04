@@ -2,7 +2,7 @@
 #
 # NOA Environment Setup Script for Unix/macOS
 #
-# Creates the NOA directory structure, generates configuration files,
+# Creates the NOA directory structure, generates configsuration files,
 # and optionally installs prerequisites and integrates with shell profile.
 #
 # Usage:
@@ -114,7 +114,7 @@ DIRECTORIES=(
     "repos"
     "containers"
     "workspace"
-    "config"
+    "configs"
     "scripts"
     "logs"
     "tmp"
@@ -217,7 +217,7 @@ export NOA_ROOT="$NOA_ROOT"
 export NOA_REPOS="\$NOA_ROOT/repos"
 export NOA_CONTAINERS="\$NOA_ROOT/containers"
 export NOA_WORKSPACE="\$NOA_ROOT/workspace"
-export NOA_CONFIG="\$NOA_ROOT/config"
+export NOA_configs="\$NOA_ROOT/configs"
 export NOA_SCRIPTS="\$NOA_ROOT/scripts"
 export NOA_LOGS="\$NOA_ROOT/logs"
 export NOA_TMP="\$NOA_ROOT/tmp"
@@ -258,10 +258,10 @@ root=$NOA_ROOT
 EOF
 log_success "  Created: .noa"
 
-# Create config/noa.json
-log_info "Creating config/noa.json..."
-CONFIG_PATH="$NOA_ROOT/config/noa.json"
-cat > "$CONFIG_PATH" << EOF
+# Create configs/noa.json
+log_info "Creating configs/noa.json..."
+configs_PATH="$NOA_ROOT/configs/noa.json"
+cat > "$configs_PATH" << EOF
 {
   "version": "2.0.0",
   "name": "NOA",
@@ -270,17 +270,17 @@ cat > "$CONFIG_PATH" << EOF
   "root": "$NOA_ROOT",
   "directories": {
     "repos": "Git repositories",
-    "containers": "Container images and configs",
+    "containers": "Container images and configss",
     "workspace": "Active project workspace",
-    "config": "Configuration files",
+    "configs": "configsuration files",
     "scripts": "Automation scripts",
     "logs": "Log files",
     "tmp": "Temporary files",
     "p2p": "Peer-to-peer networking",
-    "ai": "AI models and configs",
+    "ai": "AI models and configss",
     "git": "Git workflows and hooks",
     "bin": "Executables",
-    "etc": "Additional configuration",
+    "etc": "Additional configsuration",
     "lib": "Libraries",
     "opt": "Optional packages",
     "sys": "System files",
@@ -288,7 +288,7 @@ cat > "$CONFIG_PATH" << EOF
   }
 }
 EOF
-log_success "  Created: config/noa.json"
+log_success "  Created: configs/noa.json"
 
 # Integrate with shell profile if requested
 if [[ "$INTEGRATE_PROFILE" == "true" ]]; then
@@ -326,7 +326,7 @@ echo ""
 log_info "=== Setup Summary ==="
 log_info "Root Directory: $NOA_ROOT"
 log_info "Profile Script: $PROFILE_PATH"
-log_info "Config File: $CONFIG_PATH"
+log_info "configs File: $configs_PATH"
 log_info "Log File: $LOG_FILE"
 
 echo ""

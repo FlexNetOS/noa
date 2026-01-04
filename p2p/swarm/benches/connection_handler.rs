@@ -178,17 +178,17 @@ fn new_swarm<T: NetworkBehaviour>(beh: T) -> libp2p_swarm::Swarm<T> {
     libp2p_swarm::Swarm::new(
         MemoryTransport::default()
             .upgrade(multistream_select::Version::V1)
-            .authenticate(libp2p_plaintext::Config::new(&keypair))
-            .multiplex(libp2p_yamux::Config::default())
+            .authenticate(libp2p_plaintext::configs::new(&keypair))
+            .multiplex(libp2p_yamux::configs::default())
             .boxed(),
         beh,
         keypair.public().to_peer_id(),
-        libp2p_swarm::Config::without_executor().with_idle_connection_timeout(Duration::MAX),
+        libp2p_swarm::configs::without_executor().with_idle_connection_timeout(Duration::MAX),
     )
 }
 
 /// Whole purpose of the behaviour is to rapidly call `poll` on the handler
-/// configured amount of times and then emit event when finished.
+/// configsured amount of times and then emit event when finished.
 #[derive(Default)]
 struct SpinningBehaviour {
     iter_count: usize,

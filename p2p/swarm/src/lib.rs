@@ -109,7 +109,7 @@ pub use behaviour::{
 };
 pub use connection::{pool::ConnectionCounters, ConnectionError, ConnectionId, SupportedProtocols};
 use connection::{
-    pool::{EstablishedConnection, Pool, PoolConfig, PoolEvent},
+    pool::{EstablishedConnection, Pool, Poolconfigs, PoolEvent},
     IncomingInfo, PendingInboundConnectionError, PendingOutboundConnectionError,
 };
 use dial_opts::{DialOpts, PeerCondition};
@@ -117,7 +117,7 @@ pub use executor::Executor;
 use futures::{prelude::*, stream::FusedStream};
 pub use handler::{
     ConnectionHandler, ConnectionHandlerEvent, ConnectionHandlerSelect, OneShotHandler,
-    OneShotHandlerConfig, StreamUpgradeError, SubstreamProtocol,
+    OneShotHandlerconfigs, StreamUpgradeError, SubstreamProtocol,
 };
 use libp2p_core::{
     connection::ConnectedPoint,
@@ -346,19 +346,19 @@ where
     TBehaviour: NetworkBehaviour,
 {
     /// Creates a new [`Swarm`] from the given [`Transport`], [`NetworkBehaviour`], [`PeerId`] and
-    /// [`Config`].
+    /// [`configs`].
     pub fn new(
         transport: transport::Boxed<(PeerId, StreamMuxerBox)>,
         behaviour: TBehaviour,
         local_peer_id: PeerId,
-        config: Config,
+        configs: configs,
     ) -> Self {
         tracing::info!(%local_peer_id);
 
         Swarm {
             local_peer_id,
             transport,
-            pool: Pool::new(local_peer_id, config.pool_config),
+            pool: Pool::new(local_peer_id, configs.pool_configs),
             behaviour,
             supported_protocols: Default::default(),
             confirmed_external_addr: Default::default(),
@@ -422,7 +422,7 @@ where
     /// # }
     ///
     /// # fn build_swarm() -> Swarm<dummy::Behaviour> {
-    /// #     Swarm::new(DummyTransport::new().boxed(), dummy::Behaviour, PeerId::random(), libp2p_swarm::Config::with_tokio_executor())
+    /// #     Swarm::new(DummyTransport::new().boxed(), dummy::Behaviour, PeerId::random(), libp2p_swarm::configs::with_tokio_executor())
     /// # }
     /// ```
     pub fn dial(&mut self, opts: impl Into<DialOpts>) -> Result<(), DialError> {
@@ -1376,16 +1376,16 @@ where
     }
 }
 
-pub struct Config {
-    pool_config: PoolConfig,
+pub struct configs {
+    pool_configs: Poolconfigs,
 }
 
-impl Config {
-    /// Creates a new [`Config`] from the given executor. The [`Swarm`] is obtained via
+impl configs {
+    /// Creates a new [`configs`] from the given executor. The [`Swarm`] is obtained via
     /// [`Swarm::new`].
     pub fn with_executor(executor: impl Executor + Send + 'static) -> Self {
         Self {
-            pool_config: PoolConfig::new(Some(Box::new(executor))),
+            pool_configs: Poolconfigs::new(Some(Box::new(executor))),
         }
     }
 
@@ -1393,7 +1393,7 @@ impl Config {
     /// Used on connection benchmarks.
     pub fn without_executor() -> Self {
         Self {
-            pool_config: PoolConfig::new(None),
+            pool_configs: Poolconfigs::new(None),
         }
     }
 
@@ -1411,7 +1411,7 @@ impl Config {
         Self::with_executor(crate::executor::WasmBindgenExecutor)
     }
 
-    /// Builds a new [`Config`] from the given `tokio` executor.
+    /// Builds a new [`configs`] from the given `tokio` executor.
     #[cfg(all(
         feature = "tokio",
         not(any(target_os = "emscripten", target_os = "wasi", target_os = "unknown"))
@@ -1420,7 +1420,7 @@ impl Config {
         Self::with_executor(crate::executor::TokioExecutor)
     }
 
-    /// Configures the number of events from the [`NetworkBehaviour`] in
+    /// configsures the number of events from the [`NetworkBehaviour`] in
     /// destination to the [`ConnectionHandler`] that can be buffered before
     /// the [`Swarm`] has to wait. An individual buffer with this number of
     /// events exists for each individual connection.
@@ -1430,11 +1430,11 @@ impl Config {
     /// be sleeping more often than necessary. Increasing this value increases
     /// the overall memory usage.
     pub fn with_notify_handler_buffer_size(mut self, n: NonZeroUsize) -> Self {
-        self.pool_config = self.pool_config.with_notify_handler_buffer_size(n);
+        self.pool_configs = self.pool_configs.with_notify_handler_buffer_size(n);
         self
     }
 
-    /// Configures the size of the buffer for events sent by a [`ConnectionHandler`] to the
+    /// configsures the size of the buffer for events sent by a [`ConnectionHandler`] to the
     /// [`NetworkBehaviour`].
     ///
     /// Each connection has its own buffer.
@@ -1446,31 +1446,31 @@ impl Config {
     /// event is emitted and the moment when it is received by the
     /// [`NetworkBehaviour`].
     pub fn with_per_connection_event_buffer_size(mut self, n: usize) -> Self {
-        self.pool_config = self.pool_config.with_per_connection_event_buffer_size(n);
+        self.pool_configs = self.pool_configs.with_per_connection_event_buffer_size(n);
         self
     }
 
     /// Number of addresses concurrently dialed for a single outbound connection attempt.
     pub fn with_dial_concurrency_factor(mut self, factor: NonZeroU8) -> Self {
-        self.pool_config = self.pool_config.with_dial_concurrency_factor(factor);
+        self.pool_configs = self.pool_configs.with_dial_concurrency_factor(factor);
         self
     }
 
-    /// Configures an override for the substream upgrade protocol to use.
+    /// configsures an override for the substream upgrade protocol to use.
     ///
     /// The subtream upgrade protocol is the multistream-select protocol
     /// used for protocol negotiation on substreams. Since a listener
     /// supports all existing versions, the choice of upgrade protocol
     /// only effects the "dialer", i.e. the peer opening a substream.
     ///
-    /// > **Note**: If configured, specific upgrade protocols for
+    /// > **Note**: If configsured, specific upgrade protocols for
     /// > individual [`SubstreamProtocol`]s emitted by the `NetworkBehaviour`
     /// > are ignored.
     pub fn with_substream_upgrade_protocol_override(
         mut self,
         v: libp2p_core::upgrade::Version,
     ) -> Self {
-        self.pool_config = self.pool_config.with_substream_upgrade_protocol_override(v);
+        self.pool_configs = self.pool_configs.with_substream_upgrade_protocol_override(v);
         self
     }
 
@@ -1484,7 +1484,7 @@ impl Config {
     /// the total number of streams can be enforced at the
     /// [`StreamMuxerBox`] level.
     pub fn with_max_negotiating_inbound_streams(mut self, v: usize) -> Self {
-        self.pool_config = self.pool_config.with_max_negotiating_inbound_streams(v);
+        self.pool_configs = self.pool_configs.with_max_negotiating_inbound_streams(v);
         self
     }
 
@@ -1506,7 +1506,7 @@ impl Config {
     ///
     /// Once all these conditions are true, the idle connection timeout starts ticking.
     pub fn with_idle_connection_timeout(mut self, timeout: Duration) -> Self {
-        self.pool_config.idle_connection_timeout = timeout;
+        self.pool_configs.idle_connection_timeout = timeout;
         self
     }
 }
@@ -1560,9 +1560,9 @@ impl fmt::Display for DialError {
                 f,
                 "Dial error: tried to dial local peer id at {address:?}."
             ),
-            DialError::DialPeerConditionFalse(PeerCondition::Disconnected) => write!(f, "Dial error: dial condition was configured to only happen when disconnected (`PeerCondition::Disconnected`), but node is already connected, thus cancelling new dial."),
-            DialError::DialPeerConditionFalse(PeerCondition::NotDialing) => write!(f, "Dial error: dial condition was configured to only happen if there is currently no ongoing dialing attempt (`PeerCondition::NotDialing`), but a dial is in progress, thus cancelling new dial."),
-            DialError::DialPeerConditionFalse(PeerCondition::DisconnectedAndNotDialing) => write!(f, "Dial error: dial condition was configured to only happen when both disconnected (`PeerCondition::Disconnected`) and there is currently no ongoing dialing attempt (`PeerCondition::NotDialing`), but node is already connected or dial is in progress, thus cancelling new dial."),
+            DialError::DialPeerConditionFalse(PeerCondition::Disconnected) => write!(f, "Dial error: dial condition was configsured to only happen when disconnected (`PeerCondition::Disconnected`), but node is already connected, thus cancelling new dial."),
+            DialError::DialPeerConditionFalse(PeerCondition::NotDialing) => write!(f, "Dial error: dial condition was configsured to only happen if there is currently no ongoing dialing attempt (`PeerCondition::NotDialing`), but a dial is in progress, thus cancelling new dial."),
+            DialError::DialPeerConditionFalse(PeerCondition::DisconnectedAndNotDialing) => write!(f, "Dial error: dial condition was configsured to only happen when both disconnected (`PeerCondition::Disconnected`) and there is currently no ongoing dialing attempt (`PeerCondition::NotDialing`), but node is already connected or dial is in progress, thus cancelling new dial."),
             DialError::DialPeerConditionFalse(PeerCondition::Always) => unreachable!("Dial peer condition is by definition true."),
             DialError::Aborted => write!(
                 f,
@@ -1781,18 +1781,18 @@ mod tests {
     }
 
     fn new_test_swarm(
-        config: Config,
+        configs: configs,
     ) -> Swarm<CallTraceBehaviour<MockBehaviour<dummy::ConnectionHandler, ()>>> {
         let id_keys = identity::Keypair::generate_ed25519();
         let local_public_key = id_keys.public();
         let transport = transport::MemoryTransport::default()
             .upgrade(upgrade::Version::V1)
-            .authenticate(plaintext::Config::new(&id_keys))
-            .multiplex(yamux::Config::default())
+            .authenticate(plaintext::configs::new(&id_keys))
+            .multiplex(yamux::configs::default())
             .boxed();
         let behaviour = CallTraceBehaviour::new(MockBehaviour::new(dummy::ConnectionHandler));
 
-        Swarm::new(transport, behaviour, local_public_key.into(), config)
+        Swarm::new(transport, behaviour, local_public_key.into(), configs)
     }
 
     fn swarms_connected<TBehaviour>(
@@ -1844,8 +1844,8 @@ mod tests {
     /// / [`FromSwarm::ConnectionClosed`]
     #[tokio::test]
     async fn test_swarm_disconnect() {
-        let mut swarm1 = new_test_swarm(Config::with_tokio_executor());
-        let mut swarm2 = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm1 = new_test_swarm(configs::with_tokio_executor());
+        let mut swarm2 = new_test_swarm(configs::with_tokio_executor());
 
         let addr1: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
         let addr2: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
@@ -1908,8 +1908,8 @@ mod tests {
     /// / [`FromSwarm::ConnectionClosed`]
     #[tokio::test]
     async fn test_behaviour_disconnect_all() {
-        let mut swarm1 = new_test_swarm(Config::with_tokio_executor());
-        let mut swarm2 = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm1 = new_test_swarm(configs::with_tokio_executor());
+        let mut swarm2 = new_test_swarm(configs::with_tokio_executor());
 
         let addr1: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
         let addr2: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
@@ -1976,8 +1976,8 @@ mod tests {
     /// / [`FromSwarm::ConnectionClosed`]
     #[tokio::test]
     async fn test_behaviour_disconnect_one() {
-        let mut swarm1 = new_test_swarm(Config::with_tokio_executor());
-        let mut swarm2 = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm1 = new_test_swarm(configs::with_tokio_executor());
+        let mut swarm2 = new_test_swarm(configs::with_tokio_executor());
 
         let addr1: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
         let addr2: Multiaddr = multiaddr::Protocol::Memory(rand::random::<u64>()).into();
@@ -2057,7 +2057,7 @@ mod tests {
         fn prop(concurrency_factor: DialConcurrencyFactor) {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
                 let mut swarm = new_test_swarm(
-                    Config::with_tokio_executor()
+                    configs::with_tokio_executor()
                         .with_dial_concurrency_factor(concurrency_factor.0),
                 );
 
@@ -2120,8 +2120,8 @@ mod tests {
         // Checks whether dialing an address containing the wrong peer id raises an error
         // for the expected peer id instead of the obtained peer id.
 
-        let mut swarm1 = new_test_swarm(Config::with_tokio_executor());
-        let mut swarm2 = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm1 = new_test_swarm(configs::with_tokio_executor());
+        let mut swarm2 = new_test_swarm(configs::with_tokio_executor());
 
         swarm1.listen_on("/memory/0".parse().unwrap()).unwrap();
 
@@ -2175,7 +2175,7 @@ mod tests {
         //
         // The last two can happen in any order.
 
-        let mut swarm = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm = new_test_swarm(configs::with_tokio_executor());
         swarm.listen_on("/memory/0".parse().unwrap()).unwrap();
 
         let local_address = future::poll_fn(|cx| match swarm.poll_next_unpin(cx) {
@@ -2235,7 +2235,7 @@ mod tests {
     async fn dial_self_by_id() {
         // Trying to dial self by passing the same `PeerId` shouldn't even be possible in the first
         // place.
-        let swarm = new_test_swarm(Config::with_tokio_executor());
+        let swarm = new_test_swarm(configs::with_tokio_executor());
         let peer_id = *swarm.local_peer_id();
         assert!(!swarm.is_connected(&peer_id));
     }
@@ -2246,7 +2246,7 @@ mod tests {
 
         let target = PeerId::random();
 
-        let mut swarm = new_test_swarm(Config::with_tokio_executor());
+        let mut swarm = new_test_swarm(configs::with_tokio_executor());
 
         let addresses = HashSet::from([
             multiaddr![Ip4([0, 0, 0, 0]), Tcp(rand::random::<u16>())],
@@ -2294,8 +2294,8 @@ mod tests {
             .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
             .try_init();
 
-        let mut dialer = new_test_swarm(Config::with_tokio_executor());
-        let mut listener = new_test_swarm(Config::with_tokio_executor());
+        let mut dialer = new_test_swarm(configs::with_tokio_executor());
+        let mut listener = new_test_swarm(configs::with_tokio_executor());
 
         let listener_peer_id = *listener.local_peer_id();
         listener.listen_on(multiaddr![Memory(0u64)]).unwrap();

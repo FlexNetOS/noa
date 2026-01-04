@@ -79,7 +79,7 @@ noa init --root /path/to/noa
 
 This creates:
 - `noa_root/` directory structure
-- Default configuration
+- Default configsuration
 - Local database
 - System prompts
 
@@ -204,16 +204,16 @@ noa p2p connect <peer-id>
 
 ---
 
-## Configuration
+## configsuration
 
-### Key Configuration Files
+### Key configsuration Files
 
 | File | Purpose |
 |------|---------|
-| `config/noa-server.json` | Server settings |
-| `config/ai-providers.json` | Model configuration |
-| `config/features.json` | Feature flags |
-| `config/device-orchestration.json` | P2P settings |
+| `configs/noa-server.json` | Server settings |
+| `configs/ai-providers.json` | Model configsuration |
+| `configs/features.json` | Feature flags |
+| `configs/device-orchestration.json` | P2P settings |
 
 ### Environment Variables
 
@@ -228,10 +228,10 @@ export NOA_LOG_LEVEL="debug"
 export NOA_TELEMETRY="false"
 ```
 
-### Example Configuration
+### Example configsuration
 
 ```json
-// config/noa-server.json
+// configs/noa-server.json
 {
   "host": "127.0.0.1",
   "port": 8080,
@@ -264,7 +264,7 @@ netstat -an | grep 8080
 noa logs --level error
 
 # Reset to defaults (preserves data)
-noa reset --config-only
+noa reset --configs-only
 ```
 
 ### Model loading fails
@@ -314,7 +314,7 @@ noa db export --output backup.json
 2. **Add more models**: Download specialized models for different tasks
 3. **Digest your codebases**: Let NOA understand your projects
 4. **Connect devices**: Build your personal hive-mind
-5. **Customize agents**: Configure agent behaviors for your workflow
+5. **Customize agents**: configsure agent behaviors for your workflow
 
 ---
 

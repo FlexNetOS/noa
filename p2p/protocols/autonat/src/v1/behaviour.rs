@@ -50,13 +50,13 @@ use crate::{
     DEFAULT_PROTOCOL_NAME,
 };
 
-/// Config for the [`Behaviour`].
+/// configs for the [`Behaviour`].
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Config {
+pub struct configs {
     /// Timeout for requests.
     pub timeout: Duration,
 
-    // Client Config
+    // Client configs
     /// Delay on init before starting the fist probe.
     pub boot_delay: Duration,
     /// Interval in which the NAT should be tested again if max confidence was reached in a status.
@@ -72,12 +72,12 @@ pub struct Config {
     /// Note: for [`NatStatus::Unknown`] the confidence is always 0.
     pub confidence_max: usize,
 
-    // Server Config
+    // Server configs
     /// Max addresses that are tried per peer.
     pub max_peer_addresses: usize,
-    /// Max total dial requests done in `[Config::throttle_clients_period`].
+    /// Max total dial requests done in `[configs::throttle_clients_period`].
     pub throttle_clients_global_max: usize,
-    /// Max dial requests done in `[Config::throttle_clients_period`] for a peer.
+    /// Max dial requests done in `[configs::throttle_clients_period`] for a peer.
     pub throttle_clients_peer_max: usize,
     /// Period for throttling clients requests.
     pub throttle_clients_period: Duration,
@@ -88,9 +88,9 @@ pub struct Config {
     pub only_global_ips: bool,
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
-        Config {
+        configs {
             timeout: Duration::from_secs(30),
             boot_delay: Duration::from_secs(15),
             retry_interval: Duration::from_secs(90),
@@ -158,8 +158,8 @@ pub enum Event {
 /// the included addresses. When a first address was successfully dialed, a status Ok will be send
 /// back together with the dialed address. If no address can be reached a dial-error is send back.
 /// Based on the received response, the sender assumes themselves to be public or private.
-/// The status is retried in a frequency of [`Config::retry_interval`] or
-/// [`Config::retry_interval`], depending on whether enough confidence in the assumed NAT status was
+/// The status is retried in a frequency of [`configs::retry_interval`] or
+/// [`configs::retry_interval`], depending on whether enough confidence in the assumed NAT status was
 /// reached or not. The confidence increases each time a probe confirms the assumed status, and
 /// decreases if a different status is reported. If the confidence is 0, the status is flipped and
 /// the Behaviour will report the new status in an `OutEvent`.
@@ -170,7 +170,7 @@ pub struct Behaviour {
     // Inner behaviour for sending requests and receiving the response.
     inner: request_response::Behaviour<AutoNatCodec>,
 
-    config: Config,
+    configs: configs,
 
     // Additional peers apart from the currently connected ones, that may be used for probes.
     servers: HashSet<PeerId>,
@@ -200,11 +200,11 @@ pub struct Behaviour {
 
     // Connected peers with the observed address of each connection.
     // If the endpoint of a connection is relayed or not global (in case of
-    // Config::only_global_ips), the observed address is `None`.
+    // configs::only_global_ips), the observed address is `None`.
     connected: HashMap<PeerId, HashMap<ConnectionId, Option<Multiaddr>>>,
 
     // Used servers in recent outbound probes that are throttled through
-    // Config::throttle_server_period.
+    // configs::throttle_server_period.
     throttled_servers: Vec<(PeerId, Instant)>,
 
     // Recent probes done for clients
@@ -221,18 +221,18 @@ pub struct Behaviour {
 }
 
 impl Behaviour {
-    pub fn new(local_peer_id: PeerId, config: Config) -> Self {
+    pub fn new(local_peer_id: PeerId, configs: configs) -> Self {
         let protocols = iter::once((DEFAULT_PROTOCOL_NAME, ProtocolSupport::Full));
         let inner = request_response::Behaviour::with_codec(
             AutoNatCodec,
             protocols,
-            request_response::Config::default().with_request_timeout(config.timeout),
+            request_response::configs::default().with_request_timeout(configs.timeout),
         );
         Self {
             local_peer_id,
             inner,
-            schedule_probe: Delay::new(config.boot_delay),
-            config,
+            schedule_probe: Delay::new(configs.boot_delay),
+            configs,
             servers: HashSet::new(),
             ongoing_inbound: HashMap::default(),
             ongoing_outbound: HashMap::default(),
@@ -295,7 +295,7 @@ impl Behaviour {
         AsClient {
             inner: &mut self.inner,
             local_peer_id: self.local_peer_id,
-            config: &self.config,
+            configs: &self.configs,
             connected: &self.connected,
             probe_id: &mut self.probe_id,
             servers: &self.servers,
@@ -313,7 +313,7 @@ impl Behaviour {
     fn as_server(&mut self) -> AsServer<'_> {
         AsServer {
             inner: &mut self.inner,
-            config: &self.config,
+            configs: &self.configs,
             connected: &self.connected,
             probe_id: &mut self.probe_id,
             throttled_clients: &mut self.throttled_clients,
@@ -333,7 +333,7 @@ impl Behaviour {
         let connections = self.connected.entry(peer).or_default();
         let addr = endpoint.get_remote_address();
         let observed_addr =
-            if !endpoint.is_relayed() && (!self.config.only_global_ips || addr.is_global_ip()) {
+            if !endpoint.is_relayed() && (!self.configs.only_global_ips || addr.is_global_ip()) {
                 Some(addr.clone())
             } else {
                 None
@@ -406,7 +406,7 @@ impl Behaviour {
         let connections = self.connected.get_mut(&peer).expect("Peer is connected.");
         let addr = new.get_remote_address();
         let observed_addr =
-            if !new.is_relayed() && (!self.config.only_global_ips || addr.is_global_ip()) {
+            if !new.is_relayed() && (!self.configs.only_global_ips || addr.is_global_ip()) {
                 Some(addr.clone())
             } else {
                 None

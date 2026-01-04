@@ -37,7 +37,7 @@ if (-not $NoaRoot) {
 }
 
 $NOA_GIT = Join-Path $NoaRoot "git"
-$CI_CONFIG = Join-Path $NoaRoot "config/git-local-cicd.json"
+$CI_configs = Join-Path $NoaRoot "configs/git-local-cicd.json"
 $CI_LOGS = Join-Path $NOA_GIT "ci-cd/logs"
 $CI_ARTIFACTS = Join-Path $NOA_GIT "ci-cd/artifacts"
 
@@ -54,23 +54,23 @@ switch ($Action) {
             Write-Error "Usage: git-ci.ps1 -Action run -Pipeline <name>"
         }
 
-        # Load config if exists
-        if (Test-Path $CI_CONFIG) {
-            $config = Get-Content $CI_CONFIG | ConvertFrom-Json
-            $pipelineConfig = $config.pipelines | Where-Object { $_.name -eq $Pipeline }
+        # Load configs if exists
+        if (Test-Path $CI_configs) {
+            $configs = Get-Content $CI_configs | ConvertFrom-Json
+            $pipelineconfigs = $configs.pipelines | Where-Object { $_.name -eq $Pipeline }
 
-            if ($pipelineConfig) {
+            if ($pipelineconfigs) {
                 Write-Host "  Running steps..." -ForegroundColor Gray
-                foreach ($step in $pipelineConfig.steps) {
+                foreach ($step in $pipelineconfigs.steps) {
                     Write-Host "    [$($step.name)] $($step.command)" -ForegroundColor Yellow
                     # TODO: Execute step
                 }
             } else {
-                Write-Host "  Pipeline '$Pipeline' not found in config" -ForegroundColor Yellow
+                Write-Host "  Pipeline '$Pipeline' not found in configs" -ForegroundColor Yellow
             }
         } else {
-            Write-Host "  CI config not found: $CI_CONFIG" -ForegroundColor Yellow
-            Write-Host "  Create config or use standard pipelines" -ForegroundColor Gray
+            Write-Host "  CI configs not found: $CI_configs" -ForegroundColor Yellow
+            Write-Host "  Create configs or use standard pipelines" -ForegroundColor Gray
         }
     }
 

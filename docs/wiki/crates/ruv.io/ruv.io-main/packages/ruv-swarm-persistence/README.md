@@ -95,7 +95,7 @@ import { RuvSwarmPersistence } from '@deflex.net/ruv-swarm-persistence'
 
 // Create an instance
 const client = new RuvSwarmPersistence({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -122,7 +122,7 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
 import { RuvSwarmPersistence, Config } from '@deflex.net/ruv-swarm-persistence'

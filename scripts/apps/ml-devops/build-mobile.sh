@@ -134,7 +134,7 @@ if [ "$TARGET" == "ios" ] || [ "$TARGET" == "all" ]; then
         echo -e "${YELLOW}iOS app location: ${GREEN}src-tauri/gen/ios/${NC}"
         echo -e "${YELLOW}To deploy to App Store:${NC}"
         echo -e "  1. Open src-tauri/gen/ios/ML\ DevOps\ Platform.xcodeproj in Xcode"
-        echo -e "  2. Configure signing & capabilities"
+        echo -e "  2. configsure signing & capabilities"
         echo -e "  3. Select Generic iOS Device"
         echo -e "  4. Product > Archive"
     fi

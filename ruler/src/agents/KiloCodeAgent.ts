@@ -3,18 +3,22 @@ import { AbstractAgent } from './AbstractAgent';
 
 /**
  * Kilo Code agent adapter.
- * Generates ruler_kilocode_instructions.md configuration file in .kilocode/rules/ directory.
+ * Generates ruler_kilocode_instructions.md configsuration file in .kilocode/rules/ directory.
  */
-export class KiloCodeAgent extends AbstractAgent {
-  getIdentifier(): string {
+export class KiloCodeAgent extends AbstractAgent
+{
+  getIdentifier (): string
+  {
     return 'kilocode';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'Kilo Code';
   }
 
-  getDefaultOutputPath(projectRoot: string): string {
+  getDefaultOutputPath ( projectRoot: string ): string
+  {
     return path.join(
       projectRoot,
       '.kilocode',
@@ -23,15 +27,18 @@ export class KiloCodeAgent extends AbstractAgent {
     );
   }
 
-  getMcpServerKey(): string {
+  getMcpServerKey (): string
+  {
     return 'mcpServers';
   }
 
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return true;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return true;
   }
 }

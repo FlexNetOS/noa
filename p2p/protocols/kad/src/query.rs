@@ -27,7 +27,7 @@ use fnv::FnvHashMap;
 use libp2p_core::Multiaddr;
 use libp2p_identity::PeerId;
 use peers::{
-    closest::{disjoint::ClosestDisjointPeersIter, ClosestPeersIter, ClosestPeersIterConfig},
+    closest::{disjoint::ClosestDisjointPeersIter, ClosestPeersIter, ClosestPeersIterconfigs},
     fixed::FixedPeersIter,
     PeersIterState,
 };
@@ -48,7 +48,7 @@ use crate::{
 /// peers involved in the query should be contacted.
 pub(crate) struct QueryPool {
     next_id: usize,
-    config: QueryConfig,
+    configs: Queryconfigs,
     queries: FnvHashMap<QueryId, Query>,
 }
 
@@ -66,18 +66,18 @@ pub(crate) enum QueryPoolState<'a> {
 }
 
 impl QueryPool {
-    /// Creates a new `QueryPool` with the given configuration.
-    pub(crate) fn new(config: QueryConfig) -> Self {
+    /// Creates a new `QueryPool` with the given configsuration.
+    pub(crate) fn new(configs: Queryconfigs) -> Self {
         QueryPool {
             next_id: 0,
-            config,
+            configs,
             queries: Default::default(),
         }
     }
 
-    /// Gets a reference to the `QueryConfig` used by the pool.
-    pub(crate) fn config(&self) -> &QueryConfig {
-        &self.config
+    /// Gets a reference to the `Queryconfigs` used by the pool.
+    pub(crate) fn configs(&self) -> &Queryconfigs {
+        &self.configs
     }
 
     /// Returns an iterator over the queries in the pool.
@@ -113,7 +113,7 @@ impl QueryPool {
         I: IntoIterator<Item = PeerId>,
     {
         assert!(!self.queries.contains_key(&id));
-        let parallelism = self.config.replication_factor;
+        let parallelism = self.configs.replication_factor;
         let peer_iter = QueryPeerIter::Fixed(FixedPeersIter::new(peers, parallelism));
         let query = Query::new(id, peer_iter, info);
         self.queries.insert(id, query);
@@ -146,21 +146,21 @@ impl QueryPool {
                 num_results: val, ..
             } => val,
             QueryInfo::Bootstrap { .. } => K_VALUE,
-            _ => self.config.replication_factor,
+            _ => self.configs.replication_factor,
         };
 
-        let cfg = ClosestPeersIterConfig {
+        let cfg = ClosestPeersIterconfigs {
             num_results,
-            parallelism: self.config.parallelism,
-            ..ClosestPeersIterConfig::default()
+            parallelism: self.configs.parallelism,
+            ..ClosestPeersIterconfigs::default()
         };
 
-        let peer_iter = if self.config.disjoint_query_paths {
-            QueryPeerIter::ClosestDisjoint(ClosestDisjointPeersIter::with_config(
+        let peer_iter = if self.configs.disjoint_query_paths {
+            QueryPeerIter::ClosestDisjoint(ClosestDisjointPeersIter::with_configs(
                 cfg, target, peers,
             ))
         } else {
-            QueryPeerIter::Closest(ClosestPeersIter::with_config(cfg, target, peers))
+            QueryPeerIter::Closest(ClosestPeersIter::with_configs(cfg, target, peers))
         };
 
         let query = Query::new(id, peer_iter, info);
@@ -203,7 +203,7 @@ impl QueryPool {
                 }
                 PeersIterState::Waiting(None) | PeersIterState::WaitingAtCapacity => {
                     let elapsed = now - query.stats.start.unwrap_or(now);
-                    if elapsed >= self.config.timeout {
+                    if elapsed >= self.configs.timeout {
                         timeout = Some(query_id);
                         break;
                     }
@@ -246,30 +246,30 @@ impl std::fmt::Display for QueryId {
     }
 }
 
-/// The configuration for queries in a `QueryPool`.
+/// The configsuration for queries in a `QueryPool`.
 #[derive(Debug, Clone)]
-pub(crate) struct QueryConfig {
+pub(crate) struct Queryconfigs {
     /// Timeout of a single query.
     ///
-    /// See [`crate::behaviour::Config::set_query_timeout`] for details.
+    /// See [`crate::behaviour::configs::set_query_timeout`] for details.
     pub(crate) timeout: Duration,
     /// The replication factor to use.
     ///
-    /// See [`crate::behaviour::Config::set_replication_factor`] for details.
+    /// See [`crate::behaviour::configs::set_replication_factor`] for details.
     pub(crate) replication_factor: NonZeroUsize,
     /// Allowed level of parallelism for iterative queries.
     ///
-    /// See [`crate::behaviour::Config::set_parallelism`] for details.
+    /// See [`crate::behaviour::configs::set_parallelism`] for details.
     pub(crate) parallelism: NonZeroUsize,
     /// Whether to use disjoint paths on iterative lookups.
     ///
-    /// See [`crate::behaviour::Config::disjoint_query_paths`] for details.
+    /// See [`crate::behaviour::configs::disjoint_query_paths`] for details.
     pub(crate) disjoint_query_paths: bool,
 }
 
-impl Default for QueryConfig {
+impl Default for Queryconfigs {
     fn default() -> Self {
-        QueryConfig {
+        Queryconfigs {
             timeout: Duration::from_secs(60),
             replication_factor: NonZeroUsize::new(K_VALUE.get()).expect("K_VALUE > 0"),
             parallelism: ALPHA_VALUE,

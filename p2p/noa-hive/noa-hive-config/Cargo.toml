@@ -1,10 +1,10 @@
 [package]
-name = "noa-hive-config"
+name = "noa-hive-configs"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
-description = "Configuration management for NOA-Hive daemon"
+description = "configsuration management for NOA-Hive daemon"
 
 [dependencies]
 serde = { workspace = true }

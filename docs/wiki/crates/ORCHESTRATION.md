@@ -78,11 +78,11 @@ import path from 'path'
 import YAML from 'yaml'
 
 // ============================================================================
-// Configuration
+// configsuration
 // ============================================================================
 
-interface OrchestratorConfig {
-  // Claude Flow configuration
+interface Orchestratorconfigs {
+  // Claude Flow configsuration
   claudeFlow: {
     apiKey: string
     model: string
@@ -93,7 +93,7 @@ interface OrchestratorConfig {
     }
   }
 
-  // AgentDB configuration
+  // AgentDB configsuration
   agentDB: {
     databaseUrl: string
     vectorStore: {
@@ -103,7 +103,7 @@ interface OrchestratorConfig {
     }
   }
 
-  // E2B Sandbox configuration
+  // E2B Sandbox configsuration
   e2b: {
     apiKey: string
     template: string
@@ -111,7 +111,7 @@ interface OrchestratorConfig {
     timeoutMs: number
   }
 
-  // Build configuration
+  // Build configsuration
   build: {
     parallelBatches: boolean
     skipTests: boolean
@@ -119,7 +119,7 @@ interface OrchestratorConfig {
   }
 }
 
-const config: OrchestratorConfig = {
+const configs: Orchestratorconfigs = {
   claudeFlow: {
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     model: 'claude-3-5-sonnet-20241022',
@@ -200,10 +200,10 @@ interface DependencyGraph {
 class BuildStateManager {
   private db: AgentDB
 
-  constructor(config: OrchestratorConfig['agentDB']) {
+  constructor(configs: Orchestratorconfigs['agentDB']) {
     this.db = new AgentDB({
-      connection: config.databaseUrl,
-      vectorStore: config.vectorStore
+      connection: configs.databaseUrl,
+      vectorStore: configs.vectorStore
     })
   }
 
@@ -435,18 +435,18 @@ class BuildAgent {
   private spec: CrateSpec
   private sandbox: E2BSandbox | null = null
   private stateManager: BuildStateManager
-  private config: OrchestratorConfig
+  private configs: Orchestratorconfigs
 
   constructor(
     id: string,
     spec: CrateSpec,
     stateManager: BuildStateManager,
-    config: OrchestratorConfig
+    configs: Orchestratorconfigs
   ) {
     this.id = id
     this.spec = spec
     this.stateManager = stateManager
-    this.config = config
+    this.configs = configs
   }
 
   async execute(): Promise<BuildResult> {
@@ -465,13 +465,13 @@ class BuildAgent {
 
       // Create E2B sandbox
       this.sandbox = await E2BSandbox.create({
-        template: this.config.e2b.template,
+        template: this.configs.e2b.template,
         envVars: {
-          OPENROUTER_API_KEY: this.config.e2b.apiKey,
+          OPENROUTER_API_KEY: this.configs.e2b.apiKey,
           CRATE_NAME: this.spec.name,
           CRATE_VERSION: this.spec.version
         },
-        timeout: this.config.e2b.timeoutMs
+        timeout: this.configs.e2b.timeoutMs
       })
 
       // Upload build files
@@ -484,7 +484,7 @@ class BuildAgent {
       const artifacts = await this.collectArtifacts()
 
       // Run tests
-      if (!this.config.build.skipTests) {
+      if (!this.configs.build.skipTests) {
         await this.runTests()
       }
 
@@ -563,7 +563,7 @@ class BuildAgent {
   private async runBuild(): Promise<void> {
     if (!this.sandbox) throw new Error('Sandbox not initialized')
 
-    const platforms = this.config.build.targetPlatforms
+    const platforms = this.configs.build.targetPlatforms
 
     for (const platform of platforms) {
       console.log(`[${this.id}] Building ${this.spec.name} for ${platform}`)
@@ -668,19 +668,19 @@ pub use ${this.spec.name.replace('-', '_')}::*;
 // ============================================================================
 
 class SwarmOrchestrator {
-  private config: OrchestratorConfig
+  private configs: Orchestratorconfigs
   private stateManager: BuildStateManager
   private graphBuilder: DependencyGraphBuilder
   private claudeFlow: ClaudeFlow
 
-  constructor(config: OrchestratorConfig) {
-    this.config = config
-    this.stateManager = new BuildStateManager(config.agentDB)
+  constructor(configs: Orchestratorconfigs) {
+    this.configs = configs
+    this.stateManager = new BuildStateManager(configs.agentDB)
     this.graphBuilder = new DependencyGraphBuilder(this.stateManager)
     this.claudeFlow = new ClaudeFlow({
-      apiKey: config.claudeFlow.apiKey,
-      model: config.claudeFlow.model,
-      maxConcurrentAgents: config.claudeFlow.maxConcurrentAgents
+      apiKey: configs.claudeFlow.apiKey,
+      model: configs.claudeFlow.model,
+      maxConcurrentAgents: configs.claudeFlow.maxConcurrentAgents
     })
   }
 
@@ -784,13 +784,13 @@ class SwarmOrchestrator {
     for (let i = 0; i < batch.length; i++) {
       const spec = batch[i]
       const agentId = `builder-${spec.name}-batch${batchIndex}`
-      const agent = new BuildAgent(agentId, spec, this.stateManager, this.config)
+      const agent = new BuildAgent(agentId, spec, this.stateManager, this.configs)
       agents.push(agent)
     }
 
     // Execute agents in parallel (with concurrency limit)
     const results: BuildResult[] = []
-    const concurrency = this.config.claudeFlow.maxConcurrentAgents
+    const concurrency = this.configs.claudeFlow.maxConcurrentAgents
 
     for (let i = 0; i < agents.length; i += concurrency) {
       const chunk = agents.slice(i, i + concurrency)
@@ -875,7 +875,7 @@ async function main() {
   console.log('=' .repeat(80))
 
   try {
-    const orchestrator = new SwarmOrchestrator(config)
+    const orchestrator = new SwarmOrchestrator(configs)
     await orchestrator.initialize()
     await orchestrator.executeBuild()
 
@@ -942,7 +942,7 @@ tail -f orchestrator.log
 
 ---
 
-## Configuration
+## configsuration
 
 ### Claude Flow Settings
 
@@ -1030,7 +1030,7 @@ if (!hasChanged) {
 
 ### Common Issues
 
-1. **Sandbox timeout**: Increase `timeoutMs` in config
+1. **Sandbox timeout**: Increase `timeoutMs` in configs
 2. **Memory issues**: Reduce `maxConcurrentSandboxes`
 3. **Dependency resolution**: Check dependency graph in AgentDB
 4. **Build failures**: Check sandbox logs and error messages

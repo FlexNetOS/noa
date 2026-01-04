@@ -17,7 +17,7 @@ Design a **cross-platform agentic env** that:
 - Uses the **host kernel directly** via adapters, but stays **host-agnostic** internally.
 - Is **self-governing**: runs with **no human in the operational loop**.
 - Uses **3–5 small local models (<3B params each)**, running under **llama.cpp**, to:
-  - Plan, coordinate, and reconfigure the environment.
+  - Plan, coordinate, and reconfigsure the environment.
   - Generate/modify tools and pipelines.
   - Enforce safety & policy.
 - Treats **binaries, packages, libraries, and microkernels as dynamic, swappable units**.
@@ -187,7 +187,7 @@ Three small, locally hosted models (each <3B parameters), all running under **ll
 
 ### 5.1 Model 1: Env Orchestrator Model (EOM)
 
-**Role**: Global brain for planning and reconfiguration.
+**Role**: Global brain for planning and reconfigsuration.
 
 - Input:
   - High-level goals & policies.
@@ -195,7 +195,7 @@ Three small, locally hosted models (each <3B parameters), all running under **ll
   - Current environment graph (modules, versions, capabilities, dependencies).
 - Output:
   - Plans and proposals:
-    - Environment reconfigurations.
+    - Environment reconfigsurations.
     - Module upgrades/downgrades.
     - Scheduling / prioritization tweaks.
     - Agent graph rewrites.
@@ -221,7 +221,7 @@ Example responsibility:
     - Pipelines (multi-step toolchains).
 - Runs in a **constrained sandbox**, generating:
   - Source code (e.g., C++, Rust, Go, Python, WASM).
-  - Configuration graphs / DAGs.
+  - configsuration graphs / DAGs.
 - The output is passed through:
   - Static analysis.
   - Tests / simulations.
@@ -241,7 +241,7 @@ Example responsibility:
     - Risk scores, rationales.
 - Used to:
   - Filter tool code suggestions.
-  - Approve/deny environment reconfigurations.
+  - Approve/deny environment reconfigsurations.
   - Enforce data boundaries (e.g., on-device vs remote).
 
 These three models together run the **entire environment**:
@@ -308,7 +308,7 @@ Modules are stored in a **content-addressable store** (CAS):
 
 ## 7. llama.cpp Agents: Splicing, Merging, Updating
 
-Agents in this system are **configurations of models + prompts + tools**.
+Agents in this system are **configsurations of models + prompts + tools**.
 
 ### 7.1 Agent Definition
 
@@ -333,10 +333,10 @@ Agent {
 
 ### 7.2 Splicing, Merging, Updating
 
-**Splicing** (configuration mutation):
+**Splicing** (configsuration mutation):
 
 - EOM or a meta-optimizer can:
-  - Take a successful part of Agent A’s config (e.g., tool chain)…
+  - Take a successful part of Agent A’s configs (e.g., tool chain)…
   - Combine it with Agent B’s planning style…
   - Produce Agent C with mixed traits.
 - All changes are:
@@ -518,7 +518,7 @@ This spec defines an **Agentic Environment Runtime (AER)** that:
 - Treats **microkernels, binaries, packages, libraries, and agents** as:
   - Versioned, immutable artifacts.
   - Dynamically loadable, updatable, and composable at runtime.
-- Uses **llama.cpp-powered agents** whose configs can be:
+- Uses **llama.cpp-powered agents** whose configss can be:
   - Spliced, merged, updated, and retired, based on real-world performance.
 - Maintains stability not by freezing the environment, but by:
   - Strict contracts.

@@ -7,7 +7,7 @@ Complete guide for setting up NOA on Windows 11.
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Configuration](#configuration)
+- [configsuration](#configsuration)
 - [Troubleshooting](#troubleshooting)
 - [Advanced Topics](#advanced-topics)
 - [Migration from Legacy Scripts](#migration-from-legacy-scripts)
@@ -17,7 +17,7 @@ Complete guide for setting up NOA on Windows 11.
 NOA provides a fully automated setup process for Windows that:
 
 - Creates a comprehensive directory structure for your NOA environment
-- Configures environment variables and helper functions
+- configsures environment variables and helper functions
 - Optionally installs prerequisites (PowerShell 7.4+, Git, 7-Zip)
 - Optionally integrates with your PowerShell profile for automatic loading
 - Provides detailed logging for troubleshooting
@@ -27,19 +27,19 @@ NOA provides a fully automated setup process for Windows that:
 ```
 N:\noa\                    # Default root (customizable)
 ├── repos\                 # Git repositories
-├── containers\            # Docker containers and configs
+├── containers\            # Docker containers and configss
 ├── workspace\             # Active project workspace
-├── config\                # Configuration files
-│   └── noa.json          # Main NOA configuration
+├── configs\                # configsuration files
+│   └── noa.json          # Main NOA configsuration
 ├── scripts\               # Automation scripts
 ├── logs\                  # Log files
 │   └── setup-*.log       # Setup logs with timestamps
 ├── tmp\                   # Temporary files
 ├── p2p\                   # Peer-to-peer networking
-├── ai\                    # AI models and configs
+├── ai\                    # AI models and configss
 ├── git\                   # Git workflows and hooks
 ├── bin\                   # Executables
-├── etc\                   # Additional configuration
+├── etc\                   # Additional configsuration
 ├── lib\                   # Libraries
 ├── opt\                   # Optional packages
 ├── sys\                   # System files
@@ -119,7 +119,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 .\scripts\setup\setup-noa.ps1 -NoaRoot "$env:TEMP\noa" -InstallPrereqs:$false -IntegrateProfile:$false
 ```
 
-## Configuration
+## configsuration
 
 ### Setup Script Parameters
 
@@ -166,7 +166,7 @@ $env:NOA_ROOT        # N:\noa
 $env:NOA_REPOS       # N:\noa\repos
 $env:NOA_CONTAINERS  # N:\noa\containers
 $env:NOA_WORKSPACE   # N:\noa\workspace
-$env:NOA_CONFIG      # N:\noa\config
+$env:NOA_configs      # N:\noa\configs
 $env:NOA_SCRIPTS     # N:\noa\scripts
 $env:NOA_LOGS        # N:\noa\logs
 $env:NOA_TMP         # N:\noa\tmp
@@ -325,7 +325,7 @@ The setup script is idempotent - you can run it multiple times safely:
 .\scripts\setup\setup-noa.ps1 -IntegrateProfile
 ```
 
-Existing files and directories are preserved. Generated files (`noa-profile.ps1`, `.noa`, `config/noa.json`) are regenerated.
+Existing files and directories are preserved. Generated files (`noa-profile.ps1`, `.noa`, `configs/noa.json`) are regenerated.
 
 ### Multiple NOA Installations
 
@@ -380,7 +380,7 @@ net use Z: \\fileserver\shared
 
 ### Customizing noa.json
 
-After setup, edit `config/noa.json` to customize your configuration:
+After setup, edit `configs/noa.json` to customize your configsuration:
 
 ```json
 {
@@ -483,8 +483,8 @@ Invoke-Pester scripts/tests/Setup.Tests.ps1
 # Check prerequisites
 .\scripts\setup\install-prereqs.ps1
 
-# View configuration
-Get-Content N:\noa\config\noa.json | ConvertFrom-Json
+# View configsuration
+Get-Content N:\noa\configs\noa.json | ConvertFrom-Json
 ```
 
 ## Additional Resources

@@ -144,10 +144,10 @@ The system MUST operate entirely inside the current user’s directory
 (`$user`), without hard dependencies on paths, services, or resources
 outside that boundary.
 
-- All code, configuration, models, and persistent state MUST resolve
+- All code, configsuration, models, and persistent state MUST resolve
   under the `$user` directory.
 - No absolute host paths (e.g., `C:\Users\OtherUser\...`, `N:\shared\...`)
-  may be baked into configuration or code.
+  may be baked into configsuration or code.
 - Any optional integration with external services MUST be:
   - Clearly isolated behind feature flags.
   - Safe to disable without breaking core local functionality.
@@ -163,7 +163,7 @@ to function for core project-management workflows when offline.
 - All critical operations (creating/updating tasks, projects, views,
   and history) MUST work locally and persist to local storage.
 - Third-party APIs and SaaS integrations MUST be optional enhancements
-  controlled via feature flags or configuration.
+  controlled via feature flags or configsuration.
 - For every feature that relies on external connectivity, there MUST be:
   - A defined offline behavior or graceful degradation strategy.
   - Clear user feedback when remote behavior is unavailable.
@@ -305,7 +305,7 @@ The UI for project management MUST be dynamic, context-aware, and
 driven by user needs rather than raw tool structures.
 
 - Views MUST:
-  - Be able to reconfigure based on role, context, and current tasks.
+  - Be able to reconfigsure based on role, context, and current tasks.
   - Surface the most relevant projects, workflows, and actions.
 - Agents MAY propose new views or layouts, but they MUST respect
 usability, accessibility, and constitutional constraints.

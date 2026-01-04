@@ -85,11 +85,11 @@ setup-noa.ps1 / setup-noa.sh
     │       │
     │       ├── Create execution-memory.db (shared memory bus)
     │       ├── Create context store, reasoning state tables
-    │       └── Configure provider state sync
+    │       └── configsure provider state sync
     │
     ├── Generates noa-profile.ps1 / .sh
     │
-    └── Generates config/noa.json + config/shared-resources.json
+    └── Generates configs/noa.json + configs/shared-resources.json
 ```
 
 **Entry Points:**
@@ -134,7 +134,7 @@ setup-noa.ps1 / setup-noa.sh
 - [X] B010 Create `scripts/bootstrap/lib/verification.sh`
 - [X] B011 [P] Create `scripts/bootstrap/lib/download.ps1` - download with caching
 - [X] B012 [P] Create `scripts/bootstrap/lib/download.sh`
-- [X] B013 Create `scripts/bootstrap/config/tools.json` - all tool definitions
+- [X] B013 Create `scripts/bootstrap/configs/tools.json` - all tool definitions
 
 ---
 
@@ -142,10 +142,10 @@ setup-noa.ps1 / setup-noa.sh
 
 **Purpose**: Create noa_root directory structure and state tracking
 
-- [X] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, config/, lib/, tmp/
+- [X] B014 Create `scripts/bootstrap/lib/directories.ps1` - create bin/, opt/, cache/, logs/, configs/, lib/, tmp/
 - [X] B015 Create `scripts/bootstrap/lib/directories.sh`
 - [X] B016 Update `.gitignore` with dev-tools exclusions, caches, logs
-- [X] B017 Create `config/bootstrap-state.json` schema (tool tracking)
+- [X] B017 Create `configs/bootstrap-state.json` schema (tool tracking)
 
 ---
 
@@ -188,7 +188,7 @@ setup-noa.ps1 / setup-noa.sh
 
 - [X] B030 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.ps1`
   - Download node.zip, extract to opt/node/
-  - Set npm_config_prefix, npm_config_cache, NODE_PATH
+  - Set npm_configs_prefix, npm_configs_cache, NODE_PATH
   - Verify: node >= 22
 - [X] B031 [BOOT] [§3.1] Create `scripts/bootstrap/installers/node-portable.sh`
 - [X] B032 [BOOT] Create npm cache symlink: `cache/npm/ → opt/npm-cache/` (via cache-setup.ps1)
@@ -279,8 +279,8 @@ setup-noa.ps1 / setup-noa.sh
   - Install @anthropic-ai/claude-code via npm to opt/node/node_modules/
   - Alternative: Clone https://github.com/FlexNetOS/claude-code.git to opt/claude-code/
   - Create symlink: bin/claude → opt/node/node_modules/.bin/claude
-  - Create provider config at ai/providers/cloud/claude-code/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/cloud/claude-code/configs.json
+  - configsure shared resources path: ai/shared/
   - Verify: claude --version
 - [X] B057b [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/claude-code.sh`
 
@@ -290,8 +290,8 @@ setup-noa.ps1 / setup-noa.sh
   - Download cursor CLI from cursor.com/docs/cli/headless
   - Install to opt/cursor-cli/
   - Create symlink: bin/cursor → opt/cursor-cli/cursor
-  - Create provider config at ai/providers/hybrid/cursor/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/hybrid/cursor/configs.json
+  - configsure shared resources path: ai/shared/
 - [X] B057d [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/cursor-cli.sh`
 
 #### Codex CLI (Priority 4 - Cloud/CLI)
@@ -300,8 +300,8 @@ setup-noa.ps1 / setup-noa.sh
   - Install @openai/codex via npm to opt/node/node_modules/
   - Alternative: Clone https://github.com/FlexNetOS/codex.git to opt/codex/
   - Create symlink: bin/codex → opt/node/node_modules/.bin/codex
-  - Create provider config at ai/providers/cloud/codex/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/cloud/codex/configs.json
+  - configsure shared resources path: ai/shared/
   - Verify: codex --version
 - [X] B057f [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/codex-cli.sh`
 
@@ -312,8 +312,8 @@ setup-noa.ps1 / setup-noa.sh
   - Create portable mode marker (data/ directory)
   - Install GitHub.copilot and GitHub.copilot-chat extensions
   - Create symlink: bin/code → opt/dev-tools/vscode/bin/code
-  - Create provider config at ai/providers/ide/vscode-copilot/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/ide/vscode-copilot/configs.json
+  - configsure shared resources path: ai/shared/
   - Verify: code --version && code --list-extensions | grep copilot
 - [X] B057h [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/vscode-copilot.sh`
 
@@ -322,8 +322,8 @@ setup-noa.ps1 / setup-noa.sh
 - [X] B057i [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.ps1`
   - Ensure PortableGit is installed to opt/dev-tools/git/
   - Create symlinks: bin/git → opt/dev-tools/git/cmd/git
-  - Create provider config at ai/providers/local/git-cli/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/local/git-cli/configs.json
+  - configsure shared resources path: ai/shared/
   - Verify: git --version
 - [X] B057j [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/git-cli-provider.sh`
 
@@ -332,8 +332,8 @@ setup-noa.ps1 / setup-noa.sh
 - [X] B057k [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.ps1`
   - Install @abacus-ai/cli via npm to opt/node/node_modules/
   - Create symlink: bin/abacus → opt/node/node_modules/.bin/abacus
-  - Create provider config at ai/providers/cloud/abacus/config.json
-  - Configure shared resources path: ai/shared/
+  - Create provider configs at ai/providers/cloud/abacus/configs.json
+  - configsure shared resources path: ai/shared/
   - Note: Requires Abacus Desktop app for initial auth
   - Verify: abacus --version
 - [X] B057l [BOOT] §3.3 [P] Create `scripts/bootstrap/installers/ai-providers/abacus-cli.sh`
@@ -360,7 +360,7 @@ ai/shared/
 ├── prompts/          # Shared prompt templates
 ├── skills/           # Shared skill definitions
 ├── tools/            # Shared MCP tools and functions
-├── models/           # Shared model configs/adapters
+├── models/           # Shared model configss/adapters
 ├── commands/         # Shared command definitions
 └── resources/        # Execution memory and state
     ├── execution-memory.db   # Shared execution memory bus
@@ -401,10 +401,10 @@ ai/shared/
   - task_queue: id, task_type, provider, priority, payload, status, created_at
   - provider_state: id, provider_name, state_key, state_value, synced_at
 
-#### Provider Configuration Integration
+#### Provider configsuration Integration
 
-- [X] B058m [BOOT] §3.3 Update all provider configs to reference ai/shared/ path
-- [X] B058n [BOOT] §3.3 Create `config/shared-resources.json` - centralized shared resource config
+- [X] B058m [BOOT] §3.3 Update all provider configss to reference ai/shared/ path
+- [X] B058n [BOOT] §3.3 Create `configs/shared-resources.json` - centralized shared resource configs
 - [X] B058o [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.ps1`
 - [X] B058p [BOOT] §3.3 Create `scripts/bootstrap/verify-shared-resources.sh`
 
@@ -412,13 +412,13 @@ ai/shared/
 
 - [X] B058q [BOOT] §3.3 Create `ai/shared/resources/collaborative-reasoning.yaml`
   - Define collaborative reasoning protocols
-  - Configure multi-provider task distribution
+  - configsure multi-provider task distribution
   - Set up reasoning state synchronization
 
 #### Parallel Task Distribution (FR-041)
 
 - [X] B058r [BOOT] §3.3 Create `ai/shared/resources/task-distribution.yaml`
-  - Configure parallel task queue
+  - configsure parallel task queue
   - Define provider capability mapping
   - Set up load balancing rules
 
@@ -426,7 +426,7 @@ ai/shared/
 
 - [X] B058s [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.ps1`
   - Initialize provider state sync mechanism
-  - Configure sync intervals and conflict resolution
+  - configsure sync intervals and conflict resolution
 - [X] B058t [BOOT] §3.8 Create `scripts/bootstrap/installers/shared-resources/provider-sync.sh`
 
 ---
@@ -449,22 +449,22 @@ ai/shared/
 
 ---
 
-### Phase 0.8: Cache & Log Configuration
+### Phase 0.8: Cache & Log configsuration
 
 **Purpose**: Centralize all caches and logs in noa_root
 
-- [X] B068 [BOOT] Create `scripts/bootstrap/config/cache-setup.ps1` (symlinks for tool caches)
-- [X] B069 [BOOT] Create `scripts/bootstrap/config/cache-setup.sh`
-- [X] B070 [BOOT] Create `scripts/bootstrap/config/provider-cache.ps1` (Ollama, HuggingFace, llama.cpp)
-- [X] B071 [BOOT] Create `scripts/bootstrap/config/provider-cache.sh`
-- [X] B072 [BOOT] Create `scripts/bootstrap/config/log-setup.ps1` (rotation, centralized logs)
-- [X] B073 [BOOT] Create `scripts/bootstrap/config/log-setup.sh`
+- [X] B068 [BOOT] Create `scripts/bootstrap/configs/cache-setup.ps1` (symlinks for tool caches)
+- [X] B069 [BOOT] Create `scripts/bootstrap/configs/cache-setup.sh`
+- [X] B070 [BOOT] Create `scripts/bootstrap/configs/provider-cache.ps1` (Ollama, HuggingFace, llama.cpp)
+- [X] B071 [BOOT] Create `scripts/bootstrap/configs/provider-cache.sh`
+- [X] B072 [BOOT] Create `scripts/bootstrap/configs/log-setup.ps1` (rotation, centralized logs)
+- [X] B073 [BOOT] Create `scripts/bootstrap/configs/log-setup.sh`
 
 ---
 
-### Phase 0.9: Environment Configuration
+### Phase 0.9: Environment configsuration
 
-**Purpose**: Generate shell configuration files
+**Purpose**: Generate shell configsuration files
 
 - [X] B074 [BOOT] Create `scripts/bootstrap/generators/noa-env.ps1` - generate noa-env.ps1
 - [X] B075 [BOOT] Create `scripts/bootstrap/generators/noa-env.sh` - generate .noa-env
@@ -528,7 +528,7 @@ ai/shared/
 - [X] B097 [§3.5] Verify all actions logged to logs/bootstrap/
 - [X] B098 [§3.6] Security review: HTTPS downloads, checksum verification
 - [X] B099 [§3.12] Run full verification suite
-- [X] B100 Final sign-off: All tools working, all caches configured
+- [X] B100 Final sign-off: All tools working, all caches configsured
 
 ---
 
@@ -582,13 +582,13 @@ ai/shared/
 
 #### Windows Kernel Independence
 - [X] B123 Implement Hyper-V VM management in `sys/kernel/windows/hyperv/noa-vm.ps1`
-- [X] B124 Configure TAP adapter for network isolation
+- [X] B124 configsure TAP adapter for network isolation
 - [X] B125 Create Windows Sandbox profile for lightweight isolation
 - [X] B126 Build Hyper-V VM image (noa-linux.vhdx) with custom kernel
 
 #### Linux Kernel Independence
 - [X] B127 Implement KVM/QEMU VM launcher in `sys/kernel/linux/vm/`
-- [X] B128 Configure namespace isolation in `sys/kernel/linux/namespaces/`
+- [X] B128 configsure namespace isolation in `sys/kernel/linux/namespaces/`
 - [X] B129 Integrate container runtime (rootless Docker/Podman)
 - [X] B130 Build QCOW2 VM image (noa-linux.qcow2) with custom kernel
 
@@ -600,7 +600,7 @@ ai/shared/
 #### VM Image Build System
 - [X] B134 Create Alpine-based minimal Linux image builder
 - [X] B135 Include P2P kernel modules (tun, bridge, wireguard, nf_tables)
-- [X] B136 Configure < 3 second boot time
+- [X] B136 configsure < 3 second boot time
 - [X] B137 Package NOA runtime binaries in image
 - [X] B138 Create image update/sync mechanism
 
@@ -633,11 +633,11 @@ ai/shared/
 
 **Purpose**: Implement "NOA kernels first" policy with explicit precedence and tool isolation
 
-- [X] B153 [P] §3.1 Add `config/kernel-selection-policy.json` schema with precedence rules (VM > Container > Sandbox > Native)
+- [X] B153 [P] §3.1 Add `configs/kernel-selection-policy.json` schema with precedence rules (VM > Container > Sandbox > Native)
 - [X] B154 §3.1 Implement kernel selection logic in `scripts/noa-kernel-params.ps1` based on FR-160
 - [X] B155 [P] §3.1 Implement kernel selection logic in `scripts/noa-kernel-params` (bash) matching B154
 - [X] B156 §3.1 Add `--allow-global` flag to all tool detection scripts in `scripts/setup/check-prereqs.ps1`
-- [X] B157 [P] §3.1 Create `config/bootstrap-tools.json` with version pinning schema (FR-163)
+- [X] B157 [P] §3.1 Create `configs/bootstrap-tools.json` with version pinning schema (FR-163)
 - [X] B158 §3.1 Implement `-UpdateExisting` flag in `scripts/setup/install-all-tools.ps1`
 - [X] B159 §3.1 Implement tool archival to `noa_root/opt/archive/` before upgrade
 - [X] B160 §3.1 Add upgrade rollback via `scripts/setup/install-all-tools.ps1 -Rollback -Tool <name>`
@@ -654,7 +654,7 @@ ai/shared/
 - [X] B166 [P] §3.1 Create `scripts/bootstrap/installers/mingw-portable.ps1` to install MinGW-w64 to `opt/mingw/`
 - [X] B167 [P] §3.1 Create `scripts/bootstrap/installers/llvm-portable.ps1` to install LLVM/Clang to `opt/llvm/`
 - [X] B168 §3.1 Create `bin/cmake.cmd` and `bin/ninja.cmd` wrappers pointing to portable installations
-- [X] B169 §3.1 Add CMake, Ninja, Make to `config/bootstrap-tools.json` version registry
+- [X] B169 §3.1 Add CMake, Ninja, Make to `configs/bootstrap-tools.json` version registry
 - [X] B170 §3.1 Update `install-all-tools.ps1` to support `-Tool cmake`, `-Tool ninja`, `-Tool mingw`, `-Tool llvm`
 
 ### llama.cpp Build (B171-B175) - Priority 1 Local Provider
@@ -709,7 +709,7 @@ ai/shared/
 - [X] T004 [P] §3.1 FR-031 Create and populate `noa_root/opt/` with optional packages: `llama.cpp/`, `llama-cpp-rs/`, `ollama/`
 - [X] T005 [P] §3.1 FR-032 Create and populate `noa_root/init/` with init scripts: `migrations/`, `seeds/`, `noa-init`
 - [X] T006 [P] §3.1 FR-033 Create and populate `noa_root/containers/` with container definitions: `oci/`, `compose/`, `Dockerfile`
-- [X] T007 [P] §3.1 FR-034 Create and populate `noa_root/config/` with configuration files: `noa-server.json`, `ai-providers.json`, `features.json`
+- [X] T007 [P] §3.1 FR-034 Create and populate `noa_root/configs/` with configsuration files: `noa-server.json`, `ai-providers.json`, `features.json`
 - [X] T008 [P] §3.1 FR-035 Create and populate `noa_root/bin/` with executables: `noa`, `noa-server`, wrappers for `llama-cli`, `ollama`
 - [X] T009 [P] §3.1 FR-036 Create and populate `noa_root/ai/` with AI assets: `providers/`, `models/`, `prompts/`, `grammars/`
 
@@ -719,9 +719,9 @@ ai/shared/
 - [X] T011 [P] §3.1 Initialize Go module for P2P services in `noa_root/p2p/go.mod`
 - [X] T012 [P] §3.1 Initialize TypeScript/Next.js project for UI in `noa_root/sys/ui/package.json`
 - [X] T013 [P] §3.1 Initialize Python project for digest pipeline in `noa_root/sys/digest/pyproject.toml`
-- [X] T014 [P] Configure linting: rustfmt, golangci-lint, eslint, ruff in `.config/`
+- [X] T014 [P] configsure linting: rustfmt, golangci-lint, eslint, ruff in `.configs/`
 - [X] T015 [P] Create cross-platform build scripts in `scripts/bash/build.sh` and `scripts/powershell/build.ps1`
-- [X] T016 §3.1 Create environment configuration templates in `config/`
+- [X] T016 §3.1 Create environment configsuration templates in `configs/`
 - [X] T017 [P] Setup GitHub Actions CI pipeline in `.github/workflows/ci.yml`
 - [X] T018 Create README.md with quickstart instructions in `noa_root/README.md`
 
@@ -736,11 +736,11 @@ ai/shared/
 ### Storage Components Setup
 
 - [X] T018a §3.2 Create data directory structure (`data/memory/`, `data/knowledge/`, `data/embeddings/`, `data/artifacts/`) in `noa_root/data/`
-- [X] T018b [P] Setup Private OCI Registry configuration in `containers/oci/registry.yaml`
-- [X] T018c [P] Setup MinIO S3-compatible storage config in `config/minio.yaml`
-- [X] T018d [P] Setup Postgres/SQLite configuration in `config/database.yaml`
-- [X] T018e [P] Setup Qdrant vector store configuration in `config/qdrant.yaml`
-- [X] T018f [P] Setup Quickwit hybrid search configuration in `config/quickwit.yaml`
+- [X] T018b [P] Setup Private OCI Registry configsuration in `containers/oci/registry.yaml`
+- [X] T018c [P] Setup MinIO S3-compatible storage configs in `configs/minio.yaml`
+- [X] T018d [P] Setup Postgres/SQLite configsuration in `configs/database.yaml`
+- [X] T018e [P] Setup Qdrant vector store configsuration in `configs/qdrant.yaml`
+- [X] T018f [P] Setup Quickwit hybrid search configsuration in `configs/quickwit.yaml`
 
 ### Database Schema (SQLite Primary)
 
@@ -777,22 +777,22 @@ ai/shared/
 ### CSV & Data Table Standards
 
 - [X] T041 §3.5 Implement CSV export service for all entities in `sys/core/src/export/csv_export.rs`
-- [X] T042 [P] Define CSV schema for Agent Directory in `config/schemas/csv/agent_directory.yaml`
-- [X] T043 [P] Define CSV schema for Task Tables in `config/schemas/csv/task_tables.yaml`
-- [X] T044 [P] Define CSV schema for Claims/Evidence Ledger in `config/schemas/csv/claims_evidence.yaml`
-- [X] T045 [P] Define CSV schema for Metrics/Traces in `config/schemas/csv/metrics_traces.yaml`
+- [X] T042 [P] Define CSV schema for Agent Directory in `configs/schemas/csv/agent_directory.yaml`
+- [X] T043 [P] Define CSV schema for Task Tables in `configs/schemas/csv/task_tables.yaml`
+- [X] T044 [P] Define CSV schema for Claims/Evidence Ledger in `configs/schemas/csv/claims_evidence.yaml`
+- [X] T045 [P] Define CSV schema for Metrics/Traces in `configs/schemas/csv/metrics_traces.yaml`
 
-### Configuration Standards
+### configsuration Standards
 
-- [X] T046 Define unified JSON/YAML config schema in `config/schemas/config_schema.json`
-- [X] T047 [P] Implement config validation with rich metadata support in `sys/core/src/config/validator.rs`
-- [X] T048 [P] Implement config lineage/provenance tracking in `sys/core/src/config/lineage.rs`
-- [X] T049 [P] Create default config templates in `config/templates/`
+- [X] T046 Define unified JSON/YAML configs schema in `configs/schemas/configs_schema.json`
+- [X] T047 [P] Implement configs validation with rich metadata support in `sys/core/src/configs/validator.rs`
+- [X] T048 [P] Implement configs lineage/provenance tracking in `sys/core/src/configs/lineage.rs`
+- [X] T049 [P] Create default configs templates in `configs/templates/`
 
 ### Rust Core Foundation
 
 - [X] T050 §3.1 Define core error types and Result wrapper in `sys/core/src/error.rs`
-- [X] T051 [P] §3.2 Implement configuration loader from JSON/YAML in `sys/core/src/config/mod.rs`
+- [X] T051 [P] §3.2 Implement configsuration loader from JSON/YAML in `sys/core/src/configs/mod.rs`
 - [X] T052 [P] §3.5 Implement structured logging with tracing in `sys/core/src/logging.rs`
 - [X] T053 §3.2 Implement SQLite connection pool with rusqlite in `sys/core/src/db/pool.rs`
 - [X] T054 §3.1 Define repository trait pattern in `sys/core/src/db/repository.rs`
@@ -821,7 +821,7 @@ ai/shared/
 - [X] T068 §3.5 Setup tracing-subscriber for log collection in `sys/core/src/observability/logging.rs`
 - [X] T069 [P] Setup opentelemetry OTLP export in `sys/core/src/observability/telemetry.rs`
 - [X] T070 [P] Setup prometheus metrics export in `sys/core/src/observability/metrics.rs`
-- [X] T071 [P] Create observability config in `config/observability.yaml`
+- [X] T071 [P] Create observability configs in `configs/observability.yaml`
 
 **Checkpoint**: Foundation ready - Continue to 3-Plane Control Fabric ✅
 
@@ -871,12 +871,12 @@ ai/shared/
 - [ ] T570 [P] Create update component structure in `sandbox-plane/components/update/`
 - [ ] T571 [P] Create workflow component structure in `sandbox-plane/components/workflow/`
 
-### Coordinator Plane Configuration
+### Coordinator Plane configsuration
 
-- [ ] T572 §3.4 Create analytics.yaml (llama.cpp swarm config) in `coordinator-plane/config/analytics.yaml`
-- [ ] T573 [P] Create promotion-policy.yaml (risk tiers, canary cohorts, abort gates) in `coordinator-plane/config/promotion-policy.yaml`
-- [ ] T574 [P] Create channels.yml (update channels) in `coordinator-plane/config/channels.yml`
-- [ ] T575 [P] Create router.yml (traffic routing) in `coordinator-plane/config/router.yml`
+- [ ] T572 §3.4 Create analytics.yaml (llama.cpp swarm configs) in `coordinator-plane/configs/analytics.yaml`
+- [ ] T573 [P] Create promotion-policy.yaml (risk tiers, canary cohorts, abort gates) in `coordinator-plane/configs/promotion-policy.yaml`
+- [ ] T574 [P] Create channels.yml (update channels) in `coordinator-plane/configs/channels.yml`
+- [ ] T575 [P] Create router.yml (traffic routing) in `coordinator-plane/configs/router.yml`
 - [ ] T576 [P] Create global.yaml (constitutional policy) in `coordinator-plane/policy/global.yaml`
 
 ### Coordinator Analytics Prompts
@@ -902,8 +902,8 @@ ai/shared/
 - [ ] T582 [P] Create shared/artifacts/ structure for build outputs in `shared/artifacts/`
 - [ ] T583 [P] Create shared/releases/ structure for promoted releases in `shared/releases/`
 - [ ] T584 [P] Create shared/logs/ structure with plane subdirs in `shared/logs/`
-- [ ] T585 [P] Create capability-pack-schema.yaml in `shared/config/capability-pack-schema.yaml`
-- [ ] T586 [P] Create message-bus.toml (Redis/NATS config) in `shared/config/message-bus.toml`
+- [ ] T585 [P] Create capability-pack-schema.yaml in `shared/configs/capability-pack-schema.yaml`
+- [ ] T586 [P] Create message-bus.toml (Redis/NATS configs) in `shared/configs/message-bus.toml`
 - [ ] T587 [P] Create compose.yaml for container orchestration in `shared/runtime/compose.yaml`
 
 ### Promotion Policy Engine (FR-057)
@@ -953,7 +953,7 @@ ai/shared/
 - [X] T612 §3.4 Implement continuous health monitoring in `sys/core/src/healing/monitor.rs`
 - [X] T613 [P] Implement anomaly detection in `sys/core/src/healing/anomaly.rs`
 - [X] T614 [P] Implement root cause analysis engine in `sys/core/src/healing/diagnose.rs`
-- [X] T615 §3.4 Implement auto-fix executor (restart, reconfig, rollback, redistribute) in `sys/core/src/healing/fix.rs`
+- [X] T615 §3.4 Implement auto-fix executor (restart, reconfigs, rollback, redistribute) in `sys/core/src/healing/fix.rs`
 - [X] T616 [P] Implement fix validation in `sys/core/src/healing/validate.rs`
 - [X] T617 [P] Implement retry counter (≥3 attempts before escalate) in `sys/core/src/healing/retry.rs`
 - [X] T618 [P] Implement user escalation notification in `sys/core/src/healing/escalate.rs`
@@ -1081,11 +1081,11 @@ ai/shared/
 - [X] T452 [P] Implement result aggregation and consensus in `sys/core/src/providers/collaborative/aggregator.rs`
 - [X] T453 [P] Implement provider state synchronization in `sys/core/src/providers/collaborative/state_sync.rs`
 
-### Provider Configuration
+### Provider configsuration
 
-- [X] T454 Create provider configuration schema in `config/schemas/providers.yaml`
-- [X] T455 [P] Create default provider configs in `config/providers/`
-- [X] T456 [P] Implement provider feature flags in `config/features.json`
+- [X] T454 Create provider configsuration schema in `configs/schemas/providers.yaml`
+- [X] T455 [P] Create default provider configss in `configs/providers/`
+- [X] T456 [P] Implement provider feature flags in `configs/features.json`
 
 ### CLI Commands (Providers)
 
@@ -1111,7 +1111,7 @@ ai/shared/
 - [X] SK004 [P] Implement parallel spec broadcast to all connected providers in `project-mgmt/spec-kit/src/specify_cli/broadcast.py`
 - [X] SK005 [P] Add spec locking mechanism for write coordination in `project-mgmt/spec-kit/src/specify_cli/locks.py`
 - [X] SK006 [P] §3.5 Create audit logging for provider spec access in `project-mgmt/spec-kit/src/specify_cli/audit.py`
-- [X] SK007 [P] Update AGENT_CONFIG in spec-kit to use shared resources in `project-mgmt/spec-kit/src/specify_cli/__init__.py`
+- [X] SK007 [P] Update AGENT_configs in spec-kit to use shared resources in `project-mgmt/spec-kit/src/specify_cli/__init__.py`
 - [X] SK008 [P] Add `--connect-providers` flag to `specify init` command in `project-mgmt/spec-kit/src/specify_cli/__init__.py`
 - [X] SK009 [P] Implement provider health check before spec distribution in `project-mgmt/spec-kit/src/specify_cli/health.py`
 - [X] SK010 §3.3 Create spec-kit MCP tool for provider orchestration in `project-mgmt/spec-kit/src/specify_cli/mcp.py`
@@ -1142,21 +1142,21 @@ ai/shared/
 ### Directory Creation (US1)
 
 - [X] T072 [US1] §3.1 Implement directory structure creation in `sys/core/src/init/structure.rs`
-- [X] T073 [P] [US1] §3.1 Define directory constants (sys/, p2p/, opt/, init/, containers/, config/, bin/, ai/, data/) in `sys/core/src/init/paths.rs`
+- [X] T073 [P] [US1] §3.1 Define directory constants (sys/, p2p/, opt/, init/, containers/, configs/, bin/, ai/, data/) in `sys/core/src/init/paths.rs`
 - [X] T074 [P] [US1] Create sys/core/ subdirectory structure in `sys/core/src/init/structure.rs`
 - [X] T075 [P] [US1] Create sys/services/ subdirectory structure in `sys/core/src/init/structure.rs`
 - [X] T076 [P] [US1] Create sys/ui/ subdirectory structure in `sys/core/src/init/structure.rs`
 - [X] T077 [P] [US1] Create sys/digest/ subdirectory structure in `sys/core/src/init/structure.rs`
 - [X] T078 [P] [US1] Create sys/kernel/ subdirectory structure in `sys/core/src/init/structure.rs`
 
-### Config & Database Init (US1)
+### configs & Database Init (US1)
 
-- [X] T079 [US1] §3.2 Implement default config generation in `sys/core/src/init/config.rs`
+- [X] T079 [US1] §3.2 Implement default configs generation in `sys/core/src/init/configs.rs`
 - [X] T080 [US1] §3.2 Implement database initialization in `sys/core/src/init/database.rs`
-- [X] T081 [P] [US1] Generate ai-providers.json default config in `sys/core/src/init/config.rs`
-- [X] T082 [P] [US1] Generate noa-server.json default config in `sys/core/src/init/config.rs`
-- [X] T083 [P] [US1] Generate features.json default feature flags in `sys/core/src/init/config.rs`
-- [X] T084 [P] [US1] Generate models.json default model registry in `sys/core/src/init/config.rs`
+- [X] T081 [P] [US1] Generate ai-providers.json default configs in `sys/core/src/init/configs.rs`
+- [X] T082 [P] [US1] Generate noa-server.json default configs in `sys/core/src/init/configs.rs`
+- [X] T083 [P] [US1] Generate features.json default feature flags in `sys/core/src/init/configs.rs`
+- [X] T084 [P] [US1] Generate models.json default model registry in `sys/core/src/init/configs.rs`
 
 ### Services (US1)
 
@@ -1201,13 +1201,13 @@ ai/shared/
 - [X] T098 [P] [US2] Add candle-core and candle-transformers for inference in `sys/core/Cargo.toml`
 - [X] T099 [P] [US2] Add tokenizers crate for HuggingFace tokenization in `sys/core/Cargo.toml`
 - [X] T100 [P] [US2] Add qdrant-client for vector store in `sys/core/Cargo.toml`
-- [X] T101 [P] [US2] Configure tch backend for CUDA 13.1+ in `sys/core/Cargo.toml`
-- [X] T102 [P] [US2] Configure wgpu backend for cross-platform GPU in `sys/core/Cargo.toml`
+- [X] T101 [P] [US2] configsure tch backend for CUDA 13.1+ in `sys/core/Cargo.toml`
+- [X] T102 [P] [US2] configsure wgpu backend for cross-platform GPU in `sys/core/Cargo.toml`
 
 ### Models & Data Layer (US2)
 
 - [X] T103 [US2] §3.2 Implement Model entity repository in `sys/core/src/db/repositories/model_repository.rs`
-- [X] T104 [P] [US2] Define model configuration schema in `config/ai-providers.json`
+- [X] T104 [P] [US2] Define model configsuration schema in `configs/ai-providers.json`
 - [X] T105 [P] [US2] Create GGUF model loader interface in `sys/core/src/neural/model_loader.rs`
 
 ### Neural Runtime Core (US2)
@@ -1225,7 +1225,7 @@ ai/shared/
 - [X] T480 [P] [US2] Implement tensor parallelism for model sharding in `sys/core/src/neural/tensor_parallel.rs`
 - [X] T481 [P] [US2] Implement NVLink detection and utilization in `sys/core/src/neural/nvlink.rs`
 - [X] T482 [P] [US2] Add GPU memory pooling across devices in `sys/core/src/neural/gpu_pool.rs`
-- [X] T483 §3.2 [US2] Implement CUDA 13.1+ tiles configuration in `sys/core/src/neural/cuda_tiles.rs`
+- [X] T483 §3.2 [US2] Implement CUDA 13.1+ tiles configsuration in `sys/core/src/neural/cuda_tiles.rs`
 - [X] T484 [P] [US2] Add multi-GPU load balancing in `sys/core/src/neural/gpu_scheduler.rs`
 - [X] T485 [P] [US2] Implement GPU health monitoring in `sys/core/src/neural/gpu_health.rs`
 
@@ -1463,7 +1463,7 @@ ai/shared/
 
 **Goal**: Fluid, agent-driven interface that adapts to context
 
-**Independent Test**: Switch tasks and verify UI reconfigures appropriately
+**Independent Test**: Switch tasks and verify UI reconfigsures appropriately
 
 ### UI Foundation (US5)
 
@@ -1981,7 +1981,7 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 
 - [ ] T496 Implement metadata validator (id, created_at, updated_at, checksum) in `sys/core/src/validation/metadata.rs`
 - [ ] T497 [P] Implement embedding validator (model, vector, source_type, source_id) in `sys/core/src/validation/embedding.rs`
-- [ ] T498 [P] Implement config schema validation against `config/schemas/` in `sys/core/src/validation/config.rs`
+- [ ] T498 [P] Implement configs schema validation against `configs/schemas/` in `sys/core/src/validation/configs.rs`
 - [ ] T499 [P] Implement index verification for all database tables in `sys/core/src/validation/indexes.rs`
 - [ ] T500 [P] Implement checksum generation and verification in `sys/core/src/validation/checksum.rs`
 
@@ -1989,7 +1989,7 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 
 - [ ] T530 Implement model download progress UI in `sys/ui/src/components/models/DownloadProgress.tsx`
 - [ ] T531 [P] Implement P2P first-time device pairing wizard in `sys/ui/src/components/p2p/PairingWizard.tsx`
-- [ ] T532 [P] Implement memory retention policy configuration in `config/memory-retention.json`
+- [ ] T532 [P] Implement memory retention policy configsuration in `configs/memory-retention.json`
 - [ ] T533 [P] Implement memory auto-prune service in `sys/core/src/services/memory_retention.rs`
 - [ ] T534 [P] Create agent marketplace stub API in `sys/core/src/api/routes/marketplace.rs`
 - [ ] T535 [P] Create agent marketplace stub UI in `sys/ui/src/components/marketplace/`
@@ -2000,10 +2000,10 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 - [ ] T413 [P] Create installer scripts (PowerShell, Bash) in `scripts/install/`
 - [ ] T414 [P] Setup release automation in `.github/workflows/release.yml`
 
-### Configuration Validation
+### configsuration Validation
 
-- [ ] T415 §3.1 Implement config validation CLI command in `sys/core/src/cli/config.rs`
-- [ ] T416 [P] Create default configuration templates in `config/templates/`
+- [ ] T415 §3.1 Implement configs validation CLI command in `sys/core/src/cli/configs.rs`
+- [ ] T416 [P] Create default configsuration templates in `configs/templates/`
 
 ---
 
@@ -2068,7 +2068,7 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 ### Feature Flag Framework (US10)
 
 - [ ] T739 [US10] Implement feature flag service in `sys/core/src/features/flags.rs`
-- [ ] T740 [P] [US10] Create feature flag configuration in `config/features.json`
+- [ ] T740 [P] [US10] Create feature flag configsuration in `configs/features.json`
 - [ ] T741 [P] [US10] Implement feature flag CLI commands in `sys/core/src/cli/features.rs`
 
 ### OAuth Framework (US10)
@@ -2116,7 +2116,7 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 
 - [ ] T690 §3.10 Implement constitutional governance engine in `sys/core/src/governance/engine.rs`
 - [ ] T691 [P] §3.5 Implement governance audit trail in `sys/core/src/governance/audit.rs`
-- [ ] T692 [P] Create governance decision schema in `config/schemas/governance.json`
+- [ ] T692 [P] Create governance decision schema in `configs/schemas/governance.json`
 
 ### Biblical Governance Pipeline (FR-026) - §3.9 §3.10
 
@@ -2205,13 +2205,13 @@ Per [universal_task_execution_policy.md](../../data/archive/sessions/project-mgm
 
 **Goal**: Implement NKAL as trust boundary with capability grants and state persistence
 
-- [ ] T835 §3.1 Create NKAL capability grant schema `config/nkal-capabilities.json`
+- [ ] T835 §3.1 Create NKAL capability grant schema `configs/nkal-capabilities.json`
 - [ ] T836 §3.1 Implement NKAL trust boundary validation in `sys/core/src/nkal/boundary.rs`
 - [ ] T837 [P] §3.1 Add input sanitization layer at NKAL boundary in `sys/core/src/nkal/sanitize.rs`
 - [ ] T838 [P] §3.1 Add output verification layer at NKAL boundary in `sys/core/src/nkal/verify.rs`
 - [ ] T839 §3.1 Create `.kernel-switch-state.json` checkpoint on mode change in `sys/core/src/nkal/checkpoint.rs`
 - [ ] T840 §3.1 Implement state verification after kernel mode switch in `sys/core/src/nkal/state.rs`
-- [ ] T841 [P] §3.1 Add shared volume mount configuration for VM/container modes in `config/kernel-mounts.json`
+- [ ] T841 [P] §3.1 Add shared volume mount configsuration for VM/container modes in `configs/kernel-mounts.json`
 - [ ] T842 §3.1 Implement graceful shutdown requirement before mode switch in `sys/core/src/nkal/shutdown.rs`
 
 ### Phase 18.2: Documentation & Verification (T843-T845)
@@ -2313,7 +2313,7 @@ Phase 2.5 (3-Plane Architecture):
     │      (Blue)            (Analytics)             (Green)       │
     │                                                              │
     │  T551 dirs           T553 dirs               T552 dirs      │
-    │  T558-571 comps      T572-580 config         T601-604 canary│
+    │  T558-571 comps      T572-580 configs         T601-604 canary│
     │                      T588-596 analytics                      │
     │                      T609-611 audit                          │
     │                                                              │
@@ -2384,12 +2384,12 @@ Continuous Loop (T621):
 - [ ] T787 [P] FR-111 Implement keyboard navigation with focus indicators (7:1 contrast) in `web/src/styles/focus.css`
 - [ ] T788 [P] FR-112 Add ARIA labels to all interactive elements in `web/src/components/**/*.tsx`
 - [ ] T789 [P] FR-113 Implement high contrast mode and OS preference detection in `web/src/hooks/useAccessibility.ts`
-- [ ] T790 [P] FR-114 Create i18n string externalization system in `config/i18n/{locale}.json`
+- [ ] T790 [P] FR-114 Create i18n string externalization system in `configs/i18n/{locale}.json`
 - [ ] T791 FR-115 Bundle local translations (no cloud dependency) in `web/src/i18n/bundled/`
 - [ ] T792 FR-116 Add RTL layout support for Arabic/Hebrew in `web/src/styles/rtl.css`
 - [ ] T793 [P] FR-117 Implement locale detection and switching in `web/src/i18n/locale-detector.ts`
 - [ ] T794 [P] FR-118 Create translation contribution workflow in `docs/contributing/translations.md`
-- [ ] T795 FR-119 Bundle English, Spanish, Chinese, Arabic, Hebrew translations in `config/i18n/`
+- [ ] T795 FR-119 Bundle English, Spanish, Chinese, Arabic, Hebrew translations in `configs/i18n/`
 
 ### UI States & Feedback (FR-120-127) - Phase 7 (US5) Extension
 - [ ] T796 [P] FR-120 Implement skeleton loader components in `web/src/components/ui/Skeleton.tsx`
@@ -2413,17 +2413,17 @@ Continuous Loop (T621):
 - [ ] T812 FR-136 Implement multi-modal session persistence in `sys/core/src/multimodal/session.rs`
 
 ### Feature Flag System Infrastructure (FR-137-141) - Phase 2 Extension
-- [ ] T739a FR-141 Implement feature flag runtime reload in `sys/core/src/config/feature_flags.rs`
+- [ ] T739a FR-141 Implement feature flag runtime reload in `sys/core/src/configs/feature_flags.rs`
   - Hot reload without restart
   - Flag state persistence to bootstrap-state.json
-- [ ] T739b [P] FR-138 Implement per-scope flag management in `sys/core/src/config/flag_scopes.rs`
+- [ ] T739b [P] FR-138 Implement per-scope flag management in `sys/core/src/configs/flag_scopes.rs`
   - Global, device, user, and session scopes
   - Scope precedence rules
-- [ ] T739c [P] FR-139 Implement flag change audit logging in `sys/core/src/config/flag_audit.rs`
+- [ ] T739c [P] FR-139 Implement flag change audit logging in `sys/core/src/configs/flag_audit.rs`
   - Before/after state logging
   - Change attribution (user, agent, system)
-- [ ] T739d [P] FR-137 Create feature flags config schema in `sys/core/src/config/schemas/feature_flags.json`
-  - Define JSON schema for config/feature-flags.json
+- [ ] T739d [P] FR-137 Create feature flags configs schema in `sys/core/src/configs/schemas/feature_flags.json`
+  - Define JSON schema for configs/feature-flags.json
   - Include validation rules for flag names, scopes, and values
   - Add schema reference to bootstrap state
 - [ ] T739e [P] FR-140 Implement graceful degradation UI in `web/src/components/ui/FeatureUnavailable.tsx`
@@ -2462,7 +2462,7 @@ Continuous Loop (T621):
   - Graceful model unloading
   - Context size reduction
 - [ ] T818 [P] FR-150 Implement proactive token refresh in `sys/core/src/auth/token_manager.rs`
-  - Refresh before expiry (configurable margin)
+  - Refresh before expiry (configsurable margin)
   - Background refresh worker
   - Retry with exponential backoff
 
@@ -2487,11 +2487,11 @@ Continuous Loop (T621):
 
 - [ ] T821 FR-153 Add tracing + tracing-subscriber to core Rust services in `sys/core/Cargo.toml`
   - Structured logging with spans
-  - Configurable log levels and formats
+  - configsurable log levels and formats
   - Console and file output subscribers
 - [ ] T822 [P] FR-153/FR-155 Add OpenTelemetry with OTLP exporter in `sys/core/src/observability/tracing.rs`
   - opentelemetry + opentelemetry-otlp crates
-  - Export traces to configurable OTLP endpoint (Tempo, Jaeger)
+  - Export traces to configsurable OTLP endpoint (Tempo, Jaeger)
   - Span context propagation across services
 - [ ] T823 [P] FR-153/FR-154 Add Prometheus metrics exposition in `sys/core/src/observability/metrics.rs`
   - opentelemetry-prometheus crate
@@ -2516,7 +2516,7 @@ Continuous Loop (T621):
 ### Within Foundation (Phase 2)
 ```
 T018 (Schema) → T019-T036 (Tables) [PARALLEL]
-T050 (Errors) → T051-T055 (Config/Logging/DB) [PARALLEL]
+T050 (Errors) → T051-T055 (configs/Logging/DB) [PARALLEL]
 T056 (Server) → T057-T060 (Endpoints/Middleware) [PARALLEL]
 T061 (CLI) → T062-T067 (Commands) [PARALLEL]
 T776-T781 (Auth Pairing Methods) [PARALLEL]
@@ -2609,7 +2609,7 @@ Then implement P3 stories:
 | Quality Tools | B038-B049 | Linters, formatters, security scanners |
 | CLI Utilities | B050-B056 | jq, rg, fd, bat, fzf → bin/ |
 | Dev Tools | B057-B067 | IDEs, Docker, AI apps (gitignored) |
-| Configuration | B068-B077 | Cache, logs, environment files |
+| configsuration | B068-B077 | Cache, logs, environment files |
 | Orchestrator | B078-B085 | Main bootstrap script, verification |
 | Integration | B086-B090 | Migrate from old scripts |
 | Documentation | B091-B094 | README, guides |
@@ -2636,7 +2636,7 @@ Then implement P3 stories:
 - **Autonomous Entities**: ✅ T545-T550 (Goal, Plane, PlaneTransition, HealingEvent, HealthMetric tables)
 - **3-Plane Directory Structure**: ✅ T551-T557 (sandbox-plane, deployed-plane, coordinator-plane)
 - **14 Components per Plane**: ✅ T558-T571 (agents, memory, models, orchestrator, dataplane, networking, observability, packaging, perception, security, system, ui, update, workflow)
-- **Coordinator Configuration**: ✅ T572-T580 (analytics.yaml, promotion-policy.yaml, constitutional prompts)
+- **Coordinator configsuration**: ✅ T572-T580 (analytics.yaml, promotion-policy.yaml, constitutional prompts)
 - **Shared Infrastructure**: ✅ T581-T587 (registry.db, artifacts/, releases/, logs/)
 - **Promotion Policy Engine**: ✅ T588-T592 (risk tiers, canary cohorts, abort gates)
 - **Coordinator Analytics**: ✅ T593-T596 (llama.cpp swarm, artifact ingestion, evaluation)
@@ -2665,7 +2665,7 @@ Then implement P3 stories:
 - **FR-031 noa_root/opt/**: ✅ T004 (optional packages)
 - **FR-032 noa_root/init/**: ✅ T005 (init scripts)
 - **FR-033 noa_root/containers/**: ✅ T006 (container definitions)
-- **FR-034 noa_root/config/**: ✅ T007 (configuration files)
+- **FR-034 noa_root/configs/**: ✅ T007 (configsuration files)
 - **FR-035 noa_root/bin/**: ✅ T008 (executables)
 - **FR-036 noa_root/ai/**: ✅ T009 (AI assets)
 
@@ -2717,12 +2717,12 @@ Then implement P3 stories:
 - **Triple-Verification**: ✅ T492 (Pass A/B/C automation)
 - **Truth Gate**: ✅ T493 (§4 compliance automation)
 - **Gap Hunt**: ✅ T494 (coverage scan)
-- **Rich Metadata**: ✅ T496-T500 (validators for metadata, embeddings, configs, indexes, checksums)
+- **Rich Metadata**: ✅ T496-T500 (validators for metadata, embeddings, configss, indexes, checksums)
 
 ### Open Questions Addressed (from research.md)
 - **Model Download UX**: ✅ T530 (progress UI)
 - **P2P Bootstrap**: ✅ T531 (first-time pairing wizard)
-- **Memory Retention Policy**: ✅ T532-T533 (config + auto-prune)
+- **Memory Retention Policy**: ✅ T532-T533 (configs + auto-prune)
 - **Agent Marketplace**: ✅ T534-T535 (stub API + UI)
 
 ### Success Criteria Coverage (SC-001 to SC-012) - §3.12
@@ -2777,12 +2777,12 @@ Then implement P3 stories:
   - `sys/desktop/ndcl/` - Core NDCL implementation
   - `sys/desktop/proxy/` - Network proxy service
   - `sys/desktop/auth/` - OAuth proxy service
-  - `config/desktop-apps.json` - Desktop app registry
+  - `configs/desktop-apps.json` - Desktop app registry
 
-- [X] T860 [P] [US11] §3.1 Create desktop app registry schema in `config/schemas/desktop-apps.json`
+- [X] T860 [P] [US11] §3.1 Create desktop app registry schema in `configs/schemas/desktop-apps.json`
   - App definition: name, installPath, executable, dataPath
   - Containment settings: networkIsolation, gpuEnabled, autoUpdate
-  - Launch wrapper configuration
+  - Launch wrapper configsuration
 
 - [X] T861 [P] [US11] §3.1 Implement desktop app data directory structure in `noa_root/data/apps/`
   - `data/apps/chatgpt/` - ChatGPT Desktop data
@@ -2794,12 +2794,12 @@ Then implement P3 stories:
 
 - [X] T862 [P] [US11] §3.1 Create ChatGPT Desktop launcher wrapper in `bin/chatgpt.cmd`
   - Environment redirection (APPDATA, LOCALAPPDATA → $NOA_DATA/apps)
-  - Network proxy configuration
+  - Network proxy configsuration
   - Launch with containment settings
 
 - [X] T863 [P] [US11] §3.1 Create Claude Desktop launcher wrapper in `bin/claude-desktop.cmd`
   - Environment redirection (APPDATA, LOCALAPPDATA → $NOA_DATA/apps)
-  - Network proxy configuration
+  - Network proxy configsuration
   - Launch with containment settings
 
 - [X] T864 [P] [US11] §3.1 Create GitHub Desktop launcher wrapper in `bin/github-desktop.cmd`
@@ -2847,7 +2847,7 @@ Then implement P3 stories:
   - Request/response logging
   - P2P routing (when available)
 
-- [X] T872 [P] [US11] §3.6 Implement proxy configuration generator in `sys/desktop/proxy/config.rs`
+- [X] T872 [P] [US11] §3.6 Implement proxy configsuration generator in `sys/desktop/proxy/configs.rs`
   - Per-app proxy rules
   - Allowlist/blocklist support
   - Certificate management for HTTPS inspection
@@ -2857,7 +2857,7 @@ Then implement P3 stories:
 - [X] T873 [US11] §3.6 Implement OAuth proxy service in `sys/desktop/auth/oauth_proxy.rs`
   - Intercept OAuth redirects from desktop apps
   - Store tokens in NOA credential vault
-  - Token injection into app config
+  - Token injection into app configs
   - Automatic token refresh
 
 - [X] T874 [P] [US11] §3.6 Implement credential vault for desktop app tokens in `sys/desktop/auth/vault.rs`
@@ -2894,7 +2894,7 @@ Then implement P3 stories:
 
 - [X] T879 [P] [US11] §3.1 Create Cursor IDE data containment launcher in `bin/cursor` (Unix)
   - XDG directory redirection to `$NOA_DATA/apps/cursor/`
-  - Symlink management for config files
+  - Symlink management for configs files
 
 - [X] T880 [P] [US11] §3.1 Create VS Code data containment launcher in `bin/code.cmd` (Windows)
   - Set VSCODE_EXTENSIONS to `$NOA_DATA/apps/vscode/extensions/`
@@ -2903,7 +2903,7 @@ Then implement P3 stories:
 
 - [X] T881 [P] [US11] §3.1 Create VS Code data containment launcher in `bin/code` (Unix)
   - XDG directory redirection to `$NOA_DATA/apps/vscode/`
-  - Symlink management for config files
+  - Symlink management for configs files
 
 ---
 

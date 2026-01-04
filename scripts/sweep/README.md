@@ -148,7 +148,7 @@ lib/flexnetos/
 └── vector-db/      # RuVector implementation
 ```
 
-## Configuration
+## configsuration
 
 ### Ollama Setup
 

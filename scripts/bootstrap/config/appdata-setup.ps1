@@ -38,7 +38,7 @@ $directories = @(
 
     # Unix XDG directories
     "data"                              # XDG_DATA_HOME
-    "etc"                               # XDG_CONFIG_HOME
+    "etc"                               # XDG_configs_HOME
     "data/cache"                        # XDG_CACHE_HOME
     "data/state"                        # XDG_STATE_HOME
 

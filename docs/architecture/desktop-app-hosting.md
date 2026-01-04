@@ -136,9 +136,9 @@ $env:USERPROFILE = "$env:NOA_ROOT\home"
 ```bash
 # Linux/macOS: Bind mount + env
 docker run \
-    -v $NOA_DATA/apps/chatgpt:/home/user/.config/ChatGPT \
+    -v $NOA_DATA/apps/chatgpt:/home/user/.configs/ChatGPT \
     -e HOME=/home/user \
-    -e XDG_CONFIG_HOME=/home/user/.config \
+    -e XDG_configs_HOME=/home/user/.configs \
     -e XDG_DATA_HOME=/home/user/.local/share \
     noa-chatgpt:latest
 ```
@@ -162,7 +162,7 @@ $jobObject.SetLimits(@{
 ```bash
 # Use bubblewrap for sandboxing
 bwrap \
-    --bind $NOA_DATA/apps/chatgpt /home/user/.config/ChatGPT \
+    --bind $NOA_DATA/apps/chatgpt /home/user/.configs/ChatGPT \
     --ro-bind /usr /usr \
     --dev /dev \
     --proc /proc \
@@ -187,7 +187,7 @@ Proxy OAuth flows through NOA's authentication service.
 │              NOA OAuth Proxy Service                           │
 │  • Intercepts auth redirects                                   │
 │  • Stores tokens in NOA credential store                       │
-│  • Injects tokens into app config                              │
+│  • Injects tokens into app configs                              │
 │  • Token refresh management                                    │
 └─────────────────────────┬────────────────────────────────────┘
                           │
@@ -222,7 +222,7 @@ set APPDATA=%NOA_DATA%\apps
 set LOCALAPPDATA=%NOA_DATA%\apps
 set USERPROFILE=%NOA_ROOT%\home
 
-:: Configure network proxy (optional)
+:: configsure network proxy (optional)
 set HTTP_PROXY=http://localhost:8888
 set HTTPS_PROXY=http://localhost:8888
 
@@ -233,7 +233,7 @@ start "" "%NOA_OPT%\apps\chatgpt\ChatGPT.exe" %*
 ### 3. Register with NOA Desktop Manager
 
 ```json
-// config/desktop-apps.json
+// configs/desktop-apps.json
 {
   "apps": {
     "chatgpt": {
@@ -282,7 +282,7 @@ noa_root/
 ├── data/
 │   ├── apps/                    # App data (redirected from system)
 │   │   ├── chatgpt/
-│   │   │   ├── config/
+│   │   │   ├── configs/
 │   │   │   ├── cache/
 │   │   │   └── logs/
 │   │   ├── claude/
@@ -324,7 +324,7 @@ noa_root/
 - **App Bundles**: Can be relocated to `$NOA_OPT/apps/`
 - **Data Redirection**: `$HOME` override + `defaults write` for app-specific paths
 - **GPU Access**: Metal API passthrough in VM (limited)
-- **Network Proxy**: `scutil` proxy configuration
+- **Network Proxy**: `scutil` proxy configsuration
 
 ---
 
@@ -346,7 +346,7 @@ The following tasks need to be added to `tasks.md`:
 2. **T-NDCL-002**: Implement desktop app launcher wrappers for Windows
 3. **T-NDCL-003**: Implement desktop app launcher wrappers for Linux
 4. **T-NDCL-004**: Implement desktop app launcher wrappers for macOS
-5. **T-NDCL-005**: Create `config/desktop-apps.json` registry
+5. **T-NDCL-005**: Create `configs/desktop-apps.json` registry
 6. **T-NDCL-006**: Implement network proxy service for desktop apps
 7. **T-NDCL-007**: Implement OAuth proxy service
 8. **T-NDCL-008**: Create installation scripts for ChatGPT Desktop

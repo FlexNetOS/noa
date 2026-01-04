@@ -67,26 +67,26 @@ async fn main() -> Result<()> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::new().nodelay(true),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::new().nodelay(true),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_quic()
-        .with_relay_client(noise::Config::new, yamux::Config::default)?
+        .with_relay_client(noise::configs::new, yamux::configs::default)?
         .with_behaviour(|key, relay_client| {
             Ok(Behaviour {
                 relay_client,
-                identify: identify::Behaviour::new(identify::Config::new(
+                identify: identify::Behaviour::new(identify::configs::new(
                     "/hole-punch-tests/1".to_owned(),
                     key.public(),
                 )),
                 dcutr: dcutr::Behaviour::new(key.public().to_peer_id()),
                 ping: ping::Behaviour::new(
-                    ping::Config::default().with_interval(Duration::from_secs(1)),
+                    ping::configs::default().with_interval(Duration::from_secs(1)),
                 ),
             })
         })?
-        .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(60)))
+        .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(60)))
         .build();
 
     client_listen_on_transport(&mut swarm, transport).await?;

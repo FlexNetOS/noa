@@ -11,7 +11,7 @@
 ## Requirement Completeness (Are all necessary requirements documented?)
 
 ### Core System Requirements
-- [x] CHK001 - Are initialization requirements complete for all 8 subdirectories listed in FR-029 through FR-036? [Completeness, Spec §FR-029-036] ✓ All 8 directories specified: sys, p2p, opt, init, containers, config, bin, ai
+- [x] CHK001 - Are initialization requirements complete for all 8 subdirectories listed in FR-029 through FR-036? [Completeness, Spec §FR-029-036] ✓ All 8 directories specified: sys, p2p, opt, init, containers, configs, bin, ai
 - [x] CHK002 - Are offline operation requirements exhaustively defined for ALL core operations, not just "task management, agent orchestration, local inference"? [Gap, Spec §FR-002] ✓ FR-002 says "all core operations"; FR-024 adds "full UI capability offline"
 - [x] CHK003 - Are database requirements specified for the new Provider, SharedExecutionContext, and ProviderTask entities in data-model.md? [Completeness, Gap] ✓ Entities 15, 16, 17 fully defined with fields, indexes, constraints
 - [x] CHK004 - Are model loading/unloading requirements defined for the "minimum 5 concurrent models" (FR-004)? [Clarity, Spec §FR-004] ✓ FR-004 specifies "dynamic model loading/unloading"; US2 scenarios define behavior
@@ -47,12 +47,12 @@
 
 ### P2P & Resource Requirements
 - [x] CHK026 - Are P2P connection requirements specified for devices NOT on the same network? [Gap, Spec §FR-017] ✓ Assumptions: "devices on same local network or VPN for initial discovery"
-- [x] CHK027 - Are resource sharing limits/quotas defined (how much CPU/GPU/RAM can be shared)? [Gap, Spec §FR-018] ✓ FIXED: FR-018 specifies default limits: 50% excess CPU, 50% excess GPU, 25% RAM, 10% storage (configurable)
+- [x] CHK027 - Are resource sharing limits/quotas defined (how much CPU/GPU/RAM can be shared)? [Gap, Spec §FR-018] ✓ FIXED: FR-018 specifies default limits: 50% excess CPU, 50% excess GPU, 25% RAM, 10% storage (configsurable)
 - [x] CHK028 - Are encryption algorithm requirements specified for P2P communication? [Gap, Spec §FR-019] ✓ FIXED: FR-019 specifies TLS 1.3, AES_256_GCM_SHA384/CHACHA20_POLY1305, X25519 key exchange
 - [x] CHK029 - Are graceful degradation requirements measurable (what constitutes "graceful")? [Ambiguity, Spec §FR-020] ✓ Edge Cases: "cluster gracefully degrades without data loss"; US6 scenario 3 defines behavior
 
 ### UI & Interaction Requirements
-- [x] CHK030 - Are context-aware UI reconfiguration triggers explicitly defined? [Gap, Spec §FR-021] ✓ US5 scenarios 1-2 define context types (coding task, project management); SC-007 defines 200ms target
+- [x] CHK030 - Are context-aware UI reconfigsuration triggers explicitly defined? [Gap, Spec §FR-021] ✓ US5 scenarios 1-2 define context types (coding task, project management); SC-007 defines 200ms target
 - [x] CHK031 - Are activity log retention requirements specified (how far back can user scroll)? [Gap, Spec §FR-022] ✓ FIXED: FR-022 specifies UI displays last 10,000 entries (~7 days); older entries via search from persistent DB
 - [x] CHK032 - Are multi-modal interaction fallback requirements defined when hardware doesn't permit voice/vision? [Gap, Spec §FR-023] ✓ FR-133: "gracefully degrade when multi-modal hardware unavailable (fall back to text)"
 - [x] CHK033 - Are offline UI capability requirements identical to online, or are there differences? [Ambiguity, Spec §FR-024] ✓ FR-024: "full UI capability offline" - explicitly identical
@@ -76,7 +76,7 @@
 
 ### Terminology Precision
 - [x] CHK043 - Is "bounded objective" for MicroAgentStacks defined with examples or criteria? [Ambiguity, Spec §FR-009] ✓ FIXED: FR-009 provides examples: "analyze repository X", "generate report Y", "process dataset Z"
-- [x] CHK044 - Is "context-aware" UI reconfiguration defined with specific context types? [Ambiguity, Spec §FR-021] ✓ US5 scenarios: coding task, project management; SC-007 200ms target
+- [x] CHK044 - Is "context-aware" UI reconfigsuration defined with specific context types? [Ambiguity, Spec §FR-021] ✓ US5 scenarios: coding task, project management; SC-007 200ms target
 - [x] CHK045 - Is "self-contained environment" scope specified (what MUST be inside noa_root)? [Ambiguity, Spec §US1] ✓ FR-001: "entirely inside noa_root directory"; Directory Structure shows full tree
 - [x] CHK046 - Is "optimal model" selection criteria defined for ModelSelectorAgent? [Ambiguity, Spec §US2] ✓ FIXED: US2 defines 6 selection criteria: task type, context length, latency, resources, history, cost
 - [x] CHK047 - Is "beneficial" self-modification defined (what triggers improvement proposals)? [Ambiguity, Spec §US8] ✓ FIXED: US8 defines 7 triggers: performance degradation, error rate, resource inefficiency, failures, feedback, patterns, dependencies
@@ -114,7 +114,7 @@
 ### Success Criteria Testability
 - [x] CHK062 - Can SC-001 (60s initialization) be objectively measured with defined start/end points? [Measurability] ✓ Start=script invocation, End="operational" (database ready, directories created)
 - [x] CHK063 - Can SC-004 (30min for 10K files) be objectively measured (what counts as "processed")? [Measurability] ✓ US4: outputs profile.json, system_card.md, kg.json, SBOM, security report, embeddings
-- [x] CHK064 - Can SC-007 (200ms UI reconfiguration) be objectively measured (what constitutes "reconfigured")? [Measurability] ✓ US5: "surfaces relevant tools" for context; measurable via UI state change
+- [x] CHK064 - Can SC-007 (200ms UI reconfigsuration) be objectively measured (what constitutes "reconfigsured")? [Measurability] ✓ US5: "surfaces relevant tools" for context; measurable via UI state change
 - [x] CHK065 - Can SC-009 (identical cross-platform) be objectively verified (what defines "identical")? [Measurability] ✓ "core functionality works identically" - same inputs → same outputs across platforms
 - [x] CHK066 - Can SC-010 (100% rollback paths) be verified exhaustively? [Measurability] ✓ US8 scenario 2: "tests fail → automatically rolls back"; 3-plane architecture enables verification
 
@@ -160,14 +160,14 @@
 
 ### State Boundary Cases
 - [x] CHK087 - Are requirements defined for empty memory (first interaction after init)? [Edge Case, Zero State] ✓ FR-124: "meaningful empty states with suggested actions"
-- [x] CHK088 - Are requirements defined for maximum memory capacity reached? [Gap, Edge Case] ✓ FIXED: Edge Cases specify archival policy, 10GB configurable limit
+- [x] CHK088 - Are requirements defined for maximum memory capacity reached? [Gap, Edge Case] ✓ FIXED: Edge Cases specify archival policy, 10GB configsurable limit
 - [x] CHK089 - Are requirements defined for all agents simultaneously busy? [Gap, Edge Case] ✓ FIXED: Edge Cases define priority queuing (P1>P2>P3), 1000 task queue limit, overflow logging
 
 ### Documented Edge Cases Review
 - [x] CHK090 - Is storage exhaustion behavior (AMPK-mode) fully specified? [Completeness, Spec §Edge Cases] ✓ Edge Cases: "enters resource-scarcity mode (AMPK-mode), pauses non-essential operations, alerts user"
 - [x] CHK091 - Is model file corruption detection timing specified? [Gap, Spec §Edge Cases] ✓ Edge Cases: "Model integrity verified on load; corrupted models quarantined and re-downloaded"
-- [x] CHK092 - Is P2P conflict resolution configurable (user override of last-write-wins)? [Gap, Spec §Edge Cases] ✓ FIXED: Edge Cases specify CLI commands for conflict review: `noa conflicts list`, `noa conflicts resolve <id>`
-- [x] CHK093 - Are infinite loop timeout thresholds defined? [Gap, Spec §Edge Cases] ✓ FIXED: Edge Cases specify 60s default timeout (configurable), circuit breaker at 3 failures in 5 minutes
+- [x] CHK092 - Is P2P conflict resolution configsurable (user override of last-write-wins)? [Gap, Spec §Edge Cases] ✓ FIXED: Edge Cases specify CLI commands for conflict review: `noa conflicts list`, `noa conflicts resolve <id>`
+- [x] CHK093 - Are infinite loop timeout thresholds defined? [Gap, Spec §Edge Cases] ✓ FIXED: Edge Cases specify 60s default timeout (configsurable), circuit breaker at 3 failures in 5 minutes
 - [x] CHK094 - Are biblical governance conflict notification requirements specified? [Gap, Spec §Edge Cases] ✓ Edge Cases: "Constitutional governance takes precedence; user is informed of constraint"
 
 ---
@@ -224,7 +224,7 @@
 - [x] CHK119 - Is "Total Memory Sovereignty" scope clear (what ISN'T remembered)? [Ambiguity] ✓ FIXED: FR-005 now lists exclusions: "temporary inference cache, expired session tokens, raw model weights during inference, intermediate computation buffers"
 - [x] CHK120 - Is biblical text source location/format specified (where do raw texts come from)? [Gap, Spec §FR-026] ✓ FR-026: "original Greek NA28/UBS5 New Testament and Hebrew BHS/WLC Old Testament from licensed digital sources"
 - [x] CHK121 - Are XR device requirements from US9 specified anywhere? [Gap, Spec §US9] ✓ Out of Scope: "XR/AR/VR interfaces (Future) - architecture support but no implementation"; FR-136: "SHOULD support XR/AR glasses"
-- [x] CHK122 - Is "feature-flagged" mechanism specified (how are flags configured)? [Gap] ✓ FIXED: FR-137-141 define feature flags via config/feature-flags.json with scopes, audit trail, runtime reload
+- [x] CHK122 - Is "feature-flagged" mechanism specified (how are flags configsured)? [Gap] ✓ FIXED: FR-137-141 define feature flags via configs/feature-flags.json with scopes, audit trail, runtime reload
 
 ### Potential Conflicts
 - [x] CHK123 - Can FR-002 (fully offline) coexist with FR-039 (8 cloud providers) without conflict? Document resolution. [Conflict Resolution] ✓ Clarifications: "local first"; FR-002 "core operations" offline; cloud providers are optional fallback

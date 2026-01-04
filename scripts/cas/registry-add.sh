@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-# Configuration
+# configsuration
 NOA_ROOT="${NOA_ROOT:-/n/noa}"
 CAS_ROOT="${CAS_ROOT:-${NOA_ROOT}/cas}"
 REGISTRY_DIR="${CAS_ROOT}/registry"

@@ -201,7 +201,7 @@ The system uses SQLite with the following tables:
   }
   ```
 
-## 🔧 Configuration
+## 🔧 configsuration
 
 ### Environment Variables
 
@@ -215,14 +215,14 @@ The system uses SQLite with the following tables:
 - Go: 1.23.4
 - Python: 3.12.8
 
-### Config and Schema Policy
+### configs and Schema Policy
 
-NOA uses a shared and centralized configuration system located in `/config/`. All configuration files follow a unified JSON schema defined in `/config/schemas/`, ensuring consistency and validation.
+NOA uses a shared and centralized configsuration system located in `/configs/`. All configsuration files follow a unified JSON schema defined in `/configs/schemas/`, ensuring consistency and validation.
 
-- **Metadata Structure**: Each config includes a `metadata` object with `version`, `description`, `updated_at`, and other provenance fields for auditability and change tracking.
-- **Schema Validation**: Configurations are validated against JSON schemas to prevent errors and ensure compliance with the universal task execution policy.
-- **Centralized Management**: Shared resources, providers, and features are configured centrally, with environment-specific overrides supported via `${NOA_ROOT}` variables.
-- **Version Control**: Configs are versioned and changes are tracked, with automated validation on commit.
+- **Metadata Structure**: Each configs includes a `metadata` object with `version`, `description`, `updated_at`, and other provenance fields for auditability and change tracking.
+- **Schema Validation**: configsurations are validated against JSON schemas to prevent errors and ensure compliance with the universal task execution policy.
+- **Centralized Management**: Shared resources, providers, and features are configsured centrally, with environment-specific overrides supported via `${NOA_ROOT}` variables.
+- **Version Control**: configss are versioned and changes are tracked, with automated validation on commit.
 
 ## 📚 Documentation
 
@@ -269,7 +269,7 @@ See `specs/001-noa-seed-foundation/` for:
 
 ---
 
-````markdown
+```markdown
 # NOA Unified Architecture (Directory Tree + System Graph)
 
 This consolidates the last few turns into **one coherent, commit-stable layout**:
@@ -358,7 +358,7 @@ noa/
 │  └─ task-kernel/                     # canonical task system
 │     ├─ schema/
 │     ├─ normalization/                # dedupe, conflict rules, canonicalization
-│     ├─ mapping/                      # per-task-app mapping configs
+│     ├─ mapping/                      # per-task-app mapping configss
 │     └─ sync/                         # ingest + emit pipelines
 │
 ├─ task/                               # work management (machine-first)
@@ -429,7 +429,7 @@ noa/
 │  ├─ logs/                            # bounded + rotated
 │  └─ cache/                           # bounded
 │
-├─ configs/                            # AI-native centralized config (3-layer)
+├─ configss/                            # AI-native centralized configs (3-layer)
 │  ├─ base/                            # Layer 1 immutable baseline (Nix-style)
 │  │  ├─ microkernel-layout/
 │  │  ├─ toolchain-versions/
@@ -526,7 +526,7 @@ noa/
    ├─ onboard-device/
    ├─ runbook-automation/
    └─ self-heal/                       # drift -> rollback/repair
-````
+```
 
 ---
 
@@ -565,7 +565,7 @@ flowchart TB
   TOOL --> VDB
   TOOL --> OBJ
 
-  %% sys/core enforcement + config layers
+  %% sys/core enforcement + configs layers
   subgraph CORE[sys/core]
     ID[Identity]
     POL[Policy + Capabilities]
@@ -579,7 +579,7 @@ flowchart TB
   TOOL -->|audit events| AUD
   REG --> GATE
 
-  subgraph CFG[AI-native Config (3 layers)]
+  subgraph CFG[AI-native configs (3 layers)]
     C1[Layer 1: Immutable Base\n(pinned toolchains, baseline schemas,\nrollback, sandbox defs)]
     C2[Layer 2: Mutable Semantic\n(prefs, device profiles,\nworld model metadata, hive state)]
     C3[Layer 3: Enforcement\n(validator/compiler/guardrails\ndrift monitor/self-correct)]
@@ -812,15 +812,11 @@ libp2p expands compute/storage **without expanding trust**:
 * Connectors that agents can call live at **`gateway/mcp/connectors/`**.
 * Execution happens in **sandbox**; durable outputs go to **CAS**.
 * Multiple task apps unify through **Task Kernel** (not by merging UIs first).
-* Configs follow **Layer1 base + Layer2 semantic + Layer3 enforcement**.
-
-```
+* configss follow **Layer1 base + Layer2 semantic + Layer3 enforcement**.
 
 If you want the next step that turns this from “architecture doc” into “machine-enforceable system,” it’s a single **schema compiler** that:
-1) validates `configs/base + configs/semantic`  
+1) validates `configss/base + configss/semantic`  
 2) emits `settings/resolved`  
 3) registers tools/connectors into `sys/core/registry`  
 4) generates the UI navigation (Tasks Hub + embedded panes) from the registry.
 ::contentReference[oaicite:0]{index=0}
-```
-

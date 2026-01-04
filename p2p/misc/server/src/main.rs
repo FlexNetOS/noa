@@ -17,15 +17,15 @@ use tracing_subscriber::EnvFilter;
 use zeroize::Zeroizing;
 
 mod behaviour;
-mod config;
+mod configs;
 mod http_service;
 
 #[derive(Debug, Parser)]
 #[command(name = "libp2p server", about = "A rust-libp2p server binary.")]
 struct Opts {
-    /// Path to IPFS config file.
+    /// Path to IPFS configs file.
     #[arg(long)]
-    config: PathBuf,
+    configs: PathBuf,
 
     /// Metric endpoint path.
     #[arg(long, default_value = "/metrics")]
@@ -48,21 +48,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let opt = Opts::parse();
 
-    let config = Zeroizing::new(config::Config::from_file(opt.config.as_path())?);
+    let configs = Zeroizing::new(configs::configs::from_file(opt.configs.as_path())?);
 
     let mut metric_registry = Registry::default();
 
     let local_keypair = {
         let keypair = identity::Keypair::from_protobuf_encoding(&Zeroizing::new(
             base64::engine::general_purpose::STANDARD
-                .decode(config.identity.priv_key.as_bytes())?,
+                .decode(configs.identity.priv_key.as_bytes())?,
         ))?;
 
         let peer_id = keypair.public().into();
         assert_eq!(
-            PeerId::from_str(&config.identity.peer_id)?,
+            PeerId::from_str(&configs.identity.peer_id)?,
             peer_id,
-            "Expect peer id derived from private key and peer id retrieved from config to match."
+            "Expect peer id derived from private key and peer id retrieved from configs to match."
         );
 
         keypair
@@ -71,13 +71,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_existing_identity(local_keypair)
         .with_tokio()
         .with_tcp(
-            tcp::Config::default().nodelay(true),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default().nodelay(true),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_quic()
         .with_dns()?
-        .with_websocket(noise::Config::new, yamux::Config::default)
+        .with_websocket(noise::configs::new, yamux::configs::default)
         .await?
         .with_bandwidth_metrics(&mut metric_registry)
         .with_behaviour(|key| {
@@ -85,10 +85,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })?
         .build();
 
-    if config.addresses.swarm.is_empty() {
-        tracing::warn!("No listen addresses configured");
+    if configs.addresses.swarm.is_empty() {
+        tracing::warn!("No listen addresses configsured");
     }
-    for address in &config.addresses.swarm {
+    for address in &configs.addresses.swarm {
         match swarm.listen_on(address.clone()) {
             Ok(_) => {}
             Err(e @ libp2p::TransportError::MultiaddrNotSupported(_)) => {
@@ -98,10 +98,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if config.addresses.append_announce.is_empty() {
-        tracing::warn!("No external addresses configured");
+    if configs.addresses.append_announce.is_empty() {
+        tracing::warn!("No external addresses configsured");
     }
-    for address in &config.addresses.append_announce {
+    for address in &configs.addresses.append_announce {
         swarm.add_external_address(address.clone())
     }
     tracing::info!(

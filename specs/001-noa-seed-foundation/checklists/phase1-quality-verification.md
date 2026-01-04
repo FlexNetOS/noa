@@ -31,7 +31,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK002** - Do all time-sensitive facts include source dates?
   **Status**: ✅ **PASS**
-  **Evidence**: All configuration files include version fields. Cargo.toml, package.json, pyproject.toml, go.mod all specify versions.
+  **Evidence**: All configsuration files include version fields. Cargo.toml, package.json, pyproject.toml, go.mod all specify versions.
 
 - [X] **CHK003** - Are all mathematical calculations shown digit-by-digit with formulae and assumptions?
   **Status**: ✅ **N/A**
@@ -158,9 +158,9 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
   - FR-031 → T004 → `opt/` → (verification in bootstrap)
   - FR-032 → T005 → `init/` → `init/bootstrap/dirs.sh`
   - FR-033 → T006 → `containers/` → (Docker compose tests)
-  - FR-034 → T007 → `config/` → (config validation)
+  - FR-034 → T007 → `configs/` → (configs validation)
   - FR-035 → T008 → `bin/` → (binary verification)
-  - FR-036 → T009 → `ai/` → (provider config validation)
+  - FR-036 → T009 → `ai/` → (provider configs validation)
 
 - [X] **CHK020** - Are constraints, supported OS/arch, and known failure modes stated?
   **Status**: ✅ **PASS**
@@ -237,14 +237,14 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
   **Action Required**: Add negative tests for:
   - Insufficient permissions
   - Missing prerequisites
-  - Invalid configuration
+  - Invalid configsuration
 
 - [ ] **CHK033** - Are boundary cases tested (min, max, empty, null)?
   **Status**: ⚠️ **PARTIAL**
   **Action Required**: Test:
   - Empty directory creation
   - Maximum path length
-  - Null/empty config values
+  - Null/empty configs values
 
 - [X] **CHK034** - Is cross-tool or cross-model verification performed?
   **Status**: ✅ **PASS**
@@ -324,13 +324,13 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
   **Evidence**:
   - CI pipeline runs `cargo fmt --all -- --check`
   - CI pipeline runs `cargo clippy --all-targets --all-features -- -D warnings`
-  - `pyproject.toml` configures ruff
+  - `pyproject.toml` configsures ruff
   - `package.json` includes eslint
 
 - [X] **CHK048** - Are magic numbers replaced with named constants?
   **Status**: ✅ **PASS**
   **Evidence**:
-  - Version numbers in config files (not magic numbers)
+  - Version numbers in configs files (not magic numbers)
   - Directory paths defined as constants in `sys/core/src/init/paths.rs`
 
 - [X] **CHK049** - Is dead code removed (no commented-out blocks, unused imports)?
@@ -351,7 +351,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
   **Evidence**:
   - Prerequisite check validates tool versions
   - Directory creation validates paths
-  - Config files validated on load
+  - configs files validated on load
 
 - [X] **CHK052** - Are all nullable values explicitly handled (Option, Result, ?.)?
   **Status**: ✅ **PASS**
@@ -391,7 +391,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK056** - Is `updated_at` timestamp maintained in all state-tracking files?
   **Status**: ⚠️ **PARTIAL**
-  **Evidence**: `config/bootstrap-state.json` may track timestamps. Other state files need verification.
+  **Evidence**: `configs/bootstrap-state.json` may track timestamps. Other state files need verification.
 
 - [X] **CHK057** - Are author/contributor attributions present where required?
   **Status**: ✅ **PASS**
@@ -403,14 +403,14 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK058** - Do all JSON schemas include `$schema` reference?
   **Status**: ✅ **PASS**
-  **Evidence**: Config schemas in `config/schemas/` include `$schema` references.
+  **Evidence**: configs schemas in `configs/schemas/` include `$schema` references.
 
-- [X] **CHK059** - Do all configs include `version` field for migration tracking?
+- [X] **CHK059** - Do all configss include `version` field for migration tracking?
   **Status**: ✅ **PASS**
   **Evidence**:
-  - `config/noa-server.json` includes version
-  - `config/ai-providers.json` includes version
-  - `config/features.json` includes version
+  - `configs/noa-server.json` includes version
+  - `configs/ai-providers.json` includes version
+  - `configs/features.json` includes version
 
 - [X] **CHK060** - Do all API contracts include version in URL or header?
   **Status**: ✅ **N/A**
@@ -426,10 +426,10 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
   **Status**: ✅ **PASS**
   **Evidence**: All Phase 1 tasks in `tasks.md` reference FR-029 to FR-036 and US1.
 
-- [X] **CHK063** - Are all config changes logged with reason and timestamp?
+- [X] **CHK063** - Are all configs changes logged with reason and timestamp?
   **Status**: ⚠️ **PARTIAL**
-  **Evidence**: Config files exist, but change log may need implementation.
-  **Action Required**: Implement config change logging.
+  **Evidence**: configs files exist, but change log may need implementation.
+  **Action Required**: Implement configs change logging.
 
 - [X] **CHK064** - Is every output versioned with delta records?
   **Status**: ✅ **N/A**
@@ -442,58 +442,58 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 ---
 
-## Category 6: Configuration Standardization
+## Category 6: configsuration Standardization
 
-### Config File Structure
+### configs File Structure
 
-- [X] **CHK066** - Do all JSON configs follow the established schema pattern?
+- [X] **CHK066** - Do all JSON configss follow the established schema pattern?
   **Status**: ✅ **PASS**
-  **Evidence**: Config files in `config/` follow consistent structure with schemas in `config/schemas/`.
+  **Evidence**: configs files in `configs/` follow consistent structure with schemas in `configs/schemas/`.
 
 - [X] **CHK067** - Are environment-specific values using `${ENV_VAR}` syntax consistently?
   **Status**: ✅ **PASS**
-  **Evidence**: Config templates use `${NOA_ROOT}` syntax consistently.
+  **Evidence**: configs templates use `${NOA_ROOT}` syntax consistently.
 
-- [X] **CHK068** - Are config files validated against JSON Schema on load?
+- [X] **CHK068** - Are configs files validated against JSON Schema on load?
   **Status**: ⚠️ **PARTIAL**
   **Evidence**: Schemas exist, but runtime validation needs verification.
-  **Action Required**: Verify config validation on load in initialization code.
+  **Action Required**: Verify configs validation on load in initialization code.
 
 - [X] **CHK069** - Are sensitive values stored in separate, gitignored files?
   **Status**: ✅ **PASS**
-  **Evidence**: `.gitignore` excludes sensitive files. Config templates use placeholders.
+  **Evidence**: `.gitignore` excludes sensitive files. configs templates use placeholders.
 
-### Config Consistency
+### configs Consistency
 
 - [X] **CHK070** - Are path patterns consistent (`noa_root/` vs `${NOA_ROOT}/`)?
   **Status**: ✅ **PASS**
-  **Evidence**: Consistent use of `${NOA_ROOT}` in scripts and configs.
+  **Evidence**: Consistent use of `${NOA_ROOT}` in scripts and configss.
 
-- [X] **CHK071** - Are boolean configs using consistent naming (`enabled`, not `isEnabled`)?
+- [X] **CHK071** - Are boolean configss using consistent naming (`enabled`, not `isEnabled`)?
   **Status**: ✅ **PASS**
-  **Evidence**: Config files use `enabled` consistently (not `isEnabled`).
+  **Evidence**: configs files use `enabled` consistently (not `isEnabled`).
 
 - [X] **CHK072** - Are timeouts/durations using consistent units (always ms or always s)?
   **Status**: ✅ **N/A**
-  **Reason**: Phase 1 configs do not define timeouts.
+  **Reason**: Phase 1 configss do not define timeouts.
 
 - [X] **CHK073** - Are priority/order fields using consistent scale (1-10 or low/medium/high)?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs use numeric priority (1-7) consistently.
+  **Evidence**: Provider configss use numeric priority (1-7) consistently.
 
-### Config Documentation
+### configs Documentation
 
-- [X] **CHK074** - Does each config file have an accompanying README or inline comments?
+- [X] **CHK074** - Does each configs file have an accompanying README or inline comments?
   **Status**: ⚠️ **PARTIAL**
-  **Evidence**: Some configs have comments. README files may be needed.
-  **Action Required**: Create `config/README.md` documenting all config files.
+  **Evidence**: Some configss have comments. README files may be needed.
+  **Action Required**: Create `configs/README.md` documenting all configs files.
 
-- [X] **CHK075** - Are all config options documented with type, default, and purpose?
+- [X] **CHK075** - Are all configs options documented with type, default, and purpose?
   **Status**: ⚠️ **PARTIAL**
   **Evidence**: Schemas document types. Defaults and purposes may need expansion.
   **Action Required**: Enhance schema descriptions with defaults and purposes.
 
-- [X] **CHK076** - Are config migration procedures documented for schema changes?
+- [X] **CHK076** - Are configs migration procedures documented for schema changes?
   **Status**: ✅ **N/A**
   **Reason**: Phase 1 is initial implementation, no migrations needed yet.
 
@@ -505,7 +505,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK077** - Do all schemas use JSON Schema draft-07 or later?
   **Status**: ✅ **PASS**
-  **Evidence**: Schemas in `config/schemas/` use `$schema: "http://json-schema.org/draft-07/schema#"`.
+  **Evidence**: Schemas in `configs/schemas/` use `$schema: "http://json-schema.org/draft-07/schema#"`.
 
 - [X] **CHK078** - Are all required fields marked with `required` array?
   **Status**: ✅ **PASS**
@@ -529,7 +529,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 - [X] **CHK082** - Do all data files pass schema validation?
   **Status**: ⚠️ **PARTIAL**
   **Evidence**: Schemas exist. Runtime validation needs verification.
-  **Action Required**: Run schema validation on all config files, document results.
+  **Action Required**: Run schema validation on all configs files, document results.
 
 - [X] **CHK083** - Are schema validation errors actionable (show path, expected, got)?
   **Status**: ⚠️ **PARTIAL**
@@ -544,7 +544,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK085** - Are schema versions tracked for migration support?
   **Status**: ✅ **PASS**
-  **Evidence**: Config files include `version` fields for tracking.
+  **Evidence**: configs files include `version` fields for tracking.
 
 - [X] **CHK086** - Are backward-compatible changes documented?
   **Status**: ✅ **N/A**
@@ -582,7 +582,7 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 - [X] **CHK093** - Is sensitive data NOT copied to outputs unless explicitly requested?
   **Status**: ✅ **PASS**
-  **Evidence**: `.gitignore` excludes sensitive files. Configs use placeholders.
+  **Evidence**: `.gitignore` excludes sensitive files. configss use placeholders.
 
 ---
 
@@ -744,36 +744,36 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 
 ---
 
-## Category 14: AI Provider Config Quality (NOA-Specific)
+## Category 14: AI Provider configs Quality (NOA-Specific)
 
-### Provider Config Schema
+### Provider configs Schema
 
-- [X] **CHK122** - Do all provider configs include: name, type, priority, enabled, description?
+- [X] **CHK122** - Do all provider configss include: name, type, priority, enabled, description?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs in `config/ai-providers.json` include all required fields.
+  **Evidence**: Provider configss in `configs/ai-providers.json` include all required fields.
 
-- [X] **CHK123** - Do all provider configs include: cli (command, package, version, binaryPath)?
+- [X] **CHK123** - Do all provider configss include: cli (command, package, version, binaryPath)?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs include CLI configuration.
+  **Evidence**: Provider configss include CLI configsuration.
 
-- [X] **CHK124** - Do all provider configs include: modes (cli, cloud, ide where applicable)?
+- [X] **CHK124** - Do all provider configss include: modes (cli, cloud, ide where applicable)?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs specify supported modes.
+  **Evidence**: Provider configss specify supported modes.
 
-- [X] **CHK125** - Do all provider configs include: capabilities object?
+- [X] **CHK125** - Do all provider configss include: capabilities object?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs include capabilities.
+  **Evidence**: Provider configss include capabilities.
 
-- [X] **CHK126** - Do all provider configs include: sharedResources paths?
+- [X] **CHK126** - Do all provider configss include: sharedResources paths?
   **Status**: ✅ **PASS**
-  **Evidence**: Provider configs reference `ai/shared/` paths.
+  **Evidence**: Provider configss reference `ai/shared/` paths.
 
-- [X] **CHK127** - Do all provider configs include: latency targets and timeout?
+- [X] **CHK127** - Do all provider configss include: latency targets and timeout?
   **Status**: ⚠️ **PARTIAL**
-  **Evidence**: Some provider configs may need latency/timeout fields.
-  **Action Required**: Verify all provider configs include latency targets and timeout.
+  **Evidence**: Some provider configss may need latency/timeout fields.
+  **Action Required**: Verify all provider configss include latency targets and timeout.
 
-### Provider Config Consistency
+### Provider configs Consistency
 
 - [X] **CHK128** - Are priority values unique across all providers (no duplicates)?
   **Status**: ✅ **PASS**
@@ -853,8 +853,8 @@ Phase 1 implementation has been verified against the Quality & Verification Chec
 3. Create `specs/001-noa-seed-foundation/COVERAGE.md` mapping requirements to artifacts (CHK012, CHK038)
 4. Implement smoke test scripts (CHK018)
 5. Add negative and boundary case tests (CHK032, CHK033)
-6. Enhance documentation (file headers, config README, script cross-platform mapping)
-7. Verify runtime config validation and schema validation error messages
+6. Enhance documentation (file headers, configs README, script cross-platform mapping)
+7. Verify runtime configs validation and schema validation error messages
 8. Record Triple-Verification results in Evidence Ledger (CHK036)
 
 ---

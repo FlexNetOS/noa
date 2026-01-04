@@ -6,11 +6,11 @@
 
 ## Purpose
 
-Define a concrete governance policy that maps directly to the fields in `docs/plans/config-audit-table.csv` and can be enforced prelaunch.
+Define a concrete governance policy that maps directly to the fields in `docs/plans/configs-audit-table.csv` and can be enforced prelaunch.
 
 ## Source of Truth
 
-- The asset registry CSV is the canonical inventory of config-like assets.
+- The asset registry CSV is the canonical inventory of configs-like assets.
 - Each row must be traceable via `truth_link`.
 
 ## Field Contract
@@ -27,7 +27,7 @@ Required fields for every row:
 
 ## Policy Mapping
 
-### 1) CAS / Hybrid Configuration Model (`docs/05-policy/config-cas.md`)
+### 1) CAS / Hybrid configsuration Model (`docs/05-policy/configs-cas.md`)
 
 Policy-to-field mapping:
 - `layer`
@@ -100,18 +100,18 @@ Policy-to-field mapping:
 - `planned_consumer` / `consumed_by`
 
 Enforcement:
-- Provider configs should be `versioning=semver` or `content-hash`.
-- Provider-related authoritative configs should be `lineage_required=yes`.
+- Provider configss should be `versioning=semver` or `content-hash`.
+- Provider-related authoritative configss should be `lineage_required=yes`.
 
 ## Enforcement Tooling
 
 The following scripts are the required enforcement surface:
-- `scripts/config/remove-bom.ps1`
-- `scripts/config/normalize-config-audit-csv.ps1`
-- `scripts/config/rebaseline-registry.ps1`
-- `scripts/config/validate-config-audit-table.ps1`
+- `scripts/configs/remove-bom.ps1`
+- `scripts/configs/normalize-configs-audit-csv.ps1`
+- `scripts/configs/rebaseline-registry.ps1`
+- `scripts/configs/validate-configs-audit-table.ps1`
 
 ## Change Control
 
 - Any change to an `authority=authoritative` row must update `truth_link` and keep `validation_mode` consistent.
-- Any new config-like file must be added to the registry.
+- Any new configs-like file must be added to the registry.

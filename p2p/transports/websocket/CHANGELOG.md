@@ -54,7 +54,7 @@
 - Raise MSRV to 1.65.
   See [PR 3715].
 
-- Remove `WsConfig::use_deflate` option.
+- Remove `Wsconfigs::use_deflate` option.
   This allows us to remove the dependency on the `zlib` shared library.
   See [PR 3949].
 
@@ -89,7 +89,7 @@
 
 - Update to `libp2p-core` `v0.34.0`.
 - Add `Transport::poll` and `Transport::remove_listener` and remove `Transport::Listener`
-  for `WsConfig`. See [PR 2652].
+  for `Wsconfigs`. See [PR 2652].
 
 [PR 2652]: https://github.com/libp2p/rust-libp2p/pull/2652
 
@@ -97,7 +97,7 @@
 
 - Update to `libp2p-core` `v0.33.0`.
 
-- Remove implementation of `Clone` on `WsConfig`. See [PR 2682].
+- Remove implementation of `Clone` on `Wsconfigs`. See [PR 2682].
 
 [PR 2682]: https://github.com/libp2p/rust-libp2p/pull/2682
 

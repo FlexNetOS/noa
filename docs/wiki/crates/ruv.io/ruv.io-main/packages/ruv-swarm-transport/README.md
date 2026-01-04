@@ -95,7 +95,7 @@ import { RuvSwarmTransport } from '@deflex.net/ruv-swarm-transport'
 
 // Create an instance
 const client = new RuvSwarmTransport({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -122,19 +122,19 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
-import { RuvSwarmTransport, Config } from '@deflex.net/ruv-swarm-transport'
+import { RuvSwarmTransport, configs } from '@deflex.net/ruv-swarm-transport'
 
-const config: Config = {
-  // Detailed configuration
+const configs: configs = {
+  // Detailed configsuration
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
 }
 
-const client = new RuvSwarmTransport(config)
+const client = new RuvSwarmTransport(configs)
 ```
 
 
@@ -153,7 +153,7 @@ First, import the package in your TypeScript/JavaScript file:
 
 ```typescript
 // ES Modules
-import { RuvSwarmTransport, Config } from '@deflex.net/ruv-swarm-transport'
+import { RuvSwarmTransport, configs } from '@deflex.net/ruv-swarm-transport'
 
 // CommonJS
 const { RuvSwarmTransport } = require('@deflex.net/ruv-swarm-transport')
@@ -161,11 +161,11 @@ const { RuvSwarmTransport } = require('@deflex.net/ruv-swarm-transport')
 
 ### Create an Instance
 
-Create a new instance with optional configuration:
+Create a new instance with optional configsuration:
 
 ```typescript
 const client = new RuvSwarmTransport({
-  // Configuration options
+  // configsuration options
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
@@ -234,13 +234,13 @@ try {
 #### Constructor
 
 ```typescript
-constructor(config?: Config)
+constructor(configs?: configs)
 ```
 
 Creates a new instance of `RuvSwarmTransport`.
 
 **Parameters:**
-- `config` (optional): Configuration object
+- `configs` (optional): configsuration object
 
 **Returns:**
 - Instance of `RuvSwarmTransport`
@@ -298,10 +298,10 @@ Close the client and release resources.
 await client.close()
 ```
 
-### Configuration Interface
+### configsuration Interface
 
 ```typescript
-interface Config {
+interface configs {
   timeout?: number        // Operation timeout in ms (default: 5000)
   retries?: number        // Number of retries (default: 3)
   logLevel?: LogLevel    // Logging level (default: 'info')
@@ -450,12 +450,12 @@ try {
 }
 ```
 
-### Example 5: Advanced Configuration
+### Example 5: Advanced configsuration
 
 ```typescript
-import { RuvSwarmTransport, Config, LogLevel } from '@deflex.net/ruv-swarm-transport'
+import { RuvSwarmTransport, configs, LogLevel } from '@deflex.net/ruv-swarm-transport'
 
-const config: Config = {
+const configs: configs = {
   timeout: 10000,
   retries: 5,
   logLevel: 'debug',
@@ -466,7 +466,7 @@ const config: Config = {
   cacheSize: 100
 }
 
-const client = new RuvSwarmTransport(config)
+const client = new RuvSwarmTransport(configs)
 
 // Process with advanced features
 const result = await client.process(data, {

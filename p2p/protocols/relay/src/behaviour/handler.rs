@@ -54,7 +54,7 @@ const MAX_CONCURRENT_STREAMS_PER_CONNECTION: usize = 10;
 const STREAM_TIMEOUT: Duration = Duration::from_secs(60);
 
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     pub reservation_duration: Duration,
     pub max_circuit_duration: Duration,
     pub max_circuit_bytes: u64,
@@ -340,8 +340,8 @@ impl fmt::Debug for Event {
 pub struct Handler {
     endpoint: ConnectedPoint,
 
-    /// Static [`Handler`] [`Config`].
-    config: Config,
+    /// Static [`Handler`] [`configs`].
+    configs: configs,
 
     /// Queue of events to return when polled.
     queued_events: VecDeque<
@@ -388,7 +388,7 @@ pub struct Handler {
 }
 
 impl Handler {
-    pub fn new(config: Config, endpoint: ConnectedPoint) -> Handler {
+    pub fn new(configs: configs, endpoint: ConnectedPoint) -> Handler {
         Handler {
             inbound_workers: futures_bounded::FuturesSet::new(
                 STREAM_TIMEOUT,
@@ -399,7 +399,7 @@ impl Handler {
                 MAX_CONCURRENT_STREAMS_PER_CONNECTION,
             ),
             endpoint,
-            config,
+            configs,
             queued_events: Default::default(),
             idle_at: None,
             reservation_request_future: Default::default(),
@@ -417,9 +417,9 @@ impl Handler {
             .inbound_workers
             .try_push(inbound_hop::handle_inbound_request(
                 stream,
-                self.config.reservation_duration,
-                self.config.max_circuit_duration,
-                self.config.max_circuit_bytes,
+                self.configs.reservation_duration,
+                self.configs.max_circuit_duration,
+                self.configs.max_circuit_bytes,
             ))
             .is_err()
         {
@@ -550,7 +550,7 @@ impl ConnectionHandler for Handler {
                     inbound_circuit_req,
                     src_peer_id,
                     src_connection_id,
-                    &self.config,
+                    &self.configs,
                 ));
                 self.queued_events
                     .push_back(ConnectionHandlerEvent::OutboundSubstreamRequest {
@@ -769,8 +769,8 @@ impl ConnectionHandler for Handler {
                         mut dst_stream,
                         dst_pending_data,
                     } = parts;
-                    let max_circuit_duration = self.config.max_circuit_duration;
-                    let max_circuit_bytes = self.config.max_circuit_bytes;
+                    let max_circuit_duration = self.configs.max_circuit_duration;
+                    let max_circuit_bytes = self.configs.max_circuit_bytes;
 
                     let circuit = async move {
                         let (result_1, result_2) = futures::future::join(
@@ -837,7 +837,7 @@ impl ConnectionHandler for Handler {
                         Ok(()) => {
                             let renewed = self
                                 .active_reservation
-                                .replace(Delay::new(self.config.reservation_duration))
+                                .replace(Delay::new(self.configs.reservation_duration))
                                 .is_some();
                             return Poll::Ready(ConnectionHandlerEvent::NotifyBehaviour(
                                 Event::ReservationReqAccepted { renewed },
@@ -934,15 +934,15 @@ impl PendingConnect {
         inbound_circuit_req: inbound_hop::CircuitReq,
         src_peer_id: PeerId,
         src_connection_id: ConnectionId,
-        config: &Config,
+        configs: &configs,
     ) -> Self {
         Self {
             circuit_id,
             inbound_circuit_req,
             src_peer_id,
             src_connection_id,
-            max_circuit_duration: config.max_circuit_duration,
-            max_circuit_bytes: config.max_circuit_bytes,
+            max_circuit_duration: configs.max_circuit_duration,
+            max_circuit_bytes: configs.max_circuit_bytes,
         }
     }
 }

@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Configure display forwarding for NDCL in Windows VM/Hyper-V scenarios (Phase 19 T876).
+    configsure display forwarding for NDCL in Windows VM/Hyper-V scenarios (Phase 19 T876).
 
 .DESCRIPTION
     Enables Enhanced Session Mode/RDP for the NOA desktop VM and prints the GPU-PV
-    configuration steps. Intended as a helper, not a one-click configurator.
+    configsuration steps. Intended as a helper, not a one-click configsurator.
 #>
 [CmdletBinding()]
 param(
@@ -26,12 +26,12 @@ if ($EnableEnhancedSession) {
 }
 
 if ($EnableGpuPv) {
-    Write-Host "  [INFO] Configuring GPU partitioning..." -ForegroundColor Yellow
+    Write-Host "  [INFO] configsuring GPU partitioning..." -ForegroundColor Yellow
     try {
         Set-VMGpuPartitionAdapter -VMName $VmName -MinPartitionVRAM 1073741824 -MaxPartitionVRAM 2147483648 -ErrorAction Stop
         Write-Host "  [OK] GPU-PV partition applied (1-2GB VRAM slice)" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] GPU-PV configuration failed: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] GPU-PV configsuration failed: $_" -ForegroundColor Yellow
         Write-Host "        Ensure your GPU/driver supports GPU partitioning." -ForegroundColor Gray
     }
 }

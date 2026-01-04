@@ -14,30 +14,30 @@ use libp2p_identity::{Keypair, PeerId};
 
 use super::{upgrade, Connection, Error};
 
-/// Config for the [`Transport`].
+/// configs for the [`Transport`].
 #[derive(Clone)]
-pub struct Config {
+pub struct configs {
     keypair: Keypair,
 }
 
 /// A WebTransport [`Transport`](libp2p_core::Transport) that works with `web-sys`.
 pub struct Transport {
-    config: Config,
+    configs: configs,
 }
 
-impl Config {
-    /// Constructs a new configuration for the [`Transport`].
+impl configs {
+    /// Constructs a new configsuration for the [`Transport`].
     pub fn new(keypair: &Keypair) -> Self {
-        Config {
+        configs {
             keypair: keypair.to_owned(),
         }
     }
 }
 
 impl Transport {
-    /// Constructs a new `Transport` with the given [`Config`].
-    pub fn new(config: Config) -> Transport {
-        Transport { config }
+    /// Constructs a new `Transport` with the given [`configs`].
+    pub fn new(configs: configs) -> Transport {
+        Transport { configs }
     }
 
     /// Wraps `Transport` in [`Boxed`] and makes it ready to be consumed by
@@ -90,11 +90,11 @@ impl libp2p_core::Transport for Transport {
             return Err(TransportError::MultiaddrNotSupported(addr));
         }
 
-        let config = self.config.clone();
+        let configs = self.configs.clone();
 
         Ok(async move {
             let (peer_id, connection) =
-                upgrade::outbound(sock_addr, server_fingerprint, config.keypair.clone()).await?;
+                upgrade::outbound(sock_addr, server_fingerprint, configs.keypair.clone()).await?;
 
             Ok((peer_id, connection))
         }

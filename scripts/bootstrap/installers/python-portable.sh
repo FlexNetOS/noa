@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/../lib/logging.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/platform.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/download.sh" 2>/dev/null || true
 
-# Configuration
+# configsuration
 PYTHON_VERSION="${PYTHON_VERSION:-3.12.8}"
 FORCE="${1:-}"
 
@@ -109,8 +109,8 @@ PIP_VERSION=$("$VENV_ROOT/bin/pip" --version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+
 log_success "Installed: Python v$VERSION"
 log_success "pip version: $PIP_VERSION"
 
-# Configure pip
-"$VENV_ROOT/bin/pip" config set global.cache-dir "$PIP_CACHE" 2>/dev/null || true
+# configsure pip
+"$VENV_ROOT/bin/pip" configs set global.cache-dir "$PIP_CACHE" 2>/dev/null || true
 
 # Save state
 cat > "$STATE_FILE" <<EOF

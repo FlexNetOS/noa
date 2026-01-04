@@ -42,8 +42,8 @@ macro_rules! impl_tcp_builder {
             ///     .with_tokio()
             ///     .with_tcp(
             ///         Default::default(),
-            ///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-            ///         libp2p_yamux::Config::default,
+            ///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+            ///         libp2p_yamux::configs::default,
             ///     )?
             /// # ;
             /// # Ok(())
@@ -51,7 +51,7 @@ macro_rules! impl_tcp_builder {
             /// ```
             pub fn with_tcp<SecUpgrade, SecStream, SecError, MuxUpgrade, MuxStream, MuxError>(
                 self,
-                tcp_config: libp2p_tcp::Config,
+                tcp_configs: libp2p_tcp::configs,
                 security_upgrade: SecUpgrade,
                 multiplexer_upgrade: MuxUpgrade,
             ) -> Result<
@@ -81,7 +81,7 @@ macro_rules! impl_tcp_builder {
             {
                 Ok(SwarmBuilder {
                     phase: QuicPhase {
-                        transport: libp2p_tcp::$path::Transport::new(tcp_config)
+                        transport: libp2p_tcp::$path::Transport::new(tcp_configs)
                             .upgrade(libp2p_core::upgrade::Version::V1Lazy)
                             .authenticate(
                                 security_upgrade.into_security_upgrade(&self.keypair)?,
@@ -126,14 +126,14 @@ impl SwarmBuilder<super::provider::Tokio, TcpPhase> {
 }
 #[cfg(all(not(target_arch = "wasm32"), feature = "quic", feature = "tokio"))]
 impl SwarmBuilder<super::provider::Tokio, TcpPhase> {
-    pub fn with_quic_config(
+    pub fn with_quic_configs(
         self,
-        constructor: impl FnOnce(libp2p_quic::Config) -> libp2p_quic::Config,
+        constructor: impl FnOnce(libp2p_quic::configs) -> libp2p_quic::configs,
     ) -> SwarmBuilder<
         super::provider::Tokio,
         OtherTransportPhase<impl AuthenticatedMultiplexedTransport>,
     > {
-        self.without_tcp().with_quic_config(constructor)
+        self.without_tcp().with_quic_configs(constructor)
     }
 }
 impl<Provider> SwarmBuilder<Provider, TcpPhase> {

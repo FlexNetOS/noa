@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Configure centralized logging for NOA.
+    configsure centralized logging for NOA.
 
 .DESCRIPTION
     Sets up log directories and rotation for all NOA components.
@@ -27,7 +27,7 @@ if (-not $NoaRoot) {
 
 $LOGS_DIR = Join-Path $NoaRoot "logs"
 
-Write-Host "Configuring centralized logging..." -ForegroundColor Cyan
+Write-Host "configsuring centralized logging..." -ForegroundColor Cyan
 Write-Host "NOA Root: $NoaRoot" -ForegroundColor Gray
 Write-Host "Logs Dir: $LOGS_DIR" -ForegroundColor Gray
 Write-Host ""
@@ -53,10 +53,10 @@ foreach ($logDir in $logDirs) {
     }
 }
 
-# Create log configuration file
-$logConfigPath = Join-Path $LOGS_DIR "log-config.json"
-$logConfig = @{
-    '$schema' = "https://noa.local/schemas/log-config.json"
+# Create log configsuration file
+$logconfigsPath = Join-Path $LOGS_DIR "log-configs.json"
+$logconfigs = @{
+    '$schema' = "https://noa.local/schemas/log-configs.json"
     version = "1.0.0"
     log_root = $LOGS_DIR
     directories = @{}
@@ -79,15 +79,15 @@ $logConfig = @{
 }
 
 foreach ($logDir in $logDirs) {
-    $logConfig.directories[$logDir.Name] = @{
+    $logconfigs.directories[$logDir.Name] = @{
         path = Join-Path $LOGS_DIR $logDir.Name
         description = $logDir.Description
     }
 }
 
-$logConfig | ConvertTo-Json -Depth 4 | Set-Content -Path $logConfigPath -Encoding UTF8
+$logconfigs | ConvertTo-Json -Depth 4 | Set-Content -Path $logconfigsPath -Encoding UTF8
 Write-Host ""
-Write-Host "Log configuration saved to: $logConfigPath" -ForegroundColor Green
+Write-Host "Log configsuration saved to: $logconfigsPath" -ForegroundColor Green
 
 # Create .gitignore for logs
 $gitignorePath = Join-Path $LOGS_DIR ".gitignore"

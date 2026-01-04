@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$Path = "N:\noa\docs\plans\config-audit-table.csv"
+    [string]$Path = "N:\noa\docs\plans\configs-audit-table.csv"
 )
 
 Set-StrictMode -Version Latest

@@ -143,20 +143,20 @@ REM Required for Abacus CLI authentication (AI provider)
 $wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
 Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
 
-# Update provider config
-$providerConfig = Join-Path $NoaRoot "ai\providers\cloud\abacus\config.json"
-if (Test-Path $providerConfig) {
-    Write-Host "  [INFO] Updating provider configuration..." -ForegroundColor Yellow
+# Update provider configs
+$providerconfigs = Join-Path $NoaRoot "ai\providers\cloud\abacus\configs.json"
+if (Test-Path $providerconfigs) {
+    Write-Host "  [INFO] Updating provider configsuration..." -ForegroundColor Yellow
 
     try {
-        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+        $configs = Get-Content $providerconfigs -Raw | ConvertFrom-Json
 
         # Add desktop binary path
-        if (-not $config.PSObject.Properties['desktop']) {
-            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        if (-not $configs.PSObject.Properties['desktop']) {
+            $configs | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
         }
 
-        $config.desktop = @{
+        $configs.desktop = @{
             binaryPath = @{
                 windows = "`${NOA_ROOT}/opt/abacus-desktop/$($abacusExe.Name)"
                 unix = "`${NOA_ROOT}/opt/abacus-desktop/bin/abacus"
@@ -167,10 +167,10 @@ if (Test-Path $providerConfig) {
             }
         }
 
-        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
-        Write-Host "  [OK] Updated provider config: $providerConfig" -ForegroundColor Green
+        $configs | ConvertTo-Json -Depth 10 | Set-Content $providerconfigs -Encoding UTF8
+        Write-Host "  [OK] Updated provider configs: $providerconfigs" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] Failed to update provider configs: $_" -ForegroundColor Yellow
     }
 }
 

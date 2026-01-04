@@ -9,15 +9,15 @@ use libp2p_core::{
 };
 use libp2p_identity::{Keypair, PeerId};
 use libp2p_noise as noise;
-use libp2p_webtransport_websys::{Config, Connection, Error, Stream, Transport};
+use libp2p_webtransport_websys::{configs, Connection, Error, Stream, Transport};
 use multiaddr::{Multiaddr, Protocol};
 use multihash::Multihash;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::{spawn_local, JsFuture};
-use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configure};
+use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configsure};
 use web_sys::{window, Response};
 
-wasm_bindgen_test_configure!(run_in_browser);
+wasm_bindgen_test_configsure!(run_in_browser);
 
 #[wasm_bindgen_test]
 pub async fn single_conn_single_stream() {
@@ -265,7 +265,7 @@ pub async fn connect_without_peer_id() {
     // Remove peer id
     addr.pop();
 
-    let mut transport = Transport::new(Config::new(&keypair));
+    let mut transport = Transport::new(configs::new(&keypair));
     transport
         .dial(
             addr,
@@ -290,7 +290,7 @@ pub async fn error_on_unknown_peer_id() {
     // Add an unknown one
     addr.push(Protocol::P2p(PeerId::random()));
 
-    let mut transport = Transport::new(Config::new(&keypair));
+    let mut transport = Transport::new(configs::new(&keypair));
     let e = transport
         .dial(
             addr.clone(),
@@ -319,7 +319,7 @@ pub async fn error_on_unknown_certhash() {
     // Add peer id back
     addr.push(peer_id);
 
-    let mut transport = Transport::new(Config::new(&keypair));
+    let mut transport = Transport::new(configs::new(&keypair));
     let e = transport
         .dial(
             addr.clone(),
@@ -341,7 +341,7 @@ async fn new_connection_to_echo_server() -> Connection {
     let addr = fetch_server_addr().await;
     let keypair = Keypair::generate_ed25519();
 
-    let mut transport = Transport::new(Config::new(&keypair));
+    let mut transport = Transport::new(configs::new(&keypair));
 
     let (_peer_id, conn) = transport
         .dial(

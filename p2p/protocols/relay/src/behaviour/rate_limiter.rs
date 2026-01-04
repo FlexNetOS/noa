@@ -39,13 +39,13 @@ pub trait RateLimiter: Send {
     fn try_next(&mut self, peer: PeerId, addr: &Multiaddr, now: Instant) -> bool;
 }
 
-pub(crate) fn new_per_peer(config: GenericRateLimiterConfig) -> Box<dyn RateLimiter> {
-    let mut limiter = GenericRateLimiter::new(config);
+pub(crate) fn new_per_peer(configs: GenericRateLimiterconfigs) -> Box<dyn RateLimiter> {
+    let mut limiter = GenericRateLimiter::new(configs);
     Box::new(move |peer_id, _addr: &Multiaddr, now| limiter.try_next(peer_id, now))
 }
 
-pub(crate) fn new_per_ip(config: GenericRateLimiterConfig) -> Box<dyn RateLimiter> {
-    let mut limiter = GenericRateLimiter::new(config);
+pub(crate) fn new_per_ip(configs: GenericRateLimiterconfigs) -> Box<dyn RateLimiter> {
+    let mut limiter = GenericRateLimiter::new(configs);
     Box::new(move |_peer_id, addr: &Multiaddr, now| {
         multiaddr_to_ip(addr)
             .map(|a| limiter.try_next(a, now))
@@ -78,9 +78,9 @@ pub(crate) struct GenericRateLimiter<Id> {
     buckets: HashMap<Id, u32>,
 }
 
-/// Configuration for a [`GenericRateLimiter`].
+/// configsuration for a [`GenericRateLimiter`].
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct GenericRateLimiterConfig {
+pub(crate) struct GenericRateLimiterconfigs {
     // The maximum number of tokens in the bucket at any point in time.
     pub(crate) limit: NonZeroU32,
     // The interval at which a single token is added to the bucket.
@@ -88,12 +88,12 @@ pub(crate) struct GenericRateLimiterConfig {
 }
 
 impl<Id: Eq + PartialEq + Hash + Clone> GenericRateLimiter<Id> {
-    pub(crate) fn new(config: GenericRateLimiterConfig) -> Self {
-        assert!(!config.interval.is_zero());
+    pub(crate) fn new(configs: GenericRateLimiterconfigs) -> Self {
+        assert!(!configs.interval.is_zero());
 
         Self {
-            limit: config.limit.into(),
-            interval: config.interval,
+            limit: configs.limit.into(),
+            interval: configs.interval,
             refill_schedule: Default::default(),
             buckets: Default::default(),
         }
@@ -179,7 +179,7 @@ mod tests {
     #[test]
     fn first() {
         let id = 1;
-        let mut l = GenericRateLimiter::new(GenericRateLimiterConfig {
+        let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs {
             limit: NonZeroU32::new(10).unwrap(),
             interval: Duration::from_secs(1),
         });
@@ -190,7 +190,7 @@ mod tests {
     fn limits() {
         let id = 1;
         let now = Instant::now();
-        let mut l = GenericRateLimiter::new(GenericRateLimiterConfig {
+        let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs {
             limit: NonZeroU32::new(10).unwrap(),
             interval: Duration::from_secs(1),
         });
@@ -205,7 +205,7 @@ mod tests {
     fn refills() {
         let id = 1;
         let now = Instant::now();
-        let mut l = GenericRateLimiter::new(GenericRateLimiterConfig {
+        let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs {
             limit: NonZeroU32::new(10).unwrap(),
             interval: Duration::from_secs(1),
         });
@@ -229,7 +229,7 @@ mod tests {
     fn move_at_half_interval_steps() {
         let id = 1;
         let now = Instant::now();
-        let mut l = GenericRateLimiter::new(GenericRateLimiterConfig {
+        let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs {
             limit: NonZeroU32::new(1).unwrap(),
             interval: Duration::from_secs(2),
         });
@@ -247,7 +247,7 @@ mod tests {
     #[test]
     fn garbage_collects() {
         let now = Instant::now();
-        let mut l = GenericRateLimiter::new(GenericRateLimiterConfig {
+        let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs {
             limit: NonZeroU32::new(1).unwrap(),
             interval: Duration::from_secs(1),
         });
@@ -269,7 +269,7 @@ mod tests {
             }
 
             let mut now = Instant::now();
-            let mut l = GenericRateLimiter::new(GenericRateLimiterConfig { limit, interval });
+            let mut l = GenericRateLimiter::new(GenericRateLimiterconfigs { limit, interval });
 
             for (id, d) in events {
                 now = if let Some(now) = now.checked_add(d) {

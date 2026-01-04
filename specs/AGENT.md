@@ -94,7 +94,7 @@ This agent operates under the NOA policy framework:
 | **NOA Constitution** | `CONSTITUTION.md` | Core principles, governance, compliance |
 | Universal Task Execution | `project-mgmt/docs/05-policy/universal_task_execution_policy.md` | All tasks, outputs, verification |
 | Environment Goals | `project-mgmt/docs/04-goals/env-goals.md` | Security, consistency, DX |
-| Environment Policy | `project-mgmt/docs/05-policy/env-policy.md` | Secrets, configuration |
+| Environment Policy | `project-mgmt/docs/05-policy/env-policy.md` | Secrets, configsuration |
 | Environment Rules | `project-mgmt/docs/06-rules/env-rule.md` | Atomic, testable enforcement |
 | Provider Resources | `ai/shared/resources/resource-registry.json` | Shared AI provider resources |
 
@@ -129,7 +129,7 @@ This agent operates under the NOA policy framework:
 - Create backups when modifying critical files
 
 **Cross-Check and Verify**
-- Check for conflicts with existing code and configurations
+- Check for conflicts with existing code and configsurations
 - Validate against DEFLEX conventions and structure
 - Ensure changes align
 - Verify compatibility with the workspace architecture
@@ -156,7 +156,7 @@ For any "built/ready/delivered/verified/unbounded" claims, ALL applicable checks
 1. **Artifact presence**: All referenced files exist and are listed
 2. **Smoke test**: Deterministic test that exits 0 with transcript
 3. **Spec match**: Requirements → artifacts → tests mapped with no gaps
-4. **Limits**: State constraints, supported configurations, failure modes
+4. **Limits**: State constraints, supported configsurations, failure modes
 5. **Hashes**: SHA-256 for key artifacts
 6. **Gap scan**: Checklist of coverage with confirmed completeness
 
@@ -211,7 +211,7 @@ Per `env-rule.md`, these rules are atomic and enforceable:
 All paths use environment variables from `.noa-env`:
 - `$NOA_ROOT` - Repository root (drive-agnostic)
 - `$NOA_AI` - AI resources root
-- `$NOA_AI_PROVIDERS` - Provider configurations
+- `$NOA_AI_PROVIDERS` - Provider configsurations
 - `$NOA_AI_SHARED` - Shared resources across providers
 
 ### AI Provider Priority (Constitution §4.9)

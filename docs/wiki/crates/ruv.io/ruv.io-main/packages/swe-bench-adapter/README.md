@@ -92,7 +92,7 @@ import { SweBenchAdapter } from '@deflex.net/swe-bench-adapter'
 
 // Create an instance
 const client = new SweBenchAdapter({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -119,19 +119,19 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
-import { SweBenchAdapter, Config } from '@deflex.net/swe-bench-adapter'
+import { SweBenchAdapter, configs } from '@deflex.net/swe-bench-adapter'
 
-const config: Config = {
-  // Detailed configuration
+const configs: configs = {
+  // Detailed configsuration
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
 }
 
-const client = new SweBenchAdapter(config)
+const client = new SweBenchAdapter(configs)
 ```
 
 
@@ -150,7 +150,7 @@ First, import the package in your TypeScript/JavaScript file:
 
 ```typescript
 // ES Modules
-import { SweBenchAdapter, Config } from '@deflex.net/swe-bench-adapter'
+import { SweBenchAdapter, configs } from '@deflex.net/swe-bench-adapter'
 
 // CommonJS
 const { SweBenchAdapter } = require('@deflex.net/swe-bench-adapter')
@@ -158,11 +158,11 @@ const { SweBenchAdapter } = require('@deflex.net/swe-bench-adapter')
 
 ### Create an Instance
 
-Create a new instance with optional configuration:
+Create a new instance with optional configsuration:
 
 ```typescript
 const client = new SweBenchAdapter({
-  // Configuration options
+  // configsuration options
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
@@ -231,13 +231,13 @@ try {
 #### Constructor
 
 ```typescript
-constructor(config?: Config)
+constructor(configs?: configs)
 ```
 
 Creates a new instance of `SweBenchAdapter`.
 
 **Parameters:**
-- `config` (optional): Configuration object
+- `configs` (optional): configsuration object
 
 **Returns:**
 - Instance of `SweBenchAdapter`
@@ -295,10 +295,10 @@ Close the client and release resources.
 await client.close()
 ```
 
-### Configuration Interface
+### configsuration Interface
 
 ```typescript
-interface Config {
+interface configs {
   timeout?: number        // Operation timeout in ms (default: 5000)
   retries?: number        // Number of retries (default: 3)
   logLevel?: LogLevel    // Logging level (default: 'info')
@@ -447,12 +447,12 @@ try {
 }
 ```
 
-### Example 5: Advanced Configuration
+### Example 5: Advanced configsuration
 
 ```typescript
-import { SweBenchAdapter, Config, LogLevel } from '@deflex.net/swe-bench-adapter'
+import { SweBenchAdapter, configs, LogLevel } from '@deflex.net/swe-bench-adapter'
 
-const config: Config = {
+const configs: configs = {
   timeout: 10000,
   retries: 5,
   logLevel: 'debug',
@@ -463,7 +463,7 @@ const config: Config = {
   cacheSize: 100
 }
 
-const client = new SweBenchAdapter(config)
+const client = new SweBenchAdapter(configs)
 
 // Process with advanced features
 const result = await client.process(data, {

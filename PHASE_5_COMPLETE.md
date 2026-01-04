@@ -25,7 +25,7 @@ Comprehensive resource catalog with 5 main sections:
 | Embedding Agent | `tmpl:embedding_agent` | llama_cpp | 1 capability | Vector embeddings |
 
 **Template Features**:
-- Provider configuration
+- Provider configsuration
 - Capability requirements
 - Resource constraints (sandbox, memory, execution time)
 - Budget limits
@@ -83,7 +83,7 @@ Comprehensive resource catalog with 5 main sections:
 1. **Validate Template** - Verify template exists in registry
 2. **Check Capabilities** - Ensure required capabilities available
 3. **Allocate Resources** - Reserve memory and compute
-4. **Initialize Agent** - Create agent configuration
+4. **Initialize Agent** - Create agent configsuration
 5. **Register** - Add to system registry
 6. **Health Check** - Verify agent operational
 
@@ -97,7 +97,7 @@ bash scripts/agents/deploy-agent.sh claude_code_agent my_coding_assistant
 
 **Output**:
 - Agent ID
-- Configuration file location
+- configsuration file location
 - Registration confirmation
 - Health check status
 
@@ -252,7 +252,7 @@ bash scripts/agents/deploy-agent.sh claude_code_agent coding_assistant_001
 #
 # [4/6] Initializing agent...
 #   Agent ID: agent:coding_assistant_001
-#   Config: /tmp/coding_assistant_001_config.json
+#   configs: /tmp/coding_assistant_001_configs.json
 #   ✓ Agent initialized
 #
 # [5/6] Registering with system registry...
@@ -383,7 +383,7 @@ echo "$PROMPT"
 | Agent Deployment | `scripts/agents/deploy-agent.sh` | Deploy agent from template |
 | Model Deployment | `scripts/models/deploy-model.sh` | Deploy model to CAS |
 
-**Total Lines**: ~800 lines (configs + scripts)
+**Total Lines**: ~800 lines (configss + scripts)
 
 ---
 
@@ -398,7 +398,7 @@ echo "$PROMPT"
   "version": "1.0.0",
   "provider": "provider_id",
   "capabilities": ["cap1", "cap2"],
-  "configuration": {
+  "configsuration": {
     "model": "model-name",
     "max_tokens": 8192,
     "temperature": 0.7,
@@ -513,7 +513,7 @@ Global resource limits prevent abuse:
 | Total Tools | 18 |
 | Prompt Templates | 3 |
 | Deployment Workflows | 2 |
-| Lines of Code/Config | ~800 |
+| Lines of Code/configs | ~800 |
 | Implementation Time | ~1 hour |
 
 ### Resource Coverage
@@ -555,7 +555,7 @@ From fix plan: Third-party Tool Integration
 ### Short-term (Phase 7)
 
 Validation and Testing:
-- Schema validation for all configs
+- Schema validation for all configss
 - Build tests for deployment scripts
 - Integration tests for agent deployment
 - End-to-end workflow tests

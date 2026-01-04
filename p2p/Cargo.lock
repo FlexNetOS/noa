@@ -1749,7 +1749,7 @@ dependencies = [
  "cfg-if",
  "futures-util",
  "hickory-proto",
- "ipconfig",
+ "ipconfigs",
  "moka",
  "once_cell",
  "parking_lot",
@@ -1958,7 +1958,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "socket2 0.6.0",
- "system-configuration",
+ "system-configsuration",
  "tokio",
  "tower-service",
  "tracing",
@@ -2142,7 +2142,7 @@ dependencies = [
  "netlink-proto",
  "netlink-sys",
  "rtnetlink",
- "system-configuration",
+ "system-configsuration",
  "tokio",
  "windows 0.53.0",
 ]
@@ -2258,7 +2258,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ipconfig"
+name = "ipconfigs"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b58db92f96b720de98181bbbe63c831e87005ab460c1bf306eb2622b4707997f"
@@ -3862,7 +3862,7 @@ checksum = "8288979acd84749c744a9014b4382d42b8f7b2592847b5afb2ed29e5d16ede07"
 dependencies = [
  "cc",
  "libc",
- "pkg-config",
+ "pkg-configs",
  "vcpkg",
 ]
 
@@ -4156,7 +4156,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pkg-config"
+name = "pkg-configs"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
@@ -5446,18 +5446,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "system-configuration"
+name = "system-configsuration"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c879d448e9d986b661742763247d3693ed13609438cf3d006f51f5368a5ba6b"
 dependencies = [
  "bitflags 2.9.0",
  "core-foundation",
- "system-configuration-sys",
+ "system-configsuration-sys",
 ]
 
 [[package]]
-name = "system-configuration-sys"
+name = "system-configsuration-sys"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e1d1b10ced5ca923a1fcb8d03e96b8d3268065d724548c0211415ff6ac6bac4"

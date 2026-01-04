@@ -35,7 +35,7 @@ pub enum Event {
         /// [`MemoryStore::add_address`], `false` if the address was discovered through the
         /// swarm or other behaviors.
         ///
-        /// Only relevant when [`Config::is_remove_addr_on_dial_error`] is `true`.
+        /// Only relevant when [`configs::is_remove_addr_on_dial_error`] is `true`.
         is_permanent: bool,
     },
     /// A peer address has been removed from the store.
@@ -54,18 +54,18 @@ pub struct MemoryStore<T = ()> {
     records: LruCache<PeerId, PeerRecord<T>>,
     /// Events to emit to [`Behaviour`](crate::Behaviour) and [`Swarm`](libp2p_swarm::Swarm).
     pending_events: VecDeque<Event>,
-    /// Config of the store.
-    config: Config,
+    /// configs of the store.
+    configs: configs,
     /// Waker for store events.
     waker: Option<Waker>,
 }
 
 impl<T> MemoryStore<T> {
-    /// Create a new [`MemoryStore`] with the given config.
-    pub fn new(config: Config) -> Self {
+    /// Create a new [`MemoryStore`] with the given configs.
+    pub fn new(configs: configs) -> Self {
         Self {
-            records: LruCache::new(config.peer_capacity().get()),
-            config,
+            records: LruCache::new(configs.peer_capacity().get()),
+            configs,
             pending_events: VecDeque::default(),
             waker: None,
         }
@@ -95,7 +95,7 @@ impl<T> MemoryStore<T> {
         let record = self
             .records
             .entry(*peer)
-            .or_insert_with(|| PeerRecord::new(self.config.record_capacity));
+            .or_insert_with(|| PeerRecord::new(self.configs.record_capacity));
         let is_new = record.add_address(address, is_permanent);
         if is_new {
             self.push_event_and_wake(Event::PeerAddressAdded {
@@ -156,7 +156,7 @@ impl<T> MemoryStore<T> {
         if let Some(r) = self.records.get_mut(peer) {
             return r.insert_custom_data(custom_data);
         }
-        let mut new_record = PeerRecord::new(self.config.record_capacity);
+        let mut new_record = PeerRecord::new(self.configs.record_capacity);
         new_record.insert_custom_data(custom_data);
         self.records.insert(*peer, new_record);
     }
@@ -202,7 +202,7 @@ impl<T> Store for MemoryStore<T> {
                 endpoint,
                 ..
             }) if endpoint.is_dialer() => {
-                if self.config.remove_addr_on_dial_error {
+                if self.configs.remove_addr_on_dial_error {
                     for failed_addr in *failed_addresses {
                         self.remove_address_inner(peer_id, failed_addr, false);
                     }
@@ -210,7 +210,7 @@ impl<T> Store for MemoryStore<T> {
                 self.add_address_inner(peer_id, endpoint.get_remote_address(), false);
             }
             FromSwarm::DialFailure(info) => {
-                if !self.config.remove_addr_on_dial_error {
+                if !self.configs.remove_addr_on_dial_error {
                     return;
                 }
 
@@ -253,15 +253,15 @@ impl<T> Store for MemoryStore<T> {
     }
 }
 
-/// Config for [`MemoryStore`]. The available options are documented via their setters.
+/// configs for [`MemoryStore`]. The available options are documented via their setters.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     peer_capacity: NonZeroUsize,
     record_capacity: NonZeroUsize,
     remove_addr_on_dial_error: bool,
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
             peer_capacity: NonZeroUsize::try_from(1000).expect("1000 > 0"),
@@ -271,7 +271,7 @@ impl Default for Config {
     }
 }
 
-impl Config {
+impl configs {
     pub fn peer_capacity(&self) -> &NonZeroUsize {
         &self.peer_capacity
     }
@@ -491,12 +491,12 @@ mod test {
         }
 
         let store1: MemoryStore<()> = MemoryStore::new(
-            crate::memory_store::Config::default()
+            crate::memory_store::configs::default()
                 .set_record_capacity(NonZero::new(2).expect("2 > 0")),
         );
         let mut swarm1 = Swarm::new_ephemeral_tokio(|_| crate::Behaviour::new(store1));
         let store2: MemoryStore<()> = MemoryStore::new(
-            crate::memory_store::Config::default()
+            crate::memory_store::configs::default()
                 .set_record_capacity(NonZero::new(2).expect("2 > 0")),
         );
         let mut swarm2 = Swarm::new_ephemeral_tokio(|_| crate::Behaviour::new(store2));
@@ -586,10 +586,10 @@ mod test {
         fn build_swarm() -> Swarm<Behaviour> {
             Swarm::new_ephemeral_tokio(|kp| Behaviour {
                 peer_store: crate::Behaviour::new(MemoryStore::new(
-                    crate::memory_store::Config::default()
+                    crate::memory_store::configs::default()
                         .set_record_capacity(NonZero::new(4).expect("4 > 0")),
                 )),
-                identify: identify::Behaviour::new(identify::Config::new(
+                identify: identify::Behaviour::new(identify::configs::new(
                     "/TODO/0.0.1".to_string(),
                     kp.public(),
                 )),

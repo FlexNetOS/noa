@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/../lib/logging.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/platform.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/download.sh" 2>/dev/null || true
 
-# Configuration
+# configsuration
 PROTOC_VERSION="${PROTOC_VERSION:-28.3}"
 FORCE="${1:-}"
 

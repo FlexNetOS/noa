@@ -5,10 +5,10 @@
 .DESCRIPTION
     Sets up the complete NOA environment including:
     - Directory structure
-    - Environment configuration
+    - Environment configsuration
     - Tool downloads
     - PowerShell profile integration
-    - Git configuration
+    - Git configsuration
 
 .PARAMETER SkipTools
     Skip downloading optional tools (jq, rg, fd, bat)
@@ -52,7 +52,7 @@ Write-Host "1. Creating directory structure..." -ForegroundColor Yellow
 
 $dirs = @(
     "ai", "ai/shared", "ai/providers", "ai/devices", "ai/orchestration",
-    "bin", "config", "containers", "etc", "git", "git/repos", "git/prs",
+    "bin", "configs", "containers", "etc", "git", "git/repos", "git/prs",
     "git/conflicts", "git/ci-cd", "git/mirrors", "init", "lib", "logs",
     "opt", "p2p", "p2p/storage", "repos", "scripts", "sys", "sys/namespace",
     "sys/cgroup", "sys/kernel", "sys/kernel/params", "tmp", "workspace"
@@ -81,27 +81,27 @@ $env:PATH = "$env:NOA_BIN;$env:NOA_SCRIPTS;$env:PATH"
 Write-Host "  NOA_ROOT = $env:NOA_ROOT" -ForegroundColor Green
 
 # ============================================
-# 3. Configure Git
+# 3. configsure Git
 # ============================================
 Write-Host ""
-Write-Host "3. Checking Git configuration..." -ForegroundColor Yellow
+Write-Host "3. Checking Git configsuration..." -ForegroundColor Yellow
 
-$gitUser = git config --global user.name 2>$null
-$gitEmail = git config --global user.email 2>$null
+$gitUser = git configs --global user.name 2>$null
+$gitEmail = git configs --global user.email 2>$null
 
 if (-not $gitUser) {
     Write-Host "  [WARNING] Git user.name not set" -ForegroundColor Yellow
-    Write-Host "  Run: git config --global user.name 'Your Name'" -ForegroundColor Gray
+    Write-Host "  Run: git configs --global user.name 'Your Name'" -ForegroundColor Gray
 }
 if (-not $gitEmail) {
     Write-Host "  [WARNING] Git user.email not set" -ForegroundColor Yellow
-    Write-Host "  Run: git config --global user.email 'you@example.com'" -ForegroundColor Gray
+    Write-Host "  Run: git configs --global user.email 'you@example.com'" -ForegroundColor Gray
 }
 
 # Set safe editor
-$gitEditor = git config --global core.editor 2>$null
+$gitEditor = git configs --global core.editor 2>$null
 if (-not $gitEditor -or $gitEditor -match "code.*--wait") {
-    git config --global core.editor "notepad"
+    git configs --global core.editor "notepad"
     Write-Host "  [SET] core.editor = notepad" -ForegroundColor Green
 }
 

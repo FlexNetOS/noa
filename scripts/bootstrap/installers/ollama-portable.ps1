@@ -167,20 +167,20 @@ IF NOT EXIST "%OLLAMA_EXE%" (
 $wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
 Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
 
-# Update provider config
-$providerConfig = Join-Path $NoaRoot "ai\providers\local\ollama\config.json"
-if (Test-Path $providerConfig) {
-    Write-Host "  [INFO] Updating provider configuration..." -ForegroundColor Yellow
+# Update provider configs
+$providerconfigs = Join-Path $NoaRoot "ai\providers\local\ollama\configs.json"
+if (Test-Path $providerconfigs) {
+    Write-Host "  [INFO] Updating provider configsuration..." -ForegroundColor Yellow
     
     try {
-        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+        $configs = Get-Content $providerconfigs -Raw | ConvertFrom-Json
         
         # Add binary paths
-        if (-not $config.PSObject.Properties['cli']) {
-            $config | Add-Member -MemberType NoteProperty -Name 'cli' -Value @{} -Force
+        if (-not $configs.PSObject.Properties['cli']) {
+            $configs | Add-Member -MemberType NoteProperty -Name 'cli' -Value @{} -Force
         }
         
-        $config.cli = @{
+        $configs.cli = @{
             command = "ollama"
             binaryPath = @{
                 windows = "`${NOA_ROOT}/opt/ollama/ollama.exe"
@@ -192,10 +192,10 @@ if (Test-Path $providerConfig) {
             }
         }
         
-        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
-        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+        $configs | ConvertTo-Json -Depth 10 | Set-Content $providerconfigs -Encoding UTF8
+        Write-Host "  [OK] Updated provider configs" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] Failed to update provider configs: $_" -ForegroundColor Yellow
     }
 }
 

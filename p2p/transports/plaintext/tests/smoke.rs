@@ -45,8 +45,8 @@ fn variable_msg_length() {
                 (received_client_id, mut server_channel),
                 (received_server_id, mut client_channel),
             ) = futures::future::try_join(
-                plaintext::Config::new(&server_id).upgrade_inbound(server, ""),
-                plaintext::Config::new(&client_id).upgrade_inbound(client, ""),
+                plaintext::configs::new(&server_id).upgrade_inbound(server, ""),
+                plaintext::configs::new(&client_id).upgrade_inbound(client, ""),
             )
             .await
             .unwrap();

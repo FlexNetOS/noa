@@ -61,7 +61,7 @@ use std::{
 };
 
 use handler::Handler;
-pub use handler::{Config, Failure};
+pub use handler::{configs, Failure};
 use libp2p_core::{transport::PortUse, Endpoint, Multiaddr};
 use libp2p_identity::PeerId;
 use libp2p_swarm::{
@@ -76,8 +76,8 @@ pub use self::protocol::PROTOCOL_NAME;
 ///
 /// See the crate root documentation for more information.
 pub struct Behaviour {
-    /// Configuration for outbound pings.
-    config: Config,
+    /// configsuration for outbound pings.
+    configs: configs,
     /// Queue of events to yield to the swarm.
     events: VecDeque<Event>,
 }
@@ -94,10 +94,10 @@ pub struct Event {
 }
 
 impl Behaviour {
-    /// Creates a new `Ping` network behaviour with the given configuration.
-    pub fn new(config: Config) -> Self {
+    /// Creates a new `Ping` network behaviour with the given configsuration.
+    pub fn new(configs: configs) -> Self {
         Self {
-            config,
+            configs,
             events: VecDeque::new(),
         }
     }
@@ -105,7 +105,7 @@ impl Behaviour {
 
 impl Default for Behaviour {
     fn default() -> Self {
-        Self::new(Config::new())
+        Self::new(configs::new())
     }
 }
 
@@ -120,7 +120,7 @@ impl NetworkBehaviour for Behaviour {
         _: &Multiaddr,
         _: &Multiaddr,
     ) -> Result<THandler<Self>, ConnectionDenied> {
-        Ok(Handler::new(self.config.clone()))
+        Ok(Handler::new(self.configs.clone()))
     }
 
     fn handle_established_outbound_connection(
@@ -131,7 +131,7 @@ impl NetworkBehaviour for Behaviour {
         _: Endpoint,
         _: PortUse,
     ) -> Result<THandler<Self>, ConnectionDenied> {
-        Ok(Handler::new(self.config.clone()))
+        Ok(Handler::new(self.configs.clone()))
     }
 
     fn on_connection_handler_event(

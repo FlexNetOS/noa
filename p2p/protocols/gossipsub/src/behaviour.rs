@@ -52,10 +52,10 @@ use rand::{seq::SliceRandom, thread_rng};
 use web_time::{Instant, SystemTime};
 
 #[cfg(feature = "metrics")]
-use crate::metrics::{Churn, Config as MetricsConfig, Inclusion, Metrics, Penalty};
+use crate::metrics::{Churn, configs as Metricsconfigs, Inclusion, Metrics, Penalty};
 use crate::{
     backoff::BackoffStorage,
-    config::{Config, ValidationMode},
+    configs::{configs, ValidationMode},
     gossip_promises::GossipPromises,
     handler::{Handler, HandlerEvent, HandlerIn},
     mcache::MessageCache,
@@ -89,7 +89,7 @@ const IDONTWANT_TIMEOUT: Duration = Duration::new(3, 0);
 /// Without signing, a number of privacy preserving modes can be selected.
 ///
 /// NOTE: The default validation settings are to require signatures. The [`ValidationMode`]
-/// should be updated in the [`Config`] to allow for unsigned messages.
+/// should be updated in the [`configs`] to allow for unsigned messages.
 #[derive(Clone)]
 pub enum MessageAuthenticity {
     /// Message signing is enabled. The author will be the owner of the key and the sequence number
@@ -110,7 +110,7 @@ pub enum MessageAuthenticity {
     /// The author of the message and the sequence numbers are excluded from the message.
     ///
     /// NOTE: Excluding these fields may make these messages invalid by other nodes who
-    /// enforce validation of these fields. See [`ValidationMode`] in the [`Config`]
+    /// enforce validation of these fields. See [`ValidationMode`] in the [`configs`]
     /// for how to customise this for rust-libp2p gossipsub.  A custom `message_id`
     /// function will need to be set to prevent all messages from a peer being filtered
     /// as duplicates.
@@ -166,10 +166,10 @@ pub enum Event {
     },
 }
 
-/// A data structure for storing configuration for publishing messages. See [`MessageAuthenticity`]
+/// A data structure for storing configsuration for publishing messages. See [`MessageAuthenticity`]
 /// for further details.
 #[allow(clippy::large_enum_variant)]
-enum PublishConfig {
+enum Publishconfigs {
     Signing {
         keypair: Keypair,
         author: PeerId,
@@ -210,7 +210,7 @@ impl SequenceNumber {
     }
 }
 
-impl PublishConfig {
+impl Publishconfigs {
     pub(crate) fn get_own_id(&self) -> Option<&PeerId> {
         match self {
             Self::Signing { author, .. } => Some(author),
@@ -220,7 +220,7 @@ impl PublishConfig {
     }
 }
 
-impl From<MessageAuthenticity> for PublishConfig {
+impl From<MessageAuthenticity> for Publishconfigs {
     fn from(authenticity: MessageAuthenticity) -> Self {
         match authenticity {
             MessageAuthenticity::Signed(keypair) => {
@@ -236,24 +236,24 @@ impl From<MessageAuthenticity> for PublishConfig {
                     Some(key_enc)
                 };
 
-                PublishConfig::Signing {
+                Publishconfigs::Signing {
                     keypair,
                     author: public_key.to_peer_id(),
                     inline_key: key,
                     last_seq_no: SequenceNumber::new(),
                 }
             }
-            MessageAuthenticity::Author(peer_id) => PublishConfig::Author(peer_id),
-            MessageAuthenticity::RandomAuthor => PublishConfig::RandomAuthor,
-            MessageAuthenticity::Anonymous => PublishConfig::Anonymous,
+            MessageAuthenticity::Author(peer_id) => Publishconfigs::Author(peer_id),
+            MessageAuthenticity::RandomAuthor => Publishconfigs::RandomAuthor,
+            MessageAuthenticity::Anonymous => Publishconfigs::Anonymous,
         }
     }
 }
 
 /// Network behaviour that handles the gossipsub protocol.
 ///
-/// NOTE: Initialisation requires a [`MessageAuthenticity`] and [`Config`] instance. If
-/// message signing is disabled, the [`ValidationMode`] in the config should be adjusted to an
+/// NOTE: Initialisation requires a [`MessageAuthenticity`] and [`configs`] instance. If
+/// message signing is disabled, the [`ValidationMode`] in the configs should be adjusted to an
 /// appropriate level to accept unsigned messages.
 ///
 /// The DataTransform trait allows applications to optionally add extra encoding/decoding
@@ -262,14 +262,14 @@ impl From<MessageAuthenticity> for PublishConfig {
 /// The TopicSubscriptionFilter allows applications to implement specific filters on topics to
 /// prevent unwanted messages being propagated and evaluated.
 pub struct Behaviour<D = IdentityTransform, F = AllowAllSubscriptionFilter> {
-    /// Configuration providing gossipsub performance parameters.
-    config: Config,
+    /// configsuration providing gossipsub performance parameters.
+    configs: configs,
 
     /// Events that need to be yielded to the outside when polling.
     events: VecDeque<ToSwarm<Event, HandlerIn>>,
 
     /// Information used for publishing messages.
-    publish_config: PublishConfig,
+    publish_configs: Publishconfigs,
 
     /// An LRU Time cache for storing seen messages (based on their ID). This cache prevents
     /// duplicates from being propagated to the application and on the network.
@@ -350,11 +350,11 @@ where
     F: TopicSubscriptionFilter + Default,
 {
     /// Creates a Gossipsub [`Behaviour`] struct given a set of parameters specified via a
-    /// [`Config`]. This has no subscription filter and uses no compression.
-    pub fn new(privacy: MessageAuthenticity, config: Config) -> Result<Self, &'static str> {
+    /// [`configs`]. This has no subscription filter and uses no compression.
+    pub fn new(privacy: MessageAuthenticity, configs: configs) -> Result<Self, &'static str> {
         Self::new_with_subscription_filter_and_transform(
             privacy,
-            config,
+            configs,
             F::default(),
             D::default(),
         )
@@ -367,15 +367,15 @@ where
     F: TopicSubscriptionFilter,
 {
     /// Creates a Gossipsub [`Behaviour`] struct given a set of parameters specified via a
-    /// [`Config`] and a custom subscription filter.
+    /// [`configs`] and a custom subscription filter.
     pub fn new_with_subscription_filter(
         privacy: MessageAuthenticity,
-        config: Config,
+        configs: configs,
         subscription_filter: F,
     ) -> Result<Self, &'static str> {
         Self::new_with_subscription_filter_and_transform(
             privacy,
-            config,
+            configs,
             subscription_filter,
             D::default(),
         )
@@ -388,16 +388,16 @@ where
     F: TopicSubscriptionFilter + Default,
 {
     /// Creates a Gossipsub [`Behaviour`] struct given a set of parameters specified via a
-    /// [`Config`] and a custom data transform.
+    /// [`configs`] and a custom data transform.
     /// Metrics are disabled by default.
     pub fn new_with_transform(
         privacy: MessageAuthenticity,
-        config: Config,
+        configs: configs,
         data_transform: D,
     ) -> Result<Self, &'static str> {
         Self::new_with_subscription_filter_and_transform(
             privacy,
-            config,
+            configs,
             F::default(),
             data_transform,
         )
@@ -410,45 +410,45 @@ where
     F: TopicSubscriptionFilter,
 {
     /// Creates a Gossipsub [`Behaviour`] struct given a set of parameters specified via a
-    /// [`Config`] and a custom subscription filter and data transform.
+    /// [`configs`] and a custom subscription filter and data transform.
     /// Metrics are disabled by default.
     pub fn new_with_subscription_filter_and_transform(
         privacy: MessageAuthenticity,
-        config: Config,
+        configs: configs,
         subscription_filter: F,
         data_transform: D,
     ) -> Result<Self, &'static str> {
-        // Set up the router given the configuration settings.
+        // Set up the router given the configsuration settings.
 
-        // We do not allow configurations where a published message would also be rejected if it
+        // We do not allow configsurations where a published message would also be rejected if it
         // were received locally.
-        validate_config(&privacy, config.validation_mode())?;
+        validate_configs(&privacy, configs.validation_mode())?;
 
         Ok(Behaviour {
             #[cfg(feature = "metrics")]
             metrics: None,
             events: VecDeque::new(),
-            publish_config: privacy.into(),
-            duplicate_cache: DuplicateCache::new(config.duplicate_cache_time()),
+            publish_configs: privacy.into(),
+            duplicate_cache: DuplicateCache::new(configs.duplicate_cache_time()),
             explicit_peers: HashSet::new(),
             blacklisted_peers: HashSet::new(),
             mesh: HashMap::new(),
             fanout: HashMap::new(),
             fanout_last_pub: HashMap::new(),
             backoffs: BackoffStorage::new(
-                &config.prune_backoff(),
-                config.heartbeat_interval(),
-                config.backoff_slack(),
+                &configs.prune_backoff(),
+                configs.heartbeat_interval(),
+                configs.backoff_slack(),
             ),
-            mcache: MessageCache::new(config.history_gossip(), config.history_length()),
-            heartbeat: Delay::new(config.heartbeat_interval() + config.heartbeat_initial_delay()),
+            mcache: MessageCache::new(configs.history_gossip(), configs.history_length()),
+            heartbeat: Delay::new(configs.heartbeat_interval() + configs.heartbeat_initial_delay()),
             heartbeat_ticks: 0,
             px_peers: HashSet::new(),
             peer_score: PeerScoreState::Disabled,
             count_received_ihave: HashMap::new(),
             count_sent_iwant: HashMap::new(),
             connected_peers: HashMap::new(),
-            config,
+            configs,
             subscription_filter,
             data_transform,
             failed_messages: Default::default(),
@@ -462,9 +462,9 @@ where
     pub fn with_metrics(
         mut self,
         metrics_registry: &mut Registry,
-        metrics_config: MetricsConfig,
+        metrics_configs: Metricsconfigs,
     ) -> Self {
-        self.metrics = Some(Metrics::new(metrics_registry, metrics_config));
+        self.metrics = Some(Metrics::new(metrics_registry, metrics_configs));
         self
     }
 }
@@ -583,8 +583,8 @@ where
             .outbound_transform(&topic.clone(), data.clone())?;
 
         let max_transmit_size_for_topic = self
-            .config
-            .protocol_config()
+            .configs
+            .protocol_configs()
             .max_transmit_size_for_topic(&topic);
 
         // check that the size doesn't exceed the max transmission size.
@@ -592,11 +592,11 @@ where
             return Err(PublishError::MessageTooLarge);
         }
 
-        let mesh_n = self.config.mesh_n_for_topic(&topic);
+        let mesh_n = self.configs.mesh_n_for_topic(&topic);
         let raw_message = self.build_raw_message(topic, transformed_data)?;
 
         // calculate the message id from the un-transformed data
-        let msg_id = self.config.message_id(&Message {
+        let msg_id = self.configs.message_id(&Message {
             source: raw_message.source,
             data, // the uncompressed form
             sequence_number: raw_message.sequence_number,
@@ -630,7 +630,7 @@ where
         }
 
         let mut recipient_peers = HashSet::new();
-        if self.config.flood_publish() {
+        if self.configs.flood_publish() {
             // Forward to all peers above score and all explicit peers
             recipient_peers.extend(peers_on_topic.filter(|p| {
                 self.explicit_peers.contains(*p)
@@ -740,8 +740,8 @@ where
             tracing::trace!(peer=%peer_id, "Sending message to peer");
             // If enabled, Send first an IDONTWANT so that if we are slower than forwarders
             // publishing the original message we don't receive it back.
-            if raw_message.raw_protobuf_len() > self.config.idontwant_message_size_threshold()
-                && self.config.idontwant_on_publish()
+            if raw_message.raw_protobuf_len() > self.configs.idontwant_message_size_threshold()
+                && self.configs.idontwant_on_publish()
             {
                 self.send_message(
                     *peer_id,
@@ -756,7 +756,7 @@ where
                 RpcOut::Publish {
                     message_id: msg_id.clone(),
                     message: raw_message.clone(),
-                    timeout: Delay::new(self.config.publish_queue_duration()),
+                    timeout: Delay::new(self.configs.publish_queue_duration()),
                 },
             ) {
                 publish_failed = false
@@ -781,7 +781,7 @@ where
         Ok(msg_id)
     }
 
-    /// This function should be called when [`Config::validate_messages()`] is `true` after
+    /// This function should be called when [`configs::validate_messages()`] is `true` after
     /// the message got validated by the caller. Messages are stored in the ['Memcache'] and
     /// validation is expected to be fast enough that the messages should still exist in the cache.
     /// There are three possible validation outcomes and the outcome is given in acceptance.
@@ -968,7 +968,7 @@ where
     /// Gossipsub JOIN(topic) - adds topic peers to mesh and sends them GRAFT messages.
     fn join(&mut self, topic_hash: &TopicHash) {
         let mut added_peers = HashSet::new();
-        let mesh_n = self.config.mesh_n_for_topic(topic_hash);
+        let mesh_n = self.configs.mesh_n_for_topic(topic_hash);
         #[cfg(feature = "metrics")]
         if let Some(m) = self.metrics.as_mut() {
             m.joined(topic_hash)
@@ -1116,7 +1116,7 @@ where
             get_random_peers(
                 &self.connected_peers,
                 topic_hash,
-                self.config.prune_peers(),
+                self.configs.prune_peers(),
                 |p| p != peer && !self.peer_score.below_threshold(p, |_| 0.0).0,
             )
             .into_iter()
@@ -1127,9 +1127,9 @@ where
         };
 
         let backoff = if on_unsubscribe {
-            self.config.unsubscribe_backoff()
+            self.configs.unsubscribe_backoff()
         } else {
-            self.config.prune_backoff()
+            self.configs.prune_backoff()
         };
 
         // update backoff
@@ -1158,7 +1158,7 @@ where
 
                 let on_unsubscribe = true;
                 let prune =
-                    self.make_prune(topic_hash, &peer_id, self.config.do_px(), on_unsubscribe);
+                    self.make_prune(topic_hash, &peer_id, self.configs.do_px(), on_unsubscribe);
                 self.send_message(peer_id, RpcOut::Prune(prune));
 
                 // If the peer did not previously exist in any mesh, inform the handler
@@ -1204,7 +1204,7 @@ where
         // IHAVE flood protection
         let peer_have = self.count_received_ihave.entry(*peer_id).or_insert(0);
         *peer_have += 1;
-        if *peer_have > self.config.max_ihave_messages() {
+        if *peer_have > self.configs.max_ihave_messages() {
             tracing::debug!(
                 peer=%peer_id,
                 "IHAVE: peer has advertised too many times ({}) within this heartbeat \
@@ -1215,7 +1215,7 @@ where
         }
 
         if let Some(iasked) = self.count_sent_iwant.get(peer_id) {
-            if *iasked >= self.config.max_ihave_length() {
+            if *iasked >= self.configs.max_ihave_length() {
                 tracing::debug!(
                     peer=%peer_id,
                     "IHAVE: peer has already advertised too many messages ({}); ignoring",
@@ -1260,8 +1260,8 @@ where
         if !iwant_ids.is_empty() {
             let iasked = self.count_sent_iwant.entry(*peer_id).or_insert(0);
             let mut iask = iwant_ids.len();
-            if *iasked + iask > self.config.max_ihave_length() {
-                iask = self.config.max_ihave_length().saturating_sub(*iasked);
+            if *iasked + iask > self.configs.max_ihave_length() {
+                iask = self.configs.max_ihave_length().saturating_sub(*iasked);
             }
 
             // Send the list of IWANT control messages
@@ -1283,7 +1283,7 @@ where
             self.gossip_promises.add_promise(
                 *peer_id,
                 &iwant_ids_vec,
-                Instant::now() + self.config.iwant_followup_time(),
+                Instant::now() + self.configs.iwant_followup_time(),
             );
             tracing::trace!(
                 peer=%peer_id,
@@ -1327,7 +1327,7 @@ where
                 .get_with_iwant_counts(&id, peer_id)
                 .map(|(msg, count)| (msg.clone(), count))
             {
-                if count > self.config.gossip_retransimission() {
+                if count > self.configs.gossip_retransimission() {
                     tracing::debug!(
                         peer=%peer_id,
                         message_id=%id,
@@ -1347,7 +1347,7 @@ where
                         RpcOut::Forward {
                             message_id: id.clone(),
                             message: msg,
-                            timeout: Delay::new(self.config.forward_queue_duration()),
+                            timeout: Delay::new(self.configs.forward_queue_duration()),
                         },
                     );
                 }
@@ -1363,7 +1363,7 @@ where
 
         let mut to_prune_topics = HashSet::new();
 
-        let mut do_px = self.config.do_px();
+        let mut do_px = self.configs.do_px();
 
         let Some(connected_peer) = self.connected_peers.get_mut(peer_id) else {
             tracing::error!(peer_id = %peer_id, "Peer non-existent when handling graft");
@@ -1384,7 +1384,7 @@ where
         // we don't GRAFT to/from explicit peers; complain loudly if this happens
         if self.explicit_peers.contains(peer_id) {
             tracing::warn!(peer=%peer_id, "GRAFT: ignoring request from direct peer");
-            // this is possibly a bug from non-reciprocal configuration; send a PRUNE for all topics
+            // this is possibly a bug from non-reciprocal configsuration; send a PRUNE for all topics
             to_prune_topics = topics.into_iter().collect();
             // but don't PX
             do_px = false
@@ -1421,8 +1421,8 @@ where
 
                                 // check the flood cutoff
                                 let flood_cutoff = (backoff_time
-                                    + self.config.graft_flood_threshold())
-                                    - self.config.prune_backoff();
+                                    + self.configs.graft_flood_threshold())
+                                    - self.configs.prune_backoff();
                                 if flood_cutoff > now {
                                     // extra penalty
                                     peer_score.add_penalty(peer_id, 1);
@@ -1454,7 +1454,7 @@ where
                     }
 
                     // check mesh upper bound and only allow graft if the upper bound is not reached
-                    let mesh_n_high = self.config.mesh_n_high_for_topic(&topic_hash);
+                    let mesh_n_high = self.configs.mesh_n_high_for_topic(&topic_hash);
 
                     if peers.len() >= mesh_n_high {
                         to_prune_topics.insert(topic_hash.clone());
@@ -1558,7 +1558,7 @@ where
             let time = if let Some(backoff) = backoff {
                 Duration::from_secs(backoff)
             } else {
-                self.config.prune_backoff()
+                self.configs.prune_backoff()
             };
             // is there a backoff specified by the peer? if so obey it.
             self.backoffs.update_backoff(topic_hash, peer_id, time);
@@ -1600,11 +1600,11 @@ where
 
                     // NOTE: We cannot dial any peers from PX currently as we typically will not
                     // know their multiaddr. Until SignedRecords are spec'd this
-                    // remains a stub. By default `config.prune_peers()` is set to zero and
+                    // remains a stub. By default `configs.prune_peers()` is set to zero and
                     // this is skipped. If the user modifies this, this will only be able to
                     // dial already known peers (from an external discovery mechanism for
                     // example).
-                    if self.config.prune_peers() > 0 {
+                    if self.configs.prune_peers() > 0 {
                         self.px_connect(px);
                     }
                 }
@@ -1614,7 +1614,7 @@ where
     }
 
     fn px_connect(&mut self, mut px: Vec<PeerInfo>) {
-        let n = self.config.prune_peers();
+        let n = self.configs.prune_peers();
         // Ignore peerInfo with no ID
         //
         // TODO: Once signed records are spec'd: Can we use peerInfo without any IDs if they have a
@@ -1696,13 +1696,13 @@ where
         // If we are not validating messages, assume this message is validated
         // This will allow the message to be gossiped without explicitly calling
         // `validate_message`.
-        if !self.config.validate_messages() {
+        if !self.configs.validate_messages() {
             raw_message.validated = true;
         }
 
         // reject messages claiming to be from ourselves but not locally published
-        let self_published = !self.config.allow_self_origin()
-            && if let Some(own_id) = self.publish_config.get_own_id() {
+        let self_published = !self.configs.allow_self_origin()
+            && if let Some(own_id) = self.publish_configs.get_own_id() {
                 own_id != propagation_source
                     && raw_message.source.as_ref().is_some_and(|s| s == own_id)
             } else {
@@ -1758,10 +1758,10 @@ where
         };
 
         // Calculate the message id on the transformed data.
-        let msg_id = self.config.message_id(&message);
+        let msg_id = self.configs.message_id(&message);
 
         // Broadcast IDONTWANT messages
-        if raw_message.raw_protobuf_len() > self.config.idontwant_message_size_threshold() {
+        if raw_message.raw_protobuf_len() > self.configs.idontwant_message_size_threshold() {
             let recipient_peers = self
                 .mesh
                 .get(&message.topic)
@@ -1845,7 +1845,7 @@ where
         }
 
         // forward the message to mesh peers, if no validation is required
-        if !self.config.validate_messages() {
+        if !self.configs.validate_messages() {
             self.forward_msg(
                 &msg_id,
                 raw_message,
@@ -1961,7 +1961,7 @@ where
                             .is_backoff_with_slack(topic_hash, propagation_source)
                     {
                         if let Some(peers) = self.mesh.get_mut(topic_hash) {
-                            let mesh_n_low = self.config.mesh_n_low_for_topic(topic_hash);
+                            let mesh_n_low = self.configs.mesh_n_low_for_topic(topic_hash);
 
                             if peers.len() < mesh_n_low && peers.insert(*propagation_source) {
                                 tracing::debug!(
@@ -2104,7 +2104,7 @@ where
         self.apply_iwant_penalties();
 
         // check connections to explicit peers
-        if self.heartbeat_ticks % self.config.check_explicit_peers_ticks() == 0 {
+        if self.heartbeat_ticks % self.configs.check_explicit_peers_ticks() == 0 {
             for p in self.explicit_peers.clone() {
                 self.check_explicit_peer_connection(&p);
             }
@@ -2133,10 +2133,10 @@ where
             let explicit_peers = &self.explicit_peers;
             let backoffs = &self.backoffs;
 
-            let mesh_n = self.config.mesh_n_for_topic(topic_hash);
-            let mesh_n_low = self.config.mesh_n_low_for_topic(topic_hash);
-            let mesh_n_high = self.config.mesh_n_high_for_topic(topic_hash);
-            let mesh_outbound_min = self.config.mesh_outbound_min_for_topic(topic_hash);
+            let mesh_n = self.configs.mesh_n_for_topic(topic_hash);
+            let mesh_n_low = self.configs.mesh_n_low_for_topic(topic_hash);
+            let mesh_n_high = self.configs.mesh_n_high_for_topic(topic_hash);
+            let mesh_outbound_min = self.configs.mesh_outbound_min_for_topic(topic_hash);
 
             #[cfg(feature = "metrics")]
             let mut removed_peers_count = 0;
@@ -2187,7 +2187,7 @@ where
                     topic=%topic_hash,
                     "HEARTBEAT: Mesh low. Topic contains: {} needs: {}",
                     peers.len(),
-                    self.config.mesh_n()
+                    self.configs.mesh_n()
                 );
                 // not enough peers - get mesh_n - current_length more
                 let desired_peers = mesh_n - peers.len();
@@ -2217,7 +2217,7 @@ where
                     topic=%topic_hash,
                     "HEARTBEAT: Mesh high. Topic contains: {} will reduce to: {}",
                     peers.len(),
-                    self.config.mesh_n()
+                    self.configs.mesh_n()
                 );
                 let excess_peer_no = peers.len() - mesh_n;
 
@@ -2232,8 +2232,8 @@ where
                     score_p1.partial_cmp(&score_p2).unwrap_or(Ordering::Equal)
                 });
                 // shuffle everything except the last retain_scores many peers (the best ones)
-                if peers.len() > self.config.retain_scores() {
-                    shuffled[..peers.len() - self.config.retain_scores()].shuffle(&mut rng);
+                if peers.len() > self.configs.retain_scores() {
+                    shuffled[..peers.len() - self.configs.retain_scores()].shuffle(&mut rng);
                 }
 
                 // count total number of outbound peers
@@ -2321,7 +2321,7 @@ where
             }
 
             // should we try to improve the mesh with opportunistic grafting?
-            if self.heartbeat_ticks % self.config.opportunistic_graft_ticks() == 0
+            if self.heartbeat_ticks % self.configs.opportunistic_graft_ticks() == 0
                 && peers.len() > 1
             {
                 if let PeerScoreState::Active(peer_score) = &self.peer_score {
@@ -2369,7 +2369,7 @@ where
                         let peer_list = get_random_peers(
                             &self.connected_peers,
                             topic_hash,
-                            self.config.opportunistic_graft_peers(),
+                            self.configs.opportunistic_graft_peers(),
                             |peer_id| {
                                 !peers.contains(peer_id)
                                     && !explicit_peers.contains(peer_id)
@@ -2406,7 +2406,7 @@ where
         // remove expired fanout topics
         {
             let fanout = &mut self.fanout; // help the borrow checker
-            let fanout_ttl = self.config.fanout_ttl();
+            let fanout_ttl = self.configs.fanout_ttl();
             self.fanout_last_pub.retain(|topic_hash, last_pub_time| {
                 if *last_pub_time + fanout_ttl < Instant::now() {
                     tracing::debug!(
@@ -2428,7 +2428,7 @@ where
                 PeerScoreState::Active(peer_score) => peer_score.thresholds.publish_threshold,
                 _ => 0.0,
             };
-            let mesh_n = self.config.mesh_n_for_topic(topic_hash);
+            let mesh_n = self.configs.mesh_n_for_topic(topic_hash);
 
             for peer_id in peers.iter() {
                 // is the peer still subscribed to the topic?
@@ -2550,7 +2550,7 @@ where
             }
 
             // if we are emitting more than GossipSubMaxIHaveLength message_ids, truncate the list
-            if message_ids.len() > self.config.max_ihave_length() {
+            if message_ids.len() > self.configs.max_ihave_length() {
                 // we do the truncation (with shuffling) per peer below
                 tracing::debug!(
                     "too many messages for gossip; will truncate IHAVE list ({} messages)",
@@ -2564,8 +2564,8 @@ where
             // dynamic number of peers to gossip based on `gossip_factor` with minimum `gossip_lazy`
             let n_map = |m| {
                 max(
-                    self.config.gossip_lazy(),
-                    (self.config.gossip_factor() * m as f64) as usize,
+                    self.configs.gossip_lazy(),
+                    (self.configs.gossip_factor() * m as f64) as usize,
                 )
             };
             // get gossip_lazy random peers
@@ -2584,12 +2584,12 @@ where
             for peer_id in to_msg_peers {
                 let mut peer_message_ids = message_ids.clone();
 
-                if peer_message_ids.len() > self.config.max_ihave_length() {
+                if peer_message_ids.len() > self.configs.max_ihave_length() {
                     // We do this per peer so that we emit a different set for each peer.
                     // we have enough redundancy in the system that this will significantly increase
                     // the message coverage when we do truncate.
-                    peer_message_ids.partial_shuffle(&mut rng, self.config.max_ihave_length());
-                    peer_message_ids.truncate(self.config.max_ihave_length());
+                    peer_message_ids.partial_shuffle(&mut rng, self.configs.max_ihave_length());
+                    peer_message_ids.truncate(self.configs.max_ihave_length());
                 }
 
                 // send an IHAVE message
@@ -2653,7 +2653,7 @@ where
                     let prune = self.make_prune(
                         &topic_hash,
                         &peer_id,
-                        self.config.do_px() && !no_px.contains(&peer_id),
+                        self.configs.do_px() && !no_px.contains(&peer_id),
                         false,
                     );
                     RpcOut::Prune(prune)
@@ -2672,7 +2672,7 @@ where
                 let prune = self.make_prune(
                     topic_hash,
                     peer_id,
-                    self.config.do_px() && !no_px.contains(peer_id),
+                    self.configs.do_px() && !no_px.contains(peer_id),
                     false,
                 );
                 self.send_message(*peer_id, RpcOut::Prune(prune));
@@ -2761,7 +2761,7 @@ where
                     RpcOut::Forward {
                         message_id: msg_id.clone(),
                         message: message.clone(),
-                        timeout: Delay::new(self.config.forward_queue_duration()),
+                        timeout: Delay::new(self.configs.forward_queue_duration()),
                     },
                 );
             }
@@ -2776,8 +2776,8 @@ where
         topic: TopicHash,
         data: Vec<u8>,
     ) -> Result<RawMessage, PublishError> {
-        match &mut self.publish_config {
-            PublishConfig::Signing {
+        match &mut self.publish_configs {
+            Publishconfigs::Signing {
                 ref keypair,
                 author,
                 inline_key,
@@ -2820,7 +2820,7 @@ where
                     validated: true, // all published messages are valid
                 })
             }
-            PublishConfig::Author(peer_id) => {
+            Publishconfigs::Author(peer_id) => {
                 Ok(RawMessage {
                     source: Some(*peer_id),
                     data,
@@ -2833,7 +2833,7 @@ where
                     validated: true, // all published messages are valid
                 })
             }
-            PublishConfig::RandomAuthor => {
+            Publishconfigs::RandomAuthor => {
                 Ok(RawMessage {
                     source: Some(PeerId::random()),
                     data,
@@ -2846,7 +2846,7 @@ where
                     validated: true, // all published messages are valid
                 })
             }
-            PublishConfig::Anonymous => {
+            Publishconfigs::Anonymous => {
                 Ok(RawMessage {
                     source: None,
                     data,
@@ -3130,7 +3130,7 @@ where
             kind: PeerKind::Floodsub,
             connections: vec![],
             outbound: false,
-            messages: Queue::new(self.config.connection_handler_queue_len()),
+            messages: Queue::new(self.configs.connection_handler_queue_len()),
             topics: Default::default(),
             dont_send: LinkedHashMap::new(),
         });
@@ -3141,7 +3141,7 @@ where
         // queue. No data is actually cloned here.
         Ok(Handler::new(
             peer_id,
-            self.config.protocol_config(),
+            self.configs.protocol_configs(),
             connected_peer.messages.clone(),
         ))
     }
@@ -3160,7 +3160,7 @@ where
             // Diverging from the go implementation we only want to consider a peer as outbound peer
             // if its first connection is outbound.
             outbound: !self.px_peers.contains(&peer_id),
-            messages: Queue::new(self.config.connection_handler_queue_len()),
+            messages: Queue::new(self.configs.connection_handler_queue_len()),
             topics: Default::default(),
             dont_send: LinkedHashMap::new(),
         });
@@ -3171,7 +3171,7 @@ where
         // queue. No data is actually cloned here.
         Ok(Handler::new(
             peer_id,
-            self.config.protocol_config(),
+            self.configs.protocol_configs(),
             connected_peer.messages.clone(),
         ))
     }
@@ -3272,9 +3272,9 @@ where
 
                 // Handle messages
                 for (count, raw_message) in rpc.messages.into_iter().enumerate() {
-                    // Only process the amount of messages the configuration allows.
+                    // Only process the amount of messages the configsuration allows.
                     if self
-                        .config
+                        .configs
                         .max_messages_per_rpc()
                         .is_some_and(|max_msg| count >= max_msg)
                     {
@@ -3291,9 +3291,9 @@ where
                 let mut graft_msgs = vec![];
                 let mut prune_msgs = vec![];
                 for (count, control_msg) in rpc.control_msgs.into_iter().enumerate() {
-                    // Only process the amount of messages the configuration allows.
+                    // Only process the amount of messages the configsuration allows.
                     if self
-                        .config
+                        .configs
                         .max_messages_per_rpc()
                         .is_some_and(|max_msg| count >= max_msg)
                     {
@@ -3379,7 +3379,7 @@ where
 
         if self.heartbeat.poll_unpin(cx).is_ready() {
             self.heartbeat();
-            self.heartbeat.reset(self.config.heartbeat_interval());
+            self.heartbeat.reset(self.configs.heartbeat_interval());
         }
 
         Poll::Pending
@@ -3529,8 +3529,8 @@ fn get_random_peers(
 }
 
 /// Validates the combination of signing, privacy and message validation to ensure the
-/// configuration will not reject published messages.
-fn validate_config(
+/// configsuration will not reject published messages.
+fn validate_configs(
     authenticity: &MessageAuthenticity,
     validation_mode: &ValidationMode,
 ) -> Result<(), &'static str> {
@@ -3541,7 +3541,7 @@ fn validate_config(
             }
 
             if !authenticity.is_anonymous() {
-                return Err("Published messages contain an author but incoming messages with an author will be rejected. Consider adjusting the validation or privacy settings in the config");
+                return Err("Published messages contain an author but incoming messages with an author will be rejected. Consider adjusting the validation or privacy settings in the configs");
             }
         }
         ValidationMode::Strict => {
@@ -3549,7 +3549,7 @@ fn validate_config(
                 return Err(
                     "Messages will be
                 published unsigned and incoming unsigned messages will be rejected. Consider adjusting
-                the validation or privacy settings in the config"
+                the validation or privacy settings in the configs"
                 );
             }
         }
@@ -3561,9 +3561,9 @@ fn validate_config(
 impl<C: DataTransform, F: TopicSubscriptionFilter> fmt::Debug for Behaviour<C, F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Behaviour")
-            .field("config", &self.config)
+            .field("configs", &self.configs)
             .field("events", &self.events.len())
-            .field("publish_config", &self.publish_config)
+            .field("publish_configs", &self.publish_configs)
             .field("mesh", &self.mesh)
             .field("fanout", &self.fanout)
             .field("fanout_last_pub", &self.fanout_last_pub)
@@ -3573,17 +3573,17 @@ impl<C: DataTransform, F: TopicSubscriptionFilter> fmt::Debug for Behaviour<C, F
     }
 }
 
-impl fmt::Debug for PublishConfig {
+impl fmt::Debug for Publishconfigs {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PublishConfig::Signing { author, .. } => {
-                f.write_fmt(format_args!("PublishConfig::Signing({author})"))
+            Publishconfigs::Signing { author, .. } => {
+                f.write_fmt(format_args!("Publishconfigs::Signing({author})"))
             }
-            PublishConfig::Author(author) => {
-                f.write_fmt(format_args!("PublishConfig::Author({author})"))
+            Publishconfigs::Author(author) => {
+                f.write_fmt(format_args!("Publishconfigs::Author({author})"))
             }
-            PublishConfig::RandomAuthor => f.write_fmt(format_args!("PublishConfig::RandomAuthor")),
-            PublishConfig::Anonymous => f.write_fmt(format_args!("PublishConfig::Anonymous")),
+            Publishconfigs::RandomAuthor => f.write_fmt(format_args!("Publishconfigs::RandomAuthor")),
+            Publishconfigs::Anonymous => f.write_fmt(format_args!("Publishconfigs::Anonymous")),
         }
     }
 }

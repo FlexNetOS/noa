@@ -10,7 +10,7 @@ Replay Memory Cache implements experience replay for continuous learning, allowi
 
 1. **Short-term Memory Buffer** (`sys/core/src/learning/replay/buffer.rs`)
    - Maintains recent experiences in memory
-   - Implements FIFO buffer with configurable size
+   - Implements FIFO buffer with configsurable size
    - Provides fast access to recent experiences
 
 2. **Knowledge Base Connector** (`sys/core/src/learning/replay/knowledge_base.rs`)

@@ -13,9 +13,9 @@ pub enum Error {
     #[error("Serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 
-    /// Configuration errors.
-    #[error("Configuration error: {0}")]
-    Config(String),
+    /// configsuration errors.
+    #[error("configsuration error: {0}")]
+    configs(String),
 
     /// Peer not found.
     #[error("Peer not found: {0}")]

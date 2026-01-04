@@ -67,8 +67,8 @@ if (-not (Test-Path $npmBin)) {
 }
 
 # Set npm prefix for portable installation
-$env:npm_config_prefix = $NodeRoot
-$env:npm_config_cache = Join-Path $NoaRoot "opt/npm-cache"
+$env:npm_configs_prefix = $NodeRoot
+$env:npm_configs_cache = Join-Path $NoaRoot "opt/npm-cache"
 
 # Tools to install
 $tools = @(

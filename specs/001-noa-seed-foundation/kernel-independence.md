@@ -198,7 +198,7 @@ sys/
 
 ---
 
-## Configuration
+## configsuration
 
 ### Enable Kernel Independence Mode
 

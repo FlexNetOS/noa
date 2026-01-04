@@ -7,9 +7,9 @@ use libp2p::{
 };
 use std::time::Duration;
 
-/// Configuration for the NOA-Hive swarm.
+/// configsuration for the NOA-Hive swarm.
 #[derive(Clone, Debug)]
-pub struct SwarmConfig {
+pub struct Swarmconfigs {
     /// Addresses to listen on.
     pub listen_addrs: Vec<Multiaddr>,
     /// Bootstrap peers for initial connection.
@@ -22,7 +22,7 @@ pub struct SwarmConfig {
     pub idle_timeout: Duration,
 }
 
-impl Default for SwarmConfig {
+impl Default for Swarmconfigs {
     fn default() -> Self {
         Self {
             listen_addrs: vec![
@@ -69,18 +69,18 @@ pub struct HiveResponse {
 /// Wrapper around the libp2p Swarm with NOA-Hive behaviour.
 pub struct HiveSwarm {
     // The actual swarm would be here, but we just define the interface
-    config: SwarmConfig,
+    configs: Swarmconfigs,
 }
 
 impl HiveSwarm {
-    /// Create a new swarm with the given configuration.
-    pub fn new(config: SwarmConfig) -> Self {
-        Self { config }
+    /// Create a new swarm with the given configsuration.
+    pub fn new(configs: Swarmconfigs) -> Self {
+        Self { configs }
     }
 
-    /// Get the swarm configuration.
-    pub fn config(&self) -> &SwarmConfig {
-        &self.config
+    /// Get the swarm configsuration.
+    pub fn configs(&self) -> &Swarmconfigs {
+        &self.configs
     }
 }
 

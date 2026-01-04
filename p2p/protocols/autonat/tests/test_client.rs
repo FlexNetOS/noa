@@ -21,7 +21,7 @@
 use std::time::Duration;
 
 use libp2p_autonat::{
-    Behaviour, Config, Event, NatStatus, OutboundProbeError, OutboundProbeEvent, ResponseError,
+    Behaviour, configs, Event, NatStatus, OutboundProbeError, OutboundProbeEvent, ResponseError,
 };
 use libp2p_core::Multiaddr;
 use libp2p_identity::PeerId;
@@ -38,7 +38,7 @@ async fn test_auto_probe() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -140,7 +140,7 @@ async fn test_confidence() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -224,7 +224,7 @@ async fn test_throttle_server_period() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -275,7 +275,7 @@ async fn test_use_connected_as_server() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -313,7 +313,7 @@ async fn test_outbound_failure() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -378,11 +378,11 @@ async fn test_outbound_failure() {
 }
 
 #[tokio::test]
-async fn test_global_ips_config() {
+async fn test_global_ips_configs() {
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 retry_interval: TEST_RETRY_INTERVAL,
                 refresh_interval: TEST_REFRESH_INTERVAL,
                 confidence_max: MAX_CONFIDENCE,
@@ -416,7 +416,7 @@ async fn new_server_swarm() -> (PeerId, Multiaddr, JoinHandle<()>) {
     let mut swarm = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 boot_delay: Duration::from_secs(60),
                 throttle_clients_peer_max: usize::MAX,
                 only_global_ips: false,

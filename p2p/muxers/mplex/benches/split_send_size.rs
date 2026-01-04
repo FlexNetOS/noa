@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! A benchmark for the `split_send_size` configuration option
+//! A benchmark for the `split_send_size` configsuration option
 //! using different transports.
 
 use std::{pin::Pin, time::Duration};
@@ -38,7 +38,7 @@ use tracing_subscriber::EnvFilter;
 
 type BenchTransport = transport::Boxed<(PeerId, muxing::StreamMuxerBox)>;
 
-/// The sizes (in bytes) used for the `split_send_size` configuration.
+/// The sizes (in bytes) used for the `split_send_size` configsuration.
 const BENCH_SIZES: [usize; 8] = [
     256,
     512,
@@ -183,12 +183,12 @@ fn run(
 }
 
 fn tcp_transport(split_send_size: usize) -> BenchTransport {
-    let mut mplex = mplex::Config::default();
+    let mut mplex = mplex::configs::default();
     mplex.set_split_send_size(split_send_size);
 
-    libp2p_tcp::tokio::Transport::new(libp2p_tcp::Config::default().nodelay(true))
+    libp2p_tcp::tokio::Transport::new(libp2p_tcp::configs::default().nodelay(true))
         .upgrade(upgrade::Version::V1)
-        .authenticate(plaintext::Config::new(
+        .authenticate(plaintext::configs::new(
             &identity::Keypair::generate_ed25519(),
         ))
         .multiplex(mplex)
@@ -197,12 +197,12 @@ fn tcp_transport(split_send_size: usize) -> BenchTransport {
 }
 
 fn mem_transport(split_send_size: usize) -> BenchTransport {
-    let mut mplex = mplex::Config::default();
+    let mut mplex = mplex::configs::default();
     mplex.set_split_send_size(split_send_size);
 
     transport::MemoryTransport::default()
         .upgrade(upgrade::Version::V1)
-        .authenticate(plaintext::Config::new(
+        .authenticate(plaintext::configs::new(
             &identity::Keypair::generate_ed25519(),
         ))
         .multiplex(mplex)

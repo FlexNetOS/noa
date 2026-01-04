@@ -53,7 +53,7 @@ macro_rules! fn_allocate_new_port {
     };
 }
 
-/// Options to configure a dial to a known or unknown peer.
+/// Options to configsure a dial to a known or unknown peer.
 ///
 /// Used in [`Swarm::dial`](crate::Swarm::dial) and
 /// [`ToSwarm::Dial`](crate::behaviour::ToSwarm::Dial).
@@ -343,6 +343,6 @@ pub enum PeerCondition {
     #[default]
     DisconnectedAndNotDialing,
     /// A new dialing attempt is always initiated, only subject to the
-    /// configured connection limits.
+    /// configsured connection limits.
     Always,
 }

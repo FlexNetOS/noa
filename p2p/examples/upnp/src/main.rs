@@ -36,8 +36,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_tokio()
         .with_tcp(
             Default::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_behaviour(|_| upnp::tokio::Behaviour::default())?
         .build();

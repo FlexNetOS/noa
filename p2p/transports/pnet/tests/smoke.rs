@@ -4,8 +4,8 @@ use futures::{future, AsyncRead, AsyncWrite, StreamExt};
 use libp2p_core::{
     multiaddr::Protocol, transport::MemoryTransport, upgrade::Version, Multiaddr, Transport,
 };
-use libp2p_pnet::{PnetConfig, PreSharedKey};
-use libp2p_swarm::{dummy, Config, NetworkBehaviour, Swarm, SwarmEvent};
+use libp2p_pnet::{Pnetconfigs, PreSharedKey};
+use libp2p_swarm::{dummy, configs, NetworkBehaviour, Swarm, SwarmEvent};
 
 const TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -30,7 +30,7 @@ async fn can_establish_connection_tcp() {
 #[tokio::test]
 async fn can_establish_connection_websocket() {
     can_establish_connection_inner_with_timeout(
-        || libp2p_websocket::Config::new(libp2p_tcp::tokio::Transport::default()),
+        || libp2p_websocket::configs::new(libp2p_tcp::tokio::Transport::default()),
         "/ip4/127.0.0.1/tcp/0/ws".parse().unwrap(),
     )
     .await
@@ -60,7 +60,7 @@ where
     <T as libp2p_core::Transport>::ListenerUpgrade: Send,
     <T as libp2p_core::Transport>::Dial: Send,
 {
-    let pnet = PnetConfig::new(PreSharedKey::new([0; 32]));
+    let pnet = Pnetconfigs::new(PreSharedKey::new([0; 32]));
 
     let mut swarm1 = make_swarm(build_transport(), pnet);
     let mut swarm2 = make_swarm(build_transport(), pnet);
@@ -97,7 +97,7 @@ where
     assert_eq!(&outbound_peer_id, swarm1.local_peer_id());
 }
 
-fn make_swarm<T>(transport: T, pnet: PnetConfig) -> Swarm<dummy::Behaviour>
+fn make_swarm<T>(transport: T, pnet: Pnetconfigs) -> Swarm<dummy::Behaviour>
 where
     T: Transport + Send + Unpin + 'static,
     <T as libp2p_core::Transport>::Error: Send + Sync + 'static,
@@ -109,14 +109,14 @@ where
     let transport = transport
         .and_then(move |socket, _| pnet.handshake(socket))
         .upgrade(Version::V1)
-        .authenticate(libp2p_noise::Config::new(&identity).unwrap())
-        .multiplex(libp2p_yamux::Config::default())
+        .authenticate(libp2p_noise::configs::new(&identity).unwrap())
+        .multiplex(libp2p_yamux::configs::default())
         .boxed();
     Swarm::new(
         transport,
         dummy::Behaviour,
         identity.public().to_peer_id(),
-        Config::with_tokio_executor(),
+        configs::with_tokio_executor(),
     )
 }
 

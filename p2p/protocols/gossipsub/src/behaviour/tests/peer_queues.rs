@@ -27,7 +27,7 @@ use libp2p_identity::PeerId;
 use libp2p_swarm::{ConnectionId, ToSwarm};
 
 use crate::{
-    config::ConfigBuilder,
+    configs::configsBuilder,
     peer_score::{PeerScoreParams, PeerScoreThresholds},
     queue::Queue,
     transform::DataTransform,
@@ -38,12 +38,12 @@ use crate::{
 
 #[test]
 fn test_all_queues_full() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
 
     let topic_hash = Topic::new("Test").hash();
     let mut peers = vec![];
@@ -73,12 +73,12 @@ fn test_all_queues_full() {
 
 #[test]
 fn test_slow_peer_returns_failed_publish() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
 
     let topic_hash = Topic::new("Test").hash();
     let mut peers = vec![];
@@ -109,7 +109,7 @@ fn test_slow_peer_returns_failed_publish() {
             connections: vec![ConnectionId::new_unchecked(0)],
             outbound: false,
             topics: topics.clone(),
-            messages: Queue::new(gs.config.connection_handler_queue_len()),
+            messages: Queue::new(gs.configs.connection_handler_queue_len()),
             dont_send: LinkedHashMap::new(),
         },
     );
@@ -141,12 +141,12 @@ fn test_slow_peer_returns_failed_publish() {
 
 #[test]
 fn test_slow_peer_returns_failed_ihave_handling() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
 
     let topic_hash = Topic::new("Test").hash();
     let mut peers = vec![];
@@ -178,7 +178,7 @@ fn test_slow_peer_returns_failed_ihave_handling() {
             connections: vec![ConnectionId::new_unchecked(0)],
             outbound: false,
             topics: topics.clone(),
-            messages: Queue::new(gs.config.connection_handler_queue_len()),
+            messages: Queue::new(gs.configs.connection_handler_queue_len()),
             dont_send: LinkedHashMap::new(),
         },
     );
@@ -192,7 +192,7 @@ fn test_slow_peer_returns_failed_ihave_handling() {
     let raw_message = gs
         .build_raw_message(topic_hash.clone(), transformed)
         .unwrap();
-    let msg_id = gs.config.message_id(&Message {
+    let msg_id = gs.configs.message_id(&Message {
         source: raw_message.source,
         data: publish_data,
         sequence_number: raw_message.sequence_number,
@@ -213,7 +213,7 @@ fn test_slow_peer_returns_failed_ihave_handling() {
     let raw_message = gs
         .build_raw_message(topic_hash.clone(), transformed)
         .unwrap();
-    let msg_id = gs.config.message_id(&Message {
+    let msg_id = gs.configs.message_id(&Message {
         source: raw_message.source,
         data: publish_data,
         sequence_number: raw_message.sequence_number,
@@ -245,12 +245,12 @@ fn test_slow_peer_returns_failed_ihave_handling() {
 
 #[test]
 fn test_slow_peer_returns_failed_iwant_handling() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
 
     let topic_hash = Topic::new("Test").hash();
     let mut peers = vec![];
@@ -283,7 +283,7 @@ fn test_slow_peer_returns_failed_iwant_handling() {
             connections: vec![ConnectionId::new_unchecked(0)],
             outbound: false,
             topics: topics.clone(),
-            messages: Queue::new(gs.config.connection_handler_queue_len()),
+            messages: Queue::new(gs.configs.connection_handler_queue_len()),
             dont_send: LinkedHashMap::new(),
         },
     );
@@ -296,7 +296,7 @@ fn test_slow_peer_returns_failed_iwant_handling() {
     let raw_message = gs
         .build_raw_message(topic_hash.clone(), transformed)
         .unwrap();
-    let msg_id = gs.config.message_id(&Message {
+    let msg_id = gs.configs.message_id(&Message {
         source: raw_message.source,
         data: publish_data,
         sequence_number: raw_message.sequence_number,
@@ -330,12 +330,12 @@ fn test_slow_peer_returns_failed_iwant_handling() {
 
 #[test]
 fn test_slow_peer_returns_failed_forward() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
 
     let topic_hash = Topic::new("Test").hash();
     let mut peers = vec![];
@@ -368,7 +368,7 @@ fn test_slow_peer_returns_failed_forward() {
             connections: vec![ConnectionId::new_unchecked(0)],
             outbound: false,
             topics: topics.clone(),
-            messages: Queue::new(gs.config.connection_handler_queue_len()),
+            messages: Queue::new(gs.configs.connection_handler_queue_len()),
             dont_send: LinkedHashMap::new(),
         },
     );
@@ -381,7 +381,7 @@ fn test_slow_peer_returns_failed_forward() {
     let raw_message = gs
         .build_raw_message(topic_hash.clone(), transformed)
         .unwrap();
-    let msg_id = gs.config.message_id(&Message {
+    let msg_id = gs.configs.message_id(&Message {
         source: raw_message.source,
         data: publish_data,
         sequence_number: raw_message.sequence_number,
@@ -415,12 +415,12 @@ fn test_slow_peer_returns_failed_forward() {
 
 #[test]
 fn test_slow_peer_is_downscored_on_publish() {
-    let gs_config = ConfigBuilder::default()
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Permissive)
         .build()
         .unwrap();
 
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::RandomAuthor, gs_configs).unwrap();
     let slow_peer_params = PeerScoreParams::default();
     gs.with_peer_score(slow_peer_params.clone(), PeerScoreThresholds::default())
         .unwrap();
@@ -455,7 +455,7 @@ fn test_slow_peer_is_downscored_on_publish() {
             connections: vec![ConnectionId::new_unchecked(0)],
             outbound: false,
             topics: topics.clone(),
-            messages: Queue::new(gs.config.connection_handler_queue_len()),
+            messages: Queue::new(gs.configs.connection_handler_queue_len()),
             dont_send: LinkedHashMap::new(),
         },
     );

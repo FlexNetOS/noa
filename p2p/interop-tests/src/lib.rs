@@ -267,9 +267,9 @@ pub(crate) struct Behaviour {
 
 pub(crate) fn build_behaviour(key: &Keypair) -> Behaviour {
     Behaviour {
-        ping: ping::Behaviour::new(ping::Config::new().with_interval(Duration::from_secs(1))),
+        ping: ping::Behaviour::new(ping::configs::new().with_interval(Duration::from_secs(1))),
         // Need to include identify until https://github.com/status-im/nim-libp2p/issues/924 is resolved.
-        identify: identify::Behaviour::new(identify::Config::new(
+        identify: identify::Behaviour::new(identify::configs::new(
             "/interop-tests".to_owned(),
             key.public(),
         )),

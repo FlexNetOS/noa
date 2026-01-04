@@ -29,7 +29,7 @@ use libp2p_swarm::ConnectionId;
 use super::DefaultBehaviourTestBuilder;
 use crate::{
     behaviour::{get_random_peers, Behaviour, MessageAuthenticity},
-    config::{Config, ConfigBuilder, ValidationMode},
+    configs::{configs, configsBuilder, ValidationMode},
     queue::Queue,
     types::{PeerDetails, PeerKind},
     IdentTopic as Topic,
@@ -38,16 +38,16 @@ use crate::{
 /// Tests the mesh maintenance addition
 #[test]
 fn test_mesh_addition() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     // Adds mesh_low peers and PRUNE 2 giving us a deficit.
     let (mut gs, peers, _queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n() + 1)
+        .peer_no(configs.mesh_n() + 1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
         .create_network();
 
-    let to_remove_peers = config.mesh_n() + 1 - config.mesh_n_low() - 1;
+    let to_remove_peers = configs.mesh_n() + 1 - configs.mesh_n_low() - 1;
 
     for peer in peers.iter().take(to_remove_peers) {
         gs.handle_prune(
@@ -59,29 +59,29 @@ fn test_mesh_addition() {
     // Verify the pruned peers are removed from the mesh.
     assert_eq!(
         gs.mesh.get(&topics[0]).unwrap().len(),
-        config.mesh_n_low() - 1
+        configs.mesh_n_low() - 1
     );
 
     // run a heartbeat
     gs.heartbeat();
 
     // Peers should be added to reach mesh_n
-    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), config.mesh_n());
+    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), configs.mesh_n());
 }
 
 /// Tests the mesh maintenance subtraction
 #[test]
 fn test_mesh_subtraction() {
-    let config = Config::default();
+    let configs = configs::default();
 
     // Adds mesh_low peers and PRUNE 2 giving us a deficit.
-    let n = config.mesh_n_high() + 10;
+    let n = configs.mesh_n_high() + 10;
     // make all outbound connections so that we allow grafting to all
     let (mut gs, peers, _queues, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(n)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .outbound(n)
         .create_network();
 
@@ -94,21 +94,21 @@ fn test_mesh_subtraction() {
     gs.heartbeat();
 
     // Peers should be removed to reach mesh_n
-    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), config.mesh_n());
+    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), configs.mesh_n());
 }
 
 #[test]
 fn test_do_not_remove_too_many_outbound_peers() {
-    let config = Config::default();
+    let configs = configs::default();
 
     // Adds mesh_low peers and PRUNE 2 giving us a deficit.
-    let n = config.mesh_n_high() + 10;
+    let n = configs.mesh_n_high() + 10;
     // make all outbound connections so that we allow grafting to all
     let (mut gs, peers, _queues, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(n)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .outbound(n)
         .create_network();
 
@@ -121,19 +121,19 @@ fn test_do_not_remove_too_many_outbound_peers() {
     gs.heartbeat();
 
     // Peers should be removed to reach mesh_n
-    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), config.mesh_n());
+    assert_eq!(gs.mesh.get(&topics[0]).unwrap().len(), configs.mesh_n());
 }
 
 /// Test Gossipsub.get_random_peers() function
 #[test]
 fn test_get_random_peers() {
-    // generate a default Config
-    let gs_config = ConfigBuilder::default()
+    // generate a default configs
+    let gs_configs = configsBuilder::default()
         .validation_mode(ValidationMode::Anonymous)
         .build()
         .unwrap();
     // create a gossipsub struct
-    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::Anonymous, gs_config).unwrap();
+    let mut gs: Behaviour = Behaviour::new(MessageAuthenticity::Anonymous, gs_configs).unwrap();
 
     // create a topic and fill it with some peers
     let topic_hash = Topic::new("Test").hash();
@@ -151,7 +151,7 @@ fn test_get_random_peers() {
                 connections: vec![ConnectionId::new_unchecked(0)],
                 outbound: false,
                 topics: topics.clone(),
-                messages: Queue::new(gs.config.connection_handler_queue_len()),
+                messages: Queue::new(gs.configs.connection_handler_queue_len()),
                 dont_send: LinkedHashMap::new(),
             },
         );

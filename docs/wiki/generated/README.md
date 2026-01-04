@@ -24,7 +24,7 @@ noa wiki generate-incremental
 noa wiki validate
 ```
 
-## Provider Configuration
+## Provider configsuration
 
 Documentation is generated using the multi-pass pipeline:
 

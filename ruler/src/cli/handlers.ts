@@ -1,16 +1,17 @@
-import { applyAllAgentConfigs } from '../lib';
-import { revertAllAgentConfigs } from '../revert';
+import { applyAllAgentconfigss } from '../lib';
+import { revertAllAgentconfigss } from '../revert';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs/promises';
 import { ERROR_PREFIX, DEFAULT_RULES_FILENAME } from '../constants';
 import { McpStrategy } from '../types';
-import { loadConfig } from '../core/ConfigLoader';
+import { loadconfigs } from '../core/configsLoader';
 
-export interface ApplyArgs {
+export interface ApplyArgs
+{
   'project-root': string;
   agents?: string;
-  config?: string;
+  configs?: string;
   mcp: boolean;
   'mcp-overwrite': boolean;
   gitignore?: boolean;
@@ -22,15 +23,17 @@ export interface ApplyArgs {
   skills?: boolean;
 }
 
-export interface InitArgs {
+export interface InitArgs
+{
   'project-root': string;
   global: boolean;
 }
 
-export interface RevertArgs {
+export interface RevertArgs
+{
   'project-root': string;
   agents?: string;
-  config?: string;
+  configs?: string;
   'keep-backups': boolean;
   verbose: boolean;
   'dry-run': boolean;
@@ -40,64 +43,74 @@ export interface RevertArgs {
 /**
  * Handler for the 'apply' command.
  */
-export async function applyHandler(argv: ApplyArgs): Promise<void> {
-  const projectRoot = argv['project-root'];
+export async function applyHandler ( argv: ApplyArgs ): Promise<void>
+{
+  const projectRoot = argv[ 'project-root' ];
   const agents = argv.agents
-    ? argv.agents.split(',').map((a) => a.trim())
+    ? argv.agents.split( ',' ).map( ( a ) => a.trim() )
     : undefined;
-  const configPath = argv.config;
+  const configsPath = argv.configs;
   const mcpEnabled = argv.mcp;
-  const mcpStrategy: McpStrategy | undefined = argv['mcp-overwrite']
+  const mcpStrategy: McpStrategy | undefined = argv[ 'mcp-overwrite' ]
     ? 'overwrite'
     : undefined;
   const verbose = argv.verbose;
-  const dryRun = argv['dry-run'];
-  const localOnly = argv['local-only'];
+  const dryRun = argv[ 'dry-run' ];
+  const localOnly = argv[ 'local-only' ];
   const backup = argv.backup;
 
   // Determine gitignore preference: CLI > TOML > Default (enabled)
   // yargs handles --no-gitignore by setting gitignore to false
   let gitignorePreference: boolean | undefined;
-  if (argv.gitignore !== undefined) {
+  if ( argv.gitignore !== undefined )
+  {
     gitignorePreference = argv.gitignore;
-  } else {
+  } else
+  {
     gitignorePreference = undefined; // Let TOML/default decide
   }
 
   // Determine nested preference: CLI > TOML > Default (false)
   let nested: boolean;
 
-  if (argv.nested !== undefined) {
+  if ( argv.nested !== undefined )
+  {
     // CLI explicitly set nested (either --nested or --no-nested)
     nested = argv.nested;
-  } else {
-    // CLI didn't set nested, check TOML configuration
-    try {
-      const config = await loadConfig({
+  } else
+  {
+    // CLI didn't set nested, check TOML configsuration
+    try
+    {
+      const configs = await loadconfigs( {
         projectRoot,
-        configPath,
-      });
+        configsPath,
+      } );
       // Use TOML setting if available, otherwise default to false
-      nested = config.nested ?? false;
-    } catch {
-      // If config loading fails, use default (false)
+      nested = configs.nested ?? false;
+    } catch
+    {
+      // If configs loading fails, use default (false)
       nested = false;
     }
   }
 
   // Determine skills preference: CLI > TOML > Default (enabled)
   let skillsEnabled: boolean | undefined;
-  if (argv.skills !== undefined) {
+  if ( argv.skills !== undefined )
+  {
     skillsEnabled = argv.skills;
-  } else {
-    skillsEnabled = undefined; // Let config/default decide
+  } else
+  {
+    skillsEnabled = undefined; // Let configs/default decide
   }
 
-  try {
-    await applyAllAgentConfigs(
+  try
+  {
+    await applyAllAgentconfigss(
       projectRoot,
       agents,
-      configPath,
+      configsPath,
       mcpEnabled,
       mcpStrategy,
       gitignorePreference,
@@ -108,40 +121,45 @@ export async function applyHandler(argv: ApplyArgs): Promise<void> {
       backup,
       skillsEnabled,
     );
-    console.log('Ruler apply completed successfully.');
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`${ERROR_PREFIX} ${message}`);
-    process.exit(1);
+    console.log( 'Ruler apply completed successfully.' );
+  } catch ( err: unknown )
+  {
+    const message = err instanceof Error ? err.message : String( err );
+    console.error( `${ ERROR_PREFIX } ${ message }` );
+    process.exit( 1 );
   }
 }
 
 /**
  * Handler for the 'init' command.
  */
-export async function initHandler(argv: InitArgs): Promise<void> {
-  const projectRoot = argv['project-root'];
-  const isGlobal = argv['global'];
+export async function initHandler ( argv: InitArgs ): Promise<void>
+{
+  const projectRoot = argv[ 'project-root' ];
+  const isGlobal = argv[ 'global' ];
 
   const rulerDir = isGlobal
     ? path.join(
-        process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'),
-        'ruler',
-      )
-    : path.join(projectRoot, '.ruler');
-  await fs.mkdir(rulerDir, { recursive: true });
-  const instructionsPath = path.join(rulerDir, DEFAULT_RULES_FILENAME); // .ruler/AGENTS.md
-  const tomlPath = path.join(rulerDir, 'ruler.toml');
-  const exists = async (p: string) => {
-    try {
-      await fs.access(p);
+      process.env.XDG_configs_HOME || path.join( os.homedir(), '.configs' ),
+      'ruler',
+    )
+    : path.join( projectRoot, '.ruler' );
+  await fs.mkdir( rulerDir, { recursive: true } );
+  const instructionsPath = path.join( rulerDir, DEFAULT_RULES_FILENAME ); // .ruler/AGENTS.md
+  const tomlPath = path.join( rulerDir, 'ruler.toml' );
+  const exists = async ( p: string ) =>
+  {
+    try
+    {
+      await fs.access( p );
       return true;
-    } catch {
+    } catch
+    {
       return false;
     }
   };
   const DEFAULT_INSTRUCTIONS = `# AGENTS.md\n\nCentralised AI agent instructions. Add coding guidelines, style guides, and project context here.\n\nRuler concatenates all .md files in this directory (and subdirectories), starting with AGENTS.md (if present), then remaining files in sorted order.\n`;
-  const DEFAULT_TOML = `# Ruler Configuration File
+  const DEFAULT_TOML = `# Ruler configsuration File
 # See https://ai.intellectronica.net/ruler for documentation.
 
 # To specify which agents are active by default when --agents is not used,
@@ -152,7 +170,7 @@ export async function initHandler(argv: InitArgs): Promise<void> {
 # When enabled, ruler will search for and process .ruler directories throughout the project hierarchy
 # nested = false
 
-# --- Agent Specific Configurations ---
+# --- Agent Specific configsurations ---
 # You can enable/disable agents and override their default output paths here.
 # Use lowercase agent identifiers: amp, copilot, claude, codex, cursor, windsurf, cline, aider, kilocode
 
@@ -163,7 +181,7 @@ export async function initHandler(argv: InitArgs): Promise<void> {
 # [agents.aider]
 # enabled = true
 # output_path_instructions = "AGENTS.md"
-# output_path_config = ".aider.conf.yml"
+# output_path_configs = ".aider.conf.yml"
 
 # [agents.gemini-cli]
 # enabled = true
@@ -182,48 +200,55 @@ export async function initHandler(argv: InitArgs): Promise<void> {
 # url = "https://api.example.com/mcp"
 # headers = { Authorization = "Bearer REPLACE_ME" }
 `;
-  if (!(await exists(instructionsPath))) {
+  if ( !( await exists( instructionsPath ) ) )
+  {
     // Create new AGENTS.md regardless of legacy presence.
-    await fs.writeFile(instructionsPath, DEFAULT_INSTRUCTIONS);
-    console.log(`[ruler] Created ${instructionsPath}`);
-  } else {
-    console.log(`[ruler] ${DEFAULT_RULES_FILENAME} already exists, skipping`);
+    await fs.writeFile( instructionsPath, DEFAULT_INSTRUCTIONS );
+    console.log( `[ruler] Created ${ instructionsPath }` );
+  } else
+  {
+    console.log( `[ruler] ${ DEFAULT_RULES_FILENAME } already exists, skipping` );
   }
-  if (!(await exists(tomlPath))) {
-    await fs.writeFile(tomlPath, DEFAULT_TOML);
-    console.log(`[ruler] Created ${tomlPath}`);
-  } else {
-    console.log(`[ruler] ruler.toml already exists, skipping`);
+  if ( !( await exists( tomlPath ) ) )
+  {
+    await fs.writeFile( tomlPath, DEFAULT_TOML );
+    console.log( `[ruler] Created ${ tomlPath }` );
+  } else
+  {
+    console.log( `[ruler] ruler.toml already exists, skipping` );
   }
 }
 
 /**
  * Handler for the 'revert' command.
  */
-export async function revertHandler(argv: RevertArgs): Promise<void> {
-  const projectRoot = argv['project-root'];
+export async function revertHandler ( argv: RevertArgs ): Promise<void>
+{
+  const projectRoot = argv[ 'project-root' ];
   const agents = argv.agents
-    ? argv.agents.split(',').map((a) => a.trim())
+    ? argv.agents.split( ',' ).map( ( a ) => a.trim() )
     : undefined;
-  const configPath = argv.config;
-  const keepBackups = argv['keep-backups'];
+  const configsPath = argv.configs;
+  const keepBackups = argv[ 'keep-backups' ];
   const verbose = argv.verbose;
-  const dryRun = argv['dry-run'];
-  const localOnly = argv['local-only'];
+  const dryRun = argv[ 'dry-run' ];
+  const localOnly = argv[ 'local-only' ];
 
-  try {
-    await revertAllAgentConfigs(
+  try
+  {
+    await revertAllAgentconfigss(
       projectRoot,
       agents,
-      configPath,
+      configsPath,
       keepBackups,
       verbose,
       dryRun,
       localOnly,
     );
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`${ERROR_PREFIX} ${message}`);
-    process.exit(1);
+  } catch ( err: unknown )
+  {
+    const message = err instanceof Error ? err.message : String( err );
+    console.error( `${ ERROR_PREFIX } ${ message }` );
+    process.exit( 1 );
   }
 }

@@ -86,14 +86,14 @@ impl<T: AuthenticatedMultiplexedTransport>
 impl<T: AuthenticatedMultiplexedTransport>
     SwarmBuilder<super::provider::Tokio, OtherTransportPhase<T>>
 {
-    pub fn with_dns_config(
+    pub fn with_dns_configs(
         self,
-        cfg: libp2p_dns::ResolverConfig,
+        cfg: libp2p_dns::Resolverconfigs,
         opts: libp2p_dns::ResolverOpts,
     ) -> SwarmBuilder<super::provider::Tokio, WebsocketPhase<impl AuthenticatedMultiplexedTransport>>
     {
         self.without_any_other_transports()
-            .with_dns_config(cfg, opts)
+            .with_dns_configs(cfg, opts)
     }
 }
 #[cfg(feature = "relay")]

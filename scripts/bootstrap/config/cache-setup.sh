@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Configure centralized cache directories for all NOA toolchains.
+# configsure centralized cache directories for all NOA toolchains.
 #
-# Creates cache directory structure and configures environment variables
+# Creates cache directory structure and configsures environment variables
 # to centralize all tool caches under noa_root/cache/.
 #
 # Usage:
@@ -65,7 +65,7 @@ echo "  export GOCACHE=\"$CACHE_DIR/go\""
 echo "  export GOMODCACHE=\"$NOA_ROOT/opt/go/pkg/mod\""
 echo ""
 echo -e "  \033[36m# npm\033[0m"
-echo "  export npm_config_cache=\"$CACHE_DIR/npm\""
+echo "  export npm_configs_cache=\"$CACHE_DIR/npm\""
 echo ""
 echo -e "  \033[36m# pip\033[0m"
 echo "  export PIP_CACHE_DIR=\"$CACHE_DIR/pip\""
@@ -77,9 +77,9 @@ echo -e "  \033[36m# Ollama\033[0m"
 echo "  export OLLAMA_MODELS=\"$CACHE_DIR/ollama\""
 echo ""
 
-# Create a cache config file for reference
-CACHE_CONFIG_PATH="$CACHE_DIR/cache-config.json"
-cat > "$CACHE_CONFIG_PATH" << EOF
+# Create a cache configs file for reference
+CACHE_configs_PATH="$CACHE_DIR/cache-configs.json"
+cat > "$CACHE_configs_PATH" << EOF
 {
   "noa_root": "$NOA_ROOT",
   "cache_root": "$CACHE_DIR",
@@ -98,12 +98,12 @@ cat > "$CACHE_CONFIG_PATH" << EOF
     "CARGO_HOME": "$NOA_ROOT/opt/rust/cargo",
     "GOCACHE": "$CACHE_DIR/go",
     "GOMODCACHE": "$NOA_ROOT/opt/go/pkg/mod",
-    "npm_config_cache": "$CACHE_DIR/npm",
+    "npm_configs_cache": "$CACHE_DIR/npm",
     "PIP_CACHE_DIR": "$CACHE_DIR/pip",
     "HF_HOME": "$CACHE_DIR/huggingface",
     "OLLAMA_MODELS": "$CACHE_DIR/ollama"
   }
 }
 EOF
-echo -e "\033[32mCache configuration saved to: $CACHE_CONFIG_PATH\033[0m"
+echo -e "\033[32mCache configsuration saved to: $CACHE_configs_PATH\033[0m"
 

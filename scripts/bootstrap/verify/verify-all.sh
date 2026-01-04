@@ -2,7 +2,7 @@
 #
 # Verify entire NOA environment installation.
 #
-# Runs all verification checks to ensure NOA is properly installed and configured.
+# Runs all verification checks to ensure NOA is properly installed and configsured.
 # Checks toolchains, AI providers, shared resources, and environment setup.
 #
 # Usage:
@@ -72,7 +72,7 @@ fi
 # 1. Directory Structure
 if ! $JSON_OUTPUT; then echo -e "${YELLOW}Checking directory structure...${NC}"; fi
 
-REQUIRED_DIRS=("bin" "config" "ai" "ai/shared" "ai/providers" "logs" "specs")
+REQUIRED_DIRS=("bin" "configs" "ai" "ai/shared" "ai/providers" "logs" "specs")
 for dir in "${REQUIRED_DIRS[@]}"; do
     run_check "dir_$dir" "Directory: $dir" "[[ -d '$NOA_ROOT/$dir' ]]"
 done
@@ -84,7 +84,7 @@ run_check "tool_git" "Tool: git" "command -v git"
 run_check "tool_jq" "Tool: jq" "command -v jq || [[ -x '$NOA_ROOT/bin/jq' ]]"
 run_check "tool_rg" "Tool: rg" "command -v rg || [[ -x '$NOA_ROOT/bin/rg' ]]"
 
-# 3. AI Provider Configs
+# 3. AI Provider configss
 if ! $JSON_OUTPUT; then echo ""; echo -e "${YELLOW}Checking AI providers...${NC}"; fi
 
 VERIFY_PROVIDERS="$BOOTSTRAP_DIR/verify-ai-providers.sh"

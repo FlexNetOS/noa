@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! Configuration of transport protocol upgrades.
+//! configsuration of transport protocol upgrades.
 
 use std::{
     error::Error,
@@ -119,7 +119,7 @@ where
 /// An upgrade that authenticates the remote peer, typically
 /// in the context of negotiating a secure channel.
 ///
-/// Configured through [`Builder::authenticate`].
+/// configsured through [`Builder::authenticate`].
 #[pin_project::pin_project]
 pub struct Authenticate<C, U>
 where
@@ -151,7 +151,7 @@ where
 /// An upgrade that negotiates a (sub)stream multiplexer on
 /// top of an authenticated transport.
 ///
-/// Configured through [`Authenticated::multiplex`].
+/// configsured through [`Authenticated::multiplex`].
 #[pin_project::pin_project]
 pub struct Multiplex<C, U>
 where

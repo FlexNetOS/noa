@@ -34,7 +34,7 @@
 - Raise MSRV to 1.83.0.
   See [PR 5650](https://github.com/libp2p/rust-libp2p/pull/5650).
 
-- Add `with_connection_timeout` on `SwarmBuilder` to allow configuration of the connection_timeout parameter.
+- Add `with_connection_timeout` on `SwarmBuilder` to allow configsuration of the connection_timeout parameter.
   See [PR 5575](https://github.com/libp2p/rust-libp2p/pull/5575).
 
 - Deprecate `void` crate.
@@ -93,9 +93,9 @@
 
 ## 0.53.1
 
-- Allow `SwarmBuilder::with_quic_config` to be called without `with_tcp` first.
+- Allow `SwarmBuilder::with_quic_configs` to be called without `with_tcp` first.
   See [PR 4821](https://github.com/libp2p/rust-libp2p/pull/4821).
-- Introduce `SwarmBuilder::with_dns_config`.
+- Introduce `SwarmBuilder::with_dns_configs`.
   See [PR 4808](https://github.com/libp2p/rust-libp2p/pull/4808).
 
 ## 0.53.0
@@ -148,7 +148,7 @@
 - Add support for UPnP via the IGD protocol.
   See [PR 4156].
 
-- Add `libp2p-memory-connection-limits` providing memory usage based connection limit configurations.
+- Add `libp2p-memory-connection-limits` providing memory usage based connection limit configsurations.
   See [PR 4281].
 
 [PR 4188]: https://github.com/libp2p/rust-libp2p/pull/4188
@@ -839,7 +839,7 @@ definitely not it. See below for the many other changes packed into this release
   upgrade process.* See the `libp2p-yamux` CHANGELOG for details.
 
 - Bump `libp2p-noise` to `0.24`. See the `libp2p-noise`
-changelog for details about the `LegacyConfig`.
+changelog for details about the `Legacyconfigs`.
 
 - The `ProtocolsHandler` in `libp2p-swarm` has a new associated type
   `InboundOpenInfo` ([PR 1714]).
@@ -855,10 +855,10 @@ changelog for details about the `LegacyConfig`.
 
 **NOTE**: For a smooth upgrade path from `0.21` to `> 0.22`
 on an existing deployment, this version must not be skipped
-or the provided legacy configuration for `libp2p-noise` used!
+or the provided legacy configsuration for `libp2p-noise` used!
 
 - Bump `libp2p-noise` dependency to `0.22`. See the `libp2p-noise`
-changelog for details about the `LegacyConfig`.
+changelog for details about the `Legacyconfigs`.
 
 - Refactored bandwidth logging ([PR 1670](https://github.com/libp2p/rust-libp2p/pull/1670)).
 
@@ -895,7 +895,7 @@ must not be skipped!
 ## Version 0.19.0 (2020-05-18)
 
 - `libp2p-core`, `libp2p-swarm`: Added support for multiple dialing
-  attempts per peer, with a configurable limit.
+  attempts per peer, with a configsurable limit.
   [PR 1506](https://github.com/libp2p/rust-libp2p/pull/1506)
 
 - `libp2p-core`: `PeerId`s that use the identity hashing will now be properly
@@ -906,7 +906,7 @@ must not be skipped!
 - `libp2p-core`: Updated to multihash 0.11.0.
   [PR 1566](https://github.com/libp2p/rust-libp2p/pull/1566)
 
-- `libp2p-core`: Make the number of events buffered to/from tasks configurable.
+- `libp2p-core`: Make the number of events buffered to/from tasks configsurable.
   [PR 1574](https://github.com/libp2p/rust-libp2p/pull/1574)
 
 - `libp2p-dns`, `parity-multiaddr`: Added support for the `/dns` multiaddr
@@ -923,11 +923,11 @@ must not be skipped!
   included in the libp2p-noise-spec. The `X25519Spec` implementation
   will eventually replace the current `X25519` implementation, with
   the former being removed. To upgrade without interruptions, you may
-  temporarily include `NoiseConfig`s for both implementations as
+  temporarily include `Noiseconfigs`s for both implementations as
   alternatives in your transport upgrade pipeline.
 
 - `libp2p-kad`: Consider fixed (K_VALUE) amount of peers at closest query
-  initialization. Unless `KademliaConfig::set_replication_factor` is used change
+  initialization. Unless `Kademliaconfigs::set_replication_factor` is used change
   has no effect.
   [PR 1536](https://github.com/libp2p/rust-libp2p/pull/1536)
 
@@ -980,14 +980,14 @@ must not be skipped!
   [PR 1527](https://github.com/libp2p/rust-libp2p/pull/1527)
 - `libp2p-core`, `libp2p-swarm`: Report addresses of closed listeners.
   [PR 1485](https://github.com/libp2p/rust-libp2p/pull/1485)
-- `libp2p-core`: Support for multiple connections per peer and configurable connection limits.
+- `libp2p-core`: Support for multiple connections per peer and configsurable connection limits.
   See [PR #1440](https://github.com/libp2p/rust-libp2p/pull/1440),
   [PR #1519](https://github.com/libp2p/rust-libp2p/pull/1519) and
   [issue #912](https://github.com/libp2p/rust-libp2p/issues/912) for details.
 
 - `libp2p-swarm`: Pass the cause of closing a listener to `inject_listener_closed`.
   [PR 1517](https://github.com/libp2p/rust-libp2p/pull/1517)
-- `libp2p-swarm`: Support for multiple connections per peer and configurable connection limits.
+- `libp2p-swarm`: Support for multiple connections per peer and configsurable connection limits.
   See [PR #1440](https://github.com/libp2p/rust-libp2p/pull/1440),
   [PR #1519](https://github.com/libp2p/rust-libp2p/pull/1519) and
   [issue #912](https://github.com/libp2p/rust-libp2p/issues/912) for details.
@@ -995,7 +995,7 @@ must not be skipped!
   [PR 1515](https://github.com/libp2p/rust-libp2p/pull/1515)
 - `libp2p-swarm`: New `protocols_handler::multi` module.
   [PR 1497](https://github.com/libp2p/rust-libp2p/pull/1497)
-- `libp2p-swarm`: Allow configuration of outbound substreams.
+- `libp2p-swarm`: Allow configsuration of outbound substreams.
   [PR 1521](https://github.com/libp2p/rust-libp2p/pull/1521)
 
 - `libp2p-kad`: Providers returned from a lookup are now deduplicated.
@@ -1049,15 +1049,15 @@ must not be skipped!
 ## Version 0.15.0 (2020-01-24)
 
 - Added `libp2p-gossipsub`.
-- Added `SwarmBuilder::executor` to allow configuring which tasks executor to use.
-- Added `TokioTcpConfig` in `libp2p-tcp` and `TokioUdsConfig` in `libp2p-uds` behind `tokio` features. These structs use `tokio` and require a `tokio` runtime executor to be configured via `SwarmBuilder::executor`.
+- Added `SwarmBuilder::executor` to allow configsuring which tasks executor to use.
+- Added `TokioTcpconfigs` in `libp2p-tcp` and `TokioUdsconfigs` in `libp2p-uds` behind `tokio` features. These structs use `tokio` and require a `tokio` runtime executor to be configsured via `SwarmBuilder::executor`.
 - Changed the `OutboundUpgrade` and `InboundUpgrade` traits to no longer be passed a `Negotiated<C>` but just a `C`. The `Negotiated` is now in the trait bounds requirements of `ProtocolsHandler`.
 - Fixed `libp2p-wasm-ext` returning `Err(WouldBlock)` rather than `Pending`.
 - Fixed `libp2p-dns` not segregating DNS4 and DNS6.
 - Removed some unnecessary `Unpin` requirements on futures.
 - Changed `Mdns::new` to no longer be `async`.
 - Fixed `libp2p-kad` keeping connections alive when it shouldn't.
-- Fixed `InboundUpgrade` not always properly implemented on `NoiseConfig`.
+- Fixed `InboundUpgrade` not always properly implemented on `Noiseconfigs`.
 
 ## Version 0.14.0-alpha.1 (2020-01-07)
 
@@ -1085,7 +1085,7 @@ must not be skipped!
 - Reworked the transport upgrade API. See https://github.com/libp2p/rust-libp2p/pull/1240 for more information.
 - Added a parameter allowing to choose the protocol negotiation protocol when upgrading a connection or a substream. See https://github.com/libp2p/rust-libp2p/pull/1245 for more information.
 - Added an alternative `multistream-select` protocol called `V1Lazy`.
-- Added `PlainText2Config` that implements the `/plaintext/2.0.0` protocol.
+- Added `PlainText2configs` that implements the `/plaintext/2.0.0` protocol.
 - Refactored `libp2p-identify`. Some items have been renamed.
 - Now accepting `PeerId`s using the `identity` hashing algorithm as valid.
 - Removed `libp2p-observed` and `libp2p-ratelimit`.
@@ -1106,7 +1106,7 @@ must not be skipped!
 
 ## Version 0.11.0 (2019-07-18)
 
-- `libp2p-kad`: Completed the core functionality of the record storage API, thereby extending the `RecordStore` for provider records. All records expire by default and are subject to regular republication and caching as per the Kademlia spec(s). Expiration and publication intervals are configurable through the `KademliaConfig`.
+- `libp2p-kad`: Completed the core functionality of the record storage API, thereby extending the `RecordStore` for provider records. All records expire by default and are subject to regular republication and caching as per the Kademlia spec(s). Expiration and publication intervals are configsurable through the `Kademliaconfigs`.
 - `libp2p-kad`: The routing table now never stores peers without a known (listen) address. In particular, on receiving a new inbound connection, the Kademlia behaviour now emits `KademliaEvent::UnroutablePeer` to indicate that in order for the peer to be added to the routing table and hence considered a reachable node in the DHT, a listen address of the peer must be discovered and reported via `Kademlia::add_address`. This is usually achieved through the use of the `Identify` protocol on the same connection(s).
 - `libp2p-kad`: Documentation updates.
 - Extracted the `swarm` and `protocols_handler`-related contents from `libp2p-core` to a new `libp2p-swarm` crate.
@@ -1134,7 +1134,7 @@ must not be skipped!
 - Major fixes and performance improvements to libp2p-kad.
 - Initial prototype for record storage in libp2p-kad.
 - Rewrote the implementation of WebSockets. It now properly supports WebSockets Secure (WSS).
-- Removed `BrowserWsConfig`. Please use `libp2p::wasm_ext::ExtTransport` instead.
+- Removed `BrowserWsconfigs`. Please use `libp2p::wasm_ext::ExtTransport` instead.
 - Added a `Path` parameter to `multiaddr::Protocol::WS` and `WSS`. The string representation when a path is present is respectively `x-parity-ws/<path>` and `x-parity-wss/<path>` where `<path>` is percent-encoded.
 - Fixed an issue with `libp2p-tcp` where the wrong listened address was returned, if the actual address was loopback.
 - Added `core::upgrade::OptionalUpgrade`.
@@ -1148,7 +1148,7 @@ must not be skipped!
 ## Version 0.8.0 (2019-05-15)
 
 - Crate now successfully runs from within the browser when compiled to WASM.
-- Modified the constructors of `NoiseConfig` to accept any type of public key. The Noise handshake has consequently been modified.
+- Modified the constructors of `Noiseconfigs` to accept any type of public key. The Noise handshake has consequently been modified.
 - Changed the `StreamMuxer` trait to have an `Error` associated type.
 - The `Swarm` now ranks externally-visible multiaddresses by how often they have been reported, ensuring that weird or malicious reports don't affect connectivity too much.
 - Added `IntoProtocolsHandler::inbound_protocol`. Must return the same value as what `ProtocolsHandler::listen_protocol` would return.
@@ -1172,7 +1172,7 @@ must not be skipped!
 - `Transport::listen_on` no longer returns an address we're listening on. This is done through `ListenEvent`s. All other `listen_on` methods have been updated accordingly.
 - Added `NetworkBehaviour::inject_new_listen_addr`, `NetworkBehaviour::inject_expired_listen_addr` and `NetworkBehaviour::inject_new_external_addr`.
 - `ProtocolsHandler::listen_protocol` and `ProtocolsHandlerEvent::OutboundSubstreamRequest` must now return a `SubstreamProtocol` struct containing a timeout for the upgrade.
-- `Ping::new` now requires a `PingConfig`, which can be created with `PingConfig::new`.
+- `Ping::new` now requires a `Pingconfigs`, which can be created with `Pingconfigs::new`.
 - Removed `Transport::nat_traversal` in favour of a stand-alone `address_translation` function in `libp2p-core`.
 - Reworked the API of `Multiaddr`.
 - Removed the `ToMultiaddr` trait in favour of `TryFrom`.
@@ -1233,7 +1233,7 @@ must not be skipped!
 - The addresses to try dialing when dialing a node is now refreshed by the `Swarm` when necessary.
 - Lots of modifications to the semi-private structs in `core/nodes`.
 - Added `IdentifyEvent::SendBack`, when we send back our information.
-- Rewrote the `MemoryTransport` to be similar to the `TcpConfig`.
+- Rewrote the `MemoryTransport` to be similar to the `Tcpconfigs`.
 
 ## Version 0.3.1 (2019-02-02)
 
@@ -1253,7 +1253,7 @@ must not be skipped!
 - `ProtocolsHandler::connection_keep_alive()` now returns a `KeepAlive` enum that provides more fine grained control.
 - The `NodeHandlerWrapper` no longer has a 5 seconds inactivity timeout. This is now handled entirely by `ProtocolsHandler::connection_keep_alive()`.
 - Now properly denying connections incoming from the same `PeerId` as ours.
-- Added a `SwarmBuilder`. The `incoming_limit` method lets you configure the number of simultaneous incoming connections.
+- Added a `SwarmBuilder`. The `incoming_limit` method lets you configsure the number of simultaneous incoming connections.
 - Removed `FloodsubHandler`, `PingListenHandler` and `PeriodicPingHandler`.
 - The structs in `core::nodes` are now generic over the `PeerId`.
 - Added `SecioKeypair::ed25519_raw_key()`.

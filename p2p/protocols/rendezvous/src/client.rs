@@ -74,7 +74,7 @@ impl Behaviour {
             inner: libp2p_request_response::Behaviour::with_codec(
                 crate::codec::Codec::default(),
                 iter::once((crate::PROTOCOL_IDENT, ProtocolSupport::Outbound)),
-                libp2p_request_response::Config::default(),
+                libp2p_request_response::configs::default(),
             ),
             keypair,
             waiting_for_register: Default::default(),

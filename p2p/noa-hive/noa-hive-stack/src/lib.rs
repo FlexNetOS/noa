@@ -13,7 +13,7 @@ pub mod pubsub;
 pub mod dht;
 pub mod request_response;
 
-pub use swarm::{HiveSwarm, SwarmConfig, SwarmEvent};
+pub use swarm::{HiveSwarm, Swarmconfigs, SwarmEvent};
 pub use pubsub::PubSub;
 pub use dht::Dht;
 pub use request_response::RequestResponse;

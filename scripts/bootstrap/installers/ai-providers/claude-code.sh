@@ -6,7 +6,7 @@
 # portable environment. Supports npm installation and native installer methods.
 #
 # Repository: https://github.com/FlexNetOS/claude-code.git
-# Provider Config: ai/providers/cloud/claude-code/config.json
+# Provider configs: ai/providers/cloud/claude-code/configs.json
 #
 # Usage:
 #   ./claude-code.sh                    # Install via npm (default)
@@ -58,8 +58,8 @@ else
     log_error() { echo "[Error] $1" >&2; }
 fi
 
-# Configuration
-PROVIDER_CONFIG_PATH="$NOA_ROOT/ai/providers/cloud/claude-code"
+# configsuration
+PROVIDER_configs_PATH="$NOA_ROOT/ai/providers/cloud/claude-code"
 OPT_PATH="$NOA_ROOT/opt"
 BIN_PATH="$NOA_ROOT/bin"
 NODE_PATH="$OPT_PATH/node"
@@ -69,7 +69,7 @@ log_info "  Method: $METHOD"
 log_info "  NOA Root: $NOA_ROOT"
 
 # Ensure directories exist
-for dir in "$OPT_PATH" "$BIN_PATH" "$PROVIDER_CONFIG_PATH"; do
+for dir in "$OPT_PATH" "$BIN_PATH" "$PROVIDER_configs_PATH"; do
     if [[ ! -d "$dir" ]]; then
         mkdir -p "$dir"
         log_success "  Created: $dir"
@@ -91,7 +91,7 @@ case "$METHOD" in
         fi
 
         # Set npm prefix to install globally within noa_root
-        export npm_config_prefix="$NODE_PATH"
+        export npm_configs_prefix="$NODE_PATH"
 
         # Install claude-code
         $NPM_CMD install -g "$NPM_PACKAGE" || {
@@ -163,7 +163,7 @@ else
 fi
 
 log_success "Claude Code installation complete!"
-log_info "  Provider config: $PROVIDER_CONFIG_PATH"
+log_info "  Provider configs: $PROVIDER_configs_PATH"
 log_info "  Shared resources: $NOA_ROOT/ai/shared"
 
 exit 0

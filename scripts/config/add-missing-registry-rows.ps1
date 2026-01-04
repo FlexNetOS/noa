@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$CsvPath = "N:\noa\docs\plans\config-audit-table.csv",
+    [string]$CsvPath = "N:\noa\docs\plans\configs-audit-table.csv",
 
     [Parameter(Mandatory = $false)]
     [string]$RepoRoot = "N:\noa"
@@ -131,7 +131,7 @@ $added = New-Object System.Collections.Generic.List[object]
 
 # Defaults
 $aiDefaults = @{
-    asset_type='config'
+    asset_type='configs'
     layer='mutable'
     authority='authoritative'
     owner='ai'
@@ -173,14 +173,14 @@ Add-FileRows -Header $header -Out $added -Existing $existing -StartRel 'ai/share
 $provDefaults = $aiDefaults.Clone()
 $provDefaults['consumer_status'] = 'planned'
 $provDefaults['planned_consumer'] = 'sys/core/src/providers/*'
-$provDefaults['schema_ref'] = 'config/schemas/providers.yaml'
+$provDefaults['schema_ref'] = 'configs/schemas/providers.yaml'
 $provDefaults['schema_status'] = 'exists'
 $provDefaults['reloadable'] = 'yes'
 $provDefaults['env_vars_used'] = 'OPENAI_API_KEY;ANTHROPIC_API_KEY;ABACUS_API_KEY;GITHUB_TOKEN'
 
 Add-FileRows -Header $header -Out $added -Existing $existing -StartRel 'ai/providers' -Defaults $provDefaults -PerFile {
     param($file, $vals)
-    if ($file.Name -ne 'config.json') {
+    if ($file.Name -ne 'configs.json') {
         $vals['location'] = ''
         return
     }

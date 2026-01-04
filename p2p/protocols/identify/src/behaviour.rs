@@ -93,7 +93,7 @@ fn is_tcp_addr(addr: &Multiaddr) -> bool {
 /// All external addresses of the local node supposedly observed by remotes
 /// are reported via [`ToSwarm::NewExternalAddrCandidate`].
 pub struct Behaviour {
-    config: Config,
+    configs: configs,
     /// For each peer we're connected to, the observed address to send back to it.
     connected: HashMap<PeerId, HashMap<ConnectionId, Multiaddr>>,
 
@@ -112,10 +112,10 @@ pub struct Behaviour {
     external_addresses: ExternalAddresses,
 }
 
-/// Configuration for the [`identify::Behaviour`](Behaviour).
+/// configsuration for the [`identify::Behaviour`](Behaviour).
 #[non_exhaustive]
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// Application-specific version of the protocol family used by the peer,
     /// e.g. `ipfs/1.0.0` or `polkadot/1.0.0`.
     protocol_version: String,
@@ -158,16 +158,16 @@ pub struct Config {
     hide_listen_addrs: bool,
 }
 
-impl Config {
-    /// Creates a new configuration for the identify [`Behaviour`] that
+impl configs {
+    /// Creates a new configsuration for the identify [`Behaviour`] that
     /// advertises the given protocol version and public key.
-    /// Use [`new_with_signed_peer_record`](Config::new_with_signed_peer_record) for
+    /// Use [`new_with_signed_peer_record`](configs::new_with_signed_peer_record) for
     /// `signedPeerRecord` support.
     pub fn new(protocol_version: String, local_public_key: PublicKey) -> Self {
         Self::new_with_key(protocol_version, local_public_key)
     }
 
-    /// Creates a new configuration for the identify [`Behaviour`] that
+    /// Creates a new configsuration for the identify [`Behaviour`] that
     /// advertises the given protocol version and public key.
     /// The private key will be used to sign [`PeerRecord`](libp2p_core::PeerRecord)
     /// for verifiable address advertisement.
@@ -187,20 +187,20 @@ impl Config {
         }
     }
 
-    /// Configures the agent version sent to peers.
+    /// configsures the agent version sent to peers.
     pub fn with_agent_version(mut self, v: String) -> Self {
         self.agent_version = v;
         self
     }
 
-    /// Configures the interval at which identification requests are
+    /// configsures the interval at which identification requests are
     /// sent to peers after the initial request.
     pub fn with_interval(mut self, d: Duration) -> Self {
         self.interval = d;
         self
     }
 
-    /// Configures whether new or expired listen addresses of the local
+    /// configsures whether new or expired listen addresses of the local
     /// node should trigger an active push of an identify message to all
     /// connected peers.
     pub fn with_push_listen_addr_updates(mut self, b: bool) -> Self {
@@ -208,49 +208,49 @@ impl Config {
         self
     }
 
-    /// Configures the size of the LRU cache, caching addresses of discovered peers.
+    /// configsures the size of the LRU cache, caching addresses of discovered peers.
     pub fn with_cache_size(mut self, cache_size: usize) -> Self {
         self.cache_size = cache_size;
         self
     }
 
-    /// Configures whether we prevent sending out our listen addresses.
+    /// configsures whether we prevent sending out our listen addresses.
     pub fn with_hide_listen_addrs(mut self, b: bool) -> Self {
         self.hide_listen_addrs = b;
         self
     }
 
-    /// Get the protocol version of the Config.
+    /// Get the protocol version of the configs.
     pub fn protocol_version(&self) -> &str {
         &self.protocol_version
     }
 
-    /// Get the local public key of the Config.
+    /// Get the local public key of the configs.
     pub fn local_public_key(&self) -> &PublicKey {
         self.local_key.public_key()
     }
 
-    /// Get the agent version of the Config.
+    /// Get the agent version of the configs.
     pub fn agent_version(&self) -> &str {
         &self.agent_version
     }
 
-    /// Get the interval of the Config.
+    /// Get the interval of the configs.
     pub fn interval(&self) -> Duration {
         self.interval
     }
 
-    /// Get the push listen address updates boolean value of the Config.
+    /// Get the push listen address updates boolean value of the configs.
     pub fn push_listen_addr_updates(&self) -> bool {
         self.push_listen_addr_updates
     }
 
-    /// Get the cache size of the Config.
+    /// Get the cache size of the configs.
     pub fn cache_size(&self) -> usize {
         self.cache_size
     }
 
-    /// Get the hide listen address boolean value of the Config.
+    /// Get the hide listen address boolean value of the configs.
     pub fn hide_listen_addrs(&self) -> bool {
         self.hide_listen_addrs
     }
@@ -258,14 +258,14 @@ impl Config {
 
 impl Behaviour {
     /// Creates a new identify [`Behaviour`].
-    pub fn new(config: Config) -> Self {
-        let discovered_peers = match NonZeroUsize::new(config.cache_size) {
+    pub fn new(configs: configs) -> Self {
+        let discovered_peers = match NonZeroUsize::new(configs.cache_size) {
             None => PeerCache::disabled(),
             Some(size) => PeerCache::enabled(size),
         };
 
         Self {
-            config,
+            configs,
             connected: HashMap::new(),
             our_observed_addresses: Default::default(),
             outbound_connections_with_ephemeral_port: Default::default(),
@@ -324,7 +324,7 @@ impl Behaviour {
 
     fn all_addresses(&self) -> HashSet<Multiaddr> {
         let mut addrs = HashSet::from_iter(self.external_addresses.iter().cloned());
-        if !self.config.hide_listen_addrs {
+        if !self.configs.hide_listen_addrs {
             addrs.extend(self.listen_addresses.iter().cloned());
         };
         addrs
@@ -396,11 +396,11 @@ impl NetworkBehaviour for Behaviour {
         remote_addr: &Multiaddr,
     ) -> Result<THandler<Self>, ConnectionDenied> {
         Ok(Handler::new(
-            self.config.interval,
+            self.configs.interval,
             peer,
-            self.config.local_key.clone(),
-            self.config.protocol_version.clone(),
-            self.config.agent_version.clone(),
+            self.configs.local_key.clone(),
+            self.configs.protocol_version.clone(),
+            self.configs.agent_version.clone(),
             remote_addr.clone(),
             self.all_addresses(),
         ))
@@ -429,11 +429,11 @@ impl NetworkBehaviour for Behaviour {
         }
 
         Ok(Handler::new(
-            self.config.interval,
+            self.configs.interval,
             peer,
-            self.config.local_key.clone(),
-            self.config.protocol_version.clone(),
-            self.config.agent_version.clone(),
+            self.configs.local_key.clone(),
+            self.configs.protocol_version.clone(),
+            self.configs.agent_version.clone(),
             // TODO: This is weird? That is the public address we dialed,
             // shouldn't need to tell the other party?
             addr.clone(),
@@ -558,7 +558,7 @@ impl NetworkBehaviour for Behaviour {
             self.events.extend(change_events)
         }
 
-        if listen_addr_changed && self.config.push_listen_addr_updates {
+        if listen_addr_changed && self.configs.push_listen_addr_updates {
             // trigger an identify push for all connected peers
             let push_events = self.connected.keys().map(|peer| ToSwarm::NotifyHandler {
                 peer_id: *peer,

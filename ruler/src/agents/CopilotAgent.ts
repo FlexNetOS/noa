@@ -1,58 +1,66 @@
-import { IAgent, IAgentConfig } from './IAgent';
+import { IAgent, IAgentconfigs } from './IAgent';
 import { AgentsMdAgent } from './AgentsMdAgent';
 
 /**
  * GitHub Copilot agent adapter.
  * Writes to AGENTS.md for both web-based GitHub Copilot and VS Code extension.
  */
-export class CopilotAgent implements IAgent {
+export class CopilotAgent implements IAgent
+{
   private agentsMdAgent = new AgentsMdAgent();
 
-  getIdentifier(): string {
+  getIdentifier (): string
+  {
     return 'copilot';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'GitHub Copilot';
   }
 
   /**
    * Returns the default output path for AGENTS.md.
    */
-  getDefaultOutputPath(projectRoot: string): string {
-    return this.agentsMdAgent.getDefaultOutputPath(projectRoot);
+  getDefaultOutputPath ( projectRoot: string ): string
+  {
+    return this.agentsMdAgent.getDefaultOutputPath( projectRoot );
   }
 
-  async applyRulerConfig(
+  async applyRulerconfigs (
     concatenatedRules: string,
     projectRoot: string,
     rulerMcpJson: Record<string, unknown> | null,
-    agentConfig?: IAgentConfig,
+    agentconfigs?: IAgentconfigs,
     backup = true,
-  ): Promise<void> {
+  ): Promise<void>
+  {
     // Write to AGENTS.md using the existing AgentsMdAgent infrastructure
-    await this.agentsMdAgent.applyRulerConfig(
+    await this.agentsMdAgent.applyRulerconfigs(
       concatenatedRules,
       projectRoot,
-      null, // No MCP config needed for the instructions file
+      null, // No MCP configs needed for the instructions file
       {
         // Preserve explicit outputPath precedence semantics if provided
         outputPath:
-          agentConfig?.outputPath || agentConfig?.outputPathInstructions,
+          agentconfigs?.outputPath || agentconfigs?.outputPathInstructions,
       },
       backup,
     );
   }
 
-  getMcpServerKey(): string {
+  getMcpServerKey (): string
+  {
     return 'servers';
   }
 
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return true;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return true;
   }
 }

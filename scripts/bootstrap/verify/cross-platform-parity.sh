@@ -31,8 +31,8 @@ echo ""
 # Script pairs to verify
 declare -A SCRIPT_PAIRS=(
     ["Main Bootstrap"]="bootstrap/bootstrap.ps1:bootstrap/bootstrap.sh"
-    ["Cache Setup"]="bootstrap/config/cache-setup.ps1:bootstrap/config/cache-setup.sh"
-    ["Log Setup"]="bootstrap/config/log-setup.ps1:bootstrap/config/log-setup.sh"
+    ["Cache Setup"]="bootstrap/configs/cache-setup.ps1:bootstrap/configs/cache-setup.sh"
+    ["Log Setup"]="bootstrap/configs/log-setup.ps1:bootstrap/configs/log-setup.sh"
     ["Verify All"]="bootstrap/verify/verify-all.ps1:bootstrap/verify/verify-all.sh"
     ["Smoke Test"]="bootstrap/verify/smoke-test.ps1:bootstrap/verify/smoke-test.sh"
     ["Check Prerequisites"]="setup/check-prereqs.ps1:../init/check-prereqs.sh"

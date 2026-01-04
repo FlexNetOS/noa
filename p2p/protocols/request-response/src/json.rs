@@ -50,7 +50,7 @@
 ///         StreamProtocol::new("/my-json-protocol"),
 ///         ProtocolSupport::Full,
 ///     )],
-///     request_response::Config::default(),
+///     request_response::configs::default(),
 /// );
 /// ```
 pub type Behaviour<Req, Resp> = crate::Behaviour<codec::Codec<Req, Resp>>;

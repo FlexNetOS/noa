@@ -41,20 +41,20 @@ use libp2p_swarm::{
 
 use crate::{protocol, PROTOCOL_NAME};
 
-/// The configuration for outbound pings.
+/// The configsuration for outbound pings.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// The timeout of an outbound ping.
     timeout: Duration,
     /// The duration between outbound pings.
     interval: Duration,
 }
 
-impl Config {
-    /// Creates a new [`Config`] with the following default settings:
+impl configs {
+    /// Creates a new [`configs`] with the following default settings:
     ///
-    ///   * [`Config::with_interval`] 15s
-    ///   * [`Config::with_timeout`] 20s
+    ///   * [`configs::with_interval`] 15s
+    ///   * [`configs::with_timeout`] 20s
     ///
     /// These settings have the following effect:
     ///
@@ -80,7 +80,7 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self::new()
     }
@@ -90,7 +90,7 @@ impl Default for Config {
 #[derive(Debug)]
 pub enum Failure {
     /// The ping timed out, i.e. no response was received within the
-    /// configured ping timeout.
+    /// configsured ping timeout.
     Timeout,
     /// The peer does not support the ping protocol.
     Unsupported,
@@ -129,8 +129,8 @@ impl Error for Failure {
 /// Protocol handler that handles pinging the remote at a regular period
 /// and answering ping queries.
 pub struct Handler {
-    /// Configuration options.
-    config: Config,
+    /// configsuration options.
+    configs: configs,
     /// The timer used for the delay to the next ping.
     interval: Delay,
     /// Outbound ping failures that are pending to be processed by `poll()`.
@@ -163,10 +163,10 @@ enum State {
 }
 
 impl Handler {
-    /// Builds a new [`Handler`] with the given configuration.
-    pub fn new(config: Config) -> Self {
+    /// Builds a new [`Handler`] with the given configsuration.
+    pub fn new(configs: configs) -> Self {
         Handler {
-            config,
+            configs,
             interval: Delay::new(Duration::new(0, 0)),
             pending_errors: VecDeque::with_capacity(2),
             failures: 0,
@@ -296,12 +296,12 @@ impl ConnectionHandler for Handler {
                     Poll::Ready(Ok((stream, rtt))) => {
                         tracing::debug!(?rtt, "ping succeeded");
                         self.failures = 0;
-                        self.interval.reset(self.config.interval);
+                        self.interval.reset(self.configs.interval);
                         self.outbound = Some(OutboundState::Idle(stream));
                         return Poll::Ready(ConnectionHandlerEvent::NotifyBehaviour(Ok(rtt)));
                     }
                     Poll::Ready(Err(e)) => {
-                        self.interval.reset(self.config.interval);
+                        self.interval.reset(self.configs.interval);
                         self.pending_errors.push_front(e);
                     }
                 },
@@ -312,7 +312,7 @@ impl ConnectionHandler for Handler {
                     }
                     Poll::Ready(()) => {
                         self.outbound = Some(OutboundState::Ping(
-                            send_ping(stream, self.config.timeout).boxed(),
+                            send_ping(stream, self.configs.timeout).boxed(),
                         ));
                     }
                 },
@@ -354,7 +354,7 @@ impl ConnectionHandler for Handler {
             }) => {
                 stream.ignore_for_keep_alive();
                 self.outbound = Some(OutboundState::Ping(
-                    send_ping(stream, self.config.timeout).boxed(),
+                    send_ping(stream, self.configs.timeout).boxed(),
                 ));
             }
             ConnectionEvent::DialUpgradeError(dial_upgrade_error) => {

@@ -44,7 +44,7 @@ use self::{
 };
 use crate::{
     behaviour::{socket::AsyncSocket, timer::Builder},
-    Config,
+    configs,
 };
 
 /// Initial interval for starting probe
@@ -117,7 +117,7 @@ where
     /// Builds a new [`InterfaceState`].
     pub(crate) fn new(
         addr: IpAddr,
-        config: Config,
+        configs: configs,
         local_peer_id: PeerId,
         listen_addresses: Arc<RwLock<ListenAddresses>>,
         query_response_sender: mpsc::Sender<(PeerId, Multiaddr, Instant)>,
@@ -164,7 +164,7 @@ where
             use rand::Rng;
             let mut rng = rand::thread_rng();
             let jitter = rng.gen_range(0..100);
-            config.query_interval + Duration::from_millis(jitter)
+            configs.query_interval + Duration::from_millis(jitter)
         };
         let multicast_addr = match addr {
             IpAddr::V4(_) => IpAddr::V4(crate::IPV4_MDNS_MULTICAST_ADDRESS),
@@ -182,7 +182,7 @@ where
             query_interval,
             timeout: T::interval_at(Instant::now(), INITIAL_TIMEOUT_INTERVAL),
             multicast_addr,
-            ttl: config.ttl,
+            ttl: configs.ttl,
             probe_state: Default::default(),
             local_peer_id,
         })

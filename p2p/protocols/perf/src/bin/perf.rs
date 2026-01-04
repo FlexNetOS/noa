@@ -208,14 +208,14 @@ async fn swarm<B: NetworkBehaviour + Default>() -> Result<Swarm<B>> {
     let swarm = SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            libp2p_tcp::Config::default().nodelay(true),
-            libp2p_tls::Config::new,
-            libp2p_yamux::Config::default,
+            libp2p_tcp::configs::default().nodelay(true),
+            libp2p_tls::configs::new,
+            libp2p_yamux::configs::default,
         )?
         .with_quic()
         .with_dns()?
         .with_behaviour(|_| B::default())?
-        .with_swarm_config(|cfg| {
+        .with_swarm_configs(|cfg| {
             cfg.with_substream_upgrade_protocol_override(upgrade::Version::V1Lazy)
                 .with_idle_connection_timeout(Duration::from_secs(60 * 5))
         })

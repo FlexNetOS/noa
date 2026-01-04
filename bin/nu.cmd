@@ -18,7 +18,8 @@ set "RATTLER_CACHE_DIR=%NOA_ROOT%\cache\pixi"
 set "RATTLER_AUTH_FILE=%NOA_ROOT%\etc\rattler\credentials.json"
 
 REM === Rust ===
-set "CARGO_HOME=%NOA_ROOT%\opt\rust\cargo"
+REM Pixi installs Rust to .pixi/envs/default/Library
+set "CARGO_HOME=%NOA_ROOT%\.pixi\envs\default\Library"
 set "RUSTUP_HOME=%NOA_ROOT%\opt\rust\rustup"
 
 REM === Go ===

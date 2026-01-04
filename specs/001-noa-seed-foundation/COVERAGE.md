@@ -20,26 +20,26 @@
 | Create `init/` directory | `init/migrations/`<br>`init/seeds/`<br>`init/noa-init` | Script execution tests | ✅ Complete | None |
 | **FR-033** | `containers/` directory structure | Docker compose tests | ✅ Complete | None |
 | Create `containers/` directory | `containers/oci/`<br>`containers/compose/`<br>`containers/Dockerfile` | Directory existence tests | ✅ Complete | None |
-| **FR-034** | `config/` directory structure | Config validation tests | ✅ Complete | Runtime validation needs verification |
-| Create `config/` directory | `config/noa-server.json`<br>`config/ai-providers.json`<br>`config/features.json` | Schema validation | ✅ Complete | Error message detail needs testing |
+| **FR-034** | `configs/` directory structure | configs validation tests | ✅ Complete | Runtime validation needs verification |
+| Create `configs/` directory | `configs/noa-server.json`<br>`configs/ai-providers.json`<br>`configs/features.json` | Schema validation | ✅ Complete | Error message detail needs testing |
 | **FR-035** | `bin/` directory structure | Binary verification | ✅ Complete | None |
 | Create `bin/` directory | `bin/noa`<br>`bin/noa-server`<br>Wrapper scripts | Binary existence tests | ✅ Complete | None |
-| **FR-036** | `ai/` directory structure | Provider config validation | ✅ Complete | None |
+| **FR-036** | `ai/` directory structure | Provider configs validation | ✅ Complete | None |
 | Create `ai/` directory | `ai/providers/`<br>`ai/models/`<br>`ai/prompts/`<br>`ai/grammars/` | Directory existence tests | ✅ Complete | None |
 | **T010** | `sys/core/Cargo.toml` | `cargo build` | ✅ Complete | None |
 | Initialize Rust workspace | All crates: api, embedder, trainer, indexer, agent, common, neural | CI build tests | ✅ Complete | None |
 | **T011** | `p2p/go.mod` | `go build` | ✅ Complete | None |
 | Initialize Go module | P2P services module | CI build tests | ✅ Complete | None |
 | **T012** | `sys/ui/package.json` | `npm install` | ✅ Complete | None |
-| Initialize TypeScript/Next.js | UI project configuration | CI build tests | ✅ Complete | None |
+| Initialize TypeScript/Next.js | UI project configsuration | CI build tests | ✅ Complete | None |
 | **T013** | `sys/digest/pyproject.toml` | `pip install` | ✅ Complete | None |
-| Initialize Python project | Digest pipeline configuration | CI build tests | ✅ Complete | None |
-| **T014** | Linting configuration | CI lint checks | ✅ Complete | None |
-| Configure linting | rustfmt, clippy, golangci-lint, eslint, ruff | CI pipeline | ✅ Complete | None |
+| Initialize Python project | Digest pipeline configsuration | CI build tests | ✅ Complete | None |
+| **T014** | Linting configsuration | CI lint checks | ✅ Complete | None |
+| configsure linting | rustfmt, clippy, golangci-lint, eslint, ruff | CI pipeline | ✅ Complete | None |
 | **T015** | `scripts/bash/build.sh`<br>`scripts/powershell/build.ps1` | Script execution tests | ✅ Complete | None |
 | Create build scripts | Cross-platform build scripts | Manual execution | ✅ Complete | None |
-| **T016** | `config/` templates | Config validation | ✅ Complete | Config README needed |
-| Create config templates | Environment configuration templates | Schema validation | ✅ Complete | Enhanced descriptions needed |
+| **T016** | `configs/` templates | configs validation | ✅ Complete | configs README needed |
+| Create configs templates | Environment configsuration templates | Schema validation | ✅ Complete | Enhanced descriptions needed |
 | **T017** | `.github/workflows/ci.yml` | CI runs on push/PR | ✅ Complete | None |
 | Setup CI pipeline | GitHub Actions workflow | Automated CI runs | ✅ Complete | None |
 | **T018** | `README.md` | File existence | ✅ Complete | None |
@@ -82,10 +82,10 @@
 
 ### High Priority
 
-1. **Runtime Config Validation** (FR-034)
-   - **Gap**: Config validation on load needs verification
+1. **Runtime configs Validation** (FR-034)
+   - **Gap**: configs validation on load needs verification
    - **Impact**: Medium
-   - **Remedy**: Test config validation, verify error messages show path/expected/got
+   - **Remedy**: Test configs validation, verify error messages show path/expected/got
 
 2. **Smoke Test Script** (All requirements)
    - **Gap**: Dedicated Phase 1 smoke test script needed
@@ -95,19 +95,19 @@
 3. **Negative Tests** (All requirements)
    - **Gap**: Failure mode tests need expansion
    - **Impact**: Low
-   - **Remedy**: Add tests for insufficient permissions, missing prerequisites, invalid configs
+   - **Remedy**: Add tests for insufficient permissions, missing prerequisites, invalid configss
 
 ### Medium Priority
 
 4. **Boundary Case Tests** (All requirements)
    - **Gap**: Edge cases need testing
    - **Impact**: Low
-   - **Remedy**: Test empty configs, max path length, null values
+   - **Remedy**: Test empty configss, max path length, null values
 
-5. **Config Documentation** (FR-034, T016)
-   - **Gap**: Config README and enhanced schema descriptions needed
+5. **configs Documentation** (FR-034, T016)
+   - **Gap**: configs README and enhanced schema descriptions needed
    - **Impact**: Low
-   - **Remedy**: Create `config/README.md` and enhance schema descriptions
+   - **Remedy**: Create `configs/README.md` and enhance schema descriptions
 
 ### Low Priority
 
@@ -141,8 +141,8 @@
 
 1. Complete smoke test script implementation
 2. Add negative and boundary case tests
-3. Verify runtime config validation
-4. Enhance documentation (config README, file headers, script mapping)
+3. Verify runtime configs validation
+4. Enhance documentation (configs README, file headers, script mapping)
 5. Achieve 100% test coverage
 
 ---

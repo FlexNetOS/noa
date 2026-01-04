@@ -35,17 +35,17 @@ pub const DEFAULT_TTL: Ttl = 60 * 60 * 2;
 
 /// By default, nodes should require a minimum TTL of 2h
 ///
-/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configurations>.
+/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configsurations>.
 pub const MIN_TTL: Ttl = 60 * 60 * 2;
 
 /// By default, nodes should allow a maximum TTL of 72h
 ///
-/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configurations>.
+/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configsurations>.
 pub const MAX_TTL: Ttl = 60 * 60 * 72;
 
 /// The maximum namespace length.
 ///
-/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configurations>.
+/// <https://github.com/libp2p/specs/tree/master/rendezvous#recommendations-for-rendezvous-points-configsurations>.
 pub const MAX_NAMESPACE: usize = 255;
 
 pub(crate) const PROTOCOL_IDENT: StreamProtocol = StreamProtocol::new("/rendezvous/1.0.0");

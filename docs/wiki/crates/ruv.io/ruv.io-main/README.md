@@ -111,8 +111,8 @@ Examples:
 
 ```
 @deflex.net/{crate-name}/
-├── Cargo.toml              # Rust crate configuration
-├── package.json            # NPM package configuration
+├── Cargo.toml              # Rust crate configsuration
+├── package.json            # NPM package configsuration
 ├── build.rs                # napi-rs build script
 ├── src/
 │   ├── lib.rs              # Rust source (napi bindings)
@@ -145,12 +145,12 @@ pub struct RustStruct {
 #[napi]
 impl RustStruct {
   #[napi(constructor)]
-  pub fn new(config: JsObject) -> Result<Self> {
-    // 1. Parse JS config to Rust types
-    let rust_config = parse_js_config(config)?;
+  pub fn new(configs: JsObject) -> Result<Self> {
+    // 1. Parse JS configs to Rust types
+    let rust_configs = parse_js_configs(configs)?;
 
     // 2. Initialize Rust struct
-    let inner = OriginalRustType::new(rust_config)?;
+    let inner = OriginalRustType::new(rust_configs)?;
 
     // 3. Wrap in Arc<Mutex> for thread safety
     Ok(Self {
@@ -532,9 +532,9 @@ Each package includes:
 
 **Phase 1: Infrastructure Setup (Weeks 1-2)**
 - [ ] Set up monorepo structure with pnpm workspaces
-- [ ] Configure napi-rs build system
+- [ ] configsure napi-rs build system
 - [ ] Set up GitHub Actions CI/CD
-- [ ] Configure agentdb and claude-flow orchestration
+- [ ] configsure agentdb and claude-flow orchestration
 - [ ] Set up E2B sandbox templates
 - [ ] Create package templates and generators
 
@@ -656,8 +656,8 @@ deflex.net/
 ├── CONTRIBUTING.md                    # Contribution guidelines
 ├── LICENSE                            # MIT License
 ├── package.json                       # Root package.json (workspace)
-├── pnpm-workspace.yaml               # pnpm workspace config
-├── tsconfig.json                      # Root TypeScript config
+├── pnpm-workspace.yaml               # pnpm workspace configs
+├── tsconfigs.json                      # Root TypeScript configs
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml                    # Continuous integration
@@ -692,9 +692,9 @@ deflex.net/
 │   ├── template-generator/           # Package template generator
 │   ├── dependency-analyzer/          # Dependency graph tools
 │   └── performance-monitor/          # Performance tracking
-└── e2b/                              # E2B sandbox configurations
+└── e2b/                              # E2B sandbox configsurations
     ├── rust-napi-builder.Dockerfile
-    └── sandbox-config.json
+    └── sandbox-configs.json
 ```
 
 ---

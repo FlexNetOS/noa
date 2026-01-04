@@ -24,8 +24,8 @@ use libp2p_identity::PeerId;
 use libp2p_swarm::StreamProtocol;
 
 use crate::{
-    error::ConfigBuilderError,
-    protocol::{ProtocolConfig, ProtocolId, FLOODSUB_PROTOCOL},
+    error::configsBuilderError,
+    protocol::{Protocolconfigs, ProtocolId, FLOODSUB_PROTOCOL},
     types::{Message, MessageId, PeerKind},
     TopicHash,
 };
@@ -60,24 +60,24 @@ pub enum Version {
     V1_1,
 }
 
-/// Defines the overall configuration for mesh parameters and max transmit sizes
+/// Defines the overall configsuration for mesh parameters and max transmit sizes
 /// for topics.
 #[derive(Default, Clone, PartialEq, Eq)]
-pub(crate) struct TopicConfigs {
-    pub(crate) topic_mesh_params: HashMap<TopicHash, TopicMeshConfig>,
-    pub(crate) default_mesh_params: TopicMeshConfig,
+pub(crate) struct Topicconfigss {
+    pub(crate) topic_mesh_params: HashMap<TopicHash, TopicMeshconfigs>,
+    pub(crate) default_mesh_params: TopicMeshconfigs,
 }
 
 /// Defines the mesh network parameters for a given topic.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct TopicMeshConfig {
+pub struct TopicMeshconfigs {
     pub mesh_n: usize,
     pub mesh_n_low: usize,
     pub mesh_n_high: usize,
     pub mesh_outbound_min: usize,
 }
 
-impl Default for TopicMeshConfig {
+impl Default for TopicMeshconfigs {
     fn default() -> Self {
         Self {
             mesh_n: 6,
@@ -88,18 +88,18 @@ impl Default for TopicMeshConfig {
     }
 }
 
-impl std::fmt::Debug for TopicConfigs {
+impl std::fmt::Debug for Topicconfigss {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut builder = f.debug_struct("TopicConfigs");
+        let mut builder = f.debug_struct("Topicconfigss");
         let _ = builder.field("topic_mesh_params", &self.topic_mesh_params);
         builder.finish()
     }
 }
 
-/// Configuration parameters that define the performance of the gossipsub network.
+/// configsuration parameters that define the performance of the gossipsub network.
 #[derive(Clone)]
-pub struct Config {
-    protocol: ProtocolConfig,
+pub struct configs {
+    protocol: Protocolconfigs,
     history_length: usize,
     history_gossip: usize,
     retain_scores: usize,
@@ -132,11 +132,11 @@ pub struct Config {
     connection_handler_forward_duration: Duration,
     idontwant_message_size_threshold: usize,
     idontwant_on_publish: bool,
-    topic_configuration: TopicConfigs,
+    topic_configsuration: Topicconfigss,
 }
 
-impl Config {
-    pub(crate) fn protocol_config(&self) -> ProtocolConfig {
+impl configs {
+    pub(crate) fn protocol_configs(&self) -> Protocolconfigs {
         self.protocol.clone()
     }
 
@@ -153,46 +153,46 @@ impl Config {
 
     /// Target number of peers for the mesh network (D in the spec, default is 6).
     pub fn mesh_n(&self) -> usize {
-        self.topic_configuration.default_mesh_params.mesh_n
+        self.topic_configsuration.default_mesh_params.mesh_n
     }
 
     /// Minimum number of peers in mesh network before adding more (D_lo in the spec, default is 5).
     pub fn mesh_n_low(&self) -> usize {
-        self.topic_configuration.default_mesh_params.mesh_n_low
+        self.topic_configsuration.default_mesh_params.mesh_n_low
     }
 
     /// Maximum number of peers in mesh network before removing some (D_high in the spec, default
     /// is 12).
     pub fn mesh_n_high(&self) -> usize {
-        self.topic_configuration.default_mesh_params.mesh_n_high
+        self.topic_configsuration.default_mesh_params.mesh_n_high
     }
 
     /// Target number of peers for the mesh network for a given topic (D in the spec, default is 6).
     pub fn mesh_n_for_topic(&self, topic_hash: &TopicHash) -> usize {
-        self.topic_configuration
+        self.topic_configsuration
             .topic_mesh_params
             .get(topic_hash)
-            .unwrap_or(&self.topic_configuration.default_mesh_params)
+            .unwrap_or(&self.topic_configsuration.default_mesh_params)
             .mesh_n
     }
 
     /// Minimum number of peers in mesh network for a given topic before adding more (D_lo in the
     /// spec, default is 5).
     pub fn mesh_n_low_for_topic(&self, topic_hash: &TopicHash) -> usize {
-        self.topic_configuration
+        self.topic_configsuration
             .topic_mesh_params
             .get(topic_hash)
-            .unwrap_or(&self.topic_configuration.default_mesh_params)
+            .unwrap_or(&self.topic_configsuration.default_mesh_params)
             .mesh_n_low
     }
 
     /// Maximum number of peers in mesh network before removing some (D_high in the spec, default
     /// is 12).
     pub fn mesh_n_high_for_topic(&self, topic_hash: &TopicHash) -> usize {
-        self.topic_configuration
+        self.topic_configsuration
             .topic_mesh_params
             .get(topic_hash)
-            .unwrap_or(&self.topic_configuration.default_mesh_params)
+            .unwrap_or(&self.topic_configsuration.default_mesh_params)
             .mesh_n_high
     }
 
@@ -263,7 +263,7 @@ impl Config {
     /// must be large enough to transmit the desired peer information on pruning. It must be at
     /// least 100 bytes. Default is 65536 bytes.
     pub fn max_transmit_size_for_topic(&self, topic: &TopicHash) -> usize {
-        self.protocol_config().max_transmit_size_for_topic(topic)
+        self.protocol_configs().max_transmit_size_for_topic(topic)
     }
 
     /// Duplicates are prevented by storing message id's of known messages in an LRU time cache.
@@ -373,7 +373,7 @@ impl Config {
     /// This value must be smaller or equal than `mesh_n / 2` and smaller than `mesh_n_low`.
     /// The default is 2.
     pub fn mesh_outbound_min(&self) -> usize {
-        self.topic_configuration
+        self.topic_configsuration
             .default_mesh_params
             .mesh_outbound_min
     }
@@ -382,10 +382,10 @@ impl Config {
     /// This value must be smaller or equal than `mesh_n / 2` and smaller than `mesh_n_low`.
     /// The default is 2.
     pub fn mesh_outbound_min_for_topic(&self, topic_hash: &TopicHash) -> usize {
-        self.topic_configuration
+        self.topic_configsuration
             .topic_mesh_params
             .get(topic_hash)
-            .unwrap_or(&self.topic_configuration.default_mesh_params)
+            .unwrap_or(&self.topic_configsuration.default_mesh_params)
             .mesh_outbound_min
     }
 
@@ -478,26 +478,26 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
-        // use ConfigBuilder to also validate defaults
-        ConfigBuilder::default()
+        // use configsBuilder to also validate defaults
+        configsBuilder::default()
             .build()
-            .expect("Default config parameters should be valid parameters")
+            .expect("Default configs parameters should be valid parameters")
     }
 }
 
-/// The builder struct for constructing a gossipsub configuration.
-pub struct ConfigBuilder {
-    config: Config,
+/// The builder struct for constructing a gossipsub configsuration.
+pub struct configsBuilder {
+    configs: configs,
     invalid_protocol: bool, // This is a bit of a hack to only expose one error to the user.
 }
 
-impl Default for ConfigBuilder {
+impl Default for configsBuilder {
     fn default() -> Self {
-        ConfigBuilder {
-            config: Config {
-                protocol: ProtocolConfig::default(),
+        configsBuilder {
+            configs: configs {
+                protocol: Protocolconfigs::default(),
                 history_length: 5,
                 history_gossip: 3,
                 retain_scores: 4,
@@ -545,23 +545,23 @@ impl Default for ConfigBuilder {
                 connection_handler_forward_duration: Duration::from_secs(1),
                 idontwant_message_size_threshold: 1000,
                 idontwant_on_publish: false,
-                topic_configuration: TopicConfigs::default(),
+                topic_configsuration: Topicconfigss::default(),
             },
             invalid_protocol: false,
         }
     }
 }
 
-impl From<Config> for ConfigBuilder {
-    fn from(config: Config) -> Self {
-        ConfigBuilder {
-            config,
+impl From<configs> for configsBuilder {
+    fn from(configs: configs) -> Self {
+        configsBuilder {
+            configs,
             invalid_protocol: false,
         }
     }
 }
 
-impl ConfigBuilder {
+impl configsBuilder {
     /// The protocol id prefix to negotiate this protocol (default is `/meshsub/1.1.0` and
     /// `/meshsub/1.0.0`).
     pub fn protocol_id_prefix(
@@ -575,7 +575,7 @@ impl ConfigBuilder {
             StreamProtocol::try_from_owned(format!("{cow}/1.0.0")),
         ) {
             (Ok(p1), Ok(p2)) => {
-                self.config.protocol.protocol_ids = vec![
+                self.configs.protocol.protocol_ids = vec![
                     ProtocolId {
                         protocol: p1,
                         kind: PeerKind::Gossipsubv1_1,
@@ -604,7 +604,7 @@ impl ConfigBuilder {
 
         match StreamProtocol::try_from_owned(cow.to_string()) {
             Ok(protocol) => {
-                self.config.protocol.protocol_ids = vec![ProtocolId {
+                self.configs.protocol.protocol_ids = vec![ProtocolId {
                     protocol,
                     kind: match custom_id_version {
                         Version::V1_1 => PeerKind::Gossipsubv1_1,
@@ -622,34 +622,34 @@ impl ConfigBuilder {
 
     /// Number of heartbeats to keep in the `memcache` (default is 5).
     pub fn history_length(&mut self, history_length: usize) -> &mut Self {
-        self.config.history_length = history_length;
+        self.configs.history_length = history_length;
         self
     }
 
     /// Number of past heartbeats to gossip about (default is 3).
     pub fn history_gossip(&mut self, history_gossip: usize) -> &mut Self {
-        self.config.history_gossip = history_gossip;
+        self.configs.history_gossip = history_gossip;
         self
     }
 
     /// Target number of peers for the mesh network (D in the spec, default is 6).
     pub fn mesh_n(&mut self, mesh_n: usize) -> &mut Self {
-        self.config.topic_configuration.default_mesh_params.mesh_n = mesh_n;
+        self.configs.topic_configsuration.default_mesh_params.mesh_n = mesh_n;
         self
     }
 
     /// Target number of peers for the mesh network for a topic (D in the spec, default is 6).
     pub fn mesh_n_for_topic(&mut self, mesh_n: usize, topic_hash: TopicHash) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .topic_mesh_params
             .entry(topic_hash)
-            .and_modify(|existing_config| {
-                existing_config.mesh_n = mesh_n;
+            .and_modify(|existing_configs| {
+                existing_configs.mesh_n = mesh_n;
             })
-            .or_insert_with(|| TopicMeshConfig {
+            .or_insert_with(|| TopicMeshconfigs {
                 mesh_n,
-                ..TopicMeshConfig::default()
+                ..TopicMeshconfigs::default()
             });
         self
     }
@@ -657,8 +657,8 @@ impl ConfigBuilder {
     /// Maximum number of peers in mesh network before removing some (D_high in the spec, default
     /// is 12).
     pub fn mesh_n_high(&mut self, mesh_n_high: usize) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .default_mesh_params
             .mesh_n_high = mesh_n_high;
         self
@@ -671,24 +671,24 @@ impl ConfigBuilder {
         mesh_n_high: usize,
         topic_hash: TopicHash,
     ) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .topic_mesh_params
             .entry(topic_hash)
-            .and_modify(|existing_config| {
-                existing_config.mesh_n_high = mesh_n_high;
+            .and_modify(|existing_configs| {
+                existing_configs.mesh_n_high = mesh_n_high;
             })
-            .or_insert_with(|| TopicMeshConfig {
+            .or_insert_with(|| TopicMeshconfigs {
                 mesh_n_high,
-                ..TopicMeshConfig::default()
+                ..TopicMeshconfigs::default()
             });
         self
     }
 
     /// Minimum number of peers in mesh network before adding more (D_lo in the spec, default is 4).
     pub fn mesh_n_low(&mut self, mesh_n_low: usize) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .default_mesh_params
             .mesh_n_low = mesh_n_low;
         self
@@ -697,16 +697,16 @@ impl ConfigBuilder {
     /// Minimum number of peers in mesh network for a topic before adding more (D_lo in the spec,
     /// default is 4).
     pub fn mesh_n_low_for_topic(&mut self, mesh_n_low: usize, topic_hash: TopicHash) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .topic_mesh_params
             .entry(topic_hash)
-            .and_modify(|existing_config| {
-                existing_config.mesh_n_low = mesh_n_low;
+            .and_modify(|existing_configs| {
+                existing_configs.mesh_n_low = mesh_n_low;
             })
-            .or_insert_with(|| TopicMeshConfig {
+            .or_insert_with(|| TopicMeshconfigs {
                 mesh_n_low,
-                ..TopicMeshConfig::default()
+                ..TopicMeshconfigs::default()
             });
         self
     }
@@ -716,14 +716,14 @@ impl ConfigBuilder {
     /// At least [`Self::retain_scores`] of the retained peers will be high-scoring, while the
     /// remainder are chosen randomly (D_score in the spec, default is 4).
     pub fn retain_scores(&mut self, retain_scores: usize) -> &mut Self {
-        self.config.retain_scores = retain_scores;
+        self.configs.retain_scores = retain_scores;
         self
     }
 
     /// Minimum number of peers to emit gossip to during a heartbeat (D_lazy in the spec,
     /// default is 6).
     pub fn gossip_lazy(&mut self, gossip_lazy: usize) -> &mut Self {
-        self.config.gossip_lazy = gossip_lazy;
+        self.configs.gossip_lazy = gossip_lazy;
         self
     }
 
@@ -732,46 +732,46 @@ impl ConfigBuilder {
     /// We will send gossip to `gossip_factor * (total number of non-mesh peers)`, or
     /// `gossip_lazy`, whichever is greater. The default is 0.25.
     pub fn gossip_factor(&mut self, gossip_factor: f64) -> &mut Self {
-        self.config.gossip_factor = gossip_factor;
+        self.configs.gossip_factor = gossip_factor;
         self
     }
 
     /// Initial delay in each heartbeat (default is 5 seconds).
     pub fn heartbeat_initial_delay(&mut self, heartbeat_initial_delay: Duration) -> &mut Self {
-        self.config.heartbeat_initial_delay = heartbeat_initial_delay;
+        self.configs.heartbeat_initial_delay = heartbeat_initial_delay;
         self
     }
 
     /// Time between each heartbeat (default is 1 second).
     pub fn heartbeat_interval(&mut self, heartbeat_interval: Duration) -> &mut Self {
-        self.config.heartbeat_interval = heartbeat_interval;
+        self.configs.heartbeat_interval = heartbeat_interval;
         self
     }
 
     /// The number of heartbeat ticks until we recheck the connection to explicit peers and
     /// reconnecting if necessary (default 300).
     pub fn check_explicit_peers_ticks(&mut self, check_explicit_peers_ticks: u64) -> &mut Self {
-        self.config.check_explicit_peers_ticks = check_explicit_peers_ticks;
+        self.configs.check_explicit_peers_ticks = check_explicit_peers_ticks;
         self
     }
 
     /// Time to live for fanout peers (default is 60 seconds).
     pub fn fanout_ttl(&mut self, fanout_ttl: Duration) -> &mut Self {
-        self.config.fanout_ttl = fanout_ttl;
+        self.configs.fanout_ttl = fanout_ttl;
         self
     }
 
     /// The maximum byte size for each gossip (default is 65536 bytes).
     ///
     /// ```rust
-    /// use libp2p_gossipsub::ConfigBuilder;
-    /// let mut config = ConfigBuilder::default();
-    /// assert_eq!(config.build().unwrap().max_transmit_size(), 65536);
-    /// config.max_transmit_size(1 << 20);
-    /// assert_eq!(config.build().unwrap().max_transmit_size(), 1 << 20);
+    /// use libp2p_gossipsub::configsBuilder;
+    /// let mut configs = configsBuilder::default();
+    /// assert_eq!(configs.build().unwrap().max_transmit_size(), 65536);
+    /// configs.max_transmit_size(1 << 20);
+    /// assert_eq!(configs.build().unwrap().max_transmit_size(), 1 << 20);
     /// ```
     pub fn max_transmit_size(&mut self, max_transmit_size: usize) -> &mut Self {
-        self.config.protocol.default_max_transmit_size = max_transmit_size;
+        self.configs.protocol.default_max_transmit_size = max_transmit_size;
         self
     }
 
@@ -782,7 +782,7 @@ impl ConfigBuilder {
         max_transmit_size: usize,
         topic: TopicHash,
     ) -> &mut Self {
-        self.config
+        self.configs
             .protocol
             .max_transmit_sizes
             .insert(topic, max_transmit_size);
@@ -794,7 +794,7 @@ impl ConfigBuilder {
     /// received if duplicate messages are sent at a time greater than this setting apart. The
     /// default is 1 minute.
     pub fn duplicate_cache_time(&mut self, cache_size: Duration) -> &mut Self {
-        self.config.duplicate_cache_time = cache_size;
+        self.configs.duplicate_cache_time = cache_size;
         self
     }
 
@@ -803,14 +803,14 @@ impl ConfigBuilder {
     /// the user must manually call [`crate::Behaviour::report_message_validation_result()`] on the
     /// behaviour to forward a message once validated.
     pub fn validate_messages(&mut self) -> &mut Self {
-        self.config.validate_messages = true;
+        self.configs.validate_messages = true;
         self
     }
 
     /// Determines the level of validation used when receiving messages. See [`ValidationMode`]
     /// for the available types. The default is ValidationMode::Strict.
     pub fn validation_mode(&mut self, validation_mode: ValidationMode) -> &mut Self {
-        self.config.protocol.validation_mode = validation_mode;
+        self.configs.protocol.validation_mode = validation_mode;
         self
     }
 
@@ -826,7 +826,7 @@ impl ConfigBuilder {
     where
         F: Fn(&Message) -> MessageId + Send + Sync + 'static,
     {
-        self.config.message_id_fn = Arc::new(id_fn);
+        self.configs.message_id_fn = Arc::new(id_fn);
         self
     }
 
@@ -836,7 +836,7 @@ impl ConfigBuilder {
     /// Note: Peer exchange is not implemented today, see
     /// <https://github.com/libp2p/rust-libp2p/issues/2398>.
     pub fn do_px(&mut self) -> &mut Self {
-        self.config.do_px = true;
+        self.configs.do_px = true;
         self
     }
 
@@ -847,7 +847,7 @@ impl ConfigBuilder {
     /// know of. It is recommended that this value is larger than [`Self::mesh_n_high`] so that the
     /// pruned peer can reliably form a full mesh. The default is 16.
     pub fn prune_peers(&mut self, prune_peers: usize) -> &mut Self {
-        self.config.prune_peers = prune_peers;
+        self.configs.prune_peers = prune_peers;
         self
     }
 
@@ -858,7 +858,7 @@ impl ConfigBuilder {
     /// so if we receive a prune message without one, we will wait at least [`Self::prune_backoff`]
     /// before attempting to re-graft. The default is one minute.
     pub fn prune_backoff(&mut self, prune_backoff: Duration) -> &mut Self {
-        self.config.prune_backoff = prune_backoff;
+        self.configs.prune_backoff = prune_backoff;
         self
     }
 
@@ -868,7 +868,7 @@ impl ConfigBuilder {
     /// of an unsubscribe event allows reaching a healthy mesh in a more timely manner. The default
     /// is 10 seconds.
     pub fn unsubscribe_backoff(&mut self, unsubscribe_backoff: Duration) -> &mut Self {
-        self.config.unsubscribe_backoff = unsubscribe_backoff;
+        self.configs.unsubscribe_backoff = unsubscribe_backoff;
         self
     }
 
@@ -879,7 +879,7 @@ impl ConfigBuilder {
     /// prunes on our side and processing prunes on the receiving side this guarantees that we
     /// get not punished for too early grafting. The default is 1.
     pub fn backoff_slack(&mut self, backoff_slack: u32) -> &mut Self {
-        self.config.backoff_slack = backoff_slack;
+        self.configs.backoff_slack = backoff_slack;
         self
     }
 
@@ -887,14 +887,14 @@ impl ConfigBuilder {
     /// sent to all peers that are subscribed to the topic and have a good enough score.
     /// The default is true.
     pub fn flood_publish(&mut self, flood_publish: bool) -> &mut Self {
-        self.config.flood_publish = flood_publish;
+        self.configs.flood_publish = flood_publish;
         self
     }
 
     /// If a GRAFT comes before `graft_flood_threshold` has elapsed since the last PRUNE,
     /// then there is an extra score penalty applied to the peer through P7.
     pub fn graft_flood_threshold(&mut self, graft_flood_threshold: Duration) -> &mut Self {
-        self.config.graft_flood_threshold = graft_flood_threshold;
+        self.configs.graft_flood_threshold = graft_flood_threshold;
         self
     }
 
@@ -902,8 +902,8 @@ impl ConfigBuilder {
     /// This value must be smaller or equal than `mesh_n / 2` and smaller than `mesh_n_low`.
     /// The default is 2.
     pub fn mesh_outbound_min(&mut self, mesh_outbound_min: usize) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .default_mesh_params
             .mesh_outbound_min = mesh_outbound_min;
         self
@@ -917,16 +917,16 @@ impl ConfigBuilder {
         mesh_outbound_min: usize,
         topic_hash: TopicHash,
     ) -> &mut Self {
-        self.config
-            .topic_configuration
+        self.configs
+            .topic_configsuration
             .topic_mesh_params
             .entry(topic_hash)
-            .and_modify(|existing_config| {
-                existing_config.mesh_outbound_min = mesh_outbound_min;
+            .and_modify(|existing_configs| {
+                existing_configs.mesh_outbound_min = mesh_outbound_min;
             })
-            .or_insert_with(|| TopicMeshConfig {
+            .or_insert_with(|| TopicMeshconfigs {
                 mesh_outbound_min,
-                ..TopicMeshConfig::default()
+                ..TopicMeshconfigs::default()
             });
         self
     }
@@ -937,7 +937,7 @@ impl ConfigBuilder {
     /// threshold (see <https://godoc.org/github.com/libp2p/go-libp2p-pubsub#PeerScoreThresholds>).
     /// The default is 60.
     pub fn opportunistic_graft_ticks(&mut self, opportunistic_graft_ticks: u64) -> &mut Self {
-        self.config.opportunistic_graft_ticks = opportunistic_graft_ticks;
+        self.configs.opportunistic_graft_ticks = opportunistic_graft_ticks;
         self
     }
 
@@ -945,20 +945,20 @@ impl ConfigBuilder {
     /// gossip before we start ignoring them. This is designed to prevent peers from spamming us
     /// with requests and wasting our resources.
     pub fn gossip_retransimission(&mut self, gossip_retransimission: u32) -> &mut Self {
-        self.config.gossip_retransimission = gossip_retransimission;
+        self.configs.gossip_retransimission = gossip_retransimission;
         self
     }
 
     /// The maximum number of new peers to graft to during opportunistic grafting. The default is 2.
     pub fn opportunistic_graft_peers(&mut self, opportunistic_graft_peers: usize) -> &mut Self {
-        self.config.opportunistic_graft_peers = opportunistic_graft_peers;
+        self.configs.opportunistic_graft_peers = opportunistic_graft_peers;
         self
     }
 
     /// The maximum number of messages we will process in a given RPC. If this is unset, there is
     /// no limit. The default is None.
     pub fn max_messages_per_rpc(&mut self, max: Option<usize>) -> &mut Self {
-        self.config.max_messages_per_rpc = max;
+        self.configs.max_messages_per_rpc = max;
         self
     }
 
@@ -968,14 +968,14 @@ impl ConfigBuilder {
     /// default if your system is pushing more than 5000 messages in GossipSubHistoryGossip
     /// heartbeats; with the defaults this is 1666 messages/s. The default is 5000.
     pub fn max_ihave_length(&mut self, max_ihave_length: usize) -> &mut Self {
-        self.config.max_ihave_length = max_ihave_length;
+        self.configs.max_ihave_length = max_ihave_length;
         self
     }
 
     /// GossipSubMaxIHaveMessages is the maximum number of IHAVE messages to accept from a peer
     /// within a heartbeat.
     pub fn max_ihave_messages(&mut self, max_ihave_messages: usize) -> &mut Self {
-        self.config.max_ihave_messages = max_ihave_messages;
+        self.configs.max_ihave_messages = max_ihave_messages;
         self
     }
 
@@ -983,7 +983,7 @@ impl ConfigBuilder {
     /// source as we have specified locally. Enabling this, allows these messages and prevents
     /// penalizing the peer that sent us the message. Default is false.
     pub fn allow_self_origin(&mut self, allow_self_origin: bool) -> &mut Self {
-        self.config.allow_self_origin = allow_self_origin;
+        self.configs.allow_self_origin = allow_self_origin;
         self
     }
 
@@ -991,14 +991,14 @@ impl ConfigBuilder {
     /// If the message is not received within this window, a broken promise is declared and
     /// the router may apply behavioural penalties. The default is 3 seconds.
     pub fn iwant_followup_time(&mut self, iwant_followup_time: Duration) -> &mut Self {
-        self.config.iwant_followup_time = iwant_followup_time;
+        self.configs.iwant_followup_time = iwant_followup_time;
         self
     }
 
     /// Enable support for flooodsub peers.
     pub fn support_floodsub(&mut self) -> &mut Self {
         if self
-            .config
+            .configs
             .protocol
             .protocol_ids
             .contains(&FLOODSUB_PROTOCOL)
@@ -1006,27 +1006,27 @@ impl ConfigBuilder {
             return self;
         }
 
-        self.config.protocol.protocol_ids.push(FLOODSUB_PROTOCOL);
+        self.configs.protocol.protocol_ids.push(FLOODSUB_PROTOCOL);
         self
     }
 
     /// The max number of messages a `ConnectionHandler` can buffer. The default is 5000.
     pub fn connection_handler_queue_len(&mut self, len: usize) -> &mut Self {
-        self.config.connection_handler_queue_len = len;
+        self.configs.connection_handler_queue_len = len;
         self
     }
 
     /// The duration a message to be published can wait to be sent before it is abandoned. The
     /// default is 5 seconds.
     pub fn publish_queue_duration(&mut self, duration: Duration) -> &mut Self {
-        self.config.connection_handler_publish_duration = duration;
+        self.configs.connection_handler_publish_duration = duration;
         self
     }
 
     /// The duration a message to be forwarded can wait to be sent before it is abandoned. The
     /// default is 1s.
     pub fn forward_queue_duration(&mut self, duration: Duration) -> &mut Self {
-        self.config.connection_handler_forward_duration = duration;
+        self.configs.connection_handler_forward_duration = duration;
         self
     }
 
@@ -1037,7 +1037,7 @@ impl ConfigBuilder {
     /// (see <https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.2.md#idontwant-message>)
     /// default is 1kB
     pub fn idontwant_message_size_threshold(&mut self, size: usize) -> &mut Self {
-        self.config.idontwant_message_size_threshold = size;
+        self.configs.idontwant_message_size_threshold = size;
         self
     }
 
@@ -1045,11 +1045,11 @@ impl ConfigBuilder {
     /// to avoid bandwidth consumption by downloading the published message over gossip.
     /// By default it is false.
     pub fn idontwant_on_publish(&mut self, idontwant_on_publish: bool) -> &mut Self {
-        self.config.idontwant_on_publish = idontwant_on_publish;
+        self.configs.idontwant_on_publish = idontwant_on_publish;
         self
     }
 
-    /// The topic configuration sets mesh parameter sizes for a given topic. Notes on default
+    /// The topic configsuration sets mesh parameter sizes for a given topic. Notes on default
     /// below.
     ///
     /// mesh_outbound_min
@@ -1067,71 +1067,71 @@ impl ConfigBuilder {
     /// mesh_n_high
     /// Maximum number of peers in mesh network before removing some for a given topic (D_high in
     /// the spec, default is 12).
-    pub fn set_topic_config(&mut self, topic: TopicHash, config: TopicMeshConfig) -> &mut Self {
-        self.config
-            .topic_configuration
+    pub fn set_topic_configs(&mut self, topic: TopicHash, configs: TopicMeshconfigs) -> &mut Self {
+        self.configs
+            .topic_configsuration
             .topic_mesh_params
-            .insert(topic, config);
+            .insert(topic, configs);
         self
     }
 
-    /// Constructs a [`Config`] from the given configuration and validates the settings.
-    pub fn build(&self) -> Result<Config, ConfigBuilderError> {
-        // check all constraints on config
+    /// Constructs a [`configs`] from the given configsuration and validates the settings.
+    pub fn build(&self) -> Result<configs, configsBuilderError> {
+        // check all constraints on configs
 
-        let pre_configured_topics = self.config.protocol.max_transmit_sizes.keys();
-        for topic in pre_configured_topics {
-            if self.config.protocol.max_transmit_size_for_topic(topic) < 100 {
-                return Err(ConfigBuilderError::MaxTransmissionSizeTooSmall);
+        let pre_configsured_topics = self.configs.protocol.max_transmit_sizes.keys();
+        for topic in pre_configsured_topics {
+            if self.configs.protocol.max_transmit_size_for_topic(topic) < 100 {
+                return Err(configsBuilderError::MaxTransmissionSizeTooSmall);
             }
 
-            let mesh_n = self.config.mesh_n_for_topic(topic);
-            let mesh_n_low = self.config.mesh_n_low_for_topic(topic);
-            let mesh_n_high = self.config.mesh_n_high_for_topic(topic);
-            let mesh_outbound_min = self.config.mesh_outbound_min_for_topic(topic);
+            let mesh_n = self.configs.mesh_n_for_topic(topic);
+            let mesh_n_low = self.configs.mesh_n_low_for_topic(topic);
+            let mesh_n_high = self.configs.mesh_n_high_for_topic(topic);
+            let mesh_outbound_min = self.configs.mesh_outbound_min_for_topic(topic);
 
             if !(mesh_outbound_min <= mesh_n_low && mesh_n_low <= mesh_n && mesh_n <= mesh_n_high) {
-                return Err(ConfigBuilderError::MeshParametersInvalid);
+                return Err(configsBuilderError::MeshParametersInvalid);
             }
 
             if mesh_outbound_min * 2 > mesh_n {
-                return Err(ConfigBuilderError::MeshOutboundInvalid);
+                return Err(configsBuilderError::MeshOutboundInvalid);
             }
         }
 
-        if self.config.history_length < self.config.history_gossip {
-            return Err(ConfigBuilderError::HistoryLengthTooSmall);
+        if self.configs.history_length < self.configs.history_gossip {
+            return Err(configsBuilderError::HistoryLengthTooSmall);
         }
 
-        if self.config.unsubscribe_backoff.as_millis() == 0 {
-            return Err(ConfigBuilderError::UnsubscribeBackoffIsZero);
+        if self.configs.unsubscribe_backoff.as_millis() == 0 {
+            return Err(configsBuilderError::UnsubscribeBackoffIsZero);
         }
 
         if self.invalid_protocol {
-            return Err(ConfigBuilderError::InvalidProtocol);
+            return Err(configsBuilderError::InvalidProtocol);
         }
 
-        Ok(self.config.clone())
+        Ok(self.configs.clone())
     }
 }
 
-impl std::fmt::Debug for Config {
+impl std::fmt::Debug for configs {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut builder = f.debug_struct("GossipsubConfig");
+        let mut builder = f.debug_struct("Gossipsubconfigs");
         let _ = builder.field("protocol", &self.protocol);
         let _ = builder.field("history_length", &self.history_length);
         let _ = builder.field("history_gossip", &self.history_gossip);
         let _ = builder.field(
             "mesh_n",
-            &self.topic_configuration.default_mesh_params.mesh_n,
+            &self.topic_configsuration.default_mesh_params.mesh_n,
         );
         let _ = builder.field(
             "mesh_n_low",
-            &self.topic_configuration.default_mesh_params.mesh_n_low,
+            &self.topic_configsuration.default_mesh_params.mesh_n_low,
         );
         let _ = builder.field(
             "mesh_n_high",
-            &self.topic_configuration.default_mesh_params.mesh_n_high,
+            &self.topic_configsuration.default_mesh_params.mesh_n_high,
         );
         let _ = builder.field("retain_scores", &self.retain_scores);
         let _ = builder.field("gossip_lazy", &self.gossip_lazy);
@@ -1151,7 +1151,7 @@ impl std::fmt::Debug for Config {
         let _ = builder.field(
             "mesh_outbound_min",
             &self
-                .topic_configuration
+                .topic_configsuration
                 .default_mesh_params
                 .mesh_outbound_min,
         );
@@ -1183,20 +1183,20 @@ mod test {
     use crate::{topic::IdentityHash, Topic};
 
     #[test]
-    fn create_config_with_message_id_as_plain_function() {
-        let config = ConfigBuilder::default()
+    fn create_configs_with_message_id_as_plain_function() {
+        let configs = configsBuilder::default()
             .message_id_fn(message_id_plain_function)
             .build()
             .unwrap();
 
-        let result = config.message_id(&get_gossipsub_message());
+        let result = configs.message_id(&get_gossipsub_message());
 
         assert_eq!(result, get_expected_message_id());
     }
 
     #[test]
-    fn create_config_with_message_id_as_closure() {
-        let config = ConfigBuilder::default()
+    fn create_configs_with_message_id_as_closure() {
+        let configs = configsBuilder::default()
             .message_id_fn(|message: &Message| {
                 let mut s = DefaultHasher::new();
                 message.data.hash(&mut s);
@@ -1207,16 +1207,16 @@ mod test {
             .build()
             .unwrap();
 
-        let result = config.message_id(&get_gossipsub_message());
+        let result = configs.message_id(&get_gossipsub_message());
 
         assert_eq!(result, get_expected_message_id());
     }
 
     #[test]
-    fn create_config_with_message_id_as_closure_with_variable_capture() {
+    fn create_configs_with_message_id_as_closure_with_variable_capture() {
         let captured: char = 'e';
 
-        let config = ConfigBuilder::default()
+        let configs = configsBuilder::default()
             .message_id_fn(move |message: &Message| {
                 let mut s = DefaultHasher::new();
                 message.data.hash(&mut s);
@@ -1227,20 +1227,20 @@ mod test {
             .build()
             .unwrap();
 
-        let result = config.message_id(&get_gossipsub_message());
+        let result = configs.message_id(&get_gossipsub_message());
 
         assert_eq!(result, get_expected_message_id());
     }
 
     #[test]
-    fn create_config_with_protocol_id_prefix() {
-        let protocol_config = ConfigBuilder::default()
+    fn create_configs_with_protocol_id_prefix() {
+        let protocol_configs = configsBuilder::default()
             .protocol_id_prefix("/purple")
             .build()
             .unwrap()
-            .protocol_config();
+            .protocol_configs();
 
-        let protocol_ids = protocol_config.protocol_info();
+        let protocol_ids = protocol_configs.protocol_info();
 
         assert_eq!(protocol_ids.len(), 2);
 
@@ -1258,14 +1258,14 @@ mod test {
     }
 
     #[test]
-    fn create_config_with_custom_protocol_id() {
-        let protocol_config = ConfigBuilder::default()
+    fn create_configs_with_custom_protocol_id() {
+        let protocol_configs = configsBuilder::default()
             .protocol_id("/purple", Version::V1_0)
             .build()
             .unwrap()
-            .protocol_config();
+            .protocol_configs();
 
-        let protocol_ids = protocol_config.protocol_info();
+        let protocol_ids = protocol_configs.protocol_info();
 
         assert_eq!(protocol_ids.len(), 1);
 

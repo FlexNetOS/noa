@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/../lib/logging.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/platform.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/download.sh" 2>/dev/null || true
 
-# Configuration
+# configsuration
 NODE_VERSION="${NODE_VERSION:-22.11.0}"
 FORCE="${1:-}"
 
@@ -38,7 +38,7 @@ if [[ -f "$STATE_FILE" && -x "$NODE_ROOT/bin/node" && "$FORCE" != "--force" ]]; 
     echo ""
     echo "Add to your shell profile:"
     echo "  export PATH=\"$NODE_ROOT/bin:\$PATH\""
-    echo "  export npm_config_cache=\"$NPM_CACHE\""
+    echo "  export npm_configs_cache=\"$NPM_CACHE\""
     exit 0
 fi
 
@@ -110,9 +110,9 @@ log_success "Installed: Node.js v$VERSION"
 NPM_VERSION=$("$NODE_ROOT/bin/npm" --version 2>/dev/null || echo "unknown")
 log_success "npm version: $NPM_VERSION"
 
-# Configure npm to use NOA directories
-"$NODE_ROOT/bin/npm" config set cache "$NPM_CACHE" --global 2>/dev/null || true
-"$NODE_ROOT/bin/npm" config set prefix "$NODE_ROOT" --global 2>/dev/null || true
+# configsure npm to use NOA directories
+"$NODE_ROOT/bin/npm" configs set cache "$NPM_CACHE" --global 2>/dev/null || true
+"$NODE_ROOT/bin/npm" configs set prefix "$NODE_ROOT" --global 2>/dev/null || true
 
 # Save state
 cat > "$STATE_FILE" <<EOF
@@ -134,6 +134,6 @@ echo "============================================================"
 echo ""
 echo "Add to your shell profile:"
 echo "  export PATH=\"$NODE_ROOT/bin:\$PATH\""
-echo "  export npm_config_cache=\"$NPM_CACHE\""
-echo "  export npm_config_prefix=\"$NODE_ROOT\""
+echo "  export npm_configs_cache=\"$NPM_CACHE\""
+echo "  export npm_configs_prefix=\"$NODE_ROOT\""
 

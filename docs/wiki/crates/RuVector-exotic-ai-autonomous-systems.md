@@ -356,7 +356,7 @@ pub struct HealingOrchestrator {
     detectors: HashMap<String, AnomalyDetector>,
 
     // Predictive: Rising tension triggers early intervention
-    predictive_config: PredictiveConfig,
+    predictive_configs: Predictiveconfigs,
 }
 
 impl HealingOrchestrator {
@@ -766,7 +766,7 @@ impl QuDagClient {
 export interface AttentionEngine {
   // Neural attention mechanisms
   scaledDot(Q: Float32Array, K: Float32Array, V: Float32Array): Float32Array;
-  multiHead(query: Float32Array, keys: Float32Array[], values: Float32Array[], config: MultiHeadConfig): Float32Array;
+  multiHead(query: Float32Array, keys: Float32Array[], values: Float32Array[], configs: MultiHeadconfigs): Float32Array;
   hyperbolic(query: Float32Array, keys: Float32Array[], values: Float32Array[], curvature: number): Float32Array;
   linear(query: Float32Array, keys: Float32Array[], values: Float32Array[]): Float32Array;
   flash(query: Float32Array, keys: Float32Array[], values: Float32Array[]): Float32Array;

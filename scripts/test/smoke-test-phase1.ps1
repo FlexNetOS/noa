@@ -60,8 +60,8 @@ Test-Check "init/seeds directory exists" { Test-Path "$NOA_ROOT/init/seeds" -Pat
 # FR-033: containers/ directory
 Test-Check "containers directory exists" { Test-Path "$NOA_ROOT/containers" -PathType Container }
 
-# FR-034: config/ directory
-Test-Check "config directory exists" { Test-Path "$NOA_ROOT/config" -PathType Container }
+# FR-034: configs/ directory
+Test-Check "configs directory exists" { Test-Path "$NOA_ROOT/configs" -PathType Container }
 
 # FR-035: bin/ directory
 Test-Check "bin directory exists" { Test-Path "$NOA_ROOT/bin" -PathType Container }
@@ -87,12 +87,12 @@ Test-Check "package.json exists" { Test-Path "$NOA_ROOT/sys/ui/package.json" -Pa
 Test-Check "pyproject.toml exists" { Test-Path "$NOA_ROOT/sys/digest/pyproject.toml" -PathType Leaf }
 
 Write-Host ""
-Write-Host "Testing configuration files (T016)..."
+Write-Host "Testing configsuration files (T016)..."
 Write-Host ""
 
-Test-Check "noa-server.json exists" { Test-Path "$NOA_ROOT/config/noa-server.json" -PathType Leaf }
-Test-Check "ai-providers.json exists" { Test-Path "$NOA_ROOT/config/ai-providers.json" -PathType Leaf }
-Test-Check "features.json exists" { Test-Path "$NOA_ROOT/config/features.json" -PathType Leaf }
+Test-Check "noa-server.json exists" { Test-Path "$NOA_ROOT/configs/noa-server.json" -PathType Leaf }
+Test-Check "ai-providers.json exists" { Test-Path "$NOA_ROOT/configs/ai-providers.json" -PathType Leaf }
+Test-Check "features.json exists" { Test-Path "$NOA_ROOT/configs/features.json" -PathType Leaf }
 
 Write-Host ""
 Write-Host "Testing scripts (T015, T673-T674)..."

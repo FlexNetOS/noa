@@ -4,63 +4,75 @@ import { AntigravityAgent } from '../../../src/agents/AntigravityAgent';
 import { AbstractAgent } from '../../../src/agents/AbstractAgent';
 import { setupTestProject, teardownTestProject } from '../../harness';
 
-describe('AntigravityAgent', () => {
-  it('should be defined', () => {
-    expect(new AntigravityAgent()).toBeDefined();
-  });
+describe( 'AntigravityAgent', () =>
+{
+  it( 'should be defined', () =>
+  {
+    expect( new AntigravityAgent() ).toBeDefined();
+  } );
 
-  it('should extend AbstractAgent', () => {
+  it( 'should extend AbstractAgent', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent instanceof AbstractAgent).toBe(true);
-  });
+    expect( agent instanceof AbstractAgent ).toBe( true );
+  } );
 
-  it('should have the correct identifier', () => {
+  it( 'should have the correct identifier', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent.getIdentifier()).toBe('antigravity');
-  });
+    expect( agent.getIdentifier() ).toBe( 'antigravity' );
+  } );
 
-  it('should have the correct name', () => {
+  it( 'should have the correct name', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent.getName()).toBe('Antigravity');
-  });
+    expect( agent.getName() ).toBe( 'Antigravity' );
+  } );
 
-  it('should have the correct default output path', () => {
+  it( 'should have the correct default output path', () =>
+  {
     const agent = new AntigravityAgent();
     const projectRoot = '/test/project';
-    expect(agent.getDefaultOutputPath(projectRoot)).toBe(path.join(projectRoot, '.agent', 'rules', 'ruler.md'));
-  });
+    expect( agent.getDefaultOutputPath( projectRoot ) ).toBe( path.join( projectRoot, '.agent', 'rules', 'ruler.md' ) );
+  } );
 
-  it('should not support MCP stdio', () => {
+  it( 'should not support MCP stdio', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent.supportsMcpStdio()).toBe(false);
-  });
+    expect( agent.supportsMcpStdio() ).toBe( false );
+  } );
 
-  it('should not support MCP remote', () => {
+  it( 'should not support MCP remote', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent.supportsMcpRemote()).toBe(false);
-  });
+    expect( agent.supportsMcpRemote() ).toBe( false );
+  } );
 
-  it('should not support native skills', () => {
+  it( 'should not support native skills', () =>
+  {
     const agent = new AntigravityAgent();
-    expect(agent.supportsNativeSkills()).toBe(false);
-  });
+    expect( agent.supportsNativeSkills() ).toBe( false );
+  } );
 
-  it('writes rules to .agent/rules/ruler.md file', async () => {
-    const { projectRoot } = await setupTestProject({
+  it( 'writes rules to .agent/rules/ruler.md file', async () =>
+  {
+    const { projectRoot } = await setupTestProject( {
       '.ruler/AGENTS.md': 'Rule A',
-    });
-    try {
+    } );
+    try
+    {
       const agent = new AntigravityAgent();
       const rules = 'Combined rules\n- Rule A';
 
-      await agent.applyRulerConfig(rules, projectRoot, null);
+      await agent.applyRulerconfigs( rules, projectRoot, null );
 
       // .agent/rules/ruler.md should be written
-      const rulesPath = path.join(projectRoot, '.agent', 'rules', 'ruler.md');
-      const content = await fs.readFile(rulesPath, 'utf8');
-      expect(content).toContain('Rule A');
-    } finally {
-      await teardownTestProject(projectRoot);
+      const rulesPath = path.join( projectRoot, '.agent', 'rules', 'ruler.md' );
+      const content = await fs.readFile( rulesPath, 'utf8' );
+      expect( content ).toContain( 'Rule A' );
+    } finally
+    {
+      await teardownTestProject( projectRoot );
     }
-  });
-});
+  } );
+} );

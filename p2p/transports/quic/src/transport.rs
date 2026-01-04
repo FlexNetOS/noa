@@ -49,7 +49,7 @@ use libp2p_identity::PeerId;
 use socket2::{Domain, Socket, Type};
 
 use crate::{
-    config::{Config, QuinnConfig},
+    configs::{configs, Quinnconfigs},
     hole_punching::hole_puncher,
     provider::Provider,
     ConnectError, Connecting, Connection, Error,
@@ -60,7 +60,7 @@ use crate::{
 /// By default only QUIC Version 1 (RFC 9000) is supported. In the [`Multiaddr`] this maps to
 /// [`libp2p_core::multiaddr::Protocol::QuicV1`].
 /// The [`libp2p_core::multiaddr::Protocol::Quic`] codepoint is interpreted as QUIC version
-/// draft-29 and only supported if [`Config::support_draft_29`] is set to `true`.
+/// draft-29 and only supported if [`configs::support_draft_29`] is set to `true`.
 /// Note that in that case servers support both version an all QUIC listening addresses.
 ///
 /// Version draft-29 should only be used to connect to nodes from other libp2p implementations
@@ -68,8 +68,8 @@ use crate::{
 /// See <https://github.com/multiformats/multiaddr/issues/145>.
 #[derive(Debug)]
 pub struct GenTransport<P: Provider> {
-    /// Config for the inner [`quinn`] structs.
-    quinn_config: QuinnConfig,
+    /// configs for the inner [`quinn`] structs.
+    quinn_configs: Quinnconfigs,
     /// Timeout for the [`Connecting`] future.
     handshake_timeout: Duration,
     /// Whether draft-29 is supported for dialing and listening.
@@ -86,14 +86,14 @@ pub struct GenTransport<P: Provider> {
 
 #[expect(deprecated)]
 impl<P: Provider> GenTransport<P> {
-    /// Create a new [`GenTransport`] with the given [`Config`].
-    pub fn new(config: Config) -> Self {
-        let handshake_timeout = config.handshake_timeout;
-        let support_draft_29 = config.support_draft_29;
-        let quinn_config = config.into();
+    /// Create a new [`GenTransport`] with the given [`configs`].
+    pub fn new(configs: configs) -> Self {
+        let handshake_timeout = configs.handshake_timeout;
+        let support_draft_29 = configs.support_draft_29;
+        let quinn_configs = configs.into();
         Self {
             listeners: SelectAll::new(),
-            quinn_config,
+            quinn_configs,
             handshake_timeout,
             dialer: HashMap::new(),
             waker: None,
@@ -102,10 +102,10 @@ impl<P: Provider> GenTransport<P> {
         }
     }
 
-    /// Create a new [`quinn::Endpoint`] with the given configs.
+    /// Create a new [`quinn::Endpoint`] with the given configss.
     fn new_endpoint(
-        endpoint_config: quinn::EndpointConfig,
-        server_config: Option<quinn::ServerConfig>,
+        endpoint_configs: quinn::Endpointconfigs,
+        server_configs: Option<quinn::Serverconfigs>,
         socket: UdpSocket,
     ) -> Result<quinn::Endpoint, Error> {
         use crate::provider::Runtime;
@@ -114,12 +114,12 @@ impl<P: Provider> GenTransport<P> {
             Runtime::Tokio => {
                 let runtime = std::sync::Arc::new(quinn::TokioRuntime);
                 let endpoint =
-                    quinn::Endpoint::new(endpoint_config, server_config, socket, runtime)?;
+                    quinn::Endpoint::new(endpoint_configs, server_configs, socket, runtime)?;
                 Ok(endpoint)
             }
             Runtime::Dummy => {
-                let _ = endpoint_config;
-                let _ = server_config;
+                let _ = endpoint_configs;
+                let _ = server_configs;
                 let _ = socket;
                 let err = std::io::Error::other("no async runtime found");
                 Err(Error::Io(err))
@@ -205,8 +205,8 @@ impl<P: Provider> GenTransport<P> {
             SocketFamily::Ipv6 => SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
         };
         let socket = UdpSocket::bind(listen_socket_addr)?;
-        let endpoint_config = self.quinn_config.endpoint_config.clone();
-        let endpoint = Self::new_endpoint(endpoint_config, None, socket)?;
+        let endpoint_configs = self.quinn_configs.endpoint_configs.clone();
+        let endpoint = Self::new_endpoint(endpoint_configs, None, socket)?;
         Ok(endpoint)
     }
 }
@@ -223,12 +223,12 @@ impl<P: Provider> Transport for GenTransport<P> {
         addr: Multiaddr,
     ) -> Result<(), TransportError<Self::Error>> {
         let (socket_addr, version, _peer_id) = self.remote_multiaddr_to_socketaddr(addr, false)?;
-        let endpoint_config = self.quinn_config.endpoint_config.clone();
-        let server_config = self.quinn_config.server_config.clone();
+        let endpoint_configs = self.quinn_configs.endpoint_configs.clone();
+        let server_configs = self.quinn_configs.server_configs.clone();
         let socket = self.create_socket(socket_addr).map_err(Self::Error::from)?;
 
         let socket_c = socket.try_clone().map_err(Self::Error::from)?;
-        let endpoint = Self::new_endpoint(endpoint_config, Some(server_config), socket)?;
+        let endpoint = Self::new_endpoint(endpoint_configs, Some(server_configs), socket)?;
         let listener = Listener::new(
             listener_id,
             socket_c,
@@ -294,16 +294,16 @@ impl<P: Provider> Transport for GenTransport<P> {
                     dialer
                 };
                 let handshake_timeout = self.handshake_timeout;
-                let mut client_config = self.quinn_config.client_config.clone();
+                let mut client_configs = self.quinn_configs.client_configs.clone();
                 if version == ProtocolVersion::Draft29 {
-                    client_config.version(0xff00_001d);
+                    client_configs.version(0xff00_001d);
                 }
                 Ok(Box::pin(async move {
                     // This `"l"` seems necessary because an empty string is an invalid domain
                     // name. While we don't use domain names, the underlying rustls library
                     // is based upon the assumption that we do.
                     let connecting = endpoint
-                        .connect_with(client_config, socket_addr, "l")
+                        .connect_with(client_configs, socket_addr, "l")
                         .map_err(ConnectError)?;
                     Connecting::new(connecting, handshake_timeout).await
                 }))
@@ -843,8 +843,8 @@ mod tests {
     #[tokio::test]
     async fn test_close_listener() {
         let keypair = libp2p_identity::Keypair::generate_ed25519();
-        let config = Config::new(&keypair);
-        let mut transport = crate::tokio::Transport::new(config);
+        let configs = configs::new(&keypair);
+        let mut transport = crate::tokio::Transport::new(configs);
         assert!(poll_fn(|cx| Pin::new(&mut transport).as_mut().poll(cx))
             .now_or_never()
             .is_none());
@@ -896,8 +896,8 @@ mod tests {
     #[tokio::test]
     async fn test_dialer_drop() {
         let keypair = libp2p_identity::Keypair::generate_ed25519();
-        let config = Config::new(&keypair);
-        let mut transport = crate::tokio::Transport::new(config);
+        let configs = configs::new(&keypair);
+        let mut transport = crate::tokio::Transport::new(configs);
 
         let _dial = transport
             .dial(
@@ -926,8 +926,8 @@ mod tests {
     #[tokio::test]
     async fn test_listens_ipv4_ipv6_separately() {
         let keypair = libp2p_identity::Keypair::generate_ed25519();
-        let config = Config::new(&keypair);
-        let mut transport = crate::tokio::Transport::new(config);
+        let configs = configs::new(&keypair);
+        let mut transport = crate::tokio::Transport::new(configs);
         let port = {
             let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
             socket.local_addr().unwrap().port()

@@ -17,9 +17,9 @@
 | 3 | Go module initialized for P2P services | Strong | T011, `p2p/go.mod` | `go build` succeeds | Go 1.23+ |
 | 4 | TypeScript/Next.js project initialized | Strong | T012, `sys/ui/package.json` | `npm install` succeeds | Node 20+ |
 | 5 | Python project initialized for digest pipeline | Strong | T013, `sys/digest/pyproject.toml` | `pip install` succeeds | Python 3.12+ |
-| 6 | Linting configured (rustfmt, clippy, golangci-lint, eslint, ruff) | Strong | T014, CI pipeline | CI lint checks pass | Tool versions in prereq check |
+| 6 | Linting configsured (rustfmt, clippy, golangci-lint, eslint, ruff) | Strong | T014, CI pipeline | CI lint checks pass | Tool versions in prereq check |
 | 7 | Cross-platform build scripts created | Strong | T015, `scripts/bash/build.sh`, `scripts/powershell/build.ps1` | Scripts execute successfully | Windows, Linux, macOS |
-| 8 | Environment configuration templates created | Strong | T016, `config/` directory | Config files exist and validate | Schema validation |
+| 8 | Environment configsuration templates created | Strong | T016, `configs/` directory | configs files exist and validate | Schema validation |
 | 9 | GitHub Actions CI pipeline setup | Strong | T017, `.github/workflows/ci.yml` | CI runs on push/PR | ubuntu-latest, windows-latest, macos-latest |
 | 10 | README.md with quickstart instructions created | Strong | T018, `README.md` | File exists with content | N/A |
 | 11 | Prerequisite check scripts implemented (bash and PowerShell) | Strong | T673-T674, `scripts/bash/check-prerequisites.sh`, `init/check-prereqs.sh` | Scripts execute and output JSON | All platforms |
@@ -38,17 +38,17 @@
 See `HASHES.txt` for complete SHA-256 hashes of all key Phase 1 files.
 
 **Key Files**:
-- `sys/core/Cargo.toml` - Rust workspace configuration
-- `sys/ui/package.json` - TypeScript/Next.js project configuration
-- `sys/digest/pyproject.toml` - Python project configuration
-- `p2p/go.mod` - Go module configuration
+- `sys/core/Cargo.toml` - Rust workspace configsuration
+- `sys/ui/package.json` - TypeScript/Next.js project configsuration
+- `sys/digest/pyproject.toml` - Python project configsuration
+- `p2p/go.mod` - Go module configsuration
 - `scripts/bash/check-prerequisites.sh` - Prerequisite check script (Bash)
 - `init/check-prereqs.sh` - Prerequisite check script (authoritative)
-- `.github/workflows/ci.yml` - CI pipeline configuration
+- `.github/workflows/ci.yml` - CI pipeline configsuration
 - `init/bootstrap/dirs.sh` - Directory creation script
-- `config/noa-server.json` - Server configuration
-- `config/ai-providers.json` - AI provider configuration
-- `config/features.json` - Feature flags configuration
+- `configs/noa-server.json` - Server configsuration
+- `configs/ai-providers.json` - AI provider configsuration
+- `configs/features.json` - Feature flags configsuration
 
 **Data Source**: Repository files
 **Snapshot Time**: 2025-01-27
@@ -97,7 +97,7 @@ cd ../../p2p && go build
 
 **Pass C: Adversarial Check**
 - ⚠️ Negative tests need expansion (insufficient permissions, missing prerequisites)
-- ⚠️ Boundary cases need testing (empty configs, max path length)
+- ⚠️ Boundary cases need testing (empty configss, max path length)
 - ✅ Cross-platform verification performed (CI tests on 3 OS)
 
 **Results Recorded**: 2025-01-27
@@ -111,7 +111,7 @@ cd ../../p2p && go build
 | 1 | All referenced files verified to exist | ✅ PASS | All Phase 1 files exist in repository |
 | 2 | Deterministic smoke test provided | ⚠️ PARTIAL | CI pipeline exists, dedicated smoke test script needed |
 | 3 | Requirements mapped to artifacts mapped to tests | ✅ PASS | FR-029 to FR-036 → T001-T009 → test files |
-| 4 | Constraints, supported OS/arch, and known failure modes stated | ✅ PASS | Version constraints in config files, CI tests 3 OS |
+| 4 | Constraints, supported OS/arch, and known failure modes stated | ✅ PASS | Version constraints in configs files, CI tests 3 OS |
 | 5 | SHA-256 hashes provided for key artifacts | ✅ PASS | HASHES.txt generated |
 | 6 | If "unbounded" claimed, scheduler/executor proof provided | ✅ N/A | No "unbounded" claims |
 | 7 | Gap scan checklist completed with coverage confirmed | ✅ PASS | Phase 1 quality verification report completed |
@@ -126,7 +126,7 @@ cd ../../p2p && go build
 - ✅ All Phase 1 tasks (T001-T018, T673-T675) implemented
 - ✅ Directory structure created per FR-029 to FR-036
 - ✅ All project initialization files created
-- ✅ CI pipeline configured and working
+- ✅ CI pipeline configsured and working
 - ✅ Prerequisite check scripts implemented
 
 ### Open Gaps
@@ -137,31 +137,31 @@ cd ../../p2p && go build
 
 2. **Negative Tests** (CHK032)
    - **Gap**: Failure mode tests need expansion
-   - **Remedy**: Add tests for insufficient permissions, missing prerequisites, invalid configs
+   - **Remedy**: Add tests for insufficient permissions, missing prerequisites, invalid configss
 
 3. **Boundary Case Tests** (CHK033)
    - **Gap**: Edge cases need testing
-   - **Remedy**: Test empty configs, max path length, null values
+   - **Remedy**: Test empty configss, max path length, null values
 
 4. **File Headers** (CHK054)
    - **Gap**: Not all source files have header comments
    - **Remedy**: Add copyright, purpose, license to all source files
 
-5. **Config Documentation** (CHK074, CHK075)
-   - **Gap**: Config README and enhanced schema descriptions needed
-   - **Remedy**: Create `config/README.md` and enhance schema descriptions
+5. **configs Documentation** (CHK074, CHK075)
+   - **Gap**: configs README and enhanced schema descriptions needed
+   - **Remedy**: Create `configs/README.md` and enhance schema descriptions
 
 6. **Script Cross-Platform Mapping** (CHK114)
    - **Gap**: Scripts README needs cross-platform mapping table
    - **Remedy**: Create/update `scripts/README.md` with mapping
 
-7. **Runtime Config Validation** (CHK068, CHK082, CHK083)
+7. **Runtime configs Validation** (CHK068, CHK082, CHK083)
    - **Gap**: Runtime validation needs verification
-   - **Remedy**: Test config validation on load, verify error messages
+   - **Remedy**: Test configs validation on load, verify error messages
 
-8. **Provider Config Latency/Timeout** (CHK127)
-   - **Gap**: Some provider configs may need latency/timeout fields
-   - **Remedy**: Verify and add latency targets and timeout to all provider configs
+8. **Provider configs Latency/Timeout** (CHK127)
+   - **Gap**: Some provider configss may need latency/timeout fields
+   - **Remedy**: Verify and add latency targets and timeout to all provider configss
 
 ### Coverage Table
 
@@ -179,9 +179,9 @@ Phase 1 implementation is functionally complete with all tasks implemented and c
 **NEXT**:
 1. Complete smoke test script implementation
 2. Add negative and boundary case tests
-3. Enhance documentation (file headers, config README, script mapping)
-4. Verify runtime config validation
-5. Complete provider config latency/timeout fields
+3. Enhance documentation (file headers, configs README, script mapping)
+4. Verify runtime configs validation
+5. Complete provider configs latency/timeout fields
 
 ---
 

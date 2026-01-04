@@ -8,7 +8,7 @@
 # Usage:
 #   ./uninstall.sh                    # Interactive uninstall
 #   ./uninstall.sh --dry-run          # Show what would be removed
-#   ./uninstall.sh --keep-config      # Keep configuration files
+#   ./uninstall.sh --keep-configs      # Keep configsuration files
 #   ./uninstall.sh --keep-logs        # Keep log files
 #   ./uninstall.sh --force            # Skip confirmation
 
@@ -18,15 +18,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(dirname "$SCRIPT_DIR")}"
 
 # Parse arguments
-KEEP_CONFIG=false
+KEEP_configs=false
 KEEP_LOGS=false
 DRY_RUN=false
 FORCE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --keep-config)
-            KEEP_CONFIG=true
+        --keep-configs)
+            KEEP_configs=true
             shift
             ;;
         --keep-logs)
@@ -101,8 +101,8 @@ DIRS_TO_REMOVE=(
     "init/run"
 )
 
-if [[ "$KEEP_CONFIG" != true ]]; then
-    DIRS_TO_REMOVE+=("config/bootstrap-state.json")
+if [[ "$KEEP_configs" != true ]]; then
+    DIRS_TO_REMOVE+=("configs/bootstrap-state.json")
 fi
 
 if [[ "$KEEP_LOGS" != true ]]; then

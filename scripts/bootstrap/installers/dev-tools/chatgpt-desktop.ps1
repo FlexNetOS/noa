@@ -130,17 +130,17 @@ REM Launches ChatGPT Desktop from NOA opt directory
 $wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
 Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
 
-# Update provider config if exists
-$providerConfig = Join-Path $NoaRoot "ai\providers\cloud\chatgpt\config.json"
-if (Test-Path $providerConfig) {
+# Update provider configs if exists
+$providerconfigs = Join-Path $NoaRoot "ai\providers\cloud\chatgpt\configs.json"
+if (Test-Path $providerconfigs) {
     try {
-        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+        $configs = Get-Content $providerconfigs -Raw | ConvertFrom-Json
 
-        if (-not $config.PSObject.Properties['desktop']) {
-            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        if (-not $configs.PSObject.Properties['desktop']) {
+            $configs | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
         }
 
-        $config.desktop = @{
+        $configs.desktop = @{
             binaryPath = @{
                 windows = "`${NOA_ROOT}/opt/chatgpt-desktop/$($chatgptExe.Name)"
                 unix = "`${NOA_ROOT}/opt/chatgpt-desktop/bin/chatgpt"
@@ -151,10 +151,10 @@ if (Test-Path $providerConfig) {
             }
         }
 
-        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
-        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+        $configs | ConvertTo-Json -Depth 10 | Set-Content $providerconfigs -Encoding UTF8
+        Write-Host "  [OK] Updated provider configs" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] Failed to update provider configs: $_" -ForegroundColor Yellow
     }
 }
 

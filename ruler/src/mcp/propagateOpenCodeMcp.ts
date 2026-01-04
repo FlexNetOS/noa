@@ -2,7 +2,8 @@ import * as fs from 'fs/promises';
 import { ensureDirExists } from '../core/FileSystemUtils';
 import * as path from 'path';
 
-interface OpenCodeMcpServer {
+interface OpenCodeMcpServer
+{
   type: 'local' | 'remote';
   command?: string[];
   url?: string;
@@ -11,118 +12,135 @@ interface OpenCodeMcpServer {
   headers?: Record<string, string>;
 }
 
-interface OpenCodeConfig {
+interface OpenCodeconfigs
+{
   $schema: string;
   mcp: Record<string, OpenCodeMcpServer>;
 }
 
-interface LocalServer {
+interface LocalServer
+{
   command: string | string[];
   args?: string[];
   env?: Record<string, string>;
 }
 
-interface RemoteServer {
+interface RemoteServer
+{
   url: string;
   headers?: Record<string, string>;
 }
 
-function isLocalServer(value: unknown): value is LocalServer {
+function isLocalServer ( value: unknown ): value is LocalServer
+{
   const server = value as LocalServer;
   return (
     server &&
-    (typeof server.command === 'string' || Array.isArray(server.command))
+    ( typeof server.command === 'string' || Array.isArray( server.command ) )
   );
 }
 
-function isRemoteServer(value: unknown): value is RemoteServer {
+function isRemoteServer ( value: unknown ): value is RemoteServer
+{
   const server = value as RemoteServer;
   return server && typeof server.url === 'string';
 }
 
-interface RulerMcp {
+interface RulerMcp
+{
   mcpServers?: Record<string, unknown>;
 }
 
 /**
- * Transform ruler MCP configuration to OpenCode's specific format
+ * Transform ruler MCP configsuration to OpenCode's specific format
  */
-function transformToOpenCodeFormat(rulerMcp: RulerMcp): OpenCodeConfig {
+function transformToOpenCodeFormat ( rulerMcp: RulerMcp ): OpenCodeconfigs
+{
   const rulerServers = rulerMcp.mcpServers || {};
   const openCodeServers: Record<string, OpenCodeMcpServer> = {};
 
-  for (const [name, serverDef] of Object.entries(rulerServers)) {
+  for ( const [ name, serverDef ] of Object.entries( rulerServers ) )
+  {
     const openCodeServer: OpenCodeMcpServer = {
       type: 'local',
       enabled: true,
     };
 
-    if (isRemoteServer(serverDef)) {
+    if ( isRemoteServer( serverDef ) )
+    {
       openCodeServer.type = 'remote';
       openCodeServer.url = serverDef.url;
-      if (serverDef.headers) {
+      if ( serverDef.headers )
+      {
         openCodeServer.headers = serverDef.headers;
       }
-    } else if (isLocalServer(serverDef)) {
+    } else if ( isLocalServer( serverDef ) )
+    {
       openCodeServer.type = 'local';
-      const command = Array.isArray(serverDef.command)
+      const command = Array.isArray( serverDef.command )
         ? serverDef.command
-        : [serverDef.command];
+        : [ serverDef.command ];
       const args = serverDef.args || [];
-      openCodeServer.command = [...command, ...args];
+      openCodeServer.command = [ ...command, ...args ];
 
-      if (serverDef.env) {
+      if ( serverDef.env )
+      {
         openCodeServer.environment = serverDef.env;
       }
-    } else {
+    } else
+    {
       continue;
     }
 
-    openCodeServers[name] = openCodeServer;
+    openCodeServers[ name ] = openCodeServer;
   }
 
   return {
-    $schema: 'https://opencode.ai/config.json',
+    $schema: 'https://opencode.ai/configs.json',
     mcp: openCodeServers,
   };
 }
 
-export async function propagateMcpToOpenCode(
+export async function propagateMcpToOpenCode (
   rulerMcpData: Record<string, unknown> | null,
-  openCodeConfigPath: string,
+  openCodeconfigsPath: string,
   backup = true,
-): Promise<void> {
+): Promise<void>
+{
   const rulerMcp: RulerMcp = rulerMcpData || {};
 
-  // Read existing OpenCode config if it exists
-  let existingConfig: Partial<OpenCodeConfig> & Record<string, unknown> = {};
-  try {
-    const existingContent = await fs.readFile(openCodeConfigPath, 'utf8');
-    existingConfig = JSON.parse(existingContent);
-  } catch {
+  // Read existing OpenCode configs if it exists
+  let existingconfigs: Partial<OpenCodeconfigs> & Record<string, unknown> = {};
+  try
+  {
+    const existingContent = await fs.readFile( openCodeconfigsPath, 'utf8' );
+    existingconfigs = JSON.parse( existingContent );
+  } catch
+  {
     // File doesn't exist, we'll create it
   }
 
   // Transform ruler MCP to OpenCode format
-  const transformedConfig = transformToOpenCodeFormat(rulerMcp);
+  const transformedconfigs = transformToOpenCodeFormat( rulerMcp );
 
-  // Merge with existing config, preserving non-MCP settings
-  const finalConfig = {
-    ...existingConfig,
-    $schema: transformedConfig.$schema,
+  // Merge with existing configs, preserving non-MCP settings
+  const finalconfigs = {
+    ...existingconfigs,
+    $schema: transformedconfigs.$schema,
     mcp: {
-      ...existingConfig.mcp,
-      ...transformedConfig.mcp,
+      ...existingconfigs.mcp,
+      ...transformedconfigs.mcp,
     },
   };
 
-  await ensureDirExists(path.dirname(openCodeConfigPath));
-  if (backup) {
-    const { backupFile } = await import('../core/FileSystemUtils');
-    await backupFile(openCodeConfigPath);
+  await ensureDirExists( path.dirname( openCodeconfigsPath ) );
+  if ( backup )
+  {
+    const { backupFile } = await import( '../core/FileSystemUtils' );
+    await backupFile( openCodeconfigsPath );
   }
   await fs.writeFile(
-    openCodeConfigPath,
-    JSON.stringify(finalConfig, null, 2) + '\n',
+    openCodeconfigsPath,
+    JSON.stringify( finalconfigs, null, 2 ) + '\n',
   );
 }

@@ -293,7 +293,7 @@ pub enum ToSwarm<TOutEvent, TInEvent> {
     ///
     /// This address could come from a variety of sources:
     /// - A protocol such as identify obtained it from a remote.
-    /// - The user provided it based on configuration.
+    /// - The user provided it based on configsuration.
     /// - We made an educated guess based on one of our listen addresses.
     NewExternalAddrCandidate(Multiaddr),
 

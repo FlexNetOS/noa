@@ -113,12 +113,12 @@ function Invoke-InSandbox {
 
     Write-Host "Running in Windows Sandbox..." -ForegroundColor Cyan
 
-    # Create sandbox configuration
+    # Create sandbox configsuration
     $wsbFile = Join-Path $NOA_NAMESPACE "noa-sandbox.wsb"
     $logonCommand = "<LogonCommand><Command>$Cmd</Command></LogonCommand>"
 
     @"
-<Configuration>
+<configsuration>
   <MappedFolders>
     <MappedFolder>
       <HostFolder>$NoaRoot</HostFolder>
@@ -127,7 +127,7 @@ function Invoke-InSandbox {
     </MappedFolder>
   </MappedFolders>
   $logonCommand
-</Configuration>
+</configsuration>
 "@ | Set-Content -Path $wsbFile
 
     & WindowsSandbox.exe $wsbFile

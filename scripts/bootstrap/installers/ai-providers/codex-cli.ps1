@@ -7,7 +7,7 @@
     portable environment. Supports npm installation and clone methods.
 
     Repository: https://github.com/FlexNetOS/codex.git
-    Provider Config: ai/providers/cloud/codex/config.json
+    Provider configs: ai/providers/cloud/codex/configs.json
 
 .PARAMETER NoaRoot
     Root directory for NOA installation. Defaults to N:\noa
@@ -55,12 +55,12 @@ if (Test-Path $loggingLib) {
     }
 }
 
-# Configuration
+# configsuration
 $CodexVersion = "latest"
 $NpmPackage = "@openai/codex"
 $NpmPackageFallback = "codex-cli"
 $GitRepo = "https://github.com/FlexNetOS/codex.git"
-$ProviderConfigPath = Join-Path $NoaRoot "ai/providers/cloud/codex"
+$ProviderconfigsPath = Join-Path $NoaRoot "ai/providers/cloud/codex"
 
 Write-Log "Installing Codex CLI..." -Level Info
 Write-Log "  Method: $Method" -Level Info
@@ -72,7 +72,7 @@ $binPath = Join-Path $NoaRoot "bin"
 $nodePath = Join-Path $optPath "node"
 $devToolsDir = Join-Path $optPath "dev-tools"
 
-foreach ($dir in @($optPath, $binPath, $ProviderConfigPath)) {
+foreach ($dir in @($optPath, $binPath, $ProviderconfigsPath)) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
         Write-Log "  Created: $dir" -Level Success
@@ -97,8 +97,8 @@ switch ($Method) {
         $npmPrefix = Join-Path $devToolsDir "npm-global"
         $npmCache = Join-Path $optPath "npm-cache"
         New-Item -ItemType Directory -Force -Path $npmPrefix, $npmCache | Out-Null
-        $env:npm_config_prefix = $npmPrefix
-        $env:npm_config_cache = $npmCache
+        $env:npm_configs_prefix = $npmPrefix
+        $env:npm_configs_cache = $npmCache
 
         # Try @openai/codex first, fallback to codex-cli
         try {
@@ -167,15 +167,15 @@ if ($codexCmd) {
     }
 }
 
-# Ensure provider config exists
-$configFile = Join-Path $ProviderConfigPath "config.json"
-if (-not (Test-Path $configFile)) {
-    Write-Log "Creating provider config..." -Level Info
-    # Config is created by the main setup, but ensure directory exists
+# Ensure provider configs exists
+$configsFile = Join-Path $ProviderconfigsPath "configs.json"
+if (-not (Test-Path $configsFile)) {
+    Write-Log "Creating provider configs..." -Level Info
+    # configs is created by the main setup, but ensure directory exists
 }
 
 Write-Log "Codex CLI installation complete!" -Level Success
-Write-Log "  Provider config: $ProviderConfigPath" -Level Info
+Write-Log "  Provider configs: $ProviderconfigsPath" -Level Info
 Write-Log "  Shared resources: $NoaRoot\ai\shared" -Level Info
 
 exit 0

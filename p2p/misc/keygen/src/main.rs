@@ -8,7 +8,7 @@ use std::{
 
 use base64::prelude::*;
 
-mod config;
+mod configs;
 
 use clap::Parser;
 use libp2p_identity as identity;
@@ -28,11 +28,11 @@ struct Args {
 
 #[derive(Debug, Parser)]
 enum Command {
-    /// Read from config file
+    /// Read from configs file
     From {
-        /// Provide a IPFS config file
+        /// Provide a IPFS configs file
         #[arg(value_parser)]
-        config: PathBuf,
+        configs: PathBuf,
     },
     /// Generate random
     Rand {
@@ -53,19 +53,19 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     let (local_peer_id, local_keypair) = match args.cmd {
-        // Generate keypair from some sort of key material. Currently supporting `IPFS` config file
-        Command::From { config } => {
-            let config = Zeroizing::new(config::Config::from_file(config.as_ref())?);
+        // Generate keypair from some sort of key material. Currently supporting `IPFS` configs file
+        Command::From { configs } => {
+            let configs = Zeroizing::new(configs::configs::from_file(configs.as_ref())?);
 
             let keypair = identity::Keypair::from_protobuf_encoding(&Zeroizing::new(
-                BASE64_STANDARD.decode(config.identity.priv_key.as_bytes())?,
+                BASE64_STANDARD.decode(configs.identity.priv_key.as_bytes())?,
             ))?;
 
             let peer_id = keypair.public().into();
             assert_eq!(
-                    PeerId::from_str(&config.identity.peer_id)?,
+                    PeerId::from_str(&configs.identity.peer_id)?,
                     peer_id,
-                    "Expect peer id derived from private key and peer id retrieved from config to match."
+                    "Expect peer id derived from private key and peer id retrieved from configs to match."
                 );
 
             (peer_id, keypair)
@@ -115,8 +115,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     if args.json {
-        let config = config::Config::from_key_material(local_peer_id, &local_keypair)?;
-        println!("{}", serde_json::to_string(&config)?);
+        let configs = configs::configs::from_key_material(local_peer_id, &local_keypair)?;
+        println!("{}", serde_json::to_string(&configs)?);
     } else {
         println!(
             "PeerId: {:?} Keypair: {:?}",

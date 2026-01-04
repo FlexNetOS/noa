@@ -58,17 +58,17 @@ async fn main() -> Result<()> {
     let mut swarm = libp2p::SwarmBuilder::with_existing_identity(local_key.clone())
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_dns()?
         .with_behaviour(|key| {
             // Create a Kademlia behaviour.
-            let mut cfg = kad::Config::new(IPFS_PROTO_NAME);
+            let mut cfg = kad::configs::new(IPFS_PROTO_NAME);
             cfg.set_query_timeout(Duration::from_secs(5 * 60));
             let store = kad::store::MemoryStore::new(key.public().to_peer_id());
-            kad::Behaviour::with_config(key.public().to_peer_id(), store, cfg)
+            kad::Behaviour::with_configs(key.public().to_peer_id(), store, cfg)
         })?
         .build();
 

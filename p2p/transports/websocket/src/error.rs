@@ -33,7 +33,7 @@ pub enum Error<E> {
     Tls(tls::Error),
     /// Websocket handshake error.
     Handshake(Box<dyn error::Error + Send + Sync>),
-    /// The configured maximum of redirects have been made.
+    /// The configsured maximum of redirects have been made.
     TooManyRedirects,
     /// A multi-address is not supported.
     InvalidMultiaddr(Multiaddr),

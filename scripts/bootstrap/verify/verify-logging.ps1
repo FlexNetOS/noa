@@ -3,7 +3,7 @@
     Verify all actions are logged to logs/bootstrap/ (§3.5 compliance).
 
 .DESCRIPTION
-    Checks that logging is properly configured and bootstrap actions are auditable.
+    Checks that logging is properly configsured and bootstrap actions are auditable.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -60,36 +60,36 @@ foreach ($dir in $requiredLogDirs) {
     }
 }
 
-# Check log configuration exists
+# Check log configsuration exists
 Write-Host ""
-Write-Host "Checking log configuration..." -ForegroundColor Yellow
+Write-Host "Checking log configsuration..." -ForegroundColor Yellow
 
-$logConfigPath = Join-Path $LOGS_DIR "log-config.json"
-if (Test-Path $logConfigPath) {
-    Write-Host "  [OK] log-config.json exists" -ForegroundColor Green
+$logconfigsPath = Join-Path $LOGS_DIR "log-configs.json"
+if (Test-Path $logconfigsPath) {
+    Write-Host "  [OK] log-configs.json exists" -ForegroundColor Green
     $passed++
 
-    # Validate config structure
+    # Validate configs structure
     try {
-        $logConfig = Get-Content $logConfigPath -Raw | ConvertFrom-Json
+        $logconfigs = Get-Content $logconfigsPath -Raw | ConvertFrom-Json
 
-        if ($logConfig.rotation.enabled) {
+        if ($logconfigs.rotation.enabled) {
             Write-Host "  [OK] Log rotation enabled" -ForegroundColor Green
             $passed++
         } else {
             Write-Host "  [!!] Log rotation disabled" -ForegroundColor Yellow
         }
 
-        if ($logConfig.retention) {
-            Write-Host "  [OK] Retention policy configured" -ForegroundColor Green
+        if ($logconfigs.retention) {
+            Write-Host "  [OK] Retention policy configsured" -ForegroundColor Green
             $passed++
         }
     } catch {
-        Write-Host "  [!!] Invalid log-config.json" -ForegroundColor Red
+        Write-Host "  [!!] Invalid log-configs.json" -ForegroundColor Red
         $failed++
     }
 } else {
-    Write-Host "  [!!] log-config.json - MISSING" -ForegroundColor Red
+    Write-Host "  [!!] log-configs.json - MISSING" -ForegroundColor Red
     $failed++
 }
 
@@ -134,11 +134,11 @@ Write-Host "  Failed: $failed" -ForegroundColor $(if ($failed -gt 0) { "Red" } e
 Write-Host ""
 
 if ($failed -eq 0) {
-    Write-Host "✓ Logging is properly configured - §3.5 COMPLIANT" -ForegroundColor Green
+    Write-Host "✓ Logging is properly configsured - §3.5 COMPLIANT" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "✗ Logging configuration incomplete" -ForegroundColor Red
-    Write-Host "Run: .\scripts\bootstrap\config\log-setup.ps1" -ForegroundColor Yellow
+    Write-Host "✗ Logging configsuration incomplete" -ForegroundColor Red
+    Write-Host "Run: .\scripts\bootstrap\configs\log-setup.ps1" -ForegroundColor Yellow
     exit 1
 }
 

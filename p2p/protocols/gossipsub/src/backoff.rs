@@ -44,9 +44,9 @@ pub(crate) struct BackoffStorage {
     backoffs_by_heartbeat: Vec<HashSet<(TopicHash, PeerId)>>,
     /// The index in the backoffs_by_heartbeat vector corresponding to the current heartbeat.
     heartbeat_index: HeartbeatIndex,
-    /// The heartbeat interval duration from the config.
+    /// The heartbeat interval duration from the configs.
     heartbeat_interval: Duration,
-    /// Backoff slack from the config.
+    /// Backoff slack from the configs.
     backoff_slack: u32,
 }
 
@@ -119,7 +119,7 @@ impl BackoffStorage {
     }
 
     /// Checks if a given peer is backoffed for the given topic. This method respects the
-    /// configured BACKOFF_SLACK and may return true even if the backup is already over.
+    /// configsured BACKOFF_SLACK and may return true even if the backup is already over.
     /// It is guaranteed to return false if the backoff is not over and eventually if enough time
     /// passed true if the backoff is over.
     ///

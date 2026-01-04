@@ -222,7 +222,7 @@ pub trait Transport {
     /// created by this transport.
     ///
     /// This function can be used for ad-hoc protocol upgrades or
-    /// for processing or adapting the output for following configurations.
+    /// for processing or adapting the output for following configsurations.
     ///
     /// For the high-level transport upgrade procedure, see [`Transport::upgrade`].
     fn and_then<C, F, O>(self, f: C) -> and_then::AndThen<Self, C>

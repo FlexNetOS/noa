@@ -24,7 +24,7 @@ use super::handler::{
 use crate::v2::{protocol::DialRequest, Nonce};
 
 #[derive(Debug, Clone, Copy)]
-pub struct Config {
+pub struct configs {
     /// How many candidates we will test at most.
     pub(crate) max_candidates: usize,
 
@@ -32,7 +32,7 @@ pub struct Config {
     pub(crate) probe_interval: Duration,
 }
 
-impl Config {
+impl configs {
     pub fn with_max_candidates(self, max_candidates: usize) -> Self {
         Self {
             max_candidates,
@@ -48,7 +48,7 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
             max_candidates: 10,
@@ -62,7 +62,7 @@ where
     R: RngCore + 'static,
 {
     rng: R,
-    config: Config,
+    configs: configs,
     pending_events: VecDeque<
         ToSwarm<
             <Self as NetworkBehaviour>::ToSwarm,
@@ -254,7 +254,7 @@ where
             }
 
             if self.next_tick.poll_unpin(cx).is_ready() {
-                self.next_tick.reset(self.config.probe_interval);
+                self.next_tick.reset(self.configs.probe_interval);
 
                 self.issue_dial_requests_for_untested_candidates();
                 continue;
@@ -269,11 +269,11 @@ impl<R> Behaviour<R>
 where
     R: RngCore + 'static,
 {
-    pub fn new(rng: R, config: Config) -> Self {
+    pub fn new(rng: R, configs: configs) -> Self {
         Self {
             rng,
-            next_tick: Delay::new(config.probe_interval),
-            config,
+            next_tick: Delay::new(configs.probe_interval),
+            configs,
             pending_events: VecDeque::new(),
             address_candidates: HashMap::new(),
             peer_info: HashMap::new(),
@@ -331,7 +331,7 @@ where
         entries
             .into_iter()
             .rev() // `sort_unstable` is ascending
-            .take(self.config.max_candidates)
+            .take(self.configs.max_candidates)
             .map(|(addr, _)| addr)
     }
 
@@ -370,7 +370,7 @@ where
 
 impl Default for Behaviour<OsRng> {
     fn default() -> Self {
-        Self::new(OsRng, Config::default())
+        Self::new(OsRng, configs::default())
     }
 }
 

@@ -38,8 +38,8 @@ macro_rules! impl_websocket_builder {
         /// let swarm = SwarmBuilder::with_new_identity()
         ///     .with_tokio()
         ///     .with_websocket(
-        ///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-        ///         libp2p_yamux::Config::default,
+        ///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+        ///         libp2p_yamux::configs::default,
         ///     )
         ///     .await?
         /// # ;
@@ -93,7 +93,7 @@ macro_rules! impl_websocket_builder {
             {
                 let security_upgrade = security_upgrade.into_security_upgrade(&self.keypair)
                     .map_err(WebsocketErrorInner::SecurityUpgrade)?;
-                let websocket_transport = libp2p_websocket::Config::new(
+                let websocket_transport = libp2p_websocket::configs::new(
                     $dnsTcp.await.map_err(WebsocketErrorInner::Dns)?,
                 )
                     .upgrade(libp2p_core::upgrade::Version::V1Lazy)
@@ -121,7 +121,7 @@ impl_websocket_builder!(
     // Note this is an unnecessary await for Tokio Websocket (i.e. tokio dns) in order to be
     // consistent with above AsyncStd construction.
     futures::future::ready(libp2p_dns::tokio::Transport::system(
-        libp2p_tcp::tokio::Transport::new(libp2p_tcp::Config::default())
+        libp2p_tcp::tokio::Transport::new(libp2p_tcp::configs::default())
     )),
     rw_stream_sink::RwStreamSink<libp2p_websocket::BytesConnection<libp2p_tcp::tokio::TcpStream>>
 );

@@ -15,7 +15,7 @@ All 25 tasks (T072-T096) have been implemented and marked complete in `tasks.md`
 1. **Directory Structure Module** (`sys/core/src/init/`)
    - ✅ `paths.rs` - Directory path constants (T073)
    - ✅ `structure.rs` - Directory creation with subdirectories (T072, T074-T078)
-   - ✅ `config.rs` - Default configuration generation (T079, T081-T084)
+   - ✅ `configs.rs` - Default configsuration generation (T079, T081-T084)
    - ✅ `database.rs` - Database initialization with migrations (T080)
 
 2. **InitService** (`sys/core/src/services/init_service.rs`)
@@ -45,7 +45,7 @@ All 25 tasks (T072-T096) have been implemented and marked complete in `tasks.md`
 ## Verification Checklist Status
 
 ### VER001 - Directory Creation ✅ IMPLEMENTED
-**Requirement**: Verify `noa-init` creates all 8 directories (`sys`, `p2p`, `opt`, `init`, `containers`, `config`, `bin`, `ai`)
+**Requirement**: Verify `noa-init` creates all 8 directories (`sys`, `p2p`, `opt`, `init`, `containers`, `configs`, `bin`, `ai`)
 
 **Status**: ✅ **IMPLEMENTED**
 - **Evidence**: `sys/core/src/init/paths.rs` defines all directory paths
@@ -102,7 +102,7 @@ All 25 tasks (T072-T096) have been implemented and marked complete in `tasks.md`
 - **Evidence**: All initialization code uses local filesystem operations only
 - **Evidence**: No network calls in init module
 - **Evidence**: Database is local SQLite (no network required)
-- **Evidence**: Config files generated locally
+- **Evidence**: configs files generated locally
 - **Test Required**: Disable network and verify `noa init` completes successfully
 
 **Next Step**: Test with network disabled
@@ -114,7 +114,7 @@ All 25 tasks (T072-T096) have been implemented and marked complete in `tasks.md`
 
 **Status**: ✅ **IMPLEMENTED**
 - **Evidence**: `DirectoryStructure::create_directory()` checks `path.exists()` before creating
-- **Evidence**: `ConfigGenerator` methods check if files exist before writing
+- **Evidence**: `configsGenerator` methods check if files exist before writing
 - **Evidence**: `DatabaseInitializer::initialize()` checks `db_path.exists()` unless `force=true`
 - **Evidence**: CLI `--force` flag allows reinitialization
 - **Test Required**: Run `noa init` twice and verify no data loss
@@ -128,8 +128,8 @@ All 25 tasks (T072-T096) have been implemented and marked complete in `tasks.md`
 
 **Status**: ✅ **IMPLEMENTED**
 - **Evidence**: `InitService::cleanup()` method implemented in `sys/core/src/services/init_service.rs`
-- **Evidence**: `InitState` struct tracks all created resources (directories, configs, database)
-- **Evidence**: Cleanup removes config files, database, and empty directories on failure
+- **Evidence**: `InitState` struct tracks all created resources (directories, configss, database)
+- **Evidence**: Cleanup removes configs files, database, and empty directories on failure
 - **Evidence**: Integration test `test_ver007_partial_failure_cleanup()` added
 - **Test Required**: Verify cleanup executes on actual failure scenarios
 
@@ -257,7 +257,7 @@ NEXT: Run manual verification tests (VER001-VER007) and create automated test su
 - `sys/core/src/init/mod.rs` - Module declaration
 - `sys/core/src/init/paths.rs` - Path constants (5925 bytes)
 - `sys/core/src/init/structure.rs` - Directory creation (5887 bytes)
-- `sys/core/src/init/config.rs` - Config generation (12506 bytes)
+- `sys/core/src/init/configs.rs` - configs generation (12506 bytes)
 - `sys/core/src/init/database.rs` - Database init (7248 bytes)
 - `sys/core/src/services/init_service.rs` - InitService implementation
 - `sys/core/src/api/routes/system.rs` - System API routes

@@ -259,7 +259,7 @@ The Phase 7 quality checklist is at:
    - Run during code review
 
 4. **Pre-Merge** (Q7-076 to Q7-100)
-   - Config & Schema Validation
+   - configs & Schema Validation
    - Run before merging
 
 5. **Release Gate** (Q7-101 to Q7-130)
@@ -293,7 +293,7 @@ sys/ui/
 │   │       └── contextDetector.test.ts # Context detector tests
 │   ├── integration/                   # Component interaction tests
 │   └── e2e/                           # End-to-end workflow tests
-├── jest.config.js                     # Jest configuration
+├── jest.configs.js                     # Jest configsuration
 ├── jest.setup.js                      # Test setup and mocks
 └── package.json                       # Test scripts
 ```
@@ -337,8 +337,8 @@ open coverage/lcov-report/index.html
 **Error**: `Cannot find module '@/components/...'`
 
 **Solution**:
-1. Check `jest.config.js` has correct `moduleNameMapper`
-2. Verify `tsconfig.json` paths match Jest paths
+1. Check `jest.configs.js` has correct `moduleNameMapper`
+2. Verify `tsconfigs.json` paths match Jest paths
 3. Check file extensions in imports
 
 ### Issue: Tests Timeout
@@ -394,7 +394,7 @@ npm install -g @lhci/cli
 
 # Run
 cd sys/ui
-lhci autorun --config=.lighthouserc.json
+lhci autorun --configs=.lighthouserc.json
 ```
 
 ### Load Testing

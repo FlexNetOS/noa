@@ -2,7 +2,7 @@
 # NOA Local Git CI/CD Tool
 
 NOA_GIT="$NOA_ROOT/git"
-CI_CONFIG="$NOA_ROOT/config/git-local-cicd.json"
+CI_configs="$NOA_ROOT/configs/git-local-cicd.json"
 
 case "$1" in
   run)

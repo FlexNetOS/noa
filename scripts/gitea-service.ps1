@@ -34,7 +34,7 @@ if (-not $NoaRoot) {
 
 $GITEA_BIN = Join-Path $NoaRoot "bin/gitea.exe"
 $GITEA_ROOT = Join-Path $NoaRoot "git/gitea"
-$GITEA_CONFIG = Join-Path $GITEA_ROOT "config/app.ini"
+$GITEA_configs = Join-Path $GITEA_ROOT "configs/app.ini"
 $GITEA_PID = Join-Path $NoaRoot "init/run/gitea.pid"
 $GITEA_PORT = 3000
 
@@ -45,7 +45,7 @@ switch ($Action) {
         # Create directories
         $dirs = @(
             $GITEA_ROOT,
-            (Join-Path $GITEA_ROOT "config"),
+            (Join-Path $GITEA_ROOT "configs"),
             (Join-Path $GITEA_ROOT "data"),
             (Join-Path $GITEA_ROOT "repos"),
             (Join-Path $NoaRoot "init/run")
@@ -71,8 +71,8 @@ switch ($Action) {
         Push-Location $GITEA_ROOT
         try {
             $args = @("web")
-            if (Test-Path $GITEA_CONFIG) {
-                $args += "--config", $GITEA_CONFIG
+            if (Test-Path $GITEA_configs) {
+                $args += "--configs", $GITEA_configs
             }
 
             $process = Start-Process -FilePath $GITEA_BIN -ArgumentList $args -PassThru -WindowStyle Hidden

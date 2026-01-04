@@ -45,7 +45,7 @@
 //!
 //! # fn main() {
 //! let id_keys = identity::Keypair::generate_ed25519();
-//! let noise = noise::Config::new(&id_keys).unwrap();
+//! let noise = noise::configs::new(&id_keys).unwrap();
 //! let builder = MemoryTransport::default()
 //!     .upgrade(upgrade::Version::V1)
 //!     .authenticate(noise);
@@ -80,9 +80,9 @@ use crate::{
     protocol::{noise_params_into_builder, AuthenticKeypair, Keypair, PARAMS_XX},
 };
 
-/// The configuration for the noise handshake.
+/// The configsuration for the noise handshake.
 #[derive(Clone)]
-pub struct Config {
+pub struct configs {
     dh_keys: AuthenticKeypair,
     params: NoiseParams,
     webtransport_certhashes: Option<HashSet<Multihash<64>>>,
@@ -96,8 +96,8 @@ pub struct Config {
     prologue: Vec<u8>,
 }
 
-impl Config {
-    /// Construct a new configuration for the noise handshake using the XX handshake pattern.
+impl configs {
+    /// Construct a new configsuration for the noise handshake using the XX handshake pattern.
     pub fn new(identity: &identity::Keypair) -> Result<Self, Error> {
         let noise_keys = Keypair::new().into_authentic(identity)?;
 
@@ -167,7 +167,7 @@ impl Config {
     }
 }
 
-impl UpgradeInfo for Config {
+impl UpgradeInfo for configs {
     type Info = &'static str;
     type InfoIter = std::iter::Once<Self::Info>;
 
@@ -176,7 +176,7 @@ impl UpgradeInfo for Config {
     }
 }
 
-impl<T> InboundConnectionUpgrade<T> for Config
+impl<T> InboundConnectionUpgrade<T> for configs
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
@@ -200,7 +200,7 @@ where
     }
 }
 
-impl<T> OutboundConnectionUpgrade<T> for Config
+impl<T> OutboundConnectionUpgrade<T> for configs
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {

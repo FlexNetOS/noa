@@ -116,9 +116,9 @@ if [[ -n "$RUN_PHASE" ]]; then
 fi
 echo ""
 
-# Phase 0: Configuration Validation
-run_suite "Configuration Validation" \
-  "$TEST_SCRIPTS/validate-configs.sh" \
+# Phase 0: configsuration Validation
+run_suite "configsuration Validation" \
+  "$TEST_SCRIPTS/validate-configss.sh" \
   "0"
 
 # Phase 3: CAS & Data Plane

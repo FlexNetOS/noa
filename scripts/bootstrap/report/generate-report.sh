@@ -3,7 +3,7 @@
 # Generate bootstrap installation report.
 #
 # Creates a detailed report of the NOA bootstrap installation including
-# all installed tools, versions, and configuration status.
+# all installed tools, versions, and configsuration status.
 #
 # Usage:
 #   ./generate-report.sh [--noa-root DIR] [--output PATH]
@@ -126,7 +126,7 @@ check_dir() {
 
 REPORT+="
 $(check_dir "bin")
-$(check_dir "config")
+$(check_dir "configs")
 $(check_dir "ai")
 $(check_dir "ai/shared")
 $(check_dir "ai/providers")
@@ -140,15 +140,15 @@ REPORT+="
 
 ## AI Providers
 
-| Provider | Type | Config Exists |
+| Provider | Type | configs Exists |
 |----------|------|---------------|"
 
 # Check AI providers
 for provider_type in local cloud hybrid ide; do
     provider_dir="$NOA_ROOT/ai/providers/$provider_type"
     if [[ -d "$provider_dir" ]]; then
-        for config in $(find "$provider_dir" -name "config.json" 2>/dev/null); do
-            provider_name="$(basename "$(dirname "$config")")"
+        for configs in $(find "$provider_dir" -name "configs.json" 2>/dev/null); do
+            provider_name="$(basename "$(dirname "$configs")")"
             REPORT+="
 | $provider_name | $provider_type | ✅ |"
         done
@@ -192,13 +192,13 @@ REPORT+="
 
 ---
 
-## Configuration Files
+## configsuration Files
 
-| Config | Path | Valid |
+| configs | Path | Valid |
 |--------|------|-------|"
 
-# Check config files
-check_config() {
+# Check configs files
+check_configs() {
     local cfg="$1"
     local path="$NOA_ROOT/$cfg"
     local name="$(basename "$cfg")"
@@ -215,10 +215,10 @@ check_config() {
 }
 
 REPORT+="
-$(check_config "config/ai-providers.json")
-$(check_config "config/shared-resources.json")
-$(check_config "config/bootstrap-state.json")
-$(check_config "config/bootstrap-tools.json")"
+$(check_configs "configs/ai-providers.json")
+$(check_configs "configs/shared-resources.json")
+$(check_configs "configs/bootstrap-state.json")
+$(check_configs "configs/bootstrap-tools.json")"
 
 REPORT+="
 

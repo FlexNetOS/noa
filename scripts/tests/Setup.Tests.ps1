@@ -7,7 +7,7 @@
     - Parses without syntax errors
     - Creates all required directories
     - Generates correct profile content
-    - Creates marker and config files
+    - Creates marker and configs files
     - Handles parameters correctly
 #>
 
@@ -58,7 +58,7 @@ Describe "NOA Setup Script Tests" {
         
         It "Creates all required directories" {
             $requiredDirs = @(
-                "repos", "containers", "workspace", "config", "scripts",
+                "repos", "containers", "workspace", "configs", "scripts",
                 "logs", "tmp", "p2p", "ai", "git", "bin", "etc", "lib",
                 "opt", "sys", "init"
             )
@@ -85,7 +85,7 @@ Describe "NOA Setup Script Tests" {
             
             $expectedVars = @(
                 'NOA_ROOT', 'NOA_REPOS', 'NOA_CONTAINERS', 'NOA_WORKSPACE',
-                'NOA_CONFIG', 'NOA_SCRIPTS', 'NOA_LOGS', 'NOA_TMP',
+                'NOA_configs', 'NOA_SCRIPTS', 'NOA_LOGS', 'NOA_TMP',
                 'NOA_P2P', 'NOA_AI', 'NOA_GIT', 'NOA_BIN'
             )
             
@@ -116,25 +116,25 @@ Describe "NOA Setup Script Tests" {
             $content | Should -Match "version="
         }
         
-        It "Creates config/noa.json" {
-            $configPath = Join-Path $TestRoot "config\noa.json"
-            $configPath | Should -Exist
+        It "Creates configs/noa.json" {
+            $configsPath = Join-Path $TestRoot "configs\noa.json"
+            $configsPath | Should -Exist
         }
         
-        It "config/noa.json is valid JSON" {
-            $configPath = Join-Path $TestRoot "config\noa.json"
+        It "configs/noa.json is valid JSON" {
+            $configsPath = Join-Path $TestRoot "configs\noa.json"
             { 
-                $null = Get-Content $configPath -Raw | ConvertFrom-Json 
+                $null = Get-Content $configsPath -Raw | ConvertFrom-Json 
             } | Should -Not -Throw
         }
         
-        It "config/noa.json contains expected properties" {
-            $configPath = Join-Path $TestRoot "config\noa.json"
-            $config = Get-Content $configPath -Raw | ConvertFrom-Json
+        It "configs/noa.json contains expected properties" {
+            $configsPath = Join-Path $TestRoot "configs\noa.json"
+            $configs = Get-Content $configsPath -Raw | ConvertFrom-Json
             
-            $config.version | Should -Not -BeNullOrEmpty
-            $config.name | Should -Be "NOA"
-            $config.directories | Should -Not -BeNullOrEmpty
+            $configs.version | Should -Not -BeNullOrEmpty
+            $configs.name | Should -Be "NOA"
+            $configs.directories | Should -Not -BeNullOrEmpty
         }
         
         It "Creates log file in logs directory" {
@@ -234,7 +234,7 @@ Describe "NOA Setup Script Tests" {
             }
             
             # This test verifies the script handles errors
-            # Actual behavior depends on system configuration
+            # Actual behavior depends on system configsuration
             $true | Should -Be $true
         }
     }

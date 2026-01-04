@@ -52,7 +52,7 @@ use smallvec::SmallVec;
 use self::iface::InterfaceState;
 use crate::{
     behaviour::{socket::AsyncSocket, timer::Builder},
-    Config,
+    configs,
 };
 
 /// An abstraction to allow for compatibility with various async runtimes.
@@ -123,8 +123,8 @@ pub struct Behaviour<P>
 where
     P: Provider,
 {
-    /// InterfaceState config.
-    config: Config,
+    /// InterfaceState configs.
+    configs: configs,
 
     /// Iface watcher.
     if_watch: P::Watcher,
@@ -164,11 +164,11 @@ where
     P: Provider,
 {
     /// Builds a new `Mdns` behaviour.
-    pub fn new(config: Config, local_peer_id: PeerId) -> io::Result<Self> {
+    pub fn new(configs: configs, local_peer_id: PeerId) -> io::Result<Self> {
         let (tx, rx) = mpsc::channel(10); // Chosen arbitrarily.
 
         Ok(Self {
-            config,
+            configs,
             if_watch: P::new_watcher()?,
             if_tasks: Default::default(),
             query_response_receiver: rx,
@@ -287,15 +287,15 @@ where
                         if addr.is_loopback() {
                             continue;
                         }
-                        if addr.is_ipv4() && self.config.enable_ipv6
-                            || addr.is_ipv6() && !self.config.enable_ipv6
+                        if addr.is_ipv4() && self.configs.enable_ipv6
+                            || addr.is_ipv6() && !self.configs.enable_ipv6
                         {
                             continue;
                         }
                         if let Entry::Vacant(e) = self.if_tasks.entry(addr) {
                             match InterfaceState::<P::Socket, P::Timer>::new(
                                 addr,
-                                self.config.clone(),
+                                self.configs.clone(),
                                 self.local_peer_id,
                                 self.listen_addresses.clone(),
                                 self.query_response_sender.clone(),

@@ -107,7 +107,7 @@ where
     /// Number of addresses concurrently dialed for a single outbound connection attempt.
     dial_concurrency_factor: NonZeroU8,
 
-    /// The configured override for substream protocol upgrades, if any.
+    /// The configsured override for substream protocol upgrades, if any.
     substream_upgrade_protocol_override: Option<libp2p_core::upgrade::Version>,
 
     /// The maximum number of inbound streams concurrently negotiating on a connection.
@@ -310,9 +310,9 @@ where
     THandler: ConnectionHandler,
 {
     /// Creates a new empty `Pool`.
-    pub(crate) fn new(local_id: PeerId, config: PoolConfig) -> Self {
+    pub(crate) fn new(local_id: PeerId, configs: Poolconfigs) -> Self {
         let (pending_connection_events_tx, pending_connection_events_rx) = mpsc::channel(0);
-        let executor = match config.executor {
+        let executor = match configs.executor {
             Some(exec) => ExecSwitch::Executor(exec),
             None => ExecSwitch::LocalSpawn(Default::default()),
         };
@@ -321,12 +321,12 @@ where
             counters: ConnectionCounters::new(),
             established: Default::default(),
             pending: Default::default(),
-            task_command_buffer_size: config.task_command_buffer_size,
-            dial_concurrency_factor: config.dial_concurrency_factor,
-            substream_upgrade_protocol_override: config.substream_upgrade_protocol_override,
-            max_negotiating_inbound_streams: config.max_negotiating_inbound_streams,
-            per_connection_event_buffer_size: config.per_connection_event_buffer_size,
-            idle_connection_timeout: config.idle_connection_timeout,
+            task_command_buffer_size: configs.task_command_buffer_size,
+            dial_concurrency_factor: configs.dial_concurrency_factor,
+            substream_upgrade_protocol_override: configs.substream_upgrade_protocol_override,
+            max_negotiating_inbound_streams: configs.max_negotiating_inbound_streams,
+            per_connection_event_buffer_size: configs.per_connection_event_buffer_size,
+            idle_connection_timeout: configs.idle_connection_timeout,
             executor,
             pending_connection_events_tx,
             pending_connection_events_rx,
@@ -965,11 +965,11 @@ impl ConnectionCounters {
     }
 }
 
-/// Configuration options when creating a [`Pool`].
+/// configsuration options when creating a [`Pool`].
 ///
-/// The default configuration specifies no dedicated task executor, a
+/// The default configsuration specifies no dedicated task executor, a
 /// task event buffer size of 32, and a task command buffer size of 7.
-pub(crate) struct PoolConfig {
+pub(crate) struct Poolconfigs {
     /// Executor to use to spawn tasks.
     pub(crate) executor: Option<Box<dyn Executor + Send>>,
     /// Size of the task command buffer (per task).
@@ -981,7 +981,7 @@ pub(crate) struct PoolConfig {
     pub(crate) dial_concurrency_factor: NonZeroU8,
     /// How long a connection should be kept alive once it is idling.
     pub(crate) idle_connection_timeout: Duration,
-    /// The configured override for substream protocol upgrades, if any.
+    /// The configsured override for substream protocol upgrades, if any.
     substream_upgrade_protocol_override: Option<libp2p_core::upgrade::Version>,
 
     /// The maximum number of inbound streams concurrently negotiating on a connection.
@@ -990,7 +990,7 @@ pub(crate) struct PoolConfig {
     max_negotiating_inbound_streams: usize,
 }
 
-impl PoolConfig {
+impl Poolconfigs {
     pub(crate) fn new(executor: Option<Box<dyn Executor + Send>>) -> Self {
         Self {
             executor,
@@ -1032,7 +1032,7 @@ impl PoolConfig {
         self
     }
 
-    /// Configures an override for the substream upgrade protocol to use.
+    /// configsures an override for the substream upgrade protocol to use.
     pub(crate) fn with_substream_upgrade_protocol_override(
         mut self,
         v: libp2p_core::upgrade::Version,

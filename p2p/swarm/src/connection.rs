@@ -859,7 +859,7 @@ mod tests {
     fn propagates_changes_to_supported_inbound_protocols() {
         let mut connection = Connection::new(
             StreamMuxerBox::new(PendingStreamMuxer),
-            ConfigurableProtocolConnectionHandler::default(),
+            configsurableProtocolConnectionHandler::default(),
             None,
             0,
             Duration::ZERO,
@@ -898,7 +898,7 @@ mod tests {
     fn only_propagtes_actual_changes_to_remote_protocols_to_handler() {
         let mut connection = Connection::new(
             StreamMuxerBox::new(PendingStreamMuxer),
-            ConfigurableProtocolConnectionHandler::default(),
+            configsurableProtocolConnectionHandler::default(),
             None,
             0,
             Duration::ZERO,
@@ -1151,7 +1151,7 @@ mod tests {
     }
 
     #[derive(Default)]
-    struct ConfigurableProtocolConnectionHandler {
+    struct configsurableProtocolConnectionHandler {
         events: Vec<ConnectionHandlerEvent<DeniedUpgrade, (), Infallible>>,
         active_protocols: HashSet<StreamProtocol>,
         local_added: Vec<Vec<StreamProtocol>>,
@@ -1160,7 +1160,7 @@ mod tests {
         remote_removed: Vec<Vec<StreamProtocol>>,
     }
 
-    impl ConfigurableProtocolConnectionHandler {
+    impl configsurableProtocolConnectionHandler {
         fn listen_on(&mut self, protocols: &[&'static str]) {
             self.active_protocols = protocols.iter().copied().map(StreamProtocol::new).collect();
         }
@@ -1243,7 +1243,7 @@ mod tests {
         }
     }
 
-    impl ConnectionHandler for ConfigurableProtocolConnectionHandler {
+    impl ConnectionHandler for configsurableProtocolConnectionHandler {
         type FromBehaviour = Infallible;
         type ToBehaviour = Infallible;
         type InboundProtocol = ManyProtocolsUpgrade;

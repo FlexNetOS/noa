@@ -33,7 +33,7 @@ use libp2p_core::{
 };
 use libp2p_identity as identity;
 use libp2p_identity::PeerId;
-use webrtc::peer_connection::configuration::RTCConfiguration;
+use webrtc::peer_connection::configsuration::RTCconfigsuration;
 
 use crate::tokio::{
     certificate::Certificate,
@@ -46,8 +46,8 @@ use crate::tokio::{
 
 /// A WebRTC transport with direct p2p communication (without a STUN server).
 pub struct Transport {
-    /// The config which holds this peer's keys and certificate.
-    config: Config,
+    /// The configs which holds this peer's keys and certificate.
+    configs: configs,
     /// All the active listeners.
     listeners: SelectAll<ListenStream>,
 }
@@ -67,7 +67,7 @@ impl Transport {
     /// ```
     pub fn new(id_keys: identity::Keypair, certificate: Certificate) -> Self {
         Self {
-            config: Config::new(id_keys, certificate),
+            configs: configs::new(id_keys, certificate),
             listeners: SelectAll::new(),
         }
     }
@@ -90,7 +90,7 @@ impl libp2p_core::Transport for Transport {
             .map_err(|io| TransportError::Other(Error::Io(io)))?;
 
         self.listeners.push(
-            ListenStream::new(id, self.config.clone(), udp_mux)
+            ListenStream::new(id, self.configs.clone(), udp_mux)
                 .map_err(|e| TransportError::Other(Error::Io(e)))?,
         );
 
@@ -136,8 +136,8 @@ impl libp2p_core::Transport for Transport {
             return Err(TransportError::MultiaddrNotSupported(addr));
         }
 
-        let config = self.config.clone();
-        let client_fingerprint = self.config.fingerprint;
+        let configs = self.configs.clone();
+        let client_fingerprint = self.configs.fingerprint;
         let udp_mux = self
             .listeners
             .iter()
@@ -149,11 +149,11 @@ impl libp2p_core::Transport for Transport {
         Ok(async move {
             let (peer_id, connection) = upgrade::outbound(
                 sock_addr,
-                config.inner,
+                configs.inner,
                 udp_mux,
                 client_fingerprint.into_inner(),
                 server_fingerprint,
-                config.id_keys,
+                configs.id_keys,
             )
             .await?;
 
@@ -173,8 +173,8 @@ struct ListenStream {
     /// when listening on all interfaces for IPv4 respectively IPv6 connections.
     listen_addr: SocketAddr,
 
-    /// The config which holds this peer's certificate(s).
-    config: Config,
+    /// The configs which holds this peer's certificate(s).
+    configs: configs,
 
     /// The UDP muxer that manages all ICE connections.
     udp_mux: UDPMuxNewAddr,
@@ -201,7 +201,7 @@ struct ListenStream {
 
 impl ListenStream {
     /// Constructs a `WebRTCListenStream` for incoming connections.
-    fn new(listener_id: ListenerId, config: Config, udp_mux: UDPMuxNewAddr) -> io::Result<Self> {
+    fn new(listener_id: ListenerId, configs: configs, udp_mux: UDPMuxNewAddr) -> io::Result<Self> {
         let listen_addr = udp_mux.listen_addr();
 
         let if_watcher;
@@ -211,7 +211,7 @@ impl ListenStream {
             pending_event = None;
         } else {
             if_watcher = None;
-            let ma = socketaddr_to_multiaddr(&listen_addr, Some(config.fingerprint));
+            let ma = socketaddr_to_multiaddr(&listen_addr, Some(configs.fingerprint));
             pending_event = Some(TransportEvent::NewAddress {
                 listener_id,
                 listen_addr: ma,
@@ -221,7 +221,7 @@ impl ListenStream {
         Ok(ListenStream {
             listener_id,
             listen_addr,
-            config,
+            configs,
             udp_mux,
             report_closed: None,
             if_watcher,
@@ -297,7 +297,7 @@ impl ListenStream {
     fn listen_multiaddress(&self, ip: IpAddr) -> Multiaddr {
         let socket_addr = SocketAddr::new(ip, self.listen_addr.port());
 
-        socketaddr_to_multiaddr(&socket_addr, Some(self.config.fingerprint))
+        socketaddr_to_multiaddr(&socket_addr, Some(self.configs.fingerprint))
     }
 }
 
@@ -325,16 +325,16 @@ impl Stream for ListenStream {
             match self.udp_mux.poll(cx) {
                 Poll::Ready(UDPMuxEvent::NewAddr(new_addr)) => {
                     let local_addr =
-                        socketaddr_to_multiaddr(&self.listen_addr, Some(self.config.fingerprint));
+                        socketaddr_to_multiaddr(&self.listen_addr, Some(self.configs.fingerprint));
                     let send_back_addr = socketaddr_to_multiaddr(&new_addr.addr, None);
 
                     let upgrade = upgrade::inbound(
                         new_addr.addr,
-                        self.config.inner.clone(),
+                        self.configs.inner.clone(),
                         self.udp_mux.udp_mux_handle(),
-                        self.config.fingerprint.into_inner(),
+                        self.configs.fingerprint.into_inner(),
                         new_addr.ufrag,
-                        self.config.id_keys.clone(),
+                        self.configs.id_keys.clone(),
                     )
                     .boxed();
 
@@ -359,24 +359,24 @@ impl Stream for ListenStream {
     }
 }
 
-/// A config which holds peer's keys and a x509Cert used to authenticate WebRTC communications.
+/// A configs which holds peer's keys and a x509Cert used to authenticate WebRTC communications.
 #[derive(Clone)]
-struct Config {
-    inner: RTCConfiguration,
+struct configs {
+    inner: RTCconfigsuration,
     fingerprint: Fingerprint,
     id_keys: identity::Keypair,
 }
 
-impl Config {
-    /// Returns a new [`Config`] with the given keys and certificate.
+impl configs {
+    /// Returns a new [`configs`] with the given keys and certificate.
     fn new(id_keys: identity::Keypair, certificate: Certificate) -> Self {
         let fingerprint = certificate.fingerprint();
 
         Self {
             id_keys,
-            inner: RTCConfiguration {
+            inner: RTCconfigsuration {
                 certificates: vec![certificate.to_rtc_certificate()],
-                ..RTCConfiguration::default()
+                ..RTCconfigsuration::default()
             },
             fingerprint,
         }

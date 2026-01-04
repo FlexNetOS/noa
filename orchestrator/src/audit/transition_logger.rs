@@ -98,7 +98,7 @@ pub struct PlaneState {
     pub health_status: String,
     pub components: HashMap<String, ComponentState>,
     pub resources: Option<ResourceState>,
-    pub config_hash: Option<String>,
+    pub configs_hash: Option<String>,
     pub metadata: Option<serde_json::Value>,
 }
 

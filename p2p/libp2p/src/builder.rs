@@ -41,23 +41,23 @@ pub use phase::{BehaviourError, TransportError};
 ///     .with_tokio()
 ///     .with_tcp(
 ///         Default::default(),
-///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-///         libp2p_yamux::Config::default,
+///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+///         libp2p_yamux::configs::default,
 ///     )?
 ///     .with_quic()
 ///     .with_other_transport(|_key| DummyTransport::<(PeerId, StreamMuxerBox)>::new())?
 ///     .with_dns()?
 ///     .with_websocket(
-///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-///         libp2p_yamux::Config::default,
+///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+///         libp2p_yamux::configs::default,
 ///     )
 ///     .await?
 ///     .with_relay_client(
-///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-///         libp2p_yamux::Config::default,
+///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+///         libp2p_yamux::configs::default,
 ///     )?
 ///     .with_behaviour(|_key, relay| MyBehaviour { relay })?
-///     .with_swarm_config(|cfg| {
+///     .with_swarm_configs(|cfg| {
 ///         // Edit cfg here.
 ///         cfg
 ///     })
@@ -93,8 +93,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                libp2p_tls::Config::new,
-                libp2p_yamux::Config::default,
+                libp2p_tls::configs::new,
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -115,10 +115,10 @@ mod tests {
 
     #[test]
     #[cfg(all(feature = "tokio", feature = "quic"))]
-    fn quic_config() {
+    fn quic_configs() {
         let _ = SwarmBuilder::with_new_identity()
             .with_tokio()
-            .with_quic_config(|config| config)
+            .with_quic_configs(|configs| configs)
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
             .unwrap()
             .build();
@@ -131,8 +131,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                libp2p_tls::Config::new,
-                (libp2p_yamux::Config::default, libp2p_mplex::Config::default),
+                libp2p_tls::configs::new,
+                (libp2p_yamux::configs::default, libp2p_mplex::configs::default),
             )
             .unwrap()
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -153,8 +153,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                (libp2p_yamux::Config::default, libp2p_mplex::Config::default),
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                (libp2p_yamux::configs::default, libp2p_mplex::configs::default),
             )
             .unwrap()
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -176,8 +176,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_quic()
@@ -195,16 +195,16 @@ mod tests {
         feature = "yamux",
         feature = "quic"
     ))]
-    fn tcp_quic_config() {
+    fn tcp_quic_configs() {
         let _ = SwarmBuilder::with_new_identity()
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
-            .with_quic_config(|config| config)
+            .with_quic_configs(|configs| configs)
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
             .unwrap()
             .build();
@@ -231,11 +231,11 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                libp2p_tls::Config::new,
-                libp2p_yamux::Config::default,
+                libp2p_tls::configs::new,
+                libp2p_yamux::configs::default,
             )
             .unwrap()
-            .with_relay_client(libp2p_tls::Config::new, libp2p_yamux::Config::default)
+            .with_relay_client(libp2p_tls::configs::new, libp2p_yamux::configs::default)
             .unwrap()
             .with_behaviour(|_, relay| Behaviour {
                 dummy: libp2p_swarm::dummy::Behaviour,
@@ -259,8 +259,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_dns()
@@ -278,17 +278,17 @@ mod tests {
         feature = "yamux",
         feature = "dns"
     ))]
-    async fn tcp_dns_config() {
+    async fn tcp_dns_configs() {
         SwarmBuilder::with_new_identity()
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
-            .with_dns_config(
-                libp2p_dns::ResolverConfig::default(),
+            .with_dns_configs(
+                libp2p_dns::Resolverconfigs::default(),
                 libp2p_dns::ResolverOpts::default(),
             )
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -298,12 +298,12 @@ mod tests {
 
     #[tokio::test]
     #[cfg(all(feature = "tokio", feature = "quic", feature = "dns"))]
-    async fn quic_dns_config() {
+    async fn quic_dns_configs() {
         SwarmBuilder::with_new_identity()
             .with_tokio()
             .with_quic()
-            .with_dns_config(
-                libp2p_dns::ResolverConfig::default(),
+            .with_dns_configs(
+                libp2p_dns::Resolverconfigs::default(),
                 libp2p_dns::ResolverOpts::default(),
             )
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -320,18 +320,18 @@ mod tests {
         feature = "quic",
         feature = "dns"
     ))]
-    async fn tcp_quic_dns_config() {
+    async fn tcp_quic_dns_configs() {
         SwarmBuilder::with_new_identity()
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_quic()
-            .with_dns_config(
-                libp2p_dns::ResolverConfig::default(),
+            .with_dns_configs(
+                libp2p_dns::Resolverconfigs::default(),
                 libp2p_dns::ResolverOpts::default(),
             )
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)
@@ -377,13 +377,13 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_websocket(
-                (libp2p_tls::Config::new, libp2p_noise::Config::new),
-                libp2p_yamux::Config::default,
+                (libp2p_tls::configs::new, libp2p_noise::configs::new),
+                libp2p_yamux::configs::default,
             )
             .await
             .unwrap()
@@ -416,17 +416,17 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                libp2p_tls::Config::new,
-                libp2p_yamux::Config::default,
+                libp2p_tls::configs::new,
+                libp2p_yamux::configs::default,
             )
             .unwrap()
             .with_quic()
             .with_dns()
             .unwrap()
-            .with_websocket(libp2p_tls::Config::new, libp2p_yamux::Config::default)
+            .with_websocket(libp2p_tls::configs::new, libp2p_yamux::configs::default)
             .await
             .unwrap()
-            .with_relay_client(libp2p_tls::Config::new, libp2p_yamux::Config::default)
+            .with_relay_client(libp2p_tls::configs::new, libp2p_yamux::configs::default)
             .unwrap()
             .with_bandwidth_metrics(&mut libp2p_metrics::Registry::default())
             .with_behaviour(|_key, relay| MyBehaviour { relay })
@@ -441,8 +441,8 @@ mod tests {
             .with_tokio()
             .with_tcp(
                 Default::default(),
-                libp2p_tls::Config::new,
-                libp2p_yamux::Config::default,
+                libp2p_tls::configs::new,
+                libp2p_yamux::configs::default,
             )?
             .with_bandwidth_metrics(&mut libp2p_metrics::Registry::default())
             .with_behaviour(|_| libp2p_swarm::dummy::Behaviour)

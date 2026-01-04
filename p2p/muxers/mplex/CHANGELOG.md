@@ -1,6 +1,6 @@
 ## 0.43.1
 
-- Rename `MplexConfig` to `Config` for consistency with other crates (see [discussion 2174](https://github.com/libp2p/rust-libp2p/discussions/2174)).
+- Rename `Mplexconfigs` to `configs` for consistency with other crates (see [discussion 2174](https://github.com/libp2p/rust-libp2p/discussions/2174)).
   See [PR 5870](https://github.com/libp2p/rust-libp2p/pull/5870).
 
 ## 0.43.0
@@ -72,7 +72,7 @@
 
 - Update dependencies.
 
-- Add `fn set_protocol_name(&mut self, protocol_name: &'static [u8])` to MplexConfig
+- Add `fn set_protocol_name(&mut self, protocol_name: &'static [u8])` to Mplexconfigs
 
 - Migrate to Rust edition 2021 (see [PR 2339]).
 
@@ -117,7 +117,7 @@
 
 ## 0.24.0 [2020-11-09]
 
-- Change the default configuration to use `MaxBufferBehaviour::Block`
+- Change the default configsuration to use `MaxBufferBehaviour::Block`
   and yield from waiting for the next substream or reading from a
   particular substream whenever the current read loop may have
   already filled a substream buffer, to give the current task a
@@ -126,7 +126,7 @@
   `MaxBufferBehaviour::ResetStream`.
   [PR 1825](https://github.com/libp2p/rust-libp2p/pull/1825/).
 
-- Tweak the naming in the `MplexConfig` API for better
+- Tweak the naming in the `Mplexconfigs` API for better
   consistency with `libp2p-yamux`.
   [PR 1822](https://github.com/libp2p/rust-libp2p/pull/1822).
 
@@ -157,14 +157,14 @@
   removing that substream from the tracked open substreams,
   to avoid artificially running into substream limits.
 
-- Change the semantics of the `max_substreams` configuration. Now,
-  outbound substream attempts beyond the configured limit are delayed,
+- Change the semantics of the `max_substreams` configsuration. Now,
+  outbound substream attempts beyond the configsured limit are delayed,
   with a task wakeup once an existing substream closes, i.e. the limit
   results in back-pressure for new outbound substreams. New inbound
   substreams beyond the limit are immediately answered with a `Reset`.
   If too many (by some internal threshold) pending frames accumulate,
   e.g. as a result of an aggressive number of inbound substreams being
-  opened beyond the configured limit, the connection is closed ("DoS protection").
+  opened beyond the configsured limit, the connection is closed ("DoS protection").
 
 - Update dependencies.
 

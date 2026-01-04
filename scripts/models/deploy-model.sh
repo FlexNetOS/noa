@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-# Configuration
+# configsuration
 NOA_ROOT="${NOA_ROOT:-/n/noa}"
 CAS_SCRIPTS="${NOA_ROOT}/scripts/cas"
 

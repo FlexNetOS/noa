@@ -12,7 +12,7 @@ NOA (Name of App / Chief Executive Commander Chief Agent) is a multi-platform, a
 **Core Architectural Principles:**
 - **Local-First Computing** for user data sovereignty
 - **Agentic AI Core** for autonomous operations
-- **Self-Configuring Microservices** architecture for adaptive growth
+- **Self-configsuring Microservices** architecture for adaptive growth
 - **Autonomous Dynamic Repository Ingestion** and integration
 - **P2P Hive-Mind** across user-owned devices
 
@@ -39,7 +39,7 @@ As a user, I want to initialize NOA on my device so that it creates a self-conta
 
 **Acceptance Scenarios**:
 
-1. **Given** a fresh system without NOA, **When** I run the NOA initialization, **Then** the system creates the complete directory structure (`noa_root/sys`, `noa_root/p2p`, `noa_root/opt`, `noa_root/init`, `noa_root/containers`, `noa_root/config`, `noa_root/bin`, `noa_root/ai`) with appropriate permissions
+1. **Given** a fresh system without NOA, **When** I run the NOA initialization, **Then** the system creates the complete directory structure (`noa_root/sys`, `noa_root/p2p`, `noa_root/opt`, `noa_root/init`, `noa_root/containers`, `noa_root/configs`, `noa_root/bin`, `noa_root/ai`) with appropriate permissions
 2. **Given** a freshly initialized NOA, **When** I check the local database, **Then** it is operational and ready to store memories, tasks, and agent state
 3. **Given** NOA is initialized, **When** the network is disconnected, **Then** all core functionality continues to operate offline
 4. **Given** platform prerequisites need verification, **When** I run the prereq check, **Then** I invoke the platform-appropriate shim (`scripts/bash/check-prerequisites.sh --json` on Bash/WSL/macOS or `scripts/powershell/check-prerequisites.ps1 -Json` on PowerShell/Windows) and receive ✅/❌/⚠️ results for all required tools
@@ -64,7 +64,7 @@ As a user, I want NOA to run multiple Small Language Models locally so that I ca
 
 **Acceptance Scenarios**:
 
-1. **Given** NOA is running with llama.cpp configured, **When** I send a query to the neural runtime, **Then** I receive a response within 2 seconds on standard hardware (see Glossary for hardware tier definitions)
+1. **Given** NOA is running with llama.cpp configsured, **When** I send a query to the neural runtime, **Then** I receive a response within 2 seconds on standard hardware (see Glossary for hardware tier definitions)
 2. **Given** multiple SLMs are loaded, **When** the ModelSelectorAgent routes a task, **Then** it selects the optimal model using the criteria above and logs the selection rationale
 3. **Given** limited hardware resources, **When** NOA starts, **Then** it dynamically adjusts model quantization and layer offloading to fit available GPU/CPU/RAM
 
@@ -104,7 +104,7 @@ As a user, I want NOA to digest code repositories, documents, APIs, and data sou
 
 ### User Story 5 - Dynamic Context-Aware UI (Priority: P2)
 
-As a user, I want a fluid, agent-driven interface that reconfigures itself based on my current task and context so that I always see the most relevant tools and information.
+As a user, I want a fluid, agent-driven interface that reconfigsures itself based on my current task and context so that I always see the most relevant tools and information.
 
 **Why this priority**: The UI is the primary interaction surface. A dynamic, context-aware UI dramatically improves user experience and productivity.
 
@@ -113,7 +113,7 @@ As a user, I want a fluid, agent-driven interface that reconfigures itself based
 **Acceptance Scenarios**:
 
 1. **Given** I am working on a coding task, **When** the UI detects this context, **Then** it surfaces relevant code tools, file browsers, and terminal access
-2. **Given** I switch to project management, **When** the context changes, **Then** the UI reconfigures to show tasks, timelines, and collaboration tools
+2. **Given** I switch to project management, **When** the context changes, **Then** the UI reconfigsures to show tasks, timelines, and collaboration tools
 3. **Given** the system is performing background operations, **When** I view the activity log, **Then** I see a live, scrollable log of agent actions and decisions
 
 ---
@@ -197,7 +197,7 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 **Why this priority**: External integrations extend NOA's reach but are secondary to core autonomous operation. These must be optional and feature-flagged.
 
-**Independent Test**: Can be tested by configuring a connector and verifying data sync.
+**Independent Test**: Can be tested by configsuring a connector and verifying data sync.
 
 **OAuth Permission Scopes** (enumerated per connector):
 - **GitHub**: `repo` (read/write repositories), `read:user` (read profile), `read:org` (read org membership) - minimum required
@@ -208,9 +208,9 @@ As a user, I want NOA to connect to my existing accounts and services (Gmail, Gi
 
 **Acceptance Scenarios**:
 
-1. **Given** a configured OAuth connector for GitHub, **When** enabled, **Then** NOA can access repositories with the enumerated permissions (repo, read:user, read:org)
+1. **Given** a configsured OAuth connector for GitHub, **When** enabled, **Then** NOA can access repositories with the enumerated permissions (repo, read:user, read:org)
 2. **Given** an OAuth callback is received, **When** the token exchange completes, **Then** the connector is authenticated within 5 seconds
-3. **Given** connectors are configured, **When** the network is unavailable, **Then** NOA continues operating with cached data
+3. **Given** connectors are configsured, **When** the network is unavailable, **Then** NOA continues operating with cached data
 4. **Given** a connector is disabled via feature flag, **When** that feature is accessed, **Then** it degrades gracefully with clear user feedback
 
 ---
@@ -254,16 +254,16 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - What happens when available storage is exhausted? → System enters resource-scarcity mode (AMPK-mode), pauses non-essential operations, and alerts user
 - What happens when a model file is corrupted? → Model integrity is verified on load; corrupted models are quarantined and re-downloaded if available
 - What happens when two P2P nodes have conflicting state? → Conflict resolution uses last-write-wins with full audit trail; user can review conflicts via UI or admin CLI command `noa conflicts list`, `noa conflicts resolve <id>`
-- What happens when an agent enters an infinite loop? → Timeout (default 60s, configurable per-agent) and circuit breaker (3 failures in 5 minutes) mechanisms terminate runaway tasks
+- What happens when an agent enters an infinite loop? → Timeout (default 60s, configsurable per-agent) and circuit breaker (3 failures in 5 minutes) mechanisms terminate runaway tasks
 - What happens when offline for extended periods then reconnecting? → Sync protocol handles delta updates with conflict detection
 - What happens when biblical governance rules conflict with user requests? → Constitutional governance takes precedence; user is informed of constraint
-- What happens when maximum memory capacity is reached? → Oldest entries are archived (not deleted) to `noa_root/data/archives/memory/`; upper bound configurable (default 10GB)
+- What happens when maximum memory capacity is reached? → Oldest entries are archived (not deleted) to `noa_root/data/archives/memory/`; upper bound configsurable (default 10GB)
 - What happens when all agents are simultaneously busy? → Tasks are queued with priority ordering (P1 > P2 > P3); queue size limit 1000 tasks; overflow logged and user notified
 
 ### Scenario Coverage - Lifecycle Operations
 
 **Upgrade/Migration Requirements (FR-145)**:
-- System MUST detect existing NOA installation version via `noa_root/config/version.json`
+- System MUST detect existing NOA installation version via `noa_root/configs/version.json`
 - System MUST support in-place upgrade: backup current state → apply migrations → verify integrity → resume
 - Migration path MUST be defined for each major version (e.g., v1.x → v2.x)
 - Migrations MUST be idempotent (safe to run multiple times)
@@ -272,7 +272,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 **Uninstall/Cleanup Requirements (FR-146)**:
 - System MUST provide clean uninstall via `scripts/uninstall.ps1` (Windows) or `scripts/uninstall.sh` (Unix)
 - Uninstall MUST remove: binaries, services, scheduled tasks, environment variables, PATH modifications
-- Uninstall MUST preserve (by default, --purge flag to remove): `noa_root/data/`, `noa_root/memory/`, `noa_root/config/`
+- Uninstall MUST preserve (by default, --purge flag to remove): `noa_root/data/`, `noa_root/memory/`, `noa_root/configs/`
 - Uninstall MUST log all removed items to `noa_root/logs/uninstall.log` (preserved unless --purge)
 
 ### Scenario Coverage - Recovery Operations
@@ -321,7 +321,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
   - `opentelemetry` with OTLP exporter for distributed tracing
   - `opentelemetry-prometheus` for metrics exposition
 - **FR-154**: System MUST expose Prometheus-format metrics at `GET /metrics` endpoint
-- **FR-155**: System MUST export traces via OTLP to configurable endpoint (Tempo, Jaeger, or similar)
+- **FR-155**: System MUST export traces via OTLP to configsurable endpoint (Tempo, Jaeger, or similar)
 - **FR-156**: System MUST persist metrics to local SQLite store (`noa_root/data/metrics.db`) for offline analysis
 - **FR-157**: System MUST NOT require Docker for core observability functionality; Grafana/Prometheus/Tempo are optional external services
 - **FR-158**: System MUST provide built-in metrics dashboard via UI when external Grafana unavailable
@@ -339,7 +339,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 
 ### Functional Requirements - Rate Limiting & Throttling
 
-- **FR-095**: System MUST implement per-provider rate limits with configurable token/request budgets stored in `config/rate-limits.json`
+- **FR-095**: System MUST implement per-provider rate limits with configsurable token/request budgets stored in `configs/rate-limits.json`
 - **FR-096**: System MUST use exponential backoff (initial 1s, max 60s, factor 2x) when receiving HTTP 429 responses from cloud providers
 - **FR-097**: System MUST throttle P2P requests based on peer-reported capacity and network conditions
 - **FR-098**: System MUST rate-limit self-generated goals to maximum 10 new goals per hour to prevent runaway task creation
@@ -347,13 +347,13 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 
 ### Functional Requirements - Authentication & Identity
 
-- **FR-100**: System MUST generate an Ed25519 keypair per device on initialization, stored encrypted in `noa_root/config/device-identity.enc`
+- **FR-100**: System MUST generate an Ed25519 keypair per device on initialization, stored encrypted in `noa_root/configs/device-identity.enc`
 - **FR-101**: System MUST encrypt device keys with a user-provided master passphrase using Argon2id key derivation
 - **FR-102**: System MUST support device pairing via QR code (time-limited encrypted token, expires in 5 minutes)
 - **FR-103**: System MUST support device pairing via 6-digit PIN displayed on new device, entered on existing device
 - **FR-104**: System MUST support device pairing via Bluetooth/NFC proximity verification when hardware available
 - **FR-105**: System MUST support device pairing via encrypted trust bundle file transfer (USB/shared folder)
-- **FR-106**: System MUST maintain a device trust registry in `noa_root/config/trusted-devices.json` with device public keys and approval timestamps
+- **FR-106**: System MUST maintain a device trust registry in `noa_root/configs/trusted-devices.json` with device public keys and approval timestamps
 - **FR-107**: System MUST require all agents to sign actions with the device key for audit trail verification
 - **FR-108**: System MUST use mutual TLS with device keys for all P2P connections between user's devices
 - **FR-109**: System SHOULD support optional browser password manager integration for master passphrase (web UI convenience only)
@@ -364,7 +364,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - **FR-111**: System MUST support full keyboard navigation with visible focus indicators (contrast ratio ≥7:1)
 - **FR-112**: System MUST provide screen reader compatibility with ARIA labels for all interactive elements
 - **FR-113**: System MUST support high contrast mode and respect OS accessibility preferences
-- **FR-114**: System MUST externalize all UI strings to `noa_root/config/i18n/{locale}.json` files
+- **FR-114**: System MUST externalize all UI strings to `noa_root/configs/i18n/{locale}.json` files
 - **FR-115**: System MUST bundle translations locally (no cloud translation service dependency)
 - **FR-116**: System MUST support RTL (right-to-left) layout for Arabic, Hebrew, and other RTL languages
 - **FR-117**: System MUST provide locale detection from OS settings with manual override option
@@ -382,13 +382,13 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - **FR-126**: System MUST queue failed operations for retry when connection is restored
 - **FR-127**: System MUST provide progress indicators for long-running operations (>2s) showing estimated time remaining when calculable
 
-### Functional Requirements - Feature Flags & Configuration
+### Functional Requirements - Feature Flags & configsuration
 
-- **FR-137**: System MUST implement feature flags via `noa_root/config/feature-flags.json` with runtime toggle capability
+- **FR-137**: System MUST implement feature flags via `noa_root/configs/feature-flags.json` with runtime toggle capability
 - **FR-138**: System MUST support feature flag scopes: `global`, `per-user`, `per-device`, `per-provider`
 - **FR-139**: System MUST log all feature flag changes to audit trail with before/after state, timestamp, and trigger source
 - **FR-140**: System MUST provide graceful degradation when a feature-flagged capability is disabled (clear user feedback, no crashes)
-- **FR-141**: System MUST allow feature flags to be toggled without restart (runtime reload from config file)
+- **FR-141**: System MUST allow feature flags to be toggled without restart (runtime reload from configs file)
 
 ### Functional Requirements - Multi-Modal Interaction
 
@@ -442,7 +442,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
   - `shared/artifacts/` - Build artifacts, SBOMs, telemetry from Sandbox
   - `shared/releases/` - Promoted releases managed by Deployed plane
   - `shared/logs/` - Centralized logging from all planes
-  - `shared/config/` - Promotion policy, capability-pack schema, message bus config
+  - `shared/configs/` - Promotion policy, capability-pack schema, message bus configs
 - **FR-060**: System MUST log all plane transitions with before/after state for audit trail, storing decision traces in Coordinator
 
 ### Functional Requirements - Full Autonomy Operation
@@ -466,7 +466,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - **FR-071**: System MUST implement a continuous self-healing loop with 5 stages:
   1. **Proactive Detection**: Continuous health monitoring of all components, agents, and resources
   2. **Diagnosis**: Automated root cause analysis when anomalies detected
-  3. **Auto-Fix**: Autonomous repair attempts (restart, reconfigure, rollback, redistribute)
+  3. **Auto-Fix**: Autonomous repair attempts (restart, reconfigsure, rollback, redistribute)
   4. **Validation**: Verify fix resolved issue without introducing new problems
   5. **Escalation**: Notify user ONLY if all auto-fix attempts exhausted (≥3 attempts)
 - **FR-072**: System MUST maintain health metrics for all components (CPU, memory, latency, error rate, success rate)
@@ -482,7 +482,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
   - **TerminalAgent**: Execute shell commands with timeout (default 30s), capture stdout/stderr. Failure recovery: timeout → kill process, capture partial output, report to CECCA
   - **RAGAgent**: Retrieve relevant context from memory in <500ms with >80% relevance (measured via NDCG@10 on benchmark query set stored in `noa_root/test-data/rag-benchmark.json`). Failure recovery: cache miss → expand search scope, still fail → return empty with warning
   - **MicroserviceManagementAgent**: Deploy/stop services within 10s, health check within 1s. Failure recovery: deployment fail → rollback to previous version, health fail → restart service, 3 consecutive fails → alert CECCA
-- **FR-009**: System MUST implement MicroAgentStacks as deployable clusters for bounded objectives. Bounded objective examples: "analyze repository X", "generate report Y", "process dataset Z". Termination criteria: (1) objective marked complete by commander agent, (2) timeout exceeded (default 1 hour, configurable), (3) error threshold exceeded (>10 failures), (4) manual termination via admin command. `gen_mas` stacks are disposed immediately after termination; `mas_*` stacks persist for potential reuse
+- **FR-009**: System MUST implement MicroAgentStacks as deployable clusters for bounded objectives. Bounded objective examples: "analyze repository X", "generate report Y", "process dataset Z". Termination criteria: (1) objective marked complete by commander agent, (2) timeout exceeded (default 1 hour, configsurable), (3) error threshold exceeded (>10 failures), (4) manual termination via admin command. `gen_mas` stacks are disposed immediately after termination; `mas_*` stacks persist for potential reuse
 - **FR-010**: System MUST support agent lifecycle: Bootstrap → Execute → Validate → Package → Archive. Transition conditions: Bootstrap→Execute (all dependencies loaded), Execute→Validate (task output produced), Validate→Package (output passes quality checks), Package→Archive (artifact stored in CAS), any state→Terminated (on failure after 3 retries)
 - **FR-011**: System MUST enforce constitutional principles on all agents (no agent can violate self-contained, local-first, or security constraints)
 
@@ -541,13 +541,13 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 ### Functional Requirements - P2P & Resources
 
 - **FR-017**: System MUST support P2P connections for shared compute/storage across user devices
-- **FR-018**: System MUST leverage excess hardware resources (CPU, GPU, RAM, Storage) across the P2P network. Resource sharing limits: by default, each device shares maximum 50% of excess CPU, 50% of excess GPU, 25% of available RAM, and 10% of free storage. Limits are configurable per-device in `noa_root/config/p2p-resources.json`
+- **FR-018**: System MUST leverage excess hardware resources (CPU, GPU, RAM, Storage) across the P2P network. Resource sharing limits: by default, each device shares maximum 50% of excess CPU, 50% of excess GPU, 25% of available RAM, and 10% of free storage. Limits are configsurable per-device in `noa_root/configs/p2p-resources.json`
 - **FR-019**: System MUST implement secure, encrypted communication between P2P nodes using TLS 1.3 with cipher suites: TLS_AES_256_GCM_SHA384 (preferred), TLS_CHACHA20_POLY1305_SHA256 (fallback). Key exchange via X25519 (ECDHE). All data in transit encrypted; no plaintext P2P communication permitted
 - **FR-020**: System MUST gracefully degrade when P2P nodes disconnect
 
 ### Functional Requirements - UI & Interaction
 
-- **FR-021**: System MUST provide a dynamic, context-aware UI that reconfigures based on current task
+- **FR-021**: System MUST provide a dynamic, context-aware UI that reconfigsures based on current task
 - **FR-022**: System MUST display a live, scrollable activity log of agent actions and decisions. Retention: UI displays last 10,000 log entries (approximately 7 days at typical usage); older entries available via search/filter from persistent database. Log entries include timestamp, agent ID, action type, and summary
 - **FR-023**: System MUST support multi-modal interaction (text, voice, vision) where hardware permits *(Full MVP scope for glasses testing - see FR-128 to FR-136 for implementation details)*
 - **FR-024**: System MUST function with full UI capability offline
@@ -576,7 +576,7 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - **FR-031**: System MUST create and populate `noa_root/opt/` with optional packages (llama.cpp, llama-cpp-rs)
 - **FR-032**: System MUST create and populate `noa_root/init/` with initialization scripts
 - **FR-033**: System MUST create and populate `noa_root/containers/` with container definitions
-- **FR-034**: System MUST create and populate `noa_root/config/` with configuration files
+- **FR-034**: System MUST create and populate `noa_root/configs/` with configsuration files
 - **FR-035**: System MUST create and populate `noa_root/bin/` with executable binaries and wrappers
 - **FR-036**: System MUST create and populate `noa_root/ai/` with AI providers, models, and prompts
 
@@ -592,10 +592,10 @@ As a user, I want NOA to host my desktop applications (ChatGPT Desktop, Claude D
 - **FR-081**: System MUST install portable toolchains to `noa_root/opt/`:
   - Rust → `noa_root/opt/rust/` (RUSTUP_HOME, CARGO_HOME)
   - Go → `noa_root/opt/go/` (GOROOT, GOPATH, GOBIN)
-  - Node.js → `noa_root/opt/node/` (NODE_PATH, npm_config_prefix)
+  - Node.js → `noa_root/opt/node/` (NODE_PATH, npm_configs_prefix)
   - Python → `noa_root/opt/python/` + `noa_root/opt/venv/` (VIRTUAL_ENV)
   - protoc → `noa_root/bin/`
-- **FR-082**: System MUST generate environment files: `noa-env.ps1`, `.noa-env`, `config/noa.json`
+- **FR-082**: System MUST generate environment files: `noa-env.ps1`, `.noa-env`, `configs/noa.json`
 - **FR-083**: System MUST optionally integrate with user shell profiles (PowerShell $PROFILE, .bashrc, .zshrc)
 - **FR-084**: System MUST provide comprehensive verification of all installations
 - **FR-085**: System MUST log all bootstrap actions to `logs/bootstrap-{timestamp}.log`
@@ -720,7 +720,7 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
 │                    │  • shared/artifacts/ - Build outputs, SBOM, telemetry  │
 │                    │  • shared/releases/ - Promoted releases (immutable)    │
 │                    │  • shared/logs/     - Centralized audit logs           │
-│                    │  • shared/config/   - Promotion policy, schemas        │
+│                    │  • shared/configs/   - Promotion policy, schemas        │
 │                    │  • shared/runtime/  - Container specs, message bus     │
 │                    └─────────────────────────────────────────────────────┘  │
 │                                                                              │
@@ -794,7 +794,7 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
 - **SC-004**: Digest pipeline processes a 10,000-file repository within 30 minutes
 - **SC-005**: System handles 200 concurrent agent tasks with ≥98% success rate
 - **SC-006**: P2P sync completes within 5 seconds for delta updates under 1MB
-- **SC-007**: UI reconfigures for context switch within 200ms
+- **SC-007**: UI reconfigsures for context switch within 200ms
 - **SC-008**: System operates continuously for 7 days without requiring restart
 - **SC-009**: All core functionality works identically across Windows, macOS, and Linux
 - **SC-010**: Self-modification proposals include valid rollback path in 100% of cases
@@ -840,8 +840,8 @@ The 3-plane system enables zero-downtime autonomous self-updating with long-term
 **Memory Entry Scalability (NFR-006)**:
 - System MUST support minimum 10 million memory entries
 - Search latency: <500ms (SC-003) for up to 10M entries using vector index
-- Beyond 10M entries: automatic archival of oldest entries (configurable threshold)
-- Total storage: configurable limit (default 10GB), warning at 80%, archive at 90%
+- Beyond 10M entries: automatic archival of oldest entries (configsurable threshold)
+- Total storage: configsurable limit (default 10GB), warning at 80%, archive at 90%
 
 ---
 
@@ -928,7 +928,7 @@ All task execution MUST comply with [Universal Task Execution Policy](../../data
 **Rich Metadata Requirements**:
 - All data entities MUST include: `id`, `created_at`, `updated_at`, `checksum`
 - All embeddings MUST include: `model`, `vector`, `source_type`, `source_id`
-- All configurations MUST follow schemas in `config/schemas/`
+- All configsurations MUST follow schemas in `configs/schemas/`
 - All artifacts MUST have SHA-256 hashes in `HASHES.txt`
 
 **Cross-Reference**: See [verification.md](./checklists/verification.md) for complete Truth Gate checklist (248 items)
@@ -943,13 +943,13 @@ All task execution MUST comply with [Universal Task Execution Policy](../../data
 |----------|---------|---------|----------|
 | **Rust** | 1.75+ | Core runtime, llama-cpp-rs bindings, performance-critical | `noa_root/sys/core/`, `noa_root/opt/llama-cpp-rs/` |
 | **Go** | 1.21+ | Network services, P2P layer, CLI tools | `noa_root/sys/services/`, `noa_root/p2p/` |
-| **TypeScript** | 5.x | Frontend UI, agent definitions, configuration | `noa_root/sys/ui/`, `noa_root/ai/agents/` |
+| **TypeScript** | 5.x | Frontend UI, agent definitions, configsuration | `noa_root/sys/ui/`, `noa_root/ai/agents/` |
 | **JavaScript** | ES2022+ | Runtime scripts, browser extensions, quick prototypes | `noa_root/scripts/`, `noa_root/bin/` |
 | **Python** | 3.11+ | ML/AI integration, digest pipeline, analysis tools | `noa_root/ai/providers/`, `noa_root/sys/digest/` |
 | **C/C++** | C++17 | llama.cpp core inference engine (submodule) | `noa_root/opt/llama.cpp/` |
-| **YAML** | 1.2 | Configuration, workflow definitions, K8s manifests | `noa_root/config/`, `noa_root/containers/` |
-| **JSON** | - | Data interchange, manifests, schemas, agent configs | `noa_root/config/`, `noa_root/ai/` |
-| **TOML** | 1.0 | Rust configuration, project settings | `noa_root/opt/*/Cargo.toml` |
+| **YAML** | 1.2 | configsuration, workflow definitions, K8s manifests | `noa_root/configs/`, `noa_root/containers/` |
+| **JSON** | - | Data interchange, manifests, schemas, agent configss | `noa_root/configs/`, `noa_root/ai/` |
+| **TOML** | 1.0 | Rust configsuration, project settings | `noa_root/opt/*/Cargo.toml` |
 | **Markdown** | - | Documentation, prompts, reports, system cards | `noa_root/ai/prompts/`, `noa_root/docs/` |
 | **Shell/Bash** | 5.x | Linux/macOS scripts, init scripts | `noa_root/scripts/bash/`, `noa_root/init/` |
 | **PowerShell** | 7.x | Windows scripts, automation | `noa_root/scripts/powershell/` |
@@ -997,11 +997,11 @@ noa_root/
 │   ├── compose/           # Docker Compose files
 │   └── k8s/               # Kubernetes manifests
 │
-├── config/                 # Configuration
-│   ├── ai-providers.json  # AI provider configs
+├── configs/                 # configsuration
+│   ├── ai-providers.json  # AI provider configss
 │   ├── noa-server.json    # Server settings
 │   ├── device-orchestration.json
-│   └── [feature].json     # Feature-specific configs
+│   └── [feature].json     # Feature-specific configss
 │
 ├── bin/                    # Executables
 │   ├── llama-cli          # LLM CLI
@@ -1027,10 +1027,10 @@ noa_root/
 │   ├── embeddings/        # Vector embeddings
 │   └── artifacts/         # CAS artifact store
 │
-├── etc/                    # System configuration
-│   ├── docker/            # Docker daemon config
-│   ├── ssh/               # SSH keys/config
-│   └── [system].conf      # System configs
+├── etc/                    # System configsuration
+│   ├── docker/            # Docker daemon configs
+│   ├── ssh/               # SSH keys/configs
+│   └── [system].conf      # System configss
 │
 ├── docs/                   # Documentation
 │   ├── setup/             # Setup guides
@@ -1083,7 +1083,7 @@ noa_root/
 
 ### Rust Observability Crates
 - **tracing**: Structured logging and span-based instrumentation
-- **tracing-subscriber**: Configurable subscriber for tracing events
+- **tracing-subscriber**: configsurable subscriber for tracing events
 - **opentelemetry**: OpenTelemetry SDK for distributed tracing
 - **opentelemetry-otlp**: OTLP exporter for traces/metrics
 - **opentelemetry-prometheus**: Prometheus metrics exporter
@@ -1173,7 +1173,7 @@ The script will output:
 - Q: What self-healing mechanism should NOA use for autonomous operation? → A: Full self-healing loop. Proactive detection → diagnosis → auto-fix → validation → escalation-to-user ONLY if all auto-fix attempts fail. Maintains always-on operation.
 - Q: What is the role of each plane in the 3-plane system? → A: **Coordinator** is the constant plane for long-term memory, backups, archives, analytics, and promotion decisions. **Sandbox** is for testing/staging new capabilities. **Deployed** is production serving live traffic with canary deployments and auto-rollback on SLO violation.
 - Q: How should providers coordinate for complex tasks? → A: **Cursor as orchestrator**. When operating in IDE context, Cursor agent MUST coordinate ALL available providers for parallel task execution. Cursor distributes sub-tasks to optimal providers (reasoning → Claude, code → Codex, local → llama.cpp), executes in parallel, and aggregates results via Shared Provider Execution Memory bus.
-- Q: How should rate limiting work for AI providers and P2P? → A: **Per-provider rate limits with adaptive backoff**. Each cloud provider has configurable token/request limits; system uses exponential backoff on 429 responses. P2P throttles based on peer capacity. Self-generated goals are rate-limited to prevent runaway task creation.
+- Q: How should rate limiting work for AI providers and P2P? → A: **Per-provider rate limits with adaptive backoff**. Each cloud provider has configsurable token/request limits; system uses exponential backoff on 429 responses. P2P throttles based on peer capacity. Self-generated goals are rate-limited to prevent runaway task creation.
 - Q: How do users and agents authenticate to NOA? → A: **Device-bound keys with P2P trust chain**. Each device generates Ed25519 keypair on init; user sets local master passphrase (optionally saved in browser password managers). New device pairing via: (1) QR code scan, (2) 6-digit PIN approval, (3) Bluetooth/NFC proximity, or (4) encrypted file transfer. Agents sign actions with device key; P2P uses mutual TLS with user's device keys.
 - Q: What are the accessibility and localization requirements? → A: **WCAG 2.1 AAA with full i18n from day one**. Maximum accessibility compliance; multi-language support with RTL (Arabic, Hebrew); all UI strings externalized; local-first translations bundled (no cloud dependency).
 - Q: How should the UI handle loading, empty, and error states? → A: **Skeleton + status indicators**. Use skeleton loaders for content areas; persistent status bar for background operations (sync, AI processing); toast notifications for errors; always display cached/partial data when available during sync.
@@ -1188,7 +1188,7 @@ The script will output:
 - Q: Which provider handles verification and error fixing during /implement? → A: **Claude Code (claude-code)**. Deep error analysis, long context understanding, agentic iteration with file operations. Interprets linter/compiler errors, proposes fixes, validates fix success.
 - Q: Which provider handles refactoring and tool creation during /implement? → A: **Cursor (Opus 4.5)**. IDE context awareness for multi-file refactoring, codebase understanding. Keeps architecture clean: Opus reasons/plans → Codex/Abacus implement.
 - Q: How should workload be distributed across providers for parallel execution? → A: **Even distribution for maximum parallelism**. Orchestrator assigns tasks to balance provider utilization. Decompose large tasks into parallelizable subtasks. Route by task type: reasoning→Cursor, fast_code→Codex, complex_code→Abacus, verification→Claude, local_inference→llama.cpp. Track provider load in execution-memory.db to prevent bottlenecks.
-- Q: How should llama.cpp be utilized for maximum parallelism? → A: **5 SLM coding subagents**. llama.cpp runs 5 concurrent coding SLMs (DeepSeek-Coder, CodeLlama, Qwen2.5-Coder, StarCoder2, Phi-3.5-mini) as a subagent pool. Main providers (Cursor, Codex, Abacus, Claude) delegate implementation subtasks (single functions, boilerplate, tests, configs) to this pool. Each subagent handles tasks ≤2000 tokens, single files, with 60s timeout. This multiplies coding capacity 5x while keeping costs zero (local inference).
+- Q: How should llama.cpp be utilized for maximum parallelism? → A: **5 SLM coding subagents**. llama.cpp runs 5 concurrent coding SLMs (DeepSeek-Coder, CodeLlama, Qwen2.5-Coder, StarCoder2, Phi-3.5-mini) as a subagent pool. Main providers (Cursor, Codex, Abacus, Claude) delegate implementation subtasks (single functions, boilerplate, tests, configss) to this pool. Each subagent handles tasks ≤2000 tokens, single files, with 60s timeout. This multiplies coding capacity 5x while keeping costs zero (local inference).
 - Q: What is the kernel selection precedence ("NOA kernels first")? → A: **NOA VM > Container > Sandbox > Native (host)**. Priority order for kernel mode selection:
   1. **NOA VM** (Priority 1): Custom NOA Linux kernel in VM. Use when: maximum isolation required, untrusted code execution, cross-platform consistency critical.
   2. **Container** (Priority 2): Isolated container with minimal kernel interface. Use when: lightweight isolation sufficient, faster startup than VM needed.
@@ -1198,9 +1198,9 @@ The script will output:
   **Selection Logic**: System defaults to Native for performance. Automatic escalation to higher isolation occurs when: (1) running untrusted code from digest pipeline, (2) processing external/unverified data, (3) explicit user request via `noa-kernel-params set kernel_mode`, (4) constitutional governance requires isolation. Downgrade from isolated to native requires explicit user action.
 - Q: What defines an "external" vs "internal" dependency? → A: **Internal = under `noa_root`, External = outside `noa_root`**. Internal dependencies are tools, libraries, and resources installed within the `noa_root` directory tree and managed by NOA bootstrap. External dependencies are: (1) host OS kernel APIs (permitted for native mode), (2) system libraries outside `noa_root`, (3) globally-installed tools (deprecated - use internal versions), (4) cloud services (feature-flagged). The boundary is the `noa_root` directory - anything outside is external and must be either avoided, wrapped by NKAL abstraction, or explicitly feature-flagged.
 - Q: How does tool isolation work between internal NOA tools and global system tools? → A: **PATH precedence + environment isolation**. Internal tools take precedence via: (1) `noa_root/bin` prepended to PATH before any system paths, (2) explicit `NOA_*` environment variables (`GOROOT`, `RUSTUP_HOME`, `NODE_PATH`) pointing to `noa_root/opt/`, (3) all npm/pip/cargo installs go to `noa_root/opt/` with local prefix settings, (4) shell wrapper scripts in `noa_root/bin/` that explicitly invoke internal tool paths. Global tools are detected but NOT used unless `--allow-global` flag passed. Internal versions are always preferred even if older than global.
-- Q: How are internally-hosted tools updated/upgraded? → A: **Controlled upgrade via bootstrap with version pinning**. Tool upgrades use: (1) version requirements in `config/bootstrap-tools.json`, (2) `install-all-tools.ps1 -UpdateExisting` or `UPDATE_EXISTING=1 install-all-tools.sh` for explicit upgrades, (3) version checks on every bootstrap run (warn if outdated, don't auto-upgrade), (4) manual upgrade triggers only (no silent updates). Rollback: previous tool versions archived to `noa_root/opt/archive/{tool}-{version}/` before upgrade.
+- Q: How are internally-hosted tools updated/upgraded? → A: **Controlled upgrade via bootstrap with version pinning**. Tool upgrades use: (1) version requirements in `configs/bootstrap-tools.json`, (2) `install-all-tools.ps1 -UpdateExisting` or `UPDATE_EXISTING=1 install-all-tools.sh` for explicit upgrades, (3) version checks on every bootstrap run (warn if outdated, don't auto-upgrade), (4) manual upgrade triggers only (no silent updates). Rollback: previous tool versions archived to `noa_root/opt/archive/{tool}-{version}/` before upgrade.
 - Q: How is state persisted when switching kernel modes? → A: **Shared state directory + migration checkpoint**. Kernel mode switching: (1) all persistent state lives in `noa_root/data/` (accessible from all modes), (2) before switch: checkpoint written to `noa_root/data/.kernel-switch-state.json` with current state hash, (3) VM/container modes mount `noa_root/data/` as shared volume, (4) after switch: state verification confirms checkpoint matches, (5) hot-switch not supported - graceful shutdown required before mode change. In-memory state (caches, inference context) is lost on switch.
-- Q: What is the trust boundary between NOA and the host kernel? → A: **NKAL is the trust boundary**. The NOA Kernel Abstraction Layer (NKAL) defines the boundary: (1) above NKAL: trusted NOA code with full privileges within `noa_root`, (2) below NKAL: untrusted host kernel accessed only through NKAL interface, (3) NKAL validates all data crossing the boundary (input sanitization, output verification), (4) privileged operations (raw sockets, kernel modules) require explicit NKAL capability grants in `config/nkal-capabilities.json`, (5) VM/container modes provide hardware-enforced trust boundary via hypervisor/container runtime.
+- Q: What is the trust boundary between NOA and the host kernel? → A: **NKAL is the trust boundary**. The NOA Kernel Abstraction Layer (NKAL) defines the boundary: (1) above NKAL: trusted NOA code with full privileges within `noa_root`, (2) below NKAL: untrusted host kernel accessed only through NKAL interface, (3) NKAL validates all data crossing the boundary (input sanitization, output verification), (4) privileged operations (raw sockets, kernel modules) require explicit NKAL capability grants in `configs/nkal-capabilities.json`, (5) VM/container modes provide hardware-enforced trust boundary via hypervisor/container runtime.
 - Q: When should host OS kernel be used vs NOA portable dependencies? → A: **Host kernel for bootstrap/access, NOA portable for everything else**.
 
   **Host Kernel MAY Be Used For:**
@@ -1215,10 +1215,10 @@ The script will output:
   - All packages and package managers (npm to `noa_root/opt/node`, pip to `noa_root/opt/venv`, cargo to `noa_root/opt/rust`)
   - All services (llama-server, ollama, gitea, etc.)
   - Network stack (when in VM/container mode)
-  - All settings and configurations (under `noa_root/config/`)
+  - All settings and configsurations (under `noa_root/configs/`)
   - All persistent state and data (under `noa_root/data/`)
 
-  **Platform Coverage**: This architecture applies to ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware types (x64, ARM, GPU configurations). NOA achieves 100% independent functionality by bundling portable versions of all dependencies within `noa_root`.
+  **Platform Coverage**: This architecture applies to ALL platforms (Windows, Linux, macOS, mobile, XR) and ALL hardware types (x64, ARM, GPU configsurations). NOA achieves 100% independent functionality by bundling portable versions of all dependencies within `noa_root`.
 - Q: What is the difference between Board Agents and Executive Agents? → A: **Executive Agents execute; Board Agents advise**.
   - **Executive Agents** (FR-142-144, FR-183): Have execution authority and responsibility. They delegate task execution to MicroAgentStacks and permanent agents, ensure proper execution, and fix issues when tasks fail. Examples: LegalExecutive, SecurityExecutive, OperationsExecutive.
   - **Board Agents** (FR-184-190): Advisory only with NO execution authority. Connected to reasoning models via ModelSelector for deep analysis. Responsible for higher cognitive functions: knowledge synthesis, self-learning, self-upgrading, environment awareness, self-healing, problem solving, predictive analysis. Examples: KnowledgeBoard, LearningBoard, StrategyBoard.
@@ -1235,4 +1235,4 @@ The script will output:
 - Q: What is the noa Core Microkernel and how does it relate to CECCA? → A: **Environment-based subagent under CECCA control**. The noa Core Microkernel is an environment-based operational unit that functions as a subagent/helper to CECCA. It is not a separate top-level entity but operates under/inside CECCA's domain. CECCA also has environment agents that work alongside the microkernel for environment management tasks.
 - Q: How does the EOM/TSM/PSM triad from the AER spec map to the NOA plan? → A: **PSM maps to Executive Agents; EOM/TSM maps to Board Agents**. The Policy & Safety Model (PSM) maps to Executive Agents (LegalExecutive, SecurityExecutive, etc.) which have execution authority to enforce governance. The Environment Orchestration Model (EOM) maps to Board Agents (EnvironmentBoard, EvolutionBoard, HealingBoard) which provide advisory intelligence. The Tool & Code Synthesis Model (TSM) maps to the Advanced Learning techniques (FR-043-046) and StrategyBoard advisory functions.
 - Q: How does Module Abstraction from the AER spec fit into the NOA architecture? → A: **Adopt as new requirement (FR-176-180)**. The AER spec defines "Module" as a unified abstraction for all artifacts (binaries, packages, libraries, tools, services, agents, microkernels). NOA MUST implement this as a Module Registry with content-addressable storage (CAS). All artifacts become content-addressable, immutable, and versioned entities stored under `noa_root/data/modules/`.
-- Q: Should IDE data (Cursor/VS Code) be contained within `noa_root`? → A: **Yes - extend FR-001 containment (FR-181-182)**. IDE configurations and extensions MUST be redirected to `noa_root/data/apps/cursor/` and `noa_root/data/apps/vscode/`. This extends the NDCL (FR-167) to include development IDEs, ensuring complete data sovereignty.
+- Q: Should IDE data (Cursor/VS Code) be contained within `noa_root`? → A: **Yes - extend FR-001 containment (FR-181-182)**. IDE configsurations and extensions MUST be redirected to `noa_root/data/apps/cursor/` and `noa_root/data/apps/vscode/`. This extends the NDCL (FR-167) to include development IDEs, ensuring complete data sovereignty.

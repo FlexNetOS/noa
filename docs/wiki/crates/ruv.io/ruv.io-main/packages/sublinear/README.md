@@ -92,7 +92,7 @@ import { Sublinear } from '@deflex.net/sublinear'
 
 // Create an instance
 const client = new Sublinear({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -119,19 +119,19 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
-import { Sublinear, Config } from '@deflex.net/sublinear'
+import { Sublinear, configs } from '@deflex.net/sublinear'
 
-const config: Config = {
-  // Detailed configuration
+const configs: configs = {
+  // Detailed configsuration
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
 }
 
-const client = new Sublinear(config)
+const client = new Sublinear(configs)
 ```
 
 
@@ -150,7 +150,7 @@ First, import the package in your TypeScript/JavaScript file:
 
 ```typescript
 // ES Modules
-import { Sublinear, Config } from '@deflex.net/sublinear'
+import { Sublinear, configs } from '@deflex.net/sublinear'
 
 // CommonJS
 const { Sublinear } = require('@deflex.net/sublinear')
@@ -158,11 +158,11 @@ const { Sublinear } = require('@deflex.net/sublinear')
 
 ### Create an Instance
 
-Create a new instance with optional configuration:
+Create a new instance with optional configsuration:
 
 ```typescript
 const client = new Sublinear({
-  // Configuration options
+  // configsuration options
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
@@ -231,13 +231,13 @@ try {
 #### Constructor
 
 ```typescript
-constructor(config?: Config)
+constructor(configs?: configs)
 ```
 
 Creates a new instance of `Sublinear`.
 
 **Parameters:**
-- `config` (optional): Configuration object
+- `configs` (optional): configsuration object
 
 **Returns:**
 - Instance of `Sublinear`
@@ -295,10 +295,10 @@ Close the client and release resources.
 await client.close()
 ```
 
-### Configuration Interface
+### configsuration Interface
 
 ```typescript
-interface Config {
+interface configs {
   timeout?: number        // Operation timeout in ms (default: 5000)
   retries?: number        // Number of retries (default: 3)
   logLevel?: LogLevel    // Logging level (default: 'info')
@@ -447,12 +447,12 @@ try {
 }
 ```
 
-### Example 5: Advanced Configuration
+### Example 5: Advanced configsuration
 
 ```typescript
-import { Sublinear, Config, LogLevel } from '@deflex.net/sublinear'
+import { Sublinear, configs, LogLevel } from '@deflex.net/sublinear'
 
-const config: Config = {
+const configs: configs = {
   timeout: 10000,
   retries: 5,
   logLevel: 'debug',
@@ -463,7 +463,7 @@ const config: Config = {
   cacheSize: 100
 }
 
-const client = new Sublinear(config)
+const client = new Sublinear(configs)
 
 // Process with advanced features
 const result = await client.process(data, {

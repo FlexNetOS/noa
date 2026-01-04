@@ -16,14 +16,14 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$SC
 # Paths
 NODE_ROOT="$NOA_ROOT/opt/node"
 NOA_BIN="$NOA_ROOT/bin"
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/cloud/abacus/config.json"
+PROVIDER_configs="$NOA_ROOT/ai/providers/cloud/abacus/configs.json"
 FORCE="${1:-}"
 
 log_section "NOA Abacus AI CLI Installer"
 echo "NOA_ROOT: $NOA_ROOT"
 echo ""
 
-mkdir -p "$NOA_BIN" "$(dirname "$PROVIDER_CONFIG")"
+mkdir -p "$NOA_BIN" "$(dirname "$PROVIDER_configs")"
 
 # Check if Node.js is available
 NPM_PATH=""
@@ -41,8 +41,8 @@ fi
 
 # Set environment
 export PATH="$NODE_ROOT/bin:$PATH"
-export npm_config_cache="$NOA_ROOT/opt/npm-cache"
-export npm_config_prefix="$NODE_ROOT"
+export npm_configs_cache="$NOA_ROOT/opt/npm-cache"
+export npm_configs_prefix="$NODE_ROOT"
 
 # Check if already installed
 ABACUS_PATH="$NODE_ROOT/bin/abacusai"
@@ -79,11 +79,11 @@ else
     echo "Download from: https://desktop.abacus.ai/"
 fi
 
-# Update provider config
-if [[ -f "$PROVIDER_CONFIG" ]]; then
-    log_info "Provider config already exists: $PROVIDER_CONFIG"
+# Update provider configs
+if [[ -f "$PROVIDER_configs" ]]; then
+    log_info "Provider configs already exists: $PROVIDER_configs"
 else
-    log_info "Provider config should be at: $PROVIDER_CONFIG"
+    log_info "Provider configs should be at: $PROVIDER_configs"
 fi
 
 echo ""

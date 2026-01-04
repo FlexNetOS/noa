@@ -1,14 +1,14 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$CsvPath = "N:\noa\docs\plans\config-audit-table.csv"
+    [string]$CsvPath = "N:\noa\docs\plans\configs-audit-table.csv"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # normalize first
-& "$PSScriptRoot\normalize-config-audit-csv.ps1" -Path $CsvPath | Out-Null
+& "$PSScriptRoot\normalize-configs-audit-csv.ps1" -Path $CsvPath | Out-Null
 
 $data = @(Import-Csv -Path $CsvPath)
 
@@ -48,7 +48,7 @@ foreach ($r in $appdata) {
 }
 
 if ($errors.Count -gt 0) {
-    Write-Error ("Config audit validation failed (" + $errors.Count + " errors):`n" + ($errors -join "`n"))
+    Write-Error ("configs audit validation failed (" + $errors.Count + " errors):`n" + ($errors -join "`n"))
     exit 1
 }
 

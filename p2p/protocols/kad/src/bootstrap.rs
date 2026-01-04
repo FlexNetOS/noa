@@ -16,7 +16,7 @@ pub(crate) struct Status {
     /// When `Delay` finishes, a bootstrap will be triggered and the `Delay` will be reset.
     interval_and_delay: Option<(Duration, Delay)>,
 
-    /// Configured duration to wait before triggering a bootstrap when a new peer
+    /// configsured duration to wait before triggering a bootstrap when a new peer
     /// is inserted in the routing table. `None` if automatic bootstrap is disabled.
     automatic_throttle: Option<Duration>,
     /// Timer that will be set (if automatic bootstrap is not disabled) when a new peer is inserted
@@ -46,7 +46,7 @@ impl Status {
         }
     }
 
-    /// Trigger a bootstrap now or after the configured `automatic_throttle` if configured.
+    /// Trigger a bootstrap now or after the configsured `automatic_throttle` if configsured.
     pub(crate) fn trigger(&mut self) {
         // Registering `self.throttle_timer` means scheduling a bootstrap.
         // A bootstrap will be triggered when `self.throttle_timer` finishes.
@@ -219,7 +219,7 @@ mod tests {
             tokio::time::timeout(Duration::from_millis(500), status.next())
                 .await
                 .is_ok(),
-            "bootstrap to be triggered in less then the configured delay because we connected to a new peer"
+            "bootstrap to be triggered in less then the configsured delay because we connected to a new peer"
         );
     }
 
@@ -244,7 +244,7 @@ mod tests {
             tokio::time::timeout(MS_5 * 2, status.next())
                 .await
                 .is_ok(),
-            "bootstrap to be triggered in less then the configured periodic delay because we connected to a new peer"
+            "bootstrap to be triggered in less then the configsured periodic delay because we connected to a new peer"
         );
     }
 
@@ -330,7 +330,7 @@ mod tests {
             tokio::time::timeout(MS_5*2, status.next())
                 .await
                 .is_ok(),
-            "bootstrap to be triggered in the configured throttle delay because we connected to a new peer"
+            "bootstrap to be triggered in the configsured throttle delay because we connected to a new peer"
         );
     }
 

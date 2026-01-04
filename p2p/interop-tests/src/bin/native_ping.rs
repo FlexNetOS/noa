@@ -1,19 +1,19 @@
 use anyhow::Result;
 
-mod config;
+mod configs;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let config = config::Config::from_env()?;
+    let configs = configs::configs::from_env()?;
 
     let report = interop_tests::run_test(
-        &config.transport,
-        &config.ip,
-        config.is_dialer,
-        config.test_timeout,
-        &config.redis_addr,
-        config.sec_protocol,
-        config.muxer,
+        &configs.transport,
+        &configs.ip,
+        configs.is_dialer,
+        configs.test_timeout,
+        &configs.redis_addr,
+        configs.sec_protocol,
+        configs.muxer,
     )
     .await?;
 

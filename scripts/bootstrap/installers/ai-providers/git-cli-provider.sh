@@ -2,7 +2,7 @@
 #
 # Git CLI Provider setup for NOA bootstrap (Unix)
 #
-# Configures Git as an AI provider for local operations.
+# configsures Git as an AI provider for local operations.
 # Per NOA Constitution §3.3: Agentic Orchestration
 
 set -euo pipefail
@@ -15,13 +15,13 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$SC
 
 # Paths
 NOA_BIN="$NOA_ROOT/bin"
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/local/git-cli/config.json"
+PROVIDER_configs="$NOA_ROOT/ai/providers/local/git-cli/configs.json"
 
 log_section "NOA Git CLI Provider Setup"
 echo "NOA_ROOT: $NOA_ROOT"
 echo ""
 
-mkdir -p "$NOA_BIN" "$(dirname "$PROVIDER_CONFIG")"
+mkdir -p "$NOA_BIN" "$(dirname "$PROVIDER_configs")"
 
 # Check if Git is available
 if ! command -v git &>/dev/null; then
@@ -42,8 +42,8 @@ if [[ ! -L "$NOA_BIN/git" && ! -f "$NOA_BIN/git" ]]; then
     log_success "Created symlink: $NOA_BIN/git"
 fi
 
-# Create provider config
-cat > "$PROVIDER_CONFIG" <<EOF
+# Create provider configs
+cat > "$PROVIDER_configs" <<EOF
 {
   "name": "git-cli",
   "type": "local",
@@ -86,7 +86,7 @@ cat > "$PROVIDER_CONFIG" <<EOF
 }
 EOF
 
-log_success "Created provider config: $PROVIDER_CONFIG"
+log_success "Created provider configs: $PROVIDER_configs"
 
 echo ""
 log_success "Git CLI provider setup complete!"

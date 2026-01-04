@@ -24,7 +24,7 @@ tags:
   - name: Models
     description: AI model management
   - name: System
-    description: System configuration and operations
+    description: System configsuration and operations
 
 paths:
   /health:
@@ -329,18 +329,18 @@ paths:
           description: Model unloaded
 
   # System endpoints
-  /system/config:
+  /system/configs:
     get:
       tags: [System]
-      summary: Get system configuration
-      operationId: getConfig
+      summary: Get system configsuration
+      operationId: getconfigs
       responses:
         '200':
-          description: System configuration
+          description: System configsuration
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemConfig'
+                $ref: '#/components/schemas/Systemconfigs'
 
   /system/features:
     get:
@@ -705,7 +705,7 @@ components:
           items:
             $ref: '#/components/schemas/Model'
 
-    SystemConfig:
+    Systemconfigs:
       type: object
       properties:
         noa_root:

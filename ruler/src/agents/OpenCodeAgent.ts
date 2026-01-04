@@ -1,82 +1,94 @@
-import { IAgent, IAgentConfig } from './IAgent';
+import { IAgent, IAgentconfigs } from './IAgent';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-export class OpenCodeAgent implements IAgent {
-  getIdentifier(): string {
+export class OpenCodeAgent implements IAgent
+{
+  getIdentifier (): string
+  {
     return 'opencode';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'OpenCode';
   }
 
-  getDefaultOutputPath(projectRoot: string): Record<string, string> {
+  getDefaultOutputPath ( projectRoot: string ): Record<string, string>
+  {
     return {
-      instructions: path.join(projectRoot, 'AGENTS.md'),
-      mcp: path.join(projectRoot, 'opencode.json'),
+      instructions: path.join( projectRoot, 'AGENTS.md' ),
+      mcp: path.join( projectRoot, 'opencode.json' ),
     };
   }
 
-  async applyRulerConfig(
+  async applyRulerconfigs (
     concatenatedRules: string,
     projectRoot: string,
     rulerMcpJson: Record<string, unknown> | null,
-    agentConfig?: IAgentConfig,
-  ): Promise<void> {
-    const outputPaths = this.getDefaultOutputPath(projectRoot);
+    agentconfigs?: IAgentconfigs,
+  ): Promise<void>
+  {
+    const outputPaths = this.getDefaultOutputPath( projectRoot );
     const instructionsPath = path.resolve(
       projectRoot,
-      agentConfig?.outputPathInstructions ?? outputPaths['instructions'],
+      agentconfigs?.outputPathInstructions ?? outputPaths[ 'instructions' ],
     );
     const mcpPath = path.resolve(
       projectRoot,
-      agentConfig?.outputPathConfig ?? outputPaths['mcp'],
+      agentconfigs?.outputPathconfigs ?? outputPaths[ 'mcp' ],
     );
 
-    await fs.writeFile(instructionsPath, concatenatedRules);
+    await fs.writeFile( instructionsPath, concatenatedRules );
 
-    // Create OpenCode config with schema and MCP configuration
-    let finalMcpConfig: { $schema: string; mcp: Record<string, unknown> } = {
-      $schema: 'https://opencode.ai/config.json',
+    // Create OpenCode configs with schema and MCP configsuration
+    let finalMcpconfigs: { $schema: string; mcp: Record<string, unknown>; } = {
+      $schema: 'https://opencode.ai/configs.json',
       mcp: {},
     };
 
-    try {
-      const existingMcpConfig = JSON.parse(await fs.readFile(mcpPath, 'utf-8'));
-      if (existingMcpConfig && typeof existingMcpConfig === 'object') {
-        finalMcpConfig = {
-          $schema: 'https://opencode.ai/config.json',
-          ...existingMcpConfig,
+    try
+    {
+      const existingMcpconfigs = JSON.parse( await fs.readFile( mcpPath, 'utf-8' ) );
+      if ( existingMcpconfigs && typeof existingMcpconfigs === 'object' )
+      {
+        finalMcpconfigs = {
+          $schema: 'https://opencode.ai/configs.json',
+          ...existingMcpconfigs,
           mcp: {
-            ...(existingMcpConfig.mcp || {}),
-            ...((rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>),
+            ...( existingMcpconfigs.mcp || {} ),
+            ...( ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown> ),
           },
         };
-      } else if (rulerMcpJson) {
-        finalMcpConfig = {
-          $schema: 'https://opencode.ai/config.json',
-          mcp: (rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>,
+      } else if ( rulerMcpJson )
+      {
+        finalMcpconfigs = {
+          $schema: 'https://opencode.ai/configs.json',
+          mcp: ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown>,
         };
       }
-    } catch {
-      if (rulerMcpJson) {
-        finalMcpConfig = {
-          $schema: 'https://opencode.ai/config.json',
-          mcp: (rulerMcpJson?.mcpServers ?? {}) as Record<string, unknown>,
+    } catch
+    {
+      if ( rulerMcpJson )
+      {
+        finalMcpconfigs = {
+          $schema: 'https://opencode.ai/configs.json',
+          mcp: ( rulerMcpJson?.mcpServers ?? {} ) as Record<string, unknown>,
         };
       }
     }
 
-    // Always write the config file, even if MCP is empty
-    await fs.writeFile(mcpPath, JSON.stringify(finalMcpConfig, null, 2));
+    // Always write the configs file, even if MCP is empty
+    await fs.writeFile( mcpPath, JSON.stringify( finalMcpconfigs, null, 2 ) );
   }
 
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return true;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return true;
   }
 }

@@ -29,7 +29,7 @@ use libp2p::{
     gossipsub, identify,
     multiaddr::Protocol,
     noise, ping,
-    pnet::{PnetConfig, PreSharedKey},
+    pnet::{Pnetconfigs, PreSharedKey},
     swarm::{NetworkBehaviour, SwarmEvent},
     tcp, yamux, Multiaddr, Transport,
 };
@@ -117,39 +117,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_other_transport(|key| {
-            let noise_config = noise::Config::new(key).unwrap();
-            let yamux_config = yamux::Config::default();
+            let noise_configs = noise::configs::new(key).unwrap();
+            let yamux_configs = yamux::configs::default();
 
-            let base_transport = tcp::tokio::Transport::new(tcp::Config::default().nodelay(true));
+            let base_transport = tcp::tokio::Transport::new(tcp::configs::default().nodelay(true));
             let maybe_encrypted = match psk {
                 Some(psk) => Either::Left(
                     base_transport
-                        .and_then(move |socket, _| PnetConfig::new(psk).handshake(socket)),
+                        .and_then(move |socket, _| Pnetconfigs::new(psk).handshake(socket)),
                 ),
                 None => Either::Right(base_transport),
             };
             maybe_encrypted
                 .upgrade(Version::V1Lazy)
-                .authenticate(noise_config)
-                .multiplex(yamux_config)
+                .authenticate(noise_configs)
+                .multiplex(yamux_configs)
         })?
         .with_dns()?
         .with_behaviour(|key| {
-            let gossipsub_config = gossipsub::ConfigBuilder::default()
+            let gossipsub_configs = gossipsub::configsBuilder::default()
                 .max_transmit_size(262144)
                 .build()
                 .map_err(io::Error::other)?; // Temporary hack because `build` does not return a proper `std::error::Error`.
             Ok(MyBehaviour {
                 gossipsub: gossipsub::Behaviour::new(
                     gossipsub::MessageAuthenticity::Signed(key.clone()),
-                    gossipsub_config,
+                    gossipsub_configs,
                 )
-                .expect("Valid configuration"),
-                identify: identify::Behaviour::new(identify::Config::new(
+                .expect("Valid configsuration"),
+                identify: identify::Behaviour::new(identify::configs::new(
                     "/ipfs/0.1.0".into(),
                     key.public(),
                 )),
-                ping: ping::Behaviour::new(ping::Config::new()),
+                ping: ping::Behaviour::new(ping::configs::new()),
             })
         })?
         .build();

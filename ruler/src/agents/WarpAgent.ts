@@ -3,27 +3,33 @@ import { AbstractAgent } from './AbstractAgent';
 
 /**
  * Warp Agent Mode adapter.
- * Generates WARP.md configuration file in the project root.
+ * Generates WARP.md configsuration file in the project root.
  */
-export class WarpAgent extends AbstractAgent {
-  getIdentifier(): string {
+export class WarpAgent extends AbstractAgent
+{
+  getIdentifier (): string
+  {
     return 'warp';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'Warp';
   }
 
-  getDefaultOutputPath(projectRoot: string): string {
-    return path.join(projectRoot, 'WARP.md');
+  getDefaultOutputPath ( projectRoot: string ): string
+  {
+    return path.join( projectRoot, 'WARP.md' );
   }
 
   // Warp does not support MCP servers
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return false;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return false;
   }
 }

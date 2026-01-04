@@ -19,7 +19,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! TLS configuration based on libp2p TLS specs.
+//! TLS configsuration based on libp2p TLS specs.
 //!
 //! See <https://github.com/libp2p/specs/blob/master/tls/tls.md>.
 
@@ -34,15 +34,15 @@ use std::sync::Arc;
 use certificate::AlwaysResolvesCert;
 pub use futures_rustls::TlsStream;
 use libp2p_identity::{Keypair, PeerId};
-pub use upgrade::{Config, UpgradeError};
+pub use upgrade::{configs, UpgradeError};
 
 const P2P_ALPN: [u8; 6] = *b"libp2p";
 
-/// Create a TLS client configuration for libp2p.
-pub fn make_client_config(
+/// Create a TLS client configsuration for libp2p.
+pub fn make_client_configs(
     keypair: &Keypair,
     remote_peer_id: Option<PeerId>,
-) -> Result<rustls::ClientConfig, certificate::GenError> {
+) -> Result<rustls::Clientconfigs, certificate::GenError> {
     let (certificate, private_key) = certificate::generate(keypair)?;
 
     let mut provider = rustls::crypto::ring::default_provider();
@@ -53,9 +53,9 @@ pub fn make_client_config(
             .expect("Client cert key DER is valid; qed"),
     );
 
-    let mut crypto = rustls::ClientConfig::builder_with_provider(provider.into())
+    let mut crypto = rustls::Clientconfigs::builder_with_provider(provider.into())
         .with_protocol_versions(verifier::PROTOCOL_VERSIONS)
-        .expect("Cipher suites and kx groups are configured; qed")
+        .expect("Cipher suites and kx groups are configsured; qed")
         .dangerous()
         .with_custom_certificate_verifier(Arc::new(
             verifier::Libp2pCertificateVerifier::with_remote_peer_id(remote_peer_id),
@@ -66,10 +66,10 @@ pub fn make_client_config(
     Ok(crypto)
 }
 
-/// Create a TLS server configuration for libp2p.
-pub fn make_server_config(
+/// Create a TLS server configsuration for libp2p.
+pub fn make_server_configs(
     keypair: &Keypair,
-) -> Result<rustls::ServerConfig, certificate::GenError> {
+) -> Result<rustls::Serverconfigs, certificate::GenError> {
     let (certificate, private_key) = certificate::generate(keypair)?;
 
     let mut provider = rustls::crypto::ring::default_provider();
@@ -80,9 +80,9 @@ pub fn make_server_config(
             .expect("Server cert key DER is valid; qed"),
     );
 
-    let mut crypto = rustls::ServerConfig::builder_with_provider(provider.into())
+    let mut crypto = rustls::Serverconfigs::builder_with_provider(provider.into())
         .with_protocol_versions(verifier::PROTOCOL_VERSIONS)
-        .expect("Cipher suites and kx groups are configured; qed")
+        .expect("Cipher suites and kx groups are configsured; qed")
         .with_client_cert_verifier(Arc::new(verifier::Libp2pCertificateVerifier::new()))
         .with_cert_resolver(cert_resolver);
     crypto.alpn_protocols = vec![P2P_ALPN.to_vec()];

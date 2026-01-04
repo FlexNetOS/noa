@@ -355,7 +355,7 @@ See [PR 4568].
 - Report `ListenersEvent::Closed` when dropping a listener in `ListenersStream::remove_listener`,
   return `bool` instead of `Result<(), ()>` (see [PR 2261]).
 
-- Concurrently dial address candidates within a single dial attempt (see [PR 2248]) configured
+- Concurrently dial address candidates within a single dial attempt (see [PR 2248]) configsured
   via `Network::with_dial_concurrency_factor`.
 
   - On success of a single address, provide errors of the thus far failed dials via
@@ -443,10 +443,10 @@ See [PR 4568].
 
 ## 0.25.0 [2020-11-25]
 
-- The `NetworkConfig` API is now a builder that moves `self`.
+- The `Networkconfigs` API is now a builder that moves `self`.
   [PR 1848](https://github.com/libp2p/rust-libp2p/pull/1848/).
 
-- New configurable connection limits for established connections and
+- New configsurable connection limits for established connections and
   dedicated connection counters. Removed the connection limit dedicated
   to outgoing pending connection _per peer_. Connection limits are now
   represented by `u32` instead of `usize` types.
@@ -468,7 +468,7 @@ See [PR 4568].
 
 ## 0.23.0 [2020-10-16]
 
-- Rework transport boxing and move timeout configuration
+- Rework transport boxing and move timeout configsuration
   to the transport builder.
   [PR 1794](https://github.com/libp2p/rust-libp2p/pull/1794).
 

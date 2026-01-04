@@ -34,7 +34,7 @@ param(
 $ErrorActionPreference = "Stop"
 $script:NoaRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
 
-#region Configuration
+#region configsuration
 $script:DocPaths = @{
     Wiki     = "$script:NoaRoot\docs\wiki"
     Runbooks = "$script:NoaRoot\docs\runbooks"

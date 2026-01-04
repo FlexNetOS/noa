@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$CsvPath = "N:\noa\docs\plans\config-audit-table.csv"
+    [string]$CsvPath = "N:\noa\docs\plans\configs-audit-table.csv"
 )
 
 Set-StrictMode -Version Latest
@@ -10,11 +10,11 @@ $ErrorActionPreference = 'Stop'
 $data = @(Import-Csv -Path $CsvPath)
 
 $providers = @(
-    'config/ai-providers.json',
-    'config/providers/default.yaml'
+    'configs/ai-providers.json',
+    'configs/providers/default.yaml'
 )
 
-$providerRows = @($data | Where-Object { $providers -contains $_.location -or $_.location -like 'ai/providers/*/config.json' })
+$providerRows = @($data | Where-Object { $providers -contains $_.location -or $_.location -like 'ai/providers/*/configs.json' })
 
 Write-Output "provider_rows=$($providerRows.Length)"
 

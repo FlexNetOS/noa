@@ -166,7 +166,7 @@ Minimal isolation for testing.
 - Windows 10/11 Pro, Enterprise
 - Containers-DisposableClientVM feature enabled
 
-**Configuration:**
+**configsuration:**
 - `sys/kernel/windows/sandbox/noa.wsb` - Sandbox profile
 
 ### Linux
@@ -190,7 +190,7 @@ Minimal isolation for testing.
 #### Namespace Isolation
 
 **Scripts:**
-- `sys/kernel/linux/namespaces/setup.sh` - Namespace configuration
+- `sys/kernel/linux/namespaces/setup.sh` - Namespace configsuration
 
 ### macOS
 
@@ -218,7 +218,7 @@ Minimal isolation for testing.
    - SSH server (for management)
 3. **NOA Runtime:**
    - NOA binaries pre-installed
-   - Configuration from host
+   - configsuration from host
 4. **Performance:**
    - Boot time < 3 seconds
    - Memory footprint < 256MB base
@@ -235,7 +235,7 @@ Minimal isolation for testing.
 ./sys/kernel/images/customize-macos.sh    # RAW/DMG
 ```
 
-## Configuration
+## configsuration
 
 ### Environment Variables
 
@@ -253,7 +253,7 @@ export NOA_CONTAINER_IMAGE=noa-runtime:latest
 export NOA_CONTAINER_RUNTIME=podman|docker
 ```
 
-### Configuration File
+### configsuration File
 
 ```json
 {
@@ -281,7 +281,7 @@ export NOA_CONTAINER_RUNTIME=podman|docker
 ### Rust API
 
 ```rust
-use noa::kernel::{Nkal, KernelMode, NkalConfig};
+use noa::kernel::{Nkal, KernelMode, Nkalconfigs};
 
 // Auto-detect and initialize
 let nkal = Nkal::new()?;
@@ -292,7 +292,7 @@ println!("Hypervisor: {:?}", caps.hypervisor);
 println!("Best mode: {:?}", nkal.best_available_mode());
 
 // Set specific mode
-let mut nkal = Nkal::with_config(NkalConfig {
+let mut nkal = Nkal::with_configs(Nkalconfigs {
     preferred_mode: KernelMode::VM,
     auto_detect: false,
     ..Default::default()

@@ -30,7 +30,7 @@ use libp2p_swarm::StreamProtocol;
 use quick_protobuf::{MessageWrite, Writer};
 
 use crate::{
-    config::ValidationMode,
+    configs::ValidationMode,
     handler::HandlerEvent,
     rpc_proto::proto,
     topic::TopicHash,
@@ -63,7 +63,7 @@ pub(crate) const FLOODSUB_PROTOCOL: ProtocolId = ProtocolId {
 
 /// Implementation of [`InboundUpgrade`] and [`OutboundUpgrade`] for the Gossipsub protocol.
 #[derive(Debug, Clone)]
-pub struct ProtocolConfig {
+pub struct Protocolconfigs {
     /// The Gossipsub protocol id to listen on.
     pub(crate) protocol_ids: Vec<ProtocolId>,
     /// Determines the level of validation to be done on incoming messages.
@@ -74,7 +74,7 @@ pub struct ProtocolConfig {
     pub(crate) max_transmit_sizes: HashMap<TopicHash, usize>,
 }
 
-impl Default for ProtocolConfig {
+impl Default for Protocolconfigs {
     fn default() -> Self {
         Self {
             validation_mode: ValidationMode::Strict,
@@ -89,7 +89,7 @@ impl Default for ProtocolConfig {
     }
 }
 
-impl ProtocolConfig {
+impl Protocolconfigs {
     /// Get the max transmit size for a given topic, falling back to the default.
     pub fn max_transmit_size_for_topic(&self, topic: &TopicHash) -> usize {
         self.max_transmit_sizes
@@ -114,7 +114,7 @@ impl AsRef<str> for ProtocolId {
     }
 }
 
-impl UpgradeInfo for ProtocolConfig {
+impl UpgradeInfo for Protocolconfigs {
     type Info = ProtocolId;
     type InfoIter = Vec<Self::Info>;
 
@@ -123,7 +123,7 @@ impl UpgradeInfo for ProtocolConfig {
     }
 }
 
-impl<TSocket> InboundUpgrade<TSocket> for ProtocolConfig
+impl<TSocket> InboundUpgrade<TSocket> for Protocolconfigs
 where
     TSocket: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
@@ -146,7 +146,7 @@ where
     }
 }
 
-impl<TSocket> OutboundUpgrade<TSocket> for ProtocolConfig
+impl<TSocket> OutboundUpgrade<TSocket> for Protocolconfigs
 where
     TSocket: AsyncWrite + AsyncRead + Unpin + Send + 'static,
 {
@@ -281,7 +281,7 @@ impl Decoder for GossipsubCodec {
         for message in rpc.publish.into_iter() {
             let topic = TopicHash::from_raw(&message.topic);
 
-            // Check the message size to ensure it doesn't bypass the configured max.
+            // Check the message size to ensure it doesn't bypass the configsured max.
             if self
                 .max_transmit_size_for_topic(&topic)
                 .is_some_and(|max| message.get_size() > max)
@@ -595,7 +595,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        config::Config, types::RpcOut, Behaviour, ConfigBuilder, IdentTopic as Topic,
+        configs::configs, types::RpcOut, Behaviour, configsBuilder, IdentTopic as Topic,
         MessageAuthenticity, Version,
     };
 
@@ -607,9 +607,9 @@ mod tests {
             let keypair = TestKeypair::arbitrary(g);
 
             // generate an arbitrary GossipsubMessage using the behaviour signing functionality
-            let config = Config::default();
+            let configs = configs::default();
             let mut gs: Behaviour =
-                Behaviour::new(MessageAuthenticity::Signed(keypair.0), config).unwrap();
+                Behaviour::new(MessageAuthenticity::Signed(keypair.0), configs).unwrap();
             let mut data_g = quickcheck::Gen::new(10024);
             let data = (0..u8::arbitrary(&mut data_g))
                 .map(|_| u8::arbitrary(g))
@@ -683,14 +683,14 @@ mod tests {
 
     #[test]
     fn support_floodsub_with_custom_protocol() {
-        let protocol_config = ConfigBuilder::default()
+        let protocol_configs = configsBuilder::default()
             .protocol_id("/foosub", Version::V1_1)
             .support_floodsub()
             .build()
             .unwrap()
-            .protocol_config();
+            .protocol_configs();
 
-        assert_eq!(protocol_config.protocol_ids[0].protocol, "/foosub");
-        assert_eq!(protocol_config.protocol_ids[1].protocol, "/floodsub/1.0.0");
+        assert_eq!(protocol_configs.protocol_ids[0].protocol, "/foosub");
+        assert_eq!(protocol_configs.protocol_ids[1].protocol, "/floodsub/1.0.0");
     }
 }

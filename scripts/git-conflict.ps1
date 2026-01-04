@@ -36,7 +36,7 @@ if (-not $NoaRoot) {
     $NoaRoot = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent $PSScriptRoot }
 }
 
-$CONFLICT_CONFIG = Join-Path $NoaRoot "config/git-conflict-ai.json"
+$CONFLICT_configs = Join-Path $NoaRoot "configs/git-conflict-ai.json"
 
 switch ($Action) {
     "analyze" {

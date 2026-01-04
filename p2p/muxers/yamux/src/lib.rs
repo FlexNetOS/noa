@@ -225,27 +225,27 @@ where
     }
 }
 
-/// The yamux configuration.
+/// The yamux configsuration.
 #[derive(Debug, Clone)]
-pub struct Config(Either<Config012, Config013>);
+pub struct configs(Either<configs012, configs013>);
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
-        Self(Either::Right(Config013::default()))
+        Self(Either::Right(configs013::default()))
     }
 }
 
 #[derive(Debug, Clone)]
-struct Config012 {
-    inner: yamux012::Config,
+struct configs012 {
+    inner: yamux012::configs,
     mode: Option<yamux012::Mode>,
 }
 
-impl Default for Config012 {
+impl Default for configs012 {
     fn default() -> Self {
-        let mut inner = yamux012::Config::default();
+        let mut inner = yamux012::configs::default();
         // For conformity with mplex, read-after-close on a multiplexed
-        // connection is never permitted and not configurable.
+        // connection is never permitted and not configsurable.
         inner.set_read_after_close(false);
         Self { inner, mode: None }
     }
@@ -293,22 +293,22 @@ impl WindowUpdateMode {
     }
 }
 
-impl Config {
-    /// Creates a new `YamuxConfig` in client mode, regardless of whether
+impl configs {
+    /// Creates a new `Yamuxconfigs` in client mode, regardless of whether
     /// it will be used for an inbound or outbound upgrade.
     #[deprecated(note = "Will be removed with the next breaking release.")]
     pub fn client() -> Self {
-        Self(Either::Left(Config012 {
+        Self(Either::Left(configs012 {
             mode: Some(yamux012::Mode::Client),
             ..Default::default()
         }))
     }
 
-    /// Creates a new `YamuxConfig` in server mode, regardless of whether
+    /// Creates a new `Yamuxconfigs` in server mode, regardless of whether
     /// it will be used for an inbound or outbound upgrade.
     #[deprecated(note = "Will be removed with the next breaking release.")]
     pub fn server() -> Self {
-        Self(Either::Left(Config012 {
+        Self(Either::Left(configs012 {
             mode: Some(yamux012::Mode::Server),
             ..Default::default()
         }))
@@ -342,11 +342,11 @@ impl Config {
         self.set(|cfg| cfg.set_window_update_mode(mode.0))
     }
 
-    fn set(&mut self, f: impl FnOnce(&mut yamux012::Config) -> &mut yamux012::Config) -> &mut Self {
+    fn set(&mut self, f: impl FnOnce(&mut yamux012::configs) -> &mut yamux012::configs) -> &mut Self {
         let cfg012 = match self.0.as_mut() {
             Either::Left(c) => &mut c.inner,
             Either::Right(_) => {
-                self.0 = Either::Left(Config012::default());
+                self.0 = Either::Left(configs012::default());
                 &mut self.0.as_mut().unwrap_left().inner
             }
         };
@@ -357,7 +357,7 @@ impl Config {
     }
 }
 
-impl UpgradeInfo for Config {
+impl UpgradeInfo for configs {
     type Info = &'static str;
     type InfoIter = iter::Once<Self::Info>;
 
@@ -366,7 +366,7 @@ impl UpgradeInfo for Config {
     }
 }
 
-impl<C> InboundConnectionUpgrade<C> for Config
+impl<C> InboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -376,12 +376,12 @@ where
 
     fn upgrade_inbound(self, io: C, _: Self::Info) -> Self::Future {
         let connection = match self.0 {
-            Either::Left(Config012 { inner, mode }) => Either::Left(yamux012::Connection::new(
+            Either::Left(configs012 { inner, mode }) => Either::Left(yamux012::Connection::new(
                 io,
                 inner,
                 mode.unwrap_or(yamux012::Mode::Server),
             )),
-            Either::Right(Config013(cfg)) => {
+            Either::Right(configs013(cfg)) => {
                 Either::Right(yamux013::Connection::new(io, cfg, yamux013::Mode::Server))
             }
         };
@@ -390,7 +390,7 @@ where
     }
 }
 
-impl<C> OutboundConnectionUpgrade<C> for Config
+impl<C> OutboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -400,12 +400,12 @@ where
 
     fn upgrade_outbound(self, io: C, _: Self::Info) -> Self::Future {
         let connection = match self.0 {
-            Either::Left(Config012 { inner, mode }) => Either::Left(yamux012::Connection::new(
+            Either::Left(configs012 { inner, mode }) => Either::Left(yamux012::Connection::new(
                 io,
                 inner,
                 mode.unwrap_or(yamux012::Mode::Client),
             )),
-            Either::Right(Config013(cfg)) => {
+            Either::Right(configs013(cfg)) => {
                 Either::Right(yamux013::Connection::new(io, cfg, yamux013::Mode::Client))
             }
         };
@@ -415,13 +415,13 @@ where
 }
 
 #[derive(Debug, Clone)]
-struct Config013(yamux013::Config);
+struct configs013(yamux013::configs);
 
-impl Default for Config013 {
+impl Default for configs013 {
     fn default() -> Self {
-        let mut cfg = yamux013::Config::default();
+        let mut cfg = yamux013::configs::default();
         // For conformity with mplex, read-after-close on a multiplexed
-        // connection is never permitted and not configurable.
+        // connection is never permitted and not configsurable.
         cfg.set_read_after_close(false);
         Self(cfg)
     }
@@ -451,17 +451,17 @@ impl From<Error> for io::Error {
 mod test {
     use super::*;
     #[test]
-    fn config_set_switches_to_v012() {
+    fn configs_set_switches_to_v012() {
         // By default we use yamux v0.13. Thus we provide the benefits of yamux v0.13 to all users
-        // that do not depend on any of the behaviors (i.e. configuration options) of v0.12.
-        let mut cfg = Config::default();
+        // that do not depend on any of the behaviors (i.e. configsuration options) of v0.12.
+        let mut cfg = configs::default();
         assert!(matches!(
             cfg,
-            Config(Either::Right(Config013(yamux013::Config { .. })))
+            configs(Either::Right(configs013(yamux013::configs { .. })))
         ));
 
-        // In case a user makes any configurations, use yamux v0.12 instead.
+        // In case a user makes any configsurations, use yamux v0.12 instead.
         cfg.set_max_num_streams(42);
-        assert!(matches!(cfg, Config(Either::Left(Config012 { .. }))));
+        assert!(matches!(cfg, configs(Either::Left(configs012 { .. }))));
     }
 }

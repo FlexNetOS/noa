@@ -29,7 +29,7 @@ use super::{
     add_peer, count_control_msgs, flush_events, random_message, DefaultBehaviourTestBuilder,
 };
 use crate::{
-    config::{Config, ConfigBuilder},
+    configs::{configs, configsBuilder},
     handler::HandlerEvent,
     peer_score::{PeerScoreParams, PeerScoreThresholds},
     topic::TopicHash,
@@ -62,7 +62,7 @@ fn test_handle_iwant_msg_cached() {
         .inbound_transform(raw_message.clone())
         .unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
     gs.mcache.put(&msg_id, raw_message);
 
     gs.handle_iwant(&peers[7], vec![msg_id.clone()]);
@@ -83,7 +83,7 @@ fn test_handle_iwant_msg_cached() {
         sent_messages
             .iter()
             .map(|msg| gs.data_transform.inbound_transform(msg.clone()).unwrap())
-            .any(|msg| gs.config.message_id(&msg) == msg_id),
+            .any(|msg| gs.configs.message_id(&msg) == msg_id),
         "Expected the cached message to be sent to an IWANT peer"
     );
 }
@@ -115,7 +115,7 @@ fn test_handle_iwant_msg_cached_shifted() {
             .inbound_transform(raw_message.clone())
             .unwrap();
 
-        let msg_id = gs.config.message_id(message);
+        let msg_id = gs.configs.message_id(message);
         gs.mcache.put(&msg_id, raw_message);
         for _ in 0..shift {
             gs.mcache.shift();
@@ -130,7 +130,7 @@ fn test_handle_iwant_msg_cached_shifted() {
             .map(|(peer_id, mut queue)| {
                 while !queue.is_empty() {
                     if matches!(queue.try_pop(), Some(RpcOut::Forward{message, ..}) if
-                        gs.config.message_id(
+                        gs.configs.message_id(
                             &gs.data_transform
                                 .inbound_transform(message.clone())
                                 .unwrap(),
@@ -200,7 +200,7 @@ fn test_handle_iwant_msg_but_already_sent_idontwant() {
         .inbound_transform(raw_message.clone())
         .unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
     gs.mcache.put(&msg_id, raw_message);
 
     // Receive IDONTWANT from Peer 1.
@@ -314,12 +314,12 @@ fn test_handle_ihave_not_subscribed() {
 
 #[test]
 fn test_gossip_to_at_least_gossip_lazy_peers() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     // add more peers than in mesh to test gossipping
     // by default only mesh_n_low peers will get added to mesh
     let (mut gs, _, queues, topic_hashes) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_low() + config.gossip_lazy() + 1)
+        .peer_no(configs.mesh_n_low() + configs.gossip_lazy() + 1)
         .topics(vec!["topic".into()])
         .to_subscribe(true)
         .create_network();
@@ -342,9 +342,9 @@ fn test_gossip_to_at_least_gossip_lazy_peers() {
     // Transform the inbound message
     let message = &gs.data_transform.inbound_transform(raw_message).unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
-    // check that exactly config.gossip_lazy() many gossip messages were sent.
+    // check that exactly configs.gossip_lazy() many gossip messages were sent.
     let (control_msgs, _) = count_control_msgs(queues, |_, action| match action {
         RpcOut::IHave(IHave {
             topic_hash,
@@ -352,15 +352,15 @@ fn test_gossip_to_at_least_gossip_lazy_peers() {
         }) => topic_hash == &topic_hashes[0] && message_ids.iter().any(|id| id == &msg_id),
         _ => false,
     });
-    assert_eq!(control_msgs, config.gossip_lazy());
+    assert_eq!(control_msgs, configs.gossip_lazy());
 }
 
 #[test]
 fn test_gossip_to_at_most_gossip_factor_peers() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     // add a lot of peers
-    let m = config.mesh_n_low() + config.gossip_lazy() * (2.0 / config.gossip_factor()) as usize;
+    let m = configs.mesh_n_low() + configs.gossip_lazy() * (2.0 / configs.gossip_factor()) as usize;
     let (mut gs, _, queues, topic_hashes) = DefaultBehaviourTestBuilder::default()
         .peer_no(m)
         .topics(vec!["topic".into()])
@@ -385,8 +385,8 @@ fn test_gossip_to_at_most_gossip_factor_peers() {
     // Transform the inbound message
     let message = &gs.data_transform.inbound_transform(raw_message).unwrap();
 
-    let msg_id = gs.config.message_id(message);
-    // check that exactly config.gossip_lazy() many gossip messages were sent.
+    let msg_id = gs.configs.message_id(message);
+    // check that exactly configs.gossip_lazy() many gossip messages were sent.
     let (control_msgs, _) = count_control_msgs(queues, |_, action| match action {
         RpcOut::IHave(IHave {
             topic_hash,
@@ -396,16 +396,16 @@ fn test_gossip_to_at_most_gossip_factor_peers() {
     });
     assert_eq!(
         control_msgs,
-        ((m - config.mesh_n_low()) as f64 * config.gossip_factor()) as usize
+        ((m - configs.mesh_n_low()) as f64 * configs.gossip_factor()) as usize
     );
 }
 
 #[test]
 fn test_ignore_too_many_iwants_from_same_peer_for_same_message() {
-    let config = Config::default();
+    let configs = configs::default();
     // build gossipsub with full mesh
     let (mut gs, _, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(false)
         .create_network();
@@ -421,7 +421,7 @@ fn test_ignore_too_many_iwants_from_same_peer_for_same_message() {
     // Transform the inbound message
     let message1 = &gs.data_transform.inbound_transform(m1.clone()).unwrap();
 
-    let id = config.message_id(message1);
+    let id = configs.message_id(message1);
 
     gs.handle_received_message(m1, &PeerId::random());
 
@@ -430,7 +430,7 @@ fn test_ignore_too_many_iwants_from_same_peer_for_same_message() {
 
     // the first gossip_retransimission many iwants return the valid message, all others are
     // ignored.
-    for _ in 0..(2 * config.gossip_retransimission() + 10) {
+    for _ in 0..(2 * configs.gossip_retransimission() + 10) {
         gs.handle_iwant(&peer, vec![id.clone()]);
     }
 
@@ -443,23 +443,23 @@ fn test_ignore_too_many_iwants_from_same_peer_for_same_message() {
             }
             fwds
         }),
-        config.gossip_retransimission() as usize,
+        configs.gossip_retransimission() as usize,
         "not more then gossip_retransmission many messages get sent back"
     );
 }
 
 #[test]
 fn test_ignore_too_many_ihaves() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_ihave_messages(10)
         .build()
         .unwrap();
     // build gossipsub with full mesh
     let (mut gs, _, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .create_network();
 
     // add another peer not in the mesh
@@ -480,7 +480,7 @@ fn test_ignore_too_many_ihaves() {
 
         gs.handle_ihave(
             &peer,
-            vec![(topics[0].clone(), vec![config.message_id(message)])],
+            vec![(topics[0].clone(), vec![configs.message_id(message)])],
         );
     }
 
@@ -488,7 +488,7 @@ fn test_ignore_too_many_ihaves() {
         .iter()
         .take(10)
         .map(|msg| gs.data_transform.inbound_transform(msg.clone()).unwrap())
-        .map(|m| config.message_id(&m))
+        .map(|m| configs.message_id(&m))
         .collect();
 
     // we send iwant only for the first 10 messages
@@ -513,7 +513,7 @@ fn test_ignore_too_many_ihaves() {
 
         gs.handle_ihave(
             &peer,
-            vec![(topics[0].clone(), vec![config.message_id(message)])],
+            vec![(topics[0].clone(), vec![configs.message_id(message)])],
         );
     }
 
@@ -527,17 +527,17 @@ fn test_ignore_too_many_ihaves() {
 
 #[test]
 fn test_ignore_too_many_messages_in_ihave() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_ihave_messages(10)
         .max_ihave_length(10)
         .build()
         .unwrap();
     // build gossipsub with full mesh
     let (mut gs, _, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .create_network();
 
     // add another peer not in the mesh
@@ -549,7 +549,7 @@ fn test_ignore_too_many_messages_in_ihave() {
     let message_ids: Vec<_> = (0..30)
         .map(|_| random_message(&mut seq, &topics))
         .map(|msg| gs.data_transform.inbound_transform(msg).unwrap())
-        .map(|msg| config.message_id(&msg))
+        .map(|msg| configs.message_id(&msg))
         .collect();
 
     // peer sends us three ihaves
@@ -608,17 +608,17 @@ fn test_ignore_too_many_messages_in_ihave() {
 
 #[test]
 fn test_limit_number_of_message_ids_inside_ihave() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_ihave_messages(10)
         .max_ihave_length(100)
         .build()
         .unwrap();
     // build gossipsub with full mesh
     let (mut gs, peers, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     // graft to all peers to really fill the mesh with all the peers
@@ -691,7 +691,7 @@ fn test_limit_number_of_message_ids_inside_ihave() {
 
 #[test]
 fn test_iwant_penalties() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .iwant_followup_time(Duration::from_secs(4))
         .build()
         .unwrap();
@@ -705,7 +705,7 @@ fn test_iwant_penalties() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, PeerScoreThresholds::default())))
@@ -742,7 +742,7 @@ fn test_iwant_penalties() {
             peer,
             vec![(
                 topics[0].clone(),
-                vec![config.message_id(message1), config.message_id(message2)],
+                vec![configs.message_id(message1), configs.message_id(message2)],
             )],
         );
     }

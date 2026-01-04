@@ -33,7 +33,7 @@ if (-not $NoaRoot) {
     $NoaRoot = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent $PSScriptRoot }
 }
 
-$SSHD_CONFIG = Join-Path $NoaRoot "etc/ssh/sshd_config"
+$SSHD_configs = Join-Path $NoaRoot "etc/ssh/sshd_configs"
 $SSHD_PID = Join-Path $NoaRoot "init/run/sshd.pid"
 $SSH_HOST_KEY = Join-Path $NoaRoot "etc/ssh/ssh_host_rsa_key"
 
@@ -75,18 +75,18 @@ switch ($Action) {
             }
         }
 
-        # Create minimal sshd_config if not exists
-        if (-not (Test-Path $SSHD_CONFIG)) {
+        # Create minimal sshd_configs if not exists
+        if (-not (Test-Path $SSHD_configs)) {
             @"
-# NOA SSH Server Configuration
+# NOA SSH Server configsuration
 Port 2222
 HostKey $SSH_HOST_KEY
 AuthorizedKeysFile $NoaRoot/etc/ssh/authorized_keys
 PasswordAuthentication yes
 PermitRootLogin no
 Subsystem sftp sftp-server.exe
-"@ | Set-Content -Path $SSHD_CONFIG
-            Write-Host "  Created sshd_config (port 2222)" -ForegroundColor Gray
+"@ | Set-Content -Path $SSHD_configs
+            Write-Host "  Created sshd_configs (port 2222)" -ForegroundColor Gray
         }
 
         # Check if already running
@@ -99,7 +99,7 @@ Subsystem sftp sftp-server.exe
         }
 
         # Start sshd
-        $process = Start-Process -FilePath $SSHD_BIN -ArgumentList "-f", $SSHD_CONFIG -PassThru -WindowStyle Hidden
+        $process = Start-Process -FilePath $SSHD_BIN -ArgumentList "-f", $SSHD_configs -PassThru -WindowStyle Hidden
         $process.Id | Set-Content -Path $SSHD_PID
         Write-Host "SSH server started (PID $($process.Id))" -ForegroundColor Green
     }

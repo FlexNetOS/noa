@@ -63,7 +63,7 @@ Key properties:
    - Retain all app features while routing their data/traffic through noa where possible.
 
 6. **Sensor-driven learning**  
-   - Mic & camera can be **always-on (configurable)** for the `$user` to train their own hive mind.
+   - Mic & camera can be **always-on (configsurable)** for the `$user` to train their own hive mind.
    - Derived features, not raw data, are used for most learning.
    - Optional, consent-based contribution to global models.
 
@@ -144,7 +144,7 @@ Key properties:
 6. **Resource Mesh Layer** – cross-device scheduling and resource pooling.
 7. **App Hypervisor Layer** – app hosting, isolation, data routing.
 8. **Sensor & Perception Pipeline** – mic/camera/etc. → structured events.
-9. **Persistence & Memory Layer** – long-term memory, logs, configs, model states.
+9. **Persistence & Memory Layer** – long-term memory, logs, configss, model states.
 
 ---
 
@@ -168,7 +168,7 @@ Examples:
 cap.fs.read(path, options) -> bytes
 cap.fs.write(path, bytes, policy) -> result
 cap.net.request(method, url, body, options) -> response
-cap.ui.open_window(config) -> window_handle
+cap.ui.open_window(configs) -> window_handle
 cap.ui.render(component_tree, region) -> handle
 cap.sensor.stream("mic" | "camera", options) -> stream_handle
 cap.gpu.compute(kernel_desc, tensors, options) -> tensors
@@ -301,8 +301,8 @@ llm.run({
   - **TSM** – Tool & Code Synthesizer Model.
   - **PSM** – Policy & Safety Model.
 
-- Maintain **agent configurations** on top of these models:
-  - Agents are prompt+tool+policy configurations.
+- Maintain **agent configsurations** on top of these models:
+  - Agents are prompt+tool+policy configsurations.
   - Agents can be **spliced/merged/updated** over time.
 
 ### 8.3 Dynamic Behavior
@@ -563,7 +563,7 @@ Per-device **Sensor Agents**:
 Each:
 
 - Requests OS permission explicitly.
-- Has strict config:
+- Has strict configs:
   - On/off per sensor.
   - Sampling frequency.
   - Local only vs shareable.
@@ -622,7 +622,7 @@ These evolve slowly and with strict controls.
 
 - Modules & versions.
 - Env definitions and assignments.
-- Agent configurations (including splicing/merging).
+- Agent configsurations (including splicing/merging).
 - Caches and intermediate artifacts.
 
 All designed to be **frequently updated** and **revertible**.

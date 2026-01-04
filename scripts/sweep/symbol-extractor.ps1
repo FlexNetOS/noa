@@ -25,7 +25,7 @@ param(
     [string]$FilePath,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet('Rust', 'TypeScript', 'JavaScript', 'Python', 'Shell', 'Markdown', 'Config', 'Auto')]
+    [ValidateSet('Rust', 'TypeScript', 'JavaScript', 'Python', 'Shell', 'Markdown', 'configs', 'Auto')]
     [string]$Language = 'Auto',
 
     [Parameter(Mandatory = $false)]
@@ -51,10 +51,10 @@ $script:ExtensionMap = @{
     '.bash'  = 'Shell'
     '.md'    = 'Markdown'
     '.mdx'   = 'Markdown'
-    '.json'  = 'Config'
-    '.yaml'  = 'Config'
-    '.yml'   = 'Config'
-    '.toml'  = 'Config'
+    '.json'  = 'configs'
+    '.yaml'  = 'configs'
+    '.yml'   = 'configs'
+    '.toml'  = 'configs'
 }
 
 function Get-DetectedLanguage {

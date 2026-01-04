@@ -39,7 +39,7 @@ Complete list of tools installed by the NOA bootstrap system.
 | npx | 10.x | Package runner |
 
 **Environment Variables:**
-- `npm_config_cache`: `$NOA_ROOT/cache/npm`
+- `npm_configs_cache`: `$NOA_ROOT/cache/npm`
 
 ### Python
 

@@ -48,9 +48,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
-            tcp::Config::default(),
-            noise::Config::new,
-            yamux::Config::default,
+            tcp::configs::default(),
+            noise::configs::new,
+            yamux::configs::default,
         )?
         .with_bandwidth_metrics(&mut metric_registry)
         .with_behaviour(|key| Behaviour::new(key.public()))?
@@ -126,7 +126,7 @@ impl Behaviour {
     fn new(local_pub_key: identity::PublicKey) -> Self {
         Self {
             ping: ping::Behaviour::default(),
-            identify: identify::Behaviour::new(identify::Config::new(
+            identify: identify::Behaviour::new(identify::configs::new(
                 "/ipfs/0.1.0".into(),
                 local_pub_key,
             )),

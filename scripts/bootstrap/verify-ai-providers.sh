@@ -2,7 +2,7 @@
 #
 # Verify all AI provider CLIs are installed and functional.
 #
-# Checks each configured AI provider CLI for availability and version.
+# Checks each configsured AI provider CLI for availability and version.
 # Reports status of local, cloud, hybrid, and IDE providers.
 #
 # Usage:
@@ -103,11 +103,11 @@ for provider in "${!PROVIDERS[@]}"; do
     fi
 done
 
-# Count configured providers
-CONFIGURED=0
+# Count configsured providers
+configsURED=0
 for dir in local cloud hybrid ide; do
     if [[ -d "$PROVIDERS_DIR/$dir" ]]; then
-        CONFIGURED=$((CONFIGURED + $(find "$PROVIDERS_DIR/$dir" -name "config.json" 2>/dev/null | wc -l)))
+        configsURED=$((configsURED + $(find "$PROVIDERS_DIR/$dir" -name "configs.json" 2>/dev/null | wc -l)))
     fi
 done
 
@@ -123,7 +123,7 @@ if ! $JSON_OUTPUT; then
     fi
     echo -e "  ${YELLOW}Missing (optional): $OPTIONAL_MISSING${NC}"
     echo ""
-    echo -e "${GRAY}Configured provider configs found: $CONFIGURED${NC}"
+    echo -e "${GRAY}configsured provider configss found: $configsURED${NC}"
 fi
 
 if $JSON_OUTPUT; then
@@ -136,7 +136,7 @@ if $JSON_OUTPUT; then
     "available": $AVAILABLE,
     "missing": $MISSING,
     "optional_missing": $OPTIONAL_MISSING,
-    "configured": $CONFIGURED
+    "configsured": $configsURED
   }
 }
 EOF

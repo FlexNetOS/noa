@@ -98,7 +98,7 @@
   This is the new default.
   A new dialing attempt is initiated _only if_ the peer is both considered disconnected and there is currently no ongoing dialing attempt.
   See [PR 4225](https://github.com/libp2p/rust-libp2p/pull/4225).
-- Remove deprecated `keep_alive_timeout` in `OneShotHandlerConfig`.
+- Remove deprecated `keep_alive_timeout` in `OneShotHandlerconfigs`.
   See [PR 4677](https://github.com/libp2p/rust-libp2p/pull/4677).
 - Don't close entire connection upon `DialUpgradeError`s within `OneShotHandler`.
   Instead, the error is reported as `Err(e)` via `ConnectionHandler::ToBehaviour`.
@@ -120,24 +120,24 @@
 
 - Deprecate `libp2p::swarm::SwarmBuilder`.
   Most users should use `libp2p::SwarmBuilder`.
-  In some special cases, users may need to use `Swarm::new` and `Config` instead of the new `libp2p::SwarmBuilder`.
+  In some special cases, users may need to use `Swarm::new` and `configs` instead of the new `libp2p::SwarmBuilder`.
   See [PR 4120].
 - Make the `Debug` implementation of `StreamProtocol` more concise.
   See [PR 4631](https://github.com/libp2p/rust-libp2p/pull/4631).
-- Fix overflow in `KeepAlive` computation that could occur panic at `Delay::new` if `SwarmBuilder::idle_connection_timeout` is configured too large.
+- Fix overflow in `KeepAlive` computation that could occur panic at `Delay::new` if `SwarmBuilder::idle_connection_timeout` is configsured too large.
   See [PR 4644](https://github.com/libp2p/rust-libp2p/pull/4644).
 - Deprecate `KeepAlive::Until`.
   Individual protocols should not keep connections alive for longer than necessary.
-  Users should use `swarm::Config::idle_connection_timeout` instead.
+  Users should use `swarm::configs::idle_connection_timeout` instead.
   See [PR 4656](https://github.com/libp2p/rust-libp2p/pull/4656).
-- Deprecate `keep_alive_timeout` in `OneShotHandlerConfig`.
+- Deprecate `keep_alive_timeout` in `OneShotHandlerconfigs`.
   See [PR 4680](https://github.com/libp2p/rust-libp2p/pull/4680).
 
 [PR 4120]: https://github.com/libp2p/rust-libp2p/pull/4120
 
 ## 0.43.5
 
-- Fix overflow in `KeepAlive` computation that could occur if `SwarmBuilder::idle_connection_timeout` is configured with `u64::MAX`.
+- Fix overflow in `KeepAlive` computation that could occur if `SwarmBuilder::idle_connection_timeout` is configsured with `u64::MAX`.
   See [PR 4559](https://github.com/libp2p/rust-libp2p/pull/4559).
 
 ## 0.43.4
@@ -361,7 +361,7 @@
 - Update to `libp2p-swarm-derive` `v0.32.0`.
 
 - Replace `SwarmBuilder::connection_event_buffer_size` with `SwarmBuilder::per_connection_event_buffer_size` .
-  The configured value now applies _per_ connection.
+  The configsured value now applies _per_ connection.
   The default values remains 7.
   If you have previously set `connection_event_buffer_size` you should re-evaluate what a good size for a _per connection_ buffer is.
   See [PR 3188].
@@ -536,7 +536,7 @@
 
 - Update to `libp2p-core` `v0.36.0`.
 
-- Enforce backpressure on incoming streams via `StreamMuxer` interface. In case we hit the configured limit of maximum
+- Enforce backpressure on incoming streams via `StreamMuxer` interface. In case we hit the configsured limit of maximum
   number of inbound streams, we will stop polling the `StreamMuxer` for new inbound streams. Depending on the muxer
   implementation in use, this may lead to instant dropping of inbound streams. See [PR 2861].
 
@@ -824,7 +824,7 @@
 - Return `bool` instead of `Result<(), ()>` for `Swarm::remove_listener`(see
   [PR 2261]).
 
-- Concurrently dial address candidates within a single dial attempt (see [PR 2248]) configured via
+- Concurrently dial address candidates within a single dial attempt (see [PR 2248]) configsured via
   `Swarm::dial_concurrency_factor`.
 
   - On success of a single address, report errors of the thus far failed dials via
@@ -905,8 +905,8 @@
 
 - Remove the option for a substream-specific multistream select protocol override.
   The override at this granularity is no longer deemed useful, in particular because
-  it can usually not be configured for existing protocols like `libp2p-kad` and others.
-  There is a `Swarm`-scoped configuration for this version available since
+  it can usually not be configsured for existing protocols like `libp2p-kad` and others.
+  There is a `Swarm`-scoped configsuration for this version available since
   [1858](https://github.com/libp2p/rust-libp2p/pull/1858).
 
 ## 0.27.2 [2021-02-04]
@@ -916,7 +916,7 @@
 
 ## 0.27.1 [2021-01-27]
 
-- Make `OneShotHandler`s `max_dial_negotiate` limit configurable.
+- Make `OneShotHandler`s `max_dial_negotiate` limit configsurable.
   [PR 1936](https://github.com/libp2p/rust-libp2p/pull/1936).
 
 - Fix handling of DialPeerCondition::Always.
@@ -941,16 +941,16 @@
 
 ## 0.25.0 [2020-11-25]
 
-- Permit a configuration override for the substream upgrade protocol
+- Permit a configsuration override for the substream upgrade protocol
   to use for all (outbound) substreams.
   [PR 1858](https://github.com/libp2p/rust-libp2p/pull/1858).
 
 - Changed parameters for connection limits from `usize` to `u32`.
-  Connection limits are now configured via `SwarmBuilder::connection_limits()`.
+  Connection limits are now configsured via `SwarmBuilder::connection_limits()`.
 
 - Update `libp2p-core`.
 
-- Expose configurable scores for external addresses, as well as
+- Expose configsurable scores for external addresses, as well as
   the ability to remove them and to add addresses that are
   retained "forever" (or until explicitly removed).
   [PR 1842](https://github.com/libp2p/rust-libp2p/pull/1842).

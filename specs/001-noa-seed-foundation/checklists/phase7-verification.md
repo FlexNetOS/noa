@@ -24,14 +24,14 @@
 - [ ] VER701 - Verify Next.js app initializes with TypeScript in `sys/ui/` [T192]
   - ✅ **IMPLEMENTED**: `package.json` exists with Next.js 15+ and TypeScript
   - ⚠️ **TEST REQUIRED**: Run `npm run dev` and verify app starts on port 3000
-- [ ] VER702 - Verify TypeScript configuration is correct [T192]
-  - ✅ **IMPLEMENTED**: `tsconfig.json` exists with proper paths and compiler options
+- [ ] VER702 - Verify TypeScript configsuration is correct [T192]
+  - ✅ **IMPLEMENTED**: `tsconfigs.json` exists with proper paths and compiler options
   - ⚠️ **TEST REQUIRED**: Run `npm run type-check` and verify no errors
 
 ### Tailwind CSS & Styling (T193)
 
-- [ ] VER703 - Verify Tailwind CSS is configured and working [T193]
-  - ✅ **IMPLEMENTED**: `tailwind.config.ts` and `postcss.config.mjs` exist
+- [ ] VER703 - Verify Tailwind CSS is configsured and working [T193]
+  - ✅ **IMPLEMENTED**: `tailwind.configs.ts` and `postcss.configs.mjs` exist
   - ⚠️ **TEST REQUIRED**: Verify Tailwind classes apply correctly in UI
 - [ ] VER704 - Verify utility libraries (clsx, tailwind-merge) are installed [T193]
   - ✅ **IMPLEMENTED**: `src/lib/utils.ts` exists with `cn()` function
@@ -180,7 +180,7 @@
 - [ ] VER737 - Verify Sync Settings panel displays sync scope options [T211]
   - ✅ **IMPLEMENTED**: `src/components/settings/SyncSettings.tsx` exists
   - ⚠️ **TEST REQUIRED**: Change sync scope and verify selection
-- [ ] VER738 - Verify Memory Settings panel allows retention configuration [T212]
+- [ ] VER738 - Verify Memory Settings panel allows retention configsuration [T212]
   - ✅ **IMPLEMENTED**: `src/components/settings/MemorySettings.tsx` exists
   - ⚠️ **TEST REQUIRED**: Change retention period and verify persistence
 - [ ] VER739 - Verify Security Settings panel displays security options [T213]
@@ -433,13 +433,13 @@
 
 ### Performance Criteria (SC-007)
 
-- [ ] VER798 - Verify UI reconfiguration completes within 200ms [SC-007]
+- [ ] VER798 - Verify UI reconfigsuration completes within 200ms [SC-007]
   - ⚠️ **TEST REQUIRED**: Measure time from context change to UI update
-  - **Target**: <200ms for UI reconfiguration
-- [ ] VER799 - Verify UI reconfigures for coding task context [US5-Scenario1, SC-007]
-  - ⚠️ **TEST REQUIRED**: Switch to coding context and verify UI reconfigures within 200ms
-- [ ] VER800 - Verify UI reconfigures for project management context [US5-Scenario2, SC-007]
-  - ⚠️ **TEST REQUIRED**: Switch to project management context and verify UI reconfigures within 200ms
+  - **Target**: <200ms for UI reconfigsuration
+- [ ] VER799 - Verify UI reconfigsures for coding task context [US5-Scenario1, SC-007]
+  - ⚠️ **TEST REQUIRED**: Switch to coding context and verify UI reconfigsures within 200ms
+- [ ] VER800 - Verify UI reconfigsures for project management context [US5-Scenario2, SC-007]
+  - ⚠️ **TEST REQUIRED**: Switch to project management context and verify UI reconfigsures within 200ms
 
 ### Functional Requirements
 
@@ -448,7 +448,7 @@
 - [ ] VER802 - Verify activity log displays last 10,000 entries [FR-022]
   - ✅ **IMPLEMENTED**: ActivityLog limits to 10k entries
   - ⚠️ **TEST REQUIRED**: Load 10k+ entries and verify only last 10k are shown
-- [ ] VER803 - Verify context-aware UI reconfiguration triggers work [FR-021]
+- [ ] VER803 - Verify context-aware UI reconfigsuration triggers work [FR-021]
   - ✅ **IMPLEMENTED**: Context detection with UI adaptation signals
   - ⚠️ **TEST REQUIRED**: Trigger context changes and verify UI adapts
 

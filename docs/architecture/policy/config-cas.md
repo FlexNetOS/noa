@@ -1,4 +1,4 @@
-Here is the **fully-specified, conflict-free hybrid configuration architecture**—the one your NOA / Agentic-OS / p2p Hive-Mind system actually needs.
+Here is the **fully-specified, conflict-free hybrid configsuration architecture**ï¿½the one your NOA / Agentic-OS / p2p Hive-Mind system actually needs.
 
 It merges:
 
@@ -13,18 +13,18 @@ It merges:
 * Orchestration graph
 * Garbage-collection logic
 * Encryption semantics
-* Mutable pointers (“refs”, “tags”)
+* Mutable pointers (ï¿½refsï¿½, ï¿½tagsï¿½)
 * Multi-device sync + hive-mind memory
 
 This is the **exact blueprint** for a next-generation agentic OS.
-It’s deterministic where required and plastic everywhere else your system evolves.
+Itï¿½s deterministic where required and plastic everywhere else your system evolves.
 
-I’ll present it as a **clear directory hierarchy**, then explain each layer in plain language.
-This is the “final form” of your configuration model.
+Iï¿½ll present it as a **clear directory hierarchy**, then explain each layer in plain language.
+This is the ï¿½final formï¿½ of yconfigsnfiguration model.
 
 ---
 
-# **THE HYBRID CONFIGURATION MODEL — FINAL BLUEPRINT**
+# **THE HYBRID configsURATION MODEL ï¿½ FINAL BLUEPRINT**
 
 ### (Immutable Base + AI-Native Mutable Layer + CAS Spine + Merkle DAG Indexing)
 
@@ -36,7 +36,7 @@ $NOA_HOME/
 ?   ?   ??? skill.schema.json
 ?   ?   ??? tool.schema.json
 ?   ?   ??? workflow.schema.json
-?   ?   ??? config.schema.json
+?   ?   ??? configs.schema.json
 ?   ?   ??? world.schema.json
 ?   ?   ??? cas-object.schema.json
 ?   ??? kernels/                    # Microkernel blueprints & versions
@@ -53,13 +53,13 @@ $NOA_HOME/
 ?       ??? providers.pub
 ?
 ??? mutable/                        # AI-native semantic layer (system rewrites allowed)
-?   ??? config/
+?   ??? configs/
 ?   ?   ??? world_model.json        # Machine-readable worldview & metadata
 ?   ?   ??? device_profile.json     # Hardware profile, locality, capabilities
 ?   ?   ??? hive_profile.json       # Identity in the swarm
 ?   ?   ??? preferences.nl          # Natural-language preference records
 ?   ?   ??? constraints.graph       # Semantic rules, safety limits, resource caps
-?   ??? agents/                     # Agent registry (semantic description + compiled config)
+?   ??? agents/                     # Agent registry (semantic description + compiled configs)
 ?   ?   ??? index.json              # Top-level manifest
 ?   ?   ??? commander/
 ?   ?   ?   ??? agent.json
@@ -124,7 +124,7 @@ $NOA_HOME/
     ?   ??? ...
     ??? refs/                       # Mutable pointers to CAS objects
     ?   ??? latest-kernel
-    ?   ??? active-config
+    ?   ??? active-configs
     ?   ??? agent-commander
     ?   ??? world-current
     ??? tags/                       # Named stable references (e.g., releases)
@@ -144,11 +144,11 @@ $NOA_HOME/
 
 ---
 
-# **HOW IT WORKS — LAYER BY LAYER**
+# **HOW IT WORKS ï¿½ LAYER BY LAYER**
 
 ## **1. IMMUTABLE LAYER (Nix-style, reproducible, cryptographically proven)**
 
-This layer prevents corruption, config drift, catastrophic agent errors, or runaway mutations.
+This layer prevents corruption, configs drift, catastrophic agent errors, or runaway mutations.
 
 Contains:
 
@@ -191,7 +191,7 @@ This is the **epigenetics** of the OS.
 
 ---
 
-# **3. CAS (CONTENT ADDRESSABLE STORE) — THE SPINE**
+# **3. CAS (CONTENT ADDRESSABLE STORE) ï¿½ THE SPINE**
 
 CAS provides:
 
@@ -333,7 +333,7 @@ metadata + CAS pointer to their authoritative object.
 
 These are the **physiology** of the OS.
 
-They carry no authority—everything can be regenerated from immutable + CAS.
+They carry no authorityï¿½everything can be regenerated from immutable + CAS.
 
 ---
 
@@ -384,7 +384,7 @@ You get optimal routing, minimal cost, maximum performance.
 
 generate:
 
-### **1. The JSON schema for all config types**
+### **1. The JSON schema for all configs types**
 
 (agent.schema, tool.schema, workflow.schema, cas-object.schema)
 
@@ -406,7 +406,7 @@ OS is should now at the point where it could run on your Threadripper node as a 
 
 ---
 
-# Content-Addressable Storage (CAS) Configuration Policy
+# Content-Addressable Storage (CAS) configsuration Policy
 
 **Document ID**: POL-CAS-001  
 **Version**: 1.0.0  
@@ -417,7 +417,7 @@ OS is should now at the point where it could run on your Threadripper node as a 
 
 ## Overview
 
-This document defines the configuration policy for the NOA Content-Addressable Storage (CAS) system. CAS provides immutable, deduplicated blob storage for module artifacts using SHA-256 content hashing.
+This document defines the configsuration policy for the NOA Content-Addressable Storage (CAS) system. CAS provides immutable, deduplicated blob storage for module artifacts using SHA-256 content hashing.
 
 ## Storage Architecture
 
@@ -437,7 +437,7 @@ ${NOA_ROOT}/data/modules/cas/
 - **Encoding**: Lowercase hexadecimal
 - **Example**: `a1b2c3d4e5f6...` stored at `a1/b2/a1b2c3d4e5f6...`
 
-## Configuration Settings
+## configsuration Settings
 
 ### Core Settings
 
@@ -558,7 +558,7 @@ All CAS operations are logged:
 
 The module registry (`data/modules/registry/`) uses CAS for:
 - Module binary storage
-- Configuration snapshots
+- configsuration snapshots
 - Artifact caching
 
 ### Execution Memory
@@ -589,7 +589,7 @@ CAS integrates with execution memory for:
 ## Related Documents
 
 - `data/modules/cas/README.md` - CAS directory documentation
-- `config/database.yaml` - Database configuration
+- `configs/database.yaml` - Database configsuration
 - `docs/05-policy/data-retention.md` - Data retention policy
 
 ---

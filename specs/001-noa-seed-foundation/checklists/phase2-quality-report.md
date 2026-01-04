@@ -43,9 +43,9 @@
 
 - [X] **CHK005** - Do code examples include seed values, exact commands, environment versions?
   - **Status**: PARTIAL
-  - **Evidence**: Database config includes version field (`database.yaml` line 5: `version: "1.0"`)
-  - **Gap**: Missing explicit environment version requirements in some config files
-  - **Recommendation**: Add environment version requirements to config templates
+  - **Evidence**: Database configs includes version field (`database.yaml` line 5: `version: "1.0"`)
+  - **Gap**: Missing explicit environment version requirements in some configs files
+  - **Recommendation**: Add environment version requirements to configs templates
 
 - [X] **CHK006** - Is every claim cross-referenced to its source with explicit mapping?
   - **Status**: PASS
@@ -115,9 +115,9 @@
     - `init/migrations/001_initial.sql` ✓
     - `init/migrations/002_indexes.sql` ✓
     - `init/migrations/003_vectors.sql` ✓
-    - `config/database.yaml` ✓
-    - `config/minio.yaml` ✓
-    - `config/qdrant.yaml` ✓
+    - `configs/database.yaml` ✓
+    - `configs/minio.yaml` ✓
+    - `configs/qdrant.yaml` ✓
     - `sys/core/src/db/*.rs` ✓
 
 - [X] **CHK018** - Is a deterministic smoke test provided with command, transcript, and exit code 0?
@@ -133,8 +133,8 @@
 
 - [X] **CHK020** - Are constraints, supported OS/arch, and known failure modes stated?
   - **Status**: PASS
-  - **Evidence**: Database config specifies SQLite (cross-platform), PostgreSQL optional
-  - **Files**: `config/database.yaml` lines 9-24
+  - **Evidence**: Database configs specifies SQLite (cross-platform), PostgreSQL optional
+  - **Files**: `configs/database.yaml` lines 9-24
 
 - [X] **CHK021** - Are SHA-256 hashes provided for key artifacts?
   - **Status**: PASS
@@ -168,7 +168,7 @@
   - **Status**: PASS
   - **Evidence**:
     - Schema matches data-model.md (24 entities)
-    - Config files match plan.md requirements
+    - configs files match plan.md requirements
     - Code implements schema correctly
 
 - [ ] **CHK027** - Are unit smoke tests passing?
@@ -244,7 +244,7 @@
 - [X] **CHK040** - Are all error handling paths implemented (not just happy path)?
   - **Status**: PASS
   - **Evidence**: Comprehensive error types in `sys/core/src/error.rs`
-  - **Files**: `error.rs` defines DatabaseError, ConfigError, AgentError, ApiError, etc.
+  - **Files**: `error.rs` defines DatabaseError, configsError, AgentError, ApiError, etc.
 
 - [X] **CHK041** - Do all errors include actionable context (what, why, how to fix)?
   - **Status**: PASS
@@ -258,13 +258,13 @@
 
 - [ ] **CHK043** - Are retry mechanisms implemented with exponential backoff where appropriate?
   - **Status**: PARTIAL
-  - **Evidence**: Database config includes `busy_timeout` (line 28)
+  - **Evidence**: Database configs includes `busy_timeout` (line 28)
   - **Gap**: Retry logic not verified in code
   - **Action Required**: Verify retry implementation in connection pool
 
 - [ ] **CHK044** - Are all external calls wrapped with timeout and fallback?
   - **Status**: PARTIAL
-  - **Evidence**: Database timeout configured
+  - **Evidence**: Database timeout configsured
   - **Gap**: API calls and external service calls need timeout verification
   - **Action Required**: Audit all external calls for timeout handling
 
@@ -275,7 +275,7 @@
   - **Evidence**:
     - Rust: snake_case for functions, PascalCase for types
     - SQL: snake_case for tables and columns
-    - YAML: kebab-case for config keys
+    - YAML: kebab-case for configs keys
 
 - [X] **CHK046** - Are all functions documented with purpose, params, return, and errors?
   - **Status**: PASS
@@ -336,8 +336,8 @@
 
 - [X] **CHK055** - Are version numbers consistent across Cargo.toml, package.json, go.mod?
   - **Status**: PASS
-  - **Evidence**: Config files include version fields
-  - **Files**: `database.yaml` line 5, `config_schema.json` (if exists)
+  - **Evidence**: configs files include version fields
+  - **Files**: `database.yaml` line 5, `configs_schema.json` (if exists)
 
 - [X] **CHK056** - Is `updated_at` timestamp maintained in all state-tracking files?
   - **Status**: PASS
@@ -353,12 +353,12 @@
 
 - [ ] **CHK058** - Do all JSON schemas include `$schema` reference?
   - **Status**: PENDING
-  - **Action Required**: Verify `config/schemas/config_schema.json` includes `$schema`
+  - **Action Required**: Verify `configs/schemas/configs_schema.json` includes `$schema`
 
-- [X] **CHK059** - Do all configs include `version` field for migration tracking?
+- [X] **CHK059** - Do all configss include `version` field for migration tracking?
   - **Status**: PASS
   - **Evidence**: `database.yaml` line 5: `version: "1.0"`
-  - **Files**: Config files include version
+  - **Files**: configs files include version
 
 - [X] **CHK060** - Do all API contracts include version in URL or header?
   - **Status**: PASS
@@ -376,11 +376,11 @@
   - **Evidence**: All Phase 2 tasks reference FR-* or §* principles
   - **Files**: `tasks.md` lines 730-826
 
-- [X] **CHK063** - Are all config changes logged with reason and timestamp?
+- [X] **CHK063** - Are all configs changes logged with reason and timestamp?
   - **Status**: PARTIAL
   - **Evidence**: Migration files have timestamps
-  - **Gap**: Config change log not centralized
-  - **Action Required**: Create config changelog
+  - **Gap**: configs change log not centralized
+  - **Action Required**: Create configs changelog
 
 - [X] **CHK064** - Is every output versioned with delta records?
   - **Status**: PASS
@@ -395,42 +395,42 @@
 
 ---
 
-## Category 6: Configuration Standardization
+## Category 6: configsuration Standardization
 
-### Config File Structure
+### configs File Structure
 
-- [X] **CHK066** - Do all JSON configs follow the established schema pattern?
+- [X] **CHK066** - Do all JSON configss follow the established schema pattern?
   - **Status**: PASS
-  - **Evidence**: Config files follow consistent structure
+  - **Evidence**: configs files follow consistent structure
   - **Files**: `database.yaml`, `minio.yaml`, `qdrant.yaml` follow similar patterns
 
 - [X] **CHK067** - Are environment-specific values using `${ENV_VAR}` syntax consistently?
   - **Status**: PASS
   - **Evidence**: `database.yaml` uses `${NOA_ROOT}`, `${NOA_PG_USER}`, `${NOA_PG_PASSWORD}`
-  - **Files**: All config files use consistent env var syntax
+  - **Files**: All configs files use consistent env var syntax
 
-- [ ] **CHK068** - Are config files validated against JSON Schema on load?
+- [ ] **CHK068** - Are configs files validated against JSON Schema on load?
   - **Status**: PARTIAL
-  - **Evidence**: Config validator exists (`sys/core/src/config/validator.rs`)
+  - **Evidence**: configs validator exists (`sys/core/src/configs/validator.rs`)
   - **Gap**: Schema validation not verified at runtime
-  - **Action Required**: Verify config validation on startup
+  - **Action Required**: Verify configs validation on startup
 
 - [X] **CHK069** - Are sensitive values stored in separate, gitignored files?
   - **Status**: PASS
   - **Evidence**: Passwords use env vars (`${NOA_PG_PASSWORD}`)
   - **Files**: `database.yaml` line 69
 
-### Config Consistency
+### configs Consistency
 
 - [X] **CHK070** - Are path patterns consistent (`noa_root/` vs `${NOA_ROOT}/`)?
   - **Status**: PASS
   - **Evidence**: All paths use `${NOA_ROOT}/` syntax
   - **Files**: `database.yaml` lines 13, 33, 51, 57
 
-- [X] **CHK071** - Are boolean configs using consistent naming (`enabled`, not `isEnabled`)?
+- [X] **CHK071** - Are boolean configss using consistent naming (`enabled`, not `isEnabled`)?
   - **Status**: PASS
   - **Evidence**: `database.yaml` uses `enabled: true/false`
-  - **Files**: Config files use `enabled` consistently
+  - **Files**: configs files use `enabled` consistently
 
 - [X] **CHK072** - Are timeouts/durations using consistent units (always ms or always s)?
   - **Status**: PASS
@@ -442,20 +442,20 @@
   - **Evidence**: Task priority uses integer scale (0 default)
   - **Files**: `001_initial.sql` line 94: `priority INTEGER NOT NULL DEFAULT 0`
 
-### Config Documentation
+### configs Documentation
 
-- [ ] **CHK074** - Does each config file have an accompanying README or inline comments?
+- [ ] **CHK074** - Does each configs file have an accompanying README or inline comments?
   - **Status**: PARTIAL
   - **Evidence**: `database.yaml` has inline comments
-  - **Gap**: Not all config files have comprehensive comments
+  - **Gap**: Not all configs files have comprehensive comments
   - **Action Required**: Add README or expand inline comments
 
-- [X] **CHK075** - Are all config options documented with type, default, and purpose?
+- [X] **CHK075** - Are all configs options documented with type, default, and purpose?
   - **Status**: PASS
   - **Evidence**: `database.yaml` includes comments explaining each section
-  - **Files**: Config files have descriptive comments
+  - **Files**: configs files have descriptive comments
 
-- [ ] **CHK076** - Are config migration procedures documented for schema changes?
+- [ ] **CHK076** - Are configs migration procedures documented for schema changes?
   - **Status**: PARTIAL
   - **Evidence**: Migration system exists
   - **Gap**: Migration procedures not fully documented
@@ -469,7 +469,7 @@
 
 - [ ] **CHK077** - Do all schemas use JSON Schema draft-07 or later?
   - **Status**: PENDING
-  - **Action Required**: Verify `config/schemas/config_schema.json` uses draft-07+
+  - **Action Required**: Verify `configs/schemas/configs_schema.json` uses draft-07+
 
 - [X] **CHK078** - Are all required fields marked with `required` array?
   - **Status**: PASS
@@ -632,7 +632,7 @@
 
 - [X] **CHK107** - Are precision and units stated for all numbers?
   - **Status**: PASS
-  - **Evidence**: Database config includes units (ms, MB, bytes)
+  - **Evidence**: Database configs includes units (ms, MB, bytes)
   - **Files**: `database.yaml` lines 19, 21, 28
 
 ---
@@ -701,43 +701,43 @@
 
 ---
 
-## Category 14: AI Provider Config Quality (NOA-Specific)
+## Category 14: AI Provider configs Quality (NOA-Specific)
 
-- [X] **CHK122** - Do all provider configs include: name, type, priority, enabled, description?
+- [X] **CHK122** - Do all provider configss include: name, type, priority, enabled, description?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
-- [X] **CHK123** - Do all provider configs include: cli (command, package, version, binaryPath)?
+- [X] **CHK123** - Do all provider configss include: cli (command, package, version, binaryPath)?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
-- [X] **CHK124** - Do all provider configs include: modes (cli, cloud, ide where applicable)?
+- [X] **CHK124** - Do all provider configss include: modes (cli, cloud, ide where applicable)?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
-- [X] **CHK125** - Do all provider configs include: capabilities object?
+- [X] **CHK125** - Do all provider configss include: capabilities object?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
-- [X] **CHK126** - Do all provider configs include: sharedResources paths?
+- [X] **CHK126** - Do all provider configss include: sharedResources paths?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
-- [X] **CHK127** - Do all provider configs include: latency targets and timeout?
+- [X] **CHK127** - Do all provider configss include: latency targets and timeout?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
 - [X] **CHK128** - Are priority values unique across all providers (no duplicates)?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
 - [X] **CHK129** - Are binaryPath values using correct ${NOA_ROOT} syntax?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
 - [X] **CHK130** - Are sharedResources paths consistent across all providers?
   - **Status**: N/A
-  - **Reason**: Phase 2 does not include AI provider configs
+  - **Reason**: Phase 2 does not include AI provider configss
 
 ---
 
@@ -810,7 +810,7 @@ Phase 2 implementation is functionally complete (54/54 tasks), but quality verif
 - All core functionality implemented
 - Error handling comprehensive
 - Schema design solid with proper constraints
-- Configuration standardized and consistent
+- configsuration standardized and consistent
 - Code documentation present
 
 **Gaps**:
@@ -845,11 +845,11 @@ Phase 2 implementation is functionally complete (54/54 tasks), but quality verif
    - [ ] Remove dead code and unused imports
    - [ ] Verify JSON schema uses draft-07+
 
-5. **Config Quality** (Medium Priority):
-   - [ ] Verify config validation on startup
+5. **configs Quality** (Medium Priority):
+   - [ ] Verify configs validation on startup
    - [ ] Document migration procedures
    - [ ] Document backward compatibility policy
-   - [ ] Add comprehensive comments to all config files
+   - [ ] Add comprehensive comments to all configs files
 
 ---
 

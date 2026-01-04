@@ -32,8 +32,8 @@ use crate::kbucket;
 pub struct MemoryStore {
     /// The identity of the peer owning the store.
     local_key: kbucket::Key<PeerId>,
-    /// The configuration of the store.
-    config: MemoryStoreConfig,
+    /// The configsuration of the store.
+    configs: MemoryStoreconfigs,
     /// The stored (regular) records.
     records: HashMap<Key, Record>,
     /// The stored provider records.
@@ -44,9 +44,9 @@ pub struct MemoryStore {
     provided: HashSet<ProviderRecord>,
 }
 
-/// Configuration for a `MemoryStore`.
+/// configsuration for a `MemoryStore`.
 #[derive(Debug, Clone)]
-pub struct MemoryStoreConfig {
+pub struct MemoryStoreconfigs {
     /// The maximum number of records.
     pub max_records: usize,
     /// The maximum size of record values, in bytes.
@@ -60,7 +60,7 @@ pub struct MemoryStoreConfig {
     pub max_provided_keys: usize,
 }
 
-impl Default for MemoryStoreConfig {
+impl Default for MemoryStoreconfigs {
     fn default() -> Self {
         Self {
             max_records: 1024,
@@ -72,16 +72,16 @@ impl Default for MemoryStoreConfig {
 }
 
 impl MemoryStore {
-    /// Creates a new `MemoryRecordStore` with a default configuration.
+    /// Creates a new `MemoryRecordStore` with a default configsuration.
     pub fn new(local_id: PeerId) -> Self {
-        Self::with_config(local_id, Default::default())
+        Self::with_configs(local_id, Default::default())
     }
 
-    /// Creates a new `MemoryRecordStore` with the given configuration.
-    pub fn with_config(local_id: PeerId, config: MemoryStoreConfig) -> Self {
+    /// Creates a new `MemoryRecordStore` with the given configsuration.
+    pub fn with_configs(local_id: PeerId, configs: MemoryStoreconfigs) -> Self {
         MemoryStore {
             local_key: kbucket::Key::from(local_id),
-            config,
+            configs,
             records: HashMap::default(),
             provided: HashSet::default(),
             providers: HashMap::default(),
@@ -111,7 +111,7 @@ impl RecordStore for MemoryStore {
     }
 
     fn put(&mut self, r: Record) -> Result<()> {
-        if r.value.len() >= self.config.max_value_bytes {
+        if r.value.len() >= self.configs.max_value_bytes {
             return Err(Error::ValueTooLarge);
         }
 
@@ -122,7 +122,7 @@ impl RecordStore for MemoryStore {
                 e.insert(r);
             }
             hash_map::Entry::Vacant(e) => {
-                if num_records >= self.config.max_records {
+                if num_records >= self.configs.max_records {
                     return Err(Error::MaxRecords);
                 }
                 e.insert(r);
@@ -147,7 +147,7 @@ impl RecordStore for MemoryStore {
         let providers = match self.providers.entry(record.key.clone()) {
             e @ hash_map::Entry::Occupied(_) => e,
             e @ hash_map::Entry::Vacant(_) => {
-                if self.config.max_provided_keys == num_keys {
+                if self.configs.max_provided_keys == num_keys {
                     return Err(Error::MaxProvidedKeys);
                 }
                 e
@@ -170,7 +170,7 @@ impl RecordStore for MemoryStore {
         // If the providers list is full, we ignore the new provider.
         // This strategy can mitigate Sybil attacks, in which an attacker
         // floods the network with fake provider records.
-        if providers.len() == self.config.max_providers_per_key {
+        if providers.len() == self.configs.max_providers_per_key {
             return Ok(());
         }
 
@@ -293,11 +293,11 @@ mod tests {
 
     #[test]
     fn max_providers_per_key() {
-        let config = MemoryStoreConfig::default();
+        let configs = MemoryStoreconfigs::default();
         let key = kbucket::Key::new(Key::from(random_multihash()));
 
-        let mut store = MemoryStore::with_config(PeerId::random(), config.clone());
-        let peers = (0..config.max_providers_per_key)
+        let mut store = MemoryStore::with_configs(PeerId::random(), configs.clone());
+        let peers = (0..configs.max_providers_per_key)
             .map(|_| PeerId::random())
             .collect::<Vec<_>>();
         for peer in peers {
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn max_provided_keys() {
         let mut store = MemoryStore::new(PeerId::random());
-        for _ in 0..store.config.max_provided_keys {
+        for _ in 0..store.configs.max_provided_keys {
             let key = random_multihash();
             let prv = PeerId::random();
             let rec = ProviderRecord::new(key, prv, Vec::new());

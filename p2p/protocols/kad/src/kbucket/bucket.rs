@@ -175,14 +175,14 @@ where
     TKey: Clone + AsRef<KeyBytes>,
     TVal: Clone,
 {
-    /// Creates a new `KBucket` with the given configuration.
-    pub(crate) fn new(config: KBucketConfig) -> Self {
+    /// Creates a new `KBucket` with the given configsuration.
+    pub(crate) fn new(configs: KBucketconfigs) -> Self {
         KBucket {
-            nodes: Vec::with_capacity(config.bucket_size),
-            capacity: config.bucket_size,
+            nodes: Vec::with_capacity(configs.bucket_size),
+            capacity: configs.bucket_size,
             first_connected_pos: None,
             pending: None,
-            pending_timeout: config.pending_timeout,
+            pending_timeout: configs.pending_timeout,
         }
     }
 
@@ -450,9 +450,9 @@ mod tests {
     impl Arbitrary for KBucket<Key<PeerId>, ()> {
         fn arbitrary(g: &mut Gen) -> KBucket<Key<PeerId>, ()> {
             let timeout = Duration::from_secs(g.gen_range(1..g.size()) as u64);
-            let mut config = KBucketConfig::default();
-            config.set_pending_timeout(timeout);
-            let mut bucket = KBucket::<Key<PeerId>, ()>::new(config);
+            let mut configs = KBucketconfigs::default();
+            configs.set_pending_timeout(timeout);
+            let mut bucket = KBucket::<Key<PeerId>, ()>::new(configs);
             let num_nodes = g.gen_range(1..bucket.capacity + 1);
             for _ in 0..num_nodes {
                 let key = Key::from(PeerId::random());
@@ -681,9 +681,9 @@ mod tests {
             NonZeroUsize::new(2000).unwrap(),
         ];
         for &size in &bucket_sizes {
-            let mut config = KBucketConfig::default();
-            config.set_bucket_size(size);
-            let mut bucket = KBucket::<Key<PeerId>, ()>::new(config);
+            let mut configs = KBucketconfigs::default();
+            configs.set_bucket_size(size);
+            let mut bucket = KBucket::<Key<PeerId>, ()>::new(configs);
             fill_bucket(&mut bucket, NodeStatus::Disconnected);
             assert_eq!(size.get(), bucket.num_entries());
         }

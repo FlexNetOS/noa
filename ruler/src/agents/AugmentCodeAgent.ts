@@ -1,39 +1,45 @@
 import * as path from 'path';
-import { IAgent, IAgentConfig } from './IAgent';
+import { IAgent, IAgentconfigs } from './IAgent';
 import { backupFile, writeGeneratedFile } from '../core/FileSystemUtils';
 
 /**
  * AugmentCode agent adapter.
- * Generates ruler_augment_instructions.md configuration file and updates VSCode settings.json with MCP server configuration.
+ * Generates ruler_augment_instructions.md configsuration file and updates VSCode settings.json with MCP server configsuration.
  */
-export class AugmentCodeAgent implements IAgent {
-  getIdentifier(): string {
+export class AugmentCodeAgent implements IAgent
+{
+  getIdentifier (): string
+  {
     return 'augmentcode';
   }
 
-  getName(): string {
+  getName (): string
+  {
     return 'AugmentCode';
   }
 
-  async applyRulerConfig(
+  async applyRulerconfigs (
     concatenatedRules: string,
     projectRoot: string,
     _rulerMcpJson: Record<string, unknown> | null,
-    agentConfig?: IAgentConfig,
+    agentconfigs?: IAgentconfigs,
     backup = true,
-  ): Promise<void> {
+  ): Promise<void>
+  {
     const output =
-      agentConfig?.outputPath ?? this.getDefaultOutputPath(projectRoot);
-    if (backup) {
-      await backupFile(output);
+      agentconfigs?.outputPath ?? this.getDefaultOutputPath( projectRoot );
+    if ( backup )
+    {
+      await backupFile( output );
     }
-    await writeGeneratedFile(output, concatenatedRules);
+    await writeGeneratedFile( output, concatenatedRules );
 
     // AugmentCode does not support MCP servers
-    // MCP configuration is ignored for this agent
+    // MCP configsuration is ignored for this agent
   }
 
-  getDefaultOutputPath(projectRoot: string): string {
+  getDefaultOutputPath ( projectRoot: string ): string
+  {
     return path.join(
       projectRoot,
       '.augment',
@@ -43,11 +49,13 @@ export class AugmentCodeAgent implements IAgent {
   }
 
   // AugmentCode does not support MCP servers
-  supportsMcpStdio(): boolean {
+  supportsMcpStdio (): boolean
+  {
     return false;
   }
 
-  supportsMcpRemote(): boolean {
+  supportsMcpRemote (): boolean
+  {
     return false;
   }
 }

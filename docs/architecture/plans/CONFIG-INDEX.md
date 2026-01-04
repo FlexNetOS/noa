@@ -1,5 +1,5 @@
-# Configuration Index
+# configsuration Index
 
-**Primary**: [.config/README.md](../../.config/README.md)
+**Primary**: [.configs/README.md](../../.configs/README.md)
 
 **Compliance**: 100% ✅

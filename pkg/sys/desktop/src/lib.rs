@@ -4,8 +4,8 @@
 #[path = "../proxy/proxy.rs"]
 pub mod proxy;
 
-#[path = "../proxy/config.rs"]
-pub mod proxy_config;
+#[path = "../proxy/configs.rs"]
+pub mod proxy_configs;
 
 #[path = "../auth/oauth_proxy.rs"]
 pub mod oauth_proxy;

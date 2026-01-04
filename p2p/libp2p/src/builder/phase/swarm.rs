@@ -10,19 +10,19 @@ pub struct SwarmPhase<T, B> {
     pub(crate) transport: T,
 }
 
-macro_rules! impl_with_swarm_config {
-    ($providerKebabCase:literal, $providerPascalCase:ty, $config:expr) => {
+macro_rules! impl_with_swarm_configs {
+    ($providerKebabCase:literal, $providerPascalCase:ty, $configs:expr) => {
         #[cfg(feature = $providerKebabCase)]
         impl<T, B> SwarmBuilder<$providerPascalCase, SwarmPhase<T, B>> {
-            pub fn with_swarm_config(
+            pub fn with_swarm_configs(
                 self,
-                constructor: impl FnOnce(libp2p_swarm::Config) -> libp2p_swarm::Config,
+                constructor: impl FnOnce(libp2p_swarm::configs) -> libp2p_swarm::configs,
             ) -> SwarmBuilder<$providerPascalCase, BuildPhase<T, B>> {
                 SwarmBuilder {
                     phase: BuildPhase {
                         behaviour: self.phase.behaviour,
                         transport: self.phase.transport,
-                        swarm_config: constructor($config),
+                        swarm_configs: constructor($configs),
                         connection_timeout: DEFAULT_CONNECTION_TIMEOUT,
                     },
                     keypair: self.keypair,
@@ -36,22 +36,22 @@ macro_rules! impl_with_swarm_config {
                 B: libp2p_swarm::NetworkBehaviour,
                 T: AuthenticatedMultiplexedTransport,
             {
-                self.with_swarm_config(std::convert::identity).build()
+                self.with_swarm_configs(std::convert::identity).build()
             }
         }
     };
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-impl_with_swarm_config!(
+impl_with_swarm_configs!(
     "tokio",
     super::provider::Tokio,
-    libp2p_swarm::Config::with_tokio_executor()
+    libp2p_swarm::configs::with_tokio_executor()
 );
 
 #[cfg(target_arch = "wasm32")]
-impl_with_swarm_config!(
+impl_with_swarm_configs!(
     "wasm-bindgen",
     super::provider::WasmBindgen,
-    libp2p_swarm::Config::with_wasm_executor()
+    libp2p_swarm::configs::with_wasm_executor()
 );

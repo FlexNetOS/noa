@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configure centralized logging for NOA.
+# configsure centralized logging for NOA.
 #
 # Sets up log directories and rotation for all NOA components.
 #
@@ -14,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
 LOGS_DIR="$NOA_ROOT/logs"
 
-echo -e "\033[36mConfiguring centralized logging...\033[0m"
+echo -e "\033[36mconfigsuring centralized logging...\033[0m"
 echo -e "\033[90mNOA Root: $NOA_ROOT\033[0m"
 echo -e "\033[90mLogs Dir: $LOGS_DIR\033[0m"
 echo ""
@@ -40,11 +40,11 @@ for log_name in "${!LOG_DIRS[@]}"; do
     fi
 done
 
-# Create log configuration file
-LOG_CONFIG_PATH="$LOGS_DIR/log-config.json"
-cat > "$LOG_CONFIG_PATH" << EOF
+# Create log configsuration file
+LOG_configs_PATH="$LOGS_DIR/log-configs.json"
+cat > "$LOG_configs_PATH" << EOF
 {
-  "\$schema": "https://noa.local/schemas/log-config.json",
+  "\$schema": "https://noa.local/schemas/log-configs.json",
   "version": "1.0.0",
   "log_root": "$LOGS_DIR",
   "directories": {
@@ -76,7 +76,7 @@ cat > "$LOG_CONFIG_PATH" << EOF
 EOF
 
 echo ""
-echo -e "\033[32mLog configuration saved to: $LOG_CONFIG_PATH\033[0m"
+echo -e "\033[32mLog configsuration saved to: $LOG_configs_PATH\033[0m"
 
 # Create .gitignore for logs
 GITIGNORE_PATH="$LOGS_DIR/.gitignore"

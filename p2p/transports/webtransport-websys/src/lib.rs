@@ -15,5 +15,5 @@ pub use self::{
     connection::Connection,
     error::Error,
     stream::Stream,
-    transport::{Config, Transport},
+    transport::{configs, Transport},
 };

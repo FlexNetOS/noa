@@ -6,7 +6,7 @@
 # portable environment. Supports npm installation and clone methods.
 #
 # Repository: https://github.com/FlexNetOS/codex.git
-# Provider Config: ai/providers/cloud/codex/config.json
+# Provider configs: ai/providers/cloud/codex/configs.json
 #
 # Usage:
 #   ./codex-cli.sh                    # Install via npm (default)
@@ -58,8 +58,8 @@ else
     log_error() { echo "[Error] $1" >&2; }
 fi
 
-# Configuration
-PROVIDER_CONFIG_PATH="$NOA_ROOT/ai/providers/cloud/codex"
+# configsuration
+PROVIDER_configs_PATH="$NOA_ROOT/ai/providers/cloud/codex"
 OPT_PATH="$NOA_ROOT/opt"
 BIN_PATH="$NOA_ROOT/bin"
 NODE_PATH="$OPT_PATH/node"
@@ -70,7 +70,7 @@ log_info "  Method: $METHOD"
 log_info "  NOA Root: $NOA_ROOT"
 
 # Ensure directories exist
-for dir in "$OPT_PATH" "$BIN_PATH" "$PROVIDER_CONFIG_PATH"; do
+for dir in "$OPT_PATH" "$BIN_PATH" "$PROVIDER_configs_PATH"; do
     if [[ ! -d "$dir" ]]; then
         mkdir -p "$dir"
         log_success "  Created: $dir"
@@ -95,8 +95,8 @@ case "$METHOD" in
         NPM_PREFIX="$DEV_TOOLS_DIR/npm-global"
         NPM_CACHE="$OPT_PATH/npm-cache"
         mkdir -p "$NPM_PREFIX" "$NPM_CACHE"
-        export npm_config_prefix="$NPM_PREFIX"
-        export npm_config_cache="$NPM_CACHE"
+        export npm_configs_prefix="$NPM_PREFIX"
+        export npm_configs_cache="$NPM_CACHE"
 
         # Try @openai/codex first, fallback to codex-cli
         $NPM_CMD install -g "$NPM_PACKAGE" 2>/dev/null || $NPM_CMD install -g "$NPM_PACKAGE_FALLBACK" || {
@@ -158,7 +158,7 @@ else
 fi
 
 log_success "Codex CLI installation complete!"
-log_info "  Provider config: $PROVIDER_CONFIG_PATH"
+log_info "  Provider configs: $PROVIDER_configs_PATH"
 log_info "  Shared resources: $NOA_ROOT/ai/shared"
 
 exit 0

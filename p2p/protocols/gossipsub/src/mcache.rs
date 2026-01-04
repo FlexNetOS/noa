@@ -197,7 +197,7 @@ impl MessageCache {
         for entry in self.history.pop().expect("history is always > 1") {
             if let Some((msg, _)) = self.msgs.remove(&entry.mid) {
                 if !msg.validated {
-                    // If GossipsubConfig::validate_messages is true, the implementing
+                    // If Gossipsubconfigs::validate_messages is true, the implementing
                     // application has to ensure that Gossipsub::validate_message gets called for
                     // each received message within the cache timeout time."
                     tracing::debug!(

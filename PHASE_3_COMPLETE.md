@@ -12,11 +12,11 @@ Phase 3 implements the complete Content-Addressed Storage (CAS) layer and data p
 
 ## What Was Implemented
 
-### 1. CAS Configuration
+### 1. CAS configsuration
 
-**File**: `configs/base/cas/config.json`
+**File**: `configss/base/cas/configs.json`
 
-Complete CAS configuration including:
+Complete CAS configsuration including:
 - Hash algorithm: blake3 (sha256 fallback)
 - Compression: zstd level 3 (automatic for files > 1KB)
 - Object storage with deduplication
@@ -53,7 +53,7 @@ Garbage collection rules with:
 **Files**:
 - `cas/registry/models.json` - AI model artifacts
 - `cas/registry/prompts.json` - Prompt templates
-- `cas/registry/snapshots.json` - Configuration snapshots
+- `cas/registry/snapshots.json` - configsuration snapshots
 - `cas/registry/binaries.json` - Binary executables
 - `cas/registry/packages.json` - Package archives
 
@@ -86,7 +86,7 @@ Retrieve objects by hash:
 ```
 Features:
 - Automatic decompression
-- Hash verification (configurable via `CAS_VERIFY`)
+- Hash verification (configsurable via `CAS_VERIFY`)
 - Corruption detection
 - Stdout or file output
 
@@ -140,7 +140,7 @@ Features:
 
 ### 5. Cache Management System
 
-**Configuration**: `configs/base/cache/cache-policies.json`
+**configsuration**: `configss/base/cache/cache-policies.json`
 
 Bounded cache policies for 6 cache types:
 
@@ -170,7 +170,7 @@ Automated cache cleanup:
 Features:
 - LRU (Least Recently Used) cleanup
 - Age-based cleanup
-- Configurable retention policies
+- configsurable retention policies
 - Dry run mode
 - Logging to `logs/cache-cleanup.log`
 
@@ -192,7 +192,7 @@ Features:
 
 Comprehensive test suite covering:
 - Directory structure verification (7 tests)
-- Configuration files (3 tests)
+- configsuration files (3 tests)
 - Registry files (5 tests)
 - Script utilities (6 tests)
 - CAS operations (9 tests):
@@ -254,7 +254,7 @@ Object catalogs by type:
 registry/
 ├─ models.json      (AI models)
 ├─ prompts.json     (Prompt templates)
-├─ snapshots.json   (Config snapshots)
+├─ snapshots.json   (configs snapshots)
 ├─ binaries.json    (Executables)
 └─ packages.json    (Package archives)
 ```
@@ -275,22 +275,22 @@ scripts/cas/create-tag.sh v3.1-q4 "$HASH" "Llama 3.1 8B Q4"
 scripts/cas/update-ref.sh models/llama/current "$HASH" "Deploy Llama 3.1"
 ```
 
-### Example 2: Configuration Snapshot
+### Example 2: configsuration Snapshot
 
 ```bash
 # Create snapshot
-tar czf /tmp/snapshot.tar.gz -C configs .
+tar czf /tmp/snapshot.tar.gz -C configss .
 HASH=$(scripts/cas/store-object.sh /tmp/snapshot.tar.gz snapshot)
 
 # Tag with timestamp
 TAG="snapshot-$(date +%Y%m%d-%H%M%S)"
-scripts/cas/create-tag.sh "$TAG" "$HASH" "Config snapshot"
+scripts/cas/create-tag.sh "$TAG" "$HASH" "configs snapshot"
 
 # Update latest
 scripts/cas/update-ref.sh snapshots/latest "$HASH"
 ```
 
-### Example 3: Rollback Configuration
+### Example 3: Rollback configsuration
 
 ```bash
 # Get hash from tag
@@ -298,7 +298,7 @@ HASH=$(grep -oP '"object":\s*"\K[a-f0-9]{64}' cas/tags/snapshot-20260101-120000)
 
 # Retrieve and extract
 scripts/cas/retrieve-object.sh "$HASH" /tmp/snapshot.tar.gz
-tar xzf /tmp/snapshot.tar.gz -C configs/
+tar xzf /tmp/snapshot.tar.gz -C configss/
 ```
 
 ### Example 4: Cache Management
@@ -330,10 +330,10 @@ cat cas/refs/logs/models/current
 
 ## File Manifest
 
-### Configuration Files (3)
-- `configs/base/cas/config.json` - CAS configuration
+### configsuration Files (3)
+- `configss/base/cas/configs.json` - CAS configsuration
 - `cas/gc/gc_rules.json` - GC policies
-- `configs/base/cache/cache-policies.json` - Cache policies
+- `configss/base/cache/cache-policies.json` - Cache policies
 
 ### Registry Files (5)
 - `cas/registry/models.json`
@@ -362,10 +362,10 @@ cat cas/refs/logs/models/current
 
 ## Metrics
 
-- **Lines of Code**: ~2,100 lines (scripts + configs)
+- **Lines of Code**: ~2,100 lines (scripts + configss)
 - **Documentation**: ~1,000 lines
 - **Test Coverage**: 34 automated tests
-- **Configuration Files**: 8
+- **configsuration Files**: 8
 - **Utility Scripts**: 9
 - **Estimated Implementation Time**: 3 hours
 
@@ -410,15 +410,15 @@ cat cas/refs/logs/models/current
 ## NOA Policy Compliance
 
 Aligns with NOA policy documents:
-- ✅ `03-CONFIG_CAS.md` - CAS at `${NOA_ROOT}/cas/`
-- ✅ `03-CONFIG_CAS.md` - Objects, refs, tags, registry, gc, merkle subdirectories
+- ✅ `03-configs_CAS.md` - CAS at `${NOA_ROOT}/cas/`
+- ✅ `03-configs_CAS.md` - Objects, refs, tags, registry, gc, merkle subdirectories
 - ✅ `01_CONSTITUTION.md` - Bounded caches with cleanup
 - ✅ `02-ARCH_AER-SPEC.md` - Data plane implementation
 
 ## Integration Points
 
 ### Upstream Dependencies
-- Phase 1: 3-layer config architecture (`configs/base/`)
+- Phase 1: 3-layer configs architecture (`configss/base/`)
 - Phase 2: AgentGateway deployment (`gateway/mcp/`)
 - Phase 2.5: CAS directory structure (`cas/`)
 
@@ -426,7 +426,7 @@ Aligns with NOA policy documents:
 Phase 4 will use:
 - CAS storage for system core artifacts
 - Registry system for policy/identity storage
-- Refs for mutable config pointers
+- Refs for mutable configs pointers
 
 Phase 5 will use:
 - CAS for resource templates
@@ -443,7 +443,7 @@ bash scripts/tests/test-cas-phase3.sh --verbose
 
 Expected results:
 - Directory structure: 7/7 tests pass
-- Configuration files: 3/3 tests pass
+- configsuration files: 3/3 tests pass
 - Registry files: 5/5 tests pass
 - Script utilities: 6/6 tests pass
 - CAS operations: 9/9 tests pass (if bash available)

@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Creates a detailed report of the NOA bootstrap installation including
-    all installed tools, versions, and configuration status.
+    all installed tools, versions, and configsuration status.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -88,7 +88,7 @@ $report += @"
 |-----------|--------|----------|
 "@
 
-$dirs = @("bin", "config", "ai", "ai/shared", "ai/providers", "logs", "specs", "cache")
+$dirs = @("bin", "configs", "ai", "ai/shared", "ai/providers", "logs", "specs", "cache")
 foreach ($dir in $dirs) {
     $path = Join-Path $NoaRoot $dir
     if (Test-Path $path) {
@@ -106,7 +106,7 @@ $report += @"
 
 ## AI Providers
 
-| Provider | Type | Config Exists |
+| Provider | Type | configs Exists |
 |----------|------|---------------|
 "@
 
@@ -114,9 +114,9 @@ $providerTypes = @("local", "cloud", "hybrid", "ide")
 foreach ($type in $providerTypes) {
     $providerDir = Join-Path $NoaRoot "ai/providers/$type"
     if (Test-Path $providerDir) {
-        $configs = Get-ChildItem -Path $providerDir -Filter "config.json" -Recurse -ErrorAction SilentlyContinue
-        foreach ($config in $configs) {
-            $providerName = Split-Path -Parent $config.FullName | Split-Path -Leaf
+        $configss = Get-ChildItem -Path $providerDir -Filter "configs.json" -Recurse -ErrorAction SilentlyContinue
+        foreach ($configs in $configss) {
+            $providerName = Split-Path -Parent $configs.FullName | Split-Path -Leaf
             $report += "`n| $providerName | $type | ✅ |"
         }
     }
@@ -159,20 +159,20 @@ $report += @"
 
 ---
 
-## Configuration Files
+## configsuration Files
 
-| Config | Path | Valid |
+| configs | Path | Valid |
 |--------|------|-------|
 "@
 
-$configs = @(
-    "config/ai-providers.json",
-    "config/shared-resources.json",
-    "config/bootstrap-state.json",
-    "config/bootstrap-tools.json"
+$configss = @(
+    "configs/ai-providers.json",
+    "configs/shared-resources.json",
+    "configs/bootstrap-state.json",
+    "configs/bootstrap-tools.json"
 )
 
-foreach ($cfg in $configs) {
+foreach ($cfg in $configss) {
     $path = Join-Path $NoaRoot $cfg
     if (Test-Path $path) {
         try {

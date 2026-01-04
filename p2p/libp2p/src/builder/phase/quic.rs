@@ -26,12 +26,12 @@ macro_rules! impl_quic_builder {
                 $providerPascalCase,
                 OtherTransportPhase<impl AuthenticatedMultiplexedTransport>,
             > {
-                self.with_quic_config(std::convert::identity)
+                self.with_quic_configs(std::convert::identity)
             }
 
-            pub fn with_quic_config(
+            pub fn with_quic_configs(
                 self,
-                constructor: impl FnOnce(libp2p_quic::Config) -> libp2p_quic::Config,
+                constructor: impl FnOnce(libp2p_quic::configs) -> libp2p_quic::configs,
             ) -> SwarmBuilder<
                 $providerPascalCase,
                 OtherTransportPhase<impl AuthenticatedMultiplexedTransport>,
@@ -43,7 +43,7 @@ macro_rules! impl_quic_builder {
                             .transport
                             .or_transport(
                                 libp2p_quic::$quic::Transport::new(constructor(
-                                    libp2p_quic::Config::new(&self.keypair),
+                                    libp2p_quic::configs::new(&self.keypair),
                                 ))
                                 .map(|(peer_id, muxer), _| {
                                     (peer_id, libp2p_core::muxing::StreamMuxerBox::new(muxer))
@@ -167,15 +167,15 @@ impl<T: AuthenticatedMultiplexedTransport> SwarmBuilder<super::provider::Tokio, 
 }
 #[cfg(all(not(target_arch = "wasm32"), feature = "tokio", feature = "dns"))]
 impl<T: AuthenticatedMultiplexedTransport> SwarmBuilder<super::provider::Tokio, QuicPhase<T>> {
-    pub fn with_dns_config(
+    pub fn with_dns_configs(
         self,
-        cfg: libp2p_dns::ResolverConfig,
+        cfg: libp2p_dns::Resolverconfigs,
         opts: libp2p_dns::ResolverOpts,
     ) -> SwarmBuilder<super::provider::Tokio, WebsocketPhase<impl AuthenticatedMultiplexedTransport>>
     {
         self.without_quic()
             .without_any_other_transports()
-            .with_dns_config(cfg, opts)
+            .with_dns_configs(cfg, opts)
     }
 }
 

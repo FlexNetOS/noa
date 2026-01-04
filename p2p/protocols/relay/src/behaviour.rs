@@ -47,12 +47,12 @@ use crate::{
     protocol::{inbound_hop, outbound_stop},
 };
 
-/// Configuration for the relay [`Behaviour`].
+/// configsuration for the relay [`Behaviour`].
 ///
 /// # Panics
 ///
-/// [`Config::max_circuit_duration`] may not exceed [`u32::MAX`].
-pub struct Config {
+/// [`configs::max_circuit_duration`] may not exceed [`u32::MAX`].
+pub struct configs {
     pub max_reservations: usize,
     pub max_reservations_per_peer: usize,
     pub reservation_duration: Duration,
@@ -65,11 +65,11 @@ pub struct Config {
     pub circuit_src_rate_limiters: Vec<Box<dyn rate_limiter::RateLimiter>>,
 }
 
-impl Config {
+impl configs {
     pub fn reservation_rate_per_peer(mut self, limit: NonZeroU32, interval: Duration) -> Self {
         self.reservation_rate_limiters
             .push(rate_limiter::new_per_peer(
-                rate_limiter::GenericRateLimiterConfig { limit, interval },
+                rate_limiter::GenericRateLimiterconfigs { limit, interval },
             ));
         self
     }
@@ -77,7 +77,7 @@ impl Config {
     pub fn circuit_src_per_peer(mut self, limit: NonZeroU32, interval: Duration) -> Self {
         self.circuit_src_rate_limiters
             .push(rate_limiter::new_per_peer(
-                rate_limiter::GenericRateLimiterConfig { limit, interval },
+                rate_limiter::GenericRateLimiterconfigs { limit, interval },
             ));
         self
     }
@@ -85,7 +85,7 @@ impl Config {
     pub fn reservation_rate_per_ip(mut self, limit: NonZeroU32, interval: Duration) -> Self {
         self.reservation_rate_limiters
             .push(rate_limiter::new_per_ip(
-                rate_limiter::GenericRateLimiterConfig { limit, interval },
+                rate_limiter::GenericRateLimiterconfigs { limit, interval },
             ));
         self
     }
@@ -93,15 +93,15 @@ impl Config {
     pub fn circuit_src_per_ip(mut self, limit: NonZeroU32, interval: Duration) -> Self {
         self.circuit_src_rate_limiters
             .push(rate_limiter::new_per_ip(
-                rate_limiter::GenericRateLimiterConfig { limit, interval },
+                rate_limiter::GenericRateLimiterconfigs { limit, interval },
             ));
         self
     }
 }
 
-impl std::fmt::Debug for Config {
+impl std::fmt::Debug for configs {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Config")
+        f.debug_struct("configs")
             .field("max_reservations", &self.max_reservations)
             .field("max_reservations_per_peer", &self.max_reservations_per_peer)
             .field("reservation_duration", &self.reservation_duration)
@@ -121,18 +121,18 @@ impl std::fmt::Debug for Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         let reservation_rate_limiters = vec![
             // For each peer ID one reservation every 2 minutes with up
             // to 30 reservations per hour.
-            rate_limiter::new_per_peer(rate_limiter::GenericRateLimiterConfig {
+            rate_limiter::new_per_peer(rate_limiter::GenericRateLimiterconfigs {
                 limit: NonZeroU32::new(30).expect("30 > 0"),
                 interval: Duration::from_secs(60 * 2),
             }),
             // For each IP address one reservation every minute with up
             // to 60 reservations per hour.
-            rate_limiter::new_per_ip(rate_limiter::GenericRateLimiterConfig {
+            rate_limiter::new_per_ip(rate_limiter::GenericRateLimiterconfigs {
                 limit: NonZeroU32::new(60).expect("60 > 0"),
                 interval: Duration::from_secs(60),
             }),
@@ -140,18 +140,18 @@ impl Default for Config {
 
         let circuit_src_rate_limiters = vec![
             // For each source peer ID one circuit every 2 minute with up to 30 circuits per hour.
-            rate_limiter::new_per_peer(rate_limiter::GenericRateLimiterConfig {
+            rate_limiter::new_per_peer(rate_limiter::GenericRateLimiterconfigs {
                 limit: NonZeroU32::new(30).expect("30 > 0"),
                 interval: Duration::from_secs(60 * 2),
             }),
             // For each source IP address one circuit every minute with up to 60 circuits per hour.
-            rate_limiter::new_per_ip(rate_limiter::GenericRateLimiterConfig {
+            rate_limiter::new_per_ip(rate_limiter::GenericRateLimiterconfigs {
                 limit: NonZeroU32::new(60).expect("60 > 0"),
                 interval: Duration::from_secs(60),
             }),
         ];
 
-        Config {
+        configs {
             max_reservations: 128,
             max_reservations_per_peer: 4,
             reservation_duration: Duration::from_secs(60 * 60),
@@ -249,7 +249,7 @@ pub enum Event {
 /// [`NetworkBehaviour`] implementation of the relay server
 /// functionality of the circuit relay v2 protocol.
 pub struct Behaviour {
-    config: Config,
+    configs: configs,
 
     local_peer_id: PeerId,
 
@@ -263,9 +263,9 @@ pub struct Behaviour {
 }
 
 impl Behaviour {
-    pub fn new(local_peer_id: PeerId, config: Config) -> Self {
+    pub fn new(local_peer_id: PeerId, configs: configs) -> Self {
         Self {
-            config,
+            configs,
             local_peer_id,
             reservations: Default::default(),
             circuits: Default::default(),
@@ -328,10 +328,10 @@ impl NetworkBehaviour for Behaviour {
         }
 
         Ok(Either::Left(Handler::new(
-            handler::Config {
-                reservation_duration: self.config.reservation_duration,
-                max_circuit_duration: self.config.max_circuit_duration,
-                max_circuit_bytes: self.config.max_circuit_bytes,
+            handler::configs {
+                reservation_duration: self.configs.reservation_duration,
+                max_circuit_duration: self.configs.max_circuit_duration,
+                max_circuit_bytes: self.configs.max_circuit_bytes,
             },
             ConnectedPoint::Listener {
                 local_addr: local_addr.clone(),
@@ -354,10 +354,10 @@ impl NetworkBehaviour for Behaviour {
         }
 
         Ok(Either::Left(Handler::new(
-            handler::Config {
-                reservation_duration: self.config.reservation_duration,
-                max_circuit_duration: self.config.max_circuit_duration,
-                max_circuit_bytes: self.config.max_circuit_bytes,
+            handler::configs {
+                reservation_duration: self.configs.reservation_duration,
+                max_circuit_duration: self.configs.max_circuit_duration,
+                max_circuit_bytes: self.configs.max_circuit_bytes,
             },
             ConnectedPoint::Dialer {
                 address: addr.clone(),
@@ -409,17 +409,17 @@ impl NetworkBehaviour for Behaviour {
                         .get(&event_source)
                         .map(|cs| cs.len())
                         .unwrap_or(0)
-                        > self.config.max_reservations_per_peer)
+                        > self.configs.max_reservations_per_peer)
                     // Deny if it exceeds `max_reservations`.
                     || self
                         .reservations
                         .values()
                         .map(|cs| cs.len())
                         .sum::<usize>()
-                        >= self.config.max_reservations
+                        >= self.configs.max_reservations
                     // Deny if it exceeds the allowed rate of reservations.
                     || !self
-                        .config
+                        .configs
                         .reservation_rate_limiters
                         .iter_mut()
                         .all(|limiter| {
@@ -537,10 +537,10 @@ impl NetworkBehaviour for Behaviour {
                 );
 
                 let action = if self.circuits.num_circuits_of_peer(event_source)
-                    > self.config.max_circuits_per_peer
-                    || self.circuits.len() >= self.config.max_circuits
+                    > self.configs.max_circuits_per_peer
+                    || self.circuits.len() >= self.configs.max_circuits
                     || !self
-                        .config
+                        .configs
                         .circuit_src_rate_limiters
                         .iter_mut()
                         .all(|limiter| {

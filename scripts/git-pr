@@ -2,7 +2,7 @@
 # NOA Local Git PR Management Tool
 
 NOA_GIT="$NOA_ROOT/git"
-PR_CONFIG="$NOA_ROOT/config/git-pr-workflow.json"
+PR_configs="$NOA_ROOT/configs/git-pr-workflow.json"
 
 case "$1" in
   create)

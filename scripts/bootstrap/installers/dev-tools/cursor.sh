@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Configure Cursor IDE for NOA integration.
+# configsure Cursor IDE for NOA integration.
 #
-# Detects Cursor installation and configures CLI integration.
+# Detects Cursor installation and configsures CLI integration.
 # Creates wrapper script in NOA bin directory.
 #
 # Usage:
@@ -16,7 +16,7 @@ NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../../.." && pwd)}"
 BIN_DIR="$NOA_ROOT/bin"
 WRAPPER_PATH="$BIN_DIR/cursor"
 
-echo -e "\033[36mConfiguring Cursor IDE integration...\033[0m"
+echo -e "\033[36mconfigsuring Cursor IDE integration...\033[0m"
 
 # Detect OS
 OS="$(uname -s)"
@@ -67,7 +67,7 @@ mkdir -p "$BIN_DIR"
 
 # Check if wrapper already exists
 if [[ -f "$WRAPPER_PATH" ]]; then
-    echo -e "  \033[90m[EXISTS]\033[0m Cursor wrapper already configured"
+    echo -e "  \033[90m[EXISTS]\033[0m Cursor wrapper already configsured"
     exit 0
 fi
 

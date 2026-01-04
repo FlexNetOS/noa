@@ -19,7 +19,7 @@
 - Add connection id to the events emitted by a request-response `Behaviour`.
   See [PR 5719](https://github.com/libp2p/rust-libp2p/pull/5719).
 
-- Allow configurable request and response sizes for `json` and `cbor` codec.
+- Allow configsurable request and response sizes for `json` and `cbor` codec.
   See [PR 5792](https://github.com/libp2p/rust-libp2p/pull/5792).
 
 <!-- Update to libp2p-core v0.43.0 -->
@@ -53,10 +53,10 @@
 
 ## 0.26.0
 
-- Remove `request_response::Config::set_connection_keep_alive` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Remove `request_response::configs::set_connection_keep_alive` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4679](https://github.com/libp2p/rust-libp2p/pull/4679).
 - Allow at most 100 concurrent inbound + outbound streams per instance of `request_response::Behaviour`.
-  This limit is configurable via `Config::with_max_concurrent_streams`.
+  This limit is configsurable via `configs::with_max_concurrent_streams`.
   See [PR 3914](https://github.com/libp2p/rust-libp2p/pull/3914).
 - Report IO failures on inbound and outbound streams.
   See [PR 3914](https://github.com/libp2p/rust-libp2p/pull/3914).
@@ -67,7 +67,7 @@
 
 ## 0.25.2
 
-- Deprecate `request_response::Config::set_connection_keep_alive` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Deprecate `request_response::configs::set_connection_keep_alive` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4029](https://github.com/libp2p/rust-libp2p/pull/4029).
 
 <!-- Internal changes

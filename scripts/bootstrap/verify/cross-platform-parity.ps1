@@ -40,8 +40,8 @@ $SCRIPTS_DIR = Join-Path $NoaRoot "scripts"
 # Script pairs to verify
 $scriptPairs = @(
     @{ PS = "bootstrap/bootstrap.ps1"; SH = "bootstrap/bootstrap.sh"; Name = "Main Bootstrap" },
-    @{ PS = "bootstrap/config/cache-setup.ps1"; SH = "bootstrap/config/cache-setup.sh"; Name = "Cache Setup" },
-    @{ PS = "bootstrap/config/log-setup.ps1"; SH = "bootstrap/config/log-setup.sh"; Name = "Log Setup" },
+    @{ PS = "bootstrap/configs/cache-setup.ps1"; SH = "bootstrap/configs/cache-setup.sh"; Name = "Cache Setup" },
+    @{ PS = "bootstrap/configs/log-setup.ps1"; SH = "bootstrap/configs/log-setup.sh"; Name = "Log Setup" },
     @{ PS = "bootstrap/verify/verify-all.ps1"; SH = "bootstrap/verify/verify-all.sh"; Name = "Verify All" },
     @{ PS = "bootstrap/verify/smoke-test.ps1"; SH = "bootstrap/verify/smoke-test.sh"; Name = "Smoke Test" },
     @{ PS = "setup/check-prereqs.ps1"; SH = "../init/check-prereqs.sh"; Name = "Check Prerequisites" },

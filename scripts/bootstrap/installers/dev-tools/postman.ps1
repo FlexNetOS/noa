@@ -3,7 +3,7 @@
     Detect Postman API client for NOA integration.
 
 .DESCRIPTION
-    Detects Postman installation and creates workspace configuration.
+    Detects Postman installation and creates workspace configsuration.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)

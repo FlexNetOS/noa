@@ -19,7 +19,7 @@ All next steps from the Phase 3 verification report have been successfully compl
 - Added `InitState` struct to track created resources during initialization
 - Implemented `InitService::cleanup()` method in `sys/core/src/services/init_service.rs`
 - Cleanup removes:
-  - Created config files (ai-providers.json, noa-server.json, features.json, models.json)
+  - Created configs files (ai-providers.json, noa-server.json, features.json, models.json)
   - Created database file (noa.db)
   - Empty directories (safe cleanup, only removes if empty)
 

@@ -28,8 +28,8 @@ fi
 
 # Set environment
 export PATH="$NODE_ROOT/bin:$PATH"
-export npm_config_cache="$NPM_CACHE"
-export npm_config_prefix="$NODE_ROOT"
+export npm_configs_cache="$NPM_CACHE"
+export npm_configs_prefix="$NODE_ROOT"
 
 # Tools to install
 NPM_TOOLS=(

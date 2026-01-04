@@ -21,7 +21,7 @@ Cloud-based AI services for complex reasoning and large context windows.
 - **Location:** `$NOA_ROOT/ai/providers/cloud/abacus/`
 - **Provider:** Custom analytical service
 
-## Configuration
+## configsuration
 
 See **[AGENT.md](../../../AGENT.md)** for canonical provider routing and policies.
 

@@ -15,7 +15,7 @@ pub mod grpc;
 pub use daemon::Daemon;
 pub use state::StateManager;
 
-use noa_hive_config::Config;
+use noa_hive_configs::configs;
 use noa_hive_core::PeerId;
 use tokio::sync::mpsc;
 

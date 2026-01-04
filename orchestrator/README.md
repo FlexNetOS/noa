@@ -26,7 +26,7 @@ To get started with the orchestrator, follow these steps:
 ```plaintext
 orchestrator/
 ├── bin/
-├── config/
+├── configs/
 ├── data/
 ├── logs/
 ├── src/

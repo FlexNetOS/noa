@@ -163,8 +163,8 @@ else
     log_info "[3/5] Using existing build directory (if any)"
 fi
 
-# Configure with CMake
-log_info "[4/5] Configuring with CMake..."
+# configsure with CMake
+log_info "[4/5] configsuring with CMake..."
 
 CMAKE_ARGS=(
     "-B" "$BUILD_DIR"
@@ -203,10 +203,10 @@ fi
 
 cd "$LLAMA_DIR"
 if ! cmake "${CMAKE_ARGS[@]}"; then
-    log_error "CMake configuration failed"
+    log_error "CMake configsuration failed"
     exit 1
 fi
-log_ok "Configuration complete"
+log_ok "configsuration complete"
 
 # Build
 log_info "[5/5] Building llama.cpp..."
@@ -222,7 +222,7 @@ else
     JOBS=4
 fi
 
-if ! cmake --build "$BUILD_DIR" --config Release --parallel "$JOBS"; then
+if ! cmake --build "$BUILD_DIR" --configs Release --parallel "$JOBS"; then
     log_error "Build failed"
     exit 1
 fi

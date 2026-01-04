@@ -1,8 +1,8 @@
 //! Daemon implementation for NOA-Hive.
 
-use noa_hive_config::Config;
+use noa_hive_configs::configs;
 use noa_hive_core::PeerId;
-use noa_hive_stack::{HiveSwarm, SwarmConfig};
+use noa_hive_stack::{HiveSwarm, Swarmconfigs};
 use tokio::sync::mpsc;
 use tracing::{info, warn, error};
 
@@ -10,23 +10,23 @@ use crate::{DaemonCommand, DaemonEvent, DaemonHandle, StateManager};
 
 /// The NOA-Hive daemon.
 pub struct Daemon {
-    config: Config,
+    configs: configs,
     peer_id: PeerId,
     state_manager: StateManager,
 }
 
 impl Daemon {
-    /// Create a new daemon with the given configuration.
-    pub fn new(config: Config) -> anyhow::Result<Self> {
+    /// Create a new daemon with the given configsuration.
+    pub fn new(configs: configs) -> anyhow::Result<Self> {
         // Load or generate identity
-        let identity_path = config.storage.data_dir.join(&config.storage.identity_file);
+        let identity_path = configs.storage.data_dir.join(&configs.storage.identity_file);
         let (keypair, peer_id) = noa_hive_stack::load_or_generate_identity(&identity_path)?;
 
         // Initialize state manager
-        let state_manager = StateManager::new(&config)?;
+        let state_manager = StateManager::new(&configs)?;
 
         Ok(Self {
-            config,
+            configs,
             peer_id,
             state_manager,
         })
@@ -43,7 +43,7 @@ impl Daemon {
         let (event_tx, event_rx) = mpsc::channel::<DaemonEvent>(256);
 
         let peer_id = self.peer_id.clone();
-        let config = self.config.clone();
+        let configs = self.configs.clone();
 
         // Spawn the main daemon loop
         tokio::spawn(async move {
@@ -99,34 +99,34 @@ impl Daemon {
     }
 }
 
-/// Builder for configuring the daemon.
+/// Builder for configsuring the daemon.
 pub struct DaemonBuilder {
-    config: Config,
+    configs: configs,
 }
 
 impl DaemonBuilder {
-    /// Create a new daemon builder with default configuration.
+    /// Create a new daemon builder with default configsuration.
     pub fn new() -> Self {
         Self {
-            config: Config::default(),
+            configs: configs::default(),
         }
     }
 
-    /// Use a specific configuration.
-    pub fn with_config(mut self, config: Config) -> Self {
-        self.config = config;
+    /// Use a specific configsuration.
+    pub fn with_configs(mut self, configs: configs) -> Self {
+        self.configs = configs;
         self
     }
 
-    /// Load configuration from a file.
-    pub fn with_config_file(mut self, path: &std::path::Path) -> anyhow::Result<Self> {
-        self.config = Config::load(path)?;
+    /// Load configsuration from a file.
+    pub fn with_configs_file(mut self, path: &std::path::Path) -> anyhow::Result<Self> {
+        self.configs = configs::load(path)?;
         Ok(self)
     }
 
     /// Build the daemon.
     pub fn build(self) -> anyhow::Result<Daemon> {
-        Daemon::new(self.config)
+        Daemon::new(self.configs)
     }
 }
 

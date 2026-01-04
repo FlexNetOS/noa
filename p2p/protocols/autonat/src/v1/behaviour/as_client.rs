@@ -34,7 +34,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use web_time::Instant;
 
 use super::{
-    Action, AutoNatCodec, Config, DialRequest, DialResponse, Event, HandleInnerEvent, NatStatus,
+    Action, AutoNatCodec, configs, DialRequest, DialResponse, Event, HandleInnerEvent, NatStatus,
     ProbeId,
 };
 use crate::ResponseError;
@@ -43,7 +43,7 @@ use crate::ResponseError;
 #[derive(Debug)]
 pub enum OutboundProbeError {
     /// Probe was aborted because no server is known, or all servers
-    /// are throttled through [`Config::throttle_server_period`].
+    /// are throttled through [`configs::throttle_server_period`].
     NoServer,
     ///  Probe was aborted because the local peer has no listening or
     /// external addresses.
@@ -85,7 +85,7 @@ pub enum OutboundProbeEvent {
 pub(crate) struct AsClient<'a> {
     pub(crate) inner: &'a mut request_response::Behaviour<AutoNatCodec>,
     pub(crate) local_peer_id: PeerId,
-    pub(crate) config: &'a Config,
+    pub(crate) configs: &'a configs,
     pub(crate) connected: &'a HashMap<PeerId, HashMap<ConnectionId, Option<Multiaddr>>>,
     pub(crate) probe_id: &'a mut ProbeId,
     pub(crate) servers: &'a HashSet<PeerId>,
@@ -186,7 +186,7 @@ impl AsClient<'_> {
     pub(crate) fn poll_auto_probe(&mut self, cx: &mut Context<'_>) -> Poll<OutboundProbeEvent> {
         match self.schedule_probe.poll_unpin(cx) {
             Poll::Ready(()) => {
-                self.schedule_probe.reset(self.config.retry_interval);
+                self.schedule_probe.reset(self.configs.retry_interval);
 
                 let addresses = self
                     .other_candidates
@@ -215,11 +215,11 @@ impl AsClient<'_> {
 
     // An inbound connection can indicate that we are public; adjust the delay to the next probe.
     pub(crate) fn on_inbound_connection(&mut self) {
-        if *self.confidence == self.config.confidence_max {
+        if *self.confidence == self.configs.confidence_max {
             if self.nat_status.is_public() {
-                self.schedule_next_probe(self.config.refresh_interval * 2);
+                self.schedule_next_probe(self.configs.refresh_interval * 2);
             } else {
-                self.schedule_next_probe(self.config.refresh_interval / 5);
+                self.schedule_next_probe(self.configs.refresh_interval / 5);
             }
         }
     }
@@ -230,7 +230,7 @@ impl AsClient<'_> {
             if *self.confidence > 0 {
                 *self.confidence -= 1;
             }
-            self.schedule_next_probe(self.config.retry_interval);
+            self.schedule_next_probe(self.configs.retry_interval);
         }
     }
 
@@ -248,17 +248,17 @@ impl AsClient<'_> {
     fn random_server(&mut self) -> Option<PeerId> {
         // Update list of throttled servers.
         let i = self.throttled_servers.partition_point(|(_, time)| {
-            *time + self.config.throttle_server_period < Instant::now()
+            *time + self.configs.throttle_server_period < Instant::now()
         });
         self.throttled_servers.drain(..i);
 
         let mut servers: Vec<&PeerId> = self.servers.iter().collect();
 
-        if self.config.use_connected {
+        if self.configs.use_connected {
             servers.extend(self.connected.iter().filter_map(|(id, addrs)| {
                 // Filter servers for which no qualified address is known.
                 // This is the case if the connection is relayed or the address is
-                // not global (in case of Config::only_global_ips).
+                // not global (in case of configs::only_global_ips).
                 addrs.values().any(|a| a.is_some()).then_some(id)
             }));
         }
@@ -311,19 +311,19 @@ impl AsClient<'_> {
     // Adapt current confidence and NAT status to the status reported by the latest probe.
     // Return the old status if it flipped.
     fn handle_reported_status(&mut self, reported_status: NatStatus) -> Option<NatStatus> {
-        self.schedule_next_probe(self.config.retry_interval);
+        self.schedule_next_probe(self.configs.retry_interval);
 
         if matches!(reported_status, NatStatus::Unknown) {
             return None;
         }
 
         if reported_status == *self.nat_status {
-            if *self.confidence < self.config.confidence_max {
+            if *self.confidence < self.configs.confidence_max {
                 *self.confidence += 1;
             }
             // Delay with (usually longer) refresh-interval.
-            if *self.confidence >= self.config.confidence_max {
-                self.schedule_next_probe(self.config.refresh_interval);
+            if *self.confidence >= self.configs.confidence_max {
+                self.schedule_next_probe(self.configs.refresh_interval);
             }
             return None;
         }

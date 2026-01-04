@@ -68,7 +68,7 @@ Phase 0 (Unified Bootstrap) has been verified against the quality checklist in `
 
 ### Evidence 7: State Management
 - **Location**: `scripts/bootstrap/lib/state.ps1` and `lib/state.sh`
-- **Storage**: `config/bootstrap-state.json`
+- **Storage**: `configs/bootstrap-state.json`
 - **Features**: Tool state, toolchain state, provider state tracking
 - **Hash**: See `phase0-hashes.txt`
 
@@ -143,8 +143,8 @@ None identified.
    - **Priority**: High
 
 2. **Schema Validation Not Implemented**
-   - **Issue**: JSON configs not validated against schemas
-   - **Impact**: Invalid configs may cause runtime errors
+   - **Issue**: JSON configss not validated against schemas
+   - **Impact**: Invalid configss may cause runtime errors
    - **Fix**: Use `lib/schema.ps1` and `lib/schema.sh` in bootstrap
    - **Priority**: Medium
 
@@ -202,7 +202,7 @@ None identified.
 
 ### Short-Term (Next Sprint)
 1. Refactor installer scripts to use `Get-NoaDownload` / `noa_download`
-2. Implement schema validation for JSON configs
+2. Implement schema validation for JSON configss
 3. Complete test suite execution
 4. Standardize exit codes across all scripts
 

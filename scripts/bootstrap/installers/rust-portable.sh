@@ -21,7 +21,7 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")"
 source "$SCRIPT_DIR/../lib/logging.sh" 2>/dev/null || true
 source "$SCRIPT_DIR/../lib/platform.sh" 2>/dev/null || true
 
-# Configuration
+# configsuration
 TOOLCHAIN="${TOOLCHAIN:-stable}"
 FORCE="${1:-}"
 

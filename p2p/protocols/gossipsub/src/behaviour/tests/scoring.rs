@@ -37,7 +37,7 @@ use super::{
 };
 use crate::{
     behaviour::{ConnectionEstablished, PortUse},
-    config::{Config, ConfigBuilder},
+    configs::{configs, configsBuilder},
     error::ValidationError,
     handler::HandlerEvent,
     peer_score::{PeerScoreParams, PeerScoreThresholds, TopicScoreParams},
@@ -52,14 +52,14 @@ use crate::{
 
 #[test]
 fn test_prune_negative_scored_peers() {
-    let config = Config::default();
+    let configs = configs::default();
 
     // build mesh with one peer
     let (mut gs, peers, queues, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((
@@ -89,7 +89,7 @@ fn test_prune_negative_scored_peers() {
                     topic_hash == &topics[0] &&
                     //no px in this case
                     peers.is_empty() &&
-                    backoff.unwrap() == config.prune_backoff().as_secs()
+                    backoff.unwrap() == configs.prune_backoff().as_secs()
                 }
                 _ => false,
             }
@@ -99,13 +99,13 @@ fn test_prune_negative_scored_peers() {
 
 #[test]
 fn test_dont_graft_to_negative_scored_peers() {
-    let config = Config::default();
+    let configs = configs::default();
     // init full mesh
     let (mut gs, peers, _, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .scoring(Some((
             PeerScoreParams::default(),
             PeerScoreThresholds::default(),
@@ -137,14 +137,14 @@ fn test_dont_graft_to_negative_scored_peers() {
 /// peers should get ignored, therefore we test it here.
 #[test]
 fn test_ignore_px_from_negative_scored_peer() {
-    let config = Config::default();
+    let configs = configs::default();
 
     // build mesh with one peer
     let (mut gs, peers, _, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .scoring(Some((
             PeerScoreParams::default(),
             PeerScoreThresholds::default(),
@@ -164,7 +164,7 @@ fn test_ignore_px_from_negative_scored_peer() {
         vec![(
             topics[0].clone(),
             px,
-            Some(config.prune_backoff().as_secs()),
+            Some(configs.prune_backoff().as_secs()),
         )],
     );
 
@@ -180,7 +180,7 @@ fn test_ignore_px_from_negative_scored_peer() {
 
 #[test]
 fn test_only_send_nonnegative_scoring_peers_in_px() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .prune_peers(16)
         .do_px()
         .build()
@@ -191,7 +191,7 @@ fn test_only_send_nonnegative_scoring_peers_in_px() {
         .peer_no(3)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((
@@ -233,7 +233,7 @@ fn test_only_send_nonnegative_scoring_peers_in_px() {
 
 #[test]
 fn test_do_not_gossip_to_peers_below_gossip_threshold() {
-    let config = Config::default();
+    let configs = configs::default();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         gossip_threshold: 3.0 * peer_score_params.behaviour_penalty_weight,
@@ -242,10 +242,10 @@ fn test_do_not_gossip_to_peers_below_gossip_threshold() {
 
     // Build full mesh
     let (mut gs, peers, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
         .create_network();
 
@@ -283,7 +283,7 @@ fn test_do_not_gossip_to_peers_below_gossip_threshold() {
     // Transform the inbound message
     let message = &gs.data_transform.inbound_transform(raw_message).unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
     // Emit gossip
     gs.emit_gossip();
@@ -308,7 +308,7 @@ fn test_do_not_gossip_to_peers_below_gossip_threshold() {
 
 #[test]
 fn test_iwant_msg_from_peer_below_gossip_threshold_gets_ignored() {
-    let config = Config::default();
+    let configs = configs::default();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         gossip_threshold: 3.0 * peer_score_params.behaviour_penalty_weight,
@@ -317,10 +317,10 @@ fn test_iwant_msg_from_peer_below_gossip_threshold_gets_ignored() {
 
     // Build full mesh
     let (mut gs, peers, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -360,7 +360,7 @@ fn test_iwant_msg_from_peer_below_gossip_threshold_gets_ignored() {
     // Transform the inbound message
     let message = &gs.data_transform.inbound_transform(raw_message).unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
     gs.handle_iwant(&p1, vec![msg_id.clone()]);
     gs.handle_iwant(&p2, vec![msg_id.clone()]);
@@ -385,7 +385,7 @@ fn test_iwant_msg_from_peer_below_gossip_threshold_gets_ignored() {
             peer_id,
             gs.data_transform.inbound_transform(msg.clone()).unwrap()
         ))
-        .any(|(peer_id, msg)| peer_id == &p2 && gs.config.message_id(&msg) == msg_id));
+        .any(|(peer_id, msg)| peer_id == &p2 && gs.configs.message_id(&msg) == msg_id));
     // the message got not sent to p1
     assert!(sent_messages
         .iter()
@@ -393,12 +393,12 @@ fn test_iwant_msg_from_peer_below_gossip_threshold_gets_ignored() {
             peer_id,
             gs.data_transform.inbound_transform(msg.clone()).unwrap()
         ))
-        .all(|(peer_id, msg)| !(peer_id == &p1 && gs.config.message_id(&msg) == msg_id)));
+        .all(|(peer_id, msg)| !(peer_id == &p1 && gs.configs.message_id(&msg) == msg_id)));
 }
 
 #[test]
 fn test_ihave_msg_from_peer_below_gossip_threshold_gets_ignored() {
-    let config = Config::default();
+    let configs = configs::default();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         gossip_threshold: 3.0 * peer_score_params.behaviour_penalty_weight,
@@ -406,10 +406,10 @@ fn test_ihave_msg_from_peer_below_gossip_threshold_gets_ignored() {
     };
     // build full mesh
     let (mut gs, peers, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_high())
+        .peer_no(configs.mesh_n_high())
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -448,7 +448,7 @@ fn test_ihave_msg_from_peer_below_gossip_threshold_gets_ignored() {
     // Transform the inbound message
     let message = &gs.data_transform.inbound_transform(raw_message).unwrap();
 
-    let msg_id = gs.config.message_id(message);
+    let msg_id = gs.configs.message_id(message);
 
     gs.handle_ihave(&p1, vec![(topics[0].clone(), vec![msg_id.clone()])]);
     gs.handle_ihave(&p2, vec![(topics[0].clone(), vec![msg_id.clone()])]);
@@ -470,7 +470,7 @@ fn test_ihave_msg_from_peer_below_gossip_threshold_gets_ignored() {
 
 #[test]
 fn test_do_not_publish_to_peer_below_publish_threshold() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
         .build()
         .unwrap();
@@ -483,7 +483,7 @@ fn test_do_not_publish_to_peer_below_publish_threshold() {
 
     // build mesh with no peers and no subscribed topics
     let (mut gs, _, mut queues, _) = DefaultBehaviourTestBuilder::default()
-        .gs_config(config)
+        .gs_configs(configs)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
         .create_network();
 
@@ -532,7 +532,7 @@ fn test_do_not_publish_to_peer_below_publish_threshold() {
 
 #[test]
 fn test_do_not_flood_publish_to_peer_below_publish_threshold() {
-    let config = Config::default();
+    let configs = configs::default();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         gossip_threshold: 0.5 * peer_score_params.behaviour_penalty_weight,
@@ -542,7 +542,7 @@ fn test_do_not_flood_publish_to_peer_below_publish_threshold() {
     // build mesh with no peers
     let (mut gs, _, mut queues, topics) = DefaultBehaviourTestBuilder::default()
         .topics(vec!["test".into()])
-        .gs_config(config)
+        .gs_configs(configs)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
         .create_network();
 
@@ -587,7 +587,7 @@ fn test_do_not_flood_publish_to_peer_below_publish_threshold() {
 
 #[test]
 fn test_ignore_rpc_from_peers_below_graylist_threshold() {
-    let config = Config::default();
+    let configs = configs::default();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         gossip_threshold: 0.5 * peer_score_params.behaviour_penalty_weight,
@@ -599,7 +599,7 @@ fn test_ignore_rpc_from_peers_below_graylist_threshold() {
     // build mesh with no peers
     let (mut gs, _, _, topics) = DefaultBehaviourTestBuilder::default()
         .topics(vec!["test".into()])
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .scoring(Some((peer_score_params, peer_score_thresholds)))
         .create_network();
 
@@ -668,7 +668,7 @@ fn test_ignore_rpc_from_peers_below_graylist_threshold() {
 
     let control_action = ControlAction::IHave(IHave {
         topic_hash: topics[0].clone(),
-        message_ids: vec![config.message_id(message2)],
+        message_ids: vec![configs.message_id(message2)],
     });
 
     // clear events
@@ -697,7 +697,7 @@ fn test_ignore_rpc_from_peers_below_graylist_threshold() {
 
     let control_action = ControlAction::IHave(IHave {
         topic_hash: topics[0].clone(),
-        message_ids: vec![config.message_id(message4)],
+        message_ids: vec![configs.message_id(message4)],
     });
 
     // receive from p2
@@ -720,7 +720,7 @@ fn test_ignore_rpc_from_peers_below_graylist_threshold() {
 
 #[test]
 fn test_ignore_px_from_peers_below_accept_px_threshold() {
-    let config = ConfigBuilder::default().prune_peers(16).build().unwrap();
+    let configs = configsBuilder::default().prune_peers(16).build().unwrap();
     let peer_score_params = PeerScoreParams::default();
     let peer_score_thresholds = PeerScoreThresholds {
         accept_px_threshold: peer_score_params.app_specific_weight,
@@ -731,7 +731,7 @@ fn test_ignore_px_from_peers_below_accept_px_threshold() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .scoring(Some((peer_score_params, peer_score_thresholds)))
         .create_network();
 
@@ -750,7 +750,7 @@ fn test_ignore_px_from_peers_below_accept_px_threshold() {
         vec![(
             topics[0].clone(),
             px,
-            Some(config.prune_backoff().as_secs()),
+            Some(configs.prune_backoff().as_secs()),
         )],
     );
 
@@ -772,7 +772,7 @@ fn test_ignore_px_from_peers_below_accept_px_threshold() {
         vec![(
             topics[0].clone(),
             px,
-            Some(config.prune_backoff().as_secs()),
+            Some(configs.prune_backoff().as_secs()),
         )],
     );
 
@@ -788,7 +788,7 @@ fn test_ignore_px_from_peers_below_accept_px_threshold() {
 
 #[test]
 fn test_keep_best_scoring_peers_on_oversubscription() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .mesh_n_low(15)
         .mesh_n(30)
         .mesh_n_high(60)
@@ -796,13 +796,13 @@ fn test_keep_best_scoring_peers_on_oversubscription() {
         .build()
         .unwrap();
 
-    let mesh_n_high = config.mesh_n_high();
+    let mesh_n_high = configs.mesh_n_high();
 
     let (mut gs, peers, _queues, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(mesh_n_high)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .scoring(Some((
             PeerScoreParams::default(),
@@ -826,11 +826,11 @@ fn test_keep_best_scoring_peers_on_oversubscription() {
     // heartbeat to prune some peers
     gs.heartbeat();
 
-    assert_eq!(gs.mesh[&topics[0]].len(), config.mesh_n());
+    assert_eq!(gs.mesh[&topics[0]].len(), configs.mesh_n());
 
     // mesh contains retain_scores best peers
     assert!(gs.mesh[&topics[0]].is_superset(
-        &peers[(mesh_n_high - config.retain_scores())..]
+        &peers[(mesh_n_high - configs.retain_scores())..]
             .iter()
             .cloned()
             .collect()
@@ -839,7 +839,7 @@ fn test_keep_best_scoring_peers_on_oversubscription() {
 
 #[test]
 fn test_scoring_p1() {
-    let config = Config::default();
+    let configs = configs::default();
     let mut peer_score_params = PeerScoreParams::default();
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
@@ -860,7 +860,7 @@ fn test_scoring_p1() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -906,7 +906,7 @@ fn test_scoring_p1() {
 
 #[test]
 fn test_scoring_p2() {
-    let config = Config::default();
+    let configs = configs::default();
     let mut peer_score_params = PeerScoreParams::default();
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
@@ -928,7 +928,7 @@ fn test_scoring_p2() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1004,7 +1004,7 @@ fn test_scoring_p2() {
 
 #[test]
 fn test_scoring_p3() {
-    let config = Config::default();
+    let configs = configs::default();
     let mut peer_score_params = PeerScoreParams::default();
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
@@ -1028,7 +1028,7 @@ fn test_scoring_p3() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1099,7 +1099,7 @@ fn test_scoring_p3() {
 
 #[test]
 fn test_scoring_p3b() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .prune_backoff(Duration::from_millis(100))
         .build()
         .unwrap();
@@ -1129,7 +1129,7 @@ fn test_scoring_p3b() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1192,7 +1192,7 @@ fn test_scoring_p3b() {
 
 #[test]
 fn test_scoring_p4_valid_message() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1222,7 +1222,7 @@ fn test_scoring_p4_valid_message() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1244,7 +1244,7 @@ fn test_scoring_p4_valid_message() {
 
     // message m1 gets validated
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Accept,
     );
@@ -1254,7 +1254,7 @@ fn test_scoring_p4_valid_message() {
 
 #[test]
 fn test_scoring_p4_invalid_signature() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1284,7 +1284,7 @@ fn test_scoring_p4_invalid_signature() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1316,7 +1316,7 @@ fn test_scoring_p4_invalid_signature() {
 
 #[test]
 fn test_scoring_p4_message_from_self() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1346,7 +1346,7 @@ fn test_scoring_p4_message_from_self() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1359,7 +1359,7 @@ fn test_scoring_p4_message_from_self() {
 
     // peer 0 delivers invalid message from self
     let mut m = random_message(&mut seq, &topics);
-    m.source = Some(*gs.publish_config.get_own_id().unwrap());
+    m.source = Some(*gs.publish_configs.get_own_id().unwrap());
 
     deliver_message(&mut gs, 0, m);
     assert_eq!(
@@ -1370,7 +1370,7 @@ fn test_scoring_p4_message_from_self() {
 
 #[test]
 fn test_scoring_p4_ignored_message() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1400,7 +1400,7 @@ fn test_scoring_p4_ignored_message() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1422,7 +1422,7 @@ fn test_scoring_p4_ignored_message() {
 
     // message m1 gets ignored
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Ignore,
     );
@@ -1432,7 +1432,7 @@ fn test_scoring_p4_ignored_message() {
 
 #[test]
 fn test_scoring_p4_application_invalidated_message() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1462,7 +1462,7 @@ fn test_scoring_p4_application_invalidated_message() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1484,7 +1484,7 @@ fn test_scoring_p4_application_invalidated_message() {
 
     // message m1 gets rejected
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Reject,
     );
@@ -1497,7 +1497,7 @@ fn test_scoring_p4_application_invalidated_message() {
 
 #[test]
 fn test_scoring_p4_application_invalid_message_from_two_peers() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1527,7 +1527,7 @@ fn test_scoring_p4_application_invalid_message_from_two_peers() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1553,7 +1553,7 @@ fn test_scoring_p4_application_invalid_message_from_two_peers() {
 
     // message m1 gets rejected
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Reject,
     );
@@ -1570,7 +1570,7 @@ fn test_scoring_p4_application_invalid_message_from_two_peers() {
 
 #[test]
 fn test_scoring_p4_three_application_invalid_messages() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1600,7 +1600,7 @@ fn test_scoring_p4_three_application_invalid_messages() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1631,19 +1631,19 @@ fn test_scoring_p4_three_application_invalid_messages() {
 
     // messages gets rejected
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Reject,
     );
 
     gs.report_message_validation_result(
-        &config.message_id(message2),
+        &configs.message_id(message2),
         &peers[0],
         MessageAcceptance::Reject,
     );
 
     gs.report_message_validation_result(
-        &config.message_id(message3),
+        &configs.message_id(message3),
         &peers[0],
         MessageAcceptance::Reject,
     );
@@ -1657,7 +1657,7 @@ fn test_scoring_p4_three_application_invalid_messages() {
 
 #[test]
 fn test_scoring_p4_decay() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .validate_messages()
         .build()
         .unwrap();
@@ -1687,7 +1687,7 @@ fn test_scoring_p4_decay() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, peer_score_thresholds)))
@@ -1708,7 +1708,7 @@ fn test_scoring_p4_decay() {
 
     // message m1 gets rejected
     gs.report_message_validation_result(
-        &config.message_id(message1),
+        &configs.message_id(message1),
         &peers[0],
         MessageAcceptance::Reject,
     );
@@ -1740,7 +1740,7 @@ fn test_scoring_p5() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, PeerScoreThresholds::default())))
@@ -1766,7 +1766,7 @@ fn test_scoring_p6() {
         .peer_no(0)
         .topics(vec![])
         .to_subscribe(false)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, PeerScoreThresholds::default())))
@@ -1884,7 +1884,7 @@ fn test_scoring_p6() {
 
 #[test]
 fn test_scoring_p7_grafts_before_backoff() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .prune_backoff(Duration::from_millis(200))
         .graft_flood_threshold(Duration::from_millis(100))
         .build()
@@ -1899,7 +1899,7 @@ fn test_scoring_p7_grafts_before_backoff() {
         .peer_no(2)
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, PeerScoreThresholds::default())))
@@ -1954,7 +1954,7 @@ fn test_scoring_p7_grafts_before_backoff() {
 
 #[test]
 fn test_opportunistic_grafting() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .mesh_n_low(3)
         .mesh_n(5)
         .mesh_n_high(7)
@@ -1976,7 +1976,7 @@ fn test_opportunistic_grafting() {
         .peer_no(5)
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config)
+        .gs_configs(configs)
         .explicit(0)
         .outbound(0)
         .scoring(Some((peer_score_params, thresholds)))

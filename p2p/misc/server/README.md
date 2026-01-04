@@ -15,10 +15,10 @@ cargo run -- --help
 
 A rust-libp2p server binary.
 
-Usage: libp2p-server [OPTIONS] --config <CONFIG>
+Usage: libp2p-server [OPTIONS] --configs <configs>
 
 Options:
-      --config <CONFIG>              Path to IPFS config file
+      --configs <configs>              Path to IPFS configs file
       --metrics-path <METRICS_PATH>  Metric endpoint path [default: /metrics]
       --enable-kademlia              Whether to run the libp2p Kademlia protocol and join the IPFS DHT
       --enable-autonat               Whether to run the libp2p Autonat protocol
@@ -26,7 +26,7 @@ Options:
 ```
 
 ```
-cargo run -- --config ~/.ipfs/config
+cargo run -- --configs ~/.ipfs/configs
 
 Local peer id: PeerId("12D3KooWSa1YEeQVSwvoqAMhwjKQ6kqZQckhWPb3RWEGV3sZGU6Z")
 Listening on "/ip4/127.0.0.1/udp/4001/quic"

@@ -18,8 +18,8 @@
   See `yamux` crate version `v0.12.1` and [Yamux PR #177](https://github.com/libp2p/rust-yamux/pull/177).
 - `yamux` `v0.13` enables auto-tuning for the Yamux stream receive window.
   While preserving small buffers on low-latency and/or low-bandwidth connections, this change allows for high-latency and/or high-bandwidth connections to exhaust the available bandwidth on a single stream.
-  Have `libp2p-yamux` use `yamux` `v0.13` (new version) by default and fall back to `yamux` `v0.12` (old version) when setting any configuration options.
-  Thus default users benefit from the increased performance, while power users with custom configurations maintain the old behavior.
+  Have `libp2p-yamux` use `yamux` `v0.13` (new version) by default and fall back to `yamux` `v0.12` (old version) when setting any configsuration options.
+  Thus default users benefit from the increased performance, while power users with custom configsurations maintain the old behavior.
   `libp2p-yamux` will switch over to `yamux` `v0.13` entirely with the next breaking release.
   See [PR 4970](https://github.com/libp2p/rust-libp2p/pull/4970).
 
@@ -44,7 +44,7 @@
 - Remove deprecated items.
   See [PR 3897].
 
-- Remove `Incoming`, `LocalIncoming` and `LocalConfig` as well as anything from the underlying `yamux` crate from the public API.
+- Remove `Incoming`, `LocalIncoming` and `Localconfigs` as well as anything from the underlying `yamux` crate from the public API.
   See [PR 3908].
 
 [PR 3715]: https://github.com/libp2p/rust-libp2p/pull/3715
@@ -54,7 +54,7 @@
 ## 0.43.1
 
 - Drop `Yamux` prefix from all types.
-  Users are encouraged to import the `yamux` module and refer to types via `yamux::Muxer`, `yamux::Config` etc.
+  Users are encouraged to import the `yamux` module and refer to types via `yamux::Muxer`, `yamux::configs` etc.
   See [PR 3852].
 
 [PR 3852]: https://github.com/libp2p/rust-libp2p/pull/3852
@@ -169,7 +169,7 @@
 
 ## 0.27.0 [2020-11-09]
 
-- Tweak the naming in the `MplexConfig` API for better
+- Tweak the naming in the `Mplexconfigs` API for better
   consistency with `libp2p-mplex`.
   [PR 1822](https://github.com/libp2p/rust-libp2p/pull/1822).
 
@@ -182,9 +182,9 @@
 ## 0.25.0 [2020-09-09]
 
 - Update to `yamux-0.8.0`. Upgrade step 4 of 4. This version always implements
-  the additive meaning w.r.t. initial window updates. The configuration option
+  the additive meaning w.r.t. initial window updates. The configsuration option
   `lazy_open` is removed. Yamux will automatically send an initial window update
-  if the receive window is configured to be larger than the default.
+  if the receive window is configsured to be larger than the default.
 
 ## 0.24.0 [2020-09-09]
 
@@ -207,9 +207,9 @@
   will also set the flag. Version `0.24.0` will still set the flag but will always
   implement the new meaning, and (finally) version `0.25.0` will no longer set the
   flag and always use the additive semantics. If current code uses the default
-  Yamux configuration, all upgrades need to be performed in order because each
+  Yamux configsuration, all upgrades need to be performed in order because each
   version is only compatible with its immediate predecessor. Alternatively, if the
-  default configuration is deployed with `lazy_open` set to `true`, one can
+  default configsuration is deployed with `lazy_open` set to `true`, one can
   directly upgrade from version `0.21.0` to `0.25.0` without any intermediate
   upgrades.
 

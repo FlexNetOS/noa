@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../config/schemas/capsule.schema.json",
+  "$schema": "../../../configs/schemas/capsule.schema.json",
   "name": "code-agent",
   "version": "1.0.0",
   "description": "Capsule for code generation agents",
@@ -44,7 +44,7 @@
       "/noa/tmp/agent-output"
     ],
     "blockedPaths": [
-      "/noa/config",
+      "/noa/configs",
       "/noa/secrets",
       "/noa/bin"
     ]

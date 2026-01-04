@@ -68,7 +68,7 @@ echo ""
 # Test 1: Resource Registry
 echo "=== Test Group: Resource Registry ==="
 
-run_test "Registry config is valid JSON" \
+run_test "Registry configs is valid JSON" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/data/resources/registry.json' 'true' 2>&1"
 
 run_test "Registry has required sections" \
@@ -89,7 +89,7 @@ run_test "claude_code_agent template exists" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/data/resources/registry.json' '\"claude_code_agent\" in data.agent_templates' 2>&1"
 
 run_test "All templates have required fields" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/data/resources/registry.json' 'Object.values(data.agent_templates).every(tmpl => [\"id\", \"name\", \"version\", \"provider\", \"capabilities\", \"configuration\"].every(k => k in tmpl))' 2>&1"
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/data/resources/registry.json' 'Object.values(data.agent_templates).every(tmpl => [\"id\", \"name\", \"version\", \"provider\", \"capabilities\", \"configsuration\"].every(k => k in tmpl))' 2>&1"
 
 run_test "All template IDs start with tmpl:" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/data/resources/registry.json' 'Object.values(data.agent_templates).every(tmpl => tmpl.id.startsWith(\"tmpl:\"))' 2>&1"

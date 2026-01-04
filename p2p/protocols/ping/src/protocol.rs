@@ -29,7 +29,7 @@ pub const PROTOCOL_NAME: StreamProtocol = StreamProtocol::new("/ipfs/ping/1.0.0"
 
 /// The `Ping` protocol upgrade.
 ///
-/// The ping protocol sends 32 bytes of random data in configurable
+/// The ping protocol sends 32 bytes of random data in configsurable
 /// intervals over a single outbound substream, expecting to receive
 /// the same bytes as a response. At the same time, incoming pings
 /// on inbound substreams are answered by sending back the received bytes.
@@ -42,7 +42,7 @@ pub const PROTOCOL_NAME: StreamProtocol = StreamProtocol::new("/ipfs/ping/1.0.0"
 ///
 /// > **Note**: The round-trip time of a ping may be subject to delays induced
 /// > by the underlying transport, e.g. in the case of TCP there is
-/// > Nagle's algorithm, delayed acks and similar configuration options
+/// > Nagle's algorithm, delayed acks and similar configsuration options
 /// > which can affect latencies especially on otherwise low-volume
 /// > connections.
 const PING_SIZE: usize = 32;

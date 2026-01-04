@@ -19,13 +19,13 @@ Required content:
 - dependencies
 - SLO/SLA pointers
 - dashboards/alerts
-- “where the truth lives” links
+- ï¿½where the truth livesï¿½ links
 
 ### Pages (Knowledge)
 Pages are **granular, composable knowledge blocks**.
 
 Allowed content:
-- design docs, diagrams, vendor notes, config examples
+- design docs, diagrams, vendor notes, configs examples
 - known gotchas
 - rationale / ADRs
 

@@ -26,22 +26,22 @@ use libp2p_core::Multiaddr;
 
 use super::{add_peer_with_addr_and_kind, count_control_msgs, DefaultBehaviourTestBuilder};
 use crate::{
-    config::ConfigBuilder,
+    configs::configsBuilder,
     types::{PeerKind, Prune, RpcOut},
     IdentTopic as Topic,
 };
 
 #[test]
 fn test_publish_to_floodsub_peers_without_flood_publish() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
         .build()
         .unwrap();
     let (mut gs, _, mut queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_low() - 1)
+        .peer_no(configs.mesh_n_low() - 1)
         .topics(vec!["test".into()])
         .to_subscribe(false)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     // add two floodsub peer, one explicit, one implicit
@@ -88,15 +88,15 @@ fn test_publish_to_floodsub_peers_without_flood_publish() {
 
 #[test]
 fn test_do_not_use_floodsub_in_fanout() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
         .build()
         .unwrap();
     let (mut gs, _, mut queues, _) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_low() - 1)
+        .peer_no(configs.mesh_n_low() - 1)
         .topics(Vec::new())
         .to_subscribe(false)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let topic = Topic::new("test");

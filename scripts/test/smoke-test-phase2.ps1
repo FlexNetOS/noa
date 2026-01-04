@@ -45,12 +45,12 @@ Test-Check "data/knowledge directory exists" { Test-Path "$NOA_ROOT/data/knowled
 Test-Check "data/embeddings directory exists" { Test-Path "$NOA_ROOT/data/embeddings" -PathType Container }
 Test-Check "data/artifacts directory exists" { Test-Path "$NOA_ROOT/data/artifacts" -PathType Container }
 
-# T018b-T018f: Storage configs
+# T018b-T018f: Storage configss
 Test-Check "registry.yaml exists" { Test-Path "$NOA_ROOT/containers/oci/registry.yaml" -PathType Leaf }
-Test-Check "minio.yaml exists" { Test-Path "$NOA_ROOT/config/minio.yaml" -PathType Leaf }
-Test-Check "database.yaml exists" { Test-Path "$NOA_ROOT/config/database.yaml" -PathType Leaf }
-Test-Check "qdrant.yaml exists" { Test-Path "$NOA_ROOT/config/qdrant.yaml" -PathType Leaf }
-Test-Check "quickwit.yaml exists" { Test-Path "$NOA_ROOT/config/quickwit.yaml" -PathType Leaf }
+Test-Check "minio.yaml exists" { Test-Path "$NOA_ROOT/configs/minio.yaml" -PathType Leaf }
+Test-Check "database.yaml exists" { Test-Path "$NOA_ROOT/configs/database.yaml" -PathType Leaf }
+Test-Check "qdrant.yaml exists" { Test-Path "$NOA_ROOT/configs/qdrant.yaml" -PathType Leaf }
+Test-Check "quickwit.yaml exists" { Test-Path "$NOA_ROOT/configs/quickwit.yaml" -PathType Leaf }
 
 Write-Host ""
 Write-Host "Testing database schema files (T018g-T037)..."
@@ -80,26 +80,26 @@ Write-Host ""
 Test-Check "csv_export.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/export/csv_export.rs" -PathType Leaf }
 
 # CSV schemas
-Test-Check "agent_directory.yaml exists" { Test-Path "$NOA_ROOT/config/schemas/csv/agent_directory.yaml" -PathType Leaf }
-Test-Check "task_tables.yaml exists" { Test-Path "$NOA_ROOT/config/schemas/csv/task_tables.yaml" -PathType Leaf }
-Test-Check "claims_evidence.yaml exists" { Test-Path "$NOA_ROOT/config/schemas/csv/claims_evidence.yaml" -PathType Leaf }
-Test-Check "metrics_traces.yaml exists" { Test-Path "$NOA_ROOT/config/schemas/csv/metrics_traces.yaml" -PathType Leaf }
+Test-Check "agent_directory.yaml exists" { Test-Path "$NOA_ROOT/configs/schemas/csv/agent_directory.yaml" -PathType Leaf }
+Test-Check "task_tables.yaml exists" { Test-Path "$NOA_ROOT/configs/schemas/csv/task_tables.yaml" -PathType Leaf }
+Test-Check "claims_evidence.yaml exists" { Test-Path "$NOA_ROOT/configs/schemas/csv/claims_evidence.yaml" -PathType Leaf }
+Test-Check "metrics_traces.yaml exists" { Test-Path "$NOA_ROOT/configs/schemas/csv/metrics_traces.yaml" -PathType Leaf }
 
 Write-Host ""
-Write-Host "Testing configuration standards (T046-T049)..."
+Write-Host "Testing configsuration standards (T046-T049)..."
 Write-Host ""
 
-Test-Check "config_schema.json exists" { Test-Path "$NOA_ROOT/config/schemas/config_schema.json" -PathType Leaf }
-Test-Check "validator.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/config/validator.rs" -PathType Leaf }
-Test-Check "lineage.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/config/lineage.rs" -PathType Leaf }
-Test-Check "config templates directory exists" { Test-Path "$NOA_ROOT/config/templates" -PathType Container }
+Test-Check "configs_schema.json exists" { Test-Path "$NOA_ROOT/configs/schemas/configs_schema.json" -PathType Leaf }
+Test-Check "validator.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/configs/validator.rs" -PathType Leaf }
+Test-Check "lineage.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/configs/lineage.rs" -PathType Leaf }
+Test-Check "configs templates directory exists" { Test-Path "$NOA_ROOT/configs/templates" -PathType Container }
 
 Write-Host ""
 Write-Host "Testing Rust core foundation (T050-T055)..."
 Write-Host ""
 
 Test-Check "error.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/error.rs" -PathType Leaf }
-Test-Check "config/mod.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/config/mod.rs" -PathType Leaf }
+Test-Check "configs/mod.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/configs/mod.rs" -PathType Leaf }
 Test-Check "logging.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/logging.rs" -PathType Leaf }
 Test-Check "db/pool.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/db/pool.rs" -PathType Leaf }
 Test-Check "db/repository.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/db/repository.rs" -PathType Leaf }
@@ -133,7 +133,7 @@ Write-Host ""
 Test-Check "observability/logging.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/observability/logging.rs" -PathType Leaf }
 Test-Check "observability/telemetry.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/observability/telemetry.rs" -PathType Leaf }
 Test-Check "observability/metrics.rs exists" { Test-Path "$NOA_ROOT/sys/core/src/observability/metrics.rs" -PathType Leaf }
-Test-Check "observability.yaml exists" { Test-Path "$NOA_ROOT/config/observability.yaml" -PathType Leaf }
+Test-Check "observability.yaml exists" { Test-Path "$NOA_ROOT/configs/observability.yaml" -PathType Leaf }
 
 Write-Host ""
 Write-Host "Testing database functionality..."

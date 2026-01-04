@@ -3,20 +3,22 @@ import * as path from 'path';
 import { McpStrategy } from '../types';
 
 /**
- * VSCode settings.json structure for Augment MCP configuration
+ * VSCode settings.json structure for Augment MCP configsuration
  */
-export interface VSCodeSettings {
+export interface VSCodeSettings
+{
   'augment.advanced'?: {
     mcpServers?: AugmentMcpServer[];
-    [key: string]: unknown;
+    [ key: string ]: unknown;
   };
-  [key: string]: unknown;
+  [ key: string ]: unknown;
 }
 
 /**
- * Augment MCP server configuration format
+ * Augment MCP server configsuration format
  */
-export interface AugmentMcpServer {
+export interface AugmentMcpServer
+{
   name: string;
   command: string;
   args?: string[];
@@ -26,14 +28,18 @@ export interface AugmentMcpServer {
 /**
  * Read VSCode settings.json file
  */
-export async function readVSCodeSettings(
+export async function readVSCodeSettings (
   settingsPath: string,
-): Promise<VSCodeSettings> {
-  try {
-    const content = await fs.readFile(settingsPath, 'utf8');
-    return JSON.parse(content) as VSCodeSettings;
-  } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+): Promise<VSCodeSettings>
+{
+  try
+  {
+    const content = await fs.readFile( settingsPath, 'utf8' );
+    return JSON.parse( content ) as VSCodeSettings;
+  } catch ( error: unknown )
+  {
+    if ( ( error as NodeJS.ErrnoException ).code === 'ENOENT' )
+    {
       return {};
     }
     throw error;
@@ -43,23 +49,26 @@ export async function readVSCodeSettings(
 /**
  * Write VSCode settings.json file
  */
-export async function writeVSCodeSettings(
+export async function writeVSCodeSettings (
   settingsPath: string,
   settings: VSCodeSettings,
-): Promise<void> {
-  await fs.mkdir(path.dirname(settingsPath), { recursive: true });
-  await fs.writeFile(settingsPath, JSON.stringify(settings, null, 4));
+): Promise<void>
+{
+  await fs.mkdir( path.dirname( settingsPath ), { recursive: true } );
+  await fs.writeFile( settingsPath, JSON.stringify( settings, null, 4 ) );
 }
 
 /**
- * Transform ruler MCP config to Augment MCP server array format
+ * Transform ruler MCP configs to Augment MCP server array format
  */
-export function transformRulerToAugmentMcp(
+export function transformRulerToAugmentMcp (
   rulerMcpJson: Record<string, unknown>,
-): AugmentMcpServer[] {
+): AugmentMcpServer[]
+{
   const servers: AugmentMcpServer[] = [];
 
-  if (rulerMcpJson.mcpServers && typeof rulerMcpJson.mcpServers === 'object') {
+  if ( rulerMcpJson.mcpServers && typeof rulerMcpJson.mcpServers === 'object' )
+  {
     const mcpServers = rulerMcpJson.mcpServers as Record<
       string,
       {
@@ -69,21 +78,24 @@ export function transformRulerToAugmentMcp(
       }
     >;
 
-    for (const [name, serverConfig] of Object.entries(mcpServers)) {
+    for ( const [ name, serverconfigs ] of Object.entries( mcpServers ) )
+    {
       const augmentServer: AugmentMcpServer = {
         name,
-        command: serverConfig.command,
+        command: serverconfigs.command,
       };
 
-      if (serverConfig.args) {
-        augmentServer.args = serverConfig.args;
+      if ( serverconfigs.args )
+      {
+        augmentServer.args = serverconfigs.args;
       }
 
-      if (serverConfig.env) {
-        augmentServer.env = serverConfig.env;
+      if ( serverconfigs.env )
+      {
+        augmentServer.env = serverconfigs.env;
       }
 
-      servers.push(augmentServer);
+      servers.push( augmentServer );
     }
   }
 
@@ -93,32 +105,38 @@ export function transformRulerToAugmentMcp(
 /**
  * Merge MCP servers into VSCode settings using the specified strategy
  */
-export function mergeAugmentMcpServers(
+export function mergeAugmentMcpServers (
   existingSettings: VSCodeSettings,
   newServers: AugmentMcpServer[],
   strategy: McpStrategy,
-): VSCodeSettings {
-  const result = structuredClone(existingSettings);
+): VSCodeSettings
+{
+  const result = structuredClone( existingSettings );
 
-  if (!result['augment.advanced']) {
-    result['augment.advanced'] = {};
+  if ( !result[ 'augment.advanced' ] )
+  {
+    result[ 'augment.advanced' ] = {};
   }
 
-  if (strategy === 'overwrite') {
-    result['augment.advanced'].mcpServers = newServers;
-  } else {
-    const existingServers = result['augment.advanced'].mcpServers || [];
+  if ( strategy === 'overwrite' )
+  {
+    result[ 'augment.advanced' ].mcpServers = newServers;
+  } else
+  {
+    const existingServers = result[ 'augment.advanced' ].mcpServers || [];
     const existingServerMap = new Map<string, AugmentMcpServer>();
 
-    for (const server of existingServers) {
-      existingServerMap.set(server.name, server);
+    for ( const server of existingServers )
+    {
+      existingServerMap.set( server.name, server );
     }
 
-    for (const newServer of newServers) {
-      existingServerMap.set(newServer.name, newServer);
+    for ( const newServer of newServers )
+    {
+      existingServerMap.set( newServer.name, newServer );
     }
 
-    result['augment.advanced'].mcpServers = Array.from(
+    result[ 'augment.advanced' ].mcpServers = Array.from(
       existingServerMap.values(),
     );
   }
@@ -129,6 +147,7 @@ export function mergeAugmentMcpServers(
 /**
  * Get the VSCode settings.json path for a project (local)
  */
-export function getVSCodeSettingsPath(projectRoot: string): string {
-  return path.join(projectRoot, '.vscode', 'settings.json');
+export function getVSCodeSettingsPath ( projectRoot: string ): string
+{
+  return path.join( projectRoot, '.vscode', 'settings.json' );
 }

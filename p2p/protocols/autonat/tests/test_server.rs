@@ -21,7 +21,7 @@
 use std::{num::NonZeroU32, time::Duration};
 
 use libp2p_autonat::{
-    Behaviour, Config, Event, InboundProbeError, InboundProbeEvent, ResponseError,
+    Behaviour, configs, Event, InboundProbeError, InboundProbeEvent, ResponseError,
 };
 use libp2p_core::{multiaddr::Protocol, ConnectedPoint, Endpoint, Multiaddr};
 use libp2p_identity::PeerId;
@@ -180,7 +180,7 @@ async fn test_dial_error() {
 
 #[tokio::test]
 async fn test_throttle_global_max() {
-    let (mut server, server_id, server_addr) = new_server_swarm(Some(Config {
+    let (mut server, server_id, server_addr) = new_server_swarm(Some(configs {
         throttle_clients_global_max: 1,
         throttle_clients_period: Duration::from_secs(60),
         only_global_ips: false,
@@ -220,7 +220,7 @@ async fn test_throttle_global_max() {
 
 #[tokio::test]
 async fn test_throttle_peer_max() {
-    let (mut server, server_id, server_addr) = new_server_swarm(Some(Config {
+    let (mut server, server_id, server_addr) = new_server_swarm(Some(configs {
         throttle_clients_peer_max: 1,
         throttle_clients_period: Duration::from_secs(60),
         only_global_ips: false,
@@ -267,7 +267,7 @@ async fn test_throttle_peer_max() {
 
 #[tokio::test]
 async fn test_dial_multiple_addr() {
-    let (mut server, server_id, server_addr) = new_server_swarm(Some(Config {
+    let (mut server, server_id, server_addr) = new_server_swarm(Some(configs {
         throttle_clients_peer_max: 1,
         throttle_clients_period: Duration::from_secs(60),
         only_global_ips: false,
@@ -328,8 +328,8 @@ async fn test_dial_multiple_addr() {
 }
 
 #[tokio::test]
-async fn test_global_ips_config() {
-    let (mut server, server_id, server_addr) = new_server_swarm(Some(Config {
+async fn test_global_ips_configs() {
+    let (mut server, server_id, server_addr) = new_server_swarm(Some(configs {
         // Enforce that only clients outside of the local network are qualified for dial-backs.
         only_global_ips: true,
         ..Default::default()
@@ -351,16 +351,16 @@ async fn test_global_ips_config() {
     };
 }
 
-async fn new_server_swarm(config: Option<Config>) -> (Swarm<Behaviour>, PeerId, Multiaddr) {
-    let mut config = config.unwrap_or_else(|| Config {
+async fn new_server_swarm(configs: Option<configs>) -> (Swarm<Behaviour>, PeerId, Multiaddr) {
+    let mut configs = configs.unwrap_or_else(|| configs {
         only_global_ips: false,
         ..Default::default()
     });
     // Don't do any outbound probes.
-    config.boot_delay = Duration::from_secs(60);
+    configs.boot_delay = Duration::from_secs(60);
 
     let mut server =
-        Swarm::new_ephemeral_tokio(|key| Behaviour::new(key.public().to_peer_id(), config));
+        Swarm::new_ephemeral_tokio(|key| Behaviour::new(key.public().to_peer_id(), configs));
     let peer_id = *server.local_peer_id();
     let (_, addr) = server.listen().await;
 
@@ -371,7 +371,7 @@ async fn new_client_swarm(server_id: PeerId, server_addr: Multiaddr) -> (Swarm<B
     let mut client = Swarm::new_ephemeral_tokio(|key| {
         Behaviour::new(
             key.public().to_peer_id(),
-            Config {
+            configs {
                 boot_delay: Duration::from_secs(1),
                 retry_interval: Duration::from_secs(1),
                 throttle_server_period: Duration::ZERO,

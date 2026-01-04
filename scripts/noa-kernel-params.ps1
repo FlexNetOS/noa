@@ -70,7 +70,7 @@ function Save-NoaParams {
 
 # Load kernel selection policy
 function Get-KernelSelectionPolicy {
-    $policyPath = Join-Path $NoaRoot "config/kernel-selection-policy.json"
+    $policyPath = Join-Path $NoaRoot "configs/kernel-selection-policy.json"
     if (Test-Path $policyPath) {
         return Get-Content $policyPath -Raw | ConvertFrom-Json
     }
@@ -203,9 +203,9 @@ function Apply-WindowsParam {
         }
 
         "p2p_firewall" {
-            # Configure firewall for P2P
+            # configsure firewall for P2P
             if ($Value -eq "1") {
-                Write-Host "  Configuring P2P firewall rules..." -ForegroundColor Gray
+                Write-Host "  configsuring P2P firewall rules..." -ForegroundColor Gray
                 # Allow NOA P2P ports
                 New-NetFirewallRule -DisplayName "NOA P2P" -Direction Inbound -Protocol TCP -LocalPort 4001,4002,9000 -Action Allow -ErrorAction SilentlyContinue
                 New-NetFirewallRule -DisplayName "NOA P2P UDP" -Direction Inbound -Protocol UDP -LocalPort 4001,4002 -Action Allow -ErrorAction SilentlyContinue
@@ -275,7 +275,7 @@ switch ($Action) {
         Write-Host "Available parameters:" -ForegroundColor Yellow
         Write-Host "  ip_forward      - Enable IPv4 forwarding (0/1)"
         Write-Host "  ipv6_forward    - Enable IPv6 forwarding (0/1)"
-        Write-Host "  p2p_firewall    - Configure P2P firewall rules (0/1)"
+        Write-Host "  p2p_firewall    - configsure P2P firewall rules (0/1)"
         Write-Host "  hyper_v_isolation - Hyper-V isolation mode"
     }
 

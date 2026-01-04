@@ -36,20 +36,20 @@
 //! of [trust-dns-resolver].
 //! Alternative runtimes or resolvers can be used though a manual implementation of [`Resolver`].
 //!
-//! On Unix systems, if no custom configuration is given, [trust-dns-resolver]
+//! On Unix systems, if no custom configsuration is given, [trust-dns-resolver]
 //! will try to parse the `/etc/resolv.conf` file. This approach comes with a
 //! few caveats to be aware of:
 //!   1) This fails (panics even!) if `/etc/resolv.conf` does not exist. This is the case on all
 //!      versions of Android.
-//!   2) DNS configuration is only evaluated during startup. Runtime changes are thus ignored.
+//!   2) DNS configsuration is only evaluated during startup. Runtime changes are thus ignored.
 //!   3) DNS resolution is obviously done in process and consequently not using any system APIs
 //!      (like libc's `gethostbyname`). Again this is problematic on platforms like Android, where
 //!      there's a lot of complexity hidden behind the system APIs.
 //!
 //! If the implementation requires different characteristics, one should
 //! consider providing their own implementation of [`Transport`] or use
-//! platform specific APIs to extract the host's DNS configuration (if possible)
-//! and provide a custom [`ResolverConfig`].
+//! platform specific APIs to extract the host's DNS configsuration (if possible)
+//! and provide a custom [`Resolverconfigs`].
 //!
 //! [trust-dns-resolver]: https://docs.rs/trust-dns-resolver/latest/trust_dns_resolver/#dns-over-tls-and-dns-over-https
 
@@ -67,22 +67,22 @@ pub mod tokio {
     pub type Transport<T> = crate::Transport<T, TokioResolver>;
 
     impl<T> Transport<T> {
-        /// Creates a new [`Transport`] from the OS's DNS configuration and defaults.
+        /// Creates a new [`Transport`] from the OS's DNS configsuration and defaults.
         pub fn system(inner: T) -> Result<Transport<T>, std::io::Error> {
             let (cfg, opts) = system_conf::read_system_conf()?;
             Ok(Self::custom(inner, cfg, opts))
         }
 
-        /// Creates a [`Transport`] with a custom resolver configuration
+        /// Creates a [`Transport`] with a custom resolver configsuration
         /// and options.
         pub fn custom(
             inner: T,
-            cfg: hickory_resolver::config::ResolverConfig,
-            opts: hickory_resolver::config::ResolverOpts,
+            cfg: hickory_resolver::configs::Resolverconfigs,
+            opts: hickory_resolver::configs::ResolverOpts,
         ) -> Transport<T> {
             Transport {
                 inner: Arc::new(Mutex::new(inner)),
-                resolver: TokioResolver::builder_with_config(
+                resolver: TokioResolver::builder_with_configs(
                     cfg,
                     TokioConnectionProvider::default(),
                 )
@@ -106,7 +106,7 @@ use std::{
 use async_trait::async_trait;
 use futures::{future::BoxFuture, prelude::*};
 pub use hickory_resolver::{
-    config::{ResolverConfig, ResolverOpts},
+    configs::{Resolverconfigs, ResolverOpts},
     ResolveError, ResolveErrorKind,
 };
 use hickory_resolver::{
@@ -588,9 +588,9 @@ mod tests {
         transport: T,
         test_fn: impl FnOnce(tokio::Transport<T>) -> F,
     ) {
-        let config = ResolverConfig::quad9();
+        let configs = Resolverconfigs::quad9();
         let opts = ResolverOpts::default();
-        let transport = tokio::Transport::custom(transport, config, opts);
+        let transport = tokio::Transport::custom(transport, configs, opts);
         let rt = ::tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .enable_time()

@@ -40,7 +40,7 @@
   - ⚠️ **RUNTIME TEST PENDING**: Test OS/arch detection on all platforms
 - [X] BOOT004 - Verify state management library exists (state.ps1, state.sh) [B007-B008]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/state.ps1` and `scripts/bootstrap/lib/state.sh` exist
-  - ✅ **TESTED**: File existence verified, `config/bootstrap-state.json` exists
+  - ✅ **TESTED**: File existence verified, `configs/bootstrap-state.json` exists
   - ⚠️ **RUNTIME TEST PENDING**: Test state file management during bootstrap
 - [X] BOOT005 - Verify verification library exists (verification.ps1, verification.sh) [B009-B010]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/verification.ps1` and `scripts/bootstrap/lib/verification.sh` exist
@@ -50,21 +50,21 @@
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/download.ps1` and `scripts/bootstrap/lib/download.sh` exist
   - ✅ **TESTED**: File existence verified 2025-01-27
   - ⚠️ **RUNTIME TEST PENDING**: Test download with caching
-- [X] BOOT007 - Verify tools.json configuration exists [B013]
-  - ✅ **IMPLEMENTED**: `scripts/bootstrap/config/bootstrap-tools.json` exists with tool definitions
+- [X] BOOT007 - Verify tools.json configsuration exists [B013]
+  - ✅ **IMPLEMENTED**: `scripts/bootstrap/configs/bootstrap-tools.json` exists with tool definitions
   - ✅ **VERIFIED**: All scripts correctly reference `bootstrap-tools.json`
-  - ✅ **TESTED**: Config file exists and is referenced correctly (2025-01-27)
+  - ✅ **TESTED**: configs file exists and is referenced correctly (2025-01-27)
 
 ### Directory Structure (B014-B017)
 
 - [X] BOOT008 - Verify directory creation scripts exist (directories.ps1, directories.sh) [B014-B015]
   - ✅ **IMPLEMENTED**: `scripts/bootstrap/lib/directories.ps1` and `scripts/bootstrap/lib/directories.sh` exist
-  - ⚠️ **TEST REQUIRED**: Run and verify bin/, opt/, cache/, logs/, config/, lib/, tmp/ are created
+  - ⚠️ **TEST REQUIRED**: Run and verify bin/, opt/, cache/, logs/, configs/, lib/, tmp/ are created
 - [X] BOOT009 - Verify .gitignore includes dev-tools exclusions [B016]
   - ✅ **IMPLEMENTED**: `.gitignore` exists and includes dev-tools, caches, logs patterns
   - ⚠️ **TEST REQUIRED**: Verify dev tools are gitignored
 - [X] BOOT010 - Verify bootstrap-state.json schema exists [B017]
-  - ✅ **IMPLEMENTED**: `config/bootstrap-state.json` schema exists for tool tracking
+  - ✅ **IMPLEMENTED**: `configs/bootstrap-state.json` schema exists for tool tracking
   - ⚠️ **TEST REQUIRED**: Verify state file is created and updated correctly
 
 ### Prerequisites (B018-B023)
@@ -133,7 +133,7 @@
   - ✅ **IMPLEMENTED**: Installer scripts exist for jq, ripgrep (rg), fd, bat, fzf
   - ⚠️ **TEST REQUIRED**: Install utilities to bin/ and verify they work
 
-### Configuration & Orchestration (B068-B085)
+### configsuration & Orchestration (B068-B085)
 
 - [X] BOOT029 - Verify cache setup scripts exist [B068-B077]
   - ✅ **IMPLEMENTED**: Cache setup logic exists in bootstrap scripts
@@ -155,7 +155,7 @@
   - ✅ **IMPLEMENTED**: All installers use noa_root paths (opt/, bin/, cache/, etc.)
   - ✅ **FIXED**: All symlinks now point to portable installations
   - ✅ **TESTED**: Path verification passes (2025-01-27)
-  - ⚠️ **NOTE**: Config files contain `/opt/` template paths (expected for cross-platform)
+  - ⚠️ **NOTE**: configs files contain `/opt/` template paths (expected for cross-platform)
 - [X] BOOT033 - Verify offline functionality with pre-cached archives [B096, §3.2]
   - ✅ **IMPLEMENTED**: Download scripts support caching, can work offline with cached files
   - ⚠️ **TEST REQUIRED**: Test bootstrap with network disabled using cached files
@@ -187,7 +187,7 @@
 
 ### US1 - Initialize NOA Seed Environment
 
-- [X] VER001 - Verify `noa-init` creates all 8 directories (`sys`, `p2p`, `opt`, `init`, `containers`, `config`, `bin`, `ai`) [FR-029-036]
+- [X] VER001 - Verify `noa-init` creates all 8 directories (`sys`, `p2p`, `opt`, `init`, `containers`, `configs`, `bin`, `ai`) [FR-029-036]
   - ✅ **IMPLEMENTED**: `sys/core/src/init/paths.rs` defines all directory paths, `sys/core/src/init/structure.rs` implements `create_all()`, `NoaPaths::all_directories()` returns 32+ directories including all required 8
   - ⚠️ **TEST REQUIRED**: Manual test to verify directories are created on `noa init`
 - [X] VER002 - Verify directory permissions are set correctly (755 for dirs, 644 for files) [FR-029]
@@ -203,7 +203,7 @@
   - ✅ **IMPLEMENTED**: All initialization code uses local filesystem operations only, no network calls in init module, database is local SQLite
   - ⚠️ **TEST REQUIRED**: Test with network disabled
 - [X] VER006 - Verify re-running init on existing installation preserves data [Idempotency]
-  - ✅ **IMPLEMENTED**: `DirectoryStructure::create_directory()` checks `path.exists()`, `ConfigGenerator` methods check if files exist, `DatabaseInitializer::initialize()` checks `db_path.exists()` unless `force=true`
+  - ✅ **IMPLEMENTED**: `DirectoryStructure::create_directory()` checks `path.exists()`, `configsGenerator` methods check if files exist, `DatabaseInitializer::initialize()` checks `db_path.exists()` unless `force=true`
   - ⚠️ **TEST REQUIRED**: Run `noa init` twice and verify no data loss
 - [ ] VER007 - Verify partial init failure cleans up created directories [Exception]
   - ⚠️ **PARTIAL**: Error handling uses `Result` types, `InitService::cleanup()` exists, but cleanup mechanism needs verification
@@ -446,9 +446,9 @@
 
 ### US5 - Dynamic Context-Aware UI
 
-- [ ] VER099 - Verify UI reconfigures for coding task context [US5-Scenario1]
-- [ ] VER100 - Verify UI reconfigures for project management context [US5-Scenario2]
-- [ ] VER101 - Verify UI reconfiguration within 200ms [SC-007]
+- [ ] VER099 - Verify UI reconfigsures for coding task context [US5-Scenario1]
+- [ ] VER100 - Verify UI reconfigsures for project management context [US5-Scenario2]
+- [ ] VER101 - Verify UI reconfigsuration within 200ms [SC-007]
 - [ ] VER102 - Verify live activity log displays agent actions [US5-Scenario3, FR-022]
 - [ ] VER103 - Verify activity log is scrollable [FR-022]
 - [ ] VER104 - Verify UI works fully offline [FR-024]
@@ -503,7 +503,7 @@
 - [ ] VER130 - Benchmark: 10K file digest <30min [SC-004]
 - [ ] VER131 - Benchmark: 200 concurrent tasks ≥98% success [SC-005]
 - [ ] VER132 - Benchmark: P2P sync <5s for <1MB [SC-006]
-- [ ] VER133 - Benchmark: UI reconfiguration <200ms [SC-007]
+- [ ] VER133 - Benchmark: UI reconfigsuration <200ms [SC-007]
 - [ ] VER134 - Benchmark: 7-day continuous operation without restart [SC-008]
 
 ### Security Verification
@@ -552,7 +552,7 @@
 - [ ] REG013 - Vector embedding consistency [Integrity, T497]
 - [ ] REG014 - Audit log append-only verification [Integrity]
 - [ ] REG015 - Metadata validator (id, created_at, updated_at, checksum) [Integrity, T496]
-- [ ] REG016 - Config schema validation against config/schemas/ [Integrity, T498]
+- [ ] REG016 - configs schema validation against configs/schemas/ [Integrity, T498]
 - [ ] REG017 - Index verification for all database tables [Integrity, T499]
 
 ---
@@ -682,9 +682,9 @@
 
 ### CUDA 13.1+ Tiles
 
-- [X] GPU017 - Verify CUDA tiles configuration for optimized tensor operations [FR-047]
-  - ✅ **IMPLEMENTED**: Test `test_gpu017_cuda_tiles_configuration()` in `sys/core/src/neural/phase10_verification_test.rs`
-  - ✅ **TESTED**: Tile configuration for Hopper (9.0), Ada (8.9), and Ampere (8.0) verified
+- [X] GPU017 - Verify CUDA tiles configsuration for optimized tensor operations [FR-047]
+  - ✅ **IMPLEMENTED**: Test `test_gpu017_cuda_tiles_configsuration()` in `sys/core/src/neural/phase10_verification_test.rs`
+  - ✅ **TESTED**: Tile configsuration for Hopper (9.0), Ada (8.9), and Ampere (8.0) verified
 - [ ] GPU018 - Verify tiles provide performance improvement over non-tiled [Benchmark]
   - ✅ **IMPLEMENTED**: Test `test_gpu018_tiles_performance_benchmark()` in `sys/core/src/neural/phase10_verification_test.rs` (marked `#[ignore]`)
   - ⚠️ **RUNTIME TEST PENDING**: Requires actual GPU hardware for performance benchmark
@@ -753,7 +753,7 @@ NEXT: <smallest verifiable step if not PASS>
 
 **Execution Policy Compliance**:
 - **Artifacts**: T486-T495 (Hash, Reports, Triple-Verify, Truth Gate, Gap Hunt)
-- **Validators**: T496-T500 (Metadata, Embedding, Config, Index, Checksum)
+- **Validators**: T496-T500 (Metadata, Embedding, configs, Index, Checksum)
 
 ---
 

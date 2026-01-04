@@ -129,23 +129,23 @@ fn handshake_with_certhashes(
     let (client, server) = futures_ringbuf::Endpoint::pair(100, 100);
 
     futures::executor::block_on(async move {
-        let mut client_config = noise::Config::new(&client_id)?;
-        let mut server_config = noise::Config::new(&server_id)?;
+        let mut client_configs = noise::configs::new(&client_id)?;
+        let mut server_configs = noise::configs::new(&server_id)?;
 
         if let Some(valid_certhases) = valid_certhases {
-            client_config =
-                client_config.with_webtransport_certhashes(valid_certhases.into_iter().collect());
+            client_configs =
+                client_configs.with_webtransport_certhashes(valid_certhases.into_iter().collect());
         }
 
         if let Some(server_certhashes) = server_certhashes {
-            server_config =
-                server_config.with_webtransport_certhashes(server_certhashes.into_iter().collect());
+            server_configs =
+                server_configs.with_webtransport_certhashes(server_certhashes.into_iter().collect());
         }
 
         let ((reported_client_id, mut _server_session), (reported_server_id, mut _client_session)) =
             futures::future::try_join(
-                server_config.upgrade_inbound(server, ""),
-                client_config.upgrade_outbound(client, ""),
+                server_configs.upgrade_inbound(server, ""),
+                client_configs.upgrade_outbound(client, ""),
             )
             .await?;
 

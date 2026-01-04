@@ -87,7 +87,7 @@ Draft → In Review → Approved → In Progress → Complete → Archived
 │   ├── quality.md
 │   ├── requirements.md
 │   └── verification.md
-├── config/
+├── configs/
 │   └── tools.json
 └── memory/
     └── CONSTITUTION.md

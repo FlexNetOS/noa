@@ -23,7 +23,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 mod codec;
-mod config;
+mod configs;
 mod io;
 
 use std::{
@@ -35,7 +35,7 @@ use std::{
 
 use bytes::Bytes;
 use codec::LocalStreamId;
-pub use config::{Config, MaxBufferBehaviour};
+pub use configs::{configs, MaxBufferBehaviour};
 use futures::{prelude::*, ready};
 use libp2p_core::{
     muxing::{StreamMuxer, StreamMuxerEvent},
@@ -43,10 +43,10 @@ use libp2p_core::{
 };
 use parking_lot::Mutex;
 
-#[deprecated = "Use `Config` instead"]
-pub type MplexConfig = Config;
+#[deprecated = "Use `configs` instead"]
+pub type Mplexconfigs = configs;
 
-impl UpgradeInfo for Config {
+impl UpgradeInfo for configs {
     type Info = &'static str;
     type InfoIter = iter::Once<Self::Info>;
 
@@ -55,7 +55,7 @@ impl UpgradeInfo for Config {
     }
 }
 
-impl<C> InboundConnectionUpgrade<C> for Config
+impl<C> InboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Unpin,
 {
@@ -71,7 +71,7 @@ where
     }
 }
 
-impl<C> OutboundConnectionUpgrade<C> for Config
+impl<C> OutboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Unpin,
 {

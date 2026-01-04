@@ -3,51 +3,62 @@ import * as path from 'path';
 import * as os from 'os';
 
 /**
- * Gets the XDG config directory path, falling back to ~/.config if XDG_CONFIG_HOME is not set.
+ * Gets the XDG configs directory path, falling back to ~/.configs if XDG_configs_HOME is not set.
  */
-function getXdgConfigDir(): string {
-  return process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
+function getXdgconfigsDir (): string
+{
+  return process.env.XDG_configs_HOME || path.join( os.homedir(), '.configs' );
 }
 
 /**
  * Searches upwards from startPath to find a directory named .ruler.
- * If not found locally and checkGlobal is true, checks for global config at XDG_CONFIG_HOME/ruler.
+ * If not found locally and checkGlobal is true, checks for global configs at XDG_configs_HOME/ruler.
  * Returns the path to the .ruler directory, or null if not found.
  */
-export async function findRulerDir(
+export async function findRulerDir (
   startPath: string,
   checkGlobal: boolean = true,
-): Promise<string | null> {
+): Promise<string | null>
+{
   // First, search upwards from startPath for local .ruler directory
   let current = startPath;
-  while (current) {
-    const candidate = path.join(current, '.ruler');
-    try {
-      const stat = await fs.stat(candidate);
-      if (stat.isDirectory()) {
+  while ( current )
+  {
+    const candidate = path.join( current, '.ruler' );
+    try
+    {
+      const stat = await fs.stat( candidate );
+      if ( stat.isDirectory() )
+      {
         return candidate;
       }
-    } catch {
+    } catch
+    {
       // ignore errors when checking for .ruler directory
     }
-    const parent = path.dirname(current);
-    if (parent === current) {
+    const parent = path.dirname( current );
+    if ( parent === current )
+    {
       break;
     }
     current = parent;
   }
 
-  // If no local .ruler found and checkGlobal is true, check global config directory
-  if (checkGlobal) {
-    const globalConfigDir = path.join(getXdgConfigDir(), 'ruler');
-    try {
-      const stat = await fs.stat(globalConfigDir);
-      if (stat.isDirectory()) {
-        return globalConfigDir;
+  // If no local .ruler found and checkGlobal is true, check global configs directory
+  if ( checkGlobal )
+  {
+    const globalconfigsDir = path.join( getXdgconfigsDir(), 'ruler' );
+    try
+    {
+      const stat = await fs.stat( globalconfigsDir );
+      if ( stat.isDirectory() )
+      {
+        return globalconfigsDir;
       }
-    } catch (err) {
+    } catch ( err )
+    {
       console.error(
-        `[ruler] Error checking global config directory ${globalConfigDir}:`,
+        `[ruler] Error checking global configs directory ${ globalconfigsDir }:`,
         err,
       );
     }
@@ -60,91 +71,107 @@ export async function findRulerDir(
  * Recursively reads all Markdown (.md) files in rulerDir, returning their paths and contents.
  * Files are sorted alphabetically by path.
  */
-export async function readMarkdownFiles(
+export async function readMarkdownFiles (
   rulerDir: string,
-): Promise<{ path: string; content: string }[]> {
-  const mdFiles: { path: string; content: string }[] = [];
+): Promise<{ path: string; content: string; }[]>
+{
+  const mdFiles: { path: string; content: string; }[] = [];
 
   // Gather all markdown files (recursive) first
-  async function walk(dir: string) {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        await walk(fullPath);
-      } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        const content = await fs.readFile(fullPath, 'utf8');
-        mdFiles.push({ path: fullPath, content });
+  async function walk ( dir: string )
+  {
+    const entries = await fs.readdir( dir, { withFileTypes: true } );
+    for ( const entry of entries )
+    {
+      const fullPath = path.join( dir, entry.name );
+      if ( entry.isDirectory() )
+      {
+        await walk( fullPath );
+      } else if ( entry.isFile() && entry.name.endsWith( '.md' ) )
+      {
+        const content = await fs.readFile( fullPath, 'utf8' );
+        mdFiles.push( { path: fullPath, content } );
       }
     }
   }
-  await walk(rulerDir);
+  await walk( rulerDir );
 
   // Prioritisation logic:
   // 1. Prefer top-level AGENTS.md if present.
   // 2. If AGENTS.md absent but legacy instructions.md present, use it (no longer emits a warning; legacy accepted silently).
   // 3. Include any remaining .md files (excluding whichever of the above was used if present) in
   //    sorted order AFTER the preferred primary file so that new concatenation priority starts with AGENTS.md.
-  const topLevelAgents = path.join(rulerDir, 'AGENTS.md');
-  const topLevelLegacy = path.join(rulerDir, 'instructions.md');
+  const topLevelAgents = path.join( rulerDir, 'AGENTS.md' );
+  const topLevelLegacy = path.join( rulerDir, 'instructions.md' );
 
   // Separate primary candidates from others
-  let primaryFile: { path: string; content: string } | null = null;
-  const others: { path: string; content: string }[] = [];
+  let primaryFile: { path: string; content: string; } | null = null;
+  const others: { path: string; content: string; }[] = [];
 
-  for (const f of mdFiles) {
-    if (f.path === topLevelAgents) {
+  for ( const f of mdFiles )
+  {
+    if ( f.path === topLevelAgents )
+    {
       primaryFile = f; // Highest priority
     }
   }
-  if (!primaryFile) {
-    for (const f of mdFiles) {
-      if (f.path === topLevelLegacy) {
+  if ( !primaryFile )
+  {
+    for ( const f of mdFiles )
+    {
+      if ( f.path === topLevelLegacy )
+      {
         primaryFile = f;
         break;
       }
     }
   }
 
-  for (const f of mdFiles) {
-    if (primaryFile && f.path === primaryFile.path) continue;
-    others.push(f);
+  for ( const f of mdFiles )
+  {
+    if ( primaryFile && f.path === primaryFile.path ) continue;
+    others.push( f );
   }
 
   // Sort the remaining others for stable deterministic concatenation order.
-  others.sort((a, b) => a.path.localeCompare(b.path));
+  others.sort( ( a, b ) => a.path.localeCompare( b.path ) );
 
-  let ordered = primaryFile ? [primaryFile, ...others] : others;
+  let ordered = primaryFile ? [ primaryFile, ...others ] : others;
 
   // NEW: Prepend repository root AGENTS.md (outside .ruler) if it exists and is not identical path.
-  try {
-    const repoRoot = path.dirname(rulerDir); // .ruler parent
-    const rootAgentsPath = path.join(repoRoot, 'AGENTS.md');
-    if (path.resolve(rootAgentsPath) !== path.resolve(topLevelAgents)) {
-      const stat = await fs.stat(rootAgentsPath);
-      if (stat.isFile()) {
-        const content = await fs.readFile(rootAgentsPath, 'utf8');
+  try
+  {
+    const repoRoot = path.dirname( rulerDir ); // .ruler parent
+    const rootAgentsPath = path.join( repoRoot, 'AGENTS.md' );
+    if ( path.resolve( rootAgentsPath ) !== path.resolve( topLevelAgents ) )
+    {
+      const stat = await fs.stat( rootAgentsPath );
+      if ( stat.isFile() )
+      {
+        const content = await fs.readFile( rootAgentsPath, 'utf8' );
 
         // Check if this is a generated file and we have other .ruler files
-        const isGenerated = content.startsWith('<!-- Generated by Ruler -->');
+        const isGenerated = content.startsWith( '<!-- Generated by Ruler -->' );
         const hasRulerFiles = others.length > 0 || primaryFile !== null;
 
         // Additional check: if AGENTS.md contains ruler source comments and we have ruler files,
         // it's likely a corrupted generated file that should be skipped
         const containsRulerSources =
-          content.includes('<!-- Source: .ruler/') ||
-          content.includes('<!-- Source: ruler/');
+          content.includes( '<!-- Source: .ruler/' ) ||
+          content.includes( '<!-- Source: ruler/' );
         const isProbablyGenerated =
-          isGenerated || (containsRulerSources && hasRulerFiles);
+          isGenerated || ( containsRulerSources && hasRulerFiles );
 
         // Skip generated AGENTS.md if we have other files in .ruler
-        if (!isProbablyGenerated || !hasRulerFiles) {
+        if ( !isProbablyGenerated || !hasRulerFiles )
+        {
           // Prepend so it has highest precedence
-          ordered = [{ path: rootAgentsPath, content }, ...ordered];
+          ordered = [ { path: rootAgentsPath, content }, ...ordered ];
         }
       }
     }
-  } catch {
+  } catch
+  {
     // ignore if root AGENTS.md not present
   }
 
@@ -154,22 +181,26 @@ export async function readMarkdownFiles(
 /**
  * Writes content to filePath, creating parent directories if necessary.
  */
-export async function writeGeneratedFile(
+export async function writeGeneratedFile (
   filePath: string,
   content: string,
-): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, content, 'utf8');
+): Promise<void>
+{
+  await fs.mkdir( path.dirname( filePath ), { recursive: true } );
+  await fs.writeFile( filePath, content, 'utf8' );
 }
 
 /**
  * Creates a backup of the given filePath by copying it to filePath.bak if it exists.
  */
-export async function backupFile(filePath: string): Promise<void> {
-  try {
-    await fs.access(filePath);
-    await fs.copyFile(filePath, `${filePath}.bak`);
-  } catch {
+export async function backupFile ( filePath: string ): Promise<void>
+{
+  try
+  {
+    await fs.access( filePath );
+    await fs.copyFile( filePath, `${ filePath }.bak` );
+  } catch
+  {
     // ignore if file does not exist
   }
 }
@@ -177,23 +208,28 @@ export async function backupFile(filePath: string): Promise<void> {
 /**
  * Ensures that the given directory exists by creating it recursively.
  */
-export async function ensureDirExists(dirPath: string): Promise<void> {
-  await fs.mkdir(dirPath, { recursive: true });
+export async function ensureDirExists ( dirPath: string ): Promise<void>
+{
+  await fs.mkdir( dirPath, { recursive: true } );
 }
 
 /**
- * Finds the global ruler configuration directory at XDG_CONFIG_HOME/ruler.
+ * Finds the global ruler configsuration directory at XDG_configs_HOME/ruler.
  * Returns the path if it exists, null otherwise.
  */
-export async function findGlobalRulerDir(): Promise<string | null> {
-  const globalConfigDir = path.join(getXdgConfigDir(), 'ruler');
-  try {
-    const stat = await fs.stat(globalConfigDir);
-    if (stat.isDirectory()) {
-      return globalConfigDir;
+export async function findGlobalRulerDir (): Promise<string | null>
+{
+  const globalconfigsDir = path.join( getXdgconfigsDir(), 'ruler' );
+  try
+  {
+    const stat = await fs.stat( globalconfigsDir );
+    if ( stat.isDirectory() )
+    {
+      return globalconfigsDir;
     }
-  } catch {
-    // ignore if global config doesn't exist
+  } catch
+  {
+    // ignore if global configs doesn't exist
   }
   return null;
 }
@@ -202,43 +238,54 @@ export async function findGlobalRulerDir(): Promise<string | null> {
  * Searches the entire directory tree from startPath to find all .ruler directories.
  * Returns an array of .ruler directory paths from most specific to least specific.
  */
-export async function findAllRulerDirs(startPath: string): Promise<string[]> {
+export async function findAllRulerDirs ( startPath: string ): Promise<string[]>
+{
   const rulerDirs: string[] = [];
 
   // Search the entire directory tree downwards from startPath
-  async function findRulerDirs(dir: string) {
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          if (entry.name === '.ruler') {
-            rulerDirs.push(fullPath);
-          } else {
+  async function findRulerDirs ( dir: string )
+  {
+    try
+    {
+      const entries = await fs.readdir( dir, { withFileTypes: true } );
+      for ( const entry of entries )
+      {
+        const fullPath = path.join( dir, entry.name );
+        if ( entry.isDirectory() )
+        {
+          if ( entry.name === '.ruler' )
+          {
+            rulerDirs.push( fullPath );
+          } else
+          {
             // Recursively search subdirectories (but skip hidden directories like .git)
-            if (!entry.name.startsWith('.')) {
-              await findRulerDirs(fullPath);
+            if ( !entry.name.startsWith( '.' ) )
+            {
+              await findRulerDirs( fullPath );
             }
           }
         }
       }
-    } catch {
+    } catch
+    {
       // ignore errors when reading directories
     }
   }
 
   // Start searching from the startPath
-  await findRulerDirs(startPath);
+  await findRulerDirs( startPath );
 
   // Sort by depth (most specific first) - deeper paths come first
-  rulerDirs.sort((a, b) => {
-    const depthA = a.split(path.sep).length;
-    const depthB = b.split(path.sep).length;
-    if (depthA !== depthB) {
+  rulerDirs.sort( ( a, b ) =>
+  {
+    const depthA = a.split( path.sep ).length;
+    const depthB = b.split( path.sep ).length;
+    if ( depthA !== depthB )
+    {
       return depthB - depthA; // Deeper paths first
     }
-    return a.localeCompare(b); // Alphabetical for same depth
-  });
+    return a.localeCompare( b ); // Alphabetical for same depth
+  } );
 
   return rulerDirs;
 }

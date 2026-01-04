@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Configure centralized cache directories for all NOA toolchains.
+    configsure centralized cache directories for all NOA toolchains.
 
 .DESCRIPTION
-    Creates cache directory structure and configures symlinks/junctions
+    Creates cache directory structure and configsures symlinks/junctions
     to centralize all tool caches under noa_root/cache/.
 
 .PARAMETER NoaRoot
@@ -66,7 +66,7 @@ Write-Host ""
 Write-Host "Cache directory setup complete." -ForegroundColor Green
 Write-Host ""
 
-# Configure toolchain cache environment variables
+# configsure toolchain cache environment variables
 Write-Host "Recommended environment variables for cache centralization:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  # Rust/Cargo" -ForegroundColor Cyan
@@ -78,7 +78,7 @@ Write-Host "  `$env:GOCACHE = `"$CACHE_DIR\go`""
 Write-Host "  `$env:GOMODCACHE = `"$NoaRoot\opt\go\pkg\mod`""
 Write-Host ""
 Write-Host "  # npm" -ForegroundColor Cyan
-Write-Host "  `$env:npm_config_cache = `"$CACHE_DIR\npm`""
+Write-Host "  `$env:npm_configs_cache = `"$CACHE_DIR\npm`""
 Write-Host ""
 Write-Host "  # pip" -ForegroundColor Cyan
 Write-Host "  `$env:PIP_CACHE_DIR = `"$CACHE_DIR\pip`""
@@ -90,9 +90,9 @@ Write-Host "  # Ollama" -ForegroundColor Cyan
 Write-Host "  `$env:OLLAMA_MODELS = `"$CACHE_DIR\ollama`""
 Write-Host ""
 
-# Create a cache config file for reference
-$cacheConfigPath = Join-Path $CACHE_DIR "cache-config.json"
-$cacheConfig = @{
+# Create a cache configs file for reference
+$cacheconfigsPath = Join-Path $CACHE_DIR "cache-configs.json"
+$cacheconfigs = @{
     noa_root = $NoaRoot
     cache_root = $CACHE_DIR
     created_at = (Get-Date -Format "o")
@@ -110,12 +110,12 @@ $cacheConfig = @{
         CARGO_HOME = "$NoaRoot\opt\rust\cargo"
         GOCACHE = "$CACHE_DIR\go"
         GOMODCACHE = "$NoaRoot\opt\go\pkg\mod"
-        npm_config_cache = "$CACHE_DIR\npm"
+        npm_configs_cache = "$CACHE_DIR\npm"
         PIP_CACHE_DIR = "$CACHE_DIR\pip"
         HF_HOME = "$CACHE_DIR\huggingface"
         OLLAMA_MODELS = "$CACHE_DIR\ollama"
     }
 }
-$cacheConfig | ConvertTo-Json -Depth 3 | Set-Content -Path $cacheConfigPath -Encoding UTF8
-Write-Host "Cache configuration saved to: $cacheConfigPath" -ForegroundColor Green
+$cacheconfigs | ConvertTo-Json -Depth 3 | Set-Content -Path $cacheconfigsPath -Encoding UTF8
+Write-Host "Cache configsuration saved to: $cacheconfigsPath" -ForegroundColor Green
 

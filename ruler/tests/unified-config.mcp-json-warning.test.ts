@@ -5,33 +5,37 @@ import { setupTestProject, teardownTestProject } from './harness';
  * Verifies that using legacy .ruler/mcp.json creates a structured diagnostic warning
  * instructing migration to ruler.toml.
  */
-describe('legacy mcp.json warning', () => {
-  let testProject: { projectRoot: string };
+describe( 'legacy mcp.json warning', () =>
+{
+  let testProject: { projectRoot: string; };
 
-  beforeEach(async () => {
+  beforeEach( async () =>
+  {
     const toml = `[mcp]\nenabled = true\n\n[mcp_servers.local]\ncommand = "echo"\nargs = ["hi"]\n`;
-    const json = { mcpServers: { legacy: { command: 'echo', args: ['old'] } } };
+    const json = { mcpServers: { legacy: { command: 'echo', args: [ 'old' ] } } };
 
-    testProject = await setupTestProject({
+    testProject = await setupTestProject( {
       '.ruler/ruler.toml': toml,
-      '.ruler/mcp.json': JSON.stringify(json, null, 2)
-    });
-  });
+      '.ruler/mcp.json': JSON.stringify( json, null, 2 )
+    } );
+  } );
 
-  afterEach(async () => {
-    await teardownTestProject(testProject.projectRoot);
-  });
+  afterEach( async () =>
+  {
+    await teardownTestProject( testProject.projectRoot );
+  } );
 
-  it('creates structured diagnostic for legacy mcp.json', async () => {
+  it( 'creates structured diagnostic for legacy mcp.json', async () =>
+  {
     const { projectRoot } = testProject;
-    const { loadUnifiedConfig } = require('../dist/core/UnifiedConfigLoader');
-    const config = await loadUnifiedConfig({ projectRoot });
-    
-    const deprecationDiagnostic = config.diagnostics.find((d: any) => 
+    const { loadUnifiedconfigs } = require( '../dist/core/UnifiedconfigsLoader' );
+    const configs = await loadUnifiedconfigs( { projectRoot } );
+
+    const deprecationDiagnostic = configs.diagnostics.find( ( d: any ) =>
       d.code === 'MCP_JSON_DEPRECATED'
     );
-    expect(deprecationDiagnostic).toBeTruthy();
-    expect(deprecationDiagnostic.severity).toBe('warning');
-    expect(deprecationDiagnostic.message).toContain('mcp.json detected');
-  });
-});
+    expect( deprecationDiagnostic ).toBeTruthy();
+    expect( deprecationDiagnostic.severity ).toBe( 'warning' );
+    expect( deprecationDiagnostic.message ).toContain( 'mcp.json detected' );
+  } );
+} );

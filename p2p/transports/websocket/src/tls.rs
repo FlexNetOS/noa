@@ -22,16 +22,16 @@ use std::{fmt, io, sync::Arc};
 
 use futures_rustls::{rustls, TlsAcceptor, TlsConnector};
 
-/// TLS configuration.
+/// TLS configsuration.
 #[derive(Clone)]
-pub struct Config {
+pub struct configs {
     pub(crate) client: TlsConnector,
     pub(crate) server: Option<TlsAcceptor>,
 }
 
-impl fmt::Debug for Config {
+impl fmt::Debug for configs {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("Config")
+        f.write_str("configs")
     }
 }
 
@@ -65,32 +65,32 @@ impl Certificate {
     }
 }
 
-impl Config {
-    /// Create a new TLS configuration with the given server key and certificate chain.
+impl configs {
+    /// Create a new TLS configsuration with the given server key and certificate chain.
     pub fn new<I>(key: PrivateKey, certs: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = Certificate>,
     {
-        let mut builder = Config::builder();
+        let mut builder = configs::builder();
         builder.server(key, certs)?;
         Ok(builder.finish())
     }
 
-    /// Create a client-only configuration.
+    /// Create a client-only configsuration.
     pub fn client() -> Self {
         let provider = rustls::crypto::ring::default_provider();
-        let client = rustls::ClientConfig::builder_with_provider(provider.into())
+        let client = rustls::Clientconfigs::builder_with_provider(provider.into())
             .with_safe_default_protocol_versions()
             .unwrap()
             .with_root_certificates(client_root_store())
             .with_no_client_auth();
-        Config {
+        configs {
             client: Arc::new(client).into(),
             server: None,
         }
     }
 
-    /// Create a new TLS configuration builder.
+    /// Create a new TLS configsuration builder.
     pub fn builder() -> Builder {
         Builder {
             client_root_store: client_root_store(),
@@ -99,17 +99,17 @@ impl Config {
     }
 }
 
-/// Setup the rustls client configuration.
+/// Setup the rustls client configsuration.
 fn client_root_store() -> rustls::RootCertStore {
     let mut client_root_store = rustls::RootCertStore::empty();
     client_root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
     client_root_store
 }
 
-/// TLS configuration builder.
+/// TLS configsuration builder.
 pub struct Builder {
     client_root_store: rustls::RootCertStore,
-    server: Option<rustls::ServerConfig>,
+    server: Option<rustls::Serverconfigs>,
 }
 
 impl Builder {
@@ -120,7 +120,7 @@ impl Builder {
     {
         let certs = certs.into_iter().map(|c| c.0).collect();
         let provider = rustls::crypto::ring::default_provider();
-        let server = rustls::ServerConfig::builder_with_provider(provider.into())
+        let server = rustls::Serverconfigs::builder_with_provider(provider.into())
             .with_safe_default_protocol_versions()
             .unwrap()
             .with_no_client_auth()
@@ -138,16 +138,16 @@ impl Builder {
         Ok(self)
     }
 
-    /// Finish configuration.
-    pub fn finish(self) -> Config {
+    /// Finish configsuration.
+    pub fn finish(self) -> configs {
         let provider = rustls::crypto::ring::default_provider();
-        let client = rustls::ClientConfig::builder_with_provider(provider.into())
+        let client = rustls::Clientconfigs::builder_with_provider(provider.into())
             .with_safe_default_protocol_versions()
             .unwrap()
             .with_root_certificates(self.client_root_store)
             .with_no_client_auth();
 
-        Config {
+        configs {
             client: Arc::new(client).into(),
             server: self.server.map(|s| Arc::new(s).into()),
         }

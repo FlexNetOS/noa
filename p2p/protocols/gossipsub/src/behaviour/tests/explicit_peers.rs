@@ -27,7 +27,7 @@ use libp2p_swarm::ToSwarm;
 
 use super::{count_control_msgs, disconnect_peer, flush_events, DefaultBehaviourTestBuilder};
 use crate::{
-    config::{Config, ConfigBuilder},
+    configs::{configs, configsBuilder},
     types::{Prune, RawMessage, RpcOut, Subscription, SubscriptionAction},
     IdentTopic as Topic,
 };
@@ -64,7 +64,7 @@ fn test_explicit_peer_gets_connected() {
 
 #[test]
 fn test_explicit_peer_reconnects() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .check_explicit_peers_ticks(2)
         .build()
         .unwrap();
@@ -72,7 +72,7 @@ fn test_explicit_peer_reconnects() {
         .peer_no(1)
         .topics(Vec::new())
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let peer = others.first().unwrap();
@@ -122,7 +122,7 @@ fn test_handle_graft_explicit_peer() {
         .peer_no(1)
         .topics(vec![String::from("topic1"), String::from("topic2")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -156,7 +156,7 @@ fn explicit_peers_not_added_to_mesh_on_receiving_subscription() {
         .peer_no(2)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -191,7 +191,7 @@ fn do_not_graft_explicit_peer() {
         .peer_no(1)
         .topics(vec![String::from("topic")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -216,7 +216,7 @@ fn do_forward_messages_to_explicit_peers() {
         .peer_no(2)
         .topics(vec![String::from("topic1"), String::from("topic2")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -252,7 +252,7 @@ fn explicit_peers_not_added_to_mesh_on_subscribe() {
         .peer_no(2)
         .topics(Vec::new())
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -300,7 +300,7 @@ fn explicit_peers_not_added_to_mesh_from_fanout_on_subscribe() {
         .peer_no(2)
         .topics(Vec::new())
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 
@@ -351,7 +351,7 @@ fn no_gossip_gets_sent_to_explicit_peers() {
         .peer_no(2)
         .topics(vec![String::from("topic1"), String::from("topic2")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .create_network();
 

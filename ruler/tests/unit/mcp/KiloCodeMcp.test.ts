@@ -1,175 +1,191 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import os from 'os';
-import {
-  getNativeMcpPath,
-  readNativeMcp,
-  writeNativeMcp,
-} from '../../../src/paths/mcp';
+import
+  {
+    getNativeMcpPath,
+    readNativeMcp,
+    writeNativeMcp,
+  } from '../../../src/paths/mcp';
 import { mergeMcp } from '../../../src/mcp/merge';
 
-interface McpConfig {
-  mcpServers: Record<string, { command: string; args?: string[] }>;
-  [key: string]: unknown;
+interface Mcpconfigs
+{
+  mcpServers: Record<string, { command: string; args?: string[]; }>;
+  [ key: string ]: unknown;
 }
 
-describe('KiloCode MCP Integration', () => {
+describe( 'KiloCode MCP Integration', () =>
+{
   let tmpDir: string;
 
-  beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ruler-kilocode-mcp-'));
-  });
+  beforeEach( async () =>
+  {
+    tmpDir = await fs.mkdtemp( path.join( os.tmpdir(), 'ruler-kilocode-mcp-' ) );
+  } );
 
-  afterEach(async () => {
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  });
+  afterEach( async () =>
+  {
+    await fs.rm( tmpDir, { recursive: true, force: true } );
+  } );
 
-  describe('MCP Path Resolution', () => {
-    it('resolves correct MCP path for Kilo Code', async () => {
-      const mcpPath = await getNativeMcpPath('Kilo Code', tmpDir);
-      expect(mcpPath).toBe(path.join(tmpDir, '.kilocode', 'mcp.json'));
-    });
+  describe( 'MCP Path Resolution', () =>
+  {
+    it( 'resolves correct MCP path for Kilo Code', async () =>
+    {
+      const mcpPath = await getNativeMcpPath( 'Kilo Code', tmpDir );
+      expect( mcpPath ).toBe( path.join( tmpDir, '.kilocode', 'mcp.json' ) );
+    } );
 
-    it('returns first candidate path when file does not exist', async () => {
-      const mcpPath = await getNativeMcpPath('Kilo Code', tmpDir);
-      expect(mcpPath).toBe(path.join(tmpDir, '.kilocode', 'mcp.json'));
-    });
-  });
+    it( 'returns first candidate path when file does not exist', async () =>
+    {
+      const mcpPath = await getNativeMcpPath( 'Kilo Code', tmpDir );
+      expect( mcpPath ).toBe( path.join( tmpDir, '.kilocode', 'mcp.json' ) );
+    } );
+  } );
 
-  describe('MCP Configuration Handling', () => {
-    it('creates new MCP configuration file', async () => {
-      const mcpPath = path.join(tmpDir, '.kilocode', 'mcp.json');
-      const mcpConfig = {
+  describe( 'MCP configsuration Handling', () =>
+  {
+    it( 'creates new MCP configsuration file', async () =>
+    {
+      const mcpPath = path.join( tmpDir, '.kilocode', 'mcp.json' );
+      const mcpconfigs = {
         mcpServers: {
           filesystem: {
             command: 'npx',
-            args: ['-y', '@modelcontextprotocol/server-filesystem', tmpDir],
+            args: [ '-y', '@modelcontextprotocol/server-filesystem', tmpDir ],
           },
         },
       };
 
-      await writeNativeMcp(mcpPath, mcpConfig);
+      await writeNativeMcp( mcpPath, mcpconfigs );
 
       // Verify file was created
-      await expect(fs.access(mcpPath)).resolves.toBeUndefined();
+      await expect( fs.access( mcpPath ) ).resolves.toBeUndefined();
 
-      const content = JSON.parse(await fs.readFile(mcpPath, 'utf8'));
-      expect(content.mcpServers.filesystem.command).toBe('npx');
-      expect(content.mcpServers.filesystem.args).toEqual([
+      const content = JSON.parse( await fs.readFile( mcpPath, 'utf8' ) );
+      expect( content.mcpServers.filesystem.command ).toBe( 'npx' );
+      expect( content.mcpServers.filesystem.args ).toEqual( [
         '-y',
         '@modelcontextprotocol/server-filesystem',
         tmpDir,
-      ]);
-    });
+      ] );
+    } );
 
-    it('reads existing MCP configuration', async () => {
-      const mcpPath = path.join(tmpDir, '.kilocode', 'mcp.json');
-      const existingConfig = {
+    it( 'reads existing MCP configsuration', async () =>
+    {
+      const mcpPath = path.join( tmpDir, '.kilocode', 'mcp.json' );
+      const existingconfigs = {
         mcpServers: {
           existing: {
             command: 'existing-command',
-            args: ['existing-arg'],
+            args: [ 'existing-arg' ],
           },
         },
       };
 
-      await fs.mkdir(path.dirname(mcpPath), { recursive: true });
-      await fs.writeFile(mcpPath, JSON.stringify(existingConfig, null, 2));
+      await fs.mkdir( path.dirname( mcpPath ), { recursive: true } );
+      await fs.writeFile( mcpPath, JSON.stringify( existingconfigs, null, 2 ) );
 
-      const readConfig = await readNativeMcp(mcpPath);
-      expect(readConfig).toEqual(existingConfig);
-    });
+      const readconfigs = await readNativeMcp( mcpPath );
+      expect( readconfigs ).toEqual( existingconfigs );
+    } );
 
-    it('returns empty object for non-existent MCP file', async () => {
-      const mcpPath = path.join(tmpDir, '.kilocode', 'nonexistent.json');
-      const config = await readNativeMcp(mcpPath);
-      expect(config).toEqual({});
-    });
+    it( 'returns empty object for non-existent MCP file', async () =>
+    {
+      const mcpPath = path.join( tmpDir, '.kilocode', 'nonexistent.json' );
+      const configs = await readNativeMcp( mcpPath );
+      expect( configs ).toEqual( {} );
+    } );
 
-    it('merges MCP configurations correctly', async () => {
+    it( 'merges MCP configsurations correctly', async () =>
+    {
       const existing = {
         mcpServers: {
-          existing: { command: 'existing-cmd', args: ['existing-arg'] },
+          existing: { command: 'existing-cmd', args: [ 'existing-arg' ] },
         },
       };
 
-      const newConfig = {
+      const newconfigs = {
         mcpServers: {
-          filesystem: { command: 'npx', args: ['mcp-filesystem'] },
+          filesystem: { command: 'npx', args: [ 'mcp-filesystem' ] },
         },
       };
 
       const merged = mergeMcp(
         existing,
-        newConfig,
+        newconfigs,
         'merge',
         'mcpServers',
-      ) as McpConfig;
+      ) as Mcpconfigs;
 
-      expect(merged.mcpServers.existing).toEqual({
+      expect( merged.mcpServers.existing ).toEqual( {
         command: 'existing-cmd',
-        args: ['existing-arg'],
-      });
-      expect(merged.mcpServers.filesystem).toEqual({
+        args: [ 'existing-arg' ],
+      } );
+      expect( merged.mcpServers.filesystem ).toEqual( {
         command: 'npx',
-        args: ['mcp-filesystem'],
-      });
-    });
+        args: [ 'mcp-filesystem' ],
+      } );
+    } );
 
-    it('overwrites MCP configurations with overwrite strategy', async () => {
+    it( 'overwrites MCP configsurations with overwrite strategy', async () =>
+    {
       const existing = {
         mcpServers: {
           existing: { command: 'existing-cmd' },
         },
       };
 
-      const newConfig = {
+      const newconfigs = {
         mcpServers: {
-          filesystem: { command: 'npx', args: ['mcp-filesystem'] },
+          filesystem: { command: 'npx', args: [ 'mcp-filesystem' ] },
         },
       };
 
       const merged = mergeMcp(
         existing,
-        newConfig,
+        newconfigs,
         'overwrite',
         'mcpServers',
-      ) as McpConfig;
+      ) as Mcpconfigs;
 
-      expect(merged.mcpServers.existing).toBeUndefined();
-      expect(merged.mcpServers.filesystem).toEqual({
+      expect( merged.mcpServers.existing ).toBeUndefined();
+      expect( merged.mcpServers.filesystem ).toEqual( {
         command: 'npx',
-        args: ['mcp-filesystem'],
-      });
-    });
+        args: [ 'mcp-filesystem' ],
+      } );
+    } );
 
-    it('overwrites servers with same name during merge', async () => {
+    it( 'overwrites servers with same name during merge', async () =>
+    {
       const existing = {
         mcpServers: {
-          filesystem: { command: 'old-command', args: ['old-arg'] },
+          filesystem: { command: 'old-command', args: [ 'old-arg' ] },
         },
       };
 
-      const newConfig = {
+      const newconfigs = {
         mcpServers: {
-          filesystem: { command: 'new-command', args: ['new-arg'] },
+          filesystem: { command: 'new-command', args: [ 'new-arg' ] },
         },
       };
 
       const merged = mergeMcp(
         existing,
-        newConfig,
+        newconfigs,
         'merge',
         'mcpServers',
-      ) as McpConfig;
+      ) as Mcpconfigs;
 
-      expect(merged.mcpServers.filesystem).toEqual({
+      expect( merged.mcpServers.filesystem ).toEqual( {
         command: 'new-command',
-        args: ['new-arg'],
-      });
-    });
+        args: [ 'new-arg' ],
+      } );
+    } );
 
-    it('preserves non-MCP properties during merge', async () => {
+    it( 'preserves non-MCP properties during merge', async () =>
+    {
       const existing = {
         mcpServers: {
           existing: { command: 'existing-cmd' },
@@ -177,7 +193,7 @@ describe('KiloCode MCP Integration', () => {
         otherProperty: 'preserved',
       };
 
-      const newConfig = {
+      const newconfigs = {
         mcpServers: {
           filesystem: { command: 'npx' },
         },
@@ -185,14 +201,14 @@ describe('KiloCode MCP Integration', () => {
 
       const merged = mergeMcp(
         existing,
-        newConfig,
+        newconfigs,
         'merge',
         'mcpServers',
-      ) as McpConfig;
+      ) as Mcpconfigs;
 
-      expect(merged.otherProperty).toBe('preserved');
-      expect(merged.mcpServers.existing).toEqual({ command: 'existing-cmd' });
-      expect(merged.mcpServers.filesystem).toEqual({ command: 'npx' });
-    });
-  });
-});
+      expect( merged.otherProperty ).toBe( 'preserved' );
+      expect( merged.mcpServers.existing ).toEqual( { command: 'existing-cmd' } );
+      expect( merged.mcpServers.filesystem ).toEqual( { command: 'npx' } );
+    } );
+  } );
+} );

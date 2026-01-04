@@ -59,7 +59,7 @@ use std::num::NonZeroUsize;
 pub use addresses::Addresses;
 pub use behaviour::{
     AddProviderContext, AddProviderError, AddProviderOk, AddProviderPhase, AddProviderResult,
-    Behaviour, BootstrapError, BootstrapOk, BootstrapResult, BucketInserts, Caching, Config, Event,
+    Behaviour, BootstrapError, BootstrapOk, BootstrapResult, BucketInserts, Caching, configs, Event,
     GetClosestPeersError, GetClosestPeersOk, GetClosestPeersResult, GetProvidersError,
     GetProvidersOk, GetProvidersResult, GetRecordError, GetRecordOk, GetRecordResult,
     InboundRequest, Mode, NoKnownPeers, PeerInfo, PeerRecord, ProgressStep, PutRecordContext,
@@ -83,7 +83,7 @@ pub use record::{store, Key as RecordKey, ProviderRecord, Record};
 ///      returned in response to a request. b) The number of closest peers to a key to search for in
 ///      an iterative query.
 ///
-/// The choice of (1) is fixed to this constant. The replication factor is configurable
+/// The choice of (1) is fixed to this constant. The replication factor is configsurable
 /// but should generally be no greater than `K_VALUE`. All nodes in a Kademlia
 /// DHT should agree on the choices made for (1) and (2).
 ///

@@ -222,14 +222,14 @@ async fn wrong_peerid() {
 fn new_tcp_quic_transport() -> (PeerId, Boxed<(PeerId, StreamMuxerBox)>) {
     let keypair = generate_tls_keypair();
     let peer_id = keypair.public().to_peer_id();
-    let mut config = quic::Config::new(&keypair);
-    config.handshake_timeout = Duration::from_secs(1);
+    let mut configs = quic::configs::new(&keypair);
+    configs.handshake_timeout = Duration::from_secs(1);
 
-    let quic_transport = quic::tokio::Transport::new(config);
-    let tcp_transport = tcp::tokio::Transport::new(tcp::Config::default())
+    let quic_transport = quic::tokio::Transport::new(configs);
+    let tcp_transport = tcp::tokio::Transport::new(tcp::configs::default())
         .upgrade(upgrade::Version::V1)
-        .authenticate(noise::Config::new(&keypair).unwrap())
-        .multiplex(yamux::Config::default());
+        .authenticate(noise::configs::new(&keypair).unwrap())
+        .multiplex(yamux::configs::default());
 
     let transport = OrTransport::new(quic_transport, tcp_transport)
         .map(|either_output, _| match either_output {
@@ -365,7 +365,7 @@ async fn backpressure() {
     let _ = tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
-    let max_stream_data = quic::Config::new(&generate_tls_keypair()).max_stream_data;
+    let max_stream_data = quic::configs::new(&generate_tls_keypair()).max_stream_data;
 
     let (mut stream_a, mut stream_b) = build_streams::<quic::tokio::Provider>().await;
 
@@ -552,13 +552,13 @@ fn create_default_transport<P: Provider>() -> (PeerId, Boxed<(PeerId, StreamMuxe
 }
 
 fn create_transport<P: Provider>(
-    with_config: impl Fn(&mut quic::Config),
+    with_configs: impl Fn(&mut quic::configs),
 ) -> (PeerId, Boxed<(PeerId, StreamMuxerBox)>) {
     let keypair = generate_tls_keypair();
     let peer_id = keypair.public().to_peer_id();
-    let mut config = quic::Config::new(&keypair);
-    with_config(&mut config);
-    let transport = quic::GenTransport::<P>::new(config)
+    let mut configs = quic::configs::new(&keypair);
+    with_configs(&mut configs);
+    let transport = quic::GenTransport::<P>::new(configs)
         .map(|(p, c), _| (p, StreamMuxerBox::new(c)))
         .boxed();
 

@@ -43,12 +43,12 @@ pub use self::{
     topic::Topic,
 };
 
-#[deprecated = "Use `Config` instead."]
-pub type FloodsubConfig = Config;
+#[deprecated = "Use `configs` instead."]
+pub type Floodsubconfigs = configs;
 
-/// Configuration options for the Floodsub protocol.
+/// configsuration options for the Floodsub protocol.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// Peer id of the local node. Used for the source of the messages that we publish.
     pub local_peer_id: PeerId,
 
@@ -57,7 +57,7 @@ pub struct Config {
     pub subscribe_local_messages: bool,
 }
 
-impl Config {
+impl configs {
     pub fn new(local_peer_id: PeerId) -> Self {
         Self {
             local_peer_id,

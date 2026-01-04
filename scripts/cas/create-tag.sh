@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-# Configuration
+# configsuration
 NOA_ROOT="${NOA_ROOT:-/n/noa}"
 CAS_ROOT="${CAS_ROOT:-${NOA_ROOT}/cas}"
 TAGS_DIR="${CAS_ROOT}/tags"

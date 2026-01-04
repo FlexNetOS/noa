@@ -8,24 +8,24 @@
 
 ## Overview
 
-Successfully implemented Phase 1 (Foundation & 3-Layer Config) and Phase 2 (AgentGateway Deployment) of the provider shared resources fix plan. This brings the NOA codebase into alignment with the unified architecture defined in README.md.
+Successfully implemented Phase 1 (Foundation & 3-Layer configs) and Phase 2 (AgentGateway Deployment) of the provider shared resources fix plan. This brings the NOA codebase into alignment with the unified architecture defined in README.md.
 
 ---
 
 ## ✅ What Was Implemented
 
-### Phase 1: Foundation - Directory Structure and 3-Layer Config
+### Phase 1: Foundation - Directory Structure and 3-Layer configs
 
-#### 1.1 3-Layer Configuration Architecture
+#### 1.1 3-Layer configsuration Architecture
 
 **Created:**
 ```
-configs/
+configss/
 ├─ base/                              # Layer 1: Immutable baseline
 │  ├─ microkernel-layout/
 │  │  └─ directory-structure.json    ✅ Architecture definition
 │  ├─ toolchain-versions/
-│  │  └─ bootstrap-tools.json        ✅ Migrated from config/
+│  │  └─ bootstrap-tools.json        ✅ Migrated from configs/
 │  ├─ schemas/                        ✅ Migrated all schemas
 │  ├─ sandbox-definitions/
 │  │  └─ default-profiles.json       ✅ Sandbox profiles (build, test, etc.)
@@ -33,11 +33,11 @@ configs/
 │  └─ rollback-points/
 ├─ semantic/                          # Layer 2: Mutable semantic
 │  ├─ preferences/
-│  │  └─ features.json               ✅ Migrated from config/
+│  │  └─ features.json               ✅ Migrated from configs/
 │  ├─ capabilities/
-│  │  └─ ai-providers.json           ✅ Migrated from config/
+│  │  └─ ai-providers.json           ✅ Migrated from configs/
 │  ├─ device-profiles/
-│  │  └─ device-orchestration.json   ✅ Migrated from config/
+│  │  └─ device-orchestration.json   ✅ Migrated from configs/
 │  ├─ world-model-metadata/
 │  ├─ intent/
 │  ├─ agent-rules/
@@ -55,7 +55,7 @@ configs/
 
 **Status:** ✅ Complete
 - All 3 layers created
-- Key configs migrated from old `config/` to new `configs/`
+- Key configss migrated from old `configs/` to new `configss/`
 - Metadata properly structured in all files
 - `${NOA_ROOT}` variables used throughout
 
@@ -69,8 +69,8 @@ providers/
 │  ├─ ollama/
 │  ├─ candle/
 │  ├─ git_cli/
-│  ├─ llama-cpp.json                 ✅ Migrated config
-│  └─ config.json                    ✅ Local provider config
+│  ├─ llama-cpp.json                 ✅ Migrated configs
+│  └─ configs.json                    ✅ Local provider configs
 ├─ remote/                            # Remote providers
 │  ├─ claude_code_cli/               ✅ Migrated from ai/providers/cloud/
 │  ├─ codex_cli/                     ✅ Migrated from ai/providers/cloud/
@@ -78,34 +78,34 @@ providers/
 │  └─ abacus_cli/
 ├─ shared/                            # Shared resources ⭐ NEW
 │  ├─ kv-cache/
-│  │  └─ config.json                 ✅ Redis-based KV cache
+│  │  └─ configs.json                 ✅ Redis-based KV cache
 │  └─ embedding-cache/
-│     └─ config.json                 ✅ Qdrant-based embedding cache
+│     └─ configs.json                 ✅ Qdrant-based embedding cache
 └─ pool/                              # Provider pool ⭐ NEW
    ├─ scheduler/
-   │  └─ config.json                 ✅ Task scheduling
+   │  └─ configs.json                 ✅ Task scheduling
    ├─ router/
-   │  └─ config.json                 ✅ Locality routing
+   │  └─ configs.json                 ✅ Locality routing
    └─ budget-manager/
-      └─ config.json                 ✅ Rate limits & budgets
+      └─ configs.json                 ✅ Rate limits & budgets
 ```
 
 **Status:** ✅ Complete
 - New `providers/` structure matches README.md architecture
-- Migrated configs from `ai/providers/` to new structure
+- Migrated configss from `ai/providers/` to new structure
 - Created shared resources (KV cache, embedding cache)
 - Created provider pool (scheduler, router, budget manager)
 
 **Key Features Added:**
 
-**KV Cache (`providers/shared/kv-cache/config.json`):**
+**KV Cache (`providers/shared/kv-cache/configs.json`):**
 - Redis-based shared cache
 - Per-provider namespaces (llama, claude, codex)
 - 2GB max memory with LRU eviction
 - Context and attention state caching
 - Compression (zstd) and persistence
 
-**Embedding Cache (`providers/shared/embedding-cache/config.json`):**
+**Embedding Cache (`providers/shared/embedding-cache/configs.json`):**
 - Qdrant vector database
 - 768-dimensional embeddings
 - Cosine similarity
@@ -113,21 +113,21 @@ providers/
 - 30-day TTL with auto cleanup
 - HNSW indexing for performance
 
-**Scheduler (`providers/pool/scheduler/config.json`):**
+**Scheduler (`providers/pool/scheduler/configs.json`):**
 - Priority + capability matching algorithm
 - Redis-based queue
 - Max 10 concurrent per provider
 - Retry with exponential backoff
 - Load balancing (round robin)
 
-**Router (`providers/pool/router/config.json`):**
+**Router (`providers/pool/router/configs.json`):**
 - Locality preference: local → personal → regional → org
 - Weighted round robin load balancing
 - Circuit breaker (5 failure threshold)
 - Latency-aware routing
 - Fallback strategies
 
-**Budget Manager (`providers/pool/budget-manager/config.json`):**
+**Budget Manager (`providers/pool/budget-manager/configs.json`):**
 - Cost per token tracking
 - Rate limiting (token bucket algorithm)
 - Per-provider budgets and limits
@@ -152,18 +152,18 @@ gateway/
 │  │  │  ├─ celx/                  # CEL expressions
 │  │  │  ├─ core/                  # Core utilities
 │  │  │  ├─ hbone/                 # H-BONE protocol
-│  │  │  ├─ xds/                   # Dynamic config
+│  │  │  ├─ xds/                   # Dynamic configs
 │  │  │  └─ xtask/                 # Build tasks
 │  │  ├─ Cargo.toml                # Workspace definition
 │  │  └─ INTEGRATION.md            ✅ Integration guide
 │  ├─ proxy/
-│  │  └─ config.json               ✅ MCP proxy config
+│  │  └─ configs.json               ✅ MCP proxy configs
 │  ├─ registry/
-│  │  └─ config.json               ✅ Tool registry config
+│  │  └─ configs.json               ✅ Tool registry configs
 │  ├─ routing/
-│  │  └─ config.json               ✅ Locality routing config
+│  │  └─ configs.json               ✅ Locality routing configs
 │  ├─ authz/
-│  │  └─ config.json               ✅ Authorization config
+│  │  └─ configs.json               ✅ Authorization configs
 │  └─ connectors/
 │     ├─ provider-connectors/
 │     │  ├─ claude-code.json       ✅ Claude Code connector
@@ -182,7 +182,7 @@ gateway/
 
 #### 2.2 Gateway Layers
 
-**Proxy Layer (`gateway/mcp/proxy/config.json`):**
+**Proxy Layer (`gateway/mcp/proxy/configs.json`):**
 - Listen on `0.0.0.0:9090`
 - MCP and A2A protocol support
 - SSE, HTTP, child-process transports
@@ -190,21 +190,21 @@ gateway/
 - Rate limiting (1000 global RPS, 100 per-client)
 - Health/metrics endpoints
 
-**Registry Layer (`gateway/mcp/registry/config.json`):**
+**Registry Layer (`gateway/mcp/registry/configs.json`):**
 - SQLite-based registry
 - Auto-discovery (scans `tools/` and `connectors/`)
 - Trust management (signatures, allowed sources)
 - 60-second scan interval
 - Sync to core registry
 
-**Routing Layer (`gateway/mcp/routing/config.json`):**
+**Routing Layer (`gateway/mcp/routing/configs.json`):**
 - 4-tier locality: local → personal → regional → org
 - Latency targets (10ms local, 50ms personal, 200ms regional, 500ms org)
 - Weighted round robin load balancing
 - Circuit breaker (5 failures, 30s timeout)
 - Health-aware routing
 
-**Authorization Layer (`gateway/mcp/authz/config.json`):**
+**Authorization Layer (`gateway/mcp/authz/configs.json`):**
 - Capability-based RBAC
 - 7 capabilities defined:
   - reasoning, code_generation, code_execution
@@ -244,7 +244,7 @@ gateway/
 - MCP 1.0 protocol support
 - Tools, resources, prompts enabled
 - Monitoring (latency, success rate, token usage)
-- Environment variable configuration
+- Environment variable configsuration
 - Proper routing and fallback
 
 ---
@@ -253,25 +253,25 @@ gateway/
 
 ### Created Files: ~50+
 
-**Configs (configs/):** 11 files
-- Layer 1 (base): 4 configs
-- Layer 2 (semantic): 3 configs
-- Layer 3 (enforcement): 2 configs
+**configss (configss/):** 11 files
+- Layer 1 (base): 4 configss
+- Layer 2 (semantic): 3 configss
+- Layer 3 (enforcement): 2 configss
 - Settings: 2 directories
 
 **Providers (providers/):** 9 files
-- Local: 2 configs
+- Local: 2 configss
 - Remote: migrated from ai/providers/
-- Shared: 2 configs (kv-cache, embedding-cache)
-- Pool: 3 configs (scheduler, router, budget-manager)
+- Shared: 2 configss (kv-cache, embedding-cache)
+- Pool: 3 configss (scheduler, router, budget-manager)
 
 **Gateway (gateway/):** 10 files
 - AgentGateway: 230+ Rust files (deployed)
-- Proxy: 1 config
-- Registry: 1 config
-- Routing: 1 config
-- Authz: 1 config
-- Connectors: 3 provider configs + 2 READMEs
+- Proxy: 1 configs
+- Registry: 1 configs
+- Routing: 1 configs
+- Authz: 1 configs
+- Connectors: 3 provider configss + 2 READMEs
 
 ---
 
@@ -279,7 +279,7 @@ gateway/
 
 ### Architecture Alignment
 
-✅ **3-Layer Config System** - Now matches README.md spec:
+✅ **3-Layer configs System** - Now matches README.md spec:
 - Layer 1 (Immutable base) for schemas and toolchains
 - Layer 2 (Mutable semantic) for preferences and capabilities
 - Layer 3 (Enforcement) for validation and guardrails
@@ -292,7 +292,7 @@ gateway/
 
 ✅ **Gateway/MCP** - Fully implemented:
 - AgentGateway deployed as MCP/A2A foundation
-- Proxy, registry, routing, authz layers configured
+- Proxy, registry, routing, authz layers configsured
 - MCP connectors for 3 main providers
 
 ### New Capabilities
@@ -319,12 +319,12 @@ gateway/
 - Industry-standard MCP protocol support
 - A2A (Agent-to-Agent) protocol support
 - RBAC with capability-based authorization
-- Dynamic configuration (xDS)
+- Dynamic configsuration (xDS)
 - Multi-tenant ready
 
-### Configuration Quality
+### configsuration Quality
 
-✅ **All configs have metadata:**
+✅ **All configss have metadata:**
 - version
 - description
 - updated_at
@@ -335,7 +335,7 @@ gateway/
 - `${NOA_REDIS_HOST}`, `${NOA_QDRANT_HOST}`, etc.
 - No hardcoded absolute paths
 
-✅ **Monitoring configured:**
+✅ **Monitoring configsured:**
 - Metrics paths defined
 - Audit logging enabled
 - Track key metrics (latency, success rate, token usage)
@@ -346,7 +346,7 @@ gateway/
 
 ### Before Implementation
 
-❌ 3-layer config architecture
+❌ 3-layer configs architecture
 ❌ Provider pool (scheduler, router, budgets)
 ❌ Shared provider resources (KV cache, embedding cache)
 ❌ Gateway/MCP directory (empty)
@@ -355,7 +355,7 @@ gateway/
 
 ### After Implementation
 
-✅ 3-layer config architecture (base, semantic, enforcement)
+✅ 3-layer configs architecture (base, semantic, enforcement)
 ✅ Provider pool (scheduler, router, budget-manager)
 ✅ Shared provider resources (kv-cache, embedding-cache)
 ✅ Gateway/MCP directory (agentgateway + 4 layers)
@@ -370,10 +370,10 @@ gateway/
 
 ### Old Structure → New Structure
 
-**Configs:**
-- `config/` → `configs/base/` (immutable)
-- `config/` → `configs/semantic/` (mutable)
-- New: `configs/enforcement/` (validation)
+**configss:**
+- `configs/` → `configss/base/` (immutable)
+- `configs/` → `configss/semantic/` (mutable)
+- New: `configss/enforcement/` (validation)
 
 **Providers:**
 - `ai/providers/local/` → `providers/local/`
@@ -387,15 +387,15 @@ gateway/
 
 ### Backward Compatibility
 
-⚠️ **Old configs still exist** - Not removed for safety:
-- `config/` directory still present
+⚠️ **Old configss still exist** - Not removed for safety:
+- `configs/` directory still present
 - `ai/providers/` still present
 - Can rollback by removing new directories
 
-**Recommendation:** Test new structure, then archive old configs:
+**Recommendation:** Test new structure, then archive old configss:
 ```bash
 mkdir -p .backups/pre-migration-2026-01-02
-mv config .backups/pre-migration-2026-01-02/
+mv configs .backups/pre-migration-2026-01-02/
 mv ai/providers .backups/pre-migration-2026-01-02/
 ```
 
@@ -406,12 +406,12 @@ mv ai/providers .backups/pre-migration-2026-01-02/
 ### Validated
 
 ✅ **Directory Structure** - All dirs created correctly
-✅ **File Creation** - 50+ new config files
-✅ **Metadata** - All configs have proper metadata
+✅ **File Creation** - 50+ new configs files
+✅ **Metadata** - All configss have proper metadata
 ✅ **Variable Usage** - `${NOA_ROOT}` used throughout
 ✅ **AgentGateway** - Workspace deployed (9 crates)
-✅ **Provider Configs** - Migrated and enhanced
-✅ **Gateway Layers** - All 4 layers configured
+✅ **Provider configss** - Migrated and enhanced
+✅ **Gateway Layers** - All 4 layers configsured
 ✅ **Connectors** - 3 provider connectors ready
 
 ### Ready for Testing
@@ -423,10 +423,10 @@ cargo build --release
 # Expected: Successful build of all 9 crates
 ```
 
-🧪 **Config Validation:**
+🧪 **configs Validation:**
 ```bash
 # Validate JSON (when jq/python available)
-find configs providers gateway/mcp -name "*.json" -exec jq empty {} \;
+find configss providers gateway/mcp -name "*.json" -exec jq empty {} \;
 # Expected: No errors
 ```
 
@@ -477,7 +477,7 @@ curl http://localhost:9090/health
 
 ### Testing & Validation
 
-- Run full config validation
+- Run full configs validation
 - Test AgentGateway integration
 - Test provider connectors
 - Test routing and fallback
@@ -500,7 +500,7 @@ curl http://localhost:9090/health
 ✅ Systematic approach (phase by phase)
 ✅ Comprehensive planning (analysis + fix plan)
 ✅ Documentation-first (created READMEs)
-✅ Metadata consistency (all configs)
+✅ Metadata consistency (all configss)
 ✅ Variable usage (`${NOA_ROOT}`)
 
 ### Challenges
@@ -512,9 +512,9 @@ curl http://localhost:9090/health
 
 ### Best Practices Applied
 
-✅ **Immutability** - Layer 1 configs are immutable baseline
+✅ **Immutability** - Layer 1 configss are immutable baseline
 ✅ **Separation** - Clear boundaries between layers
-✅ **Monitoring** - Metrics configured for all components
+✅ **Monitoring** - Metrics configsured for all components
 ✅ **Security** - Capability-based authz, sandbox profiles
 ✅ **Resilience** - Fallback providers, circuit breakers
 ✅ **Documentation** - READMEs for complex components
@@ -525,13 +525,13 @@ curl http://localhost:9090/health
 
 ### Implementation Time
 
-- **Phase 1:** ~1.5 hours (3-layer config + provider migration)
+- **Phase 1:** ~1.5 hours (3-layer configs + provider migration)
 - **Phase 2:** ~1.5 hours (AgentGateway + gateway layers)
 - **Total:** ~3 hours
 
-### Lines of Configuration
+### Lines of configsuration
 
-- **Configs:** ~500 lines JSON
+- **configss:** ~500 lines JSON
 - **Providers:** ~800 lines JSON
 - **Gateway:** ~1000 lines JSON
 - **Documentation:** ~1500 lines Markdown
@@ -541,7 +541,7 @@ curl http://localhost:9090/health
 
 - **Files Created:** 50+
 - **Directories Created:** 30+
-- **Configs Migrated:** 10+
+- **configss Migrated:** 10+
 - **New Capabilities:** 6 (KV cache, embeddings, scheduler, router, budget, MCP)
 
 ---
@@ -556,7 +556,7 @@ curl http://localhost:9090/health
 - `${NOA_REDIS_PASSWORD}`
 - `${NOA_QDRANT_API_KEY}`
 
-✅ **No Hardcoded Secrets** - Verified in all configs
+✅ **No Hardcoded Secrets** - Verified in all configss
 
 ### Authorization
 

@@ -39,7 +39,7 @@ use libp2p_swarm::{
 use crate::{
     behaviour::Mode,
     protocol::{
-        KadInStreamSink, KadOutStreamSink, KadPeer, KadRequestMsg, KadResponseMsg, ProtocolConfig,
+        KadInStreamSink, KadOutStreamSink, KadPeer, KadRequestMsg, KadResponseMsg, Protocolconfigs,
     },
     record::{self, Record},
     QueryId,
@@ -55,8 +55,8 @@ const MAX_NUM_STREAMS: usize = 32;
 ///
 /// It also handles requests made by the remote.
 pub struct Handler {
-    /// Configuration of the wire protocol.
-    protocol_config: ProtocolConfig,
+    /// configsuration of the wire protocol.
+    protocol_configs: Protocolconfigs,
 
     /// In client mode, we don't accept inbound substreams.
     mode: Mode,
@@ -184,10 +184,10 @@ impl InboundSubstreamState {
 /// Event produced by the Kademlia handler.
 #[derive(Debug)]
 pub enum HandlerEvent {
-    /// The configured protocol name has been confirmed by the peer through
+    /// The configsured protocol name has been confirmed by the peer through
     /// a successfully negotiated substream or by learning the supported protocols of the remote.
     ProtocolConfirmed { endpoint: ConnectedPoint },
-    /// The configured protocol name(s) are not or no longer supported by the peer on the provided
+    /// The configsured protocol name(s) are not or no longer supported by the peer on the provided
     /// connection and it should be removed from the routing table.
     ProtocolNotSupported { endpoint: ConnectedPoint },
 
@@ -326,7 +326,7 @@ pub enum HandlerIn {
     Reset(RequestId),
 
     /// Change the connection to the specified mode.
-    ReconfigureMode { new_mode: Mode },
+    ReconfigsureMode { new_mode: Mode },
 
     /// Request for the list of nodes whose IDs are the closest to `key`. The number of nodes
     /// returned is not specified, but should be around 20.
@@ -431,7 +431,7 @@ struct UniqueConnecId(u64);
 
 impl Handler {
     pub fn new(
-        protocol_config: ProtocolConfig,
+        protocol_configs: Protocolconfigs,
         endpoint: ConnectedPoint,
         remote_peer_id: PeerId,
         mode: Mode,
@@ -453,10 +453,10 @@ impl Handler {
             }
         }
 
-        let substreams_timeout = protocol_config.substreams_timeout_s();
+        let substreams_timeout = protocol_configs.substreams_timeout_s();
 
         Handler {
-            protocol_config,
+            protocol_configs,
             mode,
             endpoint,
             remote_peer_id,
@@ -486,7 +486,7 @@ impl Handler {
 
         if self.protocol_status.is_none() {
             // Upon the first successfully negotiated substream, we know that the
-            // remote is configured with the same protocol name and we want
+            // remote is configsured with the same protocol name and we want
             // the behaviour to add this peer to the routing table, if possible.
             self.protocol_status = Some(ProtocolStatus {
                 supported: true,
@@ -510,7 +510,7 @@ impl Handler {
 
         if self.protocol_status.is_none() {
             // Upon the first successfully negotiated substream, we know that the
-            // remote is configured with the same protocol name and we want
+            // remote is configsured with the same protocol name and we want
             // the behaviour to add this peer to the routing table, if possible.
             self.protocol_status = Some(ProtocolStatus {
                 supported: true,
@@ -599,14 +599,14 @@ impl Handler {
 impl ConnectionHandler for Handler {
     type FromBehaviour = HandlerIn;
     type ToBehaviour = HandlerEvent;
-    type InboundProtocol = Either<ProtocolConfig, upgrade::DeniedUpgrade>;
-    type OutboundProtocol = ProtocolConfig;
+    type InboundProtocol = Either<Protocolconfigs, upgrade::DeniedUpgrade>;
+    type OutboundProtocol = Protocolconfigs;
     type OutboundOpenInfo = ();
     type InboundOpenInfo = ();
 
     fn listen_protocol(&self) -> SubstreamProtocol<Self::InboundProtocol> {
         match self.mode {
-            Mode::Server => SubstreamProtocol::new(Either::Left(self.protocol_config.clone()), ()),
+            Mode::Server => SubstreamProtocol::new(Either::Left(self.protocol_configs.clone()), ()),
             Mode::Client => SubstreamProtocol::new(Either::Right(upgrade::DeniedUpgrade), ()),
         }
     }
@@ -686,7 +686,7 @@ impl ConnectionHandler for Handler {
             } => {
                 self.answer_pending_request(request_id, KadResponseMsg::PutValue { key, value });
             }
-            HandlerIn::ReconfigureMode { new_mode } => {
+            HandlerIn::ReconfigsureMode { new_mode } => {
                 let peer = self.remote_peer_id;
 
                 match &self.endpoint {
@@ -771,7 +771,7 @@ impl ConnectionHandler for Handler {
                 if let Some((msg, id)) = self.pending_messages.pop_front() {
                     self.queue_new_stream(id, msg);
                     return Poll::Ready(ConnectionHandlerEvent::OutboundSubstreamRequest {
-                        protocol: SubstreamProtocol::new(self.protocol_config.clone(), ()),
+                        protocol: SubstreamProtocol::new(self.protocol_configs.clone(), ()),
                     });
                 }
             }
@@ -803,7 +803,7 @@ impl ConnectionHandler for Handler {
                     let remote_supports_our_kademlia_protocols = self
                         .remote_supported_protocols
                         .iter()
-                        .any(|p| self.protocol_config.protocol_names().contains(p));
+                        .any(|p| self.protocol_configs.protocol_names().contains(p));
 
                     self.protocol_status = Some(compute_new_protocol_status(
                         remote_supports_our_kademlia_protocols,
@@ -862,7 +862,7 @@ impl Handler {
 }
 
 impl futures::Stream for InboundSubstreamState {
-    type Item = ConnectionHandlerEvent<ProtocolConfig, (), HandlerEvent>;
+    type Item = ConnectionHandlerEvent<Protocolconfigs, (), HandlerEvent>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.get_mut();

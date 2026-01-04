@@ -61,7 +61,7 @@ if [ ! -f ".env" ]; then
     if [ -f ".env.example" ]; then
         cp .env.example .env
         echo -e "${GREEN}✓ .env file created from .env.example${NC}"
-        echo -e "${YELLOW}⚠️  Please update .env with your configuration${NC}"
+        echo -e "${YELLOW}⚠️  Please update .env with your configsuration${NC}"
     fi
 fi
 
@@ -72,7 +72,7 @@ if [ -n "$DATABASE_URL" ] || grep -q "DATABASE_URL=" .env; then
     yarn prisma db push
     echo -e "${GREEN}✓ Database setup complete${NC}"
 else
-    echo -e "${YELLOW}⚠️  DATABASE_URL not configured. Skipping database setup.${NC}"
+    echo -e "${YELLOW}⚠️  DATABASE_URL not configsured. Skipping database setup.${NC}"
 fi
 
 # Install Playwright browsers (optional)
@@ -85,7 +85,7 @@ fi
 
 echo -e "\n${GREEN}✅ Environment setup complete!${NC}"
 echo -e "\n${YELLOW}Next steps:${NC}"
-echo -e "  1. Configure .env file with your settings"
+echo -e "  1. configsure .env file with your settings"
 echo -e "  2. Run 'yarn dev' to start development server"
 echo -e "  3. Visit http://localhost:3000"
 echo -e "\n${YELLOW}For desktop builds:${NC}"

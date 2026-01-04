@@ -10,7 +10,7 @@
 
 ## 0.48.0
 
-- Configurable outbound_substreams_timeout.
+- configsurable outbound_substreams_timeout.
   See [PR 6015](https://github.com/libp2p/rust-libp2p/pull/6015).
 - Rename `outbound_substreams_timeout` to `substreams_timeout` for future-proofness.
   See [PR 6076](https://github.com/libp2p/rust-libp2p/pull/6076).
@@ -31,7 +31,7 @@
   See [PR 5705](https://github.com/libp2p/rust-libp2p/pull/5705).
 - Fix systematic memory allocation when iterating over `KBuckets`.
   See [PR 5715](https://github.com/libp2p/rust-libp2p/pull/5715).
-- Remove deprecated default constructor for `ProtocolConfig`.
+- Remove deprecated default constructor for `Protocolconfigs`.
   See [PR 5774](https://github.com/libp2p/rust-libp2p/pull/5774).
 - Add lazy cleanup for expired provider records in `Behavior::get_providers` and `Behavior::provider_peers`.
   See [PR 5980](https://github.com/libp2p/rust-libp2p/pull/5980).
@@ -62,8 +62,8 @@
   See [PR 4934](https://github.com/libp2p/rust-libp2p/pull/4934).
 - Add periodic and automatic bootstrap.
   See [PR 4838](https://github.com/libp2p/rust-libp2p/pull/4838).
-- Make it mandatory to provide protocol names when creating a `kad::Config`.
-  Deprecate `kad::Config::default()`, replaced by `kad::Config::new(StreamProtocol)`.
+- Make it mandatory to provide protocol names when creating a `kad::configs`.
+  Deprecate `kad::configs::default()`, replaced by `kad::configs::new(StreamProtocol)`.
   See [PR 5122](https://github.com/libp2p/rust-libp2p/pull/5122).
 - Compute `jobs_query_capacity` accurately.
   See [PR 5148](https://github.com/libp2p/rust-libp2p/pull/5148).
@@ -100,9 +100,9 @@
 
 ## 0.45.0
 
-- Remove deprecated `kad::Config::set_connection_idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Remove deprecated `kad::configs::set_connection_idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4659](https://github.com/libp2p/rust-libp2p/pull/4659).
-- Emit `ModeChanged` event whenever we automatically reconfigure the mode.
+- Emit `ModeChanged` event whenever we automatically reconfigsure the mode.
   See [PR 4503](https://github.com/libp2p/rust-libp2p/pull/4503).
 - Make previously "deprecated" `record` module private.
   See [PR 4035](https://github.com/libp2p/rust-libp2p/pull/4035).
@@ -120,7 +120,7 @@
   See [PR 4639](https://github.com/libp2p/rust-libp2p/pull/4639).
 - Re-export `NodeStatus`.
   See [PR 4645].
-- Deprecate `kad::Config::set_connection_idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Deprecate `kad::configs::set_connection_idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4675].
 
 [PR 4547]: https://github.com/libp2p/rust-libp2p/pull/4547
@@ -184,7 +184,7 @@
 - Remove deprecated public modules `handler`, `protocol` and `kbucket`.
   See [PR 3896].
 
-- Automatically configure client/server mode based on external addresses.
+- Automatically configsure client/server mode based on external addresses.
   If we have or learn about an external address of our node, e.g. through `Swarm::add_external_address` or automated through `libp2p-autonat`, we operate in server-mode and thus allow inbound requests.
   By default, a node is in client-mode and only allows outbound requests.
   If you want to maintain the status quo, i.e. always operate in server mode, make sure to add at least one external address through `Swarm::add_external_address`.
@@ -197,7 +197,7 @@
 
 ## 0.43.3
 
-- Preserve existing `KeepAlive::Until` timeout instead of continuously setting new `KeepAlive::Until(Instant::now() + self.config.idle_timeout)`.
+- Preserve existing `KeepAlive::Until` timeout instead of continuously setting new `KeepAlive::Until(Instant::now() + self.configs.idle_timeout)`.
   See [PR 3801].
 
 [PR 3801]: https://github.com/libp2p/rust-libp2p/pull/3801
@@ -270,7 +270,7 @@
 
 ## 0.41.0
 
-- Remove deprecated `set_protocol_name()` from `KademliaConfig` & `KademliaProtocolConfig`.
+- Remove deprecated `set_protocol_name()` from `Kademliaconfigs` & `KademliaProtocolconfigs`.
   Use `set_protocol_names()` instead. See [PR 2866].
 
 - Bump rand to 0.8 and quickcheck to 1. See [PR 2857].
@@ -284,8 +284,8 @@
 
 ## 0.40.0
 
-- Add support for multiple protocol names. Update `Kademlia`, `KademliaConfig`,
-  and `KademliaProtocolConfig` accordingly. See [Issue 2837]. See [PR 2846].
+- Add support for multiple protocol names. Update `Kademlia`, `Kademliaconfigs`,
+  and `KademliaProtocolconfigs` accordingly. See [Issue 2837]. See [PR 2846].
 
 - Update to `libp2p-swarm` `v0.39.0`.
 
@@ -419,7 +419,7 @@
 
 ## 0.29.0 [2021-03-17]
 
-- Add `KademliaCaching` and `KademliaConfig::set_caching` to configure
+- Add `KademliaCaching` and `Kademliaconfigs::set_caching` to configsure
   whether Kademlia should track, in lookups, the closest nodes to a key
   that did not return a record, via `GetRecordOk::cache_candidates`.
   As before, if a lookup used a quorum of 1, these candidates will
@@ -463,10 +463,10 @@
 ## 0.25.0 [2020-11-09]
 
 - Upon newly established connections, delay routing table
-  updates until after the configured protocol name has
+  updates until after the configsured protocol name has
   been confirmed by the connection handler, i.e. until
   after at least one substream has been successfully
-  negotiated. In configurations with different protocol names,
+  negotiated. In configsurations with different protocol names,
   this avoids undesirable nodes being included in the
   local routing table at least temporarily.
   [PR 1821](https://github.com/libp2p/rust-libp2p/pull/1821).

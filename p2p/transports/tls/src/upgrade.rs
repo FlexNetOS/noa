@@ -48,21 +48,21 @@ pub enum UpgradeError {
 }
 
 #[derive(Clone)]
-pub struct Config {
-    server: rustls::ServerConfig,
-    client: rustls::ClientConfig,
+pub struct configs {
+    server: rustls::Serverconfigs,
+    client: rustls::Clientconfigs,
 }
 
-impl Config {
+impl configs {
     pub fn new(identity: &identity::Keypair) -> Result<Self, certificate::GenError> {
         Ok(Self {
-            server: crate::make_server_config(identity)?,
-            client: crate::make_client_config(identity, None)?,
+            server: crate::make_server_configs(identity)?,
+            client: crate::make_client_configs(identity, None)?,
         })
     }
 }
 
-impl UpgradeInfo for Config {
+impl UpgradeInfo for configs {
     type Info = &'static str;
     type InfoIter = std::iter::Once<Self::Info>;
 
@@ -71,7 +71,7 @@ impl UpgradeInfo for Config {
     }
 }
 
-impl<C> InboundConnectionUpgrade<C> for Config
+impl<C> InboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -94,7 +94,7 @@ where
     }
 }
 
-impl<C> OutboundConnectionUpgrade<C> for Config
+impl<C> OutboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -129,7 +129,7 @@ fn extract_single_certificate(
     state: &CommonState,
 ) -> Result<P2pCertificate<'_>, certificate::ParseError> {
     let Some([cert]) = state.peer_certificates() else {
-        panic!("config enforces exactly one certificate");
+        panic!("configs enforces exactly one certificate");
     };
 
     certificate::parse(cert)

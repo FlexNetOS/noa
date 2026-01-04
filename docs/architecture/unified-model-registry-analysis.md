@@ -33,7 +33,7 @@ This document analyzes how to share ML models from a single source across multip
 
 **Structure:**
 - Self-contained file with model + tokenizer + metadata
-- Header with key-value pairs for model configuration
+- Header with key-value pairs for model configsuration
 - Quantized tensor data with alignment
 
 **Key Features:**
@@ -200,7 +200,7 @@ cas/
 │       ├── model.safetensors   # Canonical weights
 │       ├── model-q4km.gguf     # Quantized variant
 │       ├── tokenizer.json      # Tokenizer
-│       └── config.json         # Model config
+│       └── configs.json         # Model configs
 ├── registry/
 │   └── models.json             # Model catalog
 ├── refs/
@@ -491,7 +491,7 @@ impl LlamaCppProvider {
 
 ```rust
 use candle_core::{Device, DType};
-use candle_transformers::models::llama::{Config, Llama};
+use candle_transformers::models::llama::{configs, Llama};
 use safetensors::SafeTensors;
 
 pub struct CandleProvider {
@@ -515,8 +515,8 @@ impl CandleProvider {
             &device,
         )?;
         
-        let config = load_config(registry, model_id)?;
-        let model = Llama::load(vb, &config)?;
+        let configs = load_configs(registry, model_id)?;
+        let model = Llama::load(vb, &configs)?;
         
         Ok(Self { model, device })
     }
@@ -676,7 +676,7 @@ class CASModelLoader:
 │                           (N:\noa\cas)                               │
 │                                                                      │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │
-│  │ safetensors│  │   GGUF     │  │ Tokenizers │  │  Configs   │    │
+│  │ safetensors│  │   GGUF     │  │ Tokenizers │  │  configss   │    │
 │  │  (F16/BF16)│  │ (Q4/Q5/Q8) │  │   (.json)  │  │  (.json)   │    │
 │  └────────────┘  └────────────┘  └────────────┘  └────────────┘    │
 └─────────────────────────────────────────────────────────────────────┘

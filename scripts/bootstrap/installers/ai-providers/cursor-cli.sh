@@ -19,13 +19,13 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$SC
 # Paths
 NOA_BIN="$NOA_ROOT/bin"
 CURSOR_CLI_ROOT="$NOA_ROOT/opt/cursor-cli"
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/hybrid/cursor/config.json"
+PROVIDER_configs="$NOA_ROOT/ai/providers/hybrid/cursor/configs.json"
 
 log_section "NOA Cursor CLI Setup"
 echo "NOA_ROOT: $NOA_ROOT"
 echo ""
 
-mkdir -p "$NOA_BIN" "$CURSOR_CLI_ROOT" "$(dirname "$PROVIDER_CONFIG")"
+mkdir -p "$NOA_BIN" "$CURSOR_CLI_ROOT" "$(dirname "$PROVIDER_configs")"
 
 # Check if Cursor is already available
 CURSOR_PATH=""
@@ -74,9 +74,9 @@ else
     echo "For headless CLI usage, see: https://cursor.com/docs/cli/headless"
 fi
 
-# Ensure provider config exists
-if [[ ! -f "$PROVIDER_CONFIG" ]]; then
-    cat > "$PROVIDER_CONFIG" <<'EOF'
+# Ensure provider configs exists
+if [[ ! -f "$PROVIDER_configs" ]]; then
+    cat > "$PROVIDER_configs" <<'EOF'
 {
   "name": "cursor",
   "type": "hybrid",
@@ -111,7 +111,7 @@ if [[ ! -f "$PROVIDER_CONFIG" ]]; then
   "sharedResourcePath": "${NOA_ROOT}/ai/shared"
 }
 EOF
-    log_success "Created provider config: $PROVIDER_CONFIG"
+    log_success "Created provider configs: $PROVIDER_configs"
 fi
 
 echo ""

@@ -47,13 +47,13 @@ mod proto {
     pub(crate) use self::structs::Exchange;
 }
 
-/// [`Config`] is an insecure connection handshake for testing purposes only.
+/// [`configs`] is an insecure connection handshake for testing purposes only.
 #[derive(Clone)]
-pub struct Config {
+pub struct configs {
     local_public_key: identity::PublicKey,
 }
 
-impl Config {
+impl configs {
     pub fn new(identity: &identity::Keypair) -> Self {
         Self {
             local_public_key: identity.public(),
@@ -61,7 +61,7 @@ impl Config {
     }
 }
 
-impl UpgradeInfo for Config {
+impl UpgradeInfo for configs {
     type Info = &'static str;
     type InfoIter = iter::Once<Self::Info>;
 
@@ -70,7 +70,7 @@ impl UpgradeInfo for Config {
     }
 }
 
-impl<C> InboundConnectionUpgrade<C> for Config
+impl<C> InboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -83,7 +83,7 @@ where
     }
 }
 
-impl<C> OutboundConnectionUpgrade<C> for Config
+impl<C> OutboundConnectionUpgrade<C> for configs
 where
     C: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
@@ -96,7 +96,7 @@ where
     }
 }
 
-impl Config {
+impl configs {
     async fn handshake<T>(self, socket: T) -> Result<(PeerId, Output<T>), Error>
     where
         T: AsyncRead + AsyncWrite + Send + Unpin + 'static,

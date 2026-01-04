@@ -150,7 +150,7 @@
 ### Completeness
 
 - [x] CHK061 - Are permitted host kernel use cases explicitly enumerated? ✅ **FR-166** (4 cases: startup, scanning, optimization, file access) [Resolved]
-- [x] CHK062 - Are required portable dependencies documented? ✅ **FR-166** (tools, terminal, packages, services, network, configs, data) [Resolved]
+- [x] CHK062 - Are required portable dependencies documented? ✅ **FR-166** (tools, terminal, packages, services, network, configss, data) [Resolved]
 - [x] CHK063 - Is platform coverage explicitly stated (all platforms, all hardware)? ✅ **FR-166** (Windows, Linux, macOS, mobile, XR + x64, ARM, GPU) [Resolved]
 - [x] CHK064 - Is the 100% independence guarantee defined? ✅ **FR-166** (bundled portable dependencies in noa_root) [Resolved]
 
@@ -234,7 +234,7 @@
 | Packages (npm, pip, cargo) | ❌ | ✅ MUST |
 | Services (llama, ollama) | ❌ | ✅ MUST |
 | Network (VM/container) | ❌ | ✅ MUST |
-| Config/Data | ❌ | ✅ MUST |
+| configs/Data | ❌ | ✅ MUST |
 
 **Result**: 100% independent functionality via bundled portable dependencies in `noa_root`.
 

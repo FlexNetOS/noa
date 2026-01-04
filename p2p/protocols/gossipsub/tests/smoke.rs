@@ -115,7 +115,7 @@ async fn build_node() -> Swarm<gossipsub::Behaviour> {
     let mut swarm = Swarm::new_ephemeral_tokio(|identity| {
         let peer_id = identity.public().to_peer_id();
 
-        let config = gossipsub::ConfigBuilder::default()
+        let configs = gossipsub::configsBuilder::default()
             .heartbeat_initial_delay(Duration::from_millis(100))
             .heartbeat_interval(Duration::from_millis(200))
             .history_length(10)
@@ -123,7 +123,7 @@ async fn build_node() -> Swarm<gossipsub::Behaviour> {
             .validation_mode(ValidationMode::Permissive)
             .build()
             .unwrap();
-        gossipsub::Behaviour::new(MessageAuthenticity::Author(peer_id), config).unwrap()
+        gossipsub::Behaviour::new(MessageAuthenticity::Author(peer_id), configs).unwrap()
     });
     swarm.listen().with_memory_addr_external().await;
 

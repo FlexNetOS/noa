@@ -169,7 +169,7 @@ Each README includes:
 ### 💻 Code Examples
 - **Example 1**: Basic usage
 - **Example 2**: Async/await patterns
-- **Example 3**: Configuration
+- **Example 3**: configsuration
 - **Example 4**: Error handling
 - **Example 5**: Advanced usage
 - **Bonus**: Category-specific examples (CLI, WASM, Neural Networks)
@@ -177,7 +177,7 @@ Each README includes:
 ### 📖 API Reference
 - Constructor documentation
 - Method signatures
-- Configuration interfaces
+- configsuration interfaces
 - Error classes and codes
 - TypeScript type definitions
 

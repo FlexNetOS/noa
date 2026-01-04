@@ -1,23 +1,23 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$CsvPath = "N:\noa\docs\plans\config-audit-table.csv"
+    [string]$CsvPath = "N:\noa\docs\plans\configs-audit-table.csv"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-& "$PSScriptRoot\normalize-config-audit-csv.ps1" -Path $CsvPath | Out-Null
+& "$PSScriptRoot\normalize-configs-audit-csv.ps1" -Path $CsvPath | Out-Null
 & "$PSScriptRoot\remove-bom.ps1" -Path $CsvPath | Out-Null
-& "$PSScriptRoot\normalize-config-audit-csv.ps1" -Path $CsvPath | Out-Null
+& "$PSScriptRoot\normalize-configs-audit-csv.ps1" -Path $CsvPath | Out-Null
 
 $data = @(Import-Csv -Path $CsvPath)
 
 $setValidation = @(
     '.env.example',
-    'config/schemas/providers.yaml',
-    'config/schemas/desktop-apps.json',
-    'config/schemas/mcp-servers.json'
+    'configs/schemas/providers.yaml',
+    'configs/schemas/desktop-apps.json',
+    'configs/schemas/mcp-servers.json'
 )
 
 foreach ($r in $data) {
@@ -37,6 +37,6 @@ $data | Select-Object $header | Export-Csv -Path $tmp -NoTypeInformation -Encodi
 Move-Item -LiteralPath $tmp -Destination $CsvPath -Force
 
 & "$PSScriptRoot\remove-bom.ps1" -Path $CsvPath | Out-Null
-& "$PSScriptRoot\normalize-config-audit-csv.ps1" -Path $CsvPath | Out-Null
+& "$PSScriptRoot\normalize-configs-audit-csv.ps1" -Path $CsvPath | Out-Null
 
 Write-Output "fixed"

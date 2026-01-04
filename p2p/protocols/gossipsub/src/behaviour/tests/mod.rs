@@ -23,7 +23,7 @@
 //! This module provides shared test utilities used across all gossipsub behaviour test modules.
 //! The main components are:
 //!
-//! - [`BehaviourTestBuilder`]: A builder for creating test network configurations with peers,
+//! - [`BehaviourTestBuilder`]: A builder for creating test network configsurations with peers,
 //!   topics, and various gossipsub settings.
 //! - Peer management functions: [`add_peer`], [`add_peer_with_addr`],
 //!   [`add_peer_with_addr_and_kind`], [`disconnect_peer`]
@@ -40,7 +40,7 @@ mod peer_queues;
 mod publish;
 mod scoring;
 mod subscription;
-mod topic_config;
+mod topic_configs;
 
 use std::collections::HashMap;
 
@@ -56,9 +56,9 @@ use crate::{types::RpcIn, IdentTopic as Topic};
 pub(super) type DefaultBehaviourTestBuilder =
     BehaviourTestBuilder<IdentityTransform, AllowAllSubscriptionFilter>;
 
-/// A builder for creating test gossipsub networks with configurable peers and topics.
+/// A builder for creating test gossipsub networks with configsurable peers and topics.
 ///
-/// This struct uses the builder pattern to configure a test network setup.
+/// This struct uses the builder pattern to configsure a test network setup.
 /// Call [`create_network`](Self::create_network) to finalize and create the network.
 ///
 /// # Example
@@ -68,7 +68,7 @@ pub(super) type DefaultBehaviourTestBuilder =
 ///     .peer_no(20)
 ///     .topics(vec!["topic1".into()])
 ///     .to_subscribe(true)
-///     .gs_config(Config::default())
+///     .gs_configs(configs::default())
 ///     .create_network();
 /// ```
 #[derive(Default, Debug)]
@@ -76,7 +76,7 @@ pub(super) struct BehaviourTestBuilder<D, F> {
     peer_no: usize,
     topics: Vec<String>,
     to_subscribe: bool,
-    gs_config: Config,
+    gs_configs: configs,
     explicit: usize,
     outbound: usize,
     scoring: Option<(PeerScoreParams, PeerScoreThresholds)>,
@@ -90,7 +90,7 @@ where
     D: DataTransform + Default + Clone + Send + 'static,
     F: TopicSubscriptionFilter + Clone + Default + Send + 'static,
 {
-    /// Creates the test network with the configured settings.
+    /// Creates the test network with the configsured settings.
     ///
     /// # Returns
     ///
@@ -112,7 +112,7 @@ where
         // create a gossipsub struct
         let mut gs: Behaviour<D, F> = Behaviour::new_with_subscription_filter_and_transform(
             MessageAuthenticity::Signed(keypair),
-            self.gs_config,
+            self.gs_configs,
             self.subscription_filter,
             self.data_transform,
         )
@@ -169,7 +169,7 @@ where
         self
     }
 
-    /// If `true`, peers will also subscribe to the configured topics.
+    /// If `true`, peers will also subscribe to the configsured topics.
     /// If `false`, peers are connected but not subscribed.
     #[allow(clippy::wrong_self_convention)]
     pub(super) fn to_subscribe(mut self, to_subscribe: bool) -> Self {
@@ -177,9 +177,9 @@ where
         self
     }
 
-    /// Sets a custom gossipsub configuration.
-    pub(super) fn gs_config(mut self, gs_config: Config) -> Self {
-        self.gs_config = gs_config;
+    /// Sets a custom gossipsub configsuration.
+    pub(super) fn gs_configs(mut self, gs_configs: configs) -> Self {
+        self.gs_configs = gs_configs;
         self
     }
 
@@ -271,7 +271,7 @@ where
     )
 }
 
-/// Adds a new peer with full configuration options.
+/// Adds a new peer with full configsuration options.
 ///
 /// This is the most flexible peer creation function, allowing control over
 /// the peer's address and protocol version.
@@ -315,7 +315,7 @@ where
         }
     };
 
-    let queue = Queue::new(gs.config.connection_handler_queue_len());
+    let queue = Queue::new(gs.configs.connection_handler_queue_len());
     let receiver_queue = queue.clone();
     let connection_id = ConnectionId::new_unchecked(0);
     gs.connected_peers.insert(
@@ -513,7 +513,7 @@ impl Behaviour {
     /// # Panics
     ///
     /// Panics if peer scoring is not enabled on this behaviour instance.
-    /// Ensure scoring is configured via [`BehaviourTestBuilder::scoring`] before calling.
+    /// Ensure scoring is configsured via [`BehaviourTestBuilder::scoring`] before calling.
     pub(super) fn as_peer_score_mut(&mut self) -> &mut PeerScore {
         match self.peer_score {
             PeerScoreState::Active(ref mut peer_score) => peer_score,

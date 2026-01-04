@@ -129,8 +129,8 @@ if ($Clean -and (Test-Path $BUILD_DIR)) {
     Write-Host "[3/5] Using existing build directory (if any)" -ForegroundColor Yellow
 }
 
-# Configure with CMake
-Write-Host "[4/5] Configuring with CMake..." -ForegroundColor Yellow
+# configsure with CMake
+Write-Host "[4/5] configsuring with CMake..." -ForegroundColor Yellow
 
 $cmakeArgs = @(
     "-B", $BUILD_DIR,
@@ -177,10 +177,10 @@ Push-Location $LLAMA_DIR
 try {
     & cmake @cmakeArgs
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "  [ERROR] CMake configuration failed" -ForegroundColor Red
+        Write-Host "  [ERROR] CMake configsuration failed" -ForegroundColor Red
         exit 1
     }
-    Write-Host "  [OK] Configuration complete" -ForegroundColor Green
+    Write-Host "  [OK] configsuration complete" -ForegroundColor Green
 } finally {
     Pop-Location
 }
@@ -191,7 +191,7 @@ Write-Host "  This may take several minutes..." -ForegroundColor Gray
 
 Push-Location $LLAMA_DIR
 try {
-    & cmake --build $BUILD_DIR --config Release --parallel
+    & cmake --build $BUILD_DIR --configs Release --parallel
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [ERROR] Build failed" -ForegroundColor Red
         exit 1

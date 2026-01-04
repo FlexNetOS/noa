@@ -16,14 +16,14 @@ async fn dial_succeeds_after_adding_peers_address() {
         .try_init();
 
     let protocols = iter::once((StreamProtocol::new("/ping/1"), ProtocolSupport::Full));
-    let config = request_response::Config::default();
+    let configs = request_response::configs::default();
 
     let mut swarm = Swarm::new_ephemeral_tokio(|_| {
-        request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), config.clone())
+        request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), configs.clone())
     });
 
     let mut swarm2 = Swarm::new_ephemeral_tokio(|_| {
-        request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), config.clone())
+        request_response::cbor::Behaviour::<Ping, Pong>::new(protocols.clone(), configs.clone())
     });
 
     let peer_id2 = *swarm2.local_peer_id();

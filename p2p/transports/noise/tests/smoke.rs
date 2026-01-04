@@ -36,7 +36,7 @@ fn core_upgrade_compat() {
     // Tests API compatibility with the libp2p-core upgrade API,
     // i.e. if it compiles, the "test" is considered a success.
     let id_keys = identity::Keypair::generate_ed25519();
-    let noise = noise::Config::new(&id_keys).unwrap();
+    let noise = noise::configs::new(&id_keys).unwrap();
     let _ = MemoryTransport::default()
         .upgrade(upgrade::Version::V1)
         .authenticate(noise);
@@ -59,10 +59,10 @@ fn xx() {
                 (reported_client_id, mut server_session),
                 (reported_server_id, mut client_session),
             ) = futures::future::try_join(
-                noise::Config::new(&server_id)
+                noise::configs::new(&server_id)
                     .unwrap()
                     .upgrade_inbound(server, ""),
-                noise::Config::new(&client_id)
+                noise::configs::new(&client_id)
                     .unwrap()
                     .upgrade_outbound(client, ""),
             )

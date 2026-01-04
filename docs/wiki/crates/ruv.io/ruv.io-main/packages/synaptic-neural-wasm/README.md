@@ -95,7 +95,7 @@ import { SynapticNeuralWasm } from '@deflex.net/synaptic-neural-wasm'
 
 // Create an instance
 const client = new SynapticNeuralWasm({
-  // Configuration options
+  // configsuration options
 })
 
 // Use the client
@@ -122,19 +122,19 @@ async function main() {
 main()
 ```
 
-### With Configuration
+### With configsuration
 
 ```typescript
-import { SynapticNeuralWasm, Config } from '@deflex.net/synaptic-neural-wasm'
+import { SynapticNeuralWasm, configs } from '@deflex.net/synaptic-neural-wasm'
 
-const config: Config = {
-  // Detailed configuration
+const configs: configs = {
+  // Detailed configsuration
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
 }
 
-const client = new SynapticNeuralWasm(config)
+const client = new SynapticNeuralWasm(configs)
 ```
 
 
@@ -171,7 +171,7 @@ First, import the package in your TypeScript/JavaScript file:
 
 ```typescript
 // ES Modules
-import { SynapticNeuralWasm, Config } from '@deflex.net/synaptic-neural-wasm'
+import { SynapticNeuralWasm, configs } from '@deflex.net/synaptic-neural-wasm'
 
 // CommonJS
 const { SynapticNeuralWasm } = require('@deflex.net/synaptic-neural-wasm')
@@ -179,11 +179,11 @@ const { SynapticNeuralWasm } = require('@deflex.net/synaptic-neural-wasm')
 
 ### Create an Instance
 
-Create a new instance with optional configuration:
+Create a new instance with optional configsuration:
 
 ```typescript
 const client = new SynapticNeuralWasm({
-  // Configuration options
+  // configsuration options
   timeout: 5000,
   retries: 3,
   logLevel: 'info'
@@ -252,13 +252,13 @@ try {
 #### Constructor
 
 ```typescript
-constructor(config?: Config)
+constructor(configs?: configs)
 ```
 
 Creates a new instance of `SynapticNeuralWasm`.
 
 **Parameters:**
-- `config` (optional): Configuration object
+- `configs` (optional): configsuration object
 
 **Returns:**
 - Instance of `SynapticNeuralWasm`
@@ -316,10 +316,10 @@ Close the client and release resources.
 await client.close()
 ```
 
-### Configuration Interface
+### configsuration Interface
 
 ```typescript
-interface Config {
+interface configs {
   timeout?: number        // Operation timeout in ms (default: 5000)
   retries?: number        // Number of retries (default: 3)
   logLevel?: LogLevel    // Logging level (default: 'info')
@@ -468,12 +468,12 @@ try {
 }
 ```
 
-### Example 5: Advanced Configuration
+### Example 5: Advanced configsuration
 
 ```typescript
-import { SynapticNeuralWasm, Config, LogLevel } from '@deflex.net/synaptic-neural-wasm'
+import { SynapticNeuralWasm, configs, LogLevel } from '@deflex.net/synaptic-neural-wasm'
 
-const config: Config = {
+const configs: configs = {
   timeout: 10000,
   retries: 5,
   logLevel: 'debug',
@@ -484,7 +484,7 @@ const config: Config = {
   cacheSize: 100
 }
 
-const client = new SynapticNeuralWasm(config)
+const client = new SynapticNeuralWasm(configs)
 
 // Process with advanced features
 const result = await client.process(data, {

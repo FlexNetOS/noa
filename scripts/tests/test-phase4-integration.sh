@@ -68,7 +68,7 @@ echo ""
 # Test 1: Identity System
 echo "=== Test Group: Identity System ==="
 
-run_test "Identity config is valid JSON" \
+run_test "Identity configs is valid JSON" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/identity/identity.json' 'true' 2>&1"
 
 run_test "System principal exists" \
@@ -88,7 +88,7 @@ echo ""
 # Test 2: Policy Enforcement
 echo "=== Test Group: Policy Enforcement ==="
 
-run_test "Policy config is valid JSON" \
+run_test "Policy configs is valid JSON" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/enforcement/policy.json' 'true' 2>&1"
 
 run_test "6 policy categories exist" \
@@ -105,21 +105,21 @@ echo ""
 # Test 3: Audit System
 echo "=== Test Group: Audit System ==="
 
-run_test "Audit config is valid JSON" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-config.json' 'true' 2>&1"
+run_test "Audit configs is valid JSON" \
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-configs.json' 'true' 2>&1"
 
 run_test "Audit enabled" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-config.json' 'data.audit_enabled === true' 2>&1"
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-configs.json' 'data.audit_enabled === true' 2>&1"
 
 run_test "8 event categories defined" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-config.json' 'Object.keys(data.audit_events).length === 8' 2>&1"
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/audit/audit-configs.json' 'Object.keys(data.audit_events).length === 8' 2>&1"
 
 echo ""
 
 # Test 4: Registry System
 echo "=== Test Group: Registry System ==="
 
-run_test "Registry config is valid JSON" \
+run_test "Registry configs is valid JSON" \
   "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/registry/registry.json' 'true' 2>&1"
 
 run_test "5 services registered" \
@@ -133,14 +133,14 @@ echo ""
 # Test 5: Scheduler
 echo "=== Test Group: Scheduler ==="
 
-run_test "Scheduler config is valid JSON" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/config.json' 'true' 2>&1"
+run_test "Scheduler configs is valid JSON" \
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/configs.json' 'true' 2>&1"
 
 run_test "5 scheduled tasks defined" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/config.json' 'Object.keys(data.scheduled_tasks).length === 5' 2>&1"
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/configs.json' 'Object.keys(data.scheduled_tasks).length === 5' 2>&1"
 
 run_test "CAS GC task enabled" \
-  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/config.json' 'data.scheduled_tasks.cas_gc.enabled === true' 2>&1"
+  "node '$NOA_ROOT/scripts/tests/json-test.js' 'N:/noa/sys/core/scheduler/configs.json' 'data.scheduled_tasks.cas_gc.enabled === true' 2>&1"
 
 echo ""
 

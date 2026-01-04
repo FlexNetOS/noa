@@ -3,7 +3,7 @@ use std::env;
 use anyhow::{Context, Result};
 
 #[derive(Debug, Clone)]
-pub(crate) struct Config {
+pub(crate) struct configs {
     pub(crate) transport: String,
     pub(crate) sec_protocol: Option<String>,
     pub(crate) muxer: Option<String>,
@@ -13,7 +13,7 @@ pub(crate) struct Config {
     pub(crate) redis_addr: String,
 }
 
-impl Config {
+impl configs {
     pub(crate) fn from_env() -> Result<Self> {
         let transport =
             env::var("transport").context("transport environment variable is not set")?;

@@ -18,7 +18,7 @@ echo ""
 directories=(
     # Unix XDG directories
     "data"                          # XDG_DATA_HOME
-    "etc"                           # XDG_CONFIG_HOME
+    "etc"                           # XDG_configs_HOME
     "data/cache"                    # XDG_CACHE_HOME
     "data/state"                    # XDG_STATE_HOME
     "tmp/runtime"                   # XDG_RUNTIME_DIR
@@ -44,9 +44,9 @@ directories=(
     "logs/audit"                    # Audit logs
 
     # Common app-specific directories
-    "etc/claude"                    # Claude Desktop config
-    "etc/abacus"                    # Abacus Desktop config
-    "etc/chatgpt"                   # ChatGPT Desktop config
+    "etc/claude"                    # Claude Desktop configs
+    "etc/abacus"                    # Abacus Desktop configs
+    "etc/chatgpt"                   # ChatGPT Desktop configs
     "data/cache/claude"             # Claude cache
     "data/cache/abacus"             # Abacus cache
     "data/cache/chatgpt"            # ChatGPT cache

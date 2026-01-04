@@ -2,7 +2,7 @@
 # NOA Git Conflict Resolution Tool (AI/MLOps)
 
 NOA_GIT="$NOA_ROOT/git"
-CONFLICT_CONFIG="$NOA_ROOT/config/git-conflict-ai.json"
+CONFLICT_configs="$NOA_ROOT/configs/git-conflict-ai.json"
 
 case "$1" in
   detect)

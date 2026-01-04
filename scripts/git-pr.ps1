@@ -40,7 +40,7 @@ if (-not $NoaRoot) {
     $NoaRoot = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent $PSScriptRoot }
 }
 
-$PR_CONFIG = Join-Path $NoaRoot "config/git-pr-workflow.json"
+$PR_configs = Join-Path $NoaRoot "configs/git-pr-workflow.json"
 
 # Check for gh CLI
 $ghAvailable = Get-Command "gh" -ErrorAction SilentlyContinue

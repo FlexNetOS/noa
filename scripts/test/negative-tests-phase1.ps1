@@ -64,18 +64,18 @@ Test-Boundary "Prerequisite check handles missing tools" {
 }
 
 Write-Host ""
-Write-Host "Testing Error Handling: Invalid Configuration..."
+Write-Host "Testing Error Handling: Invalid configsuration..."
 Write-Host ""
 
-# Test: Invalid JSON in config files
-Test-Negative "Config validation rejects invalid JSON" {
+# Test: Invalid JSON in configs files
+Test-Negative "configs validation rejects invalid JSON" {
     '{ invalid json }' | ConvertFrom-Json
 } "JSON parse error"
 
-# Test: Missing required config fields
-Test-Boundary "Config validation checks required fields" {
-    $config = Get-Content "$NOA_ROOT\config\noa-server.json" | ConvertFrom-Json
-    $null -ne $config.version
+# Test: Missing required configs fields
+Test-Boundary "configs validation checks required fields" {
+    $configs = Get-Content "$NOA_ROOT\configs\noa-server.json" | ConvertFrom-Json
+    $null -ne $configs.version
 }
 
 Write-Host ""
@@ -89,8 +89,8 @@ Test-Boundary "Empty directory creation succeeds" {
     $true
 }
 
-# Test: Empty config file handling
-Test-Negative "Empty config file is rejected" {
+# Test: Empty configs file handling
+Test-Negative "Empty configs file is rejected" {
     '' | ConvertFrom-Json
 } "Empty file rejection"
 

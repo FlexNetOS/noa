@@ -13,9 +13,9 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector:0.88.0
     restart: always
-    command: ["--config=/etc/otel-collector-config.yaml"]
+    command: ["--configs=/etc/otel-collector-configs.yaml"]
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./otel-collector-configs.yaml:/etc/otel-collector-configs.yaml
     ports:
       - "13133:13133" # health_check extension
       - "4317:4317"   # OTLP gRPC receiver

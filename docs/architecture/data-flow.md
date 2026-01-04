@@ -68,14 +68,14 @@ flowchart TB
 sequenceDiagram
     participant User
     participant CLI as tasks-cli
-    participant Config as Config Loader
+    participant configs as configs Loader
     participant Core as noa-core
     participant DB as SQLite
     participant AI as AI Provider
     
     User->>CLI: Execute command
-    CLI->>Config: Load configuration
-    Config-->>CLI: Config object
+    CLI->>configs: Load configsuration
+    configs-->>CLI: configs object
     CLI->>Core: Parse & validate
     Core->>DB: Query/Update state
     
@@ -272,7 +272,7 @@ flowchart LR
   "files_processed": 92801,
   "symbols_found": 45230,
   "errors": 0,
-  "config": {
+  "configs": {
     "max_parallel": 8,
     "ollama_model": "nomic-embed-text"
   }

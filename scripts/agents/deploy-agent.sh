@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-# Configuration
+# configsuration
 NOA_ROOT="${NOA_ROOT:-/n/noa}"
 REGISTRY_FILE="${NOA_ROOT}/data/resources/registry.json"
 SYSTEM_REGISTRY="${NOA_ROOT}/sys/core/registry/registry.json"
@@ -57,7 +57,7 @@ echo "[4/6] Initializing agent..."
 AGENT_ID="agent:${AGENT_NAME}"
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-cat > "/tmp/${AGENT_NAME}_config.json" <<EOF
+cat > "/tmp/${AGENT_NAME}_configs.json" <<EOF
 {
   "id": "${AGENT_ID}",
   "name": "${AGENT_NAME}",
@@ -65,14 +65,14 @@ cat > "/tmp/${AGENT_NAME}_config.json" <<EOF
   "provider": "${PROVIDER}",
   "status": "active",
   "created_at": "${TIMESTAMP}",
-  "configuration": $(echo "$TEMPLATE" | jq '.configuration'),
+  "configsuration": $(echo "$TEMPLATE" | jq '.configsuration'),
   "constraints": $(echo "$TEMPLATE" | jq '.constraints'),
   "capabilities": $(echo "$TEMPLATE" | jq '.capabilities')
 }
 EOF
 
 echo "  Agent ID: $AGENT_ID"
-echo "  Config: /tmp/${AGENT_NAME}_config.json"
+echo "  configs: /tmp/${AGENT_NAME}_configs.json"
 echo "  ✓ Agent initialized"
 echo ""
 
@@ -91,7 +91,7 @@ echo ""
 echo "=== Deployment Complete ==="
 echo "Agent ID: $AGENT_ID"
 echo "Status: Active"
-echo "Config: /tmp/${AGENT_NAME}_config.json"
+echo "configs: /tmp/${AGENT_NAME}_configs.json"
 echo ""
 echo "To query agent status:"
 echo "  jq '.agents.${AGENT_ID}' sys/core/registry/registry.json"

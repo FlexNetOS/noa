@@ -45,27 +45,27 @@ use crate::{
 type TestSwarm = Swarm<Behaviour<MemoryStore>>;
 
 fn build_node() -> (Multiaddr, TestSwarm) {
-    build_node_with_config(Default::default())
+    build_node_with_configs(Default::default())
 }
 
-fn build_node_with_config(cfg: Config) -> (Multiaddr, TestSwarm) {
+fn build_node_with_configs(cfg: configs) -> (Multiaddr, TestSwarm) {
     let local_key = identity::Keypair::generate_ed25519();
     let local_public_key = local_key.public();
     let transport = MemoryTransport::default()
         .upgrade(upgrade::Version::V1)
-        .authenticate(noise::Config::new(&local_key).unwrap())
-        .multiplex(yamux::Config::default())
+        .authenticate(noise::configs::new(&local_key).unwrap())
+        .multiplex(yamux::configs::default())
         .boxed();
 
     let local_id = local_public_key.to_peer_id();
     let store = MemoryStore::new(local_id);
-    let behaviour = Behaviour::with_config(local_id, store, cfg);
+    let behaviour = Behaviour::with_configs(local_id, store, cfg);
 
     let mut swarm = Swarm::new(
         transport,
         behaviour,
         local_id,
-        swarm::Config::with_tokio_executor(),
+        swarm::configs::with_tokio_executor(),
     );
 
     let address: Multiaddr = Protocol::Memory(random::<u64>()).into();
@@ -77,26 +77,26 @@ fn build_node_with_config(cfg: Config) -> (Multiaddr, TestSwarm) {
 
 /// Builds swarms, each listening on a port. Does *not* connect the nodes together.
 fn build_nodes(num: usize) -> Vec<(Multiaddr, TestSwarm)> {
-    build_nodes_with_config(num, Default::default())
+    build_nodes_with_configs(num, Default::default())
 }
 
 /// Builds swarms, each listening on a port. Does *not* connect the nodes together.
-fn build_nodes_with_config(num: usize, cfg: Config) -> Vec<(Multiaddr, TestSwarm)> {
+fn build_nodes_with_configs(num: usize, cfg: configs) -> Vec<(Multiaddr, TestSwarm)> {
     (0..num)
-        .map(|_| build_node_with_config(cfg.clone()))
+        .map(|_| build_node_with_configs(cfg.clone()))
         .collect()
 }
 
 fn build_connected_nodes(total: usize, step: usize) -> Vec<(Multiaddr, TestSwarm)> {
-    build_connected_nodes_with_config(total, step, Default::default())
+    build_connected_nodes_with_configs(total, step, Default::default())
 }
 
-fn build_connected_nodes_with_config(
+fn build_connected_nodes_with_configs(
     total: usize,
     step: usize,
-    cfg: Config,
+    cfg: configs,
 ) -> Vec<(Multiaddr, TestSwarm)> {
-    let mut swarms = build_nodes_with_config(total, cfg);
+    let mut swarms = build_nodes_with_configs(total, cfg);
     let swarm_ids: Vec<_> = swarms
         .iter()
         .map(|(addr, swarm)| (addr.clone(), *swarm.local_peer_id()))
@@ -118,11 +118,11 @@ fn build_connected_nodes_with_config(
     swarms
 }
 
-fn build_fully_connected_nodes_with_config(
+fn build_fully_connected_nodes_with_configs(
     total: usize,
-    cfg: Config,
+    cfg: configs,
 ) -> Vec<(Multiaddr, TestSwarm)> {
-    let mut swarms = build_nodes_with_config(total, cfg);
+    let mut swarms = build_nodes_with_configs(total, cfg);
     let swarm_addr_and_peer_id: Vec<_> = swarms
         .iter()
         .map(|(addr, swarm)| (addr.clone(), *swarm.local_peer_id()))
@@ -165,7 +165,7 @@ fn bootstrap() {
         // or smaller than K_VALUE.
         let num_group = rng.gen_range(1..(num_total % K_VALUE.get()) + 2);
 
-        let mut cfg = Config::new(PROTOCOL_NAME);
+        let mut cfg = configs::new(PROTOCOL_NAME);
         // Disabling periodic bootstrap and automatic bootstrap to prevent the bootstrap from
         // triggering automatically.
         cfg.set_periodic_bootstrap_interval(None);
@@ -174,7 +174,7 @@ fn bootstrap() {
             cfg.disjoint_query_paths(true);
         }
 
-        let mut swarms = build_connected_nodes_with_config(num_total, num_group, cfg)
+        let mut swarms = build_connected_nodes_with_configs(num_total, num_group, cfg)
             .into_iter()
             .map(|(_a, s)| s)
             .collect::<Vec<_>>();
@@ -249,12 +249,12 @@ fn query_iter() {
 
     fn run(rng: &mut impl Rng) {
         let num_total = rng.gen_range(2..20);
-        let mut config = Config::new(PROTOCOL_NAME);
+        let mut configs = configs::new(PROTOCOL_NAME);
         // Disabling periodic bootstrap and automatic bootstrap to prevent the bootstrap from
         // triggering automatically.
-        config.set_periodic_bootstrap_interval(None);
-        config.set_automatic_bootstrap_throttle(None);
-        let mut swarms = build_connected_nodes_with_config(num_total, 1, config)
+        configs.set_periodic_bootstrap_interval(None);
+        configs.set_automatic_bootstrap_throttle(None);
+        let mut swarms = build_connected_nodes_with_configs(num_total, 1, configs)
             .into_iter()
             .map(|(_a, s)| s)
             .collect::<Vec<_>>();
@@ -448,9 +448,9 @@ fn get_closest_with_different_num_results() {
 fn get_closest_with_different_num_results_inner(num_results: usize, replication_factor: usize) {
     let k_value = K_VALUE.get();
     let num_of_nodes = 3 * k_value;
-    let mut cfg = Config::new(PROTOCOL_NAME);
+    let mut cfg = configs::new(PROTOCOL_NAME);
     cfg.set_replication_factor(NonZeroUsize::new(replication_factor).unwrap());
-    let swarms = build_connected_nodes_with_config(num_of_nodes, replication_factor - 1, cfg);
+    let swarms = build_connected_nodes_with_configs(num_of_nodes, replication_factor - 1, cfg);
 
     let mut swarms = swarms
         .into_iter()
@@ -559,7 +559,7 @@ fn get_record_not_found() {
 
 /// A node joining a fully connected network via three (ALPHA_VALUE) bootnodes
 /// should be able to put a record to the X closest nodes of the network where X
-/// is equal to the configured replication factor.
+/// is equal to the configsured replication factor.
 #[test]
 fn put_record() {
     fn prop(records: Vec<Record>, seed: Seed, filter_records: bool, drop_records: bool) {
@@ -569,25 +569,25 @@ fn put_record() {
         // At least 4 nodes, 1 under test + 3 bootnodes.
         let num_total = usize::max(4, replication_factor.get() * 2);
 
-        let mut config = Config::new(PROTOCOL_NAME);
-        config.set_replication_factor(replication_factor);
+        let mut configs = configs::new(PROTOCOL_NAME);
+        configs.set_replication_factor(replication_factor);
         // Disabling periodic bootstrap and automatic bootstrap to prevent the bootstrap from
         // triggering automatically.
-        config.set_periodic_bootstrap_interval(None);
-        config.set_automatic_bootstrap_throttle(None);
+        configs.set_periodic_bootstrap_interval(None);
+        configs.set_automatic_bootstrap_throttle(None);
         if rng.gen() {
-            config.disjoint_query_paths(true);
+            configs.disjoint_query_paths(true);
         }
 
         if filter_records {
-            config.set_record_filtering(StoreInserts::FilterBoth);
+            configs.set_record_filtering(StoreInserts::FilterBoth);
         }
 
         let mut swarms = {
             let mut fully_connected_swarms =
-                build_fully_connected_nodes_with_config(num_total - 1, config.clone());
+                build_fully_connected_nodes_with_configs(num_total - 1, configs.clone());
 
-            let mut single_swarm = build_node_with_config(config);
+            let mut single_swarm = build_node_with_configs(configs);
             // Connect `single_swarm` to three bootnodes.
             for swarm in fully_connected_swarms.iter().take(3) {
                 single_swarm
@@ -900,7 +900,7 @@ fn get_record_many() {
     rt.block_on(poll_fn(move |ctx| {
         for (i, swarm) in swarms.iter_mut().enumerate() {
             let mut records = Vec::new();
-            let quorum = quorum.eval(swarm.behaviour().queries.config().replication_factor);
+            let quorum = quorum.eval(swarm.behaviour().queries.configs().replication_factor);
             loop {
                 if i == 0 && records.len() >= quorum.get() {
                     swarm.behaviour_mut().query_mut(&qid).unwrap().finish();
@@ -935,7 +935,7 @@ fn get_record_many() {
 
 /// A node joining a fully connected network via three (ALPHA_VALUE) bootnodes
 /// should be able to add itself as a provider to the X closest nodes of the
-/// network where X is equal to the configured replication factor.
+/// network where X is equal to the configsured replication factor.
 #[test]
 fn add_provider() {
     fn prop(keys: Vec<record::Key>, seed: Seed) {
@@ -945,21 +945,21 @@ fn add_provider() {
         // At least 4 nodes, 1 under test + 3 bootnodes.
         let num_total = usize::max(4, replication_factor.get() * 2);
 
-        let mut config = Config::new(PROTOCOL_NAME);
-        config.set_replication_factor(replication_factor);
+        let mut configs = configs::new(PROTOCOL_NAME);
+        configs.set_replication_factor(replication_factor);
         // Disabling periodic bootstrap and automatic bootstrap to prevent the bootstrap from
         // triggering automatically.
-        config.set_periodic_bootstrap_interval(None);
-        config.set_automatic_bootstrap_throttle(None);
+        configs.set_periodic_bootstrap_interval(None);
+        configs.set_automatic_bootstrap_throttle(None);
         if rng.gen() {
-            config.disjoint_query_paths(true);
+            configs.disjoint_query_paths(true);
         }
 
         let mut swarms = {
             let mut fully_connected_swarms =
-                build_fully_connected_nodes_with_config(num_total - 1, config.clone());
+                build_fully_connected_nodes_with_configs(num_total - 1, configs.clone());
 
-            let mut single_swarm = build_node_with_config(config);
+            let mut single_swarm = build_node_with_configs(configs);
             // Connect `single_swarm` to three bootnodes.
             for swarm in fully_connected_swarms.iter().take(3) {
                 single_swarm
@@ -1167,23 +1167,23 @@ fn exp_decr_expiration_overflow() {
     }
 
     // Right shifting a u64 by >63 results in a panic.
-    prop_no_panic(Config::new(PROTOCOL_NAME).record_ttl.unwrap(), 64);
+    prop_no_panic(configs::new(PROTOCOL_NAME).record_ttl.unwrap(), 64);
 
     quickcheck(prop_no_panic as fn(_, _))
 }
 
 #[test]
 fn disjoint_query_does_not_finish_before_all_paths_did() {
-    let mut config = Config::new(PROTOCOL_NAME);
-    config.disjoint_query_paths(true);
+    let mut configs = configs::new(PROTOCOL_NAME);
+    configs.disjoint_query_paths(true);
     // I.e. setting the amount disjoint paths to be explored to 2.
-    config.set_parallelism(NonZeroUsize::new(2).unwrap());
+    configs.set_parallelism(NonZeroUsize::new(2).unwrap());
     // Disabling periodic bootstrap and automatic bootstrap to prevent the bootstrap from triggering
     // automatically.
-    config.set_periodic_bootstrap_interval(None);
-    config.set_automatic_bootstrap_throttle(None);
+    configs.set_periodic_bootstrap_interval(None);
+    configs.set_automatic_bootstrap_throttle(None);
 
-    let mut alice = build_node_with_config(config);
+    let mut alice = build_node_with_configs(configs);
     let mut trudy = build_node(); // Trudy the intrudor, an adversary.
     let mut bob = build_node();
 
@@ -1327,10 +1327,10 @@ fn disjoint_query_does_not_finish_before_all_paths_did() {
 /// the routing table with `BucketInserts::Manual`.
 #[test]
 fn manual_bucket_inserts() {
-    let mut cfg = Config::new(PROTOCOL_NAME);
+    let mut cfg = configs::new(PROTOCOL_NAME);
     cfg.set_kbucket_inserts(BucketInserts::Manual);
     // 1 -> 2 -> [3 -> ...]
-    let mut swarms = build_connected_nodes_with_config(3, 1, cfg);
+    let mut swarms = build_connected_nodes_with_configs(3, 1, cfg);
     // The peers and their addresses for which we expect `RoutablePeer` events.
     let mut expected = swarms
         .iter()
@@ -1405,7 +1405,7 @@ fn network_behaviour_on_address_change() {
     }));
 
     // At this point the remote is not yet known to support the
-    // configured protocol name, so the peer is not yet in the
+    // configsured protocol name, so the peer is not yet in the
     // local routing table and hence no addresses are known.
     assert!(kademlia
         .handle_pending_outbound_connection(
@@ -1633,10 +1633,10 @@ fn get_closest_peers_should_return_up_to_k_peers() {
         // Should be enough nodes for every node to have >= K nodes in their RT.
         let num_of_nodes = 3 * k_value;
 
-        let mut cfg = Config::new(PROTOCOL_NAME);
+        let mut cfg = configs::new(PROTOCOL_NAME);
         cfg.set_replication_factor(NonZeroUsize::new(replication_factor).unwrap());
 
-        let swarms = build_connected_nodes_with_config(num_of_nodes, replication_factor - 1, cfg);
+        let swarms = build_connected_nodes_with_configs(num_of_nodes, replication_factor - 1, cfg);
         let mut swarms = swarms
             .into_iter()
             .map(|(_addr, swarm)| swarm)

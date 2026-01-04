@@ -25,7 +25,7 @@ NOA-Hive is a software-only P2P coordination layer for the NOA platform, derived
 | `noa-hive-core` | Core types, PeerId, messages | `hyveos-core` |
 | `noa-hive-stack` | P2P network stack (GossipSub, DHT, R/R) | `p2p-stack` |
 | `noa-hive-runtime` | Daemon runtime, service management | `runtime` |
-| `noa-hive-config` | Configuration management | `config` |
+| `noa-hive-configs` | configsuration management | `configs` |
 | `noa-hive-sdk` | Client SDK for applications | `hyveos-sdk` |
 
 ## Key Differences from hyveos
@@ -72,7 +72,7 @@ See [HIVE_PROTOCOL.md](../../ui/app/HIVE_PROTOCOL.md) for the wire protocol spec
 
 ```bash
 # Start the daemon
-noa-hived --config /etc/noa/hive.toml
+noa-hived --configs /etc/noa/hive.toml
 
 # Check status
 noa-ctl whoami
@@ -102,14 +102,14 @@ async fn main() -> anyhow::Result<()> {
     
     // Store in DHT
     client.dht()
-        .put("/noa-hive/device/config", b"value")
+        .put("/noa-hive/device/configs", b"value")
         .await?;
     
     Ok(())
 }
 ```
 
-## Configuration
+## configsuration
 
 ```toml
 # /etc/noa/hive.toml

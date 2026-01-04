@@ -9,8 +9,8 @@
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect from NOA_ROOT env var)
 
-.PARAMETER KeepConfig
-    Keep configuration files
+.PARAMETER Keepconfigs
+    Keep configsuration files
 
 .PARAMETER KeepLogs
     Keep log files
@@ -24,13 +24,13 @@
 .EXAMPLE
     .\uninstall.ps1
     .\uninstall.ps1 -DryRun
-    .\uninstall.ps1 -KeepConfig -KeepLogs
+    .\uninstall.ps1 -Keepconfigs -KeepLogs
 #>
 
 [CmdletBinding()]
 param(
     [string]$NoaRoot,
-    [switch]$KeepConfig,
+    [switch]$Keepconfigs,
     [switch]$KeepLogs,
     [switch]$DryRun,
     [switch]$Force
@@ -104,9 +104,9 @@ $DirsToRemove = @(
     "ai/shared/resources/*.db"
 )
 
-if (-not $KeepConfig) {
+if (-not $Keepconfigs) {
     $DirsToRemove += @(
-        "config/bootstrap-state.json"
+        "configs/bootstrap-state.json"
     )
 }
 

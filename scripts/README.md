@@ -10,7 +10,7 @@ scripts/
 │   ├── bootstrap.ps1    # Main Windows entry point
 │   ├── bootstrap.sh     # Main Unix entry point
 │   ├── lib/             # Core libraries
-│   ├── config/          # Configuration scripts
+│   ├── configs/          # configsuration scripts
 │   ├── installers/      # Tool installers
 │   ├── verify/          # Verification scripts
 │   ├── generators/      # Environment generators
@@ -77,14 +77,14 @@ scripts/
 | `bootstrap/lib/download.ps1` | `bootstrap/lib/download.sh` | Download with caching | N/A (library) | N/A | ✅ |
 | `bootstrap/lib/directories.ps1` | `bootstrap/lib/directories.sh` | Directory creation | N/A (library) | N/A | ✅ |
 
-### Configuration Scripts
+### configsuration Scripts
 
 | PowerShell | Bash/Unix | Purpose | Arguments | Exit Codes | Status |
 |------------|-----------|---------|-----------|------------|--------|
-| `bootstrap/config/cache-setup.ps1` | `bootstrap/config/cache-setup.sh` | Cache directory setup | N/A | 0=success, 1=error | ✅ |
-| `bootstrap/config/log-setup.ps1` | `bootstrap/config/log-setup.sh` | Log rotation setup | N/A | 0=success, 1=error | ✅ |
-| `bootstrap/config/provider-cache.ps1` | `bootstrap/config/provider-cache.sh` | Provider cache setup | N/A | 0=success, 1=error | ✅ |
-| `bootstrap/config/appdata-setup.ps1` | `bootstrap/config/appdata-setup.sh` | AppData directory setup | N/A | 0=success, 1=error | ✅ |
+| `bootstrap/configs/cache-setup.ps1` | `bootstrap/configs/cache-setup.sh` | Cache directory setup | N/A | 0=success, 1=error | ✅ |
+| `bootstrap/configs/log-setup.ps1` | `bootstrap/configs/log-setup.sh` | Log rotation setup | N/A | 0=success, 1=error | ✅ |
+| `bootstrap/configs/provider-cache.ps1` | `bootstrap/configs/provider-cache.sh` | Provider cache setup | N/A | 0=success, 1=error | ✅ |
+| `bootstrap/configs/appdata-setup.ps1` | `bootstrap/configs/appdata-setup.sh` | AppData directory setup | N/A | 0=success, 1=error | ✅ |
 
 ### Generator Scripts
 

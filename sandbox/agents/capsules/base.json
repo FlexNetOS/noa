@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../config/schemas/capsule.schema.json",
+  "$schema": "../../../configs/schemas/capsule.schema.json",
   "name": "base",
   "version": "1.0.0",
   "description": "Base capsule template for agent isolation",
@@ -32,7 +32,7 @@
       "/noa/cache"
     ],
     "blockedPaths": [
-      "/noa/config",
+      "/noa/configs",
       "/noa/secrets"
     ]
   },

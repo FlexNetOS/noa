@@ -28,10 +28,10 @@ use libp2p_identity::{PeerId, PublicKey};
 use crate::{
     error::{DecodeError, Error},
     proto::Exchange,
-    Config,
+    configs,
 };
 
-pub(crate) async fn handshake<S>(socket: S, config: Config) -> Result<(S, PublicKey, Bytes), Error>
+pub(crate) async fn handshake<S>(socket: S, configs: configs) -> Result<(S, PublicKey, Bytes), Error>
 where
     S: AsyncRead + AsyncWrite + Send + Unpin,
 {
@@ -41,8 +41,8 @@ where
     tracing::trace!("sending exchange to remote");
     framed_socket
         .send(Exchange {
-            id: Some(config.local_public_key.to_peer_id().to_bytes()),
-            pubkey: Some(config.local_public_key.encode_protobuf()),
+            id: Some(configs.local_public_key.to_peer_id().to_bytes()),
+            pubkey: Some(configs.local_public_key.encode_protobuf()),
         })
         .await
         .map_err(DecodeError)?;

@@ -36,7 +36,7 @@ async fn given_successful_registration_then_successful_discovery() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice, mut bob], mut robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
 
     alice
         .behaviour_mut()
@@ -90,7 +90,7 @@ async fn should_return_error_when_no_external_addresses() {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
-    let server = new_server(rendezvous::server::Config::default()).await;
+    let server = new_server(rendezvous::server::configs::default()).await;
     let mut client = Swarm::new_ephemeral_tokio(rendezvous::client::Behaviour::new);
 
     let actual = client
@@ -108,7 +108,7 @@ async fn given_successful_registration_then_refresh_ttl() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice, mut bob], mut robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
 
     let roberts_peer_id = *robert.local_peer_id();
     let refresh_ttl = 10_000;
@@ -176,7 +176,7 @@ async fn given_successful_registration_then_refresh_external_addrs() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice], mut robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
 
     let roberts_peer_id = *robert.local_peer_id();
 
@@ -229,7 +229,7 @@ async fn given_invalid_ttl_then_unsuccessful_registration() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice], mut robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
 
     alice
         .behaviour_mut()
@@ -258,7 +258,7 @@ async fn discover_allows_for_dial_by_peer_id() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice, mut bob], robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
 
     let roberts_peer_id = *robert.local_peer_id();
     tokio::spawn(robert.loop_on_next());
@@ -314,7 +314,7 @@ async fn eve_cannot_register() {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
-    let mut robert = new_server(rendezvous::server::Config::default()).await;
+    let mut robert = new_server(rendezvous::server::configs::default()).await;
     let mut eve = new_impersonating_client().await;
     eve.connect(&mut robert).await;
 
@@ -343,7 +343,7 @@ async fn can_combine_client_and_server() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice], mut robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default()).await;
+        new_server_with_connected_clients(rendezvous::server::configs::default()).await;
     let mut charlie = new_combined_node().await;
     charlie.connect(&mut robert).await;
     alice.connect(&mut charlie).await;
@@ -381,7 +381,7 @@ async fn registration_on_clients_expire() {
         .try_init();
     let namespace = rendezvous::Namespace::from_static("some-namespace");
     let ([mut alice, mut bob], robert) =
-        new_server_with_connected_clients(rendezvous::server::Config::default().with_min_ttl(1))
+        new_server_with_connected_clients(rendezvous::server::configs::default().with_min_ttl(1))
             .await;
 
     let alice_peer_id = *alice.local_peer_id();
@@ -430,12 +430,12 @@ async fn registration_on_clients_expire() {
 }
 
 async fn new_server_with_connected_clients<const N: usize>(
-    config: rendezvous::server::Config,
+    configs: rendezvous::server::configs,
 ) -> (
     [Swarm<rendezvous::client::Behaviour>; N],
     Swarm<rendezvous::server::Behaviour>,
 ) {
-    let mut server = new_server(config).await;
+    let mut server = new_server(configs).await;
 
     let mut clients: [Swarm<_>; N] = match (0usize..N)
         .map(|_| new_client())
@@ -462,8 +462,8 @@ async fn new_client() -> Swarm<rendezvous::client::Behaviour> {
     client
 }
 
-async fn new_server(config: rendezvous::server::Config) -> Swarm<rendezvous::server::Behaviour> {
-    let mut server = Swarm::new_ephemeral_tokio(|_| rendezvous::server::Behaviour::new(config));
+async fn new_server(configs: rendezvous::server::configs) -> Swarm<rendezvous::server::Behaviour> {
+    let mut server = Swarm::new_ephemeral_tokio(|_| rendezvous::server::Behaviour::new(configs));
 
     server.listen().with_memory_addr_external().await;
 
@@ -473,7 +473,7 @@ async fn new_server(config: rendezvous::server::Config) -> Swarm<rendezvous::ser
 async fn new_combined_node() -> Swarm<Combined> {
     let mut node = Swarm::new_ephemeral_tokio(|identity| Combined {
         client: rendezvous::client::Behaviour::new(identity),
-        server: rendezvous::server::Behaviour::new(rendezvous::server::Config::default()),
+        server: rendezvous::server::Behaviour::new(rendezvous::server::configs::default()),
     });
     node.listen().with_memory_addr_external().await;
 

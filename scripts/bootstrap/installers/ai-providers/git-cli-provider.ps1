@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Configure git as a local AI provider for NOA.
+    configsure git as a local AI provider for NOA.
 
 .DESCRIPTION
-    Verifies git CLI is available and configures it as a local provider.
+    Verifies git CLI is available and configsures it as a local provider.
     Git provides agentic capabilities through git hooks, diff analysis, and commit workflows.
 
 .PARAMETER NoaRoot
@@ -27,9 +27,9 @@ if (-not $NoaRoot) {
 }
 
 $PROVIDER_DIR = Join-Path $NoaRoot "ai/providers/local/git-cli"
-$CONFIG_FILE = Join-Path $PROVIDER_DIR "config.json"
+$configs_FILE = Join-Path $PROVIDER_DIR "configs.json"
 
-Write-Host "Configuring Git CLI as local AI provider..." -ForegroundColor Cyan
+Write-Host "configsuring Git CLI as local AI provider..." -ForegroundColor Cyan
 
 # Check if git is available
 $gitPath = Get-Command git -ErrorAction SilentlyContinue
@@ -47,14 +47,14 @@ if (-not (Test-Path $PROVIDER_DIR)) {
     Write-Host "  Created provider directory: $PROVIDER_DIR" -ForegroundColor Green
 }
 
-# Check if config already exists
-if (Test-Path $CONFIG_FILE) {
-    Write-Host "  [EXISTS] Git CLI provider config already configured" -ForegroundColor Gray
+# Check if configs already exists
+if (Test-Path $configs_FILE) {
+    Write-Host "  [EXISTS] Git CLI provider configs already configsured" -ForegroundColor Gray
     return
 }
 
-# Create provider config
-$config = @{
+# Create provider configs
+$configs = @{
     name = "git-cli"
     type = "local"
     priority = 8
@@ -89,6 +89,6 @@ $config = @{
     }
 }
 
-$config | ConvertTo-Json -Depth 4 | Set-Content -Path $CONFIG_FILE -Encoding UTF8
-Write-Host "  [OK] Created Git CLI provider config: $CONFIG_FILE" -ForegroundColor Green
+$configs | ConvertTo-Json -Depth 4 | Set-Content -Path $configs_FILE -Encoding UTF8
+Write-Host "  [OK] Created Git CLI provider configs: $configs_FILE" -ForegroundColor Green
 

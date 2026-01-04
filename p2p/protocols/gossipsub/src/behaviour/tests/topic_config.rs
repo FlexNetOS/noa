@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! Tests for topic-specific configuration.
+//! Tests for topic-specific configsuration.
 
 use std::collections::HashMap;
 
@@ -28,7 +28,7 @@ use libp2p_swarm::{ConnectionId, NetworkBehaviour, ToSwarm};
 
 use super::DefaultBehaviourTestBuilder;
 use crate::{
-    config::{Config, ConfigBuilder, TopicMeshConfig},
+    configs::{configs, configsBuilder, TopicMeshconfigs},
     error::ValidationError,
     handler::HandlerEvent,
     protocol::GossipsubCodec,
@@ -38,82 +38,82 @@ use crate::{
     Event, IdentTopic as Topic, PublishError, ValidationMode,
 };
 
-/// Test that specific topic configurations are correctly applied
+/// Test that specific topic configsurations are correctly applied
 #[test]
-fn test_topic_specific_config() {
+fn test_topic_specific_configs() {
     let topic_hash1 = Topic::new("topic1").hash();
     let topic_hash2 = Topic::new("topic2").hash();
 
-    let topic_config1 = TopicMeshConfig {
+    let topic_configs1 = TopicMeshconfigs {
         mesh_n: 5,
         mesh_n_low: 3,
         mesh_n_high: 10,
         mesh_outbound_min: 2,
     };
 
-    let topic_config2 = TopicMeshConfig {
+    let topic_configs2 = TopicMeshconfigs {
         mesh_n: 8,
         mesh_n_low: 4,
         mesh_n_high: 12,
         mesh_outbound_min: 3,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic_hash1.clone(), topic_config1)
-        .set_topic_config(topic_hash2.clone(), topic_config2)
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic_hash1.clone(), topic_configs1)
+        .set_topic_configs(topic_hash2.clone(), topic_configs2)
         .build()
         .unwrap();
 
-    assert_eq!(config.mesh_n_for_topic(&topic_hash1), 5);
-    assert_eq!(config.mesh_n_low_for_topic(&topic_hash1), 3);
-    assert_eq!(config.mesh_n_high_for_topic(&topic_hash1), 10);
-    assert_eq!(config.mesh_outbound_min_for_topic(&topic_hash1), 2);
+    assert_eq!(configs.mesh_n_for_topic(&topic_hash1), 5);
+    assert_eq!(configs.mesh_n_low_for_topic(&topic_hash1), 3);
+    assert_eq!(configs.mesh_n_high_for_topic(&topic_hash1), 10);
+    assert_eq!(configs.mesh_outbound_min_for_topic(&topic_hash1), 2);
 
-    assert_eq!(config.mesh_n_for_topic(&topic_hash2), 8);
-    assert_eq!(config.mesh_n_low_for_topic(&topic_hash2), 4);
-    assert_eq!(config.mesh_n_high_for_topic(&topic_hash2), 12);
-    assert_eq!(config.mesh_outbound_min_for_topic(&topic_hash2), 3);
+    assert_eq!(configs.mesh_n_for_topic(&topic_hash2), 8);
+    assert_eq!(configs.mesh_n_low_for_topic(&topic_hash2), 4);
+    assert_eq!(configs.mesh_n_high_for_topic(&topic_hash2), 12);
+    assert_eq!(configs.mesh_outbound_min_for_topic(&topic_hash2), 3);
 
     let topic_hash3 = TopicHash::from_raw("topic3");
 
-    assert_eq!(config.mesh_n_for_topic(&topic_hash3), config.mesh_n());
+    assert_eq!(configs.mesh_n_for_topic(&topic_hash3), configs.mesh_n());
     assert_eq!(
-        config.mesh_n_low_for_topic(&topic_hash3),
-        config.mesh_n_low()
+        configs.mesh_n_low_for_topic(&topic_hash3),
+        configs.mesh_n_low()
     );
     assert_eq!(
-        config.mesh_n_high_for_topic(&topic_hash3),
-        config.mesh_n_high()
+        configs.mesh_n_high_for_topic(&topic_hash3),
+        configs.mesh_n_high()
     );
     assert_eq!(
-        config.mesh_outbound_min_for_topic(&topic_hash3),
-        config.mesh_outbound_min()
+        configs.mesh_outbound_min_for_topic(&topic_hash3),
+        configs.mesh_outbound_min()
     );
 }
 
-/// Test mesh maintenance with topic-specific configurations
+/// Test mesh maintenance with topic-specific configsurations
 #[test]
-fn test_topic_mesh_maintenance_with_specific_config() {
+fn test_topic_mesh_maintenance_with_specific_configs() {
     let topic1_hash = TopicHash::from_raw("topic1");
     let topic2_hash = TopicHash::from_raw("topic2");
 
-    let topic_config1 = TopicMeshConfig {
+    let topic_configs1 = TopicMeshconfigs {
         mesh_n: 4,
         mesh_n_low: 2,
         mesh_n_high: 6,
         mesh_outbound_min: 1,
     };
 
-    let topic_config2 = TopicMeshConfig {
+    let topic_configs2 = TopicMeshconfigs {
         mesh_n: 8,
         mesh_n_low: 4,
         mesh_n_high: 12,
         mesh_outbound_min: 3,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic1_hash, topic_config1)
-        .set_topic_config(topic2_hash, topic_config2)
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic1_hash, topic_configs1)
+        .set_topic_configs(topic2_hash, topic_configs2)
         .build()
         .unwrap();
 
@@ -121,7 +121,7 @@ fn test_topic_mesh_maintenance_with_specific_config() {
         .peer_no(15)
         .topics(vec!["topic1".into(), "topic2".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     assert_eq!(
@@ -150,29 +150,29 @@ fn test_topic_mesh_maintenance_with_specific_config() {
     );
 }
 
-/// Test mesh addition with topic-specific configuration
+/// Test mesh addition with topic-specific configsuration
 #[test]
-fn test_mesh_addition_with_topic_config() {
+fn test_mesh_addition_with_topic_configs() {
     let topic = String::from("topic1");
     let topic_hash = TopicHash::from_raw(topic.clone());
 
-    let topic_config = TopicMeshConfig {
+    let topic_configs = TopicMeshconfigs {
         mesh_n: 6,
         mesh_n_low: 3,
         mesh_n_high: 9,
         mesh_outbound_min: 2,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic_hash.clone(), topic_config.clone())
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic_hash.clone(), topic_configs.clone())
         .build()
         .unwrap();
 
     let (mut gs, peers, _, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.mesh_n_for_topic(&topic_hash) + 1)
+        .peer_no(configs.mesh_n_for_topic(&topic_hash) + 1)
         .topics(vec![topic])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .create_network();
 
     let to_remove_peers = 1;
@@ -186,7 +186,7 @@ fn test_mesh_addition_with_topic_config() {
 
     assert_eq!(
         gs.mesh.get(&topics[0]).unwrap().len(),
-        config.mesh_n_low_for_topic(&topic_hash) - 1
+        configs.mesh_n_low_for_topic(&topic_hash) - 1
     );
 
     // run a heartbeat
@@ -195,28 +195,28 @@ fn test_mesh_addition_with_topic_config() {
     // Peers should be added to reach mesh_n
     assert_eq!(
         gs.mesh.get(&topics[0]).unwrap().len(),
-        config.mesh_n_for_topic(&topic_hash)
+        configs.mesh_n_for_topic(&topic_hash)
     );
 }
 
-/// Test mesh subtraction with topic-specific configuration
+/// Test mesh subtraction with topic-specific configsuration
 #[test]
-fn test_mesh_subtraction_with_topic_config() {
+fn test_mesh_subtraction_with_topic_configs() {
     let topic = String::from("topic1");
     let topic_hash = TopicHash::from_raw(topic.clone());
 
     let mesh_n = 5;
     let mesh_n_high = 7;
 
-    let topic_config = TopicMeshConfig {
+    let topic_configs = TopicMeshconfigs {
         mesh_n,
         mesh_n_high,
         mesh_n_low: 3,
         mesh_outbound_min: 2,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic_hash.clone(), topic_config)
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic_hash.clone(), topic_configs)
         .build()
         .unwrap();
 
@@ -224,7 +224,7 @@ fn test_mesh_subtraction_with_topic_config() {
         .peer_no(mesh_n_high)
         .topics(vec![topic])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .outbound(mesh_n_high)
         .create_network();
 
@@ -253,22 +253,22 @@ fn test_mesh_subtraction_with_topic_config() {
 /// Tests that if a mesh reaches `mesh_n_high`,
 /// but is only composed of outbound peers, it is not reduced to `mesh_n`.
 #[test]
-fn test_mesh_subtraction_with_topic_config_min_outbound() {
+fn test_mesh_subtraction_with_topic_configs_min_outbound() {
     let topic = String::from("topic1");
     let topic_hash = TopicHash::from_raw(topic.clone());
 
     let mesh_n = 5;
     let mesh_n_high = 7;
 
-    let topic_config = TopicMeshConfig {
+    let topic_configs = TopicMeshconfigs {
         mesh_n,
         mesh_n_high,
         mesh_n_low: 3,
         mesh_outbound_min: 7,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic_hash.clone(), topic_config)
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic_hash.clone(), topic_configs)
         .build()
         .unwrap();
 
@@ -279,7 +279,7 @@ fn test_mesh_subtraction_with_topic_config_min_outbound() {
         .peer_no(peer_no)
         .topics(vec![topic])
         .to_subscribe(true)
-        .gs_config(config.clone())
+        .gs_configs(configs.clone())
         .outbound(peer_no)
         .create_network();
 
@@ -304,9 +304,9 @@ fn test_mesh_subtraction_with_topic_config_min_outbound() {
     );
 }
 
-/// Test behavior with multiple topics having different configs
+/// Test behavior with multiple topics having different configss
 #[test]
-fn test_multiple_topics_with_different_configs() {
+fn test_multiple_topics_with_different_configss() {
     let topic1 = String::from("topic1");
     let topic2 = String::from("topic2");
     let topic3 = String::from("topic3");
@@ -315,31 +315,31 @@ fn test_multiple_topics_with_different_configs() {
     let topic_hash2 = TopicHash::from_raw(topic2.clone());
     let topic_hash3 = TopicHash::from_raw(topic3.clone());
 
-    let config1 = TopicMeshConfig {
+    let configs1 = TopicMeshconfigs {
         mesh_n: 4,
         mesh_n_low: 3,
         mesh_n_high: 6,
         mesh_outbound_min: 1,
     };
 
-    let config2 = TopicMeshConfig {
+    let configs2 = TopicMeshconfigs {
         mesh_n: 6,
         mesh_n_low: 4,
         mesh_n_high: 9,
         mesh_outbound_min: 2,
     };
 
-    let config3 = TopicMeshConfig {
+    let configs3 = TopicMeshconfigs {
         mesh_n: 9,
         mesh_n_low: 6,
         mesh_n_high: 13,
         mesh_outbound_min: 3,
     };
 
-    let config = ConfigBuilder::default()
-        .set_topic_config(topic_hash1.clone(), config1)
-        .set_topic_config(topic_hash2.clone(), config2)
-        .set_topic_config(topic_hash3.clone(), config3)
+    let configs = configsBuilder::default()
+        .set_topic_configs(topic_hash1.clone(), configs1)
+        .set_topic_configs(topic_hash2.clone(), configs2)
+        .set_topic_configs(topic_hash3.clone(), configs3)
         .build()
         .unwrap();
 
@@ -348,10 +348,10 @@ fn test_multiple_topics_with_different_configs() {
         .peer_no(35)
         .topics(vec![topic1, topic2, topic3])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
-    // Check that mesh sizes match each topic's config
+    // Check that mesh sizes match each topic's configs
     assert_eq!(
         gs.mesh.get(&topic_hashes[0]).unwrap().len(),
         3,
@@ -416,13 +416,13 @@ fn test_multiple_topics_with_different_configs() {
     );
 }
 
-/// Test fanout behavior with topic-specific configuration
+/// Test fanout behavior with topic-specific configsuration
 #[test]
-fn test_fanout_with_topic_config() {
+fn test_fanout_with_topic_configs() {
     let topic = String::from("topic1");
     let topic_hash = TopicHash::from_raw(topic.clone());
 
-    let topic_config = TopicMeshConfig {
+    let topic_configs = TopicMeshconfigs {
         mesh_n: 4,
         mesh_n_low: 2,
         mesh_n_high: 7,
@@ -430,9 +430,9 @@ fn test_fanout_with_topic_config() {
     };
 
     // turn off flood publish to test fanout behaviour
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .flood_publish(false)
-        .set_topic_config(topic_hash.clone(), topic_config)
+        .set_topic_configs(topic_hash.clone(), topic_configs)
         .build()
         .unwrap();
 
@@ -440,7 +440,7 @@ fn test_fanout_with_topic_config() {
         .peer_no(10) // More than mesh_n
         .topics(vec![topic.clone()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     assert!(
@@ -479,12 +479,12 @@ fn test_fanout_with_topic_config() {
 }
 
 #[test]
-fn test_publish_message_with_default_transmit_size_config() {
+fn test_publish_message_with_default_transmit_size_configs() {
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
 
-    let config = ConfigBuilder::default()
-        .max_transmit_size_for_topic(Config::default_max_transmit_size(), topic_hash.clone())
+    let configs = configsBuilder::default()
+        .max_transmit_size_for_topic(configs::default_max_transmit_size(), topic_hash.clone())
         .validation_mode(ValidationMode::Strict)
         .build()
         .unwrap();
@@ -493,7 +493,7 @@ fn test_publish_message_with_default_transmit_size_config() {
         .peer_no(10)
         .topics(vec!["test".to_string()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let data = vec![0; 1024];
@@ -511,12 +511,12 @@ fn test_publish_message_with_default_transmit_size_config() {
 }
 
 #[test]
-fn test_publish_large_message_with_default_transmit_size_config() {
+fn test_publish_large_message_with_default_transmit_size_configs() {
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
 
-    let config = ConfigBuilder::default()
-        .max_transmit_size_for_topic(Config::default_max_transmit_size(), topic_hash.clone())
+    let configs = configsBuilder::default()
+        .max_transmit_size_for_topic(configs::default_max_transmit_size(), topic_hash.clone())
         .validation_mode(ValidationMode::Strict)
         .build()
         .unwrap();
@@ -525,10 +525,10 @@ fn test_publish_large_message_with_default_transmit_size_config() {
         .peer_no(10)
         .topics(vec!["test".to_string()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
-    let data = vec![0; Config::default_max_transmit_size() + 1];
+    let data = vec![0; configs::default_max_transmit_size() + 1];
 
     let result = gs.publish(topic.clone(), data);
     assert!(
@@ -538,12 +538,12 @@ fn test_publish_large_message_with_default_transmit_size_config() {
 }
 
 #[test]
-fn test_publish_message_with_specific_transmit_size_config() {
+fn test_publish_message_with_specific_transmit_size_configs() {
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
 
     let max_topic_transmit_size = 2000;
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_transmit_size_for_topic(max_topic_transmit_size, topic_hash.clone())
         .validation_mode(ValidationMode::Strict)
         .build()
@@ -553,7 +553,7 @@ fn test_publish_message_with_specific_transmit_size_config() {
         .peer_no(10)
         .topics(vec!["test".to_string()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let data = vec![0; 1024];
@@ -571,12 +571,12 @@ fn test_publish_message_with_specific_transmit_size_config() {
 }
 
 #[test]
-fn test_publish_large_message_with_specific_transmit_size_config() {
+fn test_publish_large_message_with_specific_transmit_size_configs() {
     let topic = Topic::new("test");
     let topic_hash = topic.hash();
 
     let max_topic_transmit_size = 2048;
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_transmit_size_for_topic(max_topic_transmit_size, topic_hash.clone())
         .validation_mode(ValidationMode::Strict)
         .build()
@@ -586,7 +586,7 @@ fn test_publish_large_message_with_specific_transmit_size_config() {
         .peer_no(10)
         .topics(vec!["test".to_string()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let data = vec![0; 2049];
@@ -594,7 +594,7 @@ fn test_publish_large_message_with_specific_transmit_size_config() {
     let result = gs.publish(topic.clone(), data);
     assert!(
         matches!(result, Err(PublishError::MessageTooLarge)),
-        "Expected MessageTooLarge error for oversized message with topic-specific config"
+        "Expected MessageTooLarge error for oversized message with topic-specific configs"
     );
 }
 
@@ -604,7 +604,7 @@ fn test_validation_error_message_size_too_large_topic_specific() {
     let topic_hash = topic.hash();
     let max_size = 2048;
 
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_transmit_size_for_topic(max_size, topic_hash.clone())
         .validation_mode(ValidationMode::None)
         .build()
@@ -614,7 +614,7 @@ fn test_validation_error_message_size_too_large_topic_specific() {
         .peer_no(1)
         .topics(vec![String::from("test")])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let data = vec![0u8; max_size + 1];
@@ -664,7 +664,7 @@ fn test_validation_error_message_size_too_large_topic_specific() {
     max_transmit_size_map.insert(topic_hash, max_size);
 
     let mut codec = GossipsubCodec::new(
-        Config::default_max_transmit_size() * 2,
+        configs::default_max_transmit_size() * 2,
         ValidationMode::None,
         max_transmit_size_map,
     );
@@ -708,7 +708,7 @@ fn test_validation_message_size_within_topic_specific() {
     let topic_hash = topic.hash();
     let max_size = 2048;
 
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .max_transmit_size_for_topic(max_size, topic_hash.clone())
         .validation_mode(ValidationMode::None)
         .build()
@@ -718,7 +718,7 @@ fn test_validation_message_size_within_topic_specific() {
         .peer_no(1)
         .topics(vec![String::from("test")])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let data = vec![0u8; max_size - 100];
@@ -768,7 +768,7 @@ fn test_validation_message_size_within_topic_specific() {
     max_transmit_size_map.insert(topic_hash, max_size);
 
     let mut codec = GossipsubCodec::new(
-        Config::default_max_transmit_size() * 2,
+        configs::default_max_transmit_size() * 2,
         ValidationMode::None,
         max_transmit_size_map,
     );

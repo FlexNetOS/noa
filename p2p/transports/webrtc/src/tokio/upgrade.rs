@@ -38,7 +38,7 @@ use webrtc::{
     data_channel::data_channel_init::RTCDataChannelInit,
     dtls_transport::dtls_role::DTLSRole,
     ice::{network_type::NetworkType, udp_mux::UDPMux, udp_network::UDPNetwork},
-    peer_connection::{configuration::RTCConfiguration, RTCPeerConnection},
+    peer_connection::{configsuration::RTCconfigsuration, RTCPeerConnection},
 };
 
 use crate::tokio::{error::Error, sdp, sdp::random_ufrag, stream::Stream, Connection};
@@ -46,7 +46,7 @@ use crate::tokio::{error::Error, sdp, sdp::random_ufrag, stream::Stream, Connect
 /// Creates a new outbound WebRTC connection.
 pub(crate) async fn outbound(
     addr: SocketAddr,
-    config: RTCConfiguration,
+    configs: RTCconfigsuration,
     udp_mux: Arc<dyn UDPMux + Send + Sync>,
     client_fingerprint: Fingerprint,
     server_fingerprint: Fingerprint,
@@ -54,7 +54,7 @@ pub(crate) async fn outbound(
 ) -> Result<(PeerId, Connection), Error> {
     tracing::debug!(address=%addr, "new outbound connection to address");
 
-    let (peer_connection, ufrag) = new_outbound_connection(addr, config, udp_mux).await?;
+    let (peer_connection, ufrag) = new_outbound_connection(addr, configs, udp_mux).await?;
 
     let offer = peer_connection.create_offer(None).await?;
     tracing::debug!(offer=%offer.sdp, "created SDP offer for outbound connection");
@@ -79,7 +79,7 @@ pub(crate) async fn outbound(
 /// Creates a new inbound WebRTC connection.
 pub(crate) async fn inbound(
     addr: SocketAddr,
-    config: RTCConfiguration,
+    configs: RTCconfigsuration,
     udp_mux: Arc<dyn UDPMux + Send + Sync>,
     server_fingerprint: Fingerprint,
     remote_ufrag: String,
@@ -87,7 +87,7 @@ pub(crate) async fn inbound(
 ) -> Result<(PeerId, Connection), Error> {
     tracing::debug!(address=%addr, ufrag=%remote_ufrag, "new inbound connection from address");
 
-    let peer_connection = new_inbound_connection(addr, config, udp_mux, &remote_ufrag).await?;
+    let peer_connection = new_inbound_connection(addr, configs, udp_mux, &remote_ufrag).await?;
 
     let offer = sdp::offer(addr, &remote_ufrag);
     tracing::debug!(?offer, "calculated SDP offer for inbound connection");
@@ -112,7 +112,7 @@ pub(crate) async fn inbound(
 
 async fn new_outbound_connection(
     addr: SocketAddr,
-    config: RTCConfiguration,
+    configs: RTCconfigsuration,
     udp_mux: Arc<dyn UDPMux + Send + Sync>,
 ) -> Result<(RTCPeerConnection, String), Error> {
     let ufrag = random_ufrag();
@@ -121,7 +121,7 @@ async fn new_outbound_connection(
     let connection = APIBuilder::new()
         .with_setting_engine(se)
         .build()
-        .new_peer_connection(config)
+        .new_peer_connection(configs)
         .await?;
 
     Ok((connection, ufrag))
@@ -129,7 +129,7 @@ async fn new_outbound_connection(
 
 async fn new_inbound_connection(
     addr: SocketAddr,
-    config: RTCConfiguration,
+    configs: RTCconfigsuration,
     udp_mux: Arc<dyn UDPMux + Send + Sync>,
     ufrag: &str,
 ) -> Result<RTCPeerConnection, Error> {
@@ -147,7 +147,7 @@ async fn new_inbound_connection(
     let connection = APIBuilder::new()
         .with_setting_engine(se)
         .build()
-        .new_peer_connection(config)
+        .new_peer_connection(configs)
         .await?;
 
     Ok(connection)

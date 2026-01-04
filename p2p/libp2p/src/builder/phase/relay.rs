@@ -33,12 +33,12 @@ impl<Provider, T: AuthenticatedMultiplexedTransport> SwarmBuilder<Provider, Rela
     ///     .with_tokio()
     ///     .with_tcp(
     ///         Default::default(),
-    ///         (libp2p_tls::Config::new, libp2p_noise::Config::new),
-    ///         libp2p_yamux::Config::default,
+    ///         (libp2p_tls::configs::new, libp2p_noise::configs::new),
+    ///         libp2p_yamux::configs::default,
     ///     )?
     ///      .with_relay_client(
-    ///          (libp2p_tls::Config::new, libp2p_noise::Config::new),
-    ///          libp2p_yamux::Config::default,
+    ///          (libp2p_tls::configs::new, libp2p_noise::configs::new),
+    ///          libp2p_yamux::configs::default,
     ///      )?
     /// # ;
     /// # Ok(())

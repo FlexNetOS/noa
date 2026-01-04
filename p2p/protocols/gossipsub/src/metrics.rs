@@ -47,7 +47,7 @@ const DEFAULT_MAX_TOPICS: usize = 300;
 const DEFAULT_MAX_NEVER_SUBSCRIBED_TOPICS: usize = 50;
 
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// This provides an upper bound to the number of mesh topics we create metrics for. It
     /// prevents unbounded labels being created in the metrics.
     pub max_topics: usize,
@@ -59,7 +59,7 @@ pub struct Config {
     pub score_buckets: Vec<f64>,
 }
 
-impl Config {
+impl configs {
     /// Create buckets for the score histograms based on score thresholds.
     pub fn buckets_using_scoring_thresholds(&mut self, params: &crate::PeerScoreThresholds) {
         self.score_buckets = vec![
@@ -76,7 +76,7 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         // Some sensible defaults
         let gossip_threshold = -4000.0;
@@ -93,7 +93,7 @@ impl Default for Config {
             10.0,
             100.0,
         ];
-        Config {
+        configs {
             max_topics: DEFAULT_MAX_TOPICS,
             max_never_subscribed_topics: DEFAULT_MAX_NEVER_SUBSCRIBED_TOPICS,
             score_buckets,
@@ -106,7 +106,7 @@ type EverSubscribed = bool;
 
 /// A collection of metrics used throughout the Gossipsub behaviour.
 pub(crate) struct Metrics {
-    // Configuration parameters
+    // configsuration parameters
     /// Maximum number of topics for which we store metrics. This helps keep the metrics bounded.
     max_topics: usize,
     /// Maximum number of topics for which we store metrics, where the topic in not one to which we
@@ -199,13 +199,13 @@ pub(crate) struct Metrics {
 }
 
 impl Metrics {
-    pub(crate) fn new(registry: &mut Registry, config: Config) -> Self {
-        // Destructure the config to be sure everything is used.
-        let Config {
+    pub(crate) fn new(registry: &mut Registry, configs: configs) -> Self {
+        // Destructure the configs to be sure everything is used.
+        let configs {
             max_topics,
             max_never_subscribed_topics,
             score_buckets,
-        } = config;
+        } = configs;
 
         macro_rules! register_family {
             ($name:expr, $help:expr) => {{
@@ -423,7 +423,7 @@ impl Metrics {
             && self.non_subscription_topics_count() < self.max_never_subscribed_topics
         {
             // This is a topic without an explicit subscription and we register it if we are within
-            // the configured bounds.
+            // the configsured bounds.
             self.topic_info.entry(topic.clone()).or_insert(false);
             self.topic_subscription_status.get_or_create(topic).set(0);
             Ok(())
@@ -449,7 +449,7 @@ impl Metrics {
 
     // Mesh related methods
 
-    /// Registers the subscription to a topic if the configured limits allow it.
+    /// Registers the subscription to a topic if the configsured limits allow it.
     /// Sets the registered number of peers in the mesh to 0.
     pub(crate) fn joined(&mut self, topic: &TopicHash) {
         if self.topic_info.contains_key(topic) || self.topic_info.len() < self.max_topics {
@@ -464,7 +464,7 @@ impl Metrics {
     /// Sets the registered number of peers in the mesh to 0.
     pub(crate) fn left(&mut self, topic: &TopicHash) {
         if self.topic_info.contains_key(topic) {
-            // Depending on the configured topic bounds we could miss a mesh topic.
+            // Depending on the configsured topic bounds we could miss a mesh topic.
             // So, check first if the topic was previously allowed.
             let was_subscribed = self.topic_subscription_status.get_or_create(topic).set(0);
             debug_assert_eq!(was_subscribed, 1);

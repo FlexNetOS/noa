@@ -89,17 +89,17 @@ try {
         }
     }
 
-    Write-Status "Setting up environment configuration..." "INFO"
+    Write-Status "Setting up environment configsuration..." "INFO"
 
-    $cudaEnvConfig = @{
+    $cudaEnvconfigs = @{
         CUDA_PATH = $CudaTarget
         CUDA_HOME = $CudaTarget
         CUDA_VERSION = "13.1"
         CUDA_PATH_V13_1 = $CudaTarget
     }
 
-    $configPath = Join-Path $NoaRoot "config\cuda-env.json"
-    $cudaEnvConfig | ConvertTo-Json | Set-Content -Path $configPath
+    $configsPath = Join-Path $NoaRoot "configs\cuda-env.json"
+    $cudaEnvconfigs | ConvertTo-Json | Set-Content -Path $configsPath
     
     Write-Status "Cleaning up temporary files..." "INFO"
     Remove-Item -Path $CudaTempExtract -Recurse -Force -ErrorAction SilentlyContinue
@@ -118,4 +118,4 @@ $env:CUDA_PATH = $CudaTarget
 $env:CUDA_HOME = $CudaTarget
 $env:PATH = "$CudaTarget\bin;$CudaTarget\libnvvp;$env:PATH"
 
-Write-Status "CUDA environment configured for current session" "SUCCESS"
+Write-Status "CUDA environment configsured for current session" "SUCCESS"

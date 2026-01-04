@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    NOA Environment Configuration for Windows PowerShell
+    NOA Environment configsuration for Windows PowerShell
 
 .DESCRIPTION
     Sets up NOA environment variables and aliases for Windows.
-    Source this file in your PowerShell profile for persistent configuration.
+    Source this file in your PowerShell profile for persistent configsuration.
 
 .EXAMPLE
     . .\noa-env.ps1
@@ -31,7 +31,7 @@ function Add-NoaPath {
 $env:NOA_REPOS = Join-Path $env:NOA_ROOT 'repos'
 $env:NOA_CONTAINERS = Join-Path $env:NOA_ROOT 'containers'
 $env:NOA_WORKSPACE = Join-Path $env:NOA_ROOT 'workspace'
-$env:NOA_CONFIG = Join-Path $env:NOA_ROOT 'config'
+$env:NOA_configs = Join-Path $env:NOA_ROOT 'configs'
 $env:NOA_SCRIPTS = Join-Path $env:NOA_ROOT 'scripts'
 $env:NOA_LOGS = Join-Path $env:NOA_ROOT 'logs'
 $env:NOA_TMP = Join-Path $env:NOA_ROOT 'tmp'
@@ -63,7 +63,7 @@ $env:NOA_INIT = Join-Path $env:NOA_ROOT 'init'
 # Data directories (FR-001: All data within noa_root)
 $env:NOA_DATA = Join-Path $env:NOA_ROOT 'data'
 $env:NOA_CACHE = Join-Path $env:NOA_ROOT 'data/cache'
-$env:NOA_CONFIG_HOME = Join-Path $env:NOA_ROOT 'etc'
+$env:NOA_configs_HOME = Join-Path $env:NOA_ROOT 'etc'
 
 # AppData redirection (FR-001: Self-contained operation)
 # Override Windows AppData paths to keep all application data within NOA
@@ -74,7 +74,7 @@ $env:TMP = Join-Path $env:NOA_ROOT 'tmp'
 
 # XDG Base Directory specification (Unix compatibility)
 $env:XDG_DATA_HOME = Join-Path $env:NOA_ROOT 'data'
-$env:XDG_CONFIG_HOME = Join-Path $env:NOA_ROOT 'etc'
+$env:XDG_configs_HOME = Join-Path $env:NOA_ROOT 'etc'
 $env:XDG_CACHE_HOME = Join-Path $env:NOA_ROOT 'data/cache'
 $env:XDG_STATE_HOME = Join-Path $env:NOA_ROOT 'data/state'
 
@@ -112,8 +112,8 @@ Add-NoaPath $env:GOBIN
 
 # Add Node.js and npm global modules to PATH
 $env:NOA_NODE = Join-Path $env:NOA_OPT 'node'
-$env:npm_config_prefix = $env:NOA_NODE
-$env:npm_config_cache = Join-Path $env:NOA_OPT 'npm-cache'
+$env:npm_configs_prefix = $env:NOA_NODE
+$env:npm_configs_cache = Join-Path $env:NOA_OPT 'npm-cache'
 Add-NoaPath $env:NOA_NODE
 Add-NoaPath (Join-Path $env:NOA_NODE 'node_modules\.bin')
 
@@ -180,7 +180,7 @@ function Test-NoaEnv {
     $required = @(
         $env:NOA_ROOT,
         $env:NOA_SCRIPTS,
-        $env:NOA_CONFIG
+        $env:NOA_configs
     )
 
     $missing = @()

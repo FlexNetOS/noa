@@ -10,12 +10,12 @@
 
 - Migrate to `{In,Out}boundConnectionUpgrade` traits.
   See [PR 4695](https://github.com/libp2p/rust-libp2p/pull/4695).
-- Remove deprecated type-aliases and make `Config::local_public_key` private.
+- Remove deprecated type-aliases and make `configs::local_public_key` private.
   See [PR 4734](https://github.com/libp2p/rust-libp2p/pull/4734).
 
 ## 0.40.1
 
-- Rename `Plaintext2Config` to `Config` to follow naming conventions across repository.
+- Rename `Plaintext2configs` to `configs` to follow naming conventions across repository.
   See [PR 4535](https://github.com/libp2p/rust-libp2p/pull/4535).
 
 ## 0.40.0
@@ -23,8 +23,8 @@
 - Raise MSRV to 1.65.
   See [PR 3715].
 
-- Remove `Plaintext1Config`.
-  Use `Plaintext2Config` instead.
+- Remove `Plaintext1configs`.
+  Use `Plaintext2configs` instead.
   See [PR 3915].
 
 [PR 3715]: https://github.com/libp2p/rust-libp2p/pull/3715

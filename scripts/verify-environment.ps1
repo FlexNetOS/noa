@@ -3,7 +3,7 @@
     Verify NOA environment setup across all platforms
 
 .DESCRIPTION
-    Checks that all required directories, tools, and configurations are properly set up.
+    Checks that all required directories, tools, and configsurations are properly set up.
     Run this after cloning the repo or when troubleshooting environment issues.
 #>
 
@@ -39,7 +39,7 @@ Write-Host "1. Checking Directory Structure..." -ForegroundColor Yellow
 
 $requiredDirs = @(
     "ai", "ai/shared", "ai/providers", "ai/devices", "ai/orchestration",
-    "bin", "config", "containers", "etc", "git", "init", "lib",
+    "bin", "configs", "containers", "etc", "git", "init", "lib",
     "logs", "opt", "p2p", "repos", "scripts", "sys", "tmp", "workspace"
 )
 
@@ -82,20 +82,20 @@ foreach ($file in $envFiles) {
 }
 
 # ============================================
-# 3. Git Configuration
+# 3. Git configsuration
 # ============================================
 Write-Host ""
-Write-Host "3. Checking Git Configuration..." -ForegroundColor Yellow
+Write-Host "3. Checking Git configsuration..." -ForegroundColor Yellow
 
-$gitConfig = @(
+$gitconfigs = @(
     @{ Key = "user.name"; Required = $true },
     @{ Key = "user.email"; Required = $true },
     @{ Key = "core.editor"; Required = $false },
     @{ Key = "init.defaultBranch"; Required = $false }
 )
 
-foreach ($cfg in $gitConfig) {
-    $value = git config --global $cfg.Key 2>$null
+foreach ($cfg in $gitconfigs) {
+    $value = git configs --global $cfg.Key 2>$null
     if ($value) {
         Write-Host "  [OK] $($cfg.Key) = $value" -ForegroundColor Green
     } elseif ($cfg.Required) {

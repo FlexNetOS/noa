@@ -72,17 +72,17 @@ test_boundary "Prerequisite check handles missing tools" \
     "bash $NOA_ROOT/scripts/bash/check-prerequisites.sh --json 2>&1 | grep -q 'missing\|not found\|required' || echo 'Handles missing tools'"
 
 echo ""
-echo "Testing Error Handling: Invalid Configuration..."
+echo "Testing Error Handling: Invalid configsuration..."
 echo ""
 
-# Test: Invalid JSON in config files
-test_negative "Config validation rejects invalid JSON" \
+# Test: Invalid JSON in configs files
+test_negative "configs validation rejects invalid JSON" \
     "echo '{ invalid json }' | jq . 2>&1 | grep -q 'parse error'" \
     "JSON parse error"
 
-# Test: Missing required config fields
-test_boundary "Config validation checks required fields" \
-    "test -f $NOA_ROOT/config/noa-server.json && jq -e '.version' $NOA_ROOT/config/noa-server.json >/dev/null 2>&1"
+# Test: Missing required configs fields
+test_boundary "configs validation checks required fields" \
+    "test -f $NOA_ROOT/configs/noa-server.json && jq -e '.version' $NOA_ROOT/configs/noa-server.json >/dev/null 2>&1"
 
 echo ""
 echo "Testing Boundary Cases: Empty Values..."
@@ -92,8 +92,8 @@ echo ""
 test_boundary "Empty directory creation succeeds" \
     "mkdir -p /tmp/noa-test-empty && rmdir /tmp/noa-test-empty"
 
-# Test: Empty config file handling
-test_negative "Empty config file is rejected" \
+# Test: Empty configs file handling
+test_negative "Empty configs file is rejected" \
     "echo '' | jq . 2>&1 | grep -q 'parse error\|null'" \
     "Empty file rejection"
 

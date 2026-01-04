@@ -2,9 +2,9 @@
 # NOA CLI Tool - P2P Server & Multi-Provider AI Management
 
 NOA_ROOT="${HOME}"
-NOA_CONFIG="$NOA_ROOT/config/noa-server.json"
-AI_PROVIDERS_CONFIG="$NOA_ROOT/config/ai-providers.json"
-DEVICE_CONFIG="$NOA_ROOT/config/device-orchestration.json"
+NOA_configs="$NOA_ROOT/configs/noa-server.json"
+AI_PROVIDERS_configs="$NOA_ROOT/configs/ai-providers.json"
+DEVICE_configs="$NOA_ROOT/configs/device-orchestration.json"
 
 case "$1" in
   start)
@@ -36,11 +36,11 @@ case "$1" in
     case "$2" in
       providers)
         echo "Available AI providers:"
-        [ -f "$AI_PROVIDERS_CONFIG" ] && cat "$AI_PROVIDERS_CONFIG" | jq '.providers' || echo "Config not found"
+        [ -f "$AI_PROVIDERS_configs" ] && cat "$AI_PROVIDERS_configs" | jq '.providers' || echo "configs not found"
         ;;
       devices)
         echo "Registered devices:"
-        [ -f "$DEVICE_CONFIG" ] && cat "$DEVICE_CONFIG" | jq '.deviceTypes' || echo "Config not found"
+        [ -f "$DEVICE_configs" ] && cat "$DEVICE_configs" | jq '.deviceTypes' || echo "configs not found"
         ;;
       shared)
         echo "Shared AI resources:"
@@ -67,7 +67,7 @@ case "$1" in
         ;;
       capabilities)
         echo "Device capabilities:"
-        [ -f "$DEVICE_CONFIG" ] && cat "$DEVICE_CONFIG" | jq '.deviceTypes' || echo "Config not found"
+        [ -f "$DEVICE_configs" ] && cat "$DEVICE_configs" | jq '.deviceTypes' || echo "configs not found"
         ;;
       *)
         echo "Usage: noa device {register <name>|list|capabilities}"

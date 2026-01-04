@@ -35,7 +35,7 @@ use libp2p_identity::PeerId;
 use libp2p_ping as ping;
 use libp2p_plaintext as plaintext;
 use libp2p_relay as relay;
-use libp2p_swarm::{dial_opts::DialOpts, Config, DialError, NetworkBehaviour, Swarm, SwarmEvent};
+use libp2p_swarm::{dial_opts::DialOpts, configs, DialError, NetworkBehaviour, Swarm, SwarmEvent};
 use libp2p_swarm_test::SwarmExt;
 use tracing_subscriber::EnvFilter;
 
@@ -300,9 +300,9 @@ async fn propagate_reservation_error_to_listener() {
         .try_init();
 
     let relay_addr = Multiaddr::empty().with(Protocol::Memory(rand::random::<u64>()));
-    let mut relay = build_relay_with_config(relay::Config {
+    let mut relay = build_relay_with_configs(relay::configs {
         max_reservations: 0, // Will make us fail to make the reservation
-        ..relay::Config::default()
+        ..relay::configs::default()
     });
     let relay_peer_id = *relay.local_peer_id();
 
@@ -443,13 +443,13 @@ async fn reuse_connection() {
 }
 
 fn build_relay() -> Swarm<Relay> {
-    build_relay_with_config(relay::Config {
+    build_relay_with_configs(relay::configs {
         reservation_duration: Duration::from_secs(2),
         ..Default::default()
     })
 }
 
-fn build_relay_with_config(config: relay::Config) -> Swarm<Relay> {
+fn build_relay_with_configs(configs: relay::configs) -> Swarm<Relay> {
     let local_key = identity::Keypair::generate_ed25519();
     let local_peer_id = local_key.public().to_peer_id();
 
@@ -458,19 +458,19 @@ fn build_relay_with_config(config: relay::Config) -> Swarm<Relay> {
     Swarm::new(
         transport,
         Relay {
-            ping: ping::Behaviour::new(ping::Config::new()),
-            relay: relay::Behaviour::new(local_peer_id, config),
+            ping: ping::Behaviour::new(ping::configs::new()),
+            relay: relay::Behaviour::new(local_peer_id, configs),
         },
         local_peer_id,
-        Config::with_tokio_executor(),
+        configs::with_tokio_executor(),
     )
 }
 
 fn build_client() -> Swarm<Client> {
-    build_client_with_config(Config::with_tokio_executor())
+    build_client_with_configs(configs::with_tokio_executor())
 }
 
-fn build_client_with_config(config: Config) -> Swarm<Client> {
+fn build_client_with_configs(configs: configs) -> Swarm<Client> {
     let local_key = identity::Keypair::generate_ed25519();
     let local_peer_id = local_key.public().to_peer_id();
 
@@ -483,11 +483,11 @@ fn build_client_with_config(config: Config) -> Swarm<Client> {
     Swarm::new(
         transport,
         Client {
-            ping: ping::Behaviour::new(ping::Config::new()),
+            ping: ping::Behaviour::new(ping::configs::new()),
             relay: behaviour,
         },
         local_peer_id,
-        config,
+        configs,
     )
 }
 
@@ -500,8 +500,8 @@ where
 {
     transport
         .upgrade(upgrade::Version::V1)
-        .authenticate(plaintext::Config::new(identity))
-        .multiplex(libp2p_yamux::Config::default())
+        .authenticate(plaintext::configs::new(identity))
+        .multiplex(libp2p_yamux::configs::default())
         .boxed()
 }
 

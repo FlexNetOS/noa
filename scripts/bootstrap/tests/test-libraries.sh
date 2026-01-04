@@ -75,7 +75,7 @@ fi
 # Test 3: State Management
 echo -e "\033[0;33mTesting State Management...\033[0m"
 TEST_NOA_ROOT="/tmp/noa-test-state-$$"
-mkdir -p "$TEST_NOA_ROOT/config"
+mkdir -p "$TEST_NOA_ROOT/configs"
 if initialize_bootstrap_state "$TEST_NOA_ROOT" >/dev/null 2>&1; then
     set_tool_state "test-tool" "1.0.0" "$TEST_NOA_ROOT/bin/test" "installed" >/dev/null 2>&1
     state=$(get_tool_state "test-tool" 2>/dev/null)

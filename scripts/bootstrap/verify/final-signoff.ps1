@@ -3,7 +3,7 @@
     Final sign-off verification for bootstrap (B100).
 
 .DESCRIPTION
-    Comprehensive check that all tools are working and caches configured.
+    Comprehensive check that all tools are working and caches configsured.
     This is the final verification before declaring bootstrap complete.
 
 .PARAMETER NoaRoot
@@ -46,7 +46,7 @@ $results = @{
     Toolchains = @{}
     Caches = @{}
     Directories = @{}
-    Configuration = @{}
+    configsuration = @{}
     Constitution = @{}
 }
 
@@ -84,7 +84,7 @@ foreach ($tc in $toolchains) {
     }
 }
 
-# ===== 2. Cache Configuration =====
+# ===== 2. Cache configsuration =====
 Write-Host ""
 Write-Host "2. Verifying Caches" -ForegroundColor Yellow
 Write-Host "   ─────────────────" -ForegroundColor Gray
@@ -108,7 +108,7 @@ Write-Host ""
 Write-Host "3. Verifying Directory Structure" -ForegroundColor Yellow
 Write-Host "   ──────────────────────────────" -ForegroundColor Gray
 
-$requiredDirs = @("bin", "opt", "lib", "config", "logs", "ai/shared", "sys/kernel")
+$requiredDirs = @("bin", "opt", "lib", "configs", "logs", "ai/shared", "sys/kernel")
 foreach ($dir in $requiredDirs) {
     $dirPath = Join-Path $NoaRoot $dir
     if (Test-Path $dirPath) {
@@ -122,27 +122,27 @@ foreach ($dir in $requiredDirs) {
     }
 }
 
-# ===== 4. Configuration Files =====
+# ===== 4. configsuration Files =====
 Write-Host ""
-Write-Host "4. Verifying Configuration" -ForegroundColor Yellow
+Write-Host "4. Verifying configsuration" -ForegroundColor Yellow
 Write-Host "   ────────────────────────" -ForegroundColor Gray
 
-$configFiles = @(
-    "config/ai-providers.json",
-    "config/bootstrap-tools.json",
+$configsFiles = @(
+    "configs/ai-providers.json",
+    "configs/bootstrap-tools.json",
     ".noa",
     "noa-env.ps1"
 )
 
-foreach ($config in $configFiles) {
-    $configPath = Join-Path $NoaRoot $config
-    if (Test-Path $configPath) {
-        Write-Host "   [OK] $config" -ForegroundColor Green
-        $results.Configuration[$config] = "OK"
+foreach ($configs in $configsFiles) {
+    $configsPath = Join-Path $NoaRoot $configs
+    if (Test-Path $configsPath) {
+        Write-Host "   [OK] $configs" -ForegroundColor Green
+        $results.configsuration[$configs] = "OK"
         $totalPassed++
     } else {
-        Write-Host "   [!!] $config - MISSING" -ForegroundColor Red
-        $results.Configuration[$config] = "MISSING"
+        Write-Host "   [!!] $configs - MISSING" -ForegroundColor Red
+        $results.configsuration[$configs] = "MISSING"
         $totalFailed++
     }
 }

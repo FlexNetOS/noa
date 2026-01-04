@@ -56,9 +56,9 @@ const META_QUERY_SERVICE_FQDN: &str = "_services._dns-sd._udp.local.";
 pub const IPV4_MDNS_MULTICAST_ADDRESS: Ipv4Addr = Ipv4Addr::new(224, 0, 0, 251);
 pub const IPV6_MDNS_MULTICAST_ADDRESS: Ipv6Addr = Ipv6Addr::new(0xFF02, 0, 0, 0, 0, 0, 0, 0xFB);
 
-/// Configuration for mDNS.
+/// configsuration for mDNS.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     /// TTL to use for mdns records.
     pub ttl: Duration,
     /// Interval at which to poll the network for new peers. This isn't
@@ -71,7 +71,7 @@ pub struct Config {
     pub enable_ipv6: bool,
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
             ttl: Duration::from_secs(6 * 60),

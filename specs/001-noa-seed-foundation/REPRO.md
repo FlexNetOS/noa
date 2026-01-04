@@ -77,7 +77,7 @@ Test-Path p2p/discovery, p2p/sync, p2p/compute, p2p/storage
 Test-Path opt/llama.cpp, opt/llama-cpp-rs, opt/ollama
 Test-Path init/migrations, init/seeds
 Test-Path containers/oci, containers/compose
-Test-Path config
+Test-Path configs
 Test-Path bin
 Test-Path ai/providers, ai/models, ai/prompts, ai/grammars
 ```
@@ -90,7 +90,7 @@ test -d p2p/discovery && test -d p2p/sync && test -d p2p/compute && test -d p2p/
 test -d opt/llama.cpp && test -d opt/llama-cpp-rs && test -d opt/ollama
 test -d init/migrations && test -d init/seeds
 test -d containers/oci && test -d containers/compose
-test -d config
+test -d configs
 test -d bin
 test -d ai/providers && test -d ai/models && test -d ai/prompts && test -d ai/grammars
 ```
@@ -211,7 +211,7 @@ After completing all steps:
 - ✅ Go module validates
 - ✅ TypeScript project type-checks
 - ✅ Build scripts execute successfully
-- ✅ CI pipeline configuration present
+- ✅ CI pipeline configsuration present
 
 ---
 

@@ -40,7 +40,7 @@ Before running bootstrap, ensure you have:
 ```
 noa_root/
 ├── ai/
-│   ├── providers/     # AI provider configurations
+│   ├── providers/     # AI provider configsurations
 │   │   ├── local/     # Ollama, llama.cpp, git-cli
 │   │   ├── cloud/     # Claude, Codex, Abacus
 │   │   ├── hybrid/    # Cursor
@@ -51,12 +51,12 @@ noa_root/
 │       ├── prompts/   # Prompt templates
 │       ├── tools/     # MCP tool definitions
 │       ├── skills/    # Agent skills
-│       ├── models/    # Model configurations
+│       ├── models/    # Model configsurations
 │       ├── commands/  # Shared commands
-│       └── resources/ # Execution memory, configs
+│       └── resources/ # Execution memory, configss
 ├── bin/               # NOA executables
 ├── cache/             # Centralized caches
-├── config/            # Configuration files
+├── configs/            # configsuration files
 ├── logs/              # Centralized logging
 ├── opt/               # Portable toolchains
 │   ├── rust/          # Rust/Cargo
@@ -134,7 +134,7 @@ source ./.noa-env
 ./scripts/bootstrap/generators/shell-integration.sh
 ```
 
-## Configuration
+## configsuration
 
 ### Environment Variables
 
@@ -150,12 +150,12 @@ export OPENAI_API_KEY="..."
 export ABACUS_API_KEY="..."
 ```
 
-### AI Provider Configuration
+### AI Provider configsuration
 
-Edit `config/ai-providers.json` to:
+Edit `configs/ai-providers.json` to:
 - Enable/disable providers
 - Set priority order
-- Configure endpoints
+- configsure endpoints
 
 ### Shared Resources
 
@@ -164,7 +164,7 @@ The shared resource system (`ai/shared/`) enables:
 - Cross-provider workflows
 - Shared execution memory
 
-See `config/shared-resources.json` for configuration.
+See `configs/shared-resources.json` for configsuration.
 
 ## Troubleshooting
 

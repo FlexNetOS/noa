@@ -52,9 +52,9 @@ pub use provider::tokio;
 use provider::{Incoming, Provider};
 use socket2::{Domain, Socket, Type};
 
-/// The configuration for a TCP/IP transport capability for libp2p.
+/// The configsuration for a TCP/IP transport capability for libp2p.
 #[derive(Clone, Debug)]
-pub struct Config {
+pub struct configs {
     /// TTL to set for opened sockets, or `None` to keep default.
     ttl: Option<u32>,
     /// `TCP_NODELAY` to set for opened sockets.
@@ -65,7 +65,7 @@ pub struct Config {
 
 type Port = u16;
 
-/// The configuration for port reuse of listening sockets.
+/// The configsuration for port reuse of listening sockets.
 #[derive(Debug, Clone, Default)]
 struct PortReuse {
     /// The addresses and ports of the listening sockets
@@ -125,14 +125,14 @@ impl PortReuse {
     }
 }
 
-impl Config {
-    /// Creates a new configuration for a TCP/IP transport:
+impl configs {
+    /// Creates a new configsuration for a TCP/IP transport:
     ///
-    ///   * Nagle's algorithm is _disabled_, i.e. `TCP_NODELAY` _enabled_. See [`Config::nodelay`].
-    ///   * Reuse of listening ports is _disabled_. See [`Config::port_reuse`].
-    ///   * No custom `IP_TTL` is set. The default of the OS TCP stack applies. See [`Config::ttl`].
+    ///   * Nagle's algorithm is _disabled_, i.e. `TCP_NODELAY` _enabled_. See [`configs::nodelay`].
+    ///   * Reuse of listening ports is _disabled_. See [`configs::port_reuse`].
+    ///   * No custom `IP_TTL` is set. The default of the OS TCP stack applies. See [`configs::ttl`].
     ///   * The size of the listen backlog for new listening sockets is `1024`. See
-    ///     [`Config::listen_backlog`].
+    ///     [`configs::listen_backlog`].
     pub fn new() -> Self {
         Self {
             ttl: None,
@@ -141,35 +141,35 @@ impl Config {
         }
     }
 
-    /// Configures the `IP_TTL` option for new sockets.
+    /// configsures the `IP_TTL` option for new sockets.
     pub fn ttl(mut self, value: u32) -> Self {
         self.ttl = Some(value);
         self
     }
 
-    /// Configures the `TCP_NODELAY` option for new sockets.
+    /// configsures the `TCP_NODELAY` option for new sockets.
     pub fn nodelay(mut self, value: bool) -> Self {
         self.nodelay = value;
         self
     }
 
-    /// Configures the listen backlog for new listen sockets.
+    /// configsures the listen backlog for new listen sockets.
     pub fn listen_backlog(mut self, backlog: u32) -> Self {
         self.backlog = backlog;
         self
     }
 
-    /// Configures port reuse for local sockets, which implies
+    /// configsures port reuse for local sockets, which implies
     /// reuse of listening ports for outgoing connections to
     /// enhance NAT traversal capabilities.
     ///
     /// # Deprecation Notice
     ///
     /// The new implementation works on a per-connection basis, defined by the behaviour. This
-    /// removes the necessity to configure the transport for port reuse, instead the behaviour
+    /// removes the necessity to configsure the transport for port reuse, instead the behaviour
     /// requiring this behaviour can decide whether to use port reuse or not.
     ///
-    /// The API to configure port reuse is part of [`Transport`] and the option can be found in
+    /// The API to configsure port reuse is part of [`Transport`] and the option can be found in
     /// [`libp2p_core::transport::DialOpts`].
     ///
     /// If [`PortUse::Reuse`] is enabled, the transport will try to reuse the local port of the
@@ -212,7 +212,7 @@ impl Config {
     }
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self::new()
     }
@@ -227,9 +227,9 @@ pub struct Transport<T>
 where
     T: Provider + Send,
 {
-    config: Config,
+    configs: configs,
 
-    /// The configuration of port reuse when dialing.
+    /// The configsuration of port reuse when dialing.
     port_reuse: PortReuse,
     /// All the active listeners.
     /// The [`ListenStream`] struct contains a stream that we want to be pinned. Since the
@@ -246,14 +246,14 @@ where
 {
     /// Create a new instance of [`Transport`].
     ///
-    /// If you don't want to specify a [`Config`], use [`Transport::default`].
+    /// If you don't want to specify a [`configs`], use [`Transport::default`].
     ///
     /// It is best to call this function through one of the type-aliases of this type:
     ///
     /// - [`tokio::Transport::new`]
-    pub fn new(config: Config) -> Self {
+    pub fn new(configs: configs) -> Self {
         Transport {
-            config,
+            configs,
             ..Default::default()
         }
     }
@@ -263,9 +263,9 @@ where
         id: ListenerId,
         socket_addr: SocketAddr,
     ) -> io::Result<ListenStream<T>> {
-        let socket = self.config.create_socket(socket_addr, PortUse::Reuse)?;
+        let socket = self.configs.create_socket(socket_addr, PortUse::Reuse)?;
         socket.bind(&socket_addr.into())?;
-        socket.listen(self.config.backlog as _)?;
+        socket.listen(self.configs.backlog as _)?;
         socket.set_nonblocking(true)?;
         let listener: TcpListener = socket.into();
         let local_addr = listener.local_addr()?;
@@ -299,7 +299,7 @@ where
     fn default() -> Self {
         Transport {
             port_reuse: PortReuse::default(),
-            config: Config::default(),
+            configs: configs::default(),
             listeners: SelectAll::new(),
             pending_events: VecDeque::new(),
         }
@@ -357,7 +357,7 @@ where
         tracing::debug!(address=%socket_addr, "dialing address");
 
         let socket = self
-            .config
+            .configs
             .create_socket(socket_addr, opts.port_use)
             .map_err(TransportError::Other)?;
 
@@ -369,7 +369,7 @@ where
             _ => None,
         };
 
-        let local_config = self.config.clone();
+        let local_configs = self.configs.clone();
 
         Ok(async move {
             if let Some(bind_addr) = bind_addr {
@@ -387,7 +387,7 @@ where
                     // Retry without binding.
                     tracing::debug!(connect_addr = %socket_addr, ?bind_addr, "Failed to connect using existing socket because we already have a connection, re-dialing with new port");
                     std::mem::drop(socket);
-                    let socket = local_config.create_socket(socket_addr, PortUse::New)?;
+                    let socket = local_configs.create_socket(socket_addr, PortUse::New)?;
                     match socket.connect(&socket_addr.into()) {
                         Ok(()) => socket,
                         Err(err) if err.raw_os_error() == Some(libc::EINPROGRESS) => socket,
@@ -441,7 +441,7 @@ where
     ///
     /// `None` if the socket is only listening on a single interface.
     if_watcher: Option<T::IfWatcher>,
-    /// The port reuse configuration for outgoing connections.
+    /// The port reuse configsuration for outgoing connections.
     ///
     /// If enabled, all IP addresses on which this listening stream
     /// is accepting connections (`in_addr`) are registered for reuse
@@ -900,7 +900,7 @@ mod tests {
             mut ready_tx: mpsc::Sender<Multiaddr>,
             port_reuse_rx: oneshot::Receiver<Protocol<'_>>,
         ) {
-            let mut tcp = Transport::<T>::new(Config::new()).boxed();
+            let mut tcp = Transport::<T>::new(configs::new()).boxed();
             tcp.listen_on(ListenerId::next(), addr).unwrap();
             loop {
                 match tcp.select_next_some().await {
@@ -935,7 +935,7 @@ mod tests {
             port_reuse_tx: oneshot::Sender<Protocol<'_>>,
         ) {
             let dest_addr = ready_rx.next().await.unwrap();
-            let mut tcp = Transport::<T>::new(Config::new());
+            let mut tcp = Transport::<T>::new(configs::new());
             tcp.listen_on(ListenerId::next(), addr).unwrap();
             match poll_fn(|cx| Pin::new(&mut tcp).poll(cx)).await {
                 TransportEvent::NewAddress { .. } => {
@@ -1001,7 +1001,7 @@ mod tests {
             .try_init();
 
         async fn listen_twice<T: Provider>(addr: Multiaddr) {
-            let mut tcp = Transport::<T>::new(Config::new());
+            let mut tcp = Transport::<T>::new(configs::new());
             tcp.listen_on(ListenerId::next(), addr).unwrap();
             match poll_fn(|cx| Pin::new(&mut tcp).poll(cx)).await {
                 TransportEvent::NewAddress {

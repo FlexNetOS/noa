@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configure provider state synchronization.
+# configsure provider state synchronization.
 #
 # Sets up the provider synchronization system that enables state sharing
 # between multiple AI providers during collaborative execution.
@@ -15,27 +15,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../../.." && pwd)}"
 
 SHARED_RESOURCES_DIR="$NOA_ROOT/ai/shared/resources"
-SYNC_CONFIG_PATH="$SHARED_RESOURCES_DIR/provider-sync-config.json"
+SYNC_configs_PATH="$SHARED_RESOURCES_DIR/provider-sync-configs.json"
 
-echo -e "\033[36mConfiguring provider state synchronization...\033[0m"
-echo -e "\033[90mConfig path: $SYNC_CONFIG_PATH\033[0m"
+echo -e "\033[36mconfigsuring provider state synchronization...\033[0m"
+echo -e "\033[90mconfigs path: $SYNC_configs_PATH\033[0m"
 echo ""
 
 # Ensure directory exists
 mkdir -p "$SHARED_RESOURCES_DIR"
 
-# Check if config already exists
-if [[ -f "$SYNC_CONFIG_PATH" ]]; then
-    echo -e "  \033[90m[EXISTS]\033[0m Provider sync config already configured"
+# Check if configs already exists
+if [[ -f "$SYNC_configs_PATH" ]]; then
+    echo -e "  \033[90m[EXISTS]\033[0m Provider sync configs already configsured"
     exit 0
 fi
 
-# Create sync configuration
-cat > "$SYNC_CONFIG_PATH" << 'EOF'
+# Create sync configsuration
+cat > "$SYNC_configs_PATH" << 'EOF'
 {
   "$schema": "https://noa.local/schemas/provider-sync.json",
   "version": "1.0.0",
-  "description": "Provider state synchronization configuration (§3.8)",
+  "description": "Provider state synchronization configsuration (§3.8)",
   "enabled": true,
   "synchronization": {
     "enabled": true,
@@ -88,7 +88,7 @@ cat > "$SYNC_CONFIG_PATH" << 'EOF'
 }
 EOF
 
-echo -e "  \033[32m[OK]\033[0m Created provider sync config: $SYNC_CONFIG_PATH"
+echo -e "  \033[32m[OK]\033[0m Created provider sync configs: $SYNC_configs_PATH"
 
 # Verify execution memory database exists
 DB_PATH="$SHARED_RESOURCES_DIR/execution-memory.db"
@@ -97,5 +97,5 @@ if [[ ! -f "$DB_PATH" ]]; then
 fi
 
 echo ""
-echo -e "\033[32mProvider sync configuration complete.\033[0m"
+echo -e "\033[32mProvider sync configsuration complete.\033[0m"
 

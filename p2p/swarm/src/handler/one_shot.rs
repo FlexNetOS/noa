@@ -50,8 +50,8 @@ where
     dial_queue: SmallVec<[TOutbound; 4]>,
     /// Current number of concurrent outbound substreams being opened.
     dial_negotiated: u32,
-    /// The configuration container for the handler
-    config: OneShotHandlerConfig,
+    /// The configsuration container for the handler
+    configs: OneShotHandlerconfigs,
 }
 
 impl<TInbound, TOutbound, TEvent> OneShotHandler<TInbound, TOutbound, TEvent>
@@ -61,14 +61,14 @@ where
     /// Creates a `OneShotHandler`.
     pub fn new(
         listen_protocol: SubstreamProtocol<TInbound, ()>,
-        config: OneShotHandlerConfig,
+        configs: OneShotHandlerconfigs,
     ) -> Self {
         OneShotHandler {
             listen_protocol,
             events_out: SmallVec::new(),
             dial_queue: SmallVec::new(),
             dial_negotiated: 0,
-            config,
+            configs,
         }
     }
 
@@ -77,7 +77,7 @@ where
         self.dial_negotiated + self.dial_queue.len() as u32
     }
 
-    /// Returns a reference to the listen protocol configuration.
+    /// Returns a reference to the listen protocol configsuration.
     ///
     /// > **Note**: If you modify the protocol, modifications will only applies to future inbound
     /// > substreams, not the ones already being negotiated.
@@ -85,7 +85,7 @@ where
         &self.listen_protocol
     }
 
-    /// Returns a mutable reference to the listen protocol configuration.
+    /// Returns a mutable reference to the listen protocol configsuration.
     ///
     /// > **Note**: If you modify the protocol, modifications will only applies to future inbound
     /// > substreams, not the ones already being negotiated.
@@ -107,7 +107,7 @@ where
     fn default() -> Self {
         OneShotHandler::new(
             SubstreamProtocol::new(Default::default(), ()),
-            OneShotHandlerConfig::default(),
+            OneShotHandlerconfigs::default(),
         )
     }
 }
@@ -150,12 +150,12 @@ where
         }
 
         if !self.dial_queue.is_empty() {
-            if self.dial_negotiated < self.config.max_dial_negotiated {
+            if self.dial_negotiated < self.configs.max_dial_negotiated {
                 self.dial_negotiated += 1;
                 let upgrade = self.dial_queue.remove(0);
                 return Poll::Ready(ConnectionHandlerEvent::OutboundSubstreamRequest {
                     protocol: SubstreamProtocol::new(upgrade, ())
-                        .with_timeout(self.config.outbound_substream_timeout),
+                        .with_timeout(self.configs.outbound_substream_timeout),
                 });
             }
         } else {
@@ -194,18 +194,18 @@ where
     }
 }
 
-/// Configuration parameters for the `OneShotHandler`
+/// configsuration parameters for the `OneShotHandler`
 #[derive(Debug)]
-pub struct OneShotHandlerConfig {
+pub struct OneShotHandlerconfigs {
     /// Timeout for outbound substream upgrades.
     pub outbound_substream_timeout: Duration,
     /// Maximum number of concurrent outbound substreams being opened.
     pub max_dial_negotiated: u32,
 }
 
-impl Default for OneShotHandlerConfig {
+impl Default for OneShotHandlerconfigs {
     fn default() -> Self {
-        OneShotHandlerConfig {
+        OneShotHandlerconfigs {
             outbound_substream_timeout: Duration::from_secs(10),
             max_dial_negotiated: 8,
         }

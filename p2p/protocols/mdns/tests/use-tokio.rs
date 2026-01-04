@@ -20,7 +20,7 @@
 use std::time::Duration;
 
 use futures::future::Either;
-use libp2p_mdns::{tokio::Behaviour, Config, Event};
+use libp2p_mdns::{tokio::Behaviour, configs, Event};
 use libp2p_swarm::{Swarm, SwarmEvent};
 use libp2p_swarm_test::SwarmExt as _;
 use tracing_subscriber::EnvFilter;
@@ -31,7 +31,7 @@ async fn test_discovery_tokio_ipv4() {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
 
-    run_discovery_test(Config::default()).await
+    run_discovery_test(configs::default()).await
 }
 
 #[tokio::test]
@@ -40,11 +40,11 @@ async fn test_discovery_tokio_ipv6() {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
 
-    let config = Config {
+    let configs = configs {
         enable_ipv6: true,
         ..Default::default()
     };
-    run_discovery_test(config).await
+    run_discovery_test(configs).await
 }
 
 #[tokio::test]
@@ -53,16 +53,16 @@ async fn test_expired_tokio() {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
 
-    let config = Config {
+    let configs = configs {
         ttl: Duration::from_secs(1),
         query_interval: Duration::from_secs(10),
         ..Default::default()
     };
 
-    let mut a = create_swarm(config.clone()).await;
+    let mut a = create_swarm(configs.clone()).await;
     let a_peer_id = *a.local_peer_id();
 
-    let mut b = create_swarm(config).await;
+    let mut b = create_swarm(configs).await;
     let b_peer_id = *b.local_peer_id();
 
     loop {
@@ -82,11 +82,11 @@ async fn test_expired_tokio() {
     }
 }
 
-async fn run_discovery_test(config: Config) {
-    let mut a = create_swarm(config.clone()).await;
+async fn run_discovery_test(configs: configs) {
+    let mut a = create_swarm(configs.clone()).await;
     let a_peer_id = *a.local_peer_id();
 
-    let mut b = create_swarm(config).await;
+    let mut b = create_swarm(configs).await;
     let b_peer_id = *b.local_peer_id();
 
     let mut discovered_a = false;
@@ -109,9 +109,9 @@ async fn run_discovery_test(config: Config) {
     }
 }
 
-async fn create_swarm(config: Config) -> Swarm<Behaviour> {
+async fn create_swarm(configs: configs) -> Swarm<Behaviour> {
     let mut swarm = Swarm::new_ephemeral_tokio(|key| {
-        Behaviour::new(config, key.public().to_peer_id()).unwrap()
+        Behaviour::new(configs, key.public().to_peer_id()).unwrap()
     });
 
     // Manually listen on all interfaces because mDNS only works for non-loopback addresses.

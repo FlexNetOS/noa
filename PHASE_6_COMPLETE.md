@@ -8,13 +8,13 @@
 
 ## Overview
 
-Phase 6 implements integration configurations for four critical third-party tools that extend NOA's capabilities: MCP SDK for protocol standardization, Qdrant for vector search, SQLx for persistent storage, and libp2p for P2P networking.
+Phase 6 implements integration configsurations for four critical third-party tools that extend NOA's capabilities: MCP SDK for protocol standardization, Qdrant for vector search, SQLx for persistent storage, and libp2p for P2P networking.
 
 ## What Was Implemented
 
 ### 1. MCP SDK Integration (`tools/third-party/mcp-sdk/`)
 
-**Configuration**: `config.json`
+**configsuration**: `configs.json`
 
 Model Context Protocol (MCP) implementation for standardized tool and resource discovery.
 
@@ -44,7 +44,7 @@ Model Context Protocol (MCP) implementation for standardized tool and resource d
 
 ### 2. Qdrant Integration (`tools/third-party/qdrant/`)
 
-**Configuration**: `config.json`
+**configsuration**: `configs.json`
 
 Vector database for semantic search, code search, and RAG.
 
@@ -57,7 +57,7 @@ Vector database for semantic search, code search, and RAG.
 | noa_document_embeddings | 768 | Cosine | RAG and document retrieval |
 
 **Key Features**:
-- HNSW index configuration (m=16, ef_construct=100)
+- HNSW index configsuration (m=16, ef_construct=100)
 - Payload schema definition for structured search
 - On-disk payload support for large collections
 - Cache integration with embedding cache
@@ -86,7 +86,7 @@ Vector database for semantic search, code search, and RAG.
 
 ### 3. SQLx Integration (`tools/third-party/sqlx/`)
 
-**Configuration**: `config.json`
+**configsuration**: `configs.json`
 
 Async SQL database toolkit for persistent storage and analytics.
 
@@ -139,7 +139,7 @@ Async SQL database toolkit for persistent storage and analytics.
 
 ### 4. libp2p Integration (`tools/third-party/libp2p/`)
 
-**Configuration**: `config.json`
+**configsuration**: `configs.json`
 
 Peer-to-peer networking for distributed NOA instances.
 
@@ -152,13 +152,13 @@ Peer-to-peer networking for distributed NOA instances.
 - RPC: Request-Response
 
 **Listening Addresses**:
-- TCP: Port 9000 (configurable)
-- WebSocket: Port 9001 (configurable)
+- TCP: Port 9000 (configsurable)
+- WebSocket: Port 9001 (configsurable)
 - QUIC: Port 9002 (disabled by default)
 
-**Protocols Configured** (4):
+**Protocols configsured** (4):
 
-| Protocol | Purpose | Configuration |
+| Protocol | Purpose | configsuration |
 |----------|---------|---------------|
 | Kademlia | DHT for peer/content discovery | 20 replication factor, 60s timeout |
 | mDNS | Local network discovery | 60s query interval |
@@ -180,7 +180,7 @@ Peer-to-peer networking for distributed NOA instances.
 1. Agent discovery across network
 2. Model sharing between NOA instances
 3. Task coordination for distributed agents
-4. Local network discovery (zero-config)
+4. Local network discovery (zero-configs)
 
 **CAS Integration**:
 - Provide CAS objects via DHT
@@ -257,7 +257,7 @@ Auto-registers 18 tools from Phase 5 resource registry.
 **Qdrant → Embedding Agent**:
 ```json
 {
-  "configuration": {
+  "configsuration": {
     "model_path": "${NOA_ROOT}/models/embeddings/nomic-embed-text-v1.5.gguf"
   }
 }
@@ -311,13 +311,13 @@ Distributed CAS using libp2p DHT.
 
 | File | Path | Purpose |
 |------|------|---------|
-| MCP SDK Config | `tools/third-party/mcp-sdk/config.json` | MCP protocol integration |
-| Qdrant Config | `tools/third-party/qdrant/config.json` | Vector database integration |
-| SQLx Config | `tools/third-party/sqlx/config.json` | SQL database integration |
-| libp2p Config | `tools/third-party/libp2p/config.json` | P2P networking integration |
+| MCP SDK configs | `tools/third-party/mcp-sdk/configs.json` | MCP protocol integration |
+| Qdrant configs | `tools/third-party/qdrant/configs.json` | Vector database integration |
+| SQLx configs | `tools/third-party/sqlx/configs.json` | SQL database integration |
+| libp2p configs | `tools/third-party/libp2p/configs.json` | P2P networking integration |
 | Integration Guide | `tools/third-party/INTEGRATION_GUIDE.md` | Complete integration documentation |
 
-**Total Lines**: ~1,200 lines (configs + documentation)
+**Total Lines**: ~1,200 lines (configss + documentation)
 
 ---
 
@@ -507,9 +507,9 @@ All operations logged to `sys/core/audit/`:
 | Metric | Value |
 |--------|-------|
 | Files Created | 5 |
-| Configuration Files | 4 |
+| configsuration Files | 4 |
 | Documentation Files | 1 |
-| Lines of Code/Config | ~1,200 |
+| Lines of Code/configs | ~1,200 |
 | Integrations | 4 |
 | Protocols Supported | 11+ |
 | Collections Defined | 3 |
@@ -520,16 +520,16 @@ All operations logged to `sys/core/audit/`:
 
 | Integration | Status | Production Ready |
 |-------------|--------|------------------|
-| MCP SDK | Configuration complete | Needs implementation |
-| Qdrant | Configuration complete | Ready (Docker) |
-| SQLx | Configuration complete | Ready (migrations needed) |
-| libp2p | Configuration complete | Needs implementation |
+| MCP SDK | configsuration complete | Needs implementation |
+| Qdrant | configsuration complete | Ready (Docker) |
+| SQLx | configsuration complete | Ready (migrations needed) |
+| libp2p | configsuration complete | Needs implementation |
 
 ---
 
 ## Known Limitations
 
-1. **No Implementation Code**: Configs defined but no Rust implementation yet. Production requires actual code.
+1. **No Implementation Code**: configss defined but no Rust implementation yet. Production requires actual code.
 
 2. **Qdrant Requires Docker**: Easiest deployment via Docker. Native binary available but less common.
 
@@ -546,7 +546,7 @@ All operations logged to `sys/core/audit/`:
 ### Immediate (Phase 7)
 
 Validation & Testing:
-- Schema validation for all integration configs
+- Schema validation for all integration configss
 - MCP SDK implementation and tests
 - Qdrant collection creation and tests
 - SQLx migration creation and tests

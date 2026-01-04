@@ -77,10 +77,10 @@ Regular review cadence:
 
 The system MUST operate entirely inside the NOA root directory (`noa_root`), without hard dependencies on paths, services, or resources outside that boundary.
 
-- All code, configuration, models, and persistent state MUST resolve under the `noa_root` directory
-- No absolute host paths outside `noa_root` may be baked into configuration or code
+- All code, configsuration, models, and persistent state MUST resolve under the `noa_root` directory
+- No absolute host paths outside `noa_root` may be baked into configsuration or code
 - `noa_root` is a runtime-resolved abstract path variable that adapts per platform:
-  - Windows: `%NOA_ROOT%` or registry-configured path
+  - Windows: `%NOA_ROOT%` or registry-configsured path
   - macOS/Linux: `$NOA_ROOT` or `~/.noa/`
   - Container: `/noa/` or mount point
 - Optional integration with external services MUST be:
@@ -320,10 +320,10 @@ The project-management layer MUST capture signals about work and workflow qualit
 The UI for project management MUST be dynamic, context-aware, and driven by user needs rather than raw tool structures.
 
 - Views MUST:
-  - Be able to reconfigure based on role, context, and current tasks
+  - Be able to reconfigsure based on role, context, and current tasks
   - Surface the most relevant projects, workflows, and actions
 - Agents MAY propose new views or layouts, but MUST respect usability, accessibility, and constitutional constraints
-- The Dynamic, Context-Aware UI is not static—it reconfigures itself in real-time
+- The Dynamic, Context-Aware UI is not static—it reconfigsures itself in real-time
 
 **Rationale**: The UI is an adaptive dashboard, not a static app.
 

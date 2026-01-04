@@ -42,7 +42,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 pub use self::{
-    behaviour::{Behaviour, Config, Event},
+    behaviour::{Behaviour, configs, Event},
     protocol::{Info, UpgradeError, PROTOCOL_NAME, PUSH_PROTOCOL_NAME},
 };
 

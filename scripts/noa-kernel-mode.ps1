@@ -34,12 +34,12 @@ $NoaRoot = if ($env:NOA_ROOT) { $env:NOA_ROOT } else {
     Split-Path -Parent $PSScriptRoot
 }
 
-$ConfigPath = Join-Path $NoaRoot "config/kernel-mode.json"
+$configsPath = Join-Path $NoaRoot "configs/kernel-mode.json"
 
 function Get-CurrentMode {
-    if (Test-Path $ConfigPath) {
-        $config = Get-Content $ConfigPath -Raw | ConvertFrom-Json
-        return $config.mode
+    if (Test-Path $configsPath) {
+        $configs = Get-Content $configsPath -Raw | ConvertFrom-Json
+        return $configs.mode
     }
     return "native"
 }
@@ -133,19 +133,19 @@ function Set-KernelMode {
         exit 1
     }
 
-    # Save configuration
-    $configDir = Split-Path -Parent $ConfigPath
-    if (-not (Test-Path $configDir)) {
-        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    # Save configsuration
+    $configsDir = Split-Path -Parent $configsPath
+    if (-not (Test-Path $configsDir)) {
+        New-Item -ItemType Directory -Path $configsDir -Force | Out-Null
     }
 
-    $config = @{
+    $configs = @{
         mode = $NewMode
         setAt = (Get-Date -Format "o")
         capabilities = $caps
     }
 
-    $config | ConvertTo-Json -Depth 3 | Set-Content -Path $ConfigPath -Encoding UTF8
+    $configs | ConvertTo-Json -Depth 3 | Set-Content -Path $configsPath -Encoding UTF8
 
     # Also set environment variable
     $env:NOA_KERNEL_MODE = $NewMode

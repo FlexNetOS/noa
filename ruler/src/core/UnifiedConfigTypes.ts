@@ -1,63 +1,71 @@
-import {
-  McpConfig,
-  GitignoreConfig,
-  SkillsConfig,
-  McpStrategy,
-} from '../types';
+import
+  {
+    Mcpconfigs,
+    Gitignoreconfigs,
+    Skillsconfigs,
+    McpStrategy,
+  } from '../types';
 
-export interface RulerUnifiedConfig {
-  meta: ConfigMeta;
-  toml: TomlConfig;
+export interface RulerUnifiedconfigs
+{
+  meta: configsMeta;
+  toml: Tomlconfigs;
   rules: RulesBundle;
   mcp: McpBundle | null;
-  agents: Record<string, EffectiveAgentConfig>;
-  diagnostics: ConfigDiagnostic[];
+  agents: Record<string, EffectiveAgentconfigs>;
+  diagnostics: configsDiagnostic[];
   hash: string;
 }
 
-export interface ConfigMeta {
+export interface configsMeta
+{
   projectRoot: string;
   rulerDir: string;
-  configFile?: string;
+  configsFile?: string;
   mcpFile?: string;
   loadedAt: Date;
   version: string;
 }
 
-export interface TomlConfig {
+export interface Tomlconfigs
+{
   raw: unknown;
   schemaVersion: number;
   defaultAgents?: string[];
-  agents: Record<string, AgentTomlConfig>;
-  mcp?: McpToggleConfig;
+  agents: Record<string, AgentTomlconfigs>;
+  mcp?: McpToggleconfigs;
   mcpServers?: Record<string, McpServerDef>;
-  gitignore?: GitignoreConfig;
-  skills?: SkillsConfig;
+  gitignore?: Gitignoreconfigs;
+  skills?: Skillsconfigs;
   nested?: boolean;
 }
 
-export type McpToggleConfig = McpConfig;
+export type McpToggleconfigs = Mcpconfigs;
 
-export interface AgentTomlConfig {
+export interface AgentTomlconfigs
+{
   enabled?: boolean;
   outputPath?: string;
   outputPathInstructions?: string;
-  outputPathConfig?: string;
-  mcp?: McpConfig;
-  source: AgentConfigSourceMeta;
+  outputPathconfigs?: string;
+  mcp?: Mcpconfigs;
+  source: AgentconfigsSourceMeta;
 }
 
-export interface AgentConfigSourceMeta {
+export interface AgentconfigsSourceMeta
+{
   sectionPath: string;
 }
 
-export interface RulesBundle {
+export interface RulesBundle
+{
   files: RuleFile[];
   concatenated: string;
   concatenatedHash: string;
 }
 
-export interface RuleFile {
+export interface RuleFile
+{
   path: string;
   relativePath: string;
   content: string;
@@ -68,13 +76,15 @@ export interface RuleFile {
   primary: boolean;
 }
 
-export interface McpBundle {
+export interface McpBundle
+{
   servers: Record<string, McpServerDef>;
   raw: Record<string, unknown>;
   hash: string;
 }
 
-export interface McpServerDef {
+export interface McpServerDef
+{
   type?: 'stdio' | 'local' | 'remote';
   command?: string;
   args?: string[];
@@ -83,28 +93,32 @@ export interface McpServerDef {
   headers?: Record<string, string>;
 }
 
-export interface EffectiveAgentConfig {
+export interface EffectiveAgentconfigs
+{
   identifier: string;
   enabled: boolean;
   output: AgentOutputPaths;
-  mcp: EffectiveMcpConfig;
-  toml?: AgentTomlConfig;
+  mcp: EffectiveMcpconfigs;
+  toml?: AgentTomlconfigs;
 }
 
-export interface AgentOutputPaths {
+export interface AgentOutputPaths
+{
   instructions?: string;
-  config?: string;
+  configs?: string;
   generic?: string;
 }
 
-export interface EffectiveMcpConfig {
+export interface EffectiveMcpconfigs
+{
   enabled: boolean;
   strategy: McpStrategy;
 }
 
 export type DiagnosticSeverity = 'info' | 'warning' | 'error';
 
-export interface ConfigDiagnostic {
+export interface configsDiagnostic
+{
   severity: DiagnosticSeverity;
   code: string;
   message: string;

@@ -34,7 +34,7 @@ use libp2p_swarm::{
 use web_time::Instant;
 
 use super::{
-    Action, AutoNatCodec, Config, DialRequest, DialResponse, Event, HandleInnerEvent, ProbeId,
+    Action, AutoNatCodec, configs, DialRequest, DialResponse, Event, HandleInnerEvent, ProbeId,
     ResponseError,
 };
 
@@ -77,7 +77,7 @@ pub enum InboundProbeEvent {
 /// View over [`super::Behaviour`] in a server role.
 pub(crate) struct AsServer<'a> {
     pub(crate) inner: &'a mut request_response::Behaviour<AutoNatCodec>,
-    pub(crate) config: &'a Config,
+    pub(crate) configs: &'a configs,
     pub(crate) connected: &'a HashMap<PeerId, HashMap<ConnectionId, Option<Multiaddr>>>,
     pub(crate) probe_id: &'a mut ProbeId,
     pub(crate) throttled_clients: &'a mut Vec<(PeerId, Instant)>,
@@ -286,7 +286,7 @@ impl AsServer<'_> {
     ) -> Result<Vec<Multiaddr>, (String, ResponseError)> {
         // Update list of throttled clients.
         let i = self.throttled_clients.partition_point(|(_, time)| {
-            *time + self.config.throttle_clients_period < Instant::now()
+            *time + self.configs.throttle_clients_period < Instant::now()
         });
         self.throttled_clients.drain(..i);
 
@@ -300,7 +300,7 @@ impl AsServer<'_> {
             return Err((status_text, ResponseError::DialRefused));
         }
 
-        if self.throttled_clients.len() >= self.config.throttle_clients_global_max {
+        if self.throttled_clients.len() >= self.configs.throttle_clients_global_max {
             let status_text = "too many total dials".to_string();
             return Err((status_text, ResponseError::DialRefused));
         }
@@ -311,7 +311,7 @@ impl AsServer<'_> {
             .filter(|(p, _)| p == &sender)
             .count();
 
-        if throttled_for_client >= self.config.throttle_clients_peer_max {
+        if throttled_for_client >= self.configs.throttle_clients_peer_max {
             let status_text = "too many dials for peer".to_string();
             return Err((status_text, ResponseError::DialRefused));
         }
@@ -329,7 +329,7 @@ impl AsServer<'_> {
             })?;
 
         let mut addrs = Self::filter_valid_addrs(sender, request.addresses, observed_addr);
-        addrs.truncate(self.config.max_peer_addresses);
+        addrs.truncate(self.configs.max_peer_addresses);
 
         if addrs.is_empty() {
             let status_text = "no dialable addresses".to_string();

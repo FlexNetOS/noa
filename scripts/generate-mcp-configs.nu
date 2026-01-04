@@ -1,36 +1,36 @@
 #!/usr/bin/env nu
 
-# NOA MCP Config Generator
-# Generates provider-specific MCP configs from master agentgateway config
+# NOA MCP configs Generator
+# Generates provider-specific MCP configss from master agentgateway configs
 # Constitution §3.1: All paths resolve under NOA_ROOT
 
 def main [] {
     let noa_root = ($env.NOA_ROOT? | default (pwd))
-    let master_config = $"($noa_root)/gateway/mcp/agentgateway/config/mcp-servers.json"
+    let master_configs = $"($noa_root)/gateway/mcp/agentgateway/configs/mcp-servers.json"
     
-    if not ($master_config | path exists) {
-        print $"ERROR: Master config not found at ($master_config)"
+    if not ($master_configs | path exists) {
+        print $"ERROR: Master configs not found at ($master_configs)"
         exit 1
     }
     
-    let config = open $master_config
+    let configs = open $master_configs
     
-    # Generate VS Code config
-    generate_vscode_config $config $noa_root
+    # Generate VS Code configs
+    generate_vscode_configs $configs $noa_root
     
-    # Generate Cursor config  
-    generate_cursor_config $config $noa_root
+    # Generate Cursor configs  
+    generate_cursor_configs $configs $noa_root
     
-    # Generate Claude config
-    generate_claude_config $config $noa_root
+    # Generate Claude configs
+    generate_claude_configs $configs $noa_root
     
-    print "✓ Generated provider-specific MCP configs"
+    print "✓ Generated provider-specific MCP configss"
 }
 
-def generate_vscode_config [config: record, noa_root: string] {
+def generate_vscode_configs [configs: record, noa_root: string] {
     let output_path = $"($noa_root)/.vscode/mcp.json"
     
-    let servers = $config.servers 
+    let servers = $configs.servers 
         | transpose key value
         | where { |row| $row.value.enabled == true and ("vscode" in $row.value.providers) }
         | each { |row|
@@ -48,18 +48,18 @@ def generate_vscode_config [config: record, noa_root: string] {
         }
         | transpose -r -d
     
-    let vscode_config = {
+    let vscode_configs = {
         servers: $servers
     }
     
-    $vscode_config | to json -i 2 | save -f $output_path
+    $vscode_configs | to json -i 2 | save -f $output_path
     print $"  → ($output_path)"
 }
 
-def generate_cursor_config [config: record, noa_root: string] {
+def generate_cursor_configs [configs: record, noa_root: string] {
     let output_path = $"($noa_root)/.cursor/mcp.json"
     
-    let servers = $config.servers
+    let servers = $configs.servers
         | transpose key value  
         | where { |row| $row.value.enabled == true and ("cursor" in $row.value.providers) }
         | each { |row|
@@ -76,18 +76,18 @@ def generate_cursor_config [config: record, noa_root: string] {
         }
         | transpose -r -d
     
-    let cursor_config = { servers: $servers }
+    let cursor_configs = { servers: $servers }
     
-    $cursor_config | to json -i 2 | save -f $output_path
+    $cursor_configs | to json -i 2 | save -f $output_path
     print $"  → ($output_path)"
 }
 
-def generate_claude_config [config: record, noa_root: string] {
+def generate_claude_configs [configs: record, noa_root: string] {
     let output_dir = $"($noa_root)/etc/claude"
     mkdir $output_dir
     let output_path = $"($output_dir)/mcp.json"
     
-    let servers = $config.servers
+    let servers = $configs.servers
         | transpose key value
         | where { |row| $row.value.enabled == true and ("claude" in $row.value.providers) }
         | each { |row|
@@ -104,11 +104,11 @@ def generate_claude_config [config: record, noa_root: string] {
         }
         | transpose -r -d
         
-    let claude_config = {
+    let claude_configs = {
         mcpServers: $servers
     }
     
-    $claude_config | to json -i 2 | save -f $output_path
+    $claude_configs | to json -i 2 | save -f $output_path
     print $"  → ($output_path)"
 }
 

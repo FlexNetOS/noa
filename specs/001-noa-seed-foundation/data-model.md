@@ -92,7 +92,7 @@ Registered agents in the system.
 | `type` | ENUM | NOT NULL | 'permanent', 'board', 'stack', 'dynamic' |
 | `status` | ENUM | NOT NULL | 'active', 'paused', 'retired' |
 | `version` | TEXT | NOT NULL | Semver version |
-| `config` | JSON | NOT NULL | Agent configuration |
+| `configs` | JSON | NOT NULL | Agent configsuration |
 | `capabilities` | TEXT[] | NOT NULL | List of capabilities |
 | `parent_id` | UUID | FK -> Agent | Parent agent (for hierarchy) |
 | `created_at` | TIMESTAMP | NOT NULL | Registration time |
@@ -192,7 +192,7 @@ Deployable clusters of cooperative agents.
 | `objective` | TEXT | NOT NULL | Stack's bounded objective |
 | `commander_agent` | UUID | FK -> Agent | CommanderChief agent |
 | `member_agents` | UUID[] | | List of member agents |
-| `config` | JSON | | Stack configuration |
+| `configs` | JSON | | Stack configsuration |
 | `workspace_path` | TEXT | NOT NULL | Workspace directory |
 | `artifacts` | JSON | | Output artifacts |
 | `metrics` | JSON | | Performance metrics |
@@ -297,7 +297,7 @@ Registered AI models.
 | `parameters` | TEXT | | Parameter count (e.g., '1.5B') |
 | `context_length` | INT | | Max context tokens |
 | `license` | TEXT | | License type |
-| `config` | JSON | | Model-specific config |
+| `configs` | JSON | | Model-specific configs |
 | `status` | ENUM | NOT NULL | 'available', 'downloading', 'loading', 'loaded', 'error' |
 | `metrics` | JSON | | Performance benchmarks |
 
@@ -350,10 +350,10 @@ Registered AI model providers (local and cloud).
 | `type` | ENUM | NOT NULL | 'local', 'cloud', 'hybrid' |
 | `interface` | ENUM | NOT NULL | 'cli', 'cloud', 'ide', 'api' |
 | `status` | ENUM | NOT NULL | 'active', 'inactive', 'error', 'rate_limited' |
-| `config` | JSON | NOT NULL | Provider configuration (auth, endpoints) |
+| `configs` | JSON | NOT NULL | Provider configsuration (auth, endpoints) |
 | `capabilities` | TEXT[] | NOT NULL | Supported capabilities (inference, embeddings, code) |
 | `priority` | INT | DEFAULT 0 | Selection priority (higher = preferred) |
-| `rate_limits` | JSON | | Rate limiting configuration |
+| `rate_limits` | JSON | | Rate limiting configsuration |
 | `metrics` | JSON | | Usage and performance metrics |
 | `last_used` | TIMESTAMP | | Last successful invocation |
 | `created_at` | TIMESTAMP | NOT NULL | Registration time |
@@ -510,7 +510,7 @@ Unified goal queue for user-provided and self-generated goals.
 | `version` | TEXT | NOT NULL | Code/deployment version |
 | `health_score` | FLOAT | NOT NULL DEFAULT 1.0 | 0.0 (unhealthy) to 1.0 (healthy) |
 | `health_details` | JSON | | Detailed health metrics |
-| `config` | JSON | | Plane-specific configuration |
+| `configs` | JSON | | Plane-specific configsuration |
 | `components` | JSON | | Component manifest (agents, memory, models, etc.) |
 | `workspaces_path` | TEXT | | Path to capability workspaces (sandbox only) |
 | `releases_path` | TEXT | | Path to promoted releases (deployed/coordinator) |
@@ -544,7 +544,7 @@ Audit log for all plane transitions (promotions, rollbacks). Stored in Coordinat
 | `to_version` | TEXT | NOT NULL | Version after transition |
 | `trigger` | ENUM | NOT NULL | 'policy_pass', 'slo_violation', 'gate_breach', 'safety_event', 'manual' |
 | `risk_tier` | ENUM | NOT NULL | 'low', 'medium', 'high', 'critical' |
-| `canary_config` | JSON | | Canary cohort %, duration, abort gates |
+| `canary_configs` | JSON | | Canary cohort %, duration, abort gates |
 | `validation_result` | JSON | | Test results, analytics output |
 | `before_state` | JSON | NOT NULL | Full state snapshot before transition |
 | `after_state` | JSON | NOT NULL | Full state snapshot after transition |

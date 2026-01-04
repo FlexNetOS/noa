@@ -75,8 +75,8 @@ use rw_stream_sink::RwStreamSink;
 /// # #[tokio::main]
 /// # async fn main() {
 ///
-/// let mut transport = websocket::Config::new(
-///     dns::tokio::Transport::system(tcp::tokio::Transport::new(tcp::Config::default())).unwrap(),
+/// let mut transport = websocket::configs::new(
+///     dns::tokio::Transport::system(tcp::tokio::Transport::new(tcp::configs::default())).unwrap(),
 /// );
 ///
 /// let rcgen::CertifiedKey {
@@ -85,7 +85,7 @@ use rw_stream_sink::RwStreamSink;
 /// } = rcgen::generate_simple_self_signed(vec!["localhost".to_string()]).unwrap();
 /// let priv_key = websocket::tls::PrivateKey::new(key_pair.serialize_der());
 /// let cert = websocket::tls::Certificate::new(rcgen_cert.der().to_vec());
-/// transport.set_tls_config(websocket::tls::Config::new(priv_key, vec![cert]).unwrap());
+/// transport.set_tls_configs(websocket::tls::configs::new(priv_key, vec![cert]).unwrap());
 ///
 /// let id = transport
 ///     .listen_on(
@@ -116,7 +116,7 @@ use rw_stream_sink::RwStreamSink;
 /// # #[tokio::main]
 /// # async fn main() {
 ///
-/// let mut transport = websocket::Config::new(tcp::tokio::Transport::new(tcp::Config::default()));
+/// let mut transport = websocket::configs::new(tcp::tokio::Transport::new(tcp::configs::default()));
 ///
 /// let id = transport
 ///     .listen_on(
@@ -133,19 +133,19 @@ use rw_stream_sink::RwStreamSink;
 ///
 /// # }
 /// ```
-#[deprecated = "Use `Config` instead"]
-pub type WsConfig<Transport> = Config<Transport>;
+#[deprecated = "Use `configs` instead"]
+pub type Wsconfigs<Transport> = configs<Transport>;
 
 #[derive(Debug)]
-pub struct Config<T: Transport>
+pub struct configs<T: Transport>
 where
     T: Transport,
     T::Output: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
-    transport: libp2p_core::transport::map::Map<framed::Config<T>, WrapperFn<T::Output>>,
+    transport: libp2p_core::transport::map::Map<framed::configs<T>, WrapperFn<T::Output>>,
 }
 
-impl<T: Transport> Config<T>
+impl<T: Transport> configs<T>
 where
     T: Transport + Send + Unpin + 'static,
     T::Error: Send + 'static,
@@ -163,11 +163,11 @@ where
     /// > the inner transport.
     pub fn new(transport: T) -> Self {
         Self {
-            transport: framed::Config::new(transport).map(wrap_connection as WrapperFn<T::Output>),
+            transport: framed::configs::new(transport).map(wrap_connection as WrapperFn<T::Output>),
         }
     }
 
-    /// Return the configured maximum number of redirects.
+    /// Return the configsured maximum number of redirects.
     pub fn max_redirects(&self) -> u8 {
         self.transport.inner().max_redirects()
     }
@@ -189,14 +189,14 @@ where
         self
     }
 
-    /// Set the TLS configuration if TLS support is desired.
-    pub fn set_tls_config(&mut self, c: tls::Config) -> &mut Self {
-        self.transport.inner_mut().set_tls_config(c);
+    /// Set the TLS configsuration if TLS support is desired.
+    pub fn set_tls_configs(&mut self, c: tls::configs) -> &mut Self {
+        self.transport.inner_mut().set_tls_configs(c);
         self
     }
 }
 
-impl<T> Transport for Config<T>
+impl<T> Transport for configs<T>
 where
     T: Transport + Send + Unpin + 'static,
     T::Error: Send + 'static,
@@ -237,7 +237,7 @@ where
     }
 }
 
-/// Type alias corresponding to `framed::Config::Dial` and `framed::Config::ListenerUpgrade`.
+/// Type alias corresponding to `framed::configs::Dial` and `framed::configs::ListenerUpgrade`.
 pub type InnerFuture<T, E> = BoxFuture<'static, Result<Connection<T>, Error<E>>>;
 
 /// Function type that wraps a websocket connection (see. `wrap_connection`).
@@ -311,7 +311,7 @@ mod tests {
     use libp2p_identity::PeerId;
     use libp2p_tcp as tcp;
 
-    use super::Config;
+    use super::configs;
 
     #[tokio::test]
     async fn dialer_connects_to_listener_ipv4() {
@@ -325,17 +325,17 @@ mod tests {
         connect(a).await
     }
 
-    fn new_ws_config() -> Config<tcp::tokio::Transport> {
-        Config::new(tcp::tokio::Transport::new(tcp::Config::default()))
+    fn new_ws_configs() -> configs<tcp::tokio::Transport> {
+        configs::new(tcp::tokio::Transport::new(tcp::configs::default()))
     }
 
     async fn connect(listen_addr: Multiaddr) {
-        let mut ws_config = new_ws_config().boxed();
-        ws_config
+        let mut ws_configs = new_ws_configs().boxed();
+        ws_configs
             .listen_on(ListenerId::next(), listen_addr)
             .expect("listener");
 
-        let addr = ws_config
+        let addr = ws_configs
             .next()
             .await
             .expect("no error")
@@ -346,7 +346,7 @@ mod tests {
         assert_ne!(Some(Protocol::Tcp(0)), addr.iter().nth(1));
 
         let inbound = async move {
-            let (conn, _addr) = ws_config
+            let (conn, _addr) = ws_configs
                 .select_next_some()
                 .map(|ev| ev.into_incoming())
                 .await
@@ -354,7 +354,7 @@ mod tests {
             conn.await
         };
 
-        let outbound = new_ws_config()
+        let outbound = new_ws_configs()
             .boxed()
             .dial(
                 addr.with(Protocol::P2p(PeerId::random())),

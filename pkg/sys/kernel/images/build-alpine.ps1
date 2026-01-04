@@ -96,6 +96,6 @@ Write-Host "ISO:    $isoPath" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "  1. Create a VM with the VHDX and boot from ISO" -ForegroundColor Gray
-Write-Host "  2. Run setup-alpine and configure the system" -ForegroundColor Gray
+Write-Host "  2. Run setup-alpine and configsure the system" -ForegroundColor Gray
 Write-Host "  3. Reboot and remove ISO" -ForegroundColor Gray
 

@@ -49,7 +49,7 @@
 
 - Don't close connections on ping failures.
   To restore the previous behaviour, users should call `Swarm::close_connection` upon receiving a `ping::Event` with a `ping::Failure`.
-  This also removes the `max_failures` config option.
+  This also removes the `max_failures` configs option.
   See [PR 3947].
 
 [PR 3715]: https://github.com/libp2p/rust-libp2p/pull/3715
@@ -90,7 +90,7 @@
 
 - Update to `libp2p-swarm` `v0.40.0`.
 
-- Deprecate `Config::with_keep_alive`. See [PR 2859].
+- Deprecate `configs::with_keep_alive`. See [PR 2859].
 
 [PR 2857]: https://github.com/libp2p/rust-libp2p/pull/2857
 [PR 2937]: https://github.com/libp2p/rust-libp2p/pull/2937

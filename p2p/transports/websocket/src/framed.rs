@@ -51,36 +51,36 @@ const MAX_DATA_SIZE: usize = 256 * 1024 * 1024;
 
 /// A Websocket transport whose output type is a [`Stream`] and [`Sink`] of
 /// frame payloads which does not implement [`AsyncRead`] or
-/// [`AsyncWrite`]. See [`crate::Config`] if you require the latter.
-#[deprecated = "Use `Config` instead"]
-pub type WsConfig<T> = Config<T>;
+/// [`AsyncWrite`]. See [`crate::configs`] if you require the latter.
+#[deprecated = "Use `configs` instead"]
+pub type Wsconfigs<T> = configs<T>;
 
 #[derive(Debug)]
-pub struct Config<T> {
+pub struct configs<T> {
     transport: Arc<Mutex<T>>,
     max_data_size: usize,
-    tls_config: tls::Config,
+    tls_configs: tls::configs,
     max_redirects: u8,
     /// Websocket protocol of the inner listener.
     listener_protos: HashMap<ListenerId, WsListenProto<'static>>,
 }
 
-impl<T> Config<T>
+impl<T> configs<T>
 where
     T: Send,
 {
     /// Create a new websocket transport based on another transport.
     pub fn new(transport: T) -> Self {
-        Config {
+        configs {
             transport: Arc::new(Mutex::new(transport)),
             max_data_size: MAX_DATA_SIZE,
-            tls_config: tls::Config::client(),
+            tls_configs: tls::configs::client(),
             max_redirects: 0,
             listener_protos: HashMap::new(),
         }
     }
 
-    /// Return the configured maximum number of redirects.
+    /// Return the configsured maximum number of redirects.
     pub fn max_redirects(&self) -> u8 {
         self.max_redirects
     }
@@ -102,16 +102,16 @@ where
         self
     }
 
-    /// Set the TLS configuration if TLS support is desired.
-    pub fn set_tls_config(&mut self, c: tls::Config) -> &mut Self {
-        self.tls_config = c;
+    /// Set the TLS configsuration if TLS support is desired.
+    pub fn set_tls_configs(&mut self, c: tls::configs) -> &mut Self {
+        self.tls_configs = c;
         self
     }
 }
 
 type TlsOrPlain<T> = future::Either<future::Either<client::TlsStream<T>, server::TlsStream<T>>, T>;
 
-impl<T> Transport for Config<T>
+impl<T> Transport for configs<T>
 where
     T: Transport + Send + Unpin + 'static,
     T::Error: Send + 'static,
@@ -134,9 +134,9 @@ where
             TransportError::MultiaddrNotSupported(addr.clone())
         })?;
 
-        if proto.use_tls() && self.tls_config.server.is_none() {
+        if proto.use_tls() && self.tls_configs.server.is_none() {
             tracing::debug!(
-                "{} address but TLS server support is not configured",
+                "{} address but TLS server support is not configsured",
                 proto.prefix()
             );
             return Err(TransportError::MultiaddrNotSupported(addr));
@@ -245,7 +245,7 @@ where
     }
 }
 
-impl<T> Config<T>
+impl<T> configs<T>
 where
     T: Transport + Send + Unpin + 'static,
     T::Error: Send + 'static,
@@ -270,12 +270,12 @@ where
         let mut remaining_redirects = self.max_redirects;
 
         let transport = self.transport.clone();
-        let tls_config = self.tls_config.clone();
+        let tls_configs = self.tls_configs.clone();
         let max_redirects = self.max_redirects;
 
         let future = async move {
             loop {
-                match Self::dial_once(transport.clone(), addr, tls_config.clone(), dial_opts).await
+                match Self::dial_once(transport.clone(), addr, tls_configs.clone(), dial_opts).await
                 {
                     Ok(Either::Left(redirect)) => {
                         if remaining_redirects == 0 {
@@ -298,7 +298,7 @@ where
     async fn dial_once(
         transport: Arc<Mutex<T>>,
         addr: WsAddress,
-        tls_config: tls::Config,
+        tls_configs: tls::configs,
         dial_opts: DialOpts,
     ) -> Result<Either<String, Connection<T::Output>>, Error<T::Error>> {
         tracing::trace!(address=?addr, "Dialing websocket address");
@@ -317,7 +317,7 @@ where
         let stream = if addr.use_tls {
             // begin TLS session
             tracing::trace!(?addr.server_name, "Starting TLS handshake");
-            let stream = tls_config
+            let stream = tls_configs
                 .client
                 .connect(addr.server_name.clone(), stream)
                 .map_err(|e| {
@@ -371,7 +371,7 @@ where
         use_tls: bool,
     ) -> <Self as Transport>::ListenerUpgrade {
         let remote_addr2 = remote_addr.clone(); // used for logging
-        let tls_config = self.tls_config.clone();
+        let tls_configs = self.tls_configs.clone();
         let max_size = self.max_data_size;
 
         async move {
@@ -380,7 +380,7 @@ where
 
             let stream = if use_tls {
                 // begin TLS session
-                let server = tls_config
+                let server = tls_configs
                     .server
                     .expect("for use_tls we checked server is not none");
 

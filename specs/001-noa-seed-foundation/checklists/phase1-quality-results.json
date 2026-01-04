@@ -171,17 +171,17 @@
     "CHK047 : File missing: sys/core/rustfmt.toml",
     "CHK047 : File missing: sys/ui/.eslintrc.json",
     "CHK069 : Sensitive files not found in .gitignore",
-    "CHK074 : File missing: config/README.md",
-    "CHK077 : Schema version not found in config/schemas/config_schema.json",
+    "CHK074 : File missing: configs/README.md",
+    "CHK077 : Schema version not found in configs/schemas/configs_schema.json",
     "CHK097 : File missing: specs/001-noa-seed-foundation/FINAL_REPORT.md",
     "CHK098 : File missing: specs/001-noa-seed-foundation/FINAL_REPORT.md",
     "CHK098 : File missing: specs/001-noa-seed-foundation/FINAL_REPORT.md",
     "CHK104 : File missing: specs/001-noa-seed-foundation/FINAL_REPORT.md",
     "CHK116 : PowerShell error handling not found in scripts/powershell/check-prerequisites.ps1",
     "CHK117 : Tool checks not found in scripts/bash/check-prerequisites.sh",
-    "CHK123 : CLI config not found in config/ai-providers.json",
-    "CHK124 : Modes config not found in config/ai-providers.json",
-    "CHK125 : Capabilities not found in config/ai-providers.json",
-    "CHK127 : Timeout/latency not found in config/ai-providers.json"
+    "CHK123 : CLI configs not found in configs/ai-providers.json",
+    "CHK124 : Modes configs not found in configs/ai-providers.json",
+    "CHK125 : Capabilities not found in configs/ai-providers.json",
+    "CHK127 : Timeout/latency not found in configs/ai-providers.json"
   ]
 }

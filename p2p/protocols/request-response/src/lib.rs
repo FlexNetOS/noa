@@ -28,8 +28,8 @@
 //! over the actual messages being sent, which are defined in terms of a
 //! [`Codec`]. Creating a request/response protocol thus amounts
 //! to providing an implementation of this trait which can then be
-//! given to [`Behaviour::with_codec`]. Further configuration options are
-//! available via the [`Config`].
+//! given to [`Behaviour::with_codec`]. Further configsuration options are
+//! available via the [`configs`].
 //!
 //! Requests are sent using [`Behaviour::send_request`] and the
 //! responses received as [`Message::Response`] via
@@ -60,7 +60,7 @@
 //! a particular protocol. This is achieved by instantiating `Behaviour`
 //! with protocols using [`ProtocolSupport::Inbound`] or
 //! [`ProtocolSupport::Outbound`]. Any subset of protocols of a protocol
-//! family can be configured in this way. Such protocols will not be
+//! family can be configsured in this way. Such protocols will not be
 //! advertised during inbound respectively outbound protocol negotiation
 //! on the substreams.
 
@@ -305,14 +305,14 @@ impl fmt::Display for OutboundRequestId {
     }
 }
 
-/// The configuration for a `Behaviour` protocol.
+/// The configsuration for a `Behaviour` protocol.
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct configs {
     request_timeout: Duration,
     max_concurrent_streams: usize,
 }
 
-impl Default for Config {
+impl Default for configs {
     fn default() -> Self {
         Self {
             request_timeout: Duration::from_secs(10),
@@ -321,9 +321,9 @@ impl Default for Config {
     }
 }
 
-impl Config {
+impl configs {
     /// Sets the timeout for inbound and outbound requests.
-    #[deprecated(note = "Use `Config::with_request_timeout` for one-liner constructions.")]
+    #[deprecated(note = "Use `configs::with_request_timeout` for one-liner constructions.")]
     pub fn set_request_timeout(&mut self, v: Duration) -> &mut Self {
         self.request_timeout = v;
         self
@@ -355,8 +355,8 @@ where
     next_outbound_request_id: OutboundRequestId,
     /// The next (inbound) request ID.
     next_inbound_request_id: Arc<AtomicU64>,
-    /// The protocol configuration.
-    config: Config,
+    /// The protocol configsuration.
+    configs: configs,
     /// The protocol codec for reading and writing requests and responses.
     codec: TCodec,
     /// Pending events to return from `poll`.
@@ -376,9 +376,9 @@ impl<TCodec> Behaviour<TCodec>
 where
     TCodec: Codec + Default + Clone + Send + 'static,
 {
-    /// Creates a new `Behaviour` for the given protocols and configuration, using [`Default`] to
+    /// Creates a new `Behaviour` for the given protocols and configsuration, using [`Default`] to
     /// construct the codec.
-    pub fn new<I>(protocols: I, cfg: Config) -> Self
+    pub fn new<I>(protocols: I, cfg: configs) -> Self
     where
         I: IntoIterator<Item = (TCodec::Protocol, ProtocolSupport)>,
     {
@@ -391,8 +391,8 @@ where
     TCodec: Codec + Clone + Send + 'static,
 {
     /// Creates a new `Behaviour` for the given
-    /// protocols, codec and configuration.
-    pub fn with_codec<I>(codec: TCodec, protocols: I, cfg: Config) -> Self
+    /// protocols, codec and configsuration.
+    pub fn with_codec<I>(codec: TCodec, protocols: I, cfg: configs) -> Self
     where
         I: IntoIterator<Item = (TCodec::Protocol, ProtocolSupport)>,
     {
@@ -411,7 +411,7 @@ where
             outbound_protocols,
             next_outbound_request_id: OutboundRequestId(1),
             next_inbound_request_id: Arc::new(AtomicU64::new(1)),
-            config: cfg,
+            configs: cfg,
             codec,
             pending_events: VecDeque::new(),
             connected: HashMap::new(),
@@ -775,9 +775,9 @@ where
         let mut handler = Handler::new(
             self.inbound_protocols.clone(),
             self.codec.clone(),
-            self.config.request_timeout,
+            self.configs.request_timeout,
             self.next_inbound_request_id.clone(),
-            self.config.max_concurrent_streams,
+            self.configs.max_concurrent_streams,
         );
 
         self.preload_new_handler(&mut handler, peer, connection_id, None);
@@ -818,9 +818,9 @@ where
         let mut handler = Handler::new(
             self.inbound_protocols.clone(),
             self.codec.clone(),
-            self.config.request_timeout,
+            self.configs.request_timeout,
             self.next_inbound_request_id.clone(),
-            self.config.max_concurrent_streams,
+            self.configs.max_concurrent_streams,
         );
 
         self.preload_new_handler(

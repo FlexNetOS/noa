@@ -112,9 +112,9 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?;
 //!
 //!     Ok(())
@@ -159,9 +159,9 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?
 //!         .with_behaviour(|_| ping::Behaviour::default())?;
 //!
@@ -191,9 +191,9 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?
 //!         .with_behaviour(|_| ping::Behaviour::default())?
 //!         .build();
@@ -227,12 +227,12 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?
 //!         .with_behaviour(|_| ping::Behaviour::default())?
-//!         .with_swarm_config(|cfg| {
+//!         .with_swarm_configs(|cfg| {
 //!             cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))
 //!         }) // Allows us to observe pings indefinitely.
 //!         .build();
@@ -282,12 +282,12 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?
 //!         .with_behaviour(|_| ping::Behaviour::default())?
-//!         .with_swarm_config(|cfg| {
+//!         .with_swarm_configs(|cfg| {
 //!             cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))
 //!         }) // Allows us to observe pings indefinitely.
 //!         .build();
@@ -330,12 +330,12 @@
 //!     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
 //!         .with_tokio()
 //!         .with_tcp(
-//!             tcp::Config::default(),
-//!             noise::Config::new,
-//!             yamux::Config::default,
+//!             tcp::configs::default(),
+//!             noise::configs::new,
+//!             yamux::configs::default,
 //!         )?
 //!         .with_behaviour(|_| ping::Behaviour::default())?
-//!         .with_swarm_config(|cfg| {
+//!         .with_swarm_configs(|cfg| {
 //!             cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))
 //!         }) // Allows us to observe pings indefinitely.
 //!         .build();

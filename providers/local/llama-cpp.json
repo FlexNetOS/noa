@@ -30,7 +30,7 @@
       }
     }
   },
-  "config": {
+  "configs": {
     "modelPath": "${NOA_ROOT}/ai/shared/models",
     "contextSize": 4096,
     "threads": 0,
@@ -45,8 +45,8 @@
   "build": {
     "required": true,
     "commands": {
-      "windows": "cd ${NOA_ROOT}/opt/llama.cpp && cmake -B build && cmake --build build --config Release",
-      "unix": "cd ${NOA_ROOT}/opt/llama.cpp && cmake -B build && cmake --build build --config Release"
+      "windows": "cd ${NOA_ROOT}/opt/llama.cpp && cmake -B build && cmake --build build --configs Release",
+      "unix": "cd ${NOA_ROOT}/opt/llama.cpp && cmake -B build && cmake --build build --configs Release"
     },
     "note": "llama.cpp must be built from source. Run the build commands after cloning the submodule."
   },

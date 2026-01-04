@@ -296,7 +296,7 @@ Think of it like your computer's memory hierarchy—frequently accessed data liv
 | **Cold** (1-10%) | PQ4 | 16x | Heavy compression, still fast search |
 | **Archive** (<1%) | Binary | 32x | Maximum density, batch retrieval |
 
-**No configuration needed.** RuVector tracks access patterns and automatically promotes/demotes vectors between tiers. Your hot data stays fast; your cold data shrinks.
+**No configsuration needed.** RuVector tracks access patterns and automatically promotes/demotes vectors between tiers. Your hot data stays fast; your cold data shrinks.
 
 ## Use Cases
 
@@ -502,9 +502,9 @@ npm install @ruvector/sona
 ```
 
 ```rust
-use ruvector_sona::{SonaEngine, SonaConfig};
+use ruvector_sona::{SonaEngine, Sonaconfigs};
 
-let engine = SonaEngine::new(SonaConfig::default());
+let engine = SonaEngine::new(Sonaconfigs::default());
 let traj_id = engine.start_trajectory(query_embedding);
 engine.record_step(traj_id, node_id, 0.85, 150);
 engine.end_trajectory(traj_id, 0.90);
@@ -721,7 +721,7 @@ Novel coordination primitives inspired by decentralized governance, developmenta
 **NAO Features:**
 - Stake-weighted quadratic voting
 - Oscillatory synchronization for coherence
-- Quorum-based consensus (configurable threshold)
+- Quorum-based consensus (configsurable threshold)
 
 **Morphogenetic Network Features:**
 - Cellular differentiation through morphogen gradients
@@ -1153,7 +1153,7 @@ ruvector hooks init
 ruvector hooks install --settings-dir .claude
 ```
 
-This creates `.claude/settings.json` with hook configurations:
+This creates `.claude/settings.json` with hook configsurations:
 
 ```json
 {
@@ -1481,12 +1481,12 @@ let enhanced = layer.forward(&query, &neighbors, &weights);
 ```
 
 ```rust
-use ruvector_raft::{RaftNode, RaftNodeConfig};
+use ruvector_raft::{RaftNode, RaftNodeconfigs};
 use ruvector_cluster::{ClusterManager, ConsistentHashRing};
 use ruvector_replication::{SyncManager, SyncMode};
 
-// Configure a 5-node Raft cluster
-let config = RaftNodeConfig {
+// configsure a 5-node Raft cluster
+let configs = RaftNodeconfigs {
     node_id: "node-1".into(),
     cluster_members: vec!["node-1", "node-2", "node-3", "node-4", "node-5"]
         .into_iter().map(Into::into).collect(),
@@ -1494,7 +1494,7 @@ let config = RaftNodeConfig {
     election_timeout_max: 300,  // ms
     heartbeat_interval: 50,     // ms
 };
-let raft = RaftNode::new(config);
+let raft = RaftNode::new(configs);
 
 // Auto-sharding with consistent hashing (150 virtual nodes per real node)
 let ring = ConsistentHashRing::new(64, 3); // 64 shards, replication factor 3

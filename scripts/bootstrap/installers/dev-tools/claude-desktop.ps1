@@ -5,7 +5,7 @@
 .DESCRIPTION
     Downloads and installs Claude Desktop to noa_root/opt/claude-desktop/.
     Creates wrapper script in noa_root/bin/ for easy access.
-    Configures MCP (Model Context Protocol) integration with NOA.
+    configsures MCP (Model Context Protocol) integration with NOA.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -130,20 +130,20 @@ REM Launches Claude Desktop from NOA opt directory
 $wrapperContent | Set-Content -Path $WRAPPER_PATH -Encoding ASCII
 Write-Host "  [OK] Created wrapper: $WRAPPER_PATH" -ForegroundColor Green
 
-# Configure MCP integration
+# configsure MCP integration
 # Use NOA AppData (FR-001: Self-contained within noa_root)
 $noaAppData = Join-Path $NoaRoot "data\appdata\roaming"
-$mcpConfigPath = Join-Path $noaAppData "Claude\claude_desktop_config.json"
-Write-Host "  [INFO] Configuring MCP integration..." -ForegroundColor Yellow
-Write-Host "  Config location: $mcpConfigPath" -ForegroundColor Gray
+$mcpconfigsPath = Join-Path $noaAppData "Claude\claude_desktop_configs.json"
+Write-Host "  [INFO] configsuring MCP integration..." -ForegroundColor Yellow
+Write-Host "  configs location: $mcpconfigsPath" -ForegroundColor Gray
 
-$mcpConfigDir = Split-Path -Parent $mcpConfigPath
-if (-not (Test-Path $mcpConfigDir)) {
-    New-Item -ItemType Directory -Path $mcpConfigDir -Force | Out-Null
+$mcpconfigsDir = Split-Path -Parent $mcpconfigsPath
+if (-not (Test-Path $mcpconfigsDir)) {
+    New-Item -ItemType Directory -Path $mcpconfigsDir -Force | Out-Null
 }
 
-if (-not (Test-Path $mcpConfigPath)) {
-    $mcpConfig = @{
+if (-not (Test-Path $mcpconfigsPath)) {
+    $mcpconfigs = @{
         mcpServers = @{
             "noa-tools" = @{
                 command = "node"
@@ -155,23 +155,23 @@ if (-not (Test-Path $mcpConfigPath)) {
         }
     }
 
-    $mcpConfig | ConvertTo-Json -Depth 4 | Set-Content -Path $mcpConfigPath -Encoding UTF8
-    Write-Host "  [OK] Created MCP config: $mcpConfigPath" -ForegroundColor Green
+    $mcpconfigs | ConvertTo-Json -Depth 4 | Set-Content -Path $mcpconfigsPath -Encoding UTF8
+    Write-Host "  [OK] Created MCP configs: $mcpconfigsPath" -ForegroundColor Green
 } else {
-    Write-Host "  [OK] MCP config already exists: $mcpConfigPath" -ForegroundColor Gray
+    Write-Host "  [OK] MCP configs already exists: $mcpconfigsPath" -ForegroundColor Gray
 }
 
-# Update provider config
-$providerConfig = Join-Path $NoaRoot "ai\providers\cloud\claude-code\config.json"
-if (Test-Path $providerConfig) {
+# Update provider configs
+$providerconfigs = Join-Path $NoaRoot "ai\providers\cloud\claude-code\configs.json"
+if (Test-Path $providerconfigs) {
     try {
-        $config = Get-Content $providerConfig -Raw | ConvertFrom-Json
+        $configs = Get-Content $providerconfigs -Raw | ConvertFrom-Json
 
-        if (-not $config.PSObject.Properties['desktop']) {
-            $config | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
+        if (-not $configs.PSObject.Properties['desktop']) {
+            $configs | Add-Member -MemberType NoteProperty -Name 'desktop' -Value @{} -Force
         }
 
-        $config.desktop = @{
+        $configs.desktop = @{
             binaryPath = @{
                 windows = "`${NOA_ROOT}/opt/claude-desktop/$($claudeExe.Name)"
                 unix = "`${NOA_ROOT}/opt/claude-desktop/bin/claude"
@@ -180,13 +180,13 @@ if (Test-Path $providerConfig) {
                 windows = "`${NOA_ROOT}/bin/claude-desktop.cmd"
                 unix = "`${NOA_ROOT}/bin/claude-desktop"
             }
-            mcpConfig = $mcpConfigPath
+            mcpconfigs = $mcpconfigsPath
         }
 
-        $config | ConvertTo-Json -Depth 10 | Set-Content $providerConfig -Encoding UTF8
-        Write-Host "  [OK] Updated provider config" -ForegroundColor Green
+        $configs | ConvertTo-Json -Depth 10 | Set-Content $providerconfigs -Encoding UTF8
+        Write-Host "  [OK] Updated provider configs" -ForegroundColor Green
     } catch {
-        Write-Host "  [WARN] Failed to update provider config: $_" -ForegroundColor Yellow
+        Write-Host "  [WARN] Failed to update provider configs: $_" -ForegroundColor Yellow
     }
 }
 
@@ -195,10 +195,10 @@ Write-Host "Claude Desktop installation complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Location:   $INSTALL_DIR" -ForegroundColor Gray
 Write-Host "Wrapper:    $WRAPPER_PATH" -ForegroundColor Gray
-Write-Host "MCP Config: $mcpConfigPath" -ForegroundColor Gray
+Write-Host "MCP configs: $mcpconfigsPath" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Usage:" -ForegroundColor Cyan
 Write-Host "  claude-desktop        # Launch Claude Desktop" -ForegroundColor Gray
 Write-Host ""
-Write-Host "MCP (Model Context Protocol) configured for NOA integration" -ForegroundColor Yellow
+Write-Host "MCP (Model Context Protocol) configsured for NOA integration" -ForegroundColor Yellow
 

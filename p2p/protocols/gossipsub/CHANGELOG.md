@@ -20,10 +20,10 @@
 - Fix `unsubscribe_backoff` expecting number of seconds instead of `Duration`
   See [PR 6124](https://github.com/libp2p/rust-libp2p/pull/6124)
 
-- Fix incorrect default values in ConfigBuilder
+- Fix incorrect default values in configsBuilder
   See [PR 6113](https://github.com/libp2p/rust-libp2p/pull/6113)
 
-- Remove duplicated config `set_topic_max_transmit_size` method, prefer `max_transmit_size_for_topic`.
+- Remove duplicated configs `set_topic_max_transmit_size` method, prefer `max_transmit_size_for_topic`.
   See [PR 6173](https://github.com/libp2p/rust-libp2p/pull/6173).
 
 - Switch the internal `async-channel` used to dispatch messages from `NetworkBehaviour` to the `ConnectionHandler`
@@ -103,7 +103,7 @@
 - Allow broadcasting `IDONTWANT` messages when publishing to avoid downloading data that is already available.
   See [PR 5773](https://github.com/libp2p/rust-libp2p/pull/5773)
 
-- Add configurable `idontwant_message_size_threshold` parameter.
+- Add configsurable `idontwant_message_size_threshold` parameter.
   See [PR 5770](https://github.com/libp2p/rust-libp2p/pull/5770)
 
 - Introduce Gossipsub v1.2 [spec](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.2.md).
@@ -157,18 +157,18 @@
 
 ## 0.46.0
 
-- Remove `fast_message_id_fn` mechanism from `Config`.
+- Remove `fast_message_id_fn` mechanism from `configs`.
   See [PR 4285](https://github.com/libp2p/rust-libp2p/pull/4285).
-- Remove deprecated `gossipsub::Config::idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Remove deprecated `gossipsub::configs::idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4642](https://github.com/libp2p/rust-libp2p/pull/4642).
-- Return typed error from config builder.
+- Return typed error from configs builder.
   See [PR 4445](https://github.com/libp2p/rust-libp2p/pull/4445).
 - Process outbound stream before inbound stream in `EnabledHandler::poll(..)`.
   See [PR 4778](https://github.com/libp2p/rust-libp2p/pull/4778).
 
 ## 0.45.2
 
-- Deprecate `gossipsub::Config::idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
+- Deprecate `gossipsub::configs::idle_timeout` in favor of `SwarmBuilder::idle_connection_timeout`.
   See [PR 4648].
 
 <!-- Internal changes:
@@ -204,8 +204,8 @@
 ## 0.44.4
 
 - Deprecate `metrics`, `protocol`, `subscription_filter`, `time_cache` modules to make them private. See [PR 3777].
-- Honor the `gossipsub::Config::support_floodsub` in all cases.
-  Previously, it was ignored when a custom protocol id was set via `gossipsub::Config::protocol_id`.
+- Honor the `gossipsub::configs::support_floodsub` in all cases.
+  Previously, it was ignored when a custom protocol id was set via `gossipsub::configs::protocol_id`.
   See [PR 3837].
 
 [PR 3777]: https://github.com/libp2p/rust-libp2p/pull/3777
@@ -242,11 +242,11 @@
 
 - Update to `libp2p-swarm` `v0.42.0`.
 
-- Initialize `ProtocolConfig` via `GossipsubConfig`. See [PR 3381].
+- Initialize `Protocolconfigs` via `Gossipsubconfigs`. See [PR 3381].
 
 - Rename types as per [discussion 2174].
   `Gossipsub` has been renamed to `Behaviour`.
-  The `Gossipsub` prefix has been removed from various types like `GossipsubConfig` or `GossipsubMessage`.
+  The `Gossipsub` prefix has been removed from various types like `Gossipsubconfigs` or `GossipsubMessage`.
   It is preferred to import the gossipsub protocol as a module (`use libp2p::gossipsub;`), and refer to its types via `gossipsub::`.
   For example: `gossipsub::Behaviour` or `gossipsub::RawMessage`. See [PR 3303].
 
@@ -318,7 +318,7 @@
 
 - Update to `libp2p-swarm` `v0.37.0`.
 
-- Allow for custom protocol ID via `GossipsubConfigBuilder::protocol_id()`. See [PR 2718].
+- Allow for custom protocol ID via `GossipsubconfigsBuilder::protocol_id()`. See [PR 2718].
 
 [PR 2718]: https://github.com/libp2p/rust-libp2p/pull/2718/
 
@@ -380,14 +380,14 @@
 
 - Migrate to Rust edition 2021 (see [PR 2339]).
 
-- Add metrics for network and configuration performance analysis (see [PR 2346]).
+- Add metrics for network and configsuration performance analysis (see [PR 2346]).
 
 - Improve bandwidth performance by tracking IWANTs and reducing duplicate sends
   (see [PR 2327]).
 
 - Implement `Serialize` and `Deserialize` for `MessageId` and `FastMessageId` (see [PR 2408])
 
-- Fix `GossipsubConfigBuilder::build()` requiring `&self` to live for `'static` (see [PR 2409])
+- Fix `GossipsubconfigsBuilder::build()` requiring `&self` to live for `'static` (see [PR 2409])
 
 - Implement Unsubscribe backoff as per [libp2p specs PR 383] (see [PR 2403]).
 
@@ -502,7 +502,7 @@
 
 - Add public API to list topics and peers. [PR 1677](https://github.com/libp2p/rust-libp2p/pull/1677).
 
-- Add message signing and extended privacy/validation configurations. [PR 1583](https://github.com/libp2p/rust-libp2p/pull/1583).
+- Add message signing and extended privacy/validation configsurations. [PR 1583](https://github.com/libp2p/rust-libp2p/pull/1583).
 
 - `Debug` instance for `Gossipsub`. [PR 1673](https://github.com/libp2p/rust-libp2p/pull/1673).
 

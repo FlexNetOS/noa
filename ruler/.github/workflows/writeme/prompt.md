@@ -21,7 +21,7 @@ For each item below, compare what is stated in `README.md` vs. what actually exi
 - Installation instructions (package name, build/compile steps, Node/TypeScript details)
 - Runtime requirements (Node version, dependencies)
 - CLI usage examples (flags, commands, entry points)
-- Configuration mechanisms (files, env vars, TOML/JSON/MCP references, options shown in code/tests)
+- configsuration mechanisms (files, env vars, TOML/JSON/MCP references, options shown in code/tests)
 - Supported agents / integrations (list matches actual implemented agents under `src/agents/`)
 - File/directory structure examples (ensure paths reflect reality)
 - MCP (Model Context Protocol) related behavior & limitations
@@ -37,7 +37,7 @@ Use (non-destructively) the following directories & files to ground truth:
 - `src/` (implementations, constants, types, agents)
 - `tests/` (behavioral expectations, supported options, edge cases)
 - `package.json` (name, version, scripts, engines, dependencies, bin entries)
-- `tsconfig.json` (language level if relevant)
+- `tsconfigs.json` (language level if relevant)
 
 ## Change Decision Rules
 

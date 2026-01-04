@@ -56,9 +56,9 @@ pub(crate) mod native {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
                     .with_tcp(
-                        tcp::Config::default(),
-                        tls::Config::new,
-                        mplex::Config::default,
+                        tcp::configs::default(),
+                        tls::configs::new,
+                        mplex::configs::default,
                     )?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -68,9 +68,9 @@ pub(crate) mod native {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
                     .with_tcp(
-                        tcp::Config::default(),
-                        tls::Config::new,
-                        yamux::Config::default,
+                        tcp::configs::default(),
+                        tls::configs::new,
+                        yamux::configs::default,
                     )?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -80,9 +80,9 @@ pub(crate) mod native {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
                     .with_tcp(
-                        tcp::Config::default(),
-                        noise::Config::new,
-                        mplex::Config::default,
+                        tcp::configs::default(),
+                        noise::configs::new,
+                        mplex::configs::default,
                     )?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -92,9 +92,9 @@ pub(crate) mod native {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
                     .with_tcp(
-                        tcp::Config::default(),
-                        noise::Config::new,
-                        yamux::Config::default,
+                        tcp::configs::default(),
+                        noise::configs::new,
+                        yamux::configs::default,
                     )?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -103,7 +103,7 @@ pub(crate) mod native {
             (Transport::Ws, Some(SecProtocol::Tls), Some(Muxer::Mplex)) => (
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
-                    .with_websocket(tls::Config::new, mplex::Config::default)
+                    .with_websocket(tls::configs::new, mplex::configs::default)
                     .await?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -112,7 +112,7 @@ pub(crate) mod native {
             (Transport::Ws, Some(SecProtocol::Tls), Some(Muxer::Yamux)) => (
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
-                    .with_websocket(tls::Config::new, yamux::Config::default)
+                    .with_websocket(tls::configs::new, yamux::configs::default)
                     .await?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -121,7 +121,7 @@ pub(crate) mod native {
             (Transport::Ws, Some(SecProtocol::Noise), Some(Muxer::Mplex)) => (
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
-                    .with_websocket(noise::Config::new, mplex::Config::default)
+                    .with_websocket(noise::configs::new, mplex::configs::default)
                     .await?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -130,7 +130,7 @@ pub(crate) mod native {
             (Transport::Ws, Some(SecProtocol::Noise), Some(Muxer::Yamux)) => (
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_tokio()
-                    .with_websocket(noise::Config::new, yamux::Config::default)
+                    .with_websocket(noise::configs::new, yamux::configs::default)
                     .await?
                     .with_behaviour(behaviour_constructor)?
                     .build(),
@@ -197,7 +197,7 @@ pub(crate) mod wasm {
 
     pub(crate) fn init_logger() {
         console_error_panic_hook::set_once();
-        wasm_logger::init(wasm_logger::Config::default());
+        wasm_logger::init(wasm_logger::configs::default());
     }
 
     pub(crate) fn sleep(duration: Duration) -> BoxFuture<'static, ()> {
@@ -216,12 +216,12 @@ pub(crate) mod wasm {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_wasm_bindgen()
                     .with_other_transport(|local_key| {
-                        webtransport_websys::Transport::new(webtransport_websys::Config::new(
+                        webtransport_websys::Transport::new(webtransport_websys::configs::new(
                             &local_key,
                         ))
                     })?
                     .with_behaviour(behaviour_constructor)?
-                    .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
+                    .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
                     .build(),
                 format!("/ip4/{ip}/udp/0/quic/webtransport"),
             ),
@@ -232,13 +232,13 @@ pub(crate) mod wasm {
                         Ok(websocket_websys::Transport::default()
                             .upgrade(Version::V1Lazy)
                             .authenticate(
-                                noise::Config::new(&local_key)
+                                noise::configs::new(&local_key)
                                     .context("failed to initialise noise")?,
                             )
-                            .multiplex(mplex::Config::new()))
+                            .multiplex(mplex::configs::new()))
                     })?
                     .with_behaviour(behaviour_constructor)?
-                    .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
+                    .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
                     .build(),
                 format!("/ip4/{ip}/tcp/0/tls/ws"),
             ),
@@ -249,13 +249,13 @@ pub(crate) mod wasm {
                         Ok(websocket_websys::Transport::default()
                             .upgrade(Version::V1Lazy)
                             .authenticate(
-                                noise::Config::new(&local_key)
+                                noise::configs::new(&local_key)
                                     .context("failed to initialise noise")?,
                             )
-                            .multiplex(yamux::Config::default()))
+                            .multiplex(yamux::configs::default()))
                     })?
                     .with_behaviour(behaviour_constructor)?
-                    .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
+                    .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
                     .build(),
                 format!("/ip4/{ip}/tcp/0/tls/ws"),
             ),
@@ -263,10 +263,10 @@ pub(crate) mod wasm {
                 libp2p::SwarmBuilder::with_new_identity()
                     .with_wasm_bindgen()
                     .with_other_transport(|local_key| {
-                        webrtc_websys::Transport::new(webrtc_websys::Config::new(&local_key))
+                        webrtc_websys::Transport::new(webrtc_websys::configs::new(&local_key))
                     })?
                     .with_behaviour(behaviour_constructor)?
-                    .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
+                    .with_swarm_configs(|c| c.with_idle_connection_timeout(Duration::from_secs(5)))
                     .build(),
                 format!("/ip4/{ip}/udp/0/webrtc-direct"),
             ),

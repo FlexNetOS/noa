@@ -51,10 +51,10 @@ use crate::{
     bootstrap,
     handler::{Handler, HandlerEvent, HandlerIn, RequestId},
     jobs::*,
-    kbucket::{self, Distance, KBucketConfig, KBucketsTable, NodeStatus},
+    kbucket::{self, Distance, KBucketconfigs, KBucketsTable, NodeStatus},
     protocol,
-    protocol::{ConnectionType, KadPeer, ProtocolConfig},
-    query::{Query, QueryConfig, QueryId, QueryPool, QueryPoolState},
+    protocol::{ConnectionType, KadPeer, Protocolconfigs},
+    query::{Query, Queryconfigs, QueryId, QueryPool, QueryPoolState},
     record::{
         self,
         store::{self, RecordStore},
@@ -72,10 +72,10 @@ pub struct Behaviour<TStore> {
     /// The k-bucket insertion strategy.
     kbucket_inserts: BucketInserts,
 
-    /// Configuration of the wire protocol.
-    protocol_config: ProtocolConfig,
+    /// configsuration of the wire protocol.
+    protocol_configs: Protocolconfigs,
 
-    /// Configuration of [`RecordStore`] filtering.
+    /// configsuration of [`RecordStore`] filtering.
     record_filtering: StoreInserts,
 
     /// The currently active (i.e. in-progress) queries.
@@ -109,7 +109,7 @@ pub struct Behaviour<TStore> {
 
     connections: HashMap<ConnectionId, PeerId>,
 
-    /// See [`Config::caching`].
+    /// See [`configs::caching`].
     caching: Caching,
 
     local_peer_id: PeerId,
@@ -125,7 +125,7 @@ pub struct Behaviour<TStore> {
     bootstrap_status: bootstrap::Status,
 }
 
-/// The configurable strategies for the insertion of peers
+/// The configsurable strategies for the insertion of peers
 /// and their addresses into the k-buckets of the Kademlia
 /// routing table.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -149,7 +149,7 @@ pub enum BucketInserts {
     Manual,
 }
 
-/// The configurable filtering strategies for the acceptance of
+/// The configsurable filtering strategies for the acceptance of
 /// incoming records.
 ///
 /// This can be used for e.g. signature verification or validating
@@ -173,14 +173,14 @@ pub enum StoreInserts {
     FilterBoth,
 }
 
-/// The configuration for the `Kademlia` behaviour.
+/// The configsuration for the `Kademlia` behaviour.
 ///
-/// The configuration is consumed by [`Behaviour::new`].
+/// The configsuration is consumed by [`Behaviour::new`].
 #[derive(Debug, Clone)]
-pub struct Config {
-    kbucket_config: KBucketConfig,
-    query_config: QueryConfig,
-    protocol_config: ProtocolConfig,
+pub struct configs {
+    kbucket_configs: KBucketconfigs,
+    query_configs: Queryconfigs,
+    protocol_configs: Protocolconfigs,
     record_ttl: Option<Duration>,
     record_replication_interval: Option<Duration>,
     record_publication_interval: Option<Duration>,
@@ -193,16 +193,16 @@ pub struct Config {
     automatic_bootstrap_throttle: Option<Duration>,
 }
 
-impl Default for Config {
-    /// Returns the default configuration.
+impl Default for configs {
+    /// Returns the default configsuration.
     ///
-    /// Deprecated: use `Config::new` instead.
+    /// Deprecated: use `configs::new` instead.
     fn default() -> Self {
         Self::new(protocol::DEFAULT_PROTO_NAME)
     }
 }
 
-/// The configuration for Kademlia "write-back" caching after successful
+/// The configsuration for Kademlia "write-back" caching after successful
 /// lookups via [`Behaviour::get_record`].
 #[derive(Debug, Clone)]
 pub enum Caching {
@@ -218,13 +218,13 @@ pub enum Caching {
     Enabled { max_peers: u16 },
 }
 
-impl Config {
-    /// Builds a new `Config` with the given protocol name.
+impl configs {
+    /// Builds a new `configs` with the given protocol name.
     pub fn new(protocol_name: StreamProtocol) -> Self {
-        Config {
-            kbucket_config: KBucketConfig::default(),
-            query_config: QueryConfig::default(),
-            protocol_config: ProtocolConfig::new(protocol_name),
+        configs {
+            kbucket_configs: KBucketconfigs::default(),
+            query_configs: Queryconfigs::default(),
+            protocol_configs: Protocolconfigs::new(protocol_name),
             record_ttl: Some(Duration::from_secs(48 * 60 * 60)),
             record_replication_interval: Some(Duration::from_secs(60 * 60)),
             record_publication_interval: Some(Duration::from_secs(22 * 60 * 60)),
@@ -245,7 +245,7 @@ impl Config {
     ///
     /// The default is 60 seconds.
     pub fn set_query_timeout(&mut self, timeout: Duration) -> &mut Self {
-        self.query_config.timeout = timeout;
+        self.query_configs.timeout = timeout;
         self
     }
 
@@ -254,7 +254,7 @@ impl Config {
     /// The replication factor determines to how many closest peers
     /// a record is replicated. The default is [`crate::K_VALUE`].
     pub fn set_replication_factor(&mut self, replication_factor: NonZeroUsize) -> &mut Self {
-        self.query_config.replication_factor = replication_factor;
+        self.query_configs.replication_factor = replication_factor;
         self
     }
 
@@ -268,23 +268,23 @@ impl Config {
     /// This only controls the level of parallelism of an iterative query, not
     /// the level of parallelism of a query to a fixed set of peers.
     ///
-    /// When used with [`Config::disjoint_query_paths`] it equals
+    /// When used with [`configs::disjoint_query_paths`] it equals
     /// the amount of disjoint paths used.
     pub fn set_parallelism(&mut self, parallelism: NonZeroUsize) -> &mut Self {
-        self.query_config.parallelism = parallelism;
+        self.query_configs.parallelism = parallelism;
         self
     }
 
     /// Require iterative queries to use disjoint paths for increased resiliency
     /// in the presence of potentially adversarial nodes.
     ///
-    /// When enabled the number of disjoint paths used equals the configured
+    /// When enabled the number of disjoint paths used equals the configsured
     /// parallelism.
     ///
     /// See the S/Kademlia paper for more information on the high level design
     /// as well as its security improvements.
     pub fn disjoint_query_paths(&mut self, enabled: bool) -> &mut Self {
-        self.query_config.disjoint_query_paths = enabled;
+        self.query_configs.disjoint_query_paths = enabled;
         self
     }
 
@@ -318,7 +318,7 @@ impl Config {
     /// context of DHT topology changes (i.e. nodes joining and leaving), thus
     /// ensuring persistence until the record expires. Replication does not
     /// prolong the regular lifetime of a record (for otherwise it would live
-    /// forever regardless of the configured TTL). The expiry of a record
+    /// forever regardless of the configsured TTL). The expiry of a record
     /// is only extended through re-publication.
     ///
     /// This interval should be significantly shorter than the publication
@@ -378,7 +378,7 @@ impl Config {
     /// It might be necessary to increase this value if trying to put large
     /// records.
     pub fn set_max_packet_size(&mut self, size: usize) -> &mut Self {
-        self.protocol_config.set_max_packet_size(size);
+        self.protocol_configs.set_max_packet_size(size);
         self
     }
 
@@ -387,7 +387,7 @@ impl Config {
     /// * Default to `10` seconds.
     /// * May need to increase this value when sending large records with poor connection.
     pub fn set_substreams_timeout(&mut self, timeout: Duration) -> &mut Self {
-        self.protocol_config.set_substreams_timeout(timeout);
+        self.protocol_configs.set_substreams_timeout(timeout);
         self
     }
 
@@ -417,13 +417,13 @@ impl Config {
         self
     }
 
-    /// Sets the configuration for the k-buckets.
+    /// Sets the configsuration for the k-buckets.
     ///
     /// * Default to K_VALUE.
     ///
     /// **WARNING**: setting a `size` higher that `K_VALUE` may imply additional memory allocations.
     pub fn set_kbucket_size(&mut self, size: NonZeroUsize) -> &mut Self {
-        self.kbucket_config.set_bucket_size(size);
+        self.kbucket_configs.set_bucket_size(size);
         self
     }
 
@@ -433,7 +433,7 @@ impl Config {
     ///
     /// * Default to `60` s.
     pub fn set_kbucket_pending_timeout(&mut self, timeout: Duration) -> &mut Self {
-        self.kbucket_config.set_pending_timeout(timeout);
+        self.kbucket_configs.set_pending_timeout(timeout);
         self
     }
 
@@ -462,51 +462,51 @@ impl<TStore> Behaviour<TStore>
 where
     TStore: RecordStore + Send + 'static,
 {
-    /// Creates a new `Kademlia` network behaviour with a default configuration.
+    /// Creates a new `Kademlia` network behaviour with a default configsuration.
     pub fn new(id: PeerId, store: TStore) -> Self {
-        Self::with_config(id, store, Default::default())
+        Self::with_configs(id, store, Default::default())
     }
 
     /// Get the protocol name of this kademlia instance.
     pub fn protocol_names(&self) -> &[StreamProtocol] {
-        self.protocol_config.protocol_names()
+        self.protocol_configs.protocol_names()
     }
 
-    /// Creates a new `Kademlia` network behaviour with the given configuration.
-    pub fn with_config(id: PeerId, store: TStore, config: Config) -> Self {
+    /// Creates a new `Kademlia` network behaviour with the given configsuration.
+    pub fn with_configs(id: PeerId, store: TStore, configs: configs) -> Self {
         let local_key = kbucket::Key::from(id);
 
-        let put_record_job = config
+        let put_record_job = configs
             .record_replication_interval
-            .or(config.record_publication_interval)
+            .or(configs.record_publication_interval)
             .map(|interval| {
                 PutRecordJob::new(
                     id,
                     interval,
-                    config.record_publication_interval,
-                    config.record_ttl,
+                    configs.record_publication_interval,
+                    configs.record_ttl,
                 )
             });
 
-        let add_provider_job = config
+        let add_provider_job = configs
             .provider_publication_interval
             .map(AddProviderJob::new);
 
         Behaviour {
             store,
-            caching: config.caching,
-            kbuckets: KBucketsTable::new(local_key, config.kbucket_config),
-            kbucket_inserts: config.kbucket_inserts,
-            protocol_config: config.protocol_config,
-            record_filtering: config.record_filtering,
-            queued_events: VecDeque::with_capacity(config.query_config.replication_factor.get()),
+            caching: configs.caching,
+            kbuckets: KBucketsTable::new(local_key, configs.kbucket_configs),
+            kbucket_inserts: configs.kbucket_inserts,
+            protocol_configs: configs.protocol_configs,
+            record_filtering: configs.record_filtering,
+            queued_events: VecDeque::with_capacity(configs.query_configs.replication_factor.get()),
             listen_addresses: Default::default(),
-            queries: QueryPool::new(config.query_config),
+            queries: QueryPool::new(configs.query_configs),
             connected_peers: Default::default(),
             add_provider_job,
             put_record_job,
-            record_ttl: config.record_ttl,
-            provider_record_ttl: config.provider_record_ttl,
+            record_ttl: configs.record_ttl,
+            provider_record_ttl: configs.provider_record_ttl,
             external_addresses: Default::default(),
             local_peer_id: id,
             connections: Default::default(),
@@ -514,8 +514,8 @@ where
             auto_mode: true,
             no_events_waker: None,
             bootstrap_status: bootstrap::Status::new(
-                config.periodic_bootstrap_interval,
-                config.automatic_bootstrap_throttle,
+                configs.periodic_bootstrap_interval,
+                configs.automatic_bootstrap_throttle,
             ),
         }
     }
@@ -777,7 +777,7 @@ where
     /// Finds the closest peers to a `key` in the context of a request by the `source` peer, such
     /// that the `source` peer is never included in the result.
     ///
-    /// Takes peers from local routing table only. Only returns number of peers equal to configured
+    /// Takes peers from local routing table only. Only returns number of peers equal to configsured
     /// replication factor.
     pub fn find_closest_local_peers<'a, K: Clone>(
         &'a mut self,
@@ -857,11 +857,11 @@ where
     ///
     /// The record is always stored locally with the given expiration. If the record's
     /// expiration is `None`, the common case, it does not expire in local storage
-    /// but is still replicated with the configured record TTL. To remove the record
+    /// but is still replicated with the configsured record TTL. To remove the record
     /// locally and stop it from being re-published in the DHT, see [`Behaviour::remove_record`].
     ///
     /// After the initial publication of the record, it is subject to (re-)replication
-    /// and (re-)publication as per the configured intervals. Periodic (re-)publication
+    /// and (re-)publication as per the configsured intervals. Periodic (re-)publication
     /// does not update the record's expiration in local storage, thus a given record
     /// with an explicit expiration will always expire at that instant and until then
     /// is subject to regular (re-)replication and (re-)publication.
@@ -875,7 +875,7 @@ where
         record.expires = record
             .expires
             .or_else(|| self.record_ttl.map(|ttl| Instant::now() + ttl));
-        let quorum = quorum.eval(self.queries.config().replication_factor);
+        let quorum = quorum.eval(self.queries.configs().replication_factor);
         let target = kbucket::Key::new(record.key.clone());
         let peers = self.kbuckets.closest_keys(&target);
         let context = PutRecordContext::Publish;
@@ -893,7 +893,7 @@ where
     /// The given [`Quorum`] is understood in the context of the total
     /// number of distinct peers given.
     ///
-    /// If the record's expiration is `None`, the configured record TTL is used.
+    /// If the record's expiration is `None`, the configsured record TTL is used.
     ///
     /// > **Note**: This is not a regular Kademlia DHT operation. It needs to be
     /// > used to selectively update or store a record to specific peers
@@ -976,8 +976,8 @@ where
     /// > See [`Behaviour::add_address`].
     ///
     /// > **Note**: Bootstrap does not require to be called manually. It is periodically
-    /// > invoked at regular intervals based on the configured `periodic_bootstrap_interval` (see
-    /// > [`Config::set_periodic_bootstrap_interval`] for details) and it is also automatically
+    /// > invoked at regular intervals based on the configsured `periodic_bootstrap_interval` (see
+    /// > [`configs::set_periodic_bootstrap_interval`] for details) and it is also automatically
     /// > invoked
     /// > when a new peer is inserted in the routing table.
     /// > This parameter is used to call [`Behaviour::bootstrap`] periodically and automatically
@@ -1009,7 +1009,7 @@ where
     /// `QueryId` of the initial query that announces the local node as a provider.
     ///
     /// The publication of the provider records is periodically repeated as per the
-    /// configured interval, to renew the expiry and account for changes to the DHT
+    /// configsured interval, to renew the expiry and account for changes to the DHT
     /// topology. A provider record may be removed from local storage and
     /// thus no longer re-published by calling [`Behaviour::stop_providing`].
     ///
@@ -1114,14 +1114,14 @@ where
     /// have a confirmed, external address via [`FromSwarm::ExternalAddrConfirmed`].
     ///
     /// Setting a mode via this function disables this automatic behaviour and unconditionally
-    /// operates in the specified mode. To reactivate the automatic configuration, pass [`None`]
+    /// operates in the specified mode. To reactivate the automatic configsuration, pass [`None`]
     /// instead.
     pub fn set_mode(&mut self, mode: Option<Mode>) {
         match mode {
             Some(mode) => {
                 self.mode = mode;
                 self.auto_mode = false;
-                self.reconfigure_mode();
+                self.reconfigsure_mode();
             }
             None => {
                 self.auto_mode = true;
@@ -1139,7 +1139,7 @@ where
         self.mode
     }
 
-    fn reconfigure_mode(&mut self) {
+    fn reconfigsure_mode(&mut self) {
         if self.connections.is_empty() {
             return;
         }
@@ -1147,7 +1147,7 @@ where
         let num_connections = self.connections.len();
 
         tracing::debug!(
-            "Re-configuring {} established connection{}",
+            "Re-configsuring {} established connection{}",
             num_connections,
             if num_connections > 1 { "s" } else { "" }
         );
@@ -1159,7 +1159,7 @@ where
                     .map(|(conn_id, peer_id)| ToSwarm::NotifyHandler {
                         peer_id: *peer_id,
                         handler: NotifyHandler::One(*conn_id),
-                        event: HandlerIn::ReconfigureMode {
+                        event: HandlerIn::ReconfigsureMode {
                             new_mode: self.mode,
                         },
                     }),
@@ -1202,7 +1202,7 @@ where
             }
         };
 
-        self.reconfigure_mode();
+        self.reconfigsure_mode();
 
         if old_mode != self.mode {
             self.queued_events
@@ -1289,7 +1289,7 @@ where
                     None
                 }
             })
-            .take(self.queries.config().replication_factor.get())
+            .take(self.queries.configs().replication_factor.get())
             .collect()
     }
 
@@ -1307,7 +1307,7 @@ where
 
     /// Starts an iterative `PUT_VALUE` query for the given record.
     fn start_put_record(&mut self, record: Record, quorum: Quorum, context: PutRecordContext) {
-        let quorum = quorum.eval(self.queries.config().replication_factor);
+        let quorum = quorum.eval(self.queries.configs().replication_factor);
         let target = kbucket::Key::new(record.key.clone());
         let peers = self.kbuckets.closest_keys(&target);
         let info = QueryInfo::PutRecord {
@@ -1857,7 +1857,7 @@ where
         // outside of the k closest nodes to a key.
         let target = kbucket::Key::new(record.key.clone());
         let num_between = self.kbuckets.count_nodes_between(&target);
-        let k = self.queries.config().replication_factor.get();
+        let k = self.queries.configs().replication_factor.get();
         let num_beyond_k = (usize::max(k, num_between) - k) as u32;
         let expiration = self
             .record_ttl
@@ -1871,7 +1871,7 @@ where
             // job, since we can assume the sender replicated the
             // record to the k closest peers. Effectively, only
             // one of the k closest peers performs a replication
-            // in the configured interval, assuming a shared interval.
+            // in the configsured interval, assuming a shared interval.
             job.skip(record.key.clone())
         }
 
@@ -2209,7 +2209,7 @@ where
         };
 
         let mut handler = Handler::new(
-            self.protocol_config.clone(),
+            self.protocol_configs.clone(),
             connected_point,
             peer,
             self.mode,
@@ -2234,7 +2234,7 @@ where
         };
 
         let mut handler = Handler::new(
-            self.protocol_config.clone(),
+            self.protocol_configs.clone(),
             connected_point,
             peer,
             self.mode,
@@ -2713,7 +2713,7 @@ pub struct PeerInfo {
     pub addrs: Vec<Multiaddr>,
 }
 
-/// A quorum w.r.t. the configured replication factor specifies the minimum
+/// A quorum w.r.t. the configsured replication factor specifies the minimum
 /// number of distinct nodes that must be successfully contacted in order
 /// for a query to succeed.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -2799,7 +2799,7 @@ pub enum Event {
 
     /// A connection to a peer has been established for whom a listen address
     /// is known but the peer has not been added to the routing table either
-    /// because [`BucketInserts::Manual`] is configured or because
+    /// because [`BucketInserts::Manual`] is configsured or because
     /// the corresponding bucket is full.
     ///
     /// If the peer is to be included in the routing table, it must
@@ -2876,7 +2876,7 @@ pub enum InboundRequest {
     /// If filtering [`StoreInserts::FilterBoth`] is enabled, the [`ProviderRecord`] is
     /// included.
     ///
-    /// See [`StoreInserts`] and [`Config::set_record_filtering`] for details..
+    /// See [`StoreInserts`] and [`configs::set_record_filtering`] for details..
     AddProvider { record: Option<ProviderRecord> },
     /// Request to retrieve a record.
     GetRecord {
@@ -2886,7 +2886,7 @@ pub enum InboundRequest {
     /// A peer sent a put record request.
     /// If filtering [`StoreInserts::FilterBoth`] is enabled, the [`Record`] is included.
     ///
-    /// See [`StoreInserts`] and [`Config::set_record_filtering`].
+    /// See [`StoreInserts`] and [`configs::set_record_filtering`].
     PutRecord {
         source: PeerId,
         connection: ConnectionId,
@@ -2934,8 +2934,8 @@ pub enum GetRecordOk {
         /// If caching is enabled, these are the peers closest
         /// _to the record key_ (not the local node) that were queried but
         /// did not return the record, sorted by distance to the record key
-        /// from closest to farthest. How many of these are tracked is configured
-        /// by [`Config::set_caching`].
+        /// from closest to farthest. How many of these are tracked is configsured
+        /// by [`configs::set_caching`].
         ///
         /// Writing back the cache at these peers is a manual operation.
         /// ie. you may wish to use these candidates with [`Behaviour::put_record_to`]

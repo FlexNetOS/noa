@@ -32,37 +32,37 @@
 
 ## Why Ruler?
 
-Managing instructions across multiple AI coding tools becomes complex as your team grows. Different agents (GitHub Copilot, Claude, Cursor, Aider, etc.) require their own configuration files, leading to:
+Managing instructions across multiple AI coding tools becomes complex as your team grows. Different agents (GitHub Copilot, Claude, Cursor, Aider, etc.) require their own configsuration files, leading to:
 
 - **Inconsistent guidance** across AI tools
-- **Duplicated effort** maintaining multiple config files
+- **Duplicated effort** maintaining multiple configs files
 - **Context drift** as project requirements evolve
 - **Onboarding friction** for new AI tools
 - **Complex project structures** requiring context-specific instructions for different components
 
-Ruler solves this by providing a **single source of truth** for all your AI agent instructions, automatically distributing them to the right configuration files. With support for **nested rule loading**, Ruler can handle complex project structures with context-specific instructions for different components.
+Ruler solves this by providing a **single source of truth** for all your AI agent instructions, automatically distributing them to the right configsuration files. With support for **nested rule loading**, Ruler can handle complex project structures with context-specific instructions for different components.
 
 ## Core Features
 
 - **Centralised Rule Management**: Store all AI instructions in a dedicated `.ruler/` directory using Markdown files
 - **Nested Rule Loading**: Support complex project structures with multiple `.ruler/` directories for context-specific instructions
-- **Automatic Distribution**: Ruler applies these rules to configuration files of supported AI agents
-- **Targeted Agent Configuration**: Fine-tune which agents are affected and their specific output paths via `ruler.toml`
+- **Automatic Distribution**: Ruler applies these rules to configsuration files of supported AI agents
+- **Targeted Agent configsuration**: Fine-tune which agents are affected and their specific output paths via `ruler.toml`
 - **MCP Server Propagation**: Manage and distribute Model Context Protocol (MCP) server settings
-- **`.gitignore` Automation**: Keeps generated agent config files out of version control automatically
-- **Simple CLI**: Easy-to-use commands for initialising and applying configurations
+- **`.gitignore` Automation**: Keeps generated agent configs files out of version control automatically
+- **Simple CLI**: Easy-to-use commands for initialising and applying configsurations
 
 ## Supported AI Agents
 
-| Agent            | Rules File(s)                                    | MCP Configuration / Notes                        |
+| Agent            | Rules File(s)                                    | MCP configsuration / Notes                        |
 | ---------------- | ------------------------------------------------ | ------------------------------------------------ |
 | AGENTS.md        | `AGENTS.md`                                      | (pseudo-agent ensuring root `AGENTS.md` exists)  |
 | GitHub Copilot   | `AGENTS.md`                                      | `.vscode/mcp.json`                               |
 | Claude Code      | `CLAUDE.md`                                      | `.mcp.json`                                      |
-| OpenAI Codex CLI | `AGENTS.md`                                      | `.codex/config.toml`                             |
+| OpenAI Codex CLI | `AGENTS.md`                                      | `.codex/configs.toml`                             |
 | Jules            | `AGENTS.md`                                      | -                                                |
 | Cursor           | `AGENTS.md`                                      | `.cursor/mcp.json`                               |
-| Windsurf         | `AGENTS.md`                                      | `.windsurf/mcp_config.json`                      |
+| Windsurf         | `AGENTS.md`                                      | `.windsurf/mcp_configs.json`                      |
 | Cline            | `.clinerules`                                    | -                                                |
 | Crush            | `CRUSH.md`                                       | `.crush.json`                                    |
 | Amp              | `AGENTS.md`                                      | -                                                |
@@ -70,7 +70,7 @@ Ruler solves this by providing a **single source of truth** for all your AI agen
 | Amazon Q CLI     | `.amazonq/rules/ruler_q_rules.md`                | `.amazonq/mcp.json`                              |
 | Aider            | `AGENTS.md`, `.aider.conf.yml`                   | `.mcp.json`                                      |
 | Firebase Studio  | `.idx/airules.md`                                | `.idx/mcp.json`                                  |
-| Open Hands       | `.openhands/microagents/repo.md`                 | `config.toml`                                    |
+| Open Hands       | `.openhands/microagents/repo.md`                 | `configs.toml`                                    |
 | Gemini CLI       | `AGENTS.md`                                      | `.gemini/settings.json`                          |
 | Junie            | `.junie/guidelines.md`                           | -                                                |
 | AugmentCode      | `.augment/rules/ruler_augment_instructions.md`   | -                                                |
@@ -109,16 +109,16 @@ npx @intellectronica/ruler apply
 
 - `.ruler/` directory
 - `.ruler/AGENTS.md`: The primary starter Markdown file for your rules
-- `.ruler/ruler.toml`: The main configuration file for Ruler (now contains sample MCP server sections; legacy `.ruler/mcp.json` no longer scaffolded)
+- `.ruler/ruler.toml`: The main configsuration file for Ruler (now contains sample MCP server sections; legacy `.ruler/mcp.json` no longer scaffolded)
 - (Optional legacy fallback) If you previously used `.ruler/instructions.md`, it is still respected when `AGENTS.md` is absent. (The prior runtime warning was removed.)
 
-Additionally, you can create a global configuration to use when no local `.ruler/` directory is found:
+Additionally, you can create a global configsuration to use when no local `.ruler/` directory is found:
 
 ```bash
 ruler init --global
 ```
 
-The global configuration will be created to `$XDG_CONFIG_HOME/ruler` (default: `~/.config/ruler`).
+The global configsuration will be created to `$XDG_configs_HOME/ruler` (default: `~/.configs/ruler`).
 
 ## Core Concepts
 
@@ -131,9 +131,9 @@ This is your central hub for all AI agent instructions:
   2. `.ruler/AGENTS.md` (new default starter file)
   3. Legacy `.ruler/instructions.md` (only if `.ruler/AGENTS.md` absent; no longer emits a deprecation warning)
   4. Remaining discovered `.md` files under `.ruler/` (and subdirectories) in sorted order
-- **Rule Files (`*.md`)**: Discovered recursively from `.ruler/` or `$XDG_CONFIG_HOME/ruler` and concatenated in the order above
+- **Rule Files (`*.md`)**: Discovered recursively from `.ruler/` or `$XDG_configs_HOME/ruler` and concatenated in the order above
 - **Concatenation Marker**: Each file's content is prepended with `<!-- Source: <relative_path_to_md_file> -->` for traceability
-- **`ruler.toml`**: Master configuration for Ruler's behavior, agent selection, and output paths
+- **`ruler.toml`**: Master configsuration for Ruler's behavior, agent selection, and output paths
 - **`mcp.json`**: Shared MCP server settings
 
 This ordering lets you keep a short, high-impact root `AGENTS.md` (e.g. executive project summary) while housing detailed guidance inside `.ruler/`.
@@ -166,8 +166,8 @@ project/
   1. `ruler apply --nested` (or `--no-nested`) takes top priority
   2. `nested = true` in `ruler.toml`
   3. Default to disabled when neither option is provided
-- When a run is nested, downstream configs are forced to keep `nested = true`. If a child config attempts to disable it, Ruler keeps nested processing active and emits a warning in the logs.
-- Nested processing carries forward each directory's own MCP bundle and configuration settings so that generated files remain scoped to their source directories while being normalized back to the project root.
+- When a run is nested, downstream configss are forced to keep `nested = true`. If a child configs attempts to disable it, Ruler keeps nested processing active and emits a warning in the logs.
+- Nested processing carries forward each directory's own MCP bundle and configsuration settings so that generated files remain scoped to their source directories while being normalized back to the project root.
 
 > [!CAUTION]
 > Nested mode is experimental and may change in future releases. The CLI logs this warning the first time a nested run is detected so you know the behavior may evolve.
@@ -218,7 +218,7 @@ project/
 ruler apply [options]
 ```
 
-The `apply` command looks for `.ruler/` in the current directory tree, reading the first match. If no such directory is found, it will look for a global configuration in `$XDG_CONFIG_HOME/ruler`.
+The `apply` command looks for `.ruler/` in the current directory tree, reading the first match. If no such directory is found, it will look for a global configsuration in `$XDG_configs_HOME/ruler`.
 
 ### Options
 
@@ -226,22 +226,22 @@ The `apply` command looks for `.ruler/` in the current directory tree, reading t
 | ------------------------------ | ---------------------------------------------------------------------- |
 | `--project-root <path>`        | Project root path (default: current directory).                        |
 | `--agents <agent1,agent2,...>` | Comma-separated agent names to target (see supported list below).      |
-| `--config <path>`              | Custom `ruler.toml` path.                                              |
-| `--mcp` / `--with-mcp`         | Enable applying MCP server configurations (default: true).             |
-| `--no-mcp`                     | Disable applying MCP server configurations.                            |
-| `--mcp-overwrite`              | Overwrite native MCP config instead of merging.                        |
+| `--configs <path>`              | Custom `ruler.toml` path.                                              |
+| `--mcp` / `--with-mcp`         | Enable applying MCP server configsurations (default: true).             |
+| `--no-mcp`                     | Disable applying MCP server configsurations.                            |
+| `--mcp-overwrite`              | Overwrite native MCP configs instead of merging.                        |
 | `--gitignore`                  | Enable automatic .gitignore updates (default: true).                   |
 | `--no-gitignore`               | Disable automatic .gitignore updates.                                  |
-| `--nested`                     | Enable nested rule loading (default: inherit from config or disabled). |
-| `--no-nested`                  | Disable nested rule loading even if `nested = true` in config.         |
+| `--nested`                     | Enable nested rule loading (default: inherit from configs or disabled). |
+| `--no-nested`                  | Disable nested rule loading even if `nested = true` in configs.         |
 | `--backup`                     | Toggle creation of `.bak` backup files (default: enabled).             |
 | `--dry-run`                    | Preview changes without writing files.                                 |
-| `--local-only`                 | Skip `$XDG_CONFIG_HOME` when looking for configuration.                |
+| `--local-only`                 | Skip `$XDG_configs_HOME` when looking for configsuration.                |
 | `--verbose` / `-v`             | Display detailed output during execution.                              |
 
 ### Common Examples
 
-**Apply rules to all configured agents:**
+**Apply rules to all configsured agents:**
 
 ```bash
 ruler apply
@@ -277,10 +277,10 @@ ruler apply --agents trae
 ruler apply --agents roo
 ```
 
-**Use a specific configuration file:**
+**Use a specific configsuration file:**
 
 ```bash
-ruler apply --config ./team-configs/ruler.frontend.toml
+ruler apply --configs ./team-configss/ruler.frontend.toml
 ```
 
 **Apply rules with verbose output:**
@@ -301,11 +301,11 @@ The `revert` command safely undoes all changes made by `ruler apply`, restoring 
 
 ### Why Revert is Needed
 
-When experimenting with different rule configurations or switching between projects, you may want to:
+When experimenting with different rule configsurations or switching between projects, you may want to:
 
 - **Clean slate**: Remove all ruler-generated files to start fresh
 - **Restore originals**: Revert modified files back to their original state
-- **Selective cleanup**: Remove configurations for specific agents only
+- **Selective cleanup**: Remove configsurations for specific agents only
 - **Safe experimentation**: Try ruler without fear of permanent changes
 
 ### Primary Command
@@ -320,11 +320,11 @@ ruler revert [options]
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--project-root <path>`        | Path to your project's root (default: current directory)                                                                                                                                                                                                                      |
 | `--agents <agent1,agent2,...>` | Comma-separated list of agent names to revert (agentsmd, aider, amazonqcli, amp, antigravity, augmentcode, claude, cline, codex, copilot, crush, cursor, firebase, firebender, gemini-cli, goose, jules, junie, kilocode, kiro, opencode, openhands, qwen, roo, trae, warp, windsurf, zed) |
-| `--config <path>`              | Path to a custom `ruler.toml` configuration file                                                                                                                                                                                                                              |
+| `--configs <path>`              | Path to a custom `ruler.toml` configsuration file                                                                                                                                                                                                                              |
 | `--keep-backups`               | Keep backup files (.bak) after restoration (default: false)                                                                                                                                                                                                                   |
 | `--dry-run`                    | Preview changes without actually reverting files                                                                                                                                                                                                                              |
 | `--verbose` / `-v`             | Display detailed output during execution                                                                                                                                                                                                                                      |
-| `--local-only`                 | Only search for local .ruler directories, ignore global config                                                                                                                                                                                                                |
+| `--local-only`                 | Only search for local .ruler directories, ignore global configs                                                                                                                                                                                                                |
 
 ### Common Examples
 
@@ -358,11 +358,11 @@ ruler revert --verbose
 ruler revert --keep-backups
 ```
 
-## Configuration (`ruler.toml`) in Detail
+## configsuration (`ruler.toml`) in Detail
 
 ### Location
 
-Defaults to `.ruler/ruler.toml` in the project root. Override with `--config` CLI option.
+Defaults to `.ruler/ruler.toml` in the project root. Override with `--configs` CLI option.
 
 ### Complete Example
 
@@ -371,7 +371,7 @@ Defaults to `.ruler/ruler.toml` in the project root. Override with `--config` CL
 # Uses case-insensitive substring matching
 default_agents = ["copilot", "claude", "aider"]
 
-# --- Global MCP Server Configuration ---
+# --- Global MCP Server configsuration ---
 [mcp]
 # Enable/disable MCP propagation globally (default: true)
 enabled = true
@@ -393,12 +393,12 @@ url = "https://api.example.com"
 [mcp_servers.remote_api.headers]
 Authorization = "Bearer your-token"
 
-# --- Global .gitignore Configuration ---
+# --- Global .gitignore configsuration ---
 [gitignore]
 # Enable/disable automatic .gitignore updates (default: true)
 enabled = true
 
-# --- Agent-Specific Configurations ---
+# --- Agent-Specific configsurations ---
 [agents.copilot]
 enabled = true
 
@@ -409,15 +409,15 @@ output_path = "CLAUDE.md"
 [agents.aider]
 enabled = true
 output_path_instructions = "AGENTS.md"
-output_path_config = ".aider.conf.yml"
+output_path_configs = ".aider.conf.yml"
 
-# OpenAI Codex CLI agent and MCP config
+# OpenAI Codex CLI agent and MCP configs
 [agents.codex]
 enabled = true
 output_path = "AGENTS.md"
-output_path_config = ".codex/config.toml"
+output_path_configs = ".codex/configs.toml"
 
-# Agent-specific MCP configuration for Codex CLI
+# Agent-specific MCP configsuration for Codex CLI
 [agents.codex.mcp]
 enabled = true
 merge_strategy = "merge"
@@ -436,7 +436,7 @@ enabled = true
 enabled = true
 output_path = ".junie/guidelines.md"
 
-# Agent-specific MCP configuration
+# Agent-specific MCP configsuration
 [agents.cursor.mcp]
 enabled = true
 merge_strategy = "merge"
@@ -454,17 +454,17 @@ enabled = true
 output_path = "WARP.md"
 ```
 
-### Configuration Precedence
+### configsuration Precedence
 
 1. **CLI flags** (e.g., `--agents`, `--no-mcp`, `--mcp-overwrite`, `--no-gitignore`)
 2. **Settings in `ruler.toml`** (`default_agents`, specific agent settings, global sections)
 3. **Ruler's built-in defaults** (all agents enabled, standard output paths, MCP enabled with 'merge')
 
-## MCP (Model Context Protocol) Server Configuration
+## MCP (Model Context Protocol) Server configsuration
 
-MCP provides broader context to AI models through server configurations. Ruler can manage and distribute these settings across compatible agents.
+MCP provides broader context to AI models through server configsurations. Ruler can manage and distribute these settings across compatible agents.
 
-### TOML Configuration (Recommended)
+### TOML configsuration (Recommended)
 
 You can now define MCP servers directly in `ruler.toml` using the `[mcp_servers.<name>]` syntax:
 
@@ -514,9 +514,9 @@ For backward compatibility, you can still use the JSON format; a warning is issu
 }
 ```
 
-### Configuration Precedence
+### configsuration Precedence
 
-When both TOML and JSON configurations are present:
+When both TOML and JSON configsurations are present:
 
 1. **TOML servers take precedence** over JSON servers with the same name
 2. **Servers are merged** from both sources (unless using overwrite strategy)
@@ -545,11 +545,11 @@ url = "https://api.example.com"
 Authorization = "Bearer token"
 ```
 
-Ruler uses this configuration with the `merge` (default) or `overwrite` strategy, controlled by `ruler.toml` or CLI flags.
+Ruler uses this configsuration with the `merge` (default) or `overwrite` strategy, controlled by `ruler.toml` or CLI flags.
 
-**Home Directory Safety:** Ruler never writes MCP configuration files outside your project root. Any historical references to user home directories (e.g. `~/.codeium/windsurf/mcp_config.json` or `~/.zed/settings.json`) have been removed; only project-local paths are targeted.
+**Home Directory Safety:** Ruler never writes MCP configsuration files outside your project root. Any historical references to user home directories (e.g. `~/.codeium/windsurf/mcp_configs.json` or `~/.zed/settings.json`) have been removed; only project-local paths are targeted.
 
-**Note for OpenAI Codex CLI:** To apply the local Codex CLI MCP configuration, set the `CODEX_HOME` environment variable to your project’s `.codex` directory:
+**Note for OpenAI Codex CLI:** To apply the local Codex CLI MCP configsuration, set the `CODEX_HOME` environment variable to your project’s `.codex` directory:
 
 ```bash
 export CODEX_HOME="$(pwd)/.codex"
@@ -566,7 +566,7 @@ Ruler can manage and propagate Claude Code-compatible skills to supported AI age
 Skills are specialized knowledge packages that extend AI agent capabilities with domain-specific expertise, workflows, or tool integrations. Ruler discovers skills in your `.ruler/skills/` directory and propagates them to compatible agents:
 
 - **Claude Code agents**: Skills are copied to `.claude/skills/` in their native format
-- **Other MCP-compatible agents**: Skills are copied to `.skillz/` and a Skillz MCP server is automatically configured via `uvx`
+- **Other MCP-compatible agents**: Skills are copied to `.skillz/` and a Skillz MCP server is automatically configsured via `uvx`
 
 ### Skills Directory Structure
 
@@ -590,9 +590,9 @@ Skills can optionally include additional resources like:
 
 - Markdown files with supplementary documentation
 - Python, JavaScript, or other scripts
-- Configuration files or data
+- configsuration files or data
 
-### Configuration
+### configsuration
 
 Skills support is **enabled by default** but can be controlled via:
 
@@ -606,7 +606,7 @@ ruler apply --skills
 ruler apply --no-skills
 ```
 
-**Configuration in `ruler.toml`:**
+**configsuration in `ruler.toml`:**
 
 ```toml
 [skills]
@@ -618,10 +618,10 @@ enabled = true  # or false to disable
 For agents that support MCP but don't have native skills support (all agents except Claude Code), Ruler automatically:
 
 1. Copies skills to `.skillz/` directory
-2. Configures a Skillz MCP server in the agent's configuration
+2. configsures a Skillz MCP server in the agent's configsuration
 3. Uses `uvx` to launch the server with the absolute path to `.skillz`
 
-Example auto-generated MCP server configuration:
+Example auto-generated MCP server configsuration:
 
 ```toml
 [mcp_servers.skillz]
@@ -664,7 +664,7 @@ Test skills propagation without making changes:
 ruler apply --dry-run
 ```
 
-This shows which skills would be copied and which MCP servers would be configured.
+This shows which skills would be copied and which MCP servers would be configsured.
 
 ### Example Workflow
 
@@ -689,12 +689,12 @@ ruler apply
 
 # 3. Skills are now available to compatible agents:
 #    - Claude Code: .claude/skills/my-skill/
-#    - Other MCP agents: .skillz/my-skill/ + Skillz MCP server configured
+#    - Other MCP agents: .skillz/my-skill/ + Skillz MCP server configsured
 ```
 
 ## `.gitignore` Integration
 
-Ruler automatically manages your `.gitignore` file to keep generated agent configuration files out of version control.
+Ruler automatically manages your `.gitignore` file to keep generated agent configsuration files out of version control.
 
 ### How it Works
 
@@ -723,7 +723,7 @@ dist/
 ### Control Options
 
 - **CLI flags**: `--gitignore` or `--no-gitignore`
-- **Configuration**: `[gitignore].enabled` in `ruler.toml`
+- **configsuration**: `[gitignore].enabled` in `ruler.toml`
 - **Default**: enabled
 
 ## Practical Usage Scenarios
@@ -770,7 +770,7 @@ ruler apply --verbose
 ruler apply --no-nested
 ```
 
-This creates context-specific instructions for different parts of your project while maintaining global rules in the root `.ruler/` directory. Nested runs automatically keep every nested config enabled even if a child tries to disable it.
+This creates context-specific instructions for different parts of your project while maintaining global rules in the root `.ruler/` directory. Nested runs automatically keep every nested configs enabled even if a child tries to disable it.
 
 > [!NOTE]
 > The CLI prints "Nested mode is experimental and may change in future releases." the first time nested processing runs. Expect refinements in future versions.
@@ -779,7 +779,7 @@ This creates context-specific instructions for different parts of your project w
 
 1. Create `.ruler/coding_standards.md`, `.ruler/api_usage.md`
 2. Commit the `.ruler` directory to your repository
-3. Team members pull changes and run `ruler apply` to update their local AI agent configurations
+3. Team members pull changes and run `ruler apply` to update their local AI agent configsurations
 
 ### Scenario 4: Project-Specific Context for AI
 
@@ -803,7 +803,7 @@ This creates context-specific instructions for different parts of your project w
 
 ```yaml
 # .github/workflows/ruler-check.yml
-name: Check Ruler Configuration
+name: Check Ruler configsuration
 on:
   pull_request:
     paths: ['.ruler/**']
@@ -821,13 +821,13 @@ jobs:
       - name: Install Ruler
         run: npm install -g @intellectronica/ruler
 
-      - name: Apply Ruler configuration
+      - name: Apply Ruler configsuration
         run: ruler apply --no-gitignore
 
       - name: Check for uncommitted changes
         run: |
           if [[ -n $(git status --porcelain) ]]; then
-            echo "::error::Ruler configuration is out of sync!"
+            echo "::error::Ruler configsuration is out of sync!"
             echo "Please run 'ruler apply' locally and commit the changes."
             exit 1
           fi
@@ -852,10 +852,10 @@ jobs:
 - Verify agent isn't excluded by `--agents` flag
 - Use `--verbose` to see detailed execution logs
 
-**Configuration validation errors:**
+**configsuration validation errors:**
 
 - Ruler now validates `ruler.toml` format and will show specific error details
-- Check that all configuration values match the expected types and formats
+- Check that all configsuration values match the expected types and formats
 
 ### Debug Mode
 
@@ -867,23 +867,23 @@ ruler apply --verbose
 
 This shows:
 
-- Configuration loading details
+- configsuration loading details
 - Agent selection logic
 - File processing information
-- MCP configuration steps
+- MCP configsuration steps
 
 ## FAQ
 
 **Q: Can I use different rules for different agents?**
-A: Currently, all agents receive the same concatenated rules. For agent-specific instructions, include sections in your rule files like "## GitHub Copilot Specific" or "## Aider Configuration".
+A: Currently, all agents receive the same concatenated rules. For agent-specific instructions, include sections in your rule files like "## GitHub Copilot Specific" or "## Aider configsuration".
 
 **Q: How do I set up different instructions for different parts of my project?**
-A: Enable nested mode either by setting `nested = true` in `ruler.toml` or by passing `ruler apply --nested`. The CLI inherits the config setting by default, but `--no-nested` always wins if you need to opt out for a run. Nested mode keeps loading rules (and MCP settings) from every `.ruler/` directory in the hierarchy, forces child configs to remain nested, and logs "Nested mode is experimental and may change in future releases." if any nested processing occurs.
+A: Enable nested mode either by setting `nested = true` in `ruler.toml` or by passing `ruler apply --nested`. The CLI inherits the configs setting by default, but `--no-nested` always wins if you need to opt out for a run. Nested mode keeps loading rules (and MCP settings) from every `.ruler/` directory in the hierarchy, forces child configss to remain nested, and logs "Nested mode is experimental and may change in future releases." if any nested processing occurs.
 
 **Q: How do I temporarily disable Ruler for an agent?**
 A: Set `enabled = false` in `ruler.toml` under `[agents.agentname]`, or use `--agents` flag to specify only the agents you want.
 
-**Q: What happens to my existing agent configuration files?**
+**Q: What happens to my existing agent configsuration files?**
 A: Ruler creates backups with `.bak` extension before overwriting any existing files.
 
 **Q: Can I run Ruler in CI/CD pipelines?**
@@ -895,7 +895,7 @@ A: Simply rename `.ruler/instructions.md` to `.ruler/AGENTS.md` (recommended). I
 **Q: How does OpenHands MCP propagation classify servers?**
 A: Local stdio servers become `stdio_servers`. Remote URLs containing `/sse` are classified as `sse_servers`; others become `shttp_servers`. Bearer tokens in an `Authorization` header are extracted into `api_key` where possible.
 
-**Q: Where is Zed configuration written now?**
+**Q: Where is Zed configsuration written now?**
 A: Ruler writes a `settings.json` in the project root (not the user home dir) and transforms MCP server definitions to Zed's `context_servers` format including `source: "custom"`.
 
 **Q: What changed about MCP initialization?**

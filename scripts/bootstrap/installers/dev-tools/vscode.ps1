@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Configure VS Code for NOA integration.
+    configsure VS Code for NOA integration.
 
 .DESCRIPTION
     Detects VS Code installation and creates CLI wrapper in NOA bin.
@@ -28,7 +28,7 @@ if (-not $NoaRoot) {
 $BIN_DIR = Join-Path $NoaRoot "bin"
 $WRAPPER_PATH = Join-Path $BIN_DIR "code.cmd"
 
-Write-Host "Configuring VS Code integration..." -ForegroundColor Cyan
+Write-Host "configsuring VS Code integration..." -ForegroundColor Cyan
 
 # Check if code command is already available
 $codeCmd = Get-Command code -ErrorAction SilentlyContinue
@@ -41,7 +41,7 @@ if ($codeCmd) {
     }
 
     if (Test-Path $WRAPPER_PATH) {
-        Write-Host "  [EXISTS] VS Code wrapper already configured" -ForegroundColor Gray
+        Write-Host "  [EXISTS] VS Code wrapper already configsured" -ForegroundColor Gray
         return
     }
 

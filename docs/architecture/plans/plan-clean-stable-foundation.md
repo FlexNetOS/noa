@@ -1,15 +1,15 @@
-# Clean Stable Foundation: Config/Schema/Policy Stabilization Plan (Prelaunch)
+# Clean Stable Foundation: configs/Schema/Policy Stabilization Plan (Prelaunch)
 
 ## Goal
-Establish a clean, stable foundation across code quality, metadata, configs, settings, env, kernel, and related assets by creating a queryable, policy-driven asset registry and using it to drive concrete governance and corrections.
+Establish a clean, stable foundation across code quality, metadata, configss, settings, env, kernel, and related assets by creating a queryable, policy-driven asset registry and using it to drive concrete governance and corrections.
 
 ## Scope
-This plan covers **all config-like assets** across the repository, not only `config/`.
+This plan covers **all configs-like assets** across the repository, not only `configs/`.
 
 ## Steps
 
 ### 1) Freeze scope
-- [x] Confirm the asset registry scope includes everything in the comprehensive list (not just `config/`).
+- [x] Confirm the asset registry scope includes everything in the comprehensive list (not just `configs/`).
 - [x] Define success criteria:
   - [x] Queryable inventory exists and is complete
   - [x] Concrete policy exists and maps to registry fields
@@ -20,7 +20,7 @@ This plan covers **all config-like assets** across the repository, not only `con
 ---
 
 ### 2) Normalize the inventory table
-- [x] Extend `docs/plans/config-audit-table.csv` from a list into a **typed asset registry**.
+- [x] Extend `docs/plans/configs-audit-table.csv` from a list into a **typed asset registry**.
 - [x] Standardize list separator conventions (recommend `;` for lists).
 - [x] Add a row-level unique id column if needed (e.g., `asset_id`).
 
@@ -28,7 +28,7 @@ This plan covers **all config-like assets** across the repository, not only `con
 
 ### 3) Add policy-aligned columns (must map to governance)
 Add columns aligned to:
-- CAS hybrid model (`ai/shared/resources/policy/03-CONFIG_CAS.md`)
+- CAS hybrid model (`ai/shared/resources/policy/03-configs_CAS.md`)
 - Wiki/pages/runbook durability (`ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md`)
 - AppData containment (`ai/shared/resources/policy/02-ENV_CONTAINMENT.md`)
 - Kernel independence (`ai/shared/resources/policy/02-ENV_KERNELS.md`)
@@ -36,19 +36,19 @@ Add columns aligned to:
 - ML/model provider best practices (archived)
 
 **Minimum new columns**:
-- [x] `asset_type` (config|schema|policy|template|code_consumer|runtime_state|runtime_data|tooling|generated|binary|doc)
+- [x] `asset_type` (configs|schema|policy|template|code_consumer|runtime_state|runtime_data|tooling|generated|binary|doc)
 - [x] `layer` (immutable|mutable|cas|cache|logs|state|data)
 - [x] `authority` (authoritative|derived|cache|generated|external)
 - [x] `owner` (sys-core|sys-desktop|ai|containers|docs|project-mgmt|tooling)
 - [x] `consumer_status` (none|planned|partial|implemented)
 - [x] `planned_consumer` (module/script path or intended consumer)
 - [x] `consumed_by` (code modules/scripts)
-- [x] `depends_on` (schemas/env/configs)
+- [x] `depends_on` (schemas/env/configss)
 - [x] `produces` (generated outputs)
 - [x] `conflicts_with` (duplicate authorities/legacy sources)
 - [x] `schema_ref` (schema path + `$id`)
 - [x] `schema_status` (exists|missing|outdated|wrong_draft)
-- [x] `merge_key` (if merged into `NoaConfig.raw`)
+- [x] `merge_key` (if merged into `Noaconfigs.raw`)
 - [x] `canonical_pointer` (JSON pointers)
 - [x] `reloadable` (yes/no)
 - [x] `watch_path` (watched file path list)
@@ -75,16 +75,16 @@ Add columns aligned to:
 - [x] Populate the new columns for the rows already in the CSV.
 - [x] Explicitly label external/generated artifacts:
   - [x] Go telemetry files: `asset_type=generated`, `authority=external`, `layer=state`, `validation_mode=none`, `next_actions=exclude from policy`
-  - [x] Next.js app config/telemetry files similarly.
-- [x] Label IDE configs as `tooling` and non-runtime.
+  - [x] Next.js app configs/telemetry files similarly.
+- [x] Label IDE configss as `tooling` and non-runtime.
 
 **Known issues to preserve in the registry** (do not lose these):
 - [x] Merged raw keys vs typed consumption mismatch in `sys/core`:
-  - [x] `database.yaml` merged as `database_config` but typed loader reads `raw["database"]`
+  - [x] `database.yaml` merged as `database_configs` but typed loader reads `raw["database"]`
   - [x] Observability/logging path(s) inconsistent across docs and code
 - [x] Watch list mismatch:
-  - [x] `sys/core/src/config/watch.rs` does not watch all files listed by merge map
-- [x] Invalid placeholder configs:
+  - [x] `sys/core/src/configs/watch.rs` does not watch all files listed by merge map
+- [x] Invalid placeholder configss:
   - [x] `.github/dependabot.yml` has placeholder `package-ecosystem: ""`
 
 ---
@@ -92,16 +92,16 @@ Add columns aligned to:
 ### 5) Complete coverage for remaining listed items (no omissions)
 - [x] Add rows for each of the following groups not fully represented:
   - [x] `sys/core/crates/*/Cargo.toml` (each)
-  - [x] `sys/kernel/**` scripts, profiles, and JSON/YAML configs (beyond `params/current.json`)
+  - [x] `sys/kernel/**` scripts, profiles, and JSON/YAML configss (beyond `params/current.json`)
   - [x] All `ai/shared/resources/*` (resources, registries, schemas, DBs)
   - [x] All `ai/shared/models/*` and `README.md`
   - [x] All `ai/shared/agents/*` and `README.md`
   - [x] `ai/shared/skills/*.json`, `ai/shared/tools/*.json`, `ai/shared/workflows/*.yaml`
-  - [x] `ai/providers/**/config.json` (all providers)
+  - [x] `ai/providers/**/configs.json` (all providers)
   - [x] binaries listed (track but classify as `binary` + likely `tracked_in_git=no`)
 
 **Granularity rule**:
-- [x] Keep one directory summary row AND per-file rows for high-value/authoritative assets (agents/tools/skills/workflows/provider configs)
+- [x] Keep one directory summary row AND per-file rows for high-value/authoritative assets (agents/tools/skills/workflows/provider configss)
 
 ---
 
@@ -109,7 +109,7 @@ Add columns aligned to:
 Draft a single governance doc (or section) that maps policy directly onto table fields.
 
 Non-negotiable rules to encode:
-- [x] From `ai/shared/resources/policy/03-CONFIG_CAS.md`: immutable vs mutable vs CAS vs cache/state/logs/data rules
+- [x] From `ai/shared/resources/policy/03-configs_CAS.md`: immutable vs mutable vs CAS vs cache/state/logs/data rules
 - [x] From `ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md`: doc tiers, runbook verification, "where truth lives" link field
 - [x] From `ai/shared/resources/policy/02-ENV_CONTAINMENT.md`: FR-001 containment requirements + env redirection rules
 - [x] From `ai/shared/resources/policy/02-ENV_KERNELS.md`: kernel mode precedence + platform scope rules
@@ -118,10 +118,10 @@ Non-negotiable rules to encode:
 
 ---
 
-### 7) Define a canonical configuration pipeline (prelaunch-ready)
+### 7) Define a canonical configsuration pipeline (prelaunch-ready)
 Because there are **no current consumers**, define planned consumers explicitly.
 
-- [x] Specify how authoritative configs are loaded and merged (e.g., `ConfigLoader` + merge map)
+- [x] Specify how authoritative configss are loaded and merged (e.g., `configsLoader` + merge map)
 - [x] Specify schema validation approach:
   - [x] choose JSON Schema draft and enforce consistent `$id` usage
   - [x] ensure env-var pattern supports `${VAR}` and `${VAR:-default}`
@@ -135,10 +135,10 @@ Because there are **no current consumers**, define planned consumers explicitly.
 ### 8) Resolve authority conflicts and deprecations first
 Use the registry to identify and resolve duplicates.
 
-- [x] Identify duplicates/overlaps for provider configuration:
-  - [x] `config/ai-providers.json`
-  - [x] `config/providers/default.yaml`
-  - [x] `ai/providers/**/config.json`
+- [x] Identify duplicates/overlaps for provider configsuration:
+  - [x] `configs/ai-providers.json`
+  - [x] `configs/providers/default.yaml`
+  - [x] `ai/providers/**/configs.json`
   - [ ] `sys/core/src/providers/mod.rs` default in-memory providers
 - [ ] Define �one source of truth� for each domain and record it in the registry.
 - [ ] Add deprecation rows and migration steps for legacy sources.
@@ -148,7 +148,7 @@ Use the registry to identify and resolve duplicates.
 ### 9) Update documentation from the registry (prevent drift)
 - [x] Treat CSV registry as the source-of-truth.
 - [x] Regenerate/update these docs from registry:
-  - [x] `config/README.md` quick reference (generated as `config/README.generated.md`)
+  - [x] `configs/README.md` quick reference (generated as `configs/README.generated.md`)
   - [x] policy docs section stating the registry is canonical (�where truth lives�)
 - [ ] Add doc tiering fields and maintain them (Draft/Reviewed/Deprecated).
 
@@ -177,14 +177,14 @@ Output should be a report artifact (CSV diff + failure list).
 - [x] Re-run until registry stabilizes and becomes the single �truth map�.
 
 ## Files
-- `docs/architecture/plans/config-audit-table.csv` (modify) - expand into typed asset registry
-- `ai/shared/resources/policy/03-CONFIG_CAS.md` (reference) - immutable/mutable/CAS model
+- `docs/architecture/plans/configs-audit-table.csv` (modify) - expand into typed asset registry
+- `ai/shared/resources/policy/03-configs_CAS.md` (reference) - immutable/mutable/CAS model
 - `ai/shared/resources/policy/05-DOCS_WIKI-RUNBOOK.md` (reference) - doc durability + runbook standards
 - `ai/shared/resources/policy/02-ENV_CONTAINMENT.md` (reference) - FR-001 containment requirements
 - `ai/shared/resources/policy/02-ENV_KERNELS.md` (reference) - kernel mode governance
 - `ai/shared/resources/policy/02-ENV_CANONICAL-VARS.md` (reference) - env/secrets rules
 - `ai/shared/resources/policy/04-GOVERNANCE_ASSET-REGISTRY.md` (reference) - field-mapped governance policy for the registry
-- `ai/shared/resources/policy/03-CONFIG_SCHEMA-VALIDATION.md` (reference) - schema draft + env substitution contract
-- `scripts/config/find-provider-authority-conflicts.ps1` (new) - provider authority overlap report
-- `scripts/config/generate-config-readme.ps1` (new) - generate quick reference from registry
-- `config/README.generated.md` (generated) - generated registry-based quick reference
+- `ai/shared/resources/policy/03-configs_SCHEMA-VALIDATION.md` (reference) - schema draft + env substitution contract
+- `scripts/configs/find-provider-authority-conflicts.ps1` (new) - provider authority overlap report
+- `scripts/configs/generate-configs-readme.ps1` (new) - generate quick reference from registry
+- `configs/README.generated.md` (generated) - generated registry-based quick reference

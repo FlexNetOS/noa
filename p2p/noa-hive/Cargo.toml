@@ -4,7 +4,7 @@ members = [
     "noa-hive-core",
     "noa-hive-stack",
     "noa-hive-runtime",
-    "noa-hive-config",
+    "noa-hive-configs",
     "noa-hive-sdk",
 ]
 
@@ -61,7 +61,7 @@ tonic = "0.12"
 noa-hive-core = { path = "noa-hive-core" }
 noa-hive-stack = { path = "noa-hive-stack" }
 noa-hive-runtime = { path = "noa-hive-runtime" }
-noa-hive-config = { path = "noa-hive-config" }
+noa-hive-configs = { path = "noa-hive-configs" }
 noa-hive-sdk = { path = "noa-hive-sdk" }
 
 [workspace.lints.rust]

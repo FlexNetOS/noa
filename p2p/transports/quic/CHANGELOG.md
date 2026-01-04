@@ -3,7 +3,7 @@
 - Remove `async-std` support.
   See [PR 5954](https://github.com/libp2p/rust-libp2p/pull/5954)
 
-- Deprecate `Config::support_draft_29`.
+- Deprecate `configs::support_draft_29`.
   See [PR 5786](https://github.com/libp2p/rust-libp2p/pull/5786).
 
 ## 0.12.0
@@ -26,7 +26,7 @@
 - Update `quinn` to 0.11 and `libp2p-tls` to 0.4.0.
   See [PR 5316](https://github.com/libp2p/rust-libp2p/pull/5316)
 
-- Allow configuring MTU discovery upper bound.
+- Allow configsuring MTU discovery upper bound.
   See [PR 5386](https://github.com/libp2p/rust-libp2p/pull/5386).
 
 ## 0.10.2

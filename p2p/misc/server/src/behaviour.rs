@@ -31,16 +31,16 @@ impl Behaviour {
         enable_autonat: bool,
     ) -> Self {
         let kademlia = if enable_kademlia {
-            let mut kademlia_config = kad::Config::new(IPFS_PROTO_NAME);
+            let mut kademlia_configs = kad::configs::new(IPFS_PROTO_NAME);
             // Instantly remove records and provider records.
             //
             // TODO: Replace hack with option to disable both.
-            kademlia_config.set_record_ttl(Some(Duration::from_secs(0)));
-            kademlia_config.set_provider_record_ttl(Some(Duration::from_secs(0)));
-            let mut kademlia = kad::Behaviour::with_config(
+            kademlia_configs.set_record_ttl(Some(Duration::from_secs(0)));
+            kademlia_configs.set_provider_record_ttl(Some(Duration::from_secs(0)));
+            let mut kademlia = kad::Behaviour::with_configs(
                 pub_key.to_peer_id(),
                 kad::store::MemoryStore::new(pub_key.to_peer_id()),
-                kademlia_config,
+                kademlia_configs,
             );
             let bootaddr = Multiaddr::from_str("/dnsaddr/bootstrap.libp2p.io").unwrap();
             for peer in &BOOTNODES {
@@ -65,9 +65,9 @@ impl Behaviour {
 
         Self {
             relay: relay::Behaviour::new(PeerId::from(pub_key.clone()), Default::default()),
-            ping: ping::Behaviour::new(ping::Config::new()),
+            ping: ping::Behaviour::new(ping::configs::new()),
             identify: identify::Behaviour::new(
-                identify::Config::new("ipfs/0.1.0".to_string(), pub_key).with_agent_version(
+                identify::configs::new("ipfs/0.1.0".to_string(), pub_key).with_agent_version(
                     format!("rust-libp2p-server/{}", env!("CARGO_PKG_VERSION")),
                 ),
             ),

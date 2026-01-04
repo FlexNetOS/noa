@@ -18,7 +18,7 @@ To run the example, follow these steps:
 2. The relay node will start listening for incoming connections.
    It will print the listening address once it is ready.
 
-3. Connect other **libp2p** nodes to the relay node by specifying the relay's listening address as one of the bootstrap nodes in their configuration.
+3. Connect other **libp2p** nodes to the relay node by specifying the relay's listening address as one of the bootstrap nodes in their configsuration.
 
 4. Once the connections are established, the relay node will facilitate communication between the connected peers, allowing them to exchange messages and data.
 

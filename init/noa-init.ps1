@@ -33,8 +33,8 @@ $directories = @(
     "init\seeds",
     "init\services",
     "containers",
-    "config\schemas",
-    "config\templates",
+    "configs\schemas",
+    "configs\templates",
     "bin",
     "ai\providers",
     "ai\shared",
@@ -61,6 +61,6 @@ foreach ($dir in $directories) {
 Write-Host "`n✓ Directory structure created" -ForegroundColor Green
 Write-Host "`nNext steps:" -ForegroundColor Cyan
 Write-Host "  1. Run 'noa init' to complete initialization"
-Write-Host "  2. Configure providers in config/ai-providers.json"
+Write-Host "  2. configsure providers in configs/ai-providers.json"
 Write-Host "  3. Run 'noa start' to start services"
 

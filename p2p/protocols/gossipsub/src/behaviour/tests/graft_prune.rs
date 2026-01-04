@@ -31,7 +31,7 @@ use libp2p_swarm::ToSwarm;
 
 use super::{count_control_msgs, disconnect_peer, flush_events, DefaultBehaviourTestBuilder};
 use crate::{
-    config::{Config, ConfigBuilder},
+    configs::{configs, configsBuilder},
     topic::TopicHash,
     types::{PeerInfo, Prune, RpcOut},
     IdentTopic as Topic,
@@ -143,7 +143,7 @@ fn test_handle_prune_peer_in_mesh() {
 
 #[test]
 fn test_connect_to_px_peers_on_handle_prune() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     let (mut gs, peers, _, topics) = DefaultBehaviourTestBuilder::default()
         .peer_no(1)
@@ -154,8 +154,8 @@ fn test_connect_to_px_peers_on_handle_prune() {
     // handle prune from single peer with px peers
 
     let mut px = Vec::new();
-    // propose more px peers than config.prune_peers()
-    for _ in 0..config.prune_peers() + 5 {
+    // propose more px peers than configs.prune_peers()
+    for _ in 0..configs.prune_peers() + 5 {
         px.push(PeerInfo {
             peer_id: Some(PeerId::random()),
         });
@@ -166,7 +166,7 @@ fn test_connect_to_px_peers_on_handle_prune() {
         vec![(
             topics[0].clone(),
             px.clone(),
-            Some(config.prune_backoff().as_secs()),
+            Some(configs.prune_backoff().as_secs()),
         )],
     );
 
@@ -180,13 +180,13 @@ fn test_connect_to_px_peers_on_handle_prune() {
         })
         .collect();
 
-    // Exactly config.prune_peers() many random peers should be dialled
-    assert_eq!(dials.len(), config.prune_peers());
+    // Exactly configs.prune_peers() many random peers should be dialled
+    assert_eq!(dials.len(), configs.prune_peers());
 
     let dials_set: HashSet<_> = dials.into_iter().collect();
 
     // No duplicates
-    assert_eq!(dials_set.len(), config.prune_peers());
+    assert_eq!(dials_set.len(), configs.prune_peers());
 
     // all dial peers must be in px
     assert!(dials_set.is_subset(
@@ -198,11 +198,11 @@ fn test_connect_to_px_peers_on_handle_prune() {
 
 #[test]
 fn test_send_px_and_backoff_in_prune() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     // build mesh with enough peers for px
     let (mut gs, peers, queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.prune_peers() + 1)
+        .peer_no(configs.prune_peers() + 1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
         .create_network();
@@ -226,11 +226,11 @@ fn test_send_px_and_backoff_in_prune() {
                     backoff,
                 }) => {
                     topic_hash == &topics[0] &&
-                    peers.len() == config.prune_peers() &&
+                    peers.len() == configs.prune_peers() &&
                     //all peers are different
                     peers.iter().collect::<HashSet<_>>().len() ==
-                        config.prune_peers() &&
-                    backoff.unwrap() == config.prune_backoff().as_secs()
+                        configs.prune_peers() &&
+                    backoff.unwrap() == configs.prune_backoff().as_secs()
                 }
                 _ => false,
             }
@@ -240,11 +240,11 @@ fn test_send_px_and_backoff_in_prune() {
 
 #[test]
 fn test_prune_backoffed_peer_on_graft() {
-    let config: Config = Config::default();
+    let configs: configs = configs::default();
 
     // build mesh with enough peers for px
     let (mut gs, peers, queues, topics) = DefaultBehaviourTestBuilder::default()
-        .peer_no(config.prune_peers() + 1)
+        .peer_no(configs.prune_peers() + 1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
         .create_network();
@@ -277,7 +277,7 @@ fn test_prune_backoffed_peer_on_graft() {
                     topic_hash == &topics[0] &&
                     //no px in this case
                     peers.is_empty() &&
-                    backoff.unwrap() == config.prune_backoff().as_secs()
+                    backoff.unwrap() == configs.prune_backoff().as_secs()
                 }
                 _ => false,
             }
@@ -287,7 +287,7 @@ fn test_prune_backoffed_peer_on_graft() {
 
 #[test]
 fn test_do_not_graft_within_backoff_period() {
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .backoff_slack(1)
         .heartbeat_interval(Duration::from_millis(100))
         .build()
@@ -297,7 +297,7 @@ fn test_do_not_graft_within_backoff_period() {
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     // handle prune from peer with backoff of one second
@@ -339,7 +339,7 @@ fn test_do_not_graft_within_backoff_period() {
 #[test]
 fn test_do_not_graft_within_default_backoff_period_after_receiving_prune_without_backoff() {
     // set default backoff period to 1 second
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .prune_backoff(Duration::from_millis(90))
         .backoff_slack(1)
         .heartbeat_interval(Duration::from_millis(100))
@@ -350,7 +350,7 @@ fn test_do_not_graft_within_default_backoff_period_after_receiving_prune_without
         .peer_no(1)
         .topics(vec!["test".into()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     // handle prune from peer without a specified backoff
@@ -390,7 +390,7 @@ fn test_do_not_graft_within_default_backoff_period_after_receiving_prune_without
 #[test]
 fn test_unsubscribe_backoff() {
     const HEARTBEAT_INTERVAL: Duration = Duration::from_millis(100);
-    let config = ConfigBuilder::default()
+    let configs = configsBuilder::default()
         .backoff_slack(1)
         // ensure a prune_backoff > unsubscribe_backoff
         .prune_backoff(Duration::from_secs(5))
@@ -405,7 +405,7 @@ fn test_unsubscribe_backoff() {
         .peer_no(1)
         .topics(vec![topic.clone()])
         .to_subscribe(true)
-        .gs_config(config)
+        .gs_configs(configs)
         .create_network();
 
     let _ = gs.unsubscribe(&Topic::new(topic));

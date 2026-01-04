@@ -25,10 +25,10 @@ param(
 )
 
 $NOA_ROOT = if ($env:NOA_ROOT) { $env:NOA_ROOT } else { Split-Path -Parent $PSScriptRoot }
-$NOA_CONFIG = Join-Path $NOA_ROOT "config"
-$NOA_CONFIG_FILE = Join-Path $NOA_CONFIG "noa-server.json"
-$AI_PROVIDERS_CONFIG = Join-Path $NOA_CONFIG "ai-providers.json"
-$DEVICE_CONFIG = Join-Path $NOA_CONFIG "device-orchestration.json"
+$NOA_configs = Join-Path $NOA_ROOT "configs"
+$NOA_configs_FILE = Join-Path $NOA_configs "noa-server.json"
+$AI_PROVIDERS_configs = Join-Path $NOA_configs "ai-providers.json"
+$DEVICE_configs = Join-Path $NOA_configs "device-orchestration.json"
 
 function Show-Usage {
     Write-Host "NOA CLI - P2P Server & AI Management" -ForegroundColor Cyan
@@ -75,7 +75,7 @@ switch ($Command) {
     "status" {
         Write-Host "NOA P2P Server Status" -ForegroundColor Cyan
         Write-Host "  Root: $NOA_ROOT"
-        Write-Host "  Config: $(if (Test-Path $NOA_CONFIG_FILE) { 'Found' } else { 'Not found' })"
+        Write-Host "  configs: $(if (Test-Path $NOA_configs_FILE) { 'Found' } else { 'Not found' })"
         # TODO: Implement full status check
     }
 
@@ -120,22 +120,22 @@ switch ($Command) {
         switch ($SubCommand) {
             "providers" {
                 Write-Host "Available AI Providers:" -ForegroundColor Cyan
-                if (Test-Path $AI_PROVIDERS_CONFIG) {
-                    Get-Content $AI_PROVIDERS_CONFIG | ConvertFrom-Json |
+                if (Test-Path $AI_PROVIDERS_configs) {
+                    Get-Content $AI_PROVIDERS_configs | ConvertFrom-Json |
                         Select-Object -ExpandProperty providers -ErrorAction SilentlyContinue |
                         ForEach-Object { Write-Host "  - $_" }
                 } else {
-                    Write-Host "  Config not found: $AI_PROVIDERS_CONFIG" -ForegroundColor Yellow
+                    Write-Host "  configs not found: $AI_PROVIDERS_configs" -ForegroundColor Yellow
                 }
             }
             "devices" {
                 Write-Host "Registered Devices:" -ForegroundColor Cyan
-                if (Test-Path $DEVICE_CONFIG) {
-                    Get-Content $DEVICE_CONFIG | ConvertFrom-Json |
+                if (Test-Path $DEVICE_configs) {
+                    Get-Content $DEVICE_configs | ConvertFrom-Json |
                         Select-Object -ExpandProperty deviceTypes -ErrorAction SilentlyContinue |
                         ForEach-Object { Write-Host "  - $_" }
                 } else {
-                    Write-Host "  Config not found: $DEVICE_CONFIG" -ForegroundColor Yellow
+                    Write-Host "  configs not found: $DEVICE_configs" -ForegroundColor Yellow
                 }
             }
             "shared" {
@@ -182,10 +182,10 @@ switch ($Command) {
             }
             "capabilities" {
                 Write-Host "Device Capabilities:" -ForegroundColor Cyan
-                if (Test-Path $DEVICE_CONFIG) {
-                    Get-Content $DEVICE_CONFIG -Raw
+                if (Test-Path $DEVICE_configs) {
+                    Get-Content $DEVICE_configs -Raw
                 } else {
-                    Write-Host "  Config not found" -ForegroundColor Yellow
+                    Write-Host "  configs not found" -ForegroundColor Yellow
                 }
             }
             default {
@@ -198,7 +198,7 @@ switch ($Command) {
         Write-Host "NOA Environment" -ForegroundColor Cyan
         Write-Host "  NOA_ROOT: $env:NOA_ROOT"
         Write-Host "  NOA_SCRIPTS: $env:NOA_SCRIPTS"
-        Write-Host "  NOA_CONFIG: $env:NOA_CONFIG"
+        Write-Host "  NOA_configs: $env:NOA_configs"
         Write-Host "  NOA_AI: $env:NOA_AI"
         Write-Host "  NOA_BIN: $env:NOA_BIN"
         Write-Host ""
@@ -216,7 +216,7 @@ switch ($Command) {
         $requiredDirs = @(
             @{ Path = $NOA_ROOT; Name = "NOA_ROOT" },
             @{ Path = (Join-Path $NOA_ROOT "scripts"); Name = "scripts" },
-            @{ Path = (Join-Path $NOA_ROOT "config"); Name = "config" },
+            @{ Path = (Join-Path $NOA_ROOT "configs"); Name = "configs" },
             @{ Path = (Join-Path $NOA_ROOT "ai"); Name = "ai" },
             @{ Path = (Join-Path $NOA_ROOT "bin"); Name = "bin" },
             @{ Path = (Join-Path $NOA_ROOT "sys"); Name = "sys" },

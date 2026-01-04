@@ -14,29 +14,29 @@ use multiaddr::Multiaddr;
 
 use crate::{endpoint::Endpoint, Connection, Error};
 
-/// Config for the [`Transport`].
-pub struct Config {
+/// configs for the [`Transport`].
+pub struct configs {
     keypair: Keypair,
 }
 
 /// A WebTransport [`Transport`](libp2p_core::Transport) that works with `web-sys`.
 pub struct Transport {
-    config: Config,
+    configs: configs,
 }
 
-impl Config {
-    /// Constructs a new configuration for the [`Transport`].
+impl configs {
+    /// Constructs a new configsuration for the [`Transport`].
     pub fn new(keypair: &Keypair) -> Self {
-        Config {
+        configs {
             keypair: keypair.to_owned(),
         }
     }
 }
 
 impl Transport {
-    /// Constructs a new `Transport` with the given [`Config`].
-    pub fn new(config: Config) -> Transport {
-        Transport { config }
+    /// Constructs a new `Transport` with the given [`configs`].
+    pub fn new(configs: configs) -> Transport {
+        Transport { configs }
     }
 
     /// Wraps `Transport` in [`Boxed`] and makes it ready to be consumed by
@@ -83,7 +83,7 @@ impl libp2p_core::Transport for Transport {
         })?;
 
         let mut session = Connection::new(&endpoint).map_err(TransportError::Other)?;
-        let keypair = self.config.keypair.clone();
+        let keypair = self.configs.keypair.clone();
 
         Ok(async move {
             let peer_id = session

@@ -23,7 +23,7 @@ This document maps all Phase 0 requirements to their implementation artifacts an
 | CHK2: bootstrap.sh exists | `scripts/bootstrap/bootstrap.sh` | Manual verification | ✅ |
 | CHK3: Library scripts exist | `scripts/bootstrap/lib/*.ps1`, `*.sh` | Manual verification | ✅ |
 | CHK4: Installer scripts exist | `scripts/bootstrap/installers/**/*.ps1`, `*.sh` | Manual verification | ✅ |
-| CHK5: Config scripts exist | `scripts/bootstrap/config/*.ps1`, `*.sh` | Manual verification | ✅ |
+| CHK5: configs scripts exist | `scripts/bootstrap/configs/*.ps1`, `*.sh` | Manual verification | ✅ |
 | CHK6: Generator scripts exist | `scripts/bootstrap/generators/*.ps1`, `*.sh` | Manual verification | ✅ |
 | CHK7: Verify scripts exist | `scripts/bootstrap/verify/*.ps1`, `*.sh` | Manual verification | ✅ |
 
@@ -60,7 +60,7 @@ This document maps all Phase 0 requirements to their implementation artifacts an
 
 | Requirement | Artifact | Test | Status |
 |-------------|----------|------|--------|
-| CHK108: State file exists | `config/bootstrap-state.json` | Manual verification | ✅ |
+| CHK108: State file exists | `configs/bootstrap-state.json` | Manual verification | ✅ |
 | CHK109: State functions exist | `lib/state.ps1`, `lib/state.sh` | Manual verification | ✅ |
 | CHK110: State tracks tools | `lib/state.ps1` (Set-ToolState, Get-ToolState) | Manual verification | ✅ |
 

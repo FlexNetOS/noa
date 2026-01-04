@@ -1,5 +1,11 @@
 {
   "version": "1.0.0",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "AI provider configuration and priority settings",
+    "layer": "semantic",
+    "updated_at": "2026-01-02T00:00:00Z"
+  },
   "providerPriority": [
     "local",
     "hybrid",

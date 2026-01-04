@@ -27,7 +27,7 @@ use libp2p_swarm::{ConnectionId, NetworkBehaviour};
 
 use super::DefaultBehaviourTestBuilder;
 use crate::{
-    config::Config,
+    configs::configs,
     handler::HandlerEvent,
     transform::DataTransform,
     types::{ControlAction, IDontWant, MessageId, PeerKind, RawMessage, RpcIn, RpcOut},
@@ -41,7 +41,7 @@ fn sends_idontwant() {
         .peer_no(5)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_2)
         .create_network();
@@ -81,7 +81,7 @@ fn doesnt_sends_idontwant_for_lower_message_size() {
         .peer_no(5)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_2)
         .create_network();
@@ -124,7 +124,7 @@ fn doesnt_send_idontwant() {
         .peer_no(5)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_1)
         .create_network();
@@ -166,7 +166,7 @@ fn doesnt_forward_idontwant() {
         .peer_no(4)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_2)
         .create_network();
@@ -186,7 +186,7 @@ fn doesnt_forward_idontwant() {
         .data_transform
         .inbound_transform(raw_message.clone())
         .unwrap();
-    let message_id = gs.config.message_id(&message);
+    let message_id = gs.configs.message_id(&message);
     let peer = gs.connected_peers.get_mut(&peers[2]).unwrap();
     peer.dont_send.insert(message_id, Instant::now());
 
@@ -216,7 +216,7 @@ fn parses_idontwant() {
         .peer_no(2)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_2)
         .create_network();
@@ -250,7 +250,7 @@ fn clear_stale_idontwant() {
         .peer_no(4)
         .topics(vec![String::from("topic1")])
         .to_subscribe(true)
-        .gs_config(Config::default())
+        .gs_configs(configs::default())
         .explicit(1)
         .peer_kind(PeerKind::Gossipsubv1_2)
         .create_network();

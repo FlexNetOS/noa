@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Updates an existing NOA installation to use the new unified bootstrap system.
-    Preserves existing data while updating scripts and configuration.
+    Preserves existing data while updating scripts and configsuration.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -73,8 +73,8 @@ if ($BackupFirst -and -not $DryRun) {
     $filesToBackup = @(
         ".noa",
         "noa-env.ps1",
-        "config/ai-providers.json",
-        "config/bootstrap-state.json"
+        "configs/ai-providers.json",
+        "configs/bootstrap-state.json"
     )
 
     foreach ($file in $filesToBackup) {
@@ -136,25 +136,25 @@ foreach ($dir in $newDirs) {
     }
 }
 
-# 2. Update configuration files
+# 2. Update configsuration files
 Write-Host ""
-Write-Host "2. Updating configuration files..." -ForegroundColor Yellow
+Write-Host "2. Updating configsuration files..." -ForegroundColor Yellow
 
-$configUpdates = @{
-    "config/shared-resources.json" = $true
+$configsUpdates = @{
+    "configs/shared-resources.json" = $true
     "ai/shared/resources/resource-registry.json" = $true
 }
 
-foreach ($config in $configUpdates.Keys) {
-    $configPath = Join-Path $NoaRoot $config
-    if (-not (Test-Path $configPath)) {
+foreach ($configs in $configsUpdates.Keys) {
+    $configsPath = Join-Path $NoaRoot $configs
+    if (-not (Test-Path $configsPath)) {
         if ($DryRun) {
-            Write-Host "  [DRY] Would create: $config" -ForegroundColor Gray
+            Write-Host "  [DRY] Would create: $configs" -ForegroundColor Gray
         } else {
-            Write-Host "  [INFO] Missing: $config (run bootstrap to create)" -ForegroundColor Yellow
+            Write-Host "  [INFO] Missing: $configs (run bootstrap to create)" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "  [OK] Exists: $config" -ForegroundColor Green
+        Write-Host "  [OK] Exists: $configs" -ForegroundColor Green
     }
 }
 

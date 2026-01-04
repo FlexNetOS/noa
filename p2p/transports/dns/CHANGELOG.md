@@ -35,7 +35,7 @@
 
 ## 0.40.1
 
-- Remove `Dns` prefix from types like `TokioDnsConfig` and `DnsConfig` in favor of modules that describe the different variants.
+- Remove `Dns` prefix from types like `TokioDnsconfigs` and `Dnsconfigs` in favor of modules that describe the different variants.
   Users are encouraged to import the `libp2p::dns` module and refer to types as `dns::tokio::Transport` and `dns::async_std::Transport`.
   See [PR 4505].
 
@@ -84,7 +84,7 @@
 
 - Update to `libp2p-core` `v0.33.0`.
 
-- Remove implementation of `Clone` on `GenDnsConfig`. See [PR 2682].
+- Remove implementation of `Clone` on `GenDnsconfigs`. See [PR 2682].
 
 [PR 2682]: https://github.com/libp2p/rust-libp2p/pull/2682
 
@@ -132,8 +132,8 @@
 - Add support for resolving `/dnsaddr` addresses.
 
 - Use `trust-dns-resolver`, removing the internal thread pool and
-  expanding the configurability of `libp2p-dns` by largely exposing the
-  configuration of `trust-dns-resolver`.
+  expanding the configsurability of `libp2p-dns` by largely exposing the
+  configsuration of `trust-dns-resolver`.
   [PR 1927](https://github.com/libp2p/rust-libp2p/pull/1927)
 
 ## 0.27.0 [2021-01-12]

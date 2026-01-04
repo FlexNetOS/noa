@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Verify shared AI resources are properly configured.
+    Verify shared AI resources are properly configsured.
 
 .DESCRIPTION
-    Checks that all shared resource directories exist and contain valid configurations.
-    Validates resource registry and provider configs reference shared paths.
+    Checks that all shared resource directories exist and contain valid configsurations.
+    Validates resource registry and provider configss reference shared paths.
 
 .PARAMETER NoaRoot
     NOA root directory (default: auto-detect)
@@ -145,10 +145,10 @@ foreach ($file in $expectedFiles) {
     }
 }
 
-# Check provider configs reference shared resources
+# Check provider configss reference shared resources
 if (-not $Json) {
     Write-Host ""
-    Write-Host "Checking provider configurations..." -ForegroundColor Yellow
+    Write-Host "Checking provider configsurations..." -ForegroundColor Yellow
 }
 
 $providerDirs = @("local", "cloud", "hybrid", "ide")
@@ -157,11 +157,11 @@ $PROVIDERS_DIR = Join-Path $NoaRoot "ai/providers"
 foreach ($providerType in $providerDirs) {
     $typeDir = Join-Path $PROVIDERS_DIR $providerType
     if (Test-Path $typeDir) {
-        $configs = Get-ChildItem -Path $typeDir -Filter "config.json" -Recurse -ErrorAction SilentlyContinue
-        foreach ($config in $configs) {
+        $configss = Get-ChildItem -Path $typeDir -Filter "configs.json" -Recurse -ErrorAction SilentlyContinue
+        foreach ($configs in $configss) {
             try {
-                $content = Get-Content $config.FullName -Raw | ConvertFrom-Json
-                $providerName = Split-Path -Parent $config.FullName | Split-Path -Leaf
+                $content = Get-Content $configs.FullName -Raw | ConvertFrom-Json
+                $providerName = Split-Path -Parent $configs.FullName | Split-Path -Leaf
 
                 $usesShared = $false
                 if ($content.sharedResourcePath -or $content.sharedResources) {
@@ -172,7 +172,7 @@ foreach ($providerType in $providerDirs) {
                     name = $providerName
                     type = $providerType
                     uses_shared = $usesShared
-                    config_path = $config.FullName
+                    configs_path = $configs.FullName
                 }
 
                 if (-not $Json) {
@@ -185,7 +185,7 @@ foreach ($providerType in $providerDirs) {
                 }
             } catch {
                 if (-not $Json) {
-                    Write-Host "  [WARN] Could not parse: $($config.FullName)" -ForegroundColor Yellow
+                    Write-Host "  [WARN] Could not parse: $($configs.FullName)" -ForegroundColor Yellow
                 }
             }
         }
@@ -206,7 +206,7 @@ if (-not $Json) {
         Write-Host "Some required resources are missing. Run:" -ForegroundColor Red
         Write-Host "  .\scripts\bootstrap\installers\shared-resources\create-directories.ps1" -ForegroundColor Yellow
     } else {
-        Write-Host "All required shared resources are configured." -ForegroundColor Green
+        Write-Host "All required shared resources are configsured." -ForegroundColor Green
     }
 }
 

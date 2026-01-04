@@ -92,7 +92,7 @@ if ($dbeaverExe) {
 1. Open DBeaver
 2. File → Import → DBeaver Project
 3. Select this directory
-4. Configure credentials from environment
+4. configsure credentials from environment
 "@
 
         $docContent | Set-Content -Path $connectionDoc -Encoding UTF8

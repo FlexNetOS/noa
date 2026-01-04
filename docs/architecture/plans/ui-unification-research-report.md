@@ -144,7 +144,7 @@ POST /api/v1/chat         - Chat endpoint
 
 ## 4. AI Provider Integration Points
 
-### Configuration (config/ai-providers.json)
+### configsuration (configs/ai-providers.json)
 
 ```json
 {
@@ -164,7 +164,7 @@ POST /api/v1/chat         - Chat endpoint
 // ai-provider.ts - Provider interface
 interface AIProvider {
   getName(): string;
-  streamChat(messages, config): Promise<StreamingResponse>;
+  streamChat(messages, configs): Promise<StreamingResponse>;
   generateWidget(prompt): Promise<WidgetGeneration>;
 }
 ```
@@ -178,7 +178,7 @@ let ai = ConversationalAI::new(AIProvider::Local {
 });
 ```
 
-### Shared Resources (config/shared-resources.json)
+### Shared Resources (configs/shared-resources.json)
 
 ```
 ${NOA_ROOT}/ai/shared/
@@ -228,7 +228,7 @@ noa-ui-protocol    - Backend communication
 
 ### Detailed Fragmentation Map
 
-#### 1. Tailwind Configuration Inconsistencies
+#### 1. Tailwind configsuration Inconsistencies
 
 | Location | Version | Color System |
 |----------|---------|--------------|
@@ -284,8 +284,8 @@ noa/
 ├── gateway/mcp/                  # API Gateway (MCP)
 │   └── ui-bridge/               # Push events to UI
 │
-├── config/                       # Centralized config
-│   ├── ai-providers.json        # Provider configuration
+├── configs/                       # Centralized configs
+│   ├── ai-providers.json        # Provider configsuration
 │   └── schemas/                 # JSON schemas
 │
 └── ai/shared/                    # Shared AI resources
@@ -301,7 +301,7 @@ noa/
 ### Phase 1: Immediate Actions
 
 1. **Deprecate ml_devops_platform/nextjs_space/** - It duplicates sys/ui/apps/ml-devops/
-2. **Consolidate design tokens** - Create unified token system in config/schemas/design-tokens.json
+2. **Consolidate design tokens** - Create unified token system in configs/schemas/design-tokens.json
 3. **Extract shared components** - Move shadcn/ui components from ml-devops to shared location
 
 ### Phase 2: Short-term (1-2 weeks)
@@ -338,7 +338,7 @@ noa/
 ## 10. Next Steps
 
 1. **Create UI unification spec** at `specs/xxx-ui-unification/spec.md`
-2. **Define design token schema** at `config/schemas/design-tokens.json`
+2. **Define design token schema** at `configs/schemas/design-tokens.json`
 3. **Create migration tasks** at `specs/xxx-ui-unification/tasks.md`
 4. **Update AGENTS.md** with unified UI guidance
 
@@ -359,9 +359,9 @@ noa/
 1. `ui/rust-lovable/rust-lovable/Cargo.toml` - rust-lovable
 2. `ui/app/Cargo.toml` - noa-ui workspace
 
-### Tailwind Config Files
+### Tailwind configs Files
 
-1. `sys/ui/tailwind.config.ts`
-2. `sys/ui/apps/ml-devops/tailwind.config.ts`
-3. `ml_devops_platform/nextjs_space/tailwind.config.ts`
-4. `pkg/sys/ui/tailwind.config.ts`
+1. `sys/ui/tailwind.configs.ts`
+2. `sys/ui/apps/ml-devops/tailwind.configs.ts`
+3. `ml_devops_platform/nextjs_space/tailwind.configs.ts`
+4. `pkg/sys/ui/tailwind.configs.ts`

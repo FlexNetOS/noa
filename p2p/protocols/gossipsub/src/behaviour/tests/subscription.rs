@@ -233,7 +233,7 @@ fn test_join() {
             &address,
         )
         .unwrap();
-        let queue = Queue::new(gs.config.connection_handler_queue_len());
+        let queue = Queue::new(gs.configs.connection_handler_queue_len());
         let receiver_queue = queue.clone();
         let connection_id = ConnectionId::new_unchecked(0);
         gs.connected_peers.insert(

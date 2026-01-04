@@ -17,14 +17,14 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$SC
 # Paths
 NOA_BIN="$NOA_ROOT/bin"
 VSCODE_ROOT="$NOA_ROOT/opt/dev-tools/vscode"
-PROVIDER_CONFIG="$NOA_ROOT/ai/providers/ide/vscode-copilot/config.json"
+PROVIDER_configs="$NOA_ROOT/ai/providers/ide/vscode-copilot/configs.json"
 FORCE="${1:-}"
 
 log_section "NOA VS Code with Copilot Setup"
 echo "NOA_ROOT: $NOA_ROOT"
 echo ""
 
-mkdir -p "$NOA_BIN" "$VSCODE_ROOT" "$(dirname "$PROVIDER_CONFIG")"
+mkdir -p "$NOA_BIN" "$VSCODE_ROOT" "$(dirname "$PROVIDER_configs")"
 
 # Determine platform
 os=$(get_os 2>/dev/null || echo "linux")
@@ -116,9 +116,9 @@ else
     echo "  3. Re-run this script"
 fi
 
-# Ensure provider config exists
-if [[ ! -f "$PROVIDER_CONFIG" ]]; then
-    cat > "$PROVIDER_CONFIG" <<'EOF'
+# Ensure provider configs exists
+if [[ ! -f "$PROVIDER_configs" ]]; then
+    cat > "$PROVIDER_configs" <<'EOF'
 {
   "name": "vscode-copilot",
   "type": "ide",
@@ -145,7 +145,7 @@ if [[ ! -f "$PROVIDER_CONFIG" ]]; then
   "sharedResourcePath": "${NOA_ROOT}/ai/shared"
 }
 EOF
-    log_success "Created provider config: $PROVIDER_CONFIG"
+    log_success "Created provider configs: $PROVIDER_configs"
 fi
 
 echo ""

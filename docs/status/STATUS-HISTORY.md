@@ -139,7 +139,7 @@ noa workflow deploy --env staging  # Deployment workflow
 
 All hardcoded `/home/noa` paths have been replaced with `${HOME}` for user-agnostic deployment.
 
-**Files Updated**: 40+ files across configs, scripts, and documentation
+**Files Updated**: 40+ files across configss, scripts, and documentation
 
 ---
 

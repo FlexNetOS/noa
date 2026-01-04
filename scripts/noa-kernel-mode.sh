@@ -25,11 +25,11 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 
-CONFIG_PATH="$NOA_ROOT/config/kernel-mode.json"
+configs_PATH="$NOA_ROOT/configs/kernel-mode.json"
 
 get_current_mode() {
-    if [[ -f "$CONFIG_PATH" ]]; then
-        jq -r '.mode // "native"' "$CONFIG_PATH" 2>/dev/null || echo "native"
+    if [[ -f "$configs_PATH" ]]; then
+        jq -r '.mode // "native"' "$configs_PATH" 2>/dev/null || echo "native"
     else
         echo "native"
     fi
@@ -135,10 +135,10 @@ set_kernel_mode() {
         exit 1
     fi
 
-    # Save configuration
-    mkdir -p "$(dirname "$CONFIG_PATH")"
+    # Save configsuration
+    mkdir -p "$(dirname "$configs_PATH")"
 
-    cat > "$CONFIG_PATH" << EOF
+    cat > "$configs_PATH" << EOF
 {
   "mode": "$new_mode",
   "setAt": "$(date -Iseconds)",

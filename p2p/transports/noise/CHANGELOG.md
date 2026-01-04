@@ -33,7 +33,7 @@
 
 - Remove deprecated APIs. See [PR 3511].
 
-- Add `Config::with_webtransport_certhashes`. See [PR 3991].
+- Add `configs::with_webtransport_certhashes`. See [PR 3991].
   This can be used by WebTransport implementers to send (responder) or verify (initiator) certhashes.
 
 [PR 3511]: https://github.com/libp2p/rust-libp2p/pull/3511
@@ -43,7 +43,7 @@
 ## 0.42.2
 
 - Deprecate all noise handshakes apart from XX.
-  This deprecates `NoiseConfig` and `NoiseAuthenticated` in favor of a new `libp2p_noise::Config` struct.
+  This deprecates `Noiseconfigs` and `NoiseAuthenticated` in favor of a new `libp2p_noise::configs` struct.
   In addition, we deprecate all types with a `Noise` prefix.
   Users are encouraged to import the `noise` module and refer to types as `noise::Error` etc.
   See [PR 3768].
@@ -62,7 +62,7 @@
 
 - Deprecate non-compliant noise implementation. We intend to remove it in a future release without replacement. See [PR 3227].
 
-- Deprecate `LegacyConfig` without replacement. See [PR 3265].
+- Deprecate `Legacyconfigs` without replacement. See [PR 3265].
 
 [PR 3227]: https://github.com/libp2p/rust-libp2p/pull/3227
 [PR 3265]: https://github.com/libp2p/rust-libp2p/pull/3265
@@ -87,7 +87,7 @@
 
 - Introduce `NoiseAuthenticated::xx` constructor, assuming a X25519 DH key exchange. An XX key exchange and X25519 keys
   are the most common way of using noise in libp2p and thus deserve a convenience constructor. See [PR 2887].
-- Add `NoiseConfig::with_prologue` which allows users to set the noise prologue of the handshake. See [PR 2903].
+- Add `Noiseconfigs::with_prologue` which allows users to set the noise prologue of the handshake. See [PR 2903].
 - Remove `Deref` implementation on `AuthenticKeypair`. See [PR 2909].
 - Make `handshake` module private. See [PR 2909].
 - Deprecate `AuthenticKeypair::into_identity`. See [PR 2909].
@@ -180,7 +180,7 @@
 
 - Remove fallback legacy handshake payload decoding by default.
 To continue supporting inbound legacy handshake payloads,
-`recv_legacy_handshake` must be configured on the `LegacyConfig`.
+`recv_legacy_handshake` must be configsured on the `Legacyconfigs`.
 
 ## 0.23.0 [2020-08-18]
 
@@ -190,15 +190,15 @@ To continue supporting inbound legacy handshake payloads,
 
 **NOTE**: For a smooth upgrade path from `0.20` to `> 0.21`
 on an existing deployment, this version must not be skipped
-or the provided `LegacyConfig` used!
+or the provided `Legacyconfigs` used!
 
 - Stop sending length-prefixed protobuf frames in handshake
 payloads by default. See [issue 1631](https://github.com/libp2p/rust-libp2p/issues/1631).
-The new `LegacyConfig` is provided to optionally
-configure sending the legacy handshake. Note: This release
+The new `Legacyconfigs` is provided to optionally
+configsure sending the legacy handshake. Note: This release
 always supports receiving legacy handshake payloads. A future
 release will also move receiving legacy handshake payloads
-into a `LegacyConfig` option. However, all legacy configuration
+into a `Legacyconfigs` option. However, all legacy configsuration
 options will eventually be removed, so this is primarily to allow
 delaying the handshake upgrade or keeping compatibility with a network
 whose peers are slow to upgrade, without having to freeze the

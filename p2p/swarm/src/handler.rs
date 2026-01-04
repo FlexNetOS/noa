@@ -57,7 +57,7 @@ use std::{
 use libp2p_core::Multiaddr;
 pub use map_in::MapInEvent;
 pub use map_out::MapOutEvent;
-pub use one_shot::{OneShotHandler, OneShotHandlerConfig};
+pub use one_shot::{OneShotHandler, OneShotHandlerconfigs};
 pub use pending::PendingConnectionHandler;
 pub use select::ConnectionHandlerSelect;
 use smallvec::SmallVec;
@@ -518,7 +518,7 @@ pub struct ListenUpgradeError<IOI, IP: InboundUpgradeSend> {
     pub error: IP::Error,
 }
 
-/// Configuration of inbound or outbound substream protocol(s)
+/// configsuration of inbound or outbound substream protocol(s)
 /// for a [`ConnectionHandler`].
 ///
 /// The inbound substream protocol(s) are defined by [`ConnectionHandler::listen_protocol`]
@@ -588,7 +588,7 @@ impl<TUpgrade, TInfo> SubstreamProtocol<TUpgrade, TInfo> {
         &self.timeout
     }
 
-    /// Converts the substream protocol configuration into the contained upgrade.
+    /// Converts the substream protocol configsuration into the contained upgrade.
     pub fn into_upgrade(self) -> (TUpgrade, TInfo) {
         (self.upgrade, self.info)
     }

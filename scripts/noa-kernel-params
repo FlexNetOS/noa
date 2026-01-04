@@ -19,7 +19,7 @@ NOA_ROOT="${NOA_ROOT:-$(dirname "$SCRIPT_DIR")}"
 NOA_KERNEL="$NOA_ROOT/sys/kernel"
 PARAMS_DIR="$NOA_KERNEL/params"
 PARAMS_FILE="$PARAMS_DIR/current.json"
-POLICY_FILE="$NOA_ROOT/config/kernel-selection-policy.json"
+POLICY_FILE="$NOA_ROOT/configs/kernel-selection-policy.json"
 
 # Ensure directories exist
 mkdir -p "$PARAMS_DIR"
@@ -183,7 +183,7 @@ apply_linux_param() {
             ;;
         p2p_firewall)
             if [[ "$value" == "1" ]]; then
-                echo "  Configuring P2P firewall rules..."
+                echo "  configsuring P2P firewall rules..."
                 # UFW rules for NOA P2P
                 if command_exists ufw; then
                     sudo ufw allow 4001/tcp &>/dev/null || true
@@ -250,7 +250,7 @@ case "${1:-}" in
         echo -e "${YELLOW}Available parameters:${NC}"
         echo "  ip_forward      - Enable IPv4 forwarding (0/1)"
         echo "  ipv6_forward    - Enable IPv6 forwarding (0/1)"
-        echo "  p2p_firewall    - Configure P2P firewall rules (0/1)"
+        echo "  p2p_firewall    - configsure P2P firewall rules (0/1)"
         echo "  kernel_mode     - Kernel isolation mode (native/vm/container/sandbox)"
         ;;
 
