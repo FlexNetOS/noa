@@ -30,7 +30,7 @@ impl Pipeline {
                     name: "Data Ingestion".to_string(),
                     stage_type: StageType::DataIngestion,
                     dependencies: vec![],
-                    config: HashMap::new(),
+                    configs: HashMap::new(),
                     retry_policy: RetryPolicy {
                         max_attempts: 3,
                         backoff_strategy: "exponential".to_string(),
@@ -42,7 +42,7 @@ impl Pipeline {
                     name: "Data Preprocessing".to_string(),
                     stage_type: StageType::DataPreprocessing,
                     dependencies: vec!["data_ingestion".to_string()],
-                    config: HashMap::new(),
+                    configs: HashMap::new(),
                     retry_policy: RetryPolicy {
                         max_attempts: 3,
                         backoff_strategy: "exponential".to_string(),
@@ -54,7 +54,7 @@ impl Pipeline {
                     name: "Model Training".to_string(),
                     stage_type: StageType::ModelTraining,
                     dependencies: vec!["preprocessing".to_string()],
-                    config: HashMap::new(),
+                    configs: HashMap::new(),
                     retry_policy: RetryPolicy {
                         max_attempts: 3,
                         backoff_strategy: "exponential".to_string(),
@@ -66,7 +66,7 @@ impl Pipeline {
                     name: "Model Validation".to_string(),
                     stage_type: StageType::ModelValidation,
                     dependencies: vec!["training".to_string()],
-                    config: HashMap::new(),
+                    configs: HashMap::new(),
                     retry_policy: RetryPolicy {
                         max_attempts: 3,
                         backoff_strategy: "exponential".to_string(),
@@ -93,7 +93,7 @@ pub struct PipelineStage {
     pub name: String,
     pub stage_type: StageType,
     pub dependencies: Vec<String>,
-    pub config: HashMap<String, serde_json::Value>,
+    pub configs: HashMap<String, serde_json::Value>,
     pub retry_policy: RetryPolicy,
 }
 

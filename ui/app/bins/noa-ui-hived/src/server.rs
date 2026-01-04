@@ -16,24 +16,24 @@ use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing::{info, warn};
 
-use crate::config::DaemonConfig;
+use crate::configs::Daemonconfigs;
 use crate::sandbox::SandboxManager;
 use crate::state::{AgentStatus, StateManager};
 
 /// Shared application state.
 struct AppState {
-    config: DaemonConfig,
+    configs: Daemonconfigs,
     state_manager: StateManager,
     sandbox_manager: SandboxManager,
     shutdown_tx: broadcast::Sender<()>,
 }
 
 /// Run the daemon server.
-pub async fn run(config: DaemonConfig, state_manager: StateManager) -> Result<()> {
+pub async fn run(configs: Daemonconfigs, state_manager: StateManager) -> Result<()> {
     let (shutdown_tx, mut shutdown_rx) = broadcast::channel::<()>(1);
     
     let app_state = Arc::new(AppState {
-        config: config.clone(),
+        configs: configs.clone(),
         state_manager,
         sandbox_manager: SandboxManager::new(),
         shutdown_tx,
@@ -72,7 +72,7 @@ pub async fn run(config: DaemonConfig, state_manager: StateManager) -> Result<()
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
         .with_state(app_state.clone());
     
-    let addr = SocketAddr::from(([127, 0, 0, 1], config.port));
+    let addr = SocketAddr::from(([127, 0, 0, 1], configs.port));
     info!("Starting noa-hived server on {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr).await?;
@@ -121,7 +121,7 @@ async fn status(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     
     Json(StatusResponse {
         running: true,
-        port: state.config.port,
+        port: state.configs.port,
         peers: daemon_state.peers.len(),
         agents: daemon_state.agents.len(),
         state_version: daemon_state.version,

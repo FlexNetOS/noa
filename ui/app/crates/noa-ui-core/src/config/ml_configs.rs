@@ -1,22 +1,22 @@
-//! ML configuration
+//! ML configsuration
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// ML configuration
+/// ML configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MLConfig {
+pub struct MLconfigs {
     pub enabled: bool,
-    pub experiment_tracking: ExperimentTrackingConfig,
-    pub model_registry: ModelRegistryConfig,
-    pub pipeline: PipelineConfig,
-    pub feature_store: FeatureStoreConfig,
-    pub monitoring: MLMonitoringConfig,
+    pub experiment_tracking: ExperimentTrackingconfigs,
+    pub model_registry: ModelRegistryconfigs,
+    pub pipeline: Pipelineconfigs,
+    pub feature_store: FeatureStoreconfigs,
+    pub monitoring: MLMonitoringconfigs,
 }
 
-/// Experiment tracking configuration
+/// Experiment tracking configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExperimentTrackingConfig {
+pub struct ExperimentTrackingconfigs {
     pub enabled: bool,
     pub backend: String,
     pub auto_log_metrics: bool,
@@ -24,18 +24,18 @@ pub struct ExperimentTrackingConfig {
     pub retention_days: u32,
 }
 
-/// Model registry configuration
+/// Model registry configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModelRegistryConfig {
+pub struct ModelRegistryconfigs {
     pub enabled: bool,
     pub storage_path: String,
     pub versioning_enabled: bool,
     pub max_versions: u32,
 }
 
-/// Pipeline configuration
+/// Pipeline configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PipelineConfig {
+pub struct Pipelineconfigs {
     pub enabled: bool,
     pub max_concurrent_runs: u32,
     pub default_timeout_minutes: u32,
@@ -50,38 +50,38 @@ pub struct RetryPolicy {
     pub initial_delay_ms: u64,
 }
 
-/// Feature store configuration
+/// Feature store configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FeatureStoreConfig {
+pub struct FeatureStoreconfigs {
     pub enabled: bool,
     pub backend: String,
     pub cache_enabled: bool,
     pub ttl_seconds: u64,
 }
 
-/// ML monitoring configuration
+/// ML monitoring configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MLMonitoringConfig {
+pub struct MLMonitoringconfigs {
     pub enabled: bool,
     pub drift_detection: bool,
     pub performance_tracking: bool,
     pub alert_thresholds: HashMap<String, f64>,
 }
 
-impl Default for MLConfig {
+impl Default for MLconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
-            experiment_tracking: ExperimentTrackingConfig::default(),
-            model_registry: ModelRegistryConfig::default(),
-            pipeline: PipelineConfig::default(),
-            feature_store: FeatureStoreConfig::default(),
-            monitoring: MLMonitoringConfig::default(),
+            experiment_tracking: ExperimentTrackingconfigs::default(),
+            model_registry: ModelRegistryconfigs::default(),
+            pipeline: Pipelineconfigs::default(),
+            feature_store: FeatureStoreconfigs::default(),
+            monitoring: MLMonitoringconfigs::default(),
         }
     }
 }
 
-impl Default for ExperimentTrackingConfig {
+impl Default for ExperimentTrackingconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -93,7 +93,7 @@ impl Default for ExperimentTrackingConfig {
     }
 }
 
-impl Default for ModelRegistryConfig {
+impl Default for ModelRegistryconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -104,7 +104,7 @@ impl Default for ModelRegistryConfig {
     }
 }
 
-impl Default for PipelineConfig {
+impl Default for Pipelineconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -125,7 +125,7 @@ impl Default for RetryPolicy {
     }
 }
 
-impl Default for FeatureStoreConfig {
+impl Default for FeatureStoreconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -136,7 +136,7 @@ impl Default for FeatureStoreConfig {
     }
 }
 
-impl Default for MLMonitoringConfig {
+impl Default for MLMonitoringconfigs {
     fn default() -> Self {
         let mut thresholds = HashMap::new();
         thresholds.insert("accuracy_drop".to_string(), 0.05);

@@ -44,11 +44,11 @@ pub enum UIFramework {
 pub struct BuildTarget {
     pub platform: PlatformTarget,
     pub output_path: PathBuf,
-    pub configuration: BuildConfiguration,
+    pub configsuration: Buildconfigsuration,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BuildConfiguration {
+pub struct Buildconfigsuration {
     pub minify: bool,
     pub source_map: bool,
     pub optimization_level: String,

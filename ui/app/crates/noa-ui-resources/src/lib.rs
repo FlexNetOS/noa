@@ -30,7 +30,7 @@ pub use prompt_cache::{
 };
 pub use resource_sharing::{
     Permission, ResourceContent, ResourceMetadata, ResourceSharingManager,
-    ResourceType, SharedResource, SharingConfig, SyncState, SyncStatus,
+    ResourceType, SharedResource, Sharingconfigs, SyncState, SyncStatus,
     Visibility, AccessLogEntry,
 };
 pub use skill_registry::{

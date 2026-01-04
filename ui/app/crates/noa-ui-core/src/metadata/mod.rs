@@ -45,7 +45,7 @@ pub enum EntityType {
     Dataset,
     Experiment,
     Pipeline,
-    Configuration,
+    configsuration,
     Log,
     Metric,
     Artifact,

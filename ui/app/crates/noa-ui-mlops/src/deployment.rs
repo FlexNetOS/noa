@@ -58,7 +58,7 @@ pub struct ResourceRequirements {
     pub storage_gb: f64,
 }
 
-/// Health check configuration
+/// Health check configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthCheck {
     pub check_type: String,

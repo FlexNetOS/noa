@@ -137,9 +137,9 @@ impl Default for CompressionManager {
     }
 }
 
-/// Configuration for compression settings
+/// configsuration for compression settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CompressionConfig {
+pub struct Compressionconfigs {
     pub enabled: bool,
     pub default_algorithm: Algorithm,
     pub compression_threshold: usize,
@@ -147,7 +147,7 @@ pub struct CompressionConfig {
     pub max_cache_size: usize,
 }
 
-impl Default for CompressionConfig {
+impl Default for Compressionconfigs {
     fn default() -> Self {
         Self {
             enabled: true,

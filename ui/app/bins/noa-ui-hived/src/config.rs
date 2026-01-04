@@ -1,30 +1,30 @@
-//! Daemon configuration.
+//! Daemon configsuration.
 
 use anyhow::Result;
 use std::path::PathBuf;
 
-/// Daemon configuration.
+/// Daemon configsuration.
 #[derive(Debug, Clone)]
-pub struct DaemonConfig {
+pub struct Daemonconfigs {
     /// HTTP/gRPC port.
     pub port: u16,
     
     /// Data directory for state storage.
     pub data_dir: PathBuf,
     
-    /// P2P configuration.
+    /// P2P configsuration.
     #[allow(dead_code)]
-    pub p2p: P2pConfig,
+    pub p2p: P2pconfigs,
     
-    /// State sync configuration.
+    /// State sync configsuration.
     #[allow(dead_code)]
-    pub state: StateConfig,
+    pub state: Stateconfigs,
 }
 
-/// P2P network configuration.
+/// P2P network configsuration.
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
-pub struct P2pConfig {
+pub struct P2pconfigs {
     /// Enable P2P networking.
     pub enabled: bool,
     
@@ -38,10 +38,10 @@ pub struct P2pConfig {
     pub mdns: bool,
 }
 
-/// State synchronization configuration.
+/// State synchronization configsuration.
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
-pub struct StateConfig {
+pub struct Stateconfigs {
     /// Enable state sync.
     pub enabled: bool,
     
@@ -52,8 +52,8 @@ pub struct StateConfig {
     pub max_state_size: usize,
 }
 
-impl DaemonConfig {
-    /// Create new configuration.
+impl Daemonconfigs {
+    /// Create new configsuration.
     pub fn new(port: u16, data_dir: Option<PathBuf>) -> Result<Self> {
         let data_dir = data_dir.unwrap_or_else(|| {
             directories::ProjectDirs::from("com", "flexnetos", "noa")
@@ -67,13 +67,13 @@ impl DaemonConfig {
         Ok(Self {
             port,
             data_dir,
-            p2p: P2pConfig {
+            p2p: P2pconfigs {
                 enabled: true,
                 port: 0, // Random port
                 bootstrap_peers: vec![],
                 mdns: true,
             },
-            state: StateConfig {
+            state: Stateconfigs {
                 enabled: true,
                 sync_interval_secs: 5,
                 max_state_size: 100 * 1024 * 1024, // 100MB
@@ -93,18 +93,18 @@ impl DaemonConfig {
     }
 }
 
-impl Default for DaemonConfig {
+impl Default for Daemonconfigs {
     fn default() -> Self {
         Self::new(9999, None).unwrap_or(Self {
             port: 9999,
             data_dir: PathBuf::from(".noa"),
-            p2p: P2pConfig {
+            p2p: P2pconfigs {
                 enabled: true,
                 port: 0,
                 bootstrap_peers: vec![],
                 mdns: true,
             },
-            state: StateConfig {
+            state: Stateconfigs {
                 enabled: true,
                 sync_interval_secs: 5,
                 max_state_size: 100 * 1024 * 1024,

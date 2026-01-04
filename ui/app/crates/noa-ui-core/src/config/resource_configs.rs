@@ -1,38 +1,38 @@
-//! Resource configuration
+//! Resource configsuration
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Resource configuration
+/// Resource configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResourceConfig {
-    pub memory: MemoryConfig,
-    pub storage: StorageConfig,
-    pub compute: ComputeConfig,
+pub struct Resourceconfigs {
+    pub memory: Memoryconfigs,
+    pub storage: Storageconfigs,
+    pub compute: Computeconfigs,
     pub limits: ResourceLimits,
 }
 
-/// Memory configuration
+/// Memory configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MemoryConfig {
+pub struct Memoryconfigs {
     pub max_heap_mb: u64,
     pub cache_size_mb: u64,
     pub gc_threshold_mb: u64,
     pub enable_compression: bool,
 }
 
-/// Storage configuration
+/// Storage configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StorageConfig {
+pub struct Storageconfigs {
     pub data_path: String,
     pub temp_path: String,
     pub max_disk_usage_gb: u64,
     pub cleanup_interval_hours: u64,
 }
 
-/// Compute configuration
+/// Compute configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ComputeConfig {
+pub struct Computeconfigs {
     pub max_threads: usize,
     pub thread_pool_size: usize,
     pub async_runtime_threads: usize,
@@ -50,18 +50,18 @@ pub struct ResourceLimits {
     pub idle_timeout_seconds: u64,
 }
 
-impl Default for ResourceConfig {
+impl Default for Resourceconfigs {
     fn default() -> Self {
         Self {
-            memory: MemoryConfig::default(),
-            storage: StorageConfig::default(),
-            compute: ComputeConfig::default(),
+            memory: Memoryconfigs::default(),
+            storage: Storageconfigs::default(),
+            compute: Computeconfigs::default(),
             limits: ResourceLimits::default(),
         }
     }
 }
 
-impl Default for MemoryConfig {
+impl Default for Memoryconfigs {
     fn default() -> Self {
         Self {
             max_heap_mb: 4096,
@@ -72,7 +72,7 @@ impl Default for MemoryConfig {
     }
 }
 
-impl Default for StorageConfig {
+impl Default for Storageconfigs {
     fn default() -> Self {
         Self {
             data_path: "./data".to_string(),
@@ -83,7 +83,7 @@ impl Default for StorageConfig {
     }
 }
 
-impl Default for ComputeConfig {
+impl Default for Computeconfigs {
     fn default() -> Self {
         let cpu_count = num_cpus::get();
         Self {

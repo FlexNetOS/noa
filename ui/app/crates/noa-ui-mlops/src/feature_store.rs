@@ -12,8 +12,8 @@ pub struct FeatureGroup {
     pub description: String,
     pub entity: String,
     pub features: Vec<Feature>,
-    pub online_store_config: OnlineStoreConfig,
-    pub offline_store_config: OfflineStoreConfig,
+    pub online_store_configs: OnlineStoreconfigs,
+    pub offline_store_configs: OfflineStoreconfigs,
     pub tags: Vec<String>,
 }
 
@@ -26,17 +26,17 @@ pub struct Feature {
     pub tags: Vec<String>,
 }
 
-/// Online store configuration
+/// Online store configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OnlineStoreConfig {
+pub struct OnlineStoreconfigs {
     pub store_type: String,
     pub connection_string: String,
     pub ttl_seconds: u64,
 }
 
-/// Offline store configuration
+/// Offline store configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OfflineStoreConfig {
+pub struct OfflineStoreconfigs {
     pub store_type: String,
     pub location: String,
     pub format: String,

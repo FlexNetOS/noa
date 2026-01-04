@@ -9,7 +9,7 @@ pub fn ChatInterface() -> Element {
     let mut input_value = use_signal(String::new);
     let is_typing = use_signal(|| false);
 
-    // Initialize AI provider (in a real app, this would be configurable)
+    // Initialize AI provider (in a real app, this would be configsurable)
     let _ai = ConversationalAI::new(AIProvider::Local {
         endpoint: "http://localhost:8080/ai".to_string(),
     });

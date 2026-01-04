@@ -1,21 +1,21 @@
-//! Monitoring configuration
+//! Monitoring configsuration
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Monitoring configuration
+/// Monitoring configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MonitoringConfig {
+pub struct Monitoringconfigs {
     pub enabled: bool,
-    pub metrics: MetricsConfig,
-    pub logging: LoggingConfig,
-    pub tracing: TracingConfig,
-    pub alerting: AlertingConfig,
+    pub metrics: Metricsconfigs,
+    pub logging: Loggingconfigs,
+    pub tracing: Tracingconfigs,
+    pub alerting: Alertingconfigs,
 }
 
-/// Metrics collection configuration
+/// Metrics collection configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MetricsConfig {
+pub struct Metricsconfigs {
     pub enabled: bool,
     pub endpoint: Option<String>,
     pub interval_seconds: u64,
@@ -23,9 +23,9 @@ pub struct MetricsConfig {
     pub custom_metrics: Vec<String>,
 }
 
-/// Logging configuration
+/// Logging configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LoggingConfig {
+pub struct Loggingconfigs {
     pub level: String,
     pub format: LogFormat,
     pub output: LogOutput,
@@ -42,7 +42,7 @@ pub enum LogFormat {
     Compact,
 }
 
-/// Log output configuration
+/// Log output configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum LogOutput {
@@ -52,9 +52,9 @@ pub enum LogOutput {
     Both { path: String },
 }
 
-/// Distributed tracing configuration
+/// Distributed tracing configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TracingConfig {
+pub struct Tracingconfigs {
     pub enabled: bool,
     pub backend: TracingBackend,
     pub sample_rate: f64,
@@ -71,20 +71,20 @@ pub enum TracingBackend {
     Otlp { endpoint: String },
 }
 
-/// Alerting configuration
+/// Alerting configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AlertingConfig {
+pub struct Alertingconfigs {
     pub enabled: bool,
     pub channels: Vec<AlertChannel>,
     pub rules: Vec<AlertRule>,
 }
 
-/// Alert channel configuration
+/// Alert channel configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertChannel {
     pub name: String,
     pub channel_type: AlertChannelType,
-    pub config: HashMap<String, String>,
+    pub configs: HashMap<String, String>,
 }
 
 /// Alert channel types
@@ -97,7 +97,7 @@ pub enum AlertChannelType {
     PagerDuty,
 }
 
-/// Alert rule configuration
+/// Alert rule configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertRule {
     pub name: String,
@@ -118,19 +118,19 @@ pub enum AlertSeverity {
     Critical,
 }
 
-impl Default for MonitoringConfig {
+impl Default for Monitoringconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
-            metrics: MetricsConfig::default(),
-            logging: LoggingConfig::default(),
-            tracing: TracingConfig::default(),
-            alerting: AlertingConfig::default(),
+            metrics: Metricsconfigs::default(),
+            logging: Loggingconfigs::default(),
+            tracing: Tracingconfigs::default(),
+            alerting: Alertingconfigs::default(),
         }
     }
 }
 
-impl Default for MetricsConfig {
+impl Default for Metricsconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -142,7 +142,7 @@ impl Default for MetricsConfig {
     }
 }
 
-impl Default for LoggingConfig {
+impl Default for Loggingconfigs {
     fn default() -> Self {
         Self {
             level: "info".to_string(),
@@ -154,7 +154,7 @@ impl Default for LoggingConfig {
     }
 }
 
-impl Default for TracingConfig {
+impl Default for Tracingconfigs {
     fn default() -> Self {
         Self {
             enabled: false,
@@ -165,7 +165,7 @@ impl Default for TracingConfig {
     }
 }
 
-impl Default for AlertingConfig {
+impl Default for Alertingconfigs {
     fn default() -> Self {
         Self {
             enabled: false,

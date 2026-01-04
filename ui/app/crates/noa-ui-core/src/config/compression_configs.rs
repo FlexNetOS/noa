@@ -1,21 +1,21 @@
-//! Compression configuration
+//! Compression configsuration
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Compression configuration
+/// Compression configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CompressionConfig {
+pub struct Compressionconfigs {
     pub enabled: bool,
     pub default_algorithm: String,
-    pub algorithms: HashMap<String, AlgorithmConfig>,
+    pub algorithms: HashMap<String, Algorithmconfigs>,
     pub thresholds: CompressionThresholds,
-    pub streaming: StreamingCompressionConfig,
+    pub streaming: StreamingCompressionconfigs,
 }
 
-/// Algorithm-specific configuration
+/// Algorithm-specific configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AlgorithmConfig {
+pub struct Algorithmconfigs {
     pub enabled: bool,
     pub level: CompressionLevel,
     pub use_cases: Vec<String>,
@@ -39,37 +39,37 @@ pub struct CompressionThresholds {
     pub memory_limit_mb: u64,
 }
 
-/// Streaming compression configuration
+/// Streaming compression configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StreamingCompressionConfig {
+pub struct StreamingCompressionconfigs {
     pub enabled: bool,
     pub buffer_size: usize,
     pub chunk_size: usize,
 }
 
-impl Default for CompressionConfig {
+impl Default for Compressionconfigs {
     fn default() -> Self {
         let mut algorithms = HashMap::new();
         
-        algorithms.insert("zstd".to_string(), AlgorithmConfig {
+        algorithms.insert("zstd".to_string(), Algorithmconfigs {
             enabled: true,
             level: CompressionLevel { min: 1, max: 22, default: 3 },
             use_cases: vec!["general".to_string(), "embeddings".to_string()],
         });
         
-        algorithms.insert("lz4".to_string(), AlgorithmConfig {
+        algorithms.insert("lz4".to_string(), Algorithmconfigs {
             enabled: true,
             level: CompressionLevel { min: 1, max: 12, default: 1 },
             use_cases: vec!["fast".to_string(), "streaming".to_string()],
         });
         
-        algorithms.insert("gzip".to_string(), AlgorithmConfig {
+        algorithms.insert("gzip".to_string(), Algorithmconfigs {
             enabled: true,
             level: CompressionLevel { min: 1, max: 9, default: 6 },
             use_cases: vec!["compatibility".to_string(), "http".to_string()],
         });
         
-        algorithms.insert("brotli".to_string(), AlgorithmConfig {
+        algorithms.insert("brotli".to_string(), Algorithmconfigs {
             enabled: true,
             level: CompressionLevel { min: 0, max: 11, default: 4 },
             use_cases: vec!["text".to_string(), "web".to_string()],
@@ -80,7 +80,7 @@ impl Default for CompressionConfig {
             default_algorithm: "zstd".to_string(),
             algorithms,
             thresholds: CompressionThresholds::default(),
-            streaming: StreamingCompressionConfig::default(),
+            streaming: StreamingCompressionconfigs::default(),
         }
     }
 }
@@ -97,7 +97,7 @@ impl Default for CompressionThresholds {
     }
 }
 
-impl Default for StreamingCompressionConfig {
+impl Default for StreamingCompressionconfigs {
     fn default() -> Self {
         Self {
             enabled: true,

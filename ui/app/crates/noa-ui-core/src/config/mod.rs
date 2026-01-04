@@ -1,36 +1,36 @@
-//! Configuration module for NOA UI
+//! configsuration module for NOA UI
 //!
-//! Provides centralized configuration management for the UI application.
+//! Provides centralized configsuration management for the UI application.
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-pub mod ai_configs;
-pub mod compression_configs;
-pub mod ml_configs;
-pub mod monitoring_configs;
-pub mod resource_configs;
+pub mod ai_configss;
+pub mod compression_configss;
+pub mod ml_configss;
+pub mod monitoring_configss;
+pub mod resource_configss;
 
-pub use ai_configs::*;
-pub use compression_configs::*;
-pub use ml_configs::*;
-pub use monitoring_configs::*;
-pub use resource_configs::*;
+pub use ai_configss::*;
+pub use compression_configss::*;
+pub use ml_configss::*;
+pub use monitoring_configss::*;
+pub use resource_configss::*;
 
-/// Main application configuration
+/// Main application configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AppConfig {
+pub struct Appconfigs {
     pub version: String,
     pub environment: Environment,
-    pub server: ServerConfig,
-    pub ai: AIConfig,
-    pub resources: ResourceConfig,
-    pub ml: MLConfig,
-    pub compression: CompressionConfig,
-    pub monitoring: MonitoringConfig,
-    pub security: SecurityConfig,
+    pub server: Serverconfigs,
+    pub ai: AIconfigs,
+    pub resources: Resourceconfigs,
+    pub ml: MLconfigs,
+    pub compression: Compressionconfigs,
+    pub monitoring: Monitoringconfigs,
+    pub security: Securityconfigs,
     pub features: FeatureFlags,
 }
 
@@ -44,28 +44,28 @@ pub enum Environment {
     Testing,
 }
 
-/// Server configuration
+/// Server configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ServerConfig {
+pub struct Serverconfigs {
     pub host: String,
     pub port: u16,
     pub workers: Option<usize>,
     pub timeout_seconds: u64,
     pub cors_origins: Vec<String>,
-    pub rate_limit: RateLimitConfig,
+    pub rate_limit: RateLimitconfigs,
 }
 
-/// Rate limiting configuration
+/// Rate limiting configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RateLimitConfig {
+pub struct RateLimitconfigs {
     pub requests_per_minute: u32,
     pub burst_size: u32,
     pub enabled: bool,
 }
 
-/// Security configuration
+/// Security configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SecurityConfig {
+pub struct Securityconfigs {
     pub jwt_secret: String,
     pub api_key_encryption_key: String,
     pub max_file_size_mb: u64,
@@ -88,24 +88,24 @@ pub struct FeatureFlags {
     pub enable_advanced_analytics: bool,
 }
 
-impl Default for AppConfig {
+impl Default for Appconfigs {
     fn default() -> Self {
         Self {
             version: env!("CARGO_PKG_VERSION").to_string(),
             environment: Environment::Development,
-            server: ServerConfig::default(),
-            ai: AIConfig::default(),
-            resources: ResourceConfig::default(),
-            ml: MLConfig::default(),
-            compression: CompressionConfig::default(),
-            monitoring: MonitoringConfig::default(),
-            security: SecurityConfig::default(),
+            server: Serverconfigs::default(),
+            ai: AIconfigs::default(),
+            resources: Resourceconfigs::default(),
+            ml: MLconfigs::default(),
+            compression: Compressionconfigs::default(),
+            monitoring: Monitoringconfigs::default(),
+            security: Securityconfigs::default(),
             features: FeatureFlags::default(),
         }
     }
 }
 
-impl Default for ServerConfig {
+impl Default for Serverconfigs {
     fn default() -> Self {
         Self {
             host: "127.0.0.1".to_string(),
@@ -116,12 +116,12 @@ impl Default for ServerConfig {
                 "http://localhost:3000".to_string(),
                 "http://127.0.0.1:3000".to_string(),
             ],
-            rate_limit: RateLimitConfig::default(),
+            rate_limit: RateLimitconfigs::default(),
         }
     }
 }
 
-impl Default for RateLimitConfig {
+impl Default for RateLimitconfigs {
     fn default() -> Self {
         Self {
             requests_per_minute: 60,
@@ -131,7 +131,7 @@ impl Default for RateLimitConfig {
     }
 }
 
-impl Default for SecurityConfig {
+impl Default for Securityconfigs {
     fn default() -> Self {
         Self {
             jwt_secret: "dev-secret-change-in-production".to_string(),
@@ -163,31 +163,31 @@ impl Default for FeatureFlags {
     }
 }
 
-impl AppConfig {
-    /// Load configuration from a file
+impl Appconfigs {
+    /// Load configsuration from a file
     pub fn load_from_file(path: &str) -> Result<Self> {
         let content = std::fs::read_to_string(path)?;
-        let config: AppConfig = serde_json::from_str(&content)?;
-        Ok(config)
+        let configs: Appconfigs = serde_json::from_str(&content)?;
+        Ok(configs)
     }
 
-    /// Save configuration to a file
+    /// Save configsuration to a file
     pub fn save_to_file(&self, path: &str) -> Result<()> {
         let content = serde_json::to_string_pretty(self)?;
         std::fs::write(path, content)?;
         Ok(())
     }
 
-    /// Load configuration with environment variable overrides
+    /// Load configsuration with environment variable overrides
     pub fn load_from_env() -> Result<Self> {
-        let mut config = AppConfig::default();
+        let mut configs = Appconfigs::default();
 
         if let Ok(port) = std::env::var("PORT") {
-            config.server.port = port.parse()?;
+            configs.server.port = port.parse()?;
         }
 
         if let Ok(env) = std::env::var("ENVIRONMENT") {
-            config.environment = match env.as_str() {
+            configs.environment = match env.as_str() {
                 "production" => Environment::Production,
                 "staging" => Environment::Staging,
                 "testing" => Environment::Testing,
@@ -195,7 +195,7 @@ impl AppConfig {
             };
         }
 
-        Ok(config)
+        Ok(configs)
     }
 
     /// Check if running in development mode
@@ -208,12 +208,12 @@ impl AppConfig {
         matches!(self.environment, Environment::Production)
     }
 
-    /// Get configuration directory path
-    pub fn get_config_directory() -> PathBuf {
-        if let Ok(config_dir) = std::env::var("NOA_CONFIG_DIR") {
-            PathBuf::from(config_dir)
+    /// Get configsuration directory path
+    pub fn get_configs_directory() -> PathBuf {
+        if let Ok(configs_dir) = std::env::var("NOA_configs_DIR") {
+            PathBuf::from(configs_dir)
         } else {
-            dirs::config_dir()
+            dirs::configs_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join("noa")
         }

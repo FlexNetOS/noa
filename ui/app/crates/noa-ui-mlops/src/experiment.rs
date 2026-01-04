@@ -76,7 +76,7 @@ pub struct Artifact {
 pub enum ArtifactType {
     Model,
     Dataset,
-    Configuration,
+    configsuration,
     Log,
     Report,
     Image,

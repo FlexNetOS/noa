@@ -7,11 +7,11 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info};
 
-use crate::config::DaemonConfig;
+use crate::configs::Daemonconfigs;
 
 /// State manager for CRDT-based state synchronization.
 pub struct StateManager {
-    config: DaemonConfig,
+    configs: Daemonconfigs,
     state: Arc<RwLock<DaemonState>>,
 }
 
@@ -73,18 +73,18 @@ pub enum AgentStatus {
 
 impl StateManager {
     /// Create new state manager.
-    pub fn new(config: &DaemonConfig) -> Result<Self> {
-        let state = Self::load_state(config)?;
+    pub fn new(configs: &Daemonconfigs) -> Result<Self> {
+        let state = Self::load_state(configs)?;
         
         Ok(Self {
-            config: config.clone(),
+            configs: configs.clone(),
             state: Arc::new(RwLock::new(state)),
         })
     }
     
     /// Load state from disk.
-    fn load_state(config: &DaemonConfig) -> Result<DaemonState> {
-        let path = config.state_path();
+    fn load_state(configs: &Daemonconfigs) -> Result<DaemonState> {
+        let path = configs.state_path();
         
         if path.exists() {
             let data = std::fs::read_to_string(&path)?;
@@ -100,7 +100,7 @@ impl StateManager {
     /// Save state to disk.
     pub async fn save(&self) -> Result<()> {
         let state = self.state.read().await;
-        let path = self.config.state_path();
+        let path = self.configs.state_path();
         let data = serde_json::to_string_pretty(&*state)?;
         std::fs::write(&path, data)?;
         debug!("Saved state to {:?} (version {})", path, state.version);
@@ -122,7 +122,7 @@ impl StateManager {
         state.version += 1;
         
         // Auto-save on update
-        let path = self.config.state_path();
+        let path = self.configs.state_path();
         let data = serde_json::to_string_pretty(&*state)?;
         std::fs::write(&path, data)?;
         
@@ -196,7 +196,7 @@ impl StateManager {
 impl Clone for StateManager {
     fn clone(&self) -> Self {
         Self {
-            config: self.config.clone(),
+            configs: self.configs.clone(),
             state: Arc::clone(&self.state),
         }
     }

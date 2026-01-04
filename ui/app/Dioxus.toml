@@ -2,7 +2,7 @@
 name = "noa-ui"
 default_platform = "fullstack"
 
-# Asset configuration
+# Asset configsuration
 asset_dir = "assets"
 out_dir = "dist"
 

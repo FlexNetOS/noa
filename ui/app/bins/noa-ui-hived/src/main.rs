@@ -21,7 +21,7 @@
 
 mod capsule;
 mod cli;
-mod config;
+mod configs;
 mod sandbox;
 mod server;
 mod state;
@@ -53,14 +53,14 @@ async fn main() -> Result<()> {
         Command::Start { port, data_dir } => {
             info!("Starting noa-hived on port {}", port);
             
-            // Initialize configuration
-            let config = config::DaemonConfig::new(port, data_dir)?;
+            // Initialize configsuration
+            let configs = configs::Daemonconfigs::new(port, data_dir)?;
             
             // Initialize state manager
-            let state = state::StateManager::new(&config)?;
+            let state = state::StateManager::new(&configs)?;
             
             // Start the HTTP/gRPC server
-            server::run(config, state).await?;
+            server::run(configs, state).await?;
         }
         Command::Status => {
             // Check if daemon is running

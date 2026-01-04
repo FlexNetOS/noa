@@ -12,8 +12,8 @@ pub mod utils {
     pub mod validation;
 }
 
-#[cfg(feature = "config-extended")]
-pub mod config;
+#[cfg(feature = "configs-extended")]
+pub mod configs;
 
 #[cfg(feature = "metadata")]
 pub mod metadata;

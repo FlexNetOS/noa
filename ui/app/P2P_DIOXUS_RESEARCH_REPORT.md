@@ -115,14 +115,14 @@ Based on analysis of [HIVE_PROTOCOL.md](HIVE_PROTOCOL.md), here are the recommen
 
 The `protocols/gossipsub/src/` directory contains:
 - `behaviour.rs` (142KB) - Main GossipSub behavior implementation
-- `config.rs` (53KB) - Extensive configuration options
+- `configs.rs` (53KB) - Extensive configsuration options
 - `topic.rs` - Topic hash management
 - `peer_score.rs` - Peer scoring for mesh management
 - `subscription_filter.rs` - Topic subscription filtering
 
 **HIVE_PROTOCOL Topic Mapping:**
 ```rust
-// Recommended topic configuration
+// Recommended topic configsuration
 const TOPICS: &[&str] = &[
     "noa-ui/v1/presence",      // Periodic presence announcements
     "noa-ui/v1/state/op",      // Oplog entries broadcast
@@ -214,7 +214,7 @@ async fn distribute_release(artifact: &[u8]) -> Result<Hash> {
 - `crates/p2p-stack/` - libp2p wrapper with unified API
 - `crates/core/` - Core abstractions
 - `crates/bridge/` - Network bridging
-- `crates/config/` - Configuration management
+- `crates/configs/` - configsuration management
 
 **Key Features:**
 - Pub-Sub with GossipSub
@@ -266,7 +266,7 @@ async fn distribute_release(artifact: &[u8]) -> Result<Hash> {
 
 Analysis of `N:\noa\ml_devops_platform\nextjs_space\`:
 
-### 3.1 Core Features (from config/features.json)
+### 3.1 Core Features (from configs/features.json)
 
 ```json
 {
@@ -330,18 +330,18 @@ use_coroutine(|rx: UnboundedReceiver<Message>| async move {
 | `grid-container.tsx` | Grid layout | CSS Grid |
 | `flex-container.tsx` | Flex layout | CSS Flexbox |
 | `tabs-container.tsx` | Tab panels | daisy-rsx Tabs |
-| `widget-registry.tsx` | Widget orchestrator | Custom HashMap<ID, WidgetConfig> |
+| `widget-registry.tsx` | Widget orchestrator | Custom HashMap<ID, Widgetconfigs> |
 
 **Widget Registry Pattern (Dioxus):**
 ```rust
 #[component]
-fn WidgetRegistry(widgets: Signal<HashMap<String, WidgetConfig>>) -> Element {
+fn WidgetRegistry(widgets: Signal<HashMap<String, Widgetconfigs>>) -> Element {
     rsx! {
-        for (id, config) in widgets.read().iter() {
-            match config.widget_type.as_str() {
-                "text" => TextBlock { config: config.clone() },
-                "code" => CodeBlock { config: config.clone() },
-                "chart" => SimpleChart { config: config.clone() },
+        for (id, configs) in widgets.read().iter() {
+            match configs.widget_type.as_str() {
+                "text" => TextBlock { configs: configs.clone() },
+                "code" => CodeBlock { configs: configs.clone() },
+                "chart" => SimpleChart { configs: configs.clone() },
                 _ => UnknownWidget { id: id.clone() }
             }
         }
@@ -574,7 +574,7 @@ dioxus-markdown = "0.5"
 | Widget Registry | HashMap + match | Low |
 | Event Replay | Event log + playback | Medium |
 | JSON Patch Updates | fast-json-patch port | Low |
-| Provider Selection | Enum + config | Low |
+| Provider Selection | Enum + configs | Low |
 | OAuth Login | oauth2-rs + keyring | High |
 | File Upload | web-sys FileReader | Low |
 | Local Model Server | Tauri commands | Medium |

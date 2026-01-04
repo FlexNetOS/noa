@@ -21,7 +21,7 @@ pub use deployment::{
     DeploymentStrategy, HealthCheck as DeploymentHealthCheck, ResourceRequirements as DeploymentResourceRequirements,
 };
 pub use experiment::{Artifact, ArtifactType, Experiment, ExperimentStatus, ExperimentTracker};
-pub use feature_store::{Feature, FeatureGroup, FeatureStore, OfflineStoreConfig, OnlineStoreConfig};
+pub use feature_store::{Feature, FeatureGroup, FeatureStore, OfflineStoreconfigs, OnlineStoreconfigs};
 pub use model_registry::{ModelRegistry, ModelStage, ModelVersion};
 pub use monitoring::{AlertManager, MLMonitor, Metric};
 pub use pipeline::{
@@ -46,9 +46,9 @@ pub struct MLDevOpsManager {
     alert_manager: Arc<RwLock<AlertManager>>,
 }
 
-/// Configuration for MLDevOps components
+/// configsuration for MLDevOps components
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MLDevOpsConfig {
+pub struct MLDevOpsconfigs {
     pub pipeline_engine: String,
     pub experiment_tracking: String,
     pub model_registry: String,
@@ -60,12 +60,12 @@ pub struct MLDevOpsConfig {
     pub notification_channels: Vec<NotificationChannel>,
 }
 
-/// Notification channel configuration
+/// Notification channel configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NotificationChannel {
     pub name: String,
     pub channel_type: NotificationType,
-    pub config: HashMap<String, String>,
+    pub configs: HashMap<String, String>,
     pub enabled: bool,
 }
 
@@ -122,7 +122,7 @@ pub struct PipelineArtifact {
 pub enum PipelineArtifactType {
     Model,
     Dataset,
-    Configuration,
+    configsuration,
     Log,
     Report,
     Image,
@@ -149,9 +149,9 @@ pub enum LogLevel {
     Critical,
 }
 
-/// Experiment configuration
+/// Experiment configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExperimentConfig {
+pub struct Experimentconfigs {
     pub name: String,
     pub description: String,
     pub parameters: HashMap<String, serde_json::Value>,
@@ -159,9 +159,9 @@ pub struct ExperimentConfig {
     pub artifacts: Vec<String>,
 }
 
-/// Deployment configuration
+/// Deployment configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DeploymentConfig {
+pub struct Deploymentconfigs {
     pub strategy: DeploymentStrategy,
     pub environment: String,
     pub resources: ResourceRequirements,
@@ -177,7 +177,7 @@ pub struct ResourceRequirements {
     pub storage_gb: f64,
 }
 
-/// Health check configuration
+/// Health check configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthCheck {
     pub endpoint: String,
@@ -302,8 +302,8 @@ pub struct ModelStatistics {
 }
 
 impl MLDevOpsManager {
-    /// Create a new MLDevOpsManager with the given configuration
-    pub fn new(config: MLDevOpsConfig) -> Self {
+    /// Create a new MLDevOpsManager with the given configsuration
+    pub fn new(configs: MLDevOpsconfigs) -> Self {
         Self {
             pipeline_orchestrator: Arc::new(RwLock::new(PipelineOrchestrator::new())),
             experiment_tracker: Arc::new(RwLock::new(ExperimentTracker::new())),
@@ -311,7 +311,7 @@ impl MLDevOpsManager {
             ml_monitor: Arc::new(RwLock::new(MLMonitor::new())),
             deployment_manager: Arc::new(RwLock::new(DeploymentManager::new())),
             feature_store: Arc::new(RwLock::new(FeatureStore::new())),
-            alert_manager: Arc::new(RwLock::new(AlertManager::new(config.notification_channels))),
+            alert_manager: Arc::new(RwLock::new(AlertManager::new(configs.notification_channels))),
         }
     }
 
@@ -599,11 +599,11 @@ impl MLDevOpsManager {
     /// Run a training pipeline
     pub async fn run_training_pipeline(
         &self,
-        experiment_config: ExperimentConfig,
+        experiment_configs: Experimentconfigs,
     ) -> Result<String> {
         // Create experiment
         let experiment =
-            Experiment::new(experiment_config.name.clone(), experiment_config.description.clone());
+            Experiment::new(experiment_configs.name.clone(), experiment_configs.description.clone());
         let experiment_id = self.create_experiment(experiment).await?;
 
         // Create training pipeline
@@ -612,7 +612,7 @@ impl MLDevOpsManager {
 
         // Execute pipeline
         let _execution_id = self
-            .execute_pipeline(&pipeline_id, experiment_config.parameters)
+            .execute_pipeline(&pipeline_id, experiment_configs.parameters)
             .await?;
 
         Ok(experiment_id)
@@ -622,7 +622,7 @@ impl MLDevOpsManager {
     pub async fn deploy_trained_model(
         &self,
         experiment_id: &str,
-        deployment_config: DeploymentConfig,
+        deployment_configs: Deploymentconfigs,
     ) -> Result<String> {
         // Get experiment results
         let experiment = self
@@ -636,7 +636,7 @@ impl MLDevOpsManager {
 
         // Deploy model
         let deployment_id = self
-            .deploy_model(&model_id, deployment_config.strategy)
+            .deploy_model(&model_id, deployment_configs.strategy)
             .await?;
 
         Ok(deployment_id)
@@ -675,7 +675,7 @@ impl MLDevOpsManager {
     }
 }
 
-impl Default for MLDevOpsConfig {
+impl Default for MLDevOpsconfigs {
     fn default() -> Self {
         Self {
             pipeline_engine: "argo".to_string(),
@@ -697,15 +697,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_mldevops_manager_creation() {
-        let config = MLDevOpsConfig::default();
-        let manager = MLDevOpsManager::new(config);
+        let configs = MLDevOpsconfigs::default();
+        let manager = MLDevOpsManager::new(configs);
         assert!(manager.initialize().await.is_ok());
     }
 
     #[test]
-    fn test_config_default() {
-        let config = MLDevOpsConfig::default();
-        assert_eq!(config.pipeline_engine, "argo");
-        assert_eq!(config.experiment_tracking, "mlflow");
+    fn test_configs_default() {
+        let configs = MLDevOpsconfigs::default();
+        assert_eq!(configs.pipeline_engine, "argo");
+        assert_eq!(configs.experiment_tracking, "mlflow");
     }
 }

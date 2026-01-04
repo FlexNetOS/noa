@@ -109,41 +109,41 @@ impl CrossPlatformAdapter {
         let component_key = format!("{:?}", component.component_type);
         if let Some(component_adaptation) = adaptations.components.get(&component_key) {
             // Apply universal overrides first, then platform-specific overrides.
-            if let Some(override_config) = component_adaptation
+            if let Some(override_configs) = component_adaptation
                 .platform_specific
                 .get(&PlatformTarget::Universal)
             {
-                self.apply_component_override(component, override_config);
+                self.apply_component_override(component, override_configs);
             }
-            if let Some(override_config) = component_adaptation.platform_specific.get(&target_platform) {
-                self.apply_component_override(component, override_config);
+            if let Some(override_configs) = component_adaptation.platform_specific.get(&target_platform) {
+                self.apply_component_override(component, override_configs);
             }
         }
     }
 
-    fn apply_component_override(&self, component: &mut UIComponent, override_config: &ComponentOverride) {
+    fn apply_component_override(&self, component: &mut UIComponent, override_configs: &ComponentOverride) {
         // Tag overrides are consumed by the code generator via the `tag` property.
-        if let Some(tag) = &override_config.tag {
+        if let Some(tag) = &override_configs.tag {
             component
                 .properties
                 .insert("tag".to_string(), serde_json::Value::String(tag.clone()));
         }
 
         // Treat attributes as plain string properties.
-        for (attr, value) in &override_config.attributes {
+        for (attr, value) in &override_configs.attributes {
             component
                 .properties
                 .insert(attr.clone(), serde_json::Value::String(value.clone()));
         }
 
         // Merge styles into a nested `styles` object property.
-        if !override_config.styles.is_empty() {
+        if !override_configs.styles.is_empty() {
             let mut merged = match component.properties.remove("styles") {
                 Some(serde_json::Value::Object(map)) => map,
                 _ => serde_json::Map::new(),
             };
 
-            for (k, v) in &override_config.styles {
+            for (k, v) in &override_configs.styles {
                 merged.insert(k.clone(), serde_json::Value::String(v.clone()));
             }
 

@@ -23,13 +23,13 @@ pub struct CapsuleExecutor {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CapsuleDefinition {
     pub name: String,
-    pub isolation: IsolationConfig,
-    pub mounts: Vec<MountConfig>,
+    pub isolation: Isolationconfigs,
+    pub mounts: Vec<Mountconfigs>,
 }
 
-/// Isolation configuration
+/// Isolation configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct IsolationConfig {
+pub struct Isolationconfigs {
     /// Memory limit (e.g., "256Mi")
     pub memory_limit: String,
     /// CPU limit (e.g., 1.0)
@@ -59,9 +59,9 @@ pub enum FilesystemMode {
     Readwrite,
 }
 
-/// Mount configuration
+/// Mount configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MountConfig {
+pub struct Mountconfigs {
     /// Host path or volume name
     pub source: String,
     /// Container path

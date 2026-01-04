@@ -14,8 +14,8 @@ pub fn get_project_directory() -> Result<PathBuf> {
     Ok(dirs.projects)
 }
 
-/// Returns the canonical state/config directory under `$NOA_DATA/apps/noa-ui/state`.
-pub fn get_config_directory() -> Result<PathBuf> {
+/// Returns the canonical state/configs directory under `$NOA_DATA/apps/noa-ui/state`.
+pub fn get_configs_directory() -> Result<PathBuf> {
     let dirs = noa_ui_paths::ensure_noa_ui_dirs()?;
     Ok(dirs.state)
 }

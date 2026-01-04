@@ -50,44 +50,44 @@ mod cli_tests {
 }
 
 #[cfg(test)]
-mod config_tests {
-    use crate::config::{DaemonConfig, P2pConfig, StateConfig};
+mod configs_tests {
+    use crate::configs::{Daemonconfigs, P2pconfigs, Stateconfigs};
     use std::path::PathBuf;
 
     #[test]
-    fn test_config_creation() {
-        let config = DaemonConfig::new(9999, Some(PathBuf::from("/tmp/noa-test")));
+    fn test_configs_creation() {
+        let configs = Daemonconfigs::new(9999, Some(PathBuf::from("/tmp/noa-test")));
         
-        assert!(config.is_ok());
-        let config = config.unwrap();
-        assert_eq!(config.port, 9999);
+        assert!(configs.is_ok());
+        let configs = configs.unwrap();
+        assert_eq!(configs.port, 9999);
     }
 
     #[test]
-    fn test_p2p_config_defaults() {
-        let config = P2pConfig {
+    fn test_p2p_configs_defaults() {
+        let configs = P2pconfigs {
             enabled: true,
             port: 0,
             bootstrap_peers: vec![],
             mdns: true,
         };
         
-        assert!(config.enabled);
-        assert!(config.mdns);
-        assert!(config.bootstrap_peers.is_empty());
+        assert!(configs.enabled);
+        assert!(configs.mdns);
+        assert!(configs.bootstrap_peers.is_empty());
     }
 
     #[test]
-    fn test_state_config_defaults() {
-        let config = StateConfig {
+    fn test_state_configs_defaults() {
+        let configs = Stateconfigs {
             enabled: true,
             sync_interval_secs: 30,
             max_state_size: 10 * 1024 * 1024,
         };
         
-        assert!(config.enabled);
-        assert_eq!(config.sync_interval_secs, 30);
-        assert_eq!(config.max_state_size, 10 * 1024 * 1024);
+        assert!(configs.enabled);
+        assert_eq!(configs.sync_interval_secs, 30);
+        assert_eq!(configs.max_state_size, 10 * 1024 * 1024);
     }
 }
 

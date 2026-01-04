@@ -15,7 +15,7 @@ pub enum ResourceType {
     Dataset,
     Prompt,
     Embedding,
-    Configuration,
+    configsuration,
     Artifact,
     Custom(String),
 }
@@ -28,7 +28,7 @@ pub struct SharedResource {
     pub resource_type: ResourceType,
     pub owner_id: String,
     pub content: ResourceContent,
-    pub sharing_config: SharingConfig,
+    pub sharing_configs: Sharingconfigs,
     pub metadata: ResourceMetadata,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -43,9 +43,9 @@ pub struct ResourceContent {
     pub checksum: Option<String>,
 }
 
-/// Configuration for sharing a resource
+/// configsuration for sharing a resource
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SharingConfig {
+pub struct Sharingconfigs {
     pub visibility: Visibility,
     pub shared_with: Vec<String>,
     pub permissions: HashMap<String, Vec<Permission>>,
@@ -187,25 +187,25 @@ impl ResourceSharingManager {
         resources
             .values()
             .filter(|r| {
-                r.sharing_config.shared_with.contains(&self.current_user_id)
-                    || r.sharing_config.visibility == Visibility::Public
+                r.sharing_configs.shared_with.contains(&self.current_user_id)
+                    || r.sharing_configs.visibility == Visibility::Public
             })
             .cloned()
             .collect()
     }
 
-    /// Update sharing configuration
-    pub async fn update_sharing_config(
+    /// Update sharing configsuration
+    pub async fn update_sharing_configs(
         &self,
         id: &str,
-        config: SharingConfig,
+        configs: Sharingconfigs,
     ) -> Result<()> {
         let mut resources = self.resources.write().await;
         if let Some(resource) = resources.get_mut(id) {
             if !self.check_permission(resource, Permission::Admin) {
                 return Err(anyhow::anyhow!("Permission denied"));
             }
-            resource.sharing_config = config;
+            resource.sharing_configs = configs;
             resource.updated_at = Utc::now();
             self.log_access(id, "update_sharing", true).await;
             Ok(())
@@ -240,7 +240,7 @@ impl ResourceSharingManager {
     pub async fn sync_resource(&self, id: &str) -> Result<()> {
         let resources = self.resources.read().await;
         if let Some(resource) = resources.get(id) {
-            if !resource.sharing_config.sync_enabled {
+            if !resource.sharing_configs.sync_enabled {
                 return Err(anyhow::anyhow!("Sync disabled for this resource"));
             }
         } else {
@@ -281,13 +281,13 @@ impl ResourceSharingManager {
         }
 
         // Check visibility
-        if resource.sharing_config.visibility == Visibility::Public {
+        if resource.sharing_configs.visibility == Visibility::Public {
             return matches!(permission, Permission::Read);
         }
 
         // Check explicit permissions
         if let Some(permissions) = resource
-            .sharing_config
+            .sharing_configs
             .permissions
             .get(&self.current_user_id)
         {
