@@ -8,9 +8,9 @@
       "name": "Filesystem MCP",
       "description": "File system access within NOA_ROOT",
       "type": "stdio",
-      "command": "${NOA_ROOT}/bin/npx",
+      "command": "${NOA_ROOT}/bin/pnpm.cmd",
       "args": [
-        "-y",
+        "dlx",
         "@modelcontextprotocol/server-filesystem",
         "${NOA_ROOT}"
       ],
@@ -23,9 +23,9 @@
       "name": "GitHub MCP",
       "description": "GitHub API access for issues, PRs, repos",
       "type": "stdio",
-      "command": "${NOA_ROOT}/bin/npx",
+      "command": "${NOA_ROOT}/bin/pnpm.cmd",
       "args": [
-        "-y",
+        "dlx",
         "@modelcontextprotocol/server-github"
       ],
       "env": {
@@ -39,9 +39,9 @@
       "name": "Memory MCP",
       "description": "Persistent memory/knowledge graph",
       "type": "stdio",
-      "command": "${NOA_ROOT}/bin/npx",
+      "command": "${NOA_ROOT}/bin/pnpm.cmd",
       "args": [
-        "-y",
+        "dlx",
         "@modelcontextprotocol/server-memory"
       ],
       "env": {
@@ -55,9 +55,9 @@
       "name": "Pylance MCP",
       "description": "Python language server integration",
       "type": "stdio",
-      "command": "${NOA_ROOT}/bin/npx",
+      "command": "${NOA_ROOT}/bin/pnpm.cmd",
       "args": [
-        "-y",
+        "dlx",
         "@anthropic/mcp-server-pylance"
       ],
       "env": {},

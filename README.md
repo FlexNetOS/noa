@@ -215,14 +215,20 @@ The system uses SQLite with the following tables:
 - Go: 1.23.4
 - Python: 3.12.8
 
-### configs and Schema Policy
+### Config and Schema Policy
 
-NOA uses a shared and centralized configsuration system located in `/configs/`. All configsuration files follow a unified JSON schema defined in `/configs/schemas/`, ensuring consistency and validation.
+NOA uses a shared and centralized configuration system with a 3-layer architecture:
 
-- **Metadata Structure**: Each configs includes a `metadata` object with `version`, `description`, `updated_at`, and other provenance fields for auditability and change tracking.
-- **Schema Validation**: configsurations are validated against JSON schemas to prevent errors and ensure compliance with the universal task execution policy.
-- **Centralized Management**: Shared resources, providers, and features are configsured centrally, with environment-specific overrides supported via `${NOA_ROOT}` variables.
-- **Version Control**: configss are versioned and changes are tracked, with automated validation on commit.
+- **`/configs/base/`** - Layer 1: Immutable baseline (toolchains, schemas, sandbox definitions)
+- **`/configs/semantic/`** - Layer 2: Mutable semantic (preferences, capabilities, agent-rules)
+- **`/configs/enforcement/`** - Layer 3: Enforcement (validators, guardrails, policy engine)
+
+All configuration files follow unified JSON schemas defined in `/configs/base/schemas/`.
+
+- **Metadata Structure**: Each config includes a `metadata` object with `version`, `description`, `updated_at`, and other provenance fields for auditability and change tracking.
+- **Schema Validation**: Configurations are validated against JSON schemas to prevent errors and ensure compliance with the universal task execution policy.
+- **Centralized Management**: Shared resources, providers, and features are configured centrally, with environment-specific overrides supported via `${NOA_ROOT}` variables.
+- **Version Control**: Configs are versioned and changes are tracked, with automated validation on commit.
 
 ## 📚 Documentation
 
