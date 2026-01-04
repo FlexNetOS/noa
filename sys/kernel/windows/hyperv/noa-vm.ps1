@@ -51,7 +51,7 @@ if (-not $ImagePath) {
     $ImagePath = Join-Path $NoaRoot "sys/kernel/images/noa-linux.vhdx"
 }
 
-# VM configuration
+# VM configsuration
 $VmSwitch = "NOA-NAT-Switch"
 $VmGeneration = 2
 
@@ -68,7 +68,7 @@ function Ensure-VmSwitch {
         # Create internal switch
         New-VMSwitch -Name $VmSwitch -SwitchType Internal
 
-        # Configure NAT
+        # configsure NAT
         $ifIndex = (Get-NetAdapter | Where-Object Name -like "*$VmSwitch*").ifIndex
         New-NetIPAddress -IPAddress 192.168.100.1 -PrefixLength 24 -InterfaceIndex $ifIndex
         New-NetNat -Name "NOA-NAT" -InternalIPInterfaceAddressPrefix 192.168.100.0/24
@@ -122,7 +122,7 @@ function Create-NoaVm {
         -SwitchName $VmSwitch `
         -Path $vmPath
 
-    # Configure VM
+    # configsure VM
     Set-VM -Name $VmName `
         -ProcessorCount $Cpus `
         -DynamicMemory `

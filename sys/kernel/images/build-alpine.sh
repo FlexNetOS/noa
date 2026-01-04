@@ -156,7 +156,7 @@ setup_rootfs() {
     # Extract rootfs
     tar -xzf "$WORK_DIR/alpine-rootfs.tar.gz" -C "$rootfs_dir"
 
-    # Configure Alpine
+    # configsure Alpine
     cat > "$rootfs_dir/etc/apk/repositories" << EOF
 $ALPINE_MIRROR/v$ALPINE_VERSION/main
 $ALPINE_MIRROR/v$ALPINE_VERSION/community
@@ -191,12 +191,12 @@ apk add \
 rc-update add sshd default
 rc-update add networking default
 
-# Configure SSH
+# configsure SSH
 mkdir -p /root/.ssh
 chmod 700 /root/.ssh
-echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_configs
 
-# Configure networking
+# configsure networking
 cat > /etc/network/interfaces << NET_EOF
 auto lo
 iface lo inet loopback
@@ -217,13 +217,13 @@ MOD_EOF
 echo "noa-vm" > /etc/hostname
 
 # Create NOA directories
-mkdir -p /noa/{bin,opt,config,logs}
+mkdir -p /noa/{bin,opt,configs,logs}
 
 echo "Setup complete!"
 SETUP_EOF
     chmod +x "$rootfs_dir/root/setup.sh"
 
-    # Create boot configuration
+    # Create boot configsuration
     mkdir -p "$rootfs_dir/boot/grub"
     cat > "$rootfs_dir/boot/grub/grub.cfg" << 'GRUB_EOF'
 set timeout=1
@@ -235,7 +235,7 @@ menuentry "NOA Linux" {
 }
 GRUB_EOF
 
-    echo -e "${GREEN}  [OK] Rootfs configured${NC}"
+    echo -e "${GREEN}  [OK] Rootfs configsured${NC}"
 }
 
 convert_image() {

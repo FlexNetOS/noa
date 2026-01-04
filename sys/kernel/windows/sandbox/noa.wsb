@@ -1,5 +1,5 @@
 <!--
-  NOA Windows Sandbox Configuration (B125)
+  NOA Windows Sandbox configsuration (B125)
 
   A lightweight sandbox profile for running NOA in an isolated environment.
   Requires Windows 10/11 Pro or Enterprise with Windows Sandbox feature enabled.
@@ -13,7 +13,7 @@
   Or programmatically:
     Start-Process "WindowsSandbox.exe" -ArgumentList (Resolve-Path "noa.wsb")
 -->
-<Configuration>
+<configsuration>
   <!-- Memory settings -->
   <MemoryInMB>4096</MemoryInMB>
 
@@ -66,5 +66,5 @@
       Start-Process powershell.exe -ArgumentList '-NoExit', '-Command', 'cd C:\noa; Write-Host \"NOA Sandbox Ready\" -ForegroundColor Green'
     "</Command>
   </LogonCommand>
-</Configuration>
+</configsuration>
 

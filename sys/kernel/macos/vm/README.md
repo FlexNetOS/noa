@@ -13,7 +13,7 @@ NOA VM management on macOS using Apple's Virtualization.framework.
 
 1. **No nested virtualization on Apple Silicon** - VMs cannot run their own hypervisors
 2. **Limited GPU passthrough** - No direct GPU access in VMs
-3. **Network isolation** - NAT networking only, no bridged mode without special configuration
+3. **Network isolation** - NAT networking only, no bridged mode without special configsuration
 4. **File sharing** - VirtioFS available but requires specific kernel support in guest
 
 ## Quick Start
@@ -63,9 +63,9 @@ The VM image must be:
 
 See `sys/kernel/images/build-alpine-macos.sh` for an automated build script.
 
-## Network Configuration
+## Network configsuration
 
-Default configuration uses user-mode networking (NAT):
+Default configsuration uses user-mode networking (NAT):
 - Guest can access internet through host
 - Port forwarding: `hostfwd=tcp::2222-:22` (SSH)
 - No inbound connections without port forwarding
@@ -83,25 +83,25 @@ For programmatic control, see `noa-vm.swift`:
 ```swift
 import Virtualization
 
-// Create VM configuration
-let config = VZVirtualMachineConfiguration()
-config.cpuCount = 2
-config.memorySize = 512 * 1024 * 1024 // 512 MB
+// Create VM configsuration
+let configs = VZVirtualMachineconfigsuration()
+configs.cpuCount = 2
+configs.memorySize = 512 * 1024 * 1024 // 512 MB
 
 // Add storage
 let diskURL = URL(fileURLWithPath: "noa-linux.img")
 let disk = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: false)
-let storage = VZVirtioBlockDeviceConfiguration(attachment: disk)
-config.storageDevices = [storage]
+let storage = VZVirtioBlockDeviceconfigsuration(attachment: disk)
+configs.storageDevices = [storage]
 
 // Add networking
 let network = VZNATNetworkDeviceAttachment()
-let netDevice = VZVirtioNetworkDeviceConfiguration()
+let netDevice = VZVirtioNetworkDeviceconfigsuration()
 netDevice.attachment = network
-config.networkDevices = [netDevice]
+configs.networkDevices = [netDevice]
 
 // Create and start VM
-let vm = VZVirtualMachine(configuration: config)
+let vm = VZVirtualMachine(configsuration: configs)
 try await vm.start()
 ```
 

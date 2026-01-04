@@ -2,7 +2,7 @@
 #
 # NOA Linux Namespace Isolation Setup (B128)
 #
-# Configures namespace isolation for NOA processes.
+# configsures namespace isolation for NOA processes.
 # Supports network, PID, mount, and user namespaces.
 #
 # Usage:
@@ -21,7 +21,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOA_ROOT="${NOA_ROOT:-$(cd "$SCRIPT_DIR/../../../.." && pwd)}"
 
-# Configuration
+# configsuration
 NAMESPACE_DIR="$NOA_ROOT/sys/namespace"
 NETNS_NAME="noa"
 BRIDGE_NAME="noa0"
@@ -53,21 +53,21 @@ if ! $SETUP_NETWORK && ! $SETUP_PID && ! $SETUP_MOUNT && ! $SETUP_USER; then
     if ip netns list 2>/dev/null | grep -q "^$NETNS_NAME"; then
         echo -e "  Network namespace ($NETNS_NAME): ${GREEN}EXISTS${NC}"
     else
-        echo -e "  Network namespace ($NETNS_NAME): ${YELLOW}NOT CONFIGURED${NC}"
+        echo -e "  Network namespace ($NETNS_NAME): ${YELLOW}NOT configsURED${NC}"
     fi
 
     # Check bridge
     if ip link show "$BRIDGE_NAME" &>/dev/null; then
         echo -e "  Bridge ($BRIDGE_NAME): ${GREEN}EXISTS${NC}"
     else
-        echo -e "  Bridge ($BRIDGE_NAME): ${YELLOW}NOT CONFIGURED${NC}"
+        echo -e "  Bridge ($BRIDGE_NAME): ${YELLOW}NOT configsURED${NC}"
     fi
 
     # Check mount namespace
     if [[ -d "$NAMESPACE_DIR/mnt" ]]; then
         echo -e "  Mount namespace dir: ${GREEN}EXISTS${NC}"
     else
-        echo -e "  Mount namespace dir: ${YELLOW}NOT CONFIGURED${NC}"
+        echo -e "  Mount namespace dir: ${YELLOW}NOT configsURED${NC}"
     fi
 
     # Check user namespace support
@@ -89,7 +89,7 @@ fi
 
 check_root() {
     if [[ $EUID -ne 0 ]]; then
-        echo -e "${RED}This script requires root privileges for namespace configuration.${NC}"
+        echo -e "${RED}This script requires root privileges for namespace configsuration.${NC}"
         echo "Run with: sudo $0 $*"
         exit 1
     fi
@@ -126,7 +126,7 @@ setup_network_namespace() {
         ip link set "$VETH_HOST" up
         ip link set "$VETH_NS" netns "$NETNS_NAME"
 
-        # Configure namespace side
+        # configsure namespace side
         ip netns exec "$NETNS_NAME" ip addr add 10.10.0.2/24 dev "$VETH_NS"
         ip netns exec "$NETNS_NAME" ip link set "$VETH_NS" up
         ip netns exec "$NETNS_NAME" ip link set lo up
@@ -149,7 +149,7 @@ setup_network_namespace() {
         echo -e "  ${GREEN}[OK]${NC} Added NAT rule"
     fi
 
-    echo -e "${GREEN}Network namespace configured.${NC}"
+    echo -e "${GREEN}Network namespace configsured.${NC}"
     echo -e "${GRAY}  Run commands in namespace: ip netns exec $NETNS_NAME <command>${NC}"
 }
 
