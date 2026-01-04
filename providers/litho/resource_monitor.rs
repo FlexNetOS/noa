@@ -9,9 +9,9 @@ use std::time::{Duration, Instant};
 
 use super::executor::ResourceSnapshot;
 
-/// Resource monitor configuration
+/// Resource monitor configsuration
 #[derive(Debug, Clone)]
-pub struct ResourceMonitorConfig {
+pub struct ResourceMonitorconfigs {
     /// Poll interval in milliseconds
     pub poll_interval_ms: u64,
     /// Threshold for parallel execution (0.0-1.0)
@@ -22,7 +22,7 @@ pub struct ResourceMonitorConfig {
     pub drain_timeout_seconds: u64,
 }
 
-impl Default for ResourceMonitorConfig {
+impl Default for ResourceMonitorconfigs {
     fn default() -> Self {
         Self {
             poll_interval_ms: 500,
@@ -35,7 +35,7 @@ impl Default for ResourceMonitorConfig {
 
 /// Tracks resource usage over time
 pub struct ResourceMonitor {
-    config: ResourceMonitorConfig,
+    configs: ResourceMonitorconfigs,
     is_running: Arc<AtomicBool>,
     last_snapshot: ResourceSnapshot,
     last_poll_time: Instant,
@@ -44,9 +44,9 @@ pub struct ResourceMonitor {
 
 impl ResourceMonitor {
     /// Create a new resource monitor
-    pub fn new(config: ResourceMonitorConfig) -> Self {
+    pub fn new(configs: ResourceMonitorconfigs) -> Self {
         Self {
-            config,
+            configs,
             is_running: Arc::new(AtomicBool::new(false)),
             last_snapshot: ResourceSnapshot {
                 cpu_percent: 0.0,
@@ -89,7 +89,7 @@ impl ResourceMonitor {
         self.last_poll_time = Instant::now();
 
         // Track time below threshold
-        if self.last_snapshot.can_parallelize(self.config.parallel_threshold) {
+        if self.last_snapshot.can_parallelize(self.configs.parallel_threshold) {
             if self.below_threshold_since.is_none() {
                 self.below_threshold_since = Some(Instant::now());
             }
@@ -111,7 +111,7 @@ impl ResourceMonitor {
         };
         self.last_poll_time = Instant::now();
 
-        if self.last_snapshot.can_parallelize(self.config.parallel_threshold) {
+        if self.last_snapshot.can_parallelize(self.configs.parallel_threshold) {
             if self.below_threshold_since.is_none() {
                 self.below_threshold_since = Some(Instant::now());
             }
@@ -129,7 +129,7 @@ impl ResourceMonitor {
 
     /// Check if should poll again based on interval
     pub fn should_poll(&self) -> bool {
-        self.last_poll_time.elapsed() >= Duration::from_millis(self.config.poll_interval_ms)
+        self.last_poll_time.elapsed() >= Duration::from_millis(self.configs.poll_interval_ms)
     }
 
     /// Get seconds below threshold
@@ -141,22 +141,22 @@ impl ResourceMonitor {
 
     /// Check if can parallelize based on current resources
     pub fn can_parallelize(&self) -> bool {
-        self.last_snapshot.can_parallelize(self.config.parallel_threshold)
+        self.last_snapshot.can_parallelize(self.configs.parallel_threshold)
     }
 
     /// Check if can resume parallel after cooldown
     pub fn can_resume_parallel(&self) -> bool {
-        self.can_parallelize() && self.seconds_below_threshold() >= self.config.cooldown_seconds
+        self.can_parallelize() && self.seconds_below_threshold() >= self.configs.cooldown_seconds
     }
 
     /// Get the poll interval
     pub fn poll_interval(&self) -> Duration {
-        Duration::from_millis(self.config.poll_interval_ms)
+        Duration::from_millis(self.configs.poll_interval_ms)
     }
 
     /// Get drain timeout
     pub fn drain_timeout(&self) -> Duration {
-        Duration::from_secs(self.config.drain_timeout_seconds)
+        Duration::from_secs(self.configs.drain_timeout_seconds)
     }
 
     /// Start monitoring (for background polling)
@@ -231,14 +231,14 @@ mod tests {
 
     #[test]
     fn test_resource_monitor_default() {
-        let config = ResourceMonitorConfig::default();
-        assert_eq!(config.poll_interval_ms, 500);
-        assert!((config.parallel_threshold - 0.35).abs() < f32::EPSILON);
+        let configs = ResourceMonitorconfigs::default();
+        assert_eq!(configs.poll_interval_ms, 500);
+        assert!((configs.parallel_threshold - 0.35).abs() < f32::EPSILON);
     }
 
     #[test]
     fn test_can_parallelize() {
-        let mut monitor = ResourceMonitor::new(ResourceMonitorConfig::default());
+        let mut monitor = ResourceMonitor::new(ResourceMonitorconfigs::default());
         monitor.poll();
         // Stub returns low usage, should be able to parallelize
         assert!(monitor.can_parallelize());

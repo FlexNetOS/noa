@@ -14,7 +14,7 @@ Local-first AI providers that run entirely on the user's machine.
 - **Purpose:** Local model serving with OpenAI-compatible API
 - **Status:** Planned
 
-## Configuration
+## configsuration
 
 See **[AGENT.md](../../../AGENT.md)** for canonical provider routing and policies.
 

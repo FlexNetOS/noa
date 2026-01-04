@@ -16,7 +16,7 @@ IDE-integrated AI assistants for in-editor context and orchestration.
 - **Integration:** Multi-IDE support
 - **Context:** File-level awareness
 
-## Configuration
+## configsuration
 
 See **[AGENT.md](../../../AGENT.md)** for canonical provider routing and policies.
 

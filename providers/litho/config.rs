@@ -1,15 +1,15 @@
-//! Litho Configuration
+//! Litho configsuration
 //!
-//! Parses and manages litho.toml configuration
+//! Parses and manages litho.toml configsuration
 
 use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use super::LithoError;
 
-/// Main Litho configuration
+/// Main Litho configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LithoConfig {
+pub struct Lithoconfigs {
     pub litho: LithoSettings,
     pub model: ModelSettings,
     pub runtime: RuntimeSettings,
@@ -19,7 +19,7 @@ pub struct LithoConfig {
     pub output: OutputSettings,
 }
 
-impl Default for LithoConfig {
+impl Default for Lithoconfigs {
     fn default() -> Self {
         Self {
             litho: LithoSettings::default(),
@@ -33,8 +33,8 @@ impl Default for LithoConfig {
     }
 }
 
-impl LithoConfig {
-    /// Load configuration from a TOML file
+impl Lithoconfigs {
+    /// Load configsuration from a TOML file
     pub fn load(path: &Path) -> Result<Self, LithoError> {
         let content = std::fs::read_to_string(path)?;
         toml::from_str(&content).map_err(|e| LithoError::TomlParse(e.to_string()))

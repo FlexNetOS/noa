@@ -8,17 +8,17 @@
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
-pub mod config;
+pub mod configs;
 pub mod executor;
 pub mod fallback;
 pub mod manual_edit;
 pub mod resource_monitor;
 
-pub use config::LithoConfig;
+pub use configs::Lithoconfigs;
 pub use executor::{LithoExecutor, ResourceSnapshot};
 pub use fallback::FallbackChain;
 pub use manual_edit::ManualEditPreserver;
-pub use resource_monitor::{ResourceMonitor, ResourceMonitorConfig, ResourceSpikeHandler};
+pub use resource_monitor::{ResourceMonitor, ResourceMonitorconfigs, ResourceSpikeHandler};
 
 /// Provider priority for fallback chain
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -70,7 +70,7 @@ impl Default for LithoPass {
     }
 }
 
-/// Standard 4-pass configuration for documentation generation
+/// Standard 4-pass configsuration for documentation generation
 pub fn default_passes() -> Vec<LithoPass> {
     vec![
         LithoPass {
@@ -110,30 +110,30 @@ pub fn default_passes() -> Vec<LithoPass> {
 
 /// Litho provider adapter for NOA
 pub struct LithoProvider {
-    pub config: LithoConfig,
+    pub configs: Lithoconfigs,
     pub fallback_chain: FallbackChain,
     pub passes: Vec<LithoPass>,
     pub noa_root: PathBuf,
 }
 
 impl LithoProvider {
-    /// Create a new Litho provider with default configuration
+    /// Create a new Litho provider with default configsuration
     pub fn new(noa_root: PathBuf) -> Self {
         Self {
-            config: LithoConfig::default(),
+            configs: Lithoconfigs::default(),
             fallback_chain: FallbackChain::default(),
             passes: default_passes(),
             noa_root,
         }
     }
 
-    /// Load configuration from litho.toml
-    pub fn from_config(noa_root: PathBuf, config_path: PathBuf) -> Result<Self, LithoError> {
-        let config = LithoConfig::load(&config_path)?;
-        let fallback_chain = FallbackChain::from_config(&config)?;
+    /// Load configsuration from litho.toml
+    pub fn from_configs(noa_root: PathBuf, configs_path: PathBuf) -> Result<Self, LithoError> {
+        let configs = Lithoconfigs::load(&configs_path)?;
+        let fallback_chain = FallbackChain::from_configs(&configs)?;
         
         Ok(Self {
-            config,
+            configs,
             fallback_chain,
             passes: default_passes(),
             noa_root,
@@ -147,15 +147,15 @@ impl LithoProvider {
 
     /// Get output directory
     pub fn output_dir(&self) -> PathBuf {
-        self.noa_root.join(&self.config.output_dir)
+        self.noa_root.join(&self.configs.output_dir)
     }
 }
 
 /// Litho-specific errors
 #[derive(Debug, thiserror::Error)]
 pub enum LithoError {
-    #[error("Configuration error: {0}")]
-    Config(String),
+    #[error("configsuration error: {0}")]
+    configs(String),
 
     #[error("Provider unavailable: {0}")]
     ProviderUnavailable(String),

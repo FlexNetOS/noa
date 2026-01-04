@@ -15,7 +15,7 @@ Hybrid providers that can operate in both local and cloud modes, or combine mult
 - **Edge computing:** Local preprocessing + cloud refinement
 - **Federation:** Distributed model inference across multiple nodes
 
-## Configuration
+## configsuration
 
 See **[AGENT.md](../../../AGENT.md)** for canonical provider routing and policies.
 

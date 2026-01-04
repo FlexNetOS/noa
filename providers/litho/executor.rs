@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 
-use super::{FallbackChain, LithoConfig, LithoError, LithoPass, ManualEditPreserver};
+use super::{FallbackChain, Lithoconfigs, LithoError, LithoPass, ManualEditPreserver};
 
 /// Execution mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -83,7 +83,7 @@ impl ResourceSnapshot {
 
 /// Litho executor for multi-pass documentation generation
 pub struct LithoExecutor {
-    config: LithoConfig,
+    configs: Lithoconfigs,
     fallback_chain: FallbackChain,
     passes: Vec<LithoPass>,
     manual_edit_preserver: ManualEditPreserver,
@@ -101,7 +101,7 @@ pub struct LithoExecutor {
 impl LithoExecutor {
     /// Create a new executor
     pub fn new(
-        config: LithoConfig,
+        configs: Lithoconfigs,
         fallback_chain: FallbackChain,
         passes: Vec<LithoPass>,
         noa_root: PathBuf,
@@ -120,9 +120,9 @@ impl LithoExecutor {
             .collect();
 
         let manual_edit_preserver = ManualEditPreserver::new(
-            config.manual_edits.marker_start.clone(),
-            config.manual_edits.marker_end.clone(),
-            if config.manual_edits.validation == "fail_on_loss" {
+            configs.manual_edits.marker_start.clone(),
+            configs.manual_edits.marker_end.clone(),
+            if configs.manual_edits.validation == "fail_on_loss" {
                 super::manual_edit::ValidationMode::FailOnLoss
             } else {
                 super::manual_edit::ValidationMode::WarnOnLoss
@@ -130,7 +130,7 @@ impl LithoExecutor {
         );
 
         Self {
-            config,
+            configs,
             fallback_chain,
             passes,
             manual_edit_preserver,
@@ -195,7 +195,7 @@ impl LithoExecutor {
 
     /// Determine execution mode based on resource usage
     pub fn determine_mode(&self, resources: &ResourceSnapshot) -> ExecutionMode {
-        let execution_mode = self.config.runtime.execution.as_str();
+        let execution_mode = self.configs.runtime.execution.as_str();
 
         match execution_mode {
             "sequential" => ExecutionMode::Sequential,
@@ -203,7 +203,7 @@ impl LithoExecutor {
             "adaptive" | _ => {
                 if self.is_draining() {
                     ExecutionMode::Sequential
-                } else if resources.can_parallelize(self.config.runtime.parallel_threshold) {
+                } else if resources.can_parallelize(self.configs.runtime.parallel_threshold) {
                     ExecutionMode::Parallel
                 } else {
                     ExecutionMode::Sequential
@@ -214,7 +214,7 @@ impl LithoExecutor {
 
     /// Handle resource spike - initiate graceful drain
     pub fn handle_resource_spike(&self, resources: &ResourceSnapshot) {
-        if resources.total_usage() > self.config.runtime.parallel_threshold
+        if resources.total_usage() > self.configs.runtime.parallel_threshold
             && !self.is_draining()
             && self.state() == ExecutorState::Running
         {
@@ -228,8 +228,8 @@ impl LithoExecutor {
 
     /// Check if can resume parallel execution after cooldown
     pub fn can_resume_parallel(&self, resources: &ResourceSnapshot, seconds_below_threshold: u64) -> bool {
-        resources.can_parallelize(self.config.runtime.parallel_threshold)
-            && seconds_below_threshold >= self.config.runtime.transitions.cooldown_before_parallel
+        resources.can_parallelize(self.configs.runtime.parallel_threshold)
+            && seconds_below_threshold >= self.configs.runtime.transitions.cooldown_before_parallel
     }
 
     /// Get passes that can run in parallel (after pass 1 completes)
@@ -282,9 +282,9 @@ impl LithoExecutor {
         &self.manual_edit_preserver
     }
 
-    /// Get configuration
-    pub fn config(&self) -> &LithoConfig {
-        &self.config
+    /// Get configsuration
+    pub fn configs(&self) -> &Lithoconfigs {
+        &self.configs
     }
 
     /// Get NOA root path
@@ -297,8 +297,8 @@ impl LithoExecutor {
 mod tests {
     use super::*;
 
-    fn test_config() -> LithoConfig {
-        LithoConfig::default()
+    fn test_configs() -> Lithoconfigs {
+        Lithoconfigs::default()
     }
 
     fn test_passes() -> Vec<LithoPass> {
@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn test_determine_mode_adaptive() {
         let executor = LithoExecutor::new(
-            test_config(),
+            test_configs(),
             FallbackChain::default(),
             test_passes(),
             PathBuf::from("/test"),
@@ -332,7 +332,7 @@ mod tests {
     #[test]
     fn test_graceful_drain() {
         let executor = LithoExecutor::new(
-            test_config(),
+            test_configs(),
             FallbackChain::default(),
             test_passes(),
             PathBuf::from("/test"),
@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn test_cancel() {
         let executor = LithoExecutor::new(
-            test_config(),
+            test_configs(),
             FallbackChain::default(),
             test_passes(),
             PathBuf::from("/test"),

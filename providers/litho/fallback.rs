@@ -2,7 +2,7 @@
 //!
 //! Manages provider fallback: llama.cpp → copilot → anthropic → openai → git
 
-use super::{LithoConfig, LithoError, ProviderPriority};
+use super::{Lithoconfigs, LithoError, ProviderPriority};
 
 /// Provider status in the fallback chain
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -98,19 +98,19 @@ impl Default for FallbackChain {
 }
 
 impl FallbackChain {
-    /// Create fallback chain from configuration
-    pub fn from_config(config: &LithoConfig) -> Result<Self, LithoError> {
+    /// Create fallback chain from configsuration
+    pub fn from_configs(configs: &Lithoconfigs) -> Result<Self, LithoError> {
         let mut providers = Vec::new();
 
         // Primary provider
-        let primary = match config.model.provider.primary.as_str() {
+        let primary = match configs.model.provider.primary.as_str() {
             "llama.cpp" => FallbackProvider::new(
                 ProviderPriority::LlamaCpp,
-                config.model.name.clone(),
-                Some(config.model.provider.llm_api_base_url.clone()),
+                configs.model.name.clone(),
+                Some(configs.model.provider.llm_api_base_url.clone()),
             ),
             other => {
-                return Err(LithoError::Config(format!(
+                return Err(LithoError::configs(format!(
                     "Unknown primary provider: {}",
                     other
                 )))
@@ -119,7 +119,7 @@ impl FallbackChain {
         providers.push(primary);
 
         // Fallback providers
-        for fallback in &config.model.provider.fallback {
+        for fallback in &configs.model.provider.fallback {
             let provider = match fallback.as_str() {
                 "copilot" => FallbackProvider::new(
                     ProviderPriority::Copilot,
@@ -142,7 +142,7 @@ impl FallbackChain {
                     None,
                 ),
                 other => {
-                    return Err(LithoError::Config(format!(
+                    return Err(LithoError::configs(format!(
                         "Unknown fallback provider: {}",
                         other
                     )))
