@@ -9,6 +9,7 @@
   "quantization": "BF16",
   "provider": "local",
   "backend": "llama.cpp",
+  "constitutional_slm": true,
   "source": {
     "publisher": "unsloth",
     "original": "google/gemma-3-1b-it",

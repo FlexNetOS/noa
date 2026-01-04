@@ -9,6 +9,7 @@
   "quantization": "BF16",
   "provider": "local",
   "backend": "llama.cpp",
+  "constitutional_slm": true,
   "source": {
     "publisher": "unsloth",
     "original": "Qwen/Qwen3-0.6B",

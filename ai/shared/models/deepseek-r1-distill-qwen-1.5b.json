@@ -9,6 +9,7 @@
   "quantization": "Q8_0",
   "provider": "local",
   "backend": "llama.cpp",
+  "constitutional_slm": true,
   "source": {
     "publisher": "unsloth",
     "original": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
