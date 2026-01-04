@@ -31,12 +31,12 @@
       "vector_size": 768,
       "distance": "Cosine",
       "on_disk_payload": true,
-      "optimizers_config": {
+      "optimizers_configs": {
         "deleted_threshold": 0.2,
         "vacuum_min_vector_number": 1000,
         "default_segment_number": 2
       },
-      "hnsw_config": {
+      "hnsw_configs": {
         "m": 16,
         "ef_construct": 100,
         "full_scan_threshold": 10000

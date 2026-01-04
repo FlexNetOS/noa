@@ -25,7 +25,7 @@
       "request-response"
     ]
   },
-  "network_configuration": {
+  "network_configsuration": {
     "peer_id": {
       "generate_on_start": true,
       "persist_to": "${NOA_ROOT}/data/p2p/peer_id.json",

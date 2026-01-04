@@ -1,12 +1,12 @@
 //! Integration tests for agent sandbox capsules.
 //!
-//! Tests capsule configuration loading, validation, and policy enforcement.
+//! Tests capsule configsuration loading, validation, and policy enforcement.
 
 use std::fs;
 use std::path::Path;
 use serde_json::Value;
 
-/// Load and parse a capsule configuration.
+/// Load and parse a capsule configsuration.
 fn load_capsule(name: &str) -> Result<Value, Box<dyn std::error::Error>> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent().unwrap()
@@ -19,7 +19,7 @@ fn load_capsule(name: &str) -> Result<Value, Box<dyn std::error::Error>> {
     Ok(capsule)
 }
 
-/// Load runtime limits configuration.
+/// Load runtime limits configsuration.
 fn load_limits() -> Result<Value, Box<dyn std::error::Error>> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent().unwrap()
@@ -31,7 +31,7 @@ fn load_limits() -> Result<Value, Box<dyn std::error::Error>> {
     Ok(limits)
 }
 
-/// Load runtime permissions configuration.
+/// Load runtime permissions configsuration.
 fn load_permissions() -> Result<Value, Box<dyn std::error::Error>> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent().unwrap()

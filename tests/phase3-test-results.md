@@ -47,8 +47,8 @@
 
 **Rust Integration Tests**:
 - Tests exist in `sys/core/src/init/tests.rs`
-- Package configuration needs completion (dependencies)
-- Once package is properly configured, tests can run with `cargo test`
+- Package configsuration needs completion (dependencies)
+- Once package is properly configsured, tests can run with `cargo test`
 
 **Manual Scripts**:
 - ✅ Bash script created and ready

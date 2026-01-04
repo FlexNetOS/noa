@@ -27,7 +27,7 @@
 **Location**: `sys/core/src/init/tests.rs`
 
 **Status**: Tests exist but require:
-1. Package configuration in `sys/core/Cargo.toml` (in progress)
+1. Package configsuration in `sys/core/Cargo.toml` (in progress)
 2. Dependency resolution
 3. Proper lib.rs setup (created)
 
@@ -41,7 +41,7 @@
 - ✅ `test_full_initialization_workflow()` - Full workflow
 - ✅ `test_verification()` - Verification functionality
 
-**To Run** (once package is configured):
+**To Run** (once package is configsured):
 ```bash
 cd sys/core
 cargo test --lib init::tests::integration_tests
@@ -66,11 +66,11 @@ cargo test --lib init::tests::integration_tests
    - **Impact**: Manual verification scripts cannot fully test initialization
    - **Solution**: Build CLI binary or use bootstrap scripts directly
 
-2. **Package Configuration Incomplete**
+2. **Package configsuration Incomplete**
    - `sys/core/Cargo.toml` needs proper package definition
    - Dependencies need to be added
    - **Impact**: Rust integration tests cannot run
-   - **Solution**: Complete package configuration
+   - **Solution**: Complete package configsuration
 
 3. **Test Infrastructure Ready**
    - ✅ All test scripts created
@@ -82,7 +82,7 @@ cargo test --lib init::tests::integration_tests
 
 ## Next Steps
 
-1. **Complete Package Configuration**
+1. **Complete Package configsuration**
    - Fix `sys/core/Cargo.toml` package definition
    - Add all required dependencies
    - Ensure lib.rs properly exports modules
@@ -109,6 +109,6 @@ cargo test --lib init::tests::integration_tests
 
 ---
 
-**Test Execution**: Partial (manual scripts run, automated tests pending package config)
+**Test Execution**: Partial (manual scripts run, automated tests pending package configs)
 **Overall Status**: Infrastructure ready, awaiting CLI/package completion
 

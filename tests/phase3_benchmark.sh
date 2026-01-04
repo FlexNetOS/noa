@@ -39,12 +39,12 @@ else
     if [ -f "$SCRIPT_DIR/../init/bootstrap/dirs.sh" ]; then
         NOA_ROOT="$TEST_ROOT" bash "$SCRIPT_DIR/../init/bootstrap/dirs.sh"
     fi
-    # Generate configs (simulated)
-    mkdir -p "$TEST_ROOT/config"
-    touch "$TEST_ROOT/config/ai-providers.json"
-    touch "$TEST_ROOT/config/noa-server.json"
-    touch "$TEST_ROOT/config/features.json"
-    touch "$TEST_ROOT/config/models.json"
+    # Generate configss (simulated)
+    mkdir -p "$TEST_ROOT/configs"
+    touch "$TEST_ROOT/configs/ai-providers.json"
+    touch "$TEST_ROOT/configs/noa-server.json"
+    touch "$TEST_ROOT/configs/features.json"
+    touch "$TEST_ROOT/configs/models.json"
     # Create database (simulated)
     mkdir -p "$TEST_ROOT/data"
     touch "$TEST_ROOT/data/noa.db"

@@ -58,7 +58,7 @@ if (Get-Command noa -ErrorAction SilentlyContinue) {
 }
 
 # Check for all 8 core directories
-$RequiredDirs = @("sys", "p2p", "opt", "init", "containers", "config", "bin", "ai")
+$RequiredDirs = @("sys", "p2p", "opt", "init", "containers", "configs", "bin", "ai")
 $MissingDirs = @()
 
 foreach ($dir in $RequiredDirs) {
@@ -133,8 +133,8 @@ Write-Host "VER005: Verify system operates fully offline" -ForegroundColor Cyan
 Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
 
 Write-Host "  Simulating offline operation..." -ForegroundColor Yellow
-if ((Test-Path (Join-Path $TestRoot "config")) -and (Test-Path $DbPath)) {
-    Test-Result "VER005: System operates offline (configs and DB created without network)" $true
+if ((Test-Path (Join-Path $TestRoot "configs")) -and (Test-Path $DbPath)) {
+    Test-Result "VER005: System operates offline (configss and DB created without network)" $true
 } else {
     Test-Result "VER005: System operates offline" $false
 }

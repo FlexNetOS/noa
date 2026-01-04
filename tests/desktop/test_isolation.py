@@ -10,7 +10,7 @@ from pathlib import Path
 
 NOA_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = NOA_ROOT / "data" / "apps"
-CONFIG_FILE = NOA_ROOT / "config" / "desktop-apps.json"
+configs_FILE = NOA_ROOT / "configs" / "desktop-apps.json"
 
 
 def _assert_contains(path: Path, needle: str) -> None:
@@ -18,11 +18,11 @@ def _assert_contains(path: Path, needle: str) -> None:
     assert needle in text, f"{needle!r} not found in {path}"
 
 
-def test_config_points_to_data_apps():
-    assert CONFIG_FILE.exists(), "desktop-apps.json missing"
-    config = json.loads(CONFIG_FILE.read_text())
-    assert "apps" in config, "apps key missing"
-    for app in config["apps"]:
+def test_configs_points_to_data_apps():
+    assert configs_FILE.exists(), "desktop-apps.json missing"
+    configs = json.loads(configs_FILE.read_text())
+    assert "apps" in configs, "apps key missing"
+    for app in configs["apps"]:
         data_path = app.get("dataPath", "")
         assert "/data/apps/" in data_path or "\\data\\apps\\" in data_path, (
             f"dataPath for {app.get('id')} does not target NOA data: {data_path}"

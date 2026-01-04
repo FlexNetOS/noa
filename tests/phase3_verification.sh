@@ -60,7 +60,7 @@ else
 fi
 
 # Check for all 8 core directories
-REQUIRED_DIRS=("sys" "p2p" "opt" "init" "containers" "config" "bin" "ai")
+REQUIRED_DIRS=("sys" "p2p" "opt" "init" "containers" "configs" "bin" "ai")
 MISSING_DIRS=()
 
 for dir in "${REQUIRED_DIRS[@]}"; do
@@ -160,8 +160,8 @@ echo "════════════════════════�
 # Disable network temporarily (if possible)
 # This is a simulation - actual offline test would require network isolation
 echo "  Simulating offline operation..."
-if [ -d "$TEST_ROOT/config" ] && [ -f "$TEST_ROOT/data/noa.db" ]; then
-    test_result "VER005: System operates offline (configs and DB created without network)"
+if [ -d "$TEST_ROOT/configs" ] && [ -f "$TEST_ROOT/data/noa.db" ]; then
+    test_result "VER005: System operates offline (configss and DB created without network)"
 else
     test_result "VER005: System operates offline" || true
     ((FAILED++))

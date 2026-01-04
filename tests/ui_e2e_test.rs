@@ -4,13 +4,13 @@
 
 use std::time::Duration;
 
-/// Test configuration.
-struct TestConfig {
+/// Test configsuration.
+struct Testconfigs {
     api_url: String,
     timeout: Duration,
 }
 
-impl Default for TestConfig {
+impl Default for Testconfigs {
     fn default() -> Self {
         Self {
             api_url: std::env::var("NOA_API_URL")
@@ -27,12 +27,12 @@ mod api_integration {
     #[tokio::test]
     #[ignore = "Requires running API server"]
     async fn test_api_health() {
-        let config = TestConfig::default();
+        let configs = Testconfigs::default();
         let client = reqwest::Client::new();
         
         let response = client
-            .get(format!("{}/health", config.api_url))
-            .timeout(config.timeout)
+            .get(format!("{}/health", configs.api_url))
+            .timeout(configs.timeout)
             .send()
             .await;
         
@@ -43,12 +43,12 @@ mod api_integration {
     #[tokio::test]
     #[ignore = "Requires running API server"]
     async fn test_api_status() {
-        let config = TestConfig::default();
+        let configs = Testconfigs::default();
         let client = reqwest::Client::new();
         
         let response = client
-            .get(format!("{}/api/v1/status", config.api_url))
-            .timeout(config.timeout)
+            .get(format!("{}/api/v1/status", configs.api_url))
+            .timeout(configs.timeout)
             .send()
             .await;
         
@@ -60,12 +60,12 @@ mod api_integration {
     #[tokio::test]
     #[ignore = "Requires running API server"]
     async fn test_providers_endpoint() {
-        let config = TestConfig::default();
+        let configs = Testconfigs::default();
         let client = reqwest::Client::new();
         
         let response = client
-            .get(format!("{}/api/v1/providers", config.api_url))
-            .timeout(config.timeout)
+            .get(format!("{}/api/v1/providers", configs.api_url))
+            .timeout(configs.timeout)
             .send()
             .await;
         
@@ -168,7 +168,7 @@ mod ui_component_tests {
 }
 
 #[cfg(test)]
-mod config_validation {
+mod configs_validation {
     use std::fs;
     use std::path::Path;
 
@@ -176,7 +176,7 @@ mod config_validation {
     fn test_capsule_schema_valid() {
         let schema_path = Path::new(env!("CARGO_MANIFEST_DIR"))
             .parent().unwrap()
-            .join("config/schemas/capsule.schema.json");
+            .join("configs/base/schemas/capsule.schema.json");
         
         let content = fs::read_to_string(&schema_path).expect("Schema file should exist");
         let schema: serde_json::Value = serde_json::from_str(&content).expect("Schema should be valid JSON");
@@ -215,15 +215,15 @@ mod performance_tests {
     use std::time::Instant;
 
     #[test]
-    fn test_config_load_performance() {
+    fn test_configs_load_performance() {
         let start = Instant::now();
         
         for _ in 0..100 {
-            let _ = std::fs::read_to_string("../config/ai-providers.json");
+            let _ = std::fs::read_to_string("../configs/base/ai-providers.json");
         }
         
         let elapsed = start.elapsed();
-        assert!(elapsed.as_millis() < 1000, "Config loading should be fast");
+        assert!(elapsed.as_millis() < 1000, "configs loading should be fast");
     }
 
     #[test]

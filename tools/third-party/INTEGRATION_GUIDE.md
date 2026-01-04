@@ -22,9 +22,9 @@ This guide covers integration of third-party tools into the NOA framework. Phase
 
 Implements the Model Context Protocol (MCP) for standardized tool and resource discovery.
 
-### Configuration
+### configsuration
 
-**Location**: `tools/third-party/mcp-sdk/config.json`
+**Location**: `tools/third-party/mcp-sdk/configs.json`
 
 ### Installation
 
@@ -100,9 +100,9 @@ Auto-registers tools from resource registry:
 
 Vector database for semantic search, code search, and RAG (Retrieval-Augmented Generation).
 
-### Configuration
+### configsuration
 
-**Location**: `tools/third-party/qdrant/config.json`
+**Location**: `tools/third-party/qdrant/configs.json`
 
 ### Installation
 
@@ -220,9 +220,9 @@ curl -X POST "http://localhost:6334/collections/noa_code_embeddings/points/searc
 
 Async SQL database for persistent storage, audit archival, and analytics.
 
-### Configuration
+### configsuration
 
-**Location**: `tools/third-party/sqlx/config.json`
+**Location**: `tools/third-party/sqlx/configs.json`
 
 ### Installation
 
@@ -341,9 +341,9 @@ GROUP BY principal_id;
 
 Peer-to-peer networking for distributed NOA instances, agent discovery, and model sharing.
 
-### Configuration
+### configsuration
 
-**Location**: `tools/third-party/libp2p/config.json`
+**Location**: `tools/third-party/libp2p/configs.json`
 
 ### Installation
 
@@ -369,7 +369,7 @@ libp2p = { version = "0.53", features = [
 **Purpose**: Peer and content discovery
 
 ```rust
-use libp2p::kad::{Kademlia, KademliaConfig};
+use libp2p::kad::{Kademlia, Kademliaconfigs};
 
 let mut kad = Kademlia::new(peer_id, store);
 kad.bootstrap()?;
@@ -392,18 +392,18 @@ let mdns = Mdns::new(Default::default())?;
 
 **Use Cases**:
 - Discover NOA instances on LAN
-- Zero-config local collaboration
+- Zero-configs local collaboration
 
 #### 3. GossipSub
 
 **Purpose**: Pub/sub messaging
 
 ```rust
-use libp2p::gossipsub::{Gossipsub, GossipsubConfig};
+use libp2p::gossipsub::{Gossipsub, Gossipsubconfigs};
 
 let mut gossipsub = Gossipsub::new(
     libp2p::gossipsub::MessageAuthenticity::Signed(local_key),
-    GossipsubConfig::default()
+    Gossipsubconfigs::default()
 )?;
 
 gossipsub.subscribe(&"noa/agents/events")?;
@@ -592,7 +592,7 @@ LIBP2P_TCP_PORT=9010 cargo run --bin noa-p2p-node
 
 ```json
 {
-  "hnsw_config": {
+  "hnsw_configs": {
     "m": 16,              // Connections per layer (higher = better recall, slower)
     "ef_construct": 100,  // Construction time (higher = better index)
     "full_scan_threshold": 10000  // Switch to exact search below this
