@@ -133,7 +133,7 @@ export default function WidgetGrid ( { layouts, onLayoutChange, onRemove }: Widg
         <div className="space-y-4">
           { items.length === 0 ? (
             <div className="text-center py-12 text-slate-400">
-              No widgets configured. Add widgets from the widget registry.
+              No widgets configsured. Add widgets from the widget registry.
             </div>
           ) : (
             items.map( ( layout ) =>

@@ -73,7 +73,7 @@ All system state changes flow through these event types:
 
 #### System Events
 - `STATUS_CHANGED` - System status update (idle/processing/success/error)
-- `CONFIG_LOADED` - Configuration loaded
+- `configs_LOADED` - configsuration loaded
 
 #### Replay Events
 - `EVENT_STREAM_SAVED` - Event stream persisted to database
@@ -89,7 +89,7 @@ All system state changes flow through these event types:
 emit({
   type: 'WIDGET_MOUNTED',
   widgetId: 'widget_123',
-  config: {
+  configs: {
     type: 'TextBlock',
     props: { content: '# Hello', markdown: true }
   }
@@ -125,7 +125,7 @@ emit({
 ### 2. CodeBlock
 - **Purpose**: Syntax-highlighted code display
 - **Props**: `code: string`, `language?: string`, `showLineNumbers?: boolean`
-- **Use Cases**: Code snippets, configuration files
+- **Use Cases**: Code snippets, configsuration files
 
 ### 3. StatusIndicator
 - **Purpose**: System status visualization
@@ -143,7 +143,7 @@ The `AIProvider` interface enables swappable AI backends:
 
 ```typescript
 interface AIProvider {
-  streamChat(messages: ChatMessage[], config?: ModelConfig): Promise<StreamingResponse>;
+  streamChat(messages: ChatMessage[], configs?: Modelconfigs): Promise<StreamingResponse>;
   generateWidget(prompt: string): Promise<WidgetGeneration>;
   analyzeCode(code: string, language: string): Promise<string>;
   getName(): string;
@@ -203,7 +203,7 @@ nextjs_space/
 │   └── schema.prisma     # Database schema
 ├── scripts/
 │   └── seed.ts           # Database seed script
-└── config.json          # Application configuration
+└── configs.json          # Application configsuration
 ```
 
 ## Usage Examples
@@ -272,7 +272,7 @@ Key Phase 2 milestones:
 3. Add Rig framework for LLM ops
 4. Implement candle-vllm for local models
 5. JSON-patch updates for efficient state sync
-6. Dual config system (runtime + compile-time)
+6. Dual configs system (runtime + compile-time)
 
 ## Architecture Details
 

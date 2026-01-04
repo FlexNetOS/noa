@@ -83,7 +83,7 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model OAuthConfig {
+model OAuthconfigs {
   id           String   @id @default(cuid())
   provider     String   @unique // "google", "github", etc.
   clientId     String
@@ -92,5 +92,5 @@ model OAuthConfig {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@map("oauth_configs")
+  @@map("oauth_configss")
 }

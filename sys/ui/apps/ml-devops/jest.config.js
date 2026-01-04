@@ -1,20 +1,20 @@
-/** @type {import('jest').Config} */
-const config = {
+/** @type {import('jest').configs} */
+const configs = {
   testEnvironment: 'node',
-  roots: ['<rootDir>'],
+  roots: [ '<rootDir>' ],
   testMatch: [
     '**/__tests__/**/*.test.ts',
     '**/__tests__/**/*.test.tsx'
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json'
-    }]
+    '^.+\\.(ts|tsx)$': [ 'ts-jest', {
+      tsconfigs: 'tsconfigs.json'
+    } ]
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
+  setupFilesAfterEnv: [ '<rootDir>/__tests__/setup.ts' ],
   collectCoverageFrom: [
     'lib/**/*.ts',
     'app/api/**/*.ts',
@@ -33,4 +33,4 @@ const config = {
   verbose: true
 };
 
-module.exports = config;
+module.exports = configs;

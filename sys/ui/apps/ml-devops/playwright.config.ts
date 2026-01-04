@@ -1,12 +1,12 @@
 /**
- * Playwright Configuration for ML DevOps App
- * Extends the shared NOA base configuration
+ * Playwright configsuration for ML DevOps App
+ * Extends the shared NOA base configsuration
  */
-import { createProjectConfig } from '../../../../config/playwright.base';
+import { createProjectconfigs } from '../../../../configs/playwright.base';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.configs();
 
-export default createProjectConfig( {
+export default createProjectconfigs( {
   testDir: './e2e',
   baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
   webServer: {

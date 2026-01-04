@@ -38,8 +38,8 @@ describe( 'WidgetPersistenceService', () =>
         localStorageMock.getItem.mockReturnValueOnce( null );
         await expect( svc.loadLayouts() ).resolves.toEqual( [] );
 
-        const storedConfig = JSON.stringify( { layouts, preferences: {}, version: '0.0.0' } );
-        localStorageMock.getItem.mockReturnValueOnce( storedConfig );
+        const storedconfigs = JSON.stringify( { layouts, preferences: {}, version: '0.0.0' } );
+        localStorageMock.getItem.mockReturnValueOnce( storedconfigs );
         const loaded = await svc.loadLayouts();
         expect( loaded ).toEqual( layouts );
         expect( consoleWarnSpy ).toHaveBeenCalled();

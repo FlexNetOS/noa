@@ -11,90 +11,110 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, AlertCircle, Settings, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-export default function OAuthSetupPage() {
+export default function OAuthSetupPage ()
+{
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [configured, setConfigured] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
+  const [ loading, setLoading ] = useState( false );
+  const [ checking, setChecking ] = useState( true );
+  const [ configsured, setconfigsured ] = useState( false );
+  const [ error, setError ] = useState( '' );
+  const [ success, setSuccess ] = useState( '' );
+  const [ clientId, setClientId ] = useState( '' );
+  const [ clientSecret, setClientSecret ] = useState( '' );
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    } else if (status === 'authenticated') {
-      checkConfiguration();
+  useEffect( () =>
+  {
+    if ( status === 'unauthenticated' )
+    {
+      router.push( '/login' );
+    } else if ( status === 'authenticated' )
+    {
+      checkconfigsuration();
     }
-  }, [status, router]);
+  }, [ status, router ] );
 
-  const checkConfiguration = async () => {
-    try {
-      const res = await fetch('/api/admin/oauth-config');
+  const checkconfigsuration = async () =>
+  {
+    try
+    {
+      const res = await fetch( '/api/admin/oauth-configs' );
       const data = await res.json();
-      setConfigured(data.configured);
-      if (data.clientId) {
-        setClientId(data.clientId);
+      setconfigsured( data.configsured );
+      if ( data.clientId )
+      {
+        setClientId( data.clientId );
       }
-    } catch (err) {
-      console.error('Failed to check OAuth configuration:', err);
-    } finally {
-      setChecking(false);
+    } catch ( err )
+    {
+      console.error( 'Failed to check OAuth configsuration:', err );
+    } finally
+    {
+      setChecking( false );
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async ( e: React.FormEvent ) =>
+  {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
+    setError( '' );
+    setSuccess( '' );
+    setLoading( true );
 
-    try {
-      const res = await fetch('/api/admin/oauth-config', {
+    try
+    {
+      const res = await fetch( '/api/admin/oauth-configs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId, clientSecret }),
-      });
+        body: JSON.stringify( { clientId, clientSecret } ),
+      } );
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to save configuration');
+      if ( !res.ok )
+      {
+        throw new Error( data.error || 'Failed to save configsuration' );
       }
 
-      setSuccess('OAuth configuration saved successfully! Users can now sign in with Google.');
-      setConfigured(true);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    } finally {
-      setLoading(false);
+      setSuccess( 'OAuth configsuration saved successfully! Users can now sign in with Google.' );
+      setconfigsured( true );
+    } catch ( err: any )
+    {
+      setError( err.message || 'An error occurred' );
+    } finally
+    {
+      setLoading( false );
     }
   };
 
-  const handleTest = async () => {
-    setError('');
-    setSuccess('');
-    setLoading(true);
+  const handleTest = async () =>
+  {
+    setError( '' );
+    setSuccess( '' );
+    setLoading( true );
 
-    try {
-      const res = await fetch('/api/admin/oauth-config/test');
+    try
+    {
+      const res = await fetch( '/api/admin/oauth-configs/test' );
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Test failed');
+      if ( !res.ok )
+      {
+        throw new Error( data.error || 'Test failed' );
       }
 
-      setSuccess('OAuth configuration is valid! Google SSO is working correctly.');
-    } catch (err: any) {
-      setError(err.message || 'Test failed');
-    } finally {
-      setLoading(false);
+      setSuccess( 'OAuth configsuration is valid! Google SSO is working correctly.' );
+    } catch ( err: any )
+    {
+      setError( err.message || 'Test failed' );
+    } finally
+    {
+      setLoading( false );
     }
   };
 
-  if (status === 'loading' || checking) {
+  if ( status === 'loading' || checking )
+  {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -106,29 +126,29 @@ export default function OAuthSetupPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.push('/')}>
+          <Button variant="outline" onClick={ () => router.push( '/' ) }>
             ← Back
           </Button>
           <div>
             <h1 className="text-3xl font-bold">OAuth Setup</h1>
-            <p className="text-muted-foreground">Configure Google Single Sign-On</p>
+            <p className="text-muted-foreground">configsure Google Single Sign-On</p>
           </div>
         </div>
 
-        {configured && (
+        { configsured && (
           <Alert className="border-green-500 bg-green-50 dark:bg-green-900/20">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800 dark:text-green-200">
-              Google SSO is configured and active. Users can sign in with their Google accounts.
+              Google SSO is configsured and active. Users can sign in with their Google accounts.
             </AlertDescription>
           </Alert>
-        )}
+        ) }
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Google OAuth Configuration
+              Google OAuth configsuration
             </CardTitle>
             <CardDescription>
               Set up Google OAuth credentials to enable "Sign in with Google" for all users.
@@ -142,7 +162,7 @@ export default function OAuthSetupPage() {
               </h3>
               <ol className="space-y-2 text-sm text-muted-foreground pl-6 list-decimal">
                 <li>
-                  Go to{' '}
+                  Go to{ ' ' }
                   <a
                     href="https://console.cloud.google.com"
                     target="_blank"
@@ -156,7 +176,7 @@ export default function OAuthSetupPage() {
                 <li>Create a new project or select an existing one</li>
                 <li>Navigate to &quot;APIs & Services&quot; → &quot;Credentials&quot;</li>
                 <li>Click &quot;Create Credentials&quot; → &quot;OAuth 2.0 Client ID&quot;</li>
-                <li>Configure the OAuth consent screen if prompted</li>
+                <li>configsure the OAuth consent screen if prompted</li>
                 <li>Select &quot;Web application&quot; as the application type</li>
                 <li>
                   Add authorized redirect URIs:
@@ -172,22 +192,22 @@ export default function OAuthSetupPage() {
 
             <Separator />
 
-            <form onSubmit={handleSave} className="space-y-4">
-              {error && (
+            <form onSubmit={ handleSave } className="space-y-4">
+              { error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{ error }</AlertDescription>
                 </Alert>
-              )}
+              ) }
 
-              {success && (
+              { success && (
                 <Alert className="border-green-500 bg-green-50 dark:bg-green-900/20">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800 dark:text-green-200">
-                    {success}
+                    { success }
                   </AlertDescription>
                 </Alert>
-              )}
+              ) }
 
               <div className="space-y-2">
                 <Label htmlFor="clientId">Google Client ID</Label>
@@ -195,8 +215,8 @@ export default function OAuthSetupPage() {
                   id="clientId"
                   type="text"
                   placeholder="1234567890-abc123xyz.apps.googleusercontent.com"
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
+                  value={ clientId }
+                  onChange={ ( e ) => setClientId( e.target.value ) }
                   required
                 />
                 <p className="text-xs text-muted-foreground">
@@ -210,9 +230,9 @@ export default function OAuthSetupPage() {
                   id="clientSecret"
                   type="password"
                   placeholder="GOCSPX-abc123xyz..."
-                  value={clientSecret}
-                  onChange={(e) => setClientSecret(e.target.value)}
-                  required={!configured}
+                  value={ clientSecret }
+                  onChange={ ( e ) => setClientSecret( e.target.value ) }
+                  required={ !configsured }
                 />
                 <p className="text-xs text-muted-foreground">
                   Keep this secret secure. It will be encrypted and stored safely.
@@ -220,24 +240,24 @@ export default function OAuthSetupPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button type="submit" disabled={loading}>
-                  {loading ? (
+                <Button type="submit" disabled={ loading }>
+                  { loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       Saving...
                     </>
-                  ) : configured ? (
-                    'Update Configuration'
+                  ) : configsured ? (
+                    'Update configsuration'
                   ) : (
-                    'Save Configuration'
-                  )}
+                    'Save configsuration'
+                  ) }
                 </Button>
 
-                {configured && (
-                  <Button type="button" variant="outline" onClick={handleTest} disabled={loading}>
-                    Test Configuration
+                { configsured && (
+                  <Button type="button" variant="outline" onClick={ handleTest } disabled={ loading }>
+                    Test configsuration
                   </Button>
-                )}
+                ) }
               </div>
             </form>
           </CardContent>

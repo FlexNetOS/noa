@@ -20,62 +20,66 @@ import { Layers } from 'lucide-react';
  * - Map to Dioxus hooks for state management
  */
 
-interface TabConfig {
+interface Tabconfigs
+{
   id: string;
   label: string;
   widgetId: string;
   icon?: React.ReactNode;
 }
 
-interface TabsContainerConfig {
+interface TabsContainerconfigs
+{
   title?: string;
-  tabs: TabConfig[];
+  tabs: Tabconfigs[];
   defaultTab?: string;
 }
 
-interface TabsContainerProps {
-  config: TabsContainerConfig;
+interface TabsContainerProps
+{
+  configs: TabsContainerconfigs;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function TabsContainer({ config, className = '', children }: TabsContainerProps) {
-  const { title = 'Tabs', tabs, defaultTab } = config;
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || '');
+export function TabsContainer ( { configs, className = '', children }: TabsContainerProps )
+{
+  const { title = 'Tabs', tabs, defaultTab } = configs;
+  const [ activeTab, setActiveTab ] = useState( defaultTab || tabs[ 0 ]?.id || '' );
 
   // Convert children to array
-  const childArray = React.Children.toArray(children);
+  const childArray = React.Children.toArray( children );
 
   return (
-    <Card className={className}>
-      {title && (
+    <Card className={ className }>
+      { title && (
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Layers className="h-5 w-5" />
-            {title}
+            { title }
           </CardTitle>
         </CardHeader>
-      )}
+      ) }
       <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
-                {tab.icon}
-                {tab.label}
+        <Tabs value={ activeTab } onValueChange={ setActiveTab }>
+          <TabsList className="grid w-full" style={ { gridTemplateColumns: `repeat(${ tabs.length }, 1fr)` } }>
+            { tabs.map( ( tab ) => (
+              <TabsTrigger key={ tab.id } value={ tab.id } className="flex items-center gap-2">
+                { tab.icon }
+                { tab.label }
               </TabsTrigger>
-            ))}
+            ) ) }
           </TabsList>
 
-          {tabs.map((tab, index) => (
-            <TabsContent key={tab.id} value={tab.id} className="mt-4">
-              {childArray[index] || (
+          { tabs.map( ( tab, index ) => (
+            <TabsContent key={ tab.id } value={ tab.id } className="mt-4">
+              { childArray[ index ] || (
                 <div className="text-center text-muted-foreground py-8">
                   No content for this tab
                 </div>
-              )}
+              ) }
             </TabsContent>
-          ))}
+          ) ) }
         </Tabs>
       </CardContent>
     </Card>

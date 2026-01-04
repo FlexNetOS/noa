@@ -1,4 +1,4 @@
-# Sandbox Configuration
+# Sandbox configsuration
 [sandbox]
 version = "1.0.0"
 type = "container"

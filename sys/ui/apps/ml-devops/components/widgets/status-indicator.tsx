@@ -9,24 +9,26 @@
  */
 
 import { Card } from '@/components/ui/card';
-import {
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  Activity,
-} from 'lucide-react';
+import
+  {
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    Loader2,
+    Activity,
+  } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 type Status = 'idle' | 'processing' | 'success' | 'error' | 'warning';
 
-interface StatusIndicatorProps {
+interface StatusIndicatorProps
+{
   status: Status;
   message?: string;
   className?: string;
 }
 
-const statusConfig = {
+const statusconfigs = {
   idle: {
     icon: Activity,
     color: 'text-gray-500',
@@ -65,37 +67,38 @@ const statusConfig = {
   },
 };
 
-export function StatusIndicator({
+export function StatusIndicator ( {
   status,
   message,
   className = '',
-}: StatusIndicatorProps) {
-  const config = statusConfig[status] ?? statusConfig.idle;
-  const Icon = config.icon;
-  const shouldAnimate = 'animate' in config && config.animate;
+}: StatusIndicatorProps )
+{
+  const configs = statusconfigs[ status ] ?? statusconfigs.idle;
+  const Icon = configs.icon;
+  const shouldAnimate = 'animate' in configs && configs.animate;
 
   return (
     <Card
-      className={`p-4 border-2 ${config.bgColor} ${config.borderColor} ${className}`}
+      className={ `p-4 border-2 ${ configs.bgColor } ${ configs.borderColor } ${ className }` }
     >
       <div className="flex items-center gap-3">
-        {shouldAnimate ? (
+        { shouldAnimate ? (
           <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            animate={ { rotate: 360 } }
+            transition={ { duration: 1, repeat: Infinity, ease: 'linear' } }
           >
-            <Icon className={`w-5 h-5 ${config.color}`} />
+            <Icon className={ `w-5 h-5 ${ configs.color }` } />
           </motion.div>
         ) : (
-          <Icon className={`w-5 h-5 ${config.color}`} />
-        )}
+          <Icon className={ `w-5 h-5 ${ configs.color }` } />
+        ) }
         <div className="flex-1">
-          <div className={`font-semibold ${config.color}`}>{config.label}</div>
-          {message && (
+          <div className={ `font-semibold ${ configs.color }` }>{ configs.label }</div>
+          { message && (
             <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {message}
+              { message }
             </div>
-          )}
+          ) }
         </div>
       </div>
     </Card>

@@ -5,57 +5,66 @@ import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
+export async function GET ( req: NextRequest )
+{
+  try
+  {
+    const session = await getServerSession( authOptions );
 
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if ( !session?.user )
+    {
+      return NextResponse.json( { error: 'Unauthorized' }, { status: 401 } );
     }
 
     // Check if user is admin
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique( {
       where: { email: session.user.email! },
-    });
+    } );
 
-    if (user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    if ( user?.role !== 'admin' )
+    {
+      return NextResponse.json( { error: 'Forbidden - Admin access required' }, { status: 403 } );
     }
 
-    // Get OAuth config for Google
-    const config = await prisma.oAuthConfig.findUnique({
+    // Get OAuth configs for Google
+    const configs = await prisma.oAuthconfigs.findUnique( {
       where: { provider: 'google' },
-    });
+    } );
 
-    if (!config) {
-      return NextResponse.json({ error: 'OAuth configuration not found' }, { status: 404 });
+    if ( !configs )
+    {
+      return NextResponse.json( { error: 'OAuth configsuration not found' }, { status: 404 } );
     }
 
-    if (!config.enabled) {
-      return NextResponse.json({ error: 'OAuth is disabled' }, { status: 400 });
+    if ( !configs.enabled )
+    {
+      return NextResponse.json( { error: 'OAuth is disabled' }, { status: 400 } );
     }
 
     // Basic validation
-    if (!config.clientId || !config.clientSecret) {
-      return NextResponse.json({ error: 'OAuth configuration is incomplete' }, { status: 400 });
+    if ( !configs.clientId || !configs.clientSecret )
+    {
+      return NextResponse.json( { error: 'OAuth configsuration is incomplete' }, { status: 400 } );
     }
 
     // Validate Client ID format
-    if (!config.clientId.endsWith('.apps.googleusercontent.com')) {
+    if ( !configs.clientId.endsWith( '.apps.googleusercontent.com' ) )
+    {
       return NextResponse.json(
         { error: 'Invalid Client ID format. Should end with .apps.googleusercontent.com' },
         { status: 400 }
       );
     }
 
-    return NextResponse.json({
+    return NextResponse.json( {
       success: true,
-      message: 'OAuth configuration is valid',
+      message: 'OAuth configsuration is valid',
       provider: 'google',
-      configured: true,
-    });
-  } catch (error) {
-    console.error('Error testing OAuth config:', error);
+      configsured: true,
+    } );
+  } catch ( error )
+  {
+    console.error( 'Error testing OAuth configs:', error );
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

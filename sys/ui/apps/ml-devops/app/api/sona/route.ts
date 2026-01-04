@@ -5,34 +5,40 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSonaOrchestrator } from '@/lib/sona/orchestrator';
-import {
-  WorkflowDefinition,
-  OrchestrationResponse,
-  SonaEvent,
-} from '@/lib/sona/types';
-import {
-  createSequentialWorkflow,
-  createParallelWorkflow,
-  createPlanExecuteReviewWorkflow,
-  createMapReduceWorkflow,
-  createConsensusWorkflow,
-  createIterativeRefinementWorkflow,
-  EXAMPLE_WORKFLOWS,
-} from '@/lib/sona/workflows';
+import
+  {
+    WorkflowDefinition,
+    OrchestrationResponse,
+    SonaEvent,
+  } from '@/lib/sona/types';
+import
+  {
+    createSequentialWorkflow,
+    createParallelWorkflow,
+    createPlanExecuteReviewWorkflow,
+    createMapReduceWorkflow,
+    createConsensusWorkflow,
+    createIterativeRefinementWorkflow,
+    EXAMPLE_WORKFLOWS,
+  } from '@/lib/sona/workflows';
 
 const orchestrator = getSonaOrchestrator();
 
 /**
  * POST /api/sona - Execute a workflow
  */
-export async function POST(request: NextRequest) {
-  try {
+export async function POST ( request: NextRequest )
+{
+  try
+  {
     const body = await request.json();
-    const { action, workflow, input, workflowType, workflowConfig } = body;
+    const { action, workflow, input, workflowType, workflowconfigs } = body;
 
-    switch (action) {
+    switch ( action )
+    {
       case 'execute': {
-        if (!workflow) {
+        if ( !workflow )
+        {
           return NextResponse.json(
             { error: 'Workflow definition required' },
             { status: 400 }
@@ -44,11 +50,12 @@ export async function POST(request: NextRequest) {
           input || {}
         );
 
-        return NextResponse.json(result);
+        return NextResponse.json( result );
       }
 
       case 'execute_template': {
-        if (!workflowType) {
+        if ( !workflowType )
+        {
           return NextResponse.json(
             { error: 'Workflow type required' },
             { status: 400 }
@@ -57,80 +64,82 @@ export async function POST(request: NextRequest) {
 
         let workflow: WorkflowDefinition;
 
-        switch (workflowType) {
+        switch ( workflowType )
+        {
           case 'sequential':
             workflow = createSequentialWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Sequential Workflow',
-              workflowConfig?.steps || []
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Sequential Workflow',
+              workflowconfigs?.steps || []
             );
             break;
 
           case 'parallel':
             workflow = createParallelWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Parallel Workflow',
-              workflowConfig?.tasks || []
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Parallel Workflow',
+              workflowconfigs?.tasks || []
             );
             break;
 
           case 'plan_execute_review':
             workflow = createPlanExecuteReviewWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Plan-Execute-Review Workflow',
-              workflowConfig?.task || ''
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Plan-Execute-Review Workflow',
+              workflowconfigs?.task || ''
             );
             break;
 
           case 'map_reduce':
             workflow = createMapReduceWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Map-Reduce Workflow',
-              workflowConfig?.mapTasks || [],
-              workflowConfig?.reduceTask || ''
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Map-Reduce Workflow',
+              workflowconfigs?.mapTasks || [],
+              workflowconfigs?.reduceTask || ''
             );
             break;
 
           case 'consensus':
             workflow = createConsensusWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Consensus Workflow',
-              workflowConfig?.task || '',
-              workflowConfig?.specialistCount || 3
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Consensus Workflow',
+              workflowconfigs?.task || '',
+              workflowconfigs?.specialistCount || 3
             );
             break;
 
           case 'iterative_refinement':
             workflow = createIterativeRefinementWorkflow(
-              workflowConfig?.id || `workflow-${Date.now()}`,
-              workflowConfig?.name || 'Iterative Refinement Workflow',
-              workflowConfig?.task || '',
-              workflowConfig?.maxIterations || 3
+              workflowconfigs?.id || `workflow-${ Date.now() }`,
+              workflowconfigs?.name || 'Iterative Refinement Workflow',
+              workflowconfigs?.task || '',
+              workflowconfigs?.maxIterations || 3
             );
             break;
 
           default:
             return NextResponse.json(
-              { error: `Unknown workflow type: ${workflowType}` },
+              { error: `Unknown workflow type: ${ workflowType }` },
               { status: 400 }
             );
         }
 
-        const result = await orchestrator.executeWorkflow(workflow, input || {});
-        return NextResponse.json(result);
+        const result = await orchestrator.executeWorkflow( workflow, input || {} );
+        return NextResponse.json( result );
       }
 
       case 'cancel': {
         const { executionId } = body;
-        if (!executionId) {
+        if ( !executionId )
+        {
           return NextResponse.json(
             { error: 'Execution ID required' },
             { status: 400 }
           );
         }
 
-        const cancelled = orchestrator.cancelExecution(executionId);
-        return NextResponse.json({ success: cancelled });
+        const cancelled = orchestrator.cancelExecution( executionId );
+        return NextResponse.json( { success: cancelled } );
       }
 
       default:
@@ -139,8 +148,9 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
-    console.error('SONA API error:', error);
+  } catch ( error )
+  {
+    console.error( 'SONA API error:', error );
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',
@@ -153,42 +163,49 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/sona - Get execution status or list workflows
  */
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const action = searchParams.get('action');
-    const executionId = searchParams.get('executionId');
+export async function GET ( request: NextRequest )
+{
+  try
+  {
+    const { searchParams } = new URL( request.url );
+    const action = searchParams.get( 'action' );
+    const executionId = searchParams.get( 'executionId' );
 
-    switch (action) {
+    switch ( action )
+    {
       case 'status': {
-        if (!executionId) {
+        if ( !executionId )
+        {
           return NextResponse.json(
             { error: 'Execution ID required' },
             { status: 400 }
           );
         }
 
-        const execution = orchestrator.getExecution(executionId);
-        if (!execution) {
+        const execution = orchestrator.getExecution( executionId );
+        if ( !execution )
+        {
           return NextResponse.json(
             { error: 'Execution not found' },
             { status: 404 }
           );
         }
 
-        return NextResponse.json(execution);
+        return NextResponse.json( execution );
       }
 
       case 'context': {
-        if (!executionId) {
+        if ( !executionId )
+        {
           return NextResponse.json(
             { error: 'Execution ID required' },
             { status: 400 }
           );
         }
 
-        const context = orchestrator.getContext(executionId);
-        if (!context) {
+        const context = orchestrator.getContext( executionId );
+        if ( !context )
+        {
           return NextResponse.json(
             { error: 'Context not found' },
             { status: 404 }
@@ -198,15 +215,15 @@ export async function GET(request: NextRequest) {
         // Convert Map to object for JSON serialization
         const serializedContext = {
           ...context,
-          agentStates: Object.fromEntries(context.agentStates),
+          agentStates: Object.fromEntries( context.agentStates ),
         };
 
-        return NextResponse.json(serializedContext);
+        return NextResponse.json( serializedContext );
       }
 
       case 'examples': {
-        return NextResponse.json({
-          workflows: Object.keys(EXAMPLE_WORKFLOWS),
+        return NextResponse.json( {
+          workflows: Object.keys( EXAMPLE_WORKFLOWS ),
           templates: [
             'sequential',
             'parallel',
@@ -215,7 +232,7 @@ export async function GET(request: NextRequest) {
             'consensus',
             'iterative_refinement',
           ],
-        });
+        } );
       }
 
       default:
@@ -224,8 +241,9 @@ export async function GET(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
-    console.error('SONA API error:', error);
+  } catch ( error )
+  {
+    console.error( 'SONA API error:', error );
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',

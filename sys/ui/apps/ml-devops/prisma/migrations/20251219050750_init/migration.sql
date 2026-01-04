@@ -54,7 +54,7 @@ CREATE TABLE "verification_tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "oauth_configs" (
+CREATE TABLE "oauth_configss" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "provider" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -83,4 +83,4 @@ CREATE UNIQUE INDEX "verification_tokens_token_key" ON "verification_tokens"("to
 CREATE UNIQUE INDEX "verification_tokens_identifier_token_key" ON "verification_tokens"("identifier", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "oauth_configs_provider_key" ON "oauth_configs"("provider");
+CREATE UNIQUE INDEX "oauth_configss_provider_key" ON "oauth_configss"("provider");

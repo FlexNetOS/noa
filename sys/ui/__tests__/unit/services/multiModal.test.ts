@@ -9,7 +9,7 @@ describe( 'MultiModalService', () =>
         jest.clearAllMocks();
         delete ( window as unknown as Record<string, unknown> ).webkitSpeechRecognition;
         delete ( window as unknown as Record<string, unknown> ).SpeechRecognition;
-        Object.defineProperty( navigator, 'mediaDevices', { value: undefined, configurable: true } );
+        Object.defineProperty( navigator, 'mediaDevices', { value: undefined, configsurable: true } );
     } );
 
     afterAll( () =>
@@ -19,8 +19,8 @@ describe( 'MultiModalService', () =>
 
     it( 'detects capabilities and caches them', async () =>
     {
-        Object.defineProperty( window, 'webkitSpeechRecognition', { value: function Webkit () { }, configurable: true } );
-        Object.defineProperty( navigator, 'mediaDevices', { value: { getUserMedia: jest.fn() }, configurable: true } );
+        Object.defineProperty( window, 'webkitSpeechRecognition', { value: function Webkit () { }, configsurable: true } );
+        Object.defineProperty( navigator, 'mediaDevices', { value: { getUserMedia: jest.fn() }, configsurable: true } );
 
         const svc = new MultiModalService();
         const caps = await svc.detectCapabilities();
@@ -56,8 +56,8 @@ describe( 'MultiModalService', () =>
 
     it( 'processes available voice/vision inputs and handles non-string text', async () =>
     {
-        Object.defineProperty( window, 'SpeechRecognition', { value: function Standard () { }, configurable: true } );
-        Object.defineProperty( navigator, 'mediaDevices', { value: { getUserMedia: jest.fn() }, configurable: true } );
+        Object.defineProperty( window, 'SpeechRecognition', { value: function Standard () { }, configsurable: true } );
+        Object.defineProperty( navigator, 'mediaDevices', { value: { getUserMedia: jest.fn() }, configsurable: true } );
 
         const svc = new MultiModalService();
         await svc.detectCapabilities();

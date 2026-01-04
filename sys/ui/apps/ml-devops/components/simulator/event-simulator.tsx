@@ -17,34 +17,37 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useEventEmitter } from '@/lib/hooks/use-event-stream';
 import { EventFactory } from '@/lib/events/types';
-import {
-  Play,
-  Square,
-  FileText,
-  Code,
-  Activity,
-  BarChart3,
-  MessageSquare,
-  AlertCircle,
-} from 'lucide-react';
+import
+  {
+    Play,
+    Square,
+    FileText,
+    Code,
+    Activity,
+    BarChart3,
+    MessageSquare,
+    AlertCircle,
+  } from 'lucide-react';
 import { useState } from 'react';
 
-export function EventSimulator({ className = '' }: { className?: string }) {
+export function EventSimulator ( { className = '' }: { className?: string; } )
+{
   const { emit } = useEventEmitter();
-  const [mountedWidgets, setMountedWidgets] = useState<Set<string>>(new Set());
+  const [ mountedWidgets, setMountedWidgets ] = useState<Set<string>>( new Set() );
 
-  const simulateTokenStream = async () => {
-    const messageId = `sim_msg_${Date.now()}`;
-    
+  const simulateTokenStream = async () =>
+  {
+    const messageId = `sim_msg_${ Date.now() }`;
+
     // Emit message start
-    emit({
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    emit( {
+      id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
       type: 'MESSAGE_SENT',
       timestamp: Date.now(),
       messageId,
       content: '',
       role: 'assistant' as const,
-    });
+    } );
 
     // Simulate token streaming
     const tokens = [
@@ -65,36 +68,39 @@ export function EventSimulator({ className = '' }: { className?: string }) {
     ];
 
     let fullContent = '';
-    for (const token of tokens) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    for ( const token of tokens )
+    {
+      await new Promise( resolve => setTimeout( resolve, 100 ) );
       fullContent += token;
-      emit({
-        id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      emit( {
+        id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
         type: 'TOKEN_STREAMED',
         timestamp: Date.now(),
         messageId,
         token,
         isComplete: false,
-      });
+      } );
     }
 
     // Emit completion
-    emit({
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    emit( {
+      id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
       type: 'MESSAGE_COMPLETED',
       timestamp: Date.now(),
       messageId,
       content: fullContent,
-    });
+    } );
   };
 
-  const mountWidget = (type: 'TextBlock' | 'CodeBlock' | 'StatusIndicator' | 'SimpleChart') => {
-    const widgetId = `sim_widget_${type}_${Date.now()}`;
-    
-    let config;
-    switch (type) {
+  const mountWidget = ( type: 'TextBlock' | 'CodeBlock' | 'StatusIndicator' | 'SimpleChart' ) =>
+  {
+    const widgetId = `sim_widget_${ type }_${ Date.now() }`;
+
+    let configs;
+    switch ( type )
+    {
       case 'TextBlock':
-        config = {
+        configs = {
           type,
           props: {
             content: '## Simulated Text Widget\n\nThis widget was mounted via the event simulator. It demonstrates **markdown rendering** and `code formatting`.',
@@ -103,7 +109,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
         };
         break;
       case 'CodeBlock':
-        config = {
+        configs = {
           type,
           props: {
             language: 'rust',
@@ -112,7 +118,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
         };
         break;
       case 'StatusIndicator':
-        config = {
+        configs = {
           type,
           props: {
             status: 'success',
@@ -121,7 +127,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
         };
         break;
       case 'SimpleChart':
-        config = {
+        configs = {
           type,
           props: {
             title: 'Sample Metrics',
@@ -137,78 +143,83 @@ export function EventSimulator({ className = '' }: { className?: string }) {
         break;
     }
 
-    emit({
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    emit( {
+      id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
       type: 'WIDGET_MOUNTED',
       timestamp: Date.now(),
       widgetId,
-      config,
-    });
+      configs,
+    } );
 
-    setMountedWidgets(prev => new Set(prev).add(widgetId));
+    setMountedWidgets( prev => new Set( prev ).add( widgetId ) );
   };
 
-  const updateWidget = (widgetId: string) => {
-    emit({
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  const updateWidget = ( widgetId: string ) =>
+  {
+    emit( {
+      id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
       type: 'WIDGET_UPDATED',
       timestamp: Date.now(),
       widgetId,
       updates: {
         props: {
-          message: `Updated at ${new Date().toLocaleTimeString()}`,
+          message: `Updated at ${ new Date().toLocaleTimeString() }`,
         },
       },
-    });
+    } );
   };
 
-  const unmountLastWidget = () => {
-    const lastWidget = Array.from(mountedWidgets).pop();
-    if (lastWidget) {
-      emit({
-        id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  const unmountLastWidget = () =>
+  {
+    const lastWidget = Array.from( mountedWidgets ).pop();
+    if ( lastWidget )
+    {
+      emit( {
+        id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
         type: 'WIDGET_UNMOUNTED',
         timestamp: Date.now(),
         widgetId: lastWidget,
-      });
-      setMountedWidgets(prev => {
-        const next = new Set(prev);
-        next.delete(lastWidget);
+      } );
+      setMountedWidgets( prev =>
+      {
+        const next = new Set( prev );
+        next.delete( lastWidget );
         return next;
-      });
+      } );
     }
   };
 
-  const changeStatus = (status: 'idle' | 'processing' | 'success' | 'error') => {
-    emit({
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  const changeStatus = ( status: 'idle' | 'processing' | 'success' | 'error' ) =>
+  {
+    emit( {
+      id: `evt_${ Date.now() }_${ Math.random().toString( 36 ).substr( 2, 9 ) }`,
       type: 'STATUS_CHANGED',
       timestamp: Date.now(),
       status,
-      message: `Status changed to ${status} via simulator`,
-    });
+      message: `Status changed to ${ status } via simulator`,
+    } );
   };
 
   return (
-    <Card className={`p-6 ${className}`}>
+    <Card className={ `p-6 ${ className }` }>
       <div className="flex items-center gap-2 mb-6">
         <Play className="w-5 h-5 text-green-500" />
         <h2 className="text-xl font-bold">Event Simulator</h2>
       </div>
 
       <div className="space-y-6">
-        {/* Token Streaming */}
+        {/* Token Streaming */ }
         <div>
           <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
             Token Streaming
           </h3>
-          <Button onClick={simulateTokenStream} className="w-full">
+          <Button onClick={ simulateTokenStream } className="w-full">
             Simulate Streaming Message
           </Button>
         </div>
 
-        {/* Widget Mounting */}
+        {/* Widget Mounting */ }
         <div>
           <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Square className="w-4 h-4" />
@@ -216,7 +227,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
           </h3>
           <div className="grid grid-cols-2 gap-2">
             <Button
-              onClick={() => mountWidget('TextBlock')}
+              onClick={ () => mountWidget( 'TextBlock' ) }
               variant="outline"
               className="flex items-center gap-2"
             >
@@ -224,7 +235,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
               Mount Text
             </Button>
             <Button
-              onClick={() => mountWidget('CodeBlock')}
+              onClick={ () => mountWidget( 'CodeBlock' ) }
               variant="outline"
               className="flex items-center gap-2"
             >
@@ -232,7 +243,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
               Mount Code
             </Button>
             <Button
-              onClick={() => mountWidget('StatusIndicator')}
+              onClick={ () => mountWidget( 'StatusIndicator' ) }
               variant="outline"
               className="flex items-center gap-2"
             >
@@ -240,7 +251,7 @@ export function EventSimulator({ className = '' }: { className?: string }) {
               Mount Status
             </Button>
             <Button
-              onClick={() => mountWidget('SimpleChart')}
+              onClick={ () => mountWidget( 'SimpleChart' ) }
               variant="outline"
               className="flex items-center gap-2"
             >
@@ -249,16 +260,16 @@ export function EventSimulator({ className = '' }: { className?: string }) {
             </Button>
           </div>
           <Button
-            onClick={unmountLastWidget}
+            onClick={ unmountLastWidget }
             variant="destructive"
             className="w-full mt-2"
-            disabled={mountedWidgets.size === 0}
+            disabled={ mountedWidgets.size === 0 }
           >
-            Unmount Last Widget ({mountedWidgets.size} mounted)
+            Unmount Last Widget ({ mountedWidgets.size } mounted)
           </Button>
         </div>
 
-        {/* Status Changes */}
+        {/* Status Changes */ }
         <div>
           <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
@@ -266,28 +277,28 @@ export function EventSimulator({ className = '' }: { className?: string }) {
           </h3>
           <div className="grid grid-cols-2 gap-2">
             <Button
-              onClick={() => changeStatus('idle')}
+              onClick={ () => changeStatus( 'idle' ) }
               variant="outline"
               className="text-gray-600"
             >
               Idle
             </Button>
             <Button
-              onClick={() => changeStatus('processing')}
+              onClick={ () => changeStatus( 'processing' ) }
               variant="outline"
               className="text-blue-600"
             >
               Processing
             </Button>
             <Button
-              onClick={() => changeStatus('success')}
+              onClick={ () => changeStatus( 'success' ) }
               variant="outline"
               className="text-green-600"
             >
               Success
             </Button>
             <Button
-              onClick={() => changeStatus('error')}
+              onClick={ () => changeStatus( 'error' ) }
               variant="outline"
               className="text-red-600"
             >

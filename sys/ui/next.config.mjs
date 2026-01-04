@@ -1,5 +1,5 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+/** @type {import('next').Nextconfigs} */
+const nextconfigs = {
     async rewrites ()
     {
         // Proxy UI calls like fetch('/api/v1/...') to the Rust API server.
@@ -13,4 +13,4 @@ const nextConfig = {
     },
 };
 
-export default nextConfig;
+export default nextconfigs;

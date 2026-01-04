@@ -9,7 +9,7 @@ describe( 'HardwareCapabilitiesService', () =>
         jest.clearAllMocks();
         delete ( window as unknown as Record<string, unknown> ).webkitSpeechRecognition;
         delete ( window as unknown as Record<string, unknown> ).SpeechRecognition;
-        Object.defineProperty( navigator, 'mediaDevices', { value: undefined, configurable: true } );
+        Object.defineProperty( navigator, 'mediaDevices', { value: undefined, configsurable: true } );
     } );
 
     afterAll( () =>
@@ -19,7 +19,7 @@ describe( 'HardwareCapabilitiesService', () =>
 
     it( 'detects webkit voice API', async () =>
     {
-        Object.defineProperty( window, 'webkitSpeechRecognition', { value: function Webkit () { }, configurable: true } );
+        Object.defineProperty( window, 'webkitSpeechRecognition', { value: function Webkit () { }, configsurable: true } );
         const svc = new HardwareCapabilitiesService();
 
         const caps = await svc.detect();
@@ -32,7 +32,7 @@ describe( 'HardwareCapabilitiesService', () =>
         const enumerateDevices = jest.fn().mockResolvedValue( [ { kind: 'videoinput' } ] );
         Object.defineProperty( navigator, 'mediaDevices', {
             value: { enumerateDevices, getDisplayMedia: jest.fn() },
-            configurable: true,
+            configsurable: true,
         } );
 
         const svc = new HardwareCapabilitiesService();

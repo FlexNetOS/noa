@@ -16,16 +16,17 @@ import { WorkflowMonitor } from '@/components/sona/workflow-monitor';
 import { WorkflowDefinition } from '@/lib/sona/types';
 import { EXAMPLE_WORKFLOWS } from '@/lib/sona/workflows';
 
-export default function SonaPage() {
-  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDefinition | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
+export default function SonaPage ()
+{
+  const [ selectedWorkflow, setSelectedWorkflow ] = useState<WorkflowDefinition | null>( null );
+  const [ activeTab, setActiveTab ] = useState( 'overview' );
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
+      {/* Header */ }
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={ { opacity: 0, y: 20 } }
+        animate={ { opacity: 1, y: 0 } }
         className="space-y-2"
       >
         <div className="flex items-center gap-3">
@@ -41,11 +42,11 @@ export default function SonaPage() {
         </div>
       </motion.div>
 
-      {/* Overview Stats */}
+      {/* Overview Stats */ }
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        initial={ { opacity: 0, y: 20 } }
+        animate={ { opacity: 1, y: 0 } }
+        transition={ { delay: 0.1 } }
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         <Card>
@@ -88,8 +89,8 @@ export default function SonaPage() {
         </Card>
       </motion.div>
 
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      {/* Main Content */ }
+      <Tabs value={ activeTab } onValueChange={ setActiveTab } className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="builder">Workflow Builder</TabsTrigger>
@@ -97,11 +98,11 @@ export default function SonaPage() {
           <TabsTrigger value="docs">Documentation</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
+        {/* Overview Tab */ }
         <TabsContent value="overview" className="space-y-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={ { opacity: 0 } }
+            animate={ { opacity: 1 } }
             className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           >
             <Card>
@@ -138,7 +139,7 @@ export default function SonaPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {[
+                { [
                   {
                     name: 'Sequential',
                     desc: 'Execute steps one after another',
@@ -164,95 +165,96 @@ export default function SonaPage() {
                     desc: 'Parallel processing with aggregation',
                     badge: 'Scalable',
                   },
-                ].map((strategy, i) => (
+                ].map( ( strategy, i ) => (
                   <div
-                    key={strategy.name}
+                    key={ strategy.name }
                     className="flex items-start justify-between p-3 border rounded-lg"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <h5 className="font-medium text-sm">{strategy.name}</h5>
+                        <h5 className="font-medium text-sm">{ strategy.name }</h5>
                         <Badge variant="outline" className="text-xs">
-                          {strategy.badge}
+                          { strategy.badge }
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{strategy.desc}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{ strategy.desc }</p>
                     </div>
                   </div>
-                ))}
+                ) ) }
               </CardContent>
             </Card>
           </motion.div>
         </TabsContent>
 
-        {/* Builder Tab */}
+        {/* Builder Tab */ }
         <TabsContent value="builder" className="space-y-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={ { opacity: 0 } }
+            animate={ { opacity: 1 } }
             className="space-y-4"
           >
             <WorkflowBuilder
-              onWorkflowCreated={(workflow) => {
-                setSelectedWorkflow(workflow);
-              }}
+              onWorkflowCreated={ ( workflow ) =>
+              {
+                setSelectedWorkflow( workflow );
+              } }
             />
 
-            {selectedWorkflow && (
+            { selectedWorkflow && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={ { opacity: 0, y: 20 } }
+                animate={ { opacity: 1, y: 0 } }
               >
-                <WorkflowMonitor workflow={selectedWorkflow} autoExecute={false} />
+                <WorkflowMonitor workflow={ selectedWorkflow } autoExecute={ false } />
               </motion.div>
-            )}
+            ) }
           </motion.div>
         </TabsContent>
 
-        {/* Examples Tab */}
+        {/* Examples Tab */ }
         <TabsContent value="examples" className="space-y-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={ { opacity: 0 } }
+            animate={ { opacity: 1 } }
             className="grid grid-cols-1 lg:grid-cols-2 gap-4"
           >
-            {Object.entries(EXAMPLE_WORKFLOWS).map(([key, workflow]) => (
-              <Card key={key} className="cursor-pointer hover:shadow-lg transition-shadow">
+            { Object.entries( EXAMPLE_WORKFLOWS ).map( ( [ key, workflow ] ) => (
+              <Card key={ key } className="cursor-pointer hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{workflow.name}</span>
-                    <Badge variant="outline">{workflow.strategy}</Badge>
+                    <span>{ workflow.name }</span>
+                    <Badge variant="outline">{ workflow.strategy }</Badge>
                   </CardTitle>
-                  <CardDescription>{workflow.description}</CardDescription>
+                  <CardDescription>{ workflow.description }</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex gap-2 flex-wrap">
                     <Badge variant="secondary">
-                      {workflow.steps.length} steps
+                      { workflow.steps.length } steps
                     </Badge>
                     <Badge variant="secondary">
-                      {workflow.agents.length} agents
+                      { workflow.agents.length } agents
                     </Badge>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Agents:</p>
                     <div className="flex gap-2 flex-wrap">
-                      {workflow.agents.map((agent) => (
-                        <Badge key={agent.id} variant="outline" className="text-xs">
-                          {agent.role}
+                      { workflow.agents.map( ( agent ) => (
+                        <Badge key={ agent.id } variant="outline" className="text-xs">
+                          { agent.role }
                         </Badge>
-                      ))}
+                      ) ) }
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ) ) }
           </motion.div>
         </TabsContent>
 
-        {/* Documentation Tab */}
+        {/* Documentation Tab */ }
         <TabsContent value="docs" className="space-y-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <motion.div initial={ { opacity: 0 } } animate={ { opacity: 1 } }>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -308,14 +310,14 @@ export default function SonaPage() {
 
                 <h3>API Usage</h3>
                 <pre className="bg-muted p-4 rounded-lg">
-                  <code>{`// Execute a workflow
+                  <code>{ `// Execute a workflow
 const result = await fetch('/api/sona', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     action: 'execute_template',
     workflowType: 'plan_execute_review',
-    workflowConfig: {
+    workflowconfigs: {
       name: 'My Workflow',
       task: 'Build a web application'
     },

@@ -1,4 +1,4 @@
-# Virtual Machine Manager Configuration
+# Virtual Machine Manager configsuration
 [vmm]
 version = "1.0.0"
 type = "hypervisor"

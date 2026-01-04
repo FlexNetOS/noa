@@ -1,6 +1,6 @@
 # NOA (Next-generation Organic Architecture) - AgenticOS
 
-This is the **Hybrid Configuration Model** for the ML DevOps Platform, implementing a content-addressable, cryptographically-verifiable agent operating system.
+This is the **Hybrid configsuration Model** for the ML DevOps Platform, implementing a content-addressable, cryptographically-verifiable agent operating system.
 
 ## Architecture Overview
 
@@ -14,7 +14,7 @@ NOA_HOME/
 │   └── trust/          # Cryptographic trust anchors
 │
 ├── mutable/            # The Epigenetics - AI-rewritable semantic layer
-│   ├── config/         # World model, device profile, hive profile
+│   ├── configs/         # World model, device profile, hive profile
 │   ├── agents/         # Agent definitions with beliefs
 │   ├── skills/         # Reusable agent capabilities
 │   ├── tools/          # Tool definitions with permissions
@@ -43,7 +43,7 @@ NOA_HOME/
 ## Key Concepts
 
 ### 1. Immutable Layer (The DNA)
-- **Purpose**: Prevents corruption, config drift, catastrophic errors
+- **Purpose**: Prevents corruption, configs drift, catastrophic errors
 - **Contents**: Schemas, kernels, provider contracts, sandbox constraints
 - **Mutation**: Only through validator → compiler pipeline
 - **Cryptography**: SHA-256 content hashing, Merkle DAG verification
@@ -128,7 +128,7 @@ The Mixture of Experts router intelligently selects providers based on:
 - Context window limits
 - Tool access requirements
 
-Configuration: `mutable/orchestration/moe.router.json`
+configsuration: `mutable/orchestration/moe.router.json`
 
 ## Validation Pipeline
 
@@ -181,14 +181,14 @@ The NOA system integrates seamlessly with existing SONA orchestration:
 1. **Migrate Existing Data**: Move `.app/data/` content to NOA structure
 2. **Enable CAS**: Update code to use `getMutationPipeline()` for all mutations
 3. **Implement Hooks**: Add `pre-validate.js` and `post-commit.js` hooks
-4. **Configure MOE**: Tune `moe.router.json` for your provider mix
+4. **configsure MOE**: Tune `moe.router.json` for your provider mix
 5. **Test GC**: Run garbage collection to verify reference counting
 
 ## Documentation
 
 - JSON Schemas: `immutable/schema/*.schema.json`
 - Provider Specs: `immutable/providers/*.json`
-- Kernel Configs: `immutable/kernels/*.toml`
+- Kernel configss: `immutable/kernels/*.toml`
 - MOE Router: `mutable/orchestration/moe.router.json`
 
 ## Rust Migration Path

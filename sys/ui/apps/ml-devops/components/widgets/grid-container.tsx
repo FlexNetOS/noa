@@ -9,7 +9,7 @@ import { LayoutGrid } from 'lucide-react';
  * 
  * Features:
  * - CSS Grid-based layout
- * - Configurable columns and gaps
+ * - configsurable columns and gaps
  * - Responsive grid
  * - Support for nested widgets
  * 
@@ -19,62 +19,67 @@ import { LayoutGrid } from 'lucide-react';
  * - Map to flexbox or grid system
  */
 
-interface GridItemConfig {
+interface GridItemconfigs
+{
   widgetId: string;
   colSpan?: number;
   rowSpan?: number;
 }
 
-interface GridContainerConfig {
+interface GridContainerconfigs
+{
   title?: string;
   columns?: number; // number of columns
   gap?: number; // gap in pixels
-  items: GridItemConfig[];
+  items: GridItemconfigs[];
 }
 
-interface GridContainerProps {
-  config: GridContainerConfig;
+interface GridContainerProps
+{
+  configs: GridContainerconfigs;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function GridContainer({ config, className = '', children }: GridContainerProps) {
-  const { title = 'Grid Layout', columns = 3, gap = 16, items } = config;
+export function GridContainer ( { configs, className = '', children }: GridContainerProps )
+{
+  const { title = 'Grid Layout', columns = 3, gap = 16, items } = configs;
 
   return (
-    <Card className={className}>
-      {title && (
+    <Card className={ className }>
+      { title && (
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <LayoutGrid className="h-5 w-5" />
-            {title}
+            { title }
           </CardTitle>
         </CardHeader>
-      )}
+      ) }
       <CardContent>
         <div
           className="grid"
-          style={{
-            gridTemplateColumns: `repeat(${columns}, 1fr)`,
-            gap: `${gap}px`,
-          }}
+          style={ {
+            gridTemplateColumns: `repeat(${ columns }, 1fr)`,
+            gap: `${ gap }px`,
+          } }
         >
-          {React.Children.map(children, (child, index) => {
-            const item = items[index];
-            if (!item) return child;
+          { React.Children.map( children, ( child, index ) =>
+          {
+            const item = items[ index ];
+            if ( !item ) return child;
 
             return (
               <div
-                key={item.widgetId}
-                style={{
-                  gridColumn: item.colSpan ? `span ${item.colSpan}` : undefined,
-                  gridRow: item.rowSpan ? `span ${item.rowSpan}` : undefined,
-                }}
+                key={ item.widgetId }
+                style={ {
+                  gridColumn: item.colSpan ? `span ${ item.colSpan }` : undefined,
+                  gridRow: item.rowSpan ? `span ${ item.rowSpan }` : undefined,
+                } }
               >
-                {child}
+                { child }
               </div>
             );
-          })}
+          } ) }
         </div>
       </CardContent>
     </Card>

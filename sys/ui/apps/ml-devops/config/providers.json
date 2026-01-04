@@ -1,6 +1,6 @@
 {
-  "$schema": "../lib/config/types.ts",
-  "_comment": "AI provider configuration - routes to real Abacus AI by default",
+  "$schema": "../lib/configs/types.ts",
+  "_comment": "AI provider configsuration - routes to real Abacus AI by default",
   "ai": {
     "type": "abacus",
     "useMock": false,

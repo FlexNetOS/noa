@@ -1,4 +1,4 @@
-// Android build configuration for Tauri Mobile
+// Android build configsuration for Tauri Mobile
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,7 +9,7 @@ android {
     namespace = "ai.mldevops.platform"
     compileSdk = 34
 
-    defaultConfig {
+    defaultconfigs {
         applicationId = "ai.mldevops.platform"
         minSdk = 24
         targetSdk = 34

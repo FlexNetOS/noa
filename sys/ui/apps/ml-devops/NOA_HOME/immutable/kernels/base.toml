@@ -1,4 +1,4 @@
-# Base Microkernel Configuration
+# Base Microkernel configsuration
 [kernel]
 version = "1.0.0"
 type = "base"

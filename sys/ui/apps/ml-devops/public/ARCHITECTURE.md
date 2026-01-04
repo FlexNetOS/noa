@@ -81,7 +81,7 @@ AppEvent (discriminated union)
 │   └── WIDGET_UNMOUNTED
 ├── SystemEvents
 │   ├── STATUS_CHANGED
-│   └── CONFIG_LOADED
+│   └── configs_LOADED
 └── ReplayEvents
     ├── REPLAY_STARTED
     ├── REPLAY_PAUSED
@@ -114,7 +114,7 @@ pub enum AppEvent {
         id: String,
         timestamp: i64,
         widget_id: String,
-        config: WidgetConfig,
+        configs: Widgetconfigs,
     },
     // ... other variants
 }
@@ -126,7 +126,7 @@ pub enum AppEvent {
 
 ```typescript
 interface AIProvider {
-  streamChat(messages: ChatMessage[], config?: ModelConfig): Promise<StreamingResponse>;
+  streamChat(messages: ChatMessage[], configs?: Modelconfigs): Promise<StreamingResponse>;
   generateWidget(prompt: string): Promise<WidgetGeneration>;
   analyzeCode(code: string, language: string): Promise<string>;
   getName(): string;
@@ -146,7 +146,7 @@ pub trait AIProvider: Send + Sync {
     async fn stream_chat(
         &self,
         messages: Vec<ChatMessage>,
-        config: Option<ModelConfig>,
+        configs: Option<Modelconfigs>,
     ) -> Result<StreamingResponse>;
 
     async fn generate_widget(&self, prompt: String) -> Result<WidgetGeneration>;
@@ -316,8 +316,8 @@ fn WidgetRegistry(cx: Scope) -> Element {
         async move {
             while let Some(event) = rx.next().await {
                 match event {
-                    AppEvent::WidgetMounted { widget_id, config, .. } => {
-                        widgets.write().insert(widget_id, Widget::new(config));
+                    AppEvent::WidgetMounted { widget_id, configs, .. } => {
+                        widgets.write().insert(widget_id, Widget::new(configs));
                     }
                     _ => {}
                 }
@@ -342,11 +342,11 @@ fn WidgetRegistry(cx: Scope) -> Element {
 ```typescript
 const widgets = new Map<string, WidgetInstance>();
 
-switch (config.type) {
+switch (configs.type) {
   case 'TextBlock':
-    return <TextBlock {...config.props} />;
+    return <TextBlock {...configs.props} />;
   case 'CodeBlock':
-    return <CodeBlock {...config.props} />;
+    return <CodeBlock {...configs.props} />;
   // ...
 }
 ```
@@ -555,19 +555,19 @@ pub enum StateUpdate {
 }
 ```
 
-### 2. Dual Config System
+### 2. Dual configs System
 
 ```rust
-// Compile-time config (TOML)
+// Compile-time configs (TOML)
 #[derive(Deserialize)]
-struct CompileConfig {
+struct Compileconfigs {
     app_name: String,
     version: String,
 }
 
-// Runtime config (JSON)
+// Runtime configs (JSON)
 #[derive(Deserialize)]
-struct RuntimeConfig {
+struct Runtimeconfigs {
     provider_type: String,
     model: String,
 }
@@ -693,7 +693,7 @@ async fn test_end_to_end_chat_flow() {
 ### Phase 4: Advanced Features
 - ▢ JSON-patch state updates
 - ▢ Event compression and snapshots
-- ▢ Dual config system
+- ▢ Dual configs system
 - ▢ Multi-provider support
 - ▢ Plugin system
 

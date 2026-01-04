@@ -78,7 +78,7 @@
       },
       "description": "Provider routing preferences"
     },
-    "config": {
+    "configs": {
       "type": "object",
       "properties": {
         "temperature": {"type": "number", "minimum": 0, "maximum": 2},

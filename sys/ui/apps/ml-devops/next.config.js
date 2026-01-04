@@ -1,7 +1,7 @@
 const path = require( 'path' );
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+/** @type {import('next').Nextconfigs} */
+const nextconfigs = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   output: process.env.NEXT_OUTPUT_MODE,
   experimental: {
@@ -26,4 +26,4 @@ const nextConfig = {
   images: { unoptimized: true },
 };
 
-module.exports = nextConfig;
+module.exports = nextconfigs;

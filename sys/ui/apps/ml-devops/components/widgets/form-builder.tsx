@@ -31,277 +31,299 @@ import { motion } from 'framer-motion';
  * - Map to async form submission
  */
 
-type FieldType = 'text' | 'number' | 'email' | 'password' | 'textarea' | 
-                 'select' | 'checkbox' | 'radio' | 'switch' | 'date';
+type FieldType = 'text' | 'number' | 'email' | 'password' | 'textarea' |
+  'select' | 'checkbox' | 'radio' | 'switch' | 'date';
 
-interface FieldOption {
+interface FieldOption
+{
   label: string;
   value: string;
 }
 
-interface FieldDefinition {
+interface FieldDefinition
+{
   name: string;
   label: string;
   type: FieldType;
   placeholder?: string;
   required?: boolean;
   options?: FieldOption[]; // For select/radio
-  validation?: (value: any) => string | null;
-  visible?: (formData: Record<string, any>) => boolean;
+  validation?: ( value: any ) => string | null;
+  visible?: ( formData: Record<string, any> ) => boolean;
   defaultValue?: any;
 }
 
-interface FormBuilderConfig {
+interface FormBuilderconfigs
+{
   title?: string;
   fields: FieldDefinition[];
   submitLabel?: string;
-  onSubmit: (data: Record<string, any>) => Promise<void> | void;
+  onSubmit: ( data: Record<string, any> ) => Promise<void> | void;
   onReset?: () => void;
 }
 
-interface FormBuilderProps {
-  config: FormBuilderConfig;
+interface FormBuilderProps
+{
+  configs: FormBuilderconfigs;
   className?: string;
 }
 
-export function FormBuilder({ config, className = '' }: FormBuilderProps) {
-  const { title = 'Form', fields, submitLabel = 'Submit', onSubmit, onReset } = config;
-  
-  // Initialize form data with defaults
-  const initialData = fields.reduce((acc, field) => {
-    acc[field.name] = field.defaultValue ?? '';
-    return acc;
-  }, {} as Record<string, any>);
+export function FormBuilder ( { configs, className = '' }: FormBuilderProps )
+{
+  const { title = 'Form', fields, submitLabel = 'Submit', onSubmit, onReset } = configs;
 
-  const [formData, setFormData] = useState<Record<string, any>>(initialData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  // Initialize form data with defaults
+  const initialData = fields.reduce( ( acc, field ) =>
+  {
+    acc[ field.name ] = field.defaultValue ?? '';
+    return acc;
+  }, {} as Record<string, any> );
+
+  const [ formData, setFormData ] = useState<Record<string, any>>( initialData );
+  const [ errors, setErrors ] = useState<Record<string, string>>( {} );
+  const [ isSubmitting, setIsSubmitting ] = useState( false );
+  const [ submitStatus, setSubmitStatus ] = useState<'idle' | 'success' | 'error'>( 'idle' );
 
   // Update field value
-  const updateField = (name: string, value: any) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const updateField = ( name: string, value: any ) =>
+  {
+    setFormData( prev => ( { ...prev, [ name ]: value } ) );
     // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => {
+    if ( errors[ name ] )
+    {
+      setErrors( prev =>
+      {
         const next = { ...prev };
-        delete next[name];
+        delete next[ name ];
         return next;
-      });
+      } );
     }
   };
 
   // Validate form
-  const validateForm = (): boolean => {
+  const validateForm = (): boolean =>
+  {
     const newErrors: Record<string, string> = {};
 
-    for (const field of fields) {
+    for ( const field of fields )
+    {
       // Skip if not visible
-      if (field.visible && !field.visible(formData)) continue;
+      if ( field.visible && !field.visible( formData ) ) continue;
 
-      const value = formData[field.name];
+      const value = formData[ field.name ];
 
       // Required validation
-      if (field.required && (!value || value === '')) {
-        newErrors[field.name] = `${field.label} is required`;
+      if ( field.required && ( !value || value === '' ) )
+      {
+        newErrors[ field.name ] = `${ field.label } is required`;
         continue;
       }
 
       // Custom validation
-      if (field.validation && value) {
-        const error = field.validation(value);
-        if (error) {
-          newErrors[field.name] = error;
+      if ( field.validation && value )
+      {
+        const error = field.validation( value );
+        if ( error )
+        {
+          newErrors[ field.name ] = error;
         }
       }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors( newErrors );
+    return Object.keys( newErrors ).length === 0;
   };
 
   // Handle submit
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async ( e: React.FormEvent ) =>
+  {
     e.preventDefault();
 
-    if (!validateForm()) {
-      setSubmitStatus('error');
+    if ( !validateForm() )
+    {
+      setSubmitStatus( 'error' );
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
+    setIsSubmitting( true );
+    setSubmitStatus( 'idle' );
 
-    try {
-      await onSubmit(formData);
-      setSubmitStatus('success');
-      setTimeout(() => setSubmitStatus('idle'), 3000);
-    } catch (error) {
-      setSubmitStatus('error');
-      setErrors({ _form: 'Submission failed. Please try again.' });
-    } finally {
-      setIsSubmitting(false);
+    try
+    {
+      await onSubmit( formData );
+      setSubmitStatus( 'success' );
+      setTimeout( () => setSubmitStatus( 'idle' ), 3000 );
+    } catch ( error )
+    {
+      setSubmitStatus( 'error' );
+      setErrors( { _form: 'Submission failed. Please try again.' } );
+    } finally
+    {
+      setIsSubmitting( false );
     }
   };
 
   // Handle reset
-  const handleReset = () => {
-    setFormData(initialData);
-    setErrors({});
-    setSubmitStatus('idle');
-    if (onReset) onReset();
+  const handleReset = () =>
+  {
+    setFormData( initialData );
+    setErrors( {} );
+    setSubmitStatus( 'idle' );
+    if ( onReset ) onReset();
   };
 
   // Render field based on type
-  const renderField = (field: FieldDefinition) => {
+  const renderField = ( field: FieldDefinition ) =>
+  {
     const { name, label, type, placeholder, required, options } = field;
-    const value = formData[name] ?? '';
-    const error = errors[name];
+    const value = formData[ name ] ?? '';
+    const error = errors[ name ];
 
     // Check visibility
-    if (field.visible && !field.visible(formData)) {
+    if ( field.visible && !field.visible( formData ) )
+    {
       return null;
     }
 
-    const fieldId = `field-${name}`;
+    const fieldId = `field-${ name }`;
 
     return (
       <motion.div
-        key={name}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        key={ name }
+        initial={ { opacity: 0, y: 10 } }
+        animate={ { opacity: 1, y: 0 } }
         className="space-y-2"
       >
-        <Label htmlFor={fieldId} className="flex items-center gap-1">
-          {label}
-          {required && <span className="text-destructive">*</span>}
+        <Label htmlFor={ fieldId } className="flex items-center gap-1">
+          { label }
+          { required && <span className="text-destructive">*</span> }
         </Label>
 
-        {/* Text-based inputs */}
-        {['text', 'email', 'password', 'number', 'date'].includes(type) && (
+        {/* Text-based inputs */ }
+        { [ 'text', 'email', 'password', 'number', 'date' ].includes( type ) && (
           <Input
-            id={fieldId}
-            type={type}
-            value={value}
-            onChange={(e) => updateField(name, e.target.value)}
-            placeholder={placeholder}
-            className={error ? 'border-destructive' : ''}
+            id={ fieldId }
+            type={ type }
+            value={ value }
+            onChange={ ( e ) => updateField( name, e.target.value ) }
+            placeholder={ placeholder }
+            className={ error ? 'border-destructive' : '' }
           />
-        )}
+        ) }
 
-        {/* Textarea */}
-        {type === 'textarea' && (
+        {/* Textarea */ }
+        { type === 'textarea' && (
           <Textarea
-            id={fieldId}
-            value={value}
-            onChange={(e) => updateField(name, e.target.value)}
-            placeholder={placeholder}
-            className={error ? 'border-destructive' : ''}
-            rows={4}
+            id={ fieldId }
+            value={ value }
+            onChange={ ( e ) => updateField( name, e.target.value ) }
+            placeholder={ placeholder }
+            className={ error ? 'border-destructive' : '' }
+            rows={ 4 }
           />
-        )}
+        ) }
 
-        {/* Select */}
-        {type === 'select' && options && (
-          <Select value={value} onValueChange={(val) => updateField(name, val)}>
-            <SelectTrigger id={fieldId} className={error ? 'border-destructive' : ''}>
-              <SelectValue placeholder={placeholder || 'Select an option'} />
+        {/* Select */ }
+        { type === 'select' && options && (
+          <Select value={ value } onValueChange={ ( val ) => updateField( name, val ) }>
+            <SelectTrigger id={ fieldId } className={ error ? 'border-destructive' : '' }>
+              <SelectValue placeholder={ placeholder || 'Select an option' } />
             </SelectTrigger>
             <SelectContent>
-              {options.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              { options.map( ( opt ) => (
+                <SelectItem key={ opt.value } value={ opt.value }>
+                  { opt.label }
                 </SelectItem>
-              ))}
+              ) ) }
             </SelectContent>
           </Select>
-        )}
+        ) }
 
-        {/* Radio Group */}
-        {type === 'radio' && options && (
-          <RadioGroup value={value} onValueChange={(val) => updateField(name, val)}>
-            {options.map((opt) => (
-              <div key={opt.value} className="flex items-center space-x-2">
-                <RadioGroupItem value={opt.value} id={`${fieldId}-${opt.value}`} />
-                <Label htmlFor={`${fieldId}-${opt.value}`} className="font-normal">
-                  {opt.label}
+        {/* Radio Group */ }
+        { type === 'radio' && options && (
+          <RadioGroup value={ value } onValueChange={ ( val ) => updateField( name, val ) }>
+            { options.map( ( opt ) => (
+              <div key={ opt.value } className="flex items-center space-x-2">
+                <RadioGroupItem value={ opt.value } id={ `${ fieldId }-${ opt.value }` } />
+                <Label htmlFor={ `${ fieldId }-${ opt.value }` } className="font-normal">
+                  { opt.label }
                 </Label>
               </div>
-            ))}
+            ) ) }
           </RadioGroup>
-        )}
+        ) }
 
-        {/* Checkbox */}
-        {type === 'checkbox' && (
+        {/* Checkbox */ }
+        { type === 'checkbox' && (
           <div className="flex items-center space-x-2">
             <Checkbox
-              id={fieldId}
-              checked={value}
-              onCheckedChange={(checked) => updateField(name, checked)}
+              id={ fieldId }
+              checked={ value }
+              onCheckedChange={ ( checked ) => updateField( name, checked ) }
             />
-            <Label htmlFor={fieldId} className="font-normal">
-              {placeholder || label}
+            <Label htmlFor={ fieldId } className="font-normal">
+              { placeholder || label }
             </Label>
           </div>
-        )}
+        ) }
 
-        {/* Switch */}
-        {type === 'switch' && (
+        {/* Switch */ }
+        { type === 'switch' && (
           <div className="flex items-center space-x-2">
             <Switch
-              id={fieldId}
-              checked={value}
-              onCheckedChange={(checked) => updateField(name, checked)}
+              id={ fieldId }
+              checked={ value }
+              onCheckedChange={ ( checked ) => updateField( name, checked ) }
             />
-            <Label htmlFor={fieldId} className="font-normal">
-              {placeholder || label}
+            <Label htmlFor={ fieldId } className="font-normal">
+              { placeholder || label }
             </Label>
           </div>
-        )}
+        ) }
 
-        {/* Error message */}
-        {error && (
+        {/* Error message */ }
+        { error && (
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={ { opacity: 0 } }
+            animate={ { opacity: 1 } }
             className="text-sm text-destructive flex items-center gap-1"
           >
             <AlertCircle className="h-3 w-3" />
-            {error}
+            { error }
           </motion.p>
-        )}
+        ) }
       </motion.div>
     );
   };
 
   return (
-    <Card className={className}>
+    <Card className={ className }>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          {title}
+          { title }
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Fields */}
-          {fields.map(renderField)}
+        <form onSubmit={ handleSubmit } className="space-y-6">
+          {/* Fields */ }
+          { fields.map( renderField ) }
 
-          {/* Form-level error */}
-          {errors._form && (
+          {/* Form-level error */ }
+          { errors._form && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
               <p className="text-sm text-destructive flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
-                {errors._form}
+                { errors._form }
               </p>
             </div>
-          )}
+          ) }
 
-          {/* Success message */}
-          {submitStatus === 'success' && (
+          {/* Success message */ }
+          { submitStatus === 'success' && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={ { opacity: 0, y: -10 } }
+              animate={ { opacity: 1, y: 0 } }
               className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg"
             >
               <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
@@ -309,22 +331,22 @@ export function FormBuilder({ config, className = '' }: FormBuilderProps) {
                 Form submitted successfully!
               </p>
             </motion.div>
-          )}
+          ) }
 
-          {/* Actions */}
+          {/* Actions */ }
           <div className="flex gap-2 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={ isSubmitting }
               className="flex-1"
             >
-              {isSubmitting ? 'Submitting...' : submitLabel}
+              { isSubmitting ? 'Submitting...' : submitLabel }
             </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={handleReset}
-              disabled={isSubmitting}
+              onClick={ handleReset }
+              disabled={ isSubmitting }
             >
               Reset
             </Button>

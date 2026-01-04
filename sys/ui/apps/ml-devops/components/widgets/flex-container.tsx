@@ -10,7 +10,7 @@ import { AlignJustify } from 'lucide-react';
  * Features:
  * - Flexbox-based layout
  * - Horizontal or vertical direction
- * - Configurable alignment and spacing
+ * - configsurable alignment and spacing
  * - Support for nested widgets
  * 
  * Rust/Dioxus Translation:
@@ -19,29 +19,33 @@ import { AlignJustify } from 'lucide-react';
  * - Map to Dioxus layout props
  */
 
-interface FlexItemConfig {
+interface FlexItemconfigs
+{
   widgetId: string;
   flex?: number; // flex grow
   order?: number;
 }
 
-interface FlexContainerConfig {
+interface FlexContainerconfigs
+{
   title?: string;
   direction?: 'row' | 'column';
   align?: 'start' | 'center' | 'end' | 'stretch';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   gap?: number;
   wrap?: boolean;
-  items: FlexItemConfig[];
+  items: FlexItemconfigs[];
 }
 
-interface FlexContainerProps {
-  config: FlexContainerConfig;
+interface FlexContainerProps
+{
+  configs: FlexContainerconfigs;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function FlexContainer({ config, className = '', children }: FlexContainerProps) {
+export function FlexContainer ( { configs, className = '', children }: FlexContainerProps )
+{
   const {
     title = 'Flex Layout',
     direction = 'row',
@@ -50,7 +54,7 @@ export function FlexContainer({ config, className = '', children }: FlexContaine
     gap = 16,
     wrap = false,
     items,
-  } = config;
+  } = configs;
 
   // Map alignment values to CSS classes
   const alignMap = {
@@ -69,38 +73,38 @@ export function FlexContainer({ config, className = '', children }: FlexContaine
   };
 
   return (
-    <Card className={className}>
-      {title && (
+    <Card className={ className }>
+      { title && (
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlignJustify className="h-5 w-5" />
-            {title}
+            { title }
           </CardTitle>
         </CardHeader>
-      )}
+      ) }
       <CardContent>
         <div
-          className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} ${
-            alignMap[align]
-          } ${justifyMap[justify]} ${wrap ? 'flex-wrap' : ''}`}
-          style={{ gap: `${gap}px` }}
+          className={ `flex ${ direction === 'column' ? 'flex-col' : 'flex-row' } ${ alignMap[ align ]
+            } ${ justifyMap[ justify ] } ${ wrap ? 'flex-wrap' : '' }` }
+          style={ { gap: `${ gap }px` } }
         >
-          {React.Children.map(children, (child, index) => {
-            const item = items[index];
-            if (!item) return child;
+          { React.Children.map( children, ( child, index ) =>
+          {
+            const item = items[ index ];
+            if ( !item ) return child;
 
             return (
               <div
-                key={item.widgetId}
-                style={{
+                key={ item.widgetId }
+                style={ {
                   flex: item.flex !== undefined ? item.flex : undefined,
                   order: item.order,
-                }}
+                } }
               >
-                {child}
+                { child }
               </div>
             );
-          })}
+          } ) }
         </div>
       </CardContent>
     </Card>

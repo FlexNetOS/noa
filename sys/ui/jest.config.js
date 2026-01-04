@@ -1,4 +1,4 @@
-/** @type {import('jest').Config} */
+/** @type {import('jest').configs} */
 module.exports = {
   setupFilesAfterEnv: [ '<rootDir>/jest.setup.js' ],
   testEnvironment: 'jest-environment-jsdom',
@@ -9,7 +9,7 @@ module.exports = {
     '^.+\\.(t|j)sx?$': [
       'ts-jest',
       {
-        tsconfig: '<rootDir>/tsconfig.jest.json',
+        tsconfigs: '<rootDir>/tsconfigs.jest.json',
       },
     ],
   },

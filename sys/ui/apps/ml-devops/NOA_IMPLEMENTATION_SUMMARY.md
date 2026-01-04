@@ -5,7 +5,7 @@
 ### 1. Directory Structure (100% Complete)
 Created the full NOA hybrid architecture:
 - ✅ `immutable/` - DNA layer with schemas, kernels, providers, trust anchors
-- ✅ `mutable/` - Epigenetics layer with config, agents, skills, tools, workflows
+- ✅ `mutable/` - Epigenetics layer with configs, agents, skills, tools, workflows
 - ✅ `cas/` - Content Addressable Storage with objects, refs, tags, registry
 - ✅ `cache/` - Regenerable cache for models, embeddings, build artifacts
 - ✅ `logs/` - Structured logging for agents, providers, orchestration
@@ -18,7 +18,7 @@ All 7 immutable schemas created:
 - ✅ `skill.schema.json` - Reusable agent skills with dependencies
 - ✅ `tool.schema.json` - Executable tools with permissions
 - ✅ `workflow.schema.json` - Workflow DAGs with strategies
-- ✅ `config.schema.json` - System configuration structure
+- ✅ `configs.schema.json` - System configsuration structure
 - ✅ `world.schema.json` - World model for agent reasoning
 - ✅ `cas-object.schema.json` - CAS object metadata structure
 
@@ -73,17 +73,17 @@ Fast search across CAS objects:
 - ✅ Statistics and reporting
 - ✅ Persistent JSON storage
 
-### 7. Configuration Files (100% Complete)
-All required configuration created:
+### 7. configsuration Files (100% Complete)
+All required configsuration created:
 
 **Immutable Layer**:
 - ✅ `provider.llamacpp.json` - Local llama.cpp provider
 - ✅ `provider.codex.json` - Codex CLI provider
 - ✅ `provider.claude.json` - Claude provider
 - ✅ `provider.abacus.json` - Abacus AI provider
-- ✅ `base.toml` - Base kernel config
+- ✅ `base.toml` - Base kernel configs
 - ✅ `vmm.toml` - Virtual machine manager
-- ✅ `sandbox.toml` - Sandbox configuration
+- ✅ `sandbox.toml` - Sandbox configsuration
 
 **Mutable Layer**:
 - ✅ `world_model.json` - World model with entities/relationships
@@ -94,11 +94,11 @@ All required configuration created:
 
 **Orchestration**:
 - ✅ `moe.router.json` - MOE routing rules
-- ✅ `scheduler.json` - Workflow scheduler config
+- ✅ `scheduler.json` - Workflow scheduler configs
 - ✅ `cost_models.json` - Provider cost tracking
 
 ### 8. Directory Management (100% Complete)
-- ✅ `lib/config/directories.ts` - DirectoryManager for NOA paths
+- ✅ `lib/configs/directories.ts` - DirectoryManager for NOA paths
 - ✅ Singleton pattern
 - ✅ Getters for all NOA directories
 - ✅ `ensureDirectories()` for initialization
@@ -178,7 +178,7 @@ console.log(\`Removed \${report.removed} objects, freed \${report.freedBytes} by
 2. **Integration**: Update SONA to use NOA mutation pipeline
 3. **Testing**: Create unit tests for CAS operations
 4. **Hooks**: Implement pre-validate and post-commit hooks
-5. **MOE**: Wire MOE router to read from NOA config
+5. **MOE**: Wire MOE router to read from NOA configs
 6. **Deployment**: Test end-to-end with real agents
 
 ## 📊 Statistics
@@ -187,7 +187,7 @@ console.log(\`Removed \${report.removed} objects, freed \${report.freedBytes} by
 - **Lines of Code**: ~3,500+
 - **JSON Schemas**: 7
 - **Provider Definitions**: 4
-- **Kernel Configs**: 3
+- **Kernel configss**: 3
 - **Directory Structure**: 46 directories
 
 ## 🔐 Security Features

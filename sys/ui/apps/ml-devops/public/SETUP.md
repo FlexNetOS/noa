@@ -32,7 +32,7 @@ This installs all required packages including:
 
 ### 3. Environment Variables
 
-The `.env` file is automatically configured with:
+The `.env` file is automatically configsured with:
 
 ```env
 DATABASE_URL=postgresql://...
@@ -40,7 +40,7 @@ ABACUSAI_API_KEY=...
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-**Note**: API keys are pre-configured. No manual setup needed.
+**Note**: API keys are pre-configsured. No manual setup needed.
 
 ### 4. Database Setup
 
@@ -210,7 +210,7 @@ yarn tsc --noEmit
 ### Format Code
 
 ```bash
-yarn format  # (if configured)
+yarn format  # (if configsured)
 ```
 
 ### Lint Code
@@ -225,9 +225,9 @@ yarn lint
 yarn tsc --noEmit
 ```
 
-## Configuration
+## configsuration
 
-Edit `config.json` to customize:
+Edit `configs.json` to customize:
 
 ```json
 {
@@ -293,7 +293,7 @@ if (this.events.length > 10000) {
 
 ### 2. Database Indexing
 
-Indexes are already configured in `schema.prisma`:
+Indexes are already configsured in `schema.prisma`:
 
 ```prisma
 @@index([createdAt])

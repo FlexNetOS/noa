@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://noa.dev/schema/config.json",
-  "title": "Configuration Schema",
-  "description": "Defines mutable system configuration",
+  "$id": "https://noa.dev/schema/configs.json",
+  "title": "configsuration Schema",
+  "description": "Defines mutable system configsuration",
   "type": "object",
   "properties": {
     "worldModel": {
