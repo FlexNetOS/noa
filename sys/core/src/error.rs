@@ -18,8 +18,8 @@ pub enum NoaError {
     // Database errors
     Database(DatabaseError),
 
-    // Configuration errors
-    Config(ConfigError),
+    // configsuration errors
+    configs(configsError),
 
     // Agent errors
     Agent(AgentError),
@@ -61,9 +61,9 @@ pub enum DatabaseError {
     Corruption { path: String, details: String },
 }
 
-/// Configuration errors
+/// configsuration errors
 #[derive(Debug)]
-pub enum ConfigError {
+pub enum configsError {
     FileNotFound(String),
     ParseError { path: String, error: String },
     ValidationError { field: String, message: String },
@@ -118,7 +118,7 @@ impl fmt::Display for NoaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             NoaError::Database(e) => write!(f, "Database error: {}", e),
-            NoaError::Config(e) => write!(f, "Configuration error: {}", e),
+            NoaError::configs(e) => write!(f, "configsuration error: {}", e),
             NoaError::Agent(e) => write!(f, "Agent error: {}", e),
             NoaError::Api(e) => write!(f, "API error: {}", e),
             NoaError::Io(e) => write!(f, "IO error: {}", e),
@@ -156,21 +156,21 @@ impl fmt::Display for DatabaseError {
     }
 }
 
-impl fmt::Display for ConfigError {
+impl fmt::Display for configsError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ConfigError::FileNotFound(path) => write!(f, "Config file not found: {}", path),
-            ConfigError::ParseError { path, error } => {
+            configsError::FileNotFound(path) => write!(f, "configs file not found: {}", path),
+            configsError::ParseError { path, error } => {
                 write!(f, "Failed to parse {}: {}", path, error)
             }
-            ConfigError::ValidationError { field, message } => {
-                write!(f, "Invalid config {}: {}", field, message)
+            configsError::ValidationError { field, message } => {
+                write!(f, "Invalid configs {}: {}", field, message)
             }
-            ConfigError::MissingRequired(field) => write!(f, "Missing required field: {}", field),
-            ConfigError::InvalidValue { field, value, expected } => {
+            configsError::MissingRequired(field) => write!(f, "Missing required field: {}", field),
+            configsError::InvalidValue { field, value, expected } => {
                 write!(f, "Invalid value for {}: got '{}', expected {}", field, value, expected)
             }
-            ConfigError::EnvironmentVariableNotSet(var) => {
+            configsError::EnvironmentVariableNotSet(var) => {
                 write!(f, "Environment variable not set: {}", var)
             }
         }
@@ -226,7 +226,7 @@ impl std::error::Error for NoaError {
 }
 
 impl std::error::Error for DatabaseError {}
-impl std::error::Error for ConfigError {}
+impl std::error::Error for configsError {}
 impl std::error::Error for AgentError {}
 impl std::error::Error for ApiError {}
 
@@ -243,9 +243,9 @@ impl From<DatabaseError> for NoaError {
     }
 }
 
-impl From<ConfigError> for NoaError {
-    fn from(err: ConfigError) -> Self {
-        NoaError::Config(err)
+impl From<configsError> for NoaError {
+    fn from(err: configsError) -> Self {
+        NoaError::configs(err)
     }
 }
 
@@ -356,12 +356,12 @@ impl NoaError {
             NoaError::Database(DatabaseError::IntegrityViolation(_)) => "DB_INTEGRITY_VIOLATION",
             NoaError::Database(DatabaseError::Corruption { .. }) => "DB_CORRUPTION",
 
-            NoaError::Config(ConfigError::FileNotFound(_)) => "CONFIG_FILE_NOT_FOUND",
-            NoaError::Config(ConfigError::ParseError { .. }) => "CONFIG_PARSE_ERROR",
-            NoaError::Config(ConfigError::ValidationError { .. }) => "CONFIG_VALIDATION_ERROR",
-            NoaError::Config(ConfigError::MissingRequired(_)) => "CONFIG_MISSING_REQUIRED",
-            NoaError::Config(ConfigError::InvalidValue { .. }) => "CONFIG_INVALID_VALUE",
-            NoaError::Config(ConfigError::EnvironmentVariableNotSet(_)) => "CONFIG_ENV_NOT_SET",
+            NoaError::configs(configsError::FileNotFound(_)) => "configs_FILE_NOT_FOUND",
+            NoaError::configs(configsError::ParseError { .. }) => "configs_PARSE_ERROR",
+            NoaError::configs(configsError::ValidationError { .. }) => "configs_VALIDATION_ERROR",
+            NoaError::configs(configsError::MissingRequired(_)) => "configs_MISSING_REQUIRED",
+            NoaError::configs(configsError::InvalidValue { .. }) => "configs_INVALID_VALUE",
+            NoaError::configs(configsError::EnvironmentVariableNotSet(_)) => "configs_ENV_NOT_SET",
 
             NoaError::Agent(AgentError::NotFound(_)) => "AGENT_NOT_FOUND",
             NoaError::Agent(AgentError::AlreadyExists(_)) => "AGENT_ALREADY_EXISTS",

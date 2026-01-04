@@ -15,7 +15,7 @@ use tracing::{debug, info};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RootCauseCategory {
     ResourceExhaustion,
-    ConfigurationError,
+    configsurationError,
     DependencyFailure,
     NetworkIssue,
     DatabaseIssue,
@@ -222,11 +222,11 @@ impl RootCauseAnalyzer {
                     "Clear caches".to_string(),
                 ]
             }
-            RootCauseCategory::ConfigurationError => {
+            RootCauseCategory::configsurationError => {
                 vec![
-                    "Reload configuration".to_string(),
-                    "Validate configuration".to_string(),
-                    "Rollback to previous config".to_string(),
+                    "Reload configsuration".to_string(),
+                    "Validate configsuration".to_string(),
+                    "Rollback to previous configs".to_string(),
                 ]
             }
             RootCauseCategory::DependencyFailure => {

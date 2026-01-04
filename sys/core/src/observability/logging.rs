@@ -13,16 +13,16 @@ use tracing_subscriber::{
 };
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
-use crate::config::{LogFormat, LogLevel, LoggingConfig};
+use crate::configs::{LogFormat, LogLevel, Loggingconfigs};
 use crate::error::Result;
 
 /// Initialize the logging subsystem
-pub fn init_logging(config: &LoggingConfig) -> Result<()> {
+pub fn init_logging(configs: &Loggingconfigs) -> Result<()> {
     // Build env filter
-    let env_filter = build_env_filter(config.level);
+    let env_filter = build_env_filter(configs.level);
 
     // Console layer
-    let console_layer = build_console_layer(config.format);
+    let console_layer = build_console_layer(configs.format);
 
     // Initialize subscriber
     tracing_subscriber::registry()
@@ -38,20 +38,20 @@ pub fn init_logging(config: &LoggingConfig) -> Result<()> {
 }
 
 /// Initialize logging with file output
-pub fn init_logging_with_file(config: &LoggingConfig) -> Result<LogGuard> {
+pub fn init_logging_with_file(configs: &Loggingconfigs) -> Result<LogGuard> {
     // Ensure log directory exists
-    if let Some(parent) = config.output.parent() {
+    if let Some(parent) = configs.output.parent() {
         std::fs::create_dir_all(parent)?;
     }
 
     // Build env filter
-    let env_filter = build_env_filter(config.level);
+    let env_filter = build_env_filter(configs.level);
 
     // File appender
     let file_appender = RollingFileAppender::new(
         Rotation::DAILY,
-        config.output.parent().unwrap_or(Path::new(".")),
-        config.output.file_name().unwrap_or_default(),
+        configs.output.parent().unwrap_or(Path::new(".")),
+        configs.output.file_name().unwrap_or_default(),
     );
     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
 
@@ -67,7 +67,7 @@ pub fn init_logging_with_file(config: &LoggingConfig) -> Result<LogGuard> {
         .with_line_number(true);
 
     // Console layer
-    let console_layer = build_console_layer(config.format);
+    let console_layer = build_console_layer(configs.format);
 
     // Initialize subscriber
     tracing_subscriber::registry()

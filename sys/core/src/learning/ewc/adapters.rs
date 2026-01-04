@@ -7,15 +7,15 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-/// Task adapter configuration
+/// Task adapter configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AdapterConfig {
+pub struct Adapterconfigs {
     pub adapter_size: usize,
     pub adapter_layers: Vec<usize>,
     pub activation: String,
 }
 
-impl Default for AdapterConfig {
+impl Default for Adapterconfigs {
     fn default() -> Self {
         Self {
             adapter_size: 64,
@@ -30,7 +30,7 @@ impl Default for AdapterConfig {
 pub struct TaskAdapter {
     pub id: Uuid,
     pub task_name: String,
-    pub config: AdapterConfig,
+    pub configs: Adapterconfigs,
     pub parameters: HashMap<String, Vec<f64>>,
 }
 
@@ -48,11 +48,11 @@ impl AdapterManager {
     }
 
     /// Create adapter for a task
-    pub fn create_adapter(&mut self, task_name: String, config: AdapterConfig) -> Uuid {
+    pub fn create_adapter(&mut self, task_name: String, configs: Adapterconfigs) -> Uuid {
         let adapter = TaskAdapter {
             id: Uuid::new_v4(),
             task_name: task_name.clone(),
-            config,
+            configs,
             parameters: HashMap::new(),
         };
 
@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn test_adapter_creation() {
         let mut manager = AdapterManager::new();
-        let id = manager.create_adapter("test_task".to_string(), AdapterConfig::default());
+        let id = manager.create_adapter("test_task".to_string(), Adapterconfigs::default());
         assert!(manager.get_adapter("test_task").is_some());
     }
 }

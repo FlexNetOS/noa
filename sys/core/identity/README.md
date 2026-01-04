@@ -39,9 +39,9 @@ Principal (system/agent/user)
 
 ---
 
-## Configuration
+## configsuration
 
-### Identity Configuration
+### Identity configsuration
 
 Located at: `sys/core/identity/identity.json`
 
@@ -205,7 +205,7 @@ Example:
 
 ### Supported Methods
 
-| Method | Use Case | Configuration |
+| Method | Use Case | configsuration |
 |--------|----------|---------------|
 | Service Account | System processes | Local identity file |
 | API Key | Programmatic access | Key stored in secrets |
@@ -316,7 +316,7 @@ sys/core/audit (logs WHO did WHAT)
 
 MCP gateway uses identity for authorization:
 ```
-gateway/mcp/authz/config.json references sys/core/identity/identity.json
+gateway/mcp/authz/configs.json references sys/core/identity/identity.json
 ```
 
 Capabilities map to MCP tool access:
@@ -406,7 +406,7 @@ jq '.principals | keys' sys/core/identity/identity.json
 ## References
 
 - [NOA Policy Framework](../../ai/shared/resources/policy/01_CONSTITUTION.md)
-- [MCP Authorization](../../gateway/mcp/authz/config.json)
+- [MCP Authorization](../../gateway/mcp/authz/configs.json)
 - [Enforcement System](../enforcement/README.md)
 - [Audit System](../audit/README.md)
 

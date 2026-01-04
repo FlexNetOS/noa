@@ -99,7 +99,7 @@ impl DirectoryStructure {
     /// Create sys/kernel/ subdirectory structure
     pub fn create_sys_kernel(noa_root: &Path, force: bool) -> Result<()> {
         let kernel_dirs = vec![
-            "sys/kernel/config",
+            "sys/kernel/configs",
             "sys/kernel/images",
             "sys/kernel/modules",
             "sys/kernel/params",
@@ -187,7 +187,7 @@ mod tests {
 
         // Verify some directories were created
         assert!(NoaPaths::sys(root).exists());
-        assert!(NoaPaths::config(root).exists());
+        assert!(NoaPaths::configs(root).exists());
         assert!(NoaPaths::data(root).exists());
     }
 

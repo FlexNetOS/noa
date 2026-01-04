@@ -50,7 +50,7 @@ impl TestDb {
             "#,
         ).map_err(|e| {
             crate::error::DatabaseError::QueryFailed {
-                query: "PRAGMA configuration".to_string(),
+                query: "PRAGMA configsuration".to_string(),
                 error: e.to_string(),
             }
         })?;
@@ -151,7 +151,7 @@ impl TestDb {
                 parameters INTEGER,
                 context_length INTEGER,
                 license TEXT,
-                config TEXT NOT NULL,
+                configs TEXT NOT NULL,
                 status TEXT NOT NULL DEFAULT 'pending',
                 metrics TEXT
             );
@@ -230,22 +230,22 @@ impl TestDb {
                 name TEXT NOT NULL UNIQUE,
                 stack_type TEXT NOT NULL,
                 version TEXT,
-                config TEXT,
+                configs TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
 
             -- =====================================================================
-            -- Vector search config table
+            -- Vector search configs table
             -- =====================================================================
-            CREATE TABLE IF NOT EXISTS vss_config (
+            CREATE TABLE IF NOT EXISTS vss_configs (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             );
 
-            INSERT OR IGNORE INTO vss_config (key, value) VALUES ('model', 'all-MiniLM-L6-v2');
-            INSERT OR IGNORE INTO vss_config (key, value) VALUES ('dimensions', '384');
-            INSERT OR IGNORE INTO vss_config (key, value) VALUES ('distance_metric', 'cosine');
+            INSERT OR IGNORE INTO vss_configs (key, value) VALUES ('model', 'all-MiniLM-L6-v2');
+            INSERT OR IGNORE INTO vss_configs (key, value) VALUES ('dimensions', '384');
+            INSERT OR IGNORE INTO vss_configs (key, value) VALUES ('distance_metric', 'cosine');
 
             -- =====================================================================
             -- Create indexes for query performance
@@ -398,7 +398,7 @@ pub fn sample_model() -> Model {
         parameters: Some("7B".to_string()),
         context_length: Some(4096),
         license: Some("Apache-2.0".to_string()),
-        config: serde_json::json!({"temperature": 0.7}),
+        configs: serde_json::json!({"temperature": 0.7}),
         status: ModelStatus::Available,
         metrics: None,
     }

@@ -1,6 +1,6 @@
-//! Configuration Generation
+//! configsuration Generation
 //!
-//! T079, T081-T084: Implement default config generation
+//! T079, T081-T084: Implement default configs generation
 //! §3.2: Local-First & Offline-Capable
 
 use crate::error::{NoaError, Result};
@@ -10,33 +10,33 @@ use std::fs;
 use std::path::Path;
 use tracing::{debug, info};
 
-/// Configuration generator
-pub struct ConfigGenerator;
+/// configsuration generator
+pub struct configsGenerator;
 
-impl ConfigGenerator {
-    /// Generate all default configuration files
+impl configsGenerator {
+    /// Generate all default configsuration files
     pub fn generate_all(noa_root: &Path) -> Result<()> {
-        info!("Generating default configuration files");
+        info!("Generating default configsuration files");
 
         Self::generate_ai_providers(noa_root)?;
         Self::generate_noa_server(noa_root)?;
         Self::generate_features(noa_root)?;
         Self::generate_models(noa_root)?;
 
-        info!("Default configuration files generated");
+        info!("Default configsuration files generated");
         Ok(())
     }
 
-    /// Generate ai-providers.json default config
+    /// Generate ai-providers.json default configs
     pub fn generate_ai_providers(noa_root: &Path) -> Result<()> {
-        let path = NoaPaths::config(noa_root).join("ai-providers.json");
+        let path = NoaPaths::configs(noa_root).join("ai-providers.json");
 
         if path.exists() {
             debug!(path = %path.display(), "ai-providers.json already exists");
             return Ok(());
         }
 
-        let config = json!({
+        let configs = json!({
             "$schema": "https://noa.local/schemas/ai-providers.json",
             "version": "1.0.0",
             "providerPriority": ["local", "hybrid", "cloud"],
@@ -147,7 +147,7 @@ impl ConfigGenerator {
             }
         });
 
-        let content = serde_json::to_string_pretty(&config)
+        let content = serde_json::to_string_pretty(&configs)
             .map_err(|e| NoaError::Serialization(e.to_string()))?;
         fs::write(&path, content)?;
 
@@ -155,16 +155,16 @@ impl ConfigGenerator {
         Ok(())
     }
 
-    /// Generate noa-server.json default config
+    /// Generate noa-server.json default configs
     pub fn generate_noa_server(noa_root: &Path) -> Result<()> {
-        let path = NoaPaths::config(noa_root).join("noa-server.json");
+        let path = NoaPaths::configs(noa_root).join("noa-server.json");
 
         if path.exists() {
             debug!(path = %path.display(), "noa-server.json already exists");
             return Ok(());
         }
 
-        let config = json!({
+        let configs = json!({
             "$schema": "https://noa.local/schemas/noa-server.json",
             "version": "1.0.0",
             "server": {
@@ -202,7 +202,7 @@ impl ConfigGenerator {
             }
         });
 
-        let content = serde_json::to_string_pretty(&config)
+        let content = serde_json::to_string_pretty(&configs)
             .map_err(|e| NoaError::Serialization(e.to_string()))?;
         fs::write(&path, content)?;
 
@@ -212,14 +212,14 @@ impl ConfigGenerator {
 
     /// Generate features.json default feature flags
     pub fn generate_features(noa_root: &Path) -> Result<()> {
-        let path = NoaPaths::config(noa_root).join("features.json");
+        let path = NoaPaths::configs(noa_root).join("features.json");
 
         if path.exists() {
             debug!(path = %path.display(), "features.json already exists");
             return Ok(());
         }
 
-        let config = json!({
+        let configs = json!({
             "$schema": "https://noa.local/schemas/features.json",
             "version": "1.0.0",
             "features": [
@@ -256,7 +256,7 @@ impl ConfigGenerator {
             ]
         });
 
-        let content = serde_json::to_string_pretty(&config)
+        let content = serde_json::to_string_pretty(&configs)
             .map_err(|e| NoaError::Serialization(e.to_string()))?;
         fs::write(&path, content)?;
 
@@ -266,14 +266,14 @@ impl ConfigGenerator {
 
     /// Generate models.json default model registry
     pub fn generate_models(noa_root: &Path) -> Result<()> {
-        let path = NoaPaths::config(noa_root).join("models.json");
+        let path = NoaPaths::configs(noa_root).join("models.json");
 
         if path.exists() {
             debug!(path = %path.display(), "models.json already exists");
             return Ok(());
         }
 
-        let config = json!({
+        let configs = json!({
             "$schema": "https://noa.local/schemas/models.json",
             "version": "1.0.0",
             "models": [
@@ -310,7 +310,7 @@ impl ConfigGenerator {
             ]
         });
 
-        let content = serde_json::to_string_pretty(&config)
+        let content = serde_json::to_string_pretty(&configs)
             .map_err(|e| NoaError::Serialization(e.to_string()))?;
         fs::write(&path, content)?;
 
@@ -325,17 +325,17 @@ mod tests {
     use tempfile::TempDir;
 
     #[test]
-    fn test_generate_all_configs() {
+    fn test_generate_all_configss() {
         let tmp = TempDir::new().unwrap();
         let root = tmp.path();
-        fs::create_dir_all(NoaPaths::config(root)).unwrap();
+        fs::create_dir_all(NoaPaths::configs(root)).unwrap();
 
-        ConfigGenerator::generate_all(root).unwrap();
+        configsGenerator::generate_all(root).unwrap();
 
-        assert!(NoaPaths::config(root).join("ai-providers.json").exists());
-        assert!(NoaPaths::config(root).join("noa-server.json").exists());
-        assert!(NoaPaths::config(root).join("features.json").exists());
-        assert!(NoaPaths::config(root).join("models.json").exists());
+        assert!(NoaPaths::configs(root).join("ai-providers.json").exists());
+        assert!(NoaPaths::configs(root).join("noa-server.json").exists());
+        assert!(NoaPaths::configs(root).join("features.json").exists());
+        assert!(NoaPaths::configs(root).join("models.json").exists());
     }
 }
 

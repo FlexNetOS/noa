@@ -35,8 +35,8 @@ pub fn require_str(raw: &serde_json::Value, pointers: &[&str], field: &'static s
     get_str(raw, pointers).ok_or_else(|| {
         NoaError::Validation(crate::error::ValidationError::new(
             field,
-            format!("Missing config value (any of): {}", pointers.join(", ")),
-            "MISSING_CONFIG",
+            format!("Missing configs value (any of): {}", pointers.join(", ")),
+            "MISSING_configs",
         ))
     })
 }

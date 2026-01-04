@@ -8,9 +8,9 @@ use crate::error::{Result, NoaError};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
-/// Model loader configuration
+/// Model loader configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModelLoaderConfig {
+pub struct ModelLoaderconfigs {
     /// Model file path
     pub model_path: PathBuf,
     /// Context size
@@ -23,7 +23,7 @@ pub struct ModelLoaderConfig {
     pub auto_detect_gpu_layers: bool,
 }
 
-impl Default for ModelLoaderConfig {
+impl Default for ModelLoaderconfigs {
     fn default() -> Self {
         Self {
             model_path: PathBuf::from("models/default.gguf"),
@@ -44,18 +44,18 @@ impl ModelLoader {
         Self
     }
 
-    /// Load a GGUF model with the given configuration
-    pub async fn load_gguf(&self, config: &ModelLoaderConfig) -> Result<LoadedModel> {
+    /// Load a GGUF model with the given configsuration
+    pub async fn load_gguf(&self, configs: &ModelLoaderconfigs) -> Result<LoadedModel> {
         // Validate model path exists
-        if !config.model_path.exists() {
+        if !configs.model_path.exists() {
             return Err(NoaError::NotFound {
                 resource: "Model file".to_string(),
-                id: config.model_path.display().to_string(),
+                id: configs.model_path.display().to_string(),
             });
         }
 
         // Validate it's a GGUF file
-        if !config.model_path.extension().map(|e| e == "gguf").unwrap_or(false) {
+        if !configs.model_path.extension().map(|e| e == "gguf").unwrap_or(false) {
             return Err(NoaError::Validation(crate::error::ValidationError::new(
                 "model_path",
                 "Model file must have .gguf extension",
@@ -64,17 +64,17 @@ impl ModelLoader {
         }
 
         // Auto-detect GPU layers if enabled
-        let n_gpu_layers = if config.auto_detect_gpu_layers {
+        let n_gpu_layers = if configs.auto_detect_gpu_layers {
             self.detect_optimal_gpu_layers().await?
         } else {
-            config.n_gpu_layers
+            configs.n_gpu_layers
         };
 
         Ok(LoadedModel {
-            path: config.model_path.clone(),
-            context_size: config.context_size,
+            path: configs.model_path.clone(),
+            context_size: configs.context_size,
             n_gpu_layers,
-            threads: config.threads,
+            threads: configs.threads,
         })
     }
 

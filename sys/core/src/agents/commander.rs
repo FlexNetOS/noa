@@ -302,7 +302,7 @@ mod tests {
     fn test_commander_decompose_file_goal() {
         let commander = CommanderChiefAgent::new();
         let request = CommanderRequest {
-            goal: "Read file config.yaml and write to backup.yaml".into(),
+            goal: "Read file configs.yaml and write to backup.yaml".into(),
             context: None,
             constraints: None,
         };

@@ -58,12 +58,12 @@ pub fn execute(command: WorkflowCmd) -> Result<()> {
                 name => WorkflowType::Custom(name.to_string()),
             };
 
-            let config = crate::agents::workflows::WorkflowConfig {
+            let configs = crate::agents::workflows::Workflowconfigs {
                 workflow_type: workflow_enum,
                 parameters,
             };
 
-            let result = orchestrator.execute_workflow(config)?;
+            let result = orchestrator.execute_workflow(configs)?;
 
             println!("\n{}", result.summary);
             println!("\nDetailed Results:");
@@ -96,8 +96,8 @@ pub fn execute(command: WorkflowCmd) -> Result<()> {
             println!("Target Branch: {}", target_branch);
             println!("{:-<80}", "");
 
-            let config = workflows::code_review(pr_number, target_branch);
-            let result = orchestrator.execute_workflow(config)?;
+            let configs = workflows::code_review(pr_number, target_branch);
+            let result = orchestrator.execute_workflow(configs)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -111,8 +111,8 @@ pub fn execute(command: WorkflowCmd) -> Result<()> {
             println!("Version: {}", version);
             println!("{:-<80}", "");
 
-            let config = workflows::deployment(environment, version);
-            let result = orchestrator.execute_workflow(config)?;
+            let configs = workflows::deployment(environment, version);
+            let result = orchestrator.execute_workflow(configs)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -126,8 +126,8 @@ pub fn execute(command: WorkflowCmd) -> Result<()> {
             println!("Test Type: {}", test_type);
             println!("{:-<80}", "");
 
-            let config = workflows::testing(component, test_type);
-            let result = orchestrator.execute_workflow(config)?;
+            let configs = workflows::testing(component, test_type);
+            let result = orchestrator.execute_workflow(configs)?;
 
             println!("\n{}", result.summary);
             Ok(())
@@ -137,8 +137,8 @@ pub fn execute(command: WorkflowCmd) -> Result<()> {
             println!("Target: {}", target);
             println!("{:-<80}", "");
 
-            let config = workflows::security_audit(target, "full".to_string());
-            let result = orchestrator.execute_workflow(config)?;
+            let configs = workflows::security_audit(target, "full".to_string());
+            let result = orchestrator.execute_workflow(configs)?;
 
             println!("\n{}", result.summary);
             Ok(())

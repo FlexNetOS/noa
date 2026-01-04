@@ -4,7 +4,7 @@
 
 // Always-available core modules (required for `noa init`)
 pub mod cli;
-pub mod config;
+pub mod configs;
 pub mod db;
 pub mod error;
 pub mod init;

@@ -1,28 +1,28 @@
-//! Configuration Validator
+//! configsuration Validator
 //!
-//! Validates configuration against schema and business rules.
+//! Validates configsuration against schema and business rules.
 
 use std::path::Path;
 
-use crate::error::{ConfigError, Result, ValidationError};
-use super::NoaConfig;
+use crate::error::{configsError, Result, ValidationError};
+use super::Noaconfigs;
 
-/// Configuration validator
-pub struct ConfigValidator;
+/// configsuration validator
+pub struct configsValidator;
 
-impl ConfigValidator {
-    /// Validate a configuration
-    pub fn validate(config: &NoaConfig) -> Result<()> {
-        Self::validate_noa_root(config)?;
-        Self::validate_database(config)?;
-        Self::validate_logging(config)?;
-        Self::validate_providers(config)?;
+impl configsValidator {
+    /// Validate a configsuration
+    pub fn validate(configs: &Noaconfigs) -> Result<()> {
+        Self::validate_noa_root(configs)?;
+        Self::validate_database(configs)?;
+        Self::validate_logging(configs)?;
+        Self::validate_providers(configs)?;
         Ok(())
     }
 
-    fn validate_noa_root(config: &NoaConfig) -> Result<()> {
-        validate_path(&config.noa_root, true, true).map_err(|e| -> crate::error::NoaError {
-            ConfigError::ValidationError {
+    fn validate_noa_root(configs: &Noaconfigs) -> Result<()> {
+        validate_path(&configs.noa_root, true, true).map_err(|e| -> crate::error::NoaError {
+            configsError::ValidationError {
                 field: "noa_root".to_string(),
                 message: e.to_string(),
             }
@@ -30,11 +30,11 @@ impl ConfigValidator {
         })?;
 
         // Check for required subdirectories
-        let required_dirs = ["bin", "config", "data", "logs"];
+        let required_dirs = ["bin", "configs", "data", "logs"];
         for dir in required_dirs {
-            let path = config.noa_root.join(dir);
+            let path = configs.noa_root.join(dir);
             validate_path(&path, true, true).map_err(|e| -> crate::error::NoaError {
-                ConfigError::ValidationError {
+                configsError::ValidationError {
                     field: "noa_root".to_string(),
                     message: format!("{} ({}): {}", dir, path.display(), e),
                 }
@@ -45,10 +45,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    fn validate_database(config: &NoaConfig) -> Result<()> {
-        validate_not_empty(&config.database.driver, "database.driver")
+    fn validate_database(configs: &Noaconfigs) -> Result<()> {
+        validate_not_empty(&configs.database.driver, "database.driver")
             .map_err(|e| -> crate::error::NoaError {
-                ConfigError::ValidationError {
+                configsError::ValidationError {
                     field: "database.driver".to_string(),
                     message: e.to_string(),
                 }
@@ -56,22 +56,22 @@ impl ConfigValidator {
             })?;
 
         let valid_drivers = ["sqlite", "postgresql"];
-        if !valid_drivers.contains(&config.database.driver.as_str()) {
-            return Err(ConfigError::InvalidValue {
+        if !valid_drivers.contains(&configs.database.driver.as_str()) {
+            return Err(configsError::InvalidValue {
                 field: "database.driver".to_string(),
-                value: config.database.driver.clone(),
+                value: configs.database.driver.clone(),
                 expected: "sqlite or postgresql".to_string(),
             }.into());
         }
 
         validate_range(
-            config.database.max_connections,
+            configs.database.max_connections,
             1u32,
             u32::MAX,
             "database.max_connections",
         )
         .map_err(|e| -> crate::error::NoaError {
-            ConfigError::ValidationError {
+            configsError::ValidationError {
                 field: "database.max_connections".to_string(),
                 message: e.to_string(),
             }
@@ -79,8 +79,8 @@ impl ConfigValidator {
         })?;
 
         // For PostgreSQL, require a URL.
-        if config.database.driver == "postgresql" {
-            let url_ok = config
+        if configs.database.driver == "postgresql" {
+            let url_ok = configs
                 .database
                 .url
                 .as_ref()
@@ -88,7 +88,7 @@ impl ConfigValidator {
                 .unwrap_or(false);
 
             if !url_ok {
-                return Err(ConfigError::ValidationError {
+                return Err(configsError::ValidationError {
                     field: "database.url".to_string(),
                     message: "PostgreSQL requires database.primary.url (or env DATABASE_URL/DB_CONNECTION_STRING)".to_string(),
                 }
@@ -97,10 +97,10 @@ impl ConfigValidator {
         }
 
         // For SQLite, ensure parent directory exists
-        if config.database.driver == "sqlite" {
-            if let Some(parent) = config.database.path.parent() {
+        if configs.database.driver == "sqlite" {
+            if let Some(parent) = configs.database.path.parent() {
                 validate_path(parent, true, true).map_err(|e| -> crate::error::NoaError {
-                    ConfigError::ValidationError {
+                    configsError::ValidationError {
                         field: "database.path".to_string(),
                         message: e.to_string(),
                     }
@@ -112,11 +112,11 @@ impl ConfigValidator {
         Ok(())
     }
 
-    fn validate_logging(config: &NoaConfig) -> Result<()> {
+    fn validate_logging(configs: &Noaconfigs) -> Result<()> {
         // Ensure log output parent directory exists
-        if let Some(parent) = config.logging.output.parent() {
+        if let Some(parent) = configs.logging.output.parent() {
             validate_path(parent, true, true).map_err(|e| -> crate::error::NoaError {
-                ConfigError::ValidationError {
+                configsError::ValidationError {
                     field: "logging.output".to_string(),
                     message: e.to_string(),
                 }
@@ -125,13 +125,13 @@ impl ConfigValidator {
         }
 
         validate_range(
-            config.logging.max_size_mb,
+            configs.logging.max_size_mb,
             1u64,
             u64::MAX,
             "logging.max_size_mb",
         )
         .map_err(|e| -> crate::error::NoaError {
-            ConfigError::ValidationError {
+            configsError::ValidationError {
                 field: "logging.max_size_mb".to_string(),
                 message: e.to_string(),
             }
@@ -141,21 +141,21 @@ impl ConfigValidator {
         Ok(())
     }
 
-    fn validate_providers(config: &NoaConfig) -> Result<()> {
-        // Validate that at least one provider is configured
-        if config.providers.providers.is_empty() {
+    fn validate_providers(configs: &Noaconfigs) -> Result<()> {
+        // Validate that at least one provider is configsured
+        if configs.providers.providers.is_empty() {
             // This is a warning, not an error - we can operate without providers
-            tracing::warn!("No AI providers configured");
+            tracing::warn!("No AI providers configsured");
         }
 
-        // Validate each provider's config path
-        for (name, settings) in &config.providers.providers {
-            if settings.enabled && !settings.config_path.as_os_str().is_empty() {
-                if !settings.config_path.exists() {
+        // Validate each provider's configs path
+        for (name, settings) in &configs.providers.providers {
+            if settings.enabled && !settings.configs_path.as_os_str().is_empty() {
+                if !settings.configs_path.exists() {
                     tracing::warn!(
-                        "Provider {} config path does not exist: {}",
+                        "Provider {} configs path does not exist: {}",
                         name,
-                        settings.config_path.display()
+                        settings.configs_path.display()
                     );
                 }
             }

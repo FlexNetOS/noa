@@ -5,8 +5,8 @@
 //! US2: Neural runtime backend
 
 use crate::error::{NoaError, Result};
-use crate::neural::model_loader::{ModelLoader, ModelLoaderConfig};
-use noa_neural::llama::{LlamaClient, LlamaServer, LlamaServerConfig};
+use crate::neural::model_loader::{ModelLoader, ModelLoaderconfigs};
+use noa_neural::llama::{LlamaClient, LlamaServer, LlamaServerconfigs};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -37,7 +37,7 @@ impl LlamaBackend {
         n_gpu_layers: i32,
     ) -> Result<()> {
         // Use model loader to validate and prepare model
-        let config = ModelLoaderConfig {
+        let configs = ModelLoaderconfigs {
             model_path: model_path.clone(),
             context_size,
             n_gpu_layers,
@@ -45,10 +45,10 @@ impl LlamaBackend {
             auto_detect_gpu_layers: true,
         };
 
-        let _loaded_model = self.model_loader.load_gguf(&config).await?;
+        let _loaded_model = self.model_loader.load_gguf(&configs).await?;
 
-        // Create llama server configuration
-        let server_config = LlamaServerConfig {
+        // Create llama server configsuration
+        let server_configs = LlamaServerconfigs {
             host: "127.0.0.1".to_string(),
             port: 8080, // TODO: Dynamic port assignment
             model_path,
@@ -57,7 +57,7 @@ impl LlamaBackend {
             threads: None,
         };
 
-        let mut server = LlamaServer::new(server_config.clone());
+        let mut server = LlamaServer::new(server_configs.clone());
         server.start().map_err(|e| NoaError::Internal {
             message: format!("Failed to start llama server: {}", e),
             source: None,

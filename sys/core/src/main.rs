@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 use tracing::info;
 
 use noa_core::cli;
-use noa_core::config;
+use noa_core::configs;
 use noa_core::error::Result;
 use noa_core::logging;
 
@@ -23,9 +23,9 @@ struct Cli {
     #[arg(short, long, global = true)]
     verbose: bool,
 
-    /// Configuration file path
-    #[arg(short, long, global = true, default_value = "config/noa.yaml")]
-    config: String,
+    /// configsuration file path
+    #[arg(short, long, global = true, default_value = "configss/base/noa.yaml")]
+    configs: String,
 
     /// NOA root directory
     #[arg(long, global = true, env = "NOA_ROOT")]
@@ -188,7 +188,7 @@ enum AgentCommands {
 #[cfg(feature = "full")]
 #[derive(Subcommand)]
 enum ProviderCommands {
-    /// List configured providers
+    /// List configsured providers
     List,
     /// Show provider status
     Status { name: String },
@@ -347,15 +347,15 @@ async fn main() -> Result<()> {
 
     // Initialize logging
     let log_level = if cli.verbose { "debug" } else { "info" };
-    let log_config = config::LoggingConfig {
+    let log_configs = configs::Loggingconfigs {
         level: log_level.parse().unwrap_or_default(),
-        format: config::LogFormat::Pretty,
+        format: configs::LogFormat::Pretty,
         output: std::path::PathBuf::from("logs/noa.log"),
         rotate: true,
         max_size_mb: 100,
         max_files: 10,
     };
-    logging::init(&log_config)?;
+    logging::init(&log_configs)?;
 
     info!(
         version = env!("CARGO_PKG_VERSION"),

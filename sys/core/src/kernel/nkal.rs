@@ -135,9 +135,9 @@ impl Default for PlatformCapabilities {
     }
 }
 
-/// NKAL configuration
+/// NKAL configsuration
 #[derive(Debug, Clone)]
-pub struct NkalConfig {
+pub struct Nkalconfigs {
     /// Preferred kernel mode
     pub preferred_mode: KernelMode,
     /// Fallback mode if preferred is unavailable
@@ -150,7 +150,7 @@ pub struct NkalConfig {
     pub auto_detect: bool,
 }
 
-impl Default for NkalConfig {
+impl Default for Nkalconfigs {
     fn default() -> Self {
         Self {
             preferred_mode: KernelMode::Native,
@@ -173,8 +173,8 @@ pub enum NkalError {
     ContainerRuntimeNotFound,
     /// VM image not found
     VmImageNotFound(PathBuf),
-    /// Configuration error
-    ConfigError(String),
+    /// configsuration error
+    configsError(String),
     /// IO error
     IoError(std::io::Error),
 }
@@ -188,7 +188,7 @@ impl std::fmt::Display for NkalError {
             NkalError::HypervisorNotFound => write!(f, "No hypervisor found or enabled"),
             NkalError::ContainerRuntimeNotFound => write!(f, "No container runtime found"),
             NkalError::VmImageNotFound(path) => write!(f, "VM image not found: {:?}", path),
-            NkalError::ConfigError(msg) => write!(f, "Configuration error: {}", msg),
+            NkalError::configsError(msg) => write!(f, "configsuration error: {}", msg),
             NkalError::IoError(e) => write!(f, "IO error: {}", e),
         }
     }
@@ -204,28 +204,28 @@ impl From<std::io::Error> for NkalError {
 
 /// Main NKAL interface
 pub struct Nkal {
-    config: NkalConfig,
+    configs: Nkalconfigs,
     capabilities: PlatformCapabilities,
 }
 
 impl Nkal {
-    /// Create a new NKAL instance with default configuration
+    /// Create a new NKAL instance with default configsuration
     pub fn new() -> Result<Self, NkalError> {
-        let config = NkalConfig::default();
+        let configs = Nkalconfigs::default();
         let capabilities = Self::detect_capabilities()?;
 
         Ok(Self {
-            config,
+            configs,
             capabilities,
         })
     }
 
-    /// Create NKAL with custom configuration
-    pub fn with_config(config: NkalConfig) -> Result<Self, NkalError> {
+    /// Create NKAL with custom configsuration
+    pub fn with_configs(configs: Nkalconfigs) -> Result<Self, NkalError> {
         let capabilities = Self::detect_capabilities()?;
 
         Ok(Self {
-            config,
+            configs,
             capabilities,
         })
     }
@@ -394,7 +394,7 @@ impl Nkal {
             }
         }
 
-        Err(NkalError::ConfigError(
+        Err(NkalError::configsError(
             "NOA_ROOT not found. Set NOA_ROOT environment variable or ensure .noa marker exists."
                 .to_string(),
         ))
@@ -405,9 +405,9 @@ impl Nkal {
         &self.capabilities
     }
 
-    /// Get current configuration
-    pub fn config(&self) -> &NkalConfig {
-        &self.config
+    /// Get current configsuration
+    pub fn configs(&self) -> &Nkalconfigs {
+        &self.configs
     }
 
     /// Set kernel mode
@@ -434,7 +434,7 @@ impl Nkal {
             }
         }
 
-        self.config.preferred_mode = mode;
+        self.configs.preferred_mode = mode;
         Ok(())
     }
 
@@ -452,12 +452,12 @@ impl Nkal {
         }
     }
 
-    /// Initialize the kernel layer with current configuration
+    /// Initialize the kernel layer with current configsuration
     pub fn initialize(&self) -> Result<(), NkalError> {
-        let mode = if self.config.auto_detect {
+        let mode = if self.configs.auto_detect {
             self.best_available_mode()
         } else {
-            self.config.preferred_mode
+            self.configs.preferred_mode
         };
 
         match mode {
@@ -471,7 +471,7 @@ impl Nkal {
     fn init_native(&self) -> Result<(), NkalError> {
         // Native mode: minimal setup, just validate NOA_ROOT
         if !self.capabilities.noa_root.exists() {
-            return Err(NkalError::ConfigError(format!(
+            return Err(NkalError::configsError(format!(
                 "NOA_ROOT does not exist: {:?}",
                 self.capabilities.noa_root
             )));
@@ -485,7 +485,7 @@ impl Nkal {
             return Err(NkalError::HypervisorNotFound);
         }
 
-        if let Some(ref image_path) = self.config.vm_image_path {
+        if let Some(ref image_path) = self.configs.vm_image_path {
             if !image_path.exists() {
                 return Err(NkalError::VmImageNotFound(image_path.clone()));
             }
@@ -537,10 +537,10 @@ mod tests {
     }
 
     #[test]
-    fn test_default_config() {
-        let config = NkalConfig::default();
-        assert_eq!(config.preferred_mode, KernelMode::Native);
-        assert!(config.auto_detect);
+    fn test_default_configs() {
+        let configs = Nkalconfigs::default();
+        assert_eq!(configs.preferred_mode, KernelMode::Native);
+        assert!(configs.auto_detect);
     }
 }
 

@@ -19,9 +19,9 @@ pub enum WorkflowType {
     Custom(String),
 }
 
-/// Workflow configuration
+/// Workflow configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WorkflowConfig {
+pub struct Workflowconfigs {
     pub workflow_type: WorkflowType,
     pub parameters: serde_json::Value,
 }
@@ -50,15 +50,15 @@ impl WorkflowOrchestrator {
     }
 
     /// Execute a workflow
-    pub fn execute_workflow(&mut self, config: WorkflowConfig) -> Result<WorkflowResult> {
-        let plan = self.create_plan(&config)?;
+    pub fn execute_workflow(&mut self, configs: Workflowconfigs) -> Result<WorkflowResult> {
+        let plan = self.create_plan(&configs)?;
         let execution_result = self.executor.execute_plan(plan)?;
         
         let success = execution_result.failed_tasks == 0;
-        let summary = self.generate_summary(&config.workflow_type, &execution_result);
+        let summary = self.generate_summary(&configs.workflow_type, &execution_result);
 
         Ok(WorkflowResult {
-            workflow_type: config.workflow_type,
+            workflow_type: configs.workflow_type,
             success,
             execution_result,
             summary,
@@ -66,27 +66,27 @@ impl WorkflowOrchestrator {
     }
 
     /// Create execution plan for a workflow
-    fn create_plan(&self, config: &WorkflowConfig) -> Result<ExecutionPlan> {
-        let goal = match &config.workflow_type {
+    fn create_plan(&self, configs: &Workflowconfigs) -> Result<ExecutionPlan> {
+        let goal = match &configs.workflow_type {
             WorkflowType::CodeReview => {
                 format!("Review code changes in {}", 
-                    config.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("repository"))
+                    configs.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("repository"))
             }
             WorkflowType::Deployment => {
                 format!("Deploy application to {}", 
-                    config.parameters.get("environment").and_then(|v| v.as_str()).unwrap_or("production"))
+                    configs.parameters.get("environment").and_then(|v| v.as_str()).unwrap_or("production"))
             }
             WorkflowType::Testing => {
                 format!("Run test suite for {}", 
-                    config.parameters.get("component").and_then(|v| v.as_str()).unwrap_or("application"))
+                    configs.parameters.get("component").and_then(|v| v.as_str()).unwrap_or("application"))
             }
             WorkflowType::Documentation => {
                 format!("Generate documentation for {}", 
-                    config.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("project"))
+                    configs.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("project"))
             }
             WorkflowType::SecurityAudit => {
                 format!("Perform security audit on {}", 
-                    config.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("codebase"))
+                    configs.parameters.get("target").and_then(|v| v.as_str()).unwrap_or("codebase"))
             }
             WorkflowType::Custom(name) => {
                 format!("Execute custom workflow: {}", name)
@@ -95,7 +95,7 @@ impl WorkflowOrchestrator {
 
         let request = CommanderRequest {
             goal,
-            context: Some(config.parameters.as_object()
+            context: Some(configs.parameters.as_object()
                 .map(|obj| obj.iter()
                     .map(|(k, v)| (k.clone(), v.to_string()))
                     .collect())
@@ -133,8 +133,8 @@ pub mod workflows {
     use super::*;
 
     /// Code review workflow
-    pub fn code_review(pr_number: String, target_branch: String) -> WorkflowConfig {
-        WorkflowConfig {
+    pub fn code_review(pr_number: String, target_branch: String) -> Workflowconfigs {
+        Workflowconfigs {
             workflow_type: WorkflowType::CodeReview,
             parameters: serde_json::json!({
                 "pr_number": pr_number,
@@ -145,8 +145,8 @@ pub mod workflows {
     }
 
     /// Deployment workflow
-    pub fn deployment(environment: String, version: String) -> WorkflowConfig {
-        WorkflowConfig {
+    pub fn deployment(environment: String, version: String) -> Workflowconfigs {
+        Workflowconfigs {
             workflow_type: WorkflowType::Deployment,
             parameters: serde_json::json!({
                 "environment": environment,
@@ -156,8 +156,8 @@ pub mod workflows {
     }
 
     /// Testing workflow
-    pub fn testing(component: String, test_type: String) -> WorkflowConfig {
-        WorkflowConfig {
+    pub fn testing(component: String, test_type: String) -> Workflowconfigs {
+        Workflowconfigs {
             workflow_type: WorkflowType::Testing,
             parameters: serde_json::json!({
                 "component": component,
@@ -167,8 +167,8 @@ pub mod workflows {
     }
 
     /// Documentation generation workflow
-    pub fn documentation(target: String, output_format: String) -> WorkflowConfig {
-        WorkflowConfig {
+    pub fn documentation(target: String, output_format: String) -> Workflowconfigs {
+        Workflowconfigs {
             workflow_type: WorkflowType::Documentation,
             parameters: serde_json::json!({
                 "target": target,
@@ -178,8 +178,8 @@ pub mod workflows {
     }
 
     /// Security audit workflow
-    pub fn security_audit(target: String, audit_type: String) -> WorkflowConfig {
-        WorkflowConfig {
+    pub fn security_audit(target: String, audit_type: String) -> Workflowconfigs {
+        Workflowconfigs {
             workflow_type: WorkflowType::SecurityAudit,
             parameters: serde_json::json!({
                 "target": target,
@@ -196,27 +196,27 @@ mod tests {
     #[test]
     fn test_code_review_workflow() {
         let mut orchestrator = WorkflowOrchestrator::new();
-        let config = workflows::code_review("123".to_string(), "main".to_string());
+        let configs = workflows::code_review("123".to_string(), "main".to_string());
         
-        let result = orchestrator.execute_workflow(config).unwrap();
+        let result = orchestrator.execute_workflow(configs).unwrap();
         assert!(result.execution_result.total_tasks > 0);
     }
 
     #[test]
     fn test_deployment_workflow() {
         let mut orchestrator = WorkflowOrchestrator::new();
-        let config = workflows::deployment("staging".to_string(), "v1.0.0".to_string());
+        let configs = workflows::deployment("staging".to_string(), "v1.0.0".to_string());
         
-        let result = orchestrator.execute_workflow(config).unwrap();
+        let result = orchestrator.execute_workflow(configs).unwrap();
         assert!(result.execution_result.total_tasks > 0);
     }
 
     #[test]
     fn test_testing_workflow() {
         let mut orchestrator = WorkflowOrchestrator::new();
-        let config = workflows::testing("core".to_string(), "integration".to_string());
+        let configs = workflows::testing("core".to_string(), "integration".to_string());
         
-        let result = orchestrator.execute_workflow(config).unwrap();
+        let result = orchestrator.execute_workflow(configs).unwrap();
         assert!(result.execution_result.total_tasks > 0);
     }
 }

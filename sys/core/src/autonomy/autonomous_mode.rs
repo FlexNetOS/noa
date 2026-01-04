@@ -26,9 +26,9 @@ pub enum AutonomousState {
     EmergencyStop,
 }
 
-/// Autonomous execution mode configuration
+/// Autonomous execution mode configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AutonomousConfig {
+pub struct Autonomousconfigs {
     /// Maximum concurrent autonomous goals
     pub max_concurrent_goals: usize,
     /// Timeout for goal execution (seconds)
@@ -43,7 +43,7 @@ pub struct AutonomousConfig {
     pub max_resource_usage: f64,
 }
 
-impl Default for AutonomousConfig {
+impl Default for Autonomousconfigs {
     fn default() -> Self {
         Self {
             max_concurrent_goals: 5,
@@ -59,17 +59,17 @@ impl Default for AutonomousConfig {
 /// Autonomous execution mode manager
 pub struct AutonomousMode {
     state: Arc<RwLock<AutonomousState>>,
-    config: Arc<RwLock<AutonomousConfig>>,
+    configs: Arc<RwLock<Autonomousconfigs>>,
     active_goals: Arc<RwLock<Vec<Uuid>>>,
     last_safety_check: Arc<RwLock<Option<DateTime<Utc>>>>,
 }
 
 impl AutonomousMode {
     /// Create a new autonomous mode manager
-    pub fn new(config: AutonomousConfig) -> Self {
+    pub fn new(configs: Autonomousconfigs) -> Self {
         Self {
             state: Arc::new(RwLock::new(AutonomousState::Disabled)),
-            config: Arc::new(RwLock::new(config)),
+            configs: Arc::new(RwLock::new(configs)),
             active_goals: Arc::new(RwLock::new(Vec::new())),
             last_safety_check: Arc::new(RwLock::new(None)),
         }
@@ -149,14 +149,14 @@ impl AutonomousMode {
             });
         }
 
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         let mut goals = self.active_goals.write().await;
 
-        if goals.len() >= config.max_concurrent_goals {
+        if goals.len() >= configs.max_concurrent_goals {
             return Err(NoaError::Internal {
                 message: format!(
                     "Maximum concurrent goals ({}) reached",
-                    config.max_concurrent_goals
+                    configs.max_concurrent_goals
                 ),
                 source: None,
             });
@@ -177,14 +177,14 @@ impl AutonomousMode {
         self.active_goals.read().await.len()
     }
 
-    /// Update configuration
-    pub async fn update_config(&self, config: AutonomousConfig) {
-        *self.config.write().await = config;
+    /// Update configsuration
+    pub async fn update_configs(&self, configs: Autonomousconfigs) {
+        *self.configs.write().await = configs;
     }
 
-    /// Get current configuration
-    pub async fn config(&self) -> AutonomousConfig {
-        self.config.read().await.clone()
+    /// Get current configsuration
+    pub async fn configs(&self) -> Autonomousconfigs {
+        self.configs.read().await.clone()
     }
 
     /// Perform safety check
@@ -198,11 +198,11 @@ impl AutonomousMode {
         }
 
         // Check resource usage
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         let goals = self.active_goals.read().await;
 
         // Simple check: if we're at max concurrent goals, consider it a warning
-        if goals.len() >= config.max_concurrent_goals {
+        if goals.len() >= configs.max_concurrent_goals {
             return Ok(false);
         }
 
@@ -221,7 +221,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_autonomous_mode_lifecycle() {
-        let mode = AutonomousMode::new(AutonomousConfig::default());
+        let mode = AutonomousMode::new(Autonomousconfigs::default());
 
         assert!(!mode.is_active().await);
         assert_eq!(mode.state().await, AutonomousState::Disabled);
@@ -242,7 +242,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_emergency_stop() {
-        let mode = AutonomousMode::new(AutonomousConfig::default());
+        let mode = AutonomousMode::new(Autonomousconfigs::default());
 
         mode.enable().await.unwrap();
         mode.emergency_stop().await.unwrap();
@@ -256,7 +256,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_goal_registration() {
-        let mode = AutonomousMode::new(AutonomousConfig {
+        let mode = AutonomousMode::new(Autonomousconfigs {
             max_concurrent_goals: 2,
             ..Default::default()
         });

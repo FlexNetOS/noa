@@ -60,7 +60,7 @@ impl DigestService {
         let embeddings = EmbeddingsService::new(conn);
         embeddings.generate_embeddings(&source_id).await?;
 
-        // Stage 5: Env Synthesis - Generate environment configs
+        // Stage 5: Env Synthesis - Generate environment configss
         let conn = init_database(&self.db_path)?;
         let env_synthesis = EnvSynthesisService::new(conn);
         env_synthesis.synthesize(&source_id).await?;

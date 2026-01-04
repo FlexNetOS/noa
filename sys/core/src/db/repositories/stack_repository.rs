@@ -1,6 +1,6 @@
 //! Stack repository for storing technology stack and dependency information
 //!
-//! Tracks project dependencies, tool versions, and configuration stacks.
+//! Tracks project dependencies, tool versions, and configsuration stacks.
 
 use chrono::{DateTime, Utc};
 use rusqlite::{Connection, params};
@@ -14,7 +14,7 @@ pub struct StackRecord {
     pub name: String,
     pub stack_type: String,
     pub version: Option<String>,
-    pub config: Option<String>,
+    pub configs: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -36,7 +36,7 @@ impl<'a> StackRepository<'a> {
                 name TEXT NOT NULL UNIQUE,
                 stack_type TEXT NOT NULL,
                 version TEXT,
-                config TEXT,
+                configs TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )",
@@ -46,12 +46,12 @@ impl<'a> StackRepository<'a> {
     }
 
     /// Create a new stack record
-    pub fn create(&self, name: &str, stack_type: &str, version: Option<&str>, config: Option<&str>) -> Result<i64> {
+    pub fn create(&self, name: &str, stack_type: &str, version: Option<&str>, configs: Option<&str>) -> Result<i64> {
         let now = Utc::now();
         self.conn.execute(
-            "INSERT INTO stacks (name, stack_type, version, config, created_at, updated_at)
+            "INSERT INTO stacks (name, stack_type, version, configs, created_at, updated_at)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            params![name, stack_type, version, config, now.to_rfc3339(), now.to_rfc3339()],
+            params![name, stack_type, version, configs, now.to_rfc3339(), now.to_rfc3339()],
         )?;
         Ok(self.conn.last_insert_rowid())
     }
@@ -59,7 +59,7 @@ impl<'a> StackRepository<'a> {
     /// List all stack records
     pub fn list(&self) -> Result<Vec<StackRecord>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, name, stack_type, version, config, created_at, updated_at
+            "SELECT id, name, stack_type, version, configs, created_at, updated_at
              FROM stacks
              ORDER BY name"
         )?;
@@ -70,7 +70,7 @@ impl<'a> StackRepository<'a> {
                 name: row.get(1)?,
                 stack_type: row.get(2)?,
                 version: row.get(3)?,
-                config: row.get(4)?,
+                configs: row.get(4)?,
                 created_at: row.get::<_, String>(5)?.parse().unwrap_or_else(|_| Utc::now()),
                 updated_at: row.get::<_, String>(6)?.parse().unwrap_or_else(|_| Utc::now()),
             })
@@ -86,7 +86,7 @@ impl<'a> StackRepository<'a> {
     /// Get a stack record by name
     pub fn get_by_name(&self, name: &str) -> Result<Option<StackRecord>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, name, stack_type, version, config, created_at, updated_at
+            "SELECT id, name, stack_type, version, configs, created_at, updated_at
              FROM stacks
              WHERE name = ?1"
         )?;
@@ -98,7 +98,7 @@ impl<'a> StackRepository<'a> {
                 name: row.get(1)?,
                 stack_type: row.get(2)?,
                 version: row.get(3)?,
-                config: row.get(4)?,
+                configs: row.get(4)?,
                 created_at: row.get::<_, String>(5)?.parse().unwrap_or_else(|_| Utc::now()),
                 updated_at: row.get::<_, String>(6)?.parse().unwrap_or_else(|_| Utc::now()),
             }))
@@ -108,11 +108,11 @@ impl<'a> StackRepository<'a> {
     }
 
     /// Update a stack record
-    pub fn update(&self, id: i64, version: Option<&str>, config: Option<&str>) -> Result<()> {
+    pub fn update(&self, id: i64, version: Option<&str>, configs: Option<&str>) -> Result<()> {
         let now = Utc::now();
         self.conn.execute(
-            "UPDATE stacks SET version = ?1, config = ?2, updated_at = ?3 WHERE id = ?4",
-            params![version, config, now.to_rfc3339(), id],
+            "UPDATE stacks SET version = ?1, configs = ?2, updated_at = ?3 WHERE id = ?4",
+            params![version, configs, now.to_rfc3339(), id],
         )?;
         Ok(())
     }

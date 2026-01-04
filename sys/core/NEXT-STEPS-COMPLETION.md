@@ -7,7 +7,7 @@
 
 ## Completed Steps
 
-### ✅ 1. Package Configuration Started
+### ✅ 1. Package configsuration Started
 - Created `sys/core/src/lib.rs` with all module exports
 - Added package definition to `sys/core/Cargo.toml`
 - Added basic dependencies (tokio, axum, serde, etc.)
@@ -98,7 +98,7 @@
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Package Config** | ✅ 80% | Basic structure done, dependencies need completion |
+| **Package configs** | ✅ 80% | Basic structure done, dependencies need completion |
 | **Init Service** | ✅ 100% | Fully implemented and exported |
 | **Test Suite** | ✅ 100% | All tests written, ready to run |
 | **Manual Scripts** | ✅ 100% | Working and tested |
@@ -119,7 +119,7 @@
    - Test `noa init` command
    - Run full test suite
 
-3. **Long-term**: Complete package configuration
+3. **Long-term**: Complete package configsuration
    - Add all optional dependencies as features
    - Document feature flags
    - Create build instructions

@@ -12,7 +12,7 @@
       "name": "Identity Management Service",
       "type": "core_service",
       "status": "active",
-      "config_path": "${NOA_ROOT}/sys/core/identity/identity.json",
+      "configs_path": "${NOA_ROOT}/sys/core/identity/identity.json",
       "health_endpoint": "/health",
       "dependencies": []
     },
@@ -21,7 +21,7 @@
       "name": "Policy Enforcement Service",
       "type": "core_service",
       "status": "active",
-      "config_path": "${NOA_ROOT}/sys/core/enforcement/policy.json",
+      "configs_path": "${NOA_ROOT}/sys/core/enforcement/policy.json",
       "health_endpoint": "/health",
       "dependencies": ["svc:identity"]
     },
@@ -30,7 +30,7 @@
       "name": "Audit Logging Service",
       "type": "core_service",
       "status": "active",
-      "config_path": "${NOA_ROOT}/sys/core/audit/audit-config.json",
+      "configs_path": "${NOA_ROOT}/sys/core/audit/audit-configs.json",
       "health_endpoint": "/health",
       "dependencies": []
     },
@@ -39,7 +39,7 @@
       "name": "Task Scheduler Service",
       "type": "core_service",
       "status": "active",
-      "config_path": "${NOA_ROOT}/sys/core/scheduler/config.json",
+      "configs_path": "${NOA_ROOT}/sys/core/scheduler/configs.json",
       "health_endpoint": "/health",
       "dependencies": ["svc:identity"]
     },
@@ -48,7 +48,7 @@
       "name": "World Model Service",
       "type": "core_service",
       "status": "planned",
-      "config_path": "${NOA_ROOT}/sys/core/world_model/config.json",
+      "configs_path": "${NOA_ROOT}/sys/core/world_model/configs.json",
       "health_endpoint": "/health",
       "dependencies": ["svc:identity", "svc:audit"]
     }
@@ -59,7 +59,7 @@
       "name": "Claude Code CLI",
       "type": "remote_provider",
       "status": "active",
-      "config_path": "${NOA_ROOT}/providers/remote/claude_code_cli/config.json",
+      "configs_path": "${NOA_ROOT}/providers/remote/claude_code_cli/configs.json",
       "capabilities": [
         "reasoning",
         "code_generation",
@@ -74,7 +74,7 @@
       "name": "Llama.cpp Local Inference",
       "type": "local_provider",
       "status": "active",
-      "config_path": "${NOA_ROOT}/providers/local/llama_cpp/config.json",
+      "configs_path": "${NOA_ROOT}/providers/local/llama_cpp/configs.json",
       "capabilities": [
         "reasoning",
         "code_generation",
@@ -87,7 +87,7 @@
       "name": "OpenAI Codex CLI",
       "type": "remote_provider",
       "status": "planned",
-      "config_path": "${NOA_ROOT}/providers/remote/codex_cli/config.json",
+      "configs_path": "${NOA_ROOT}/providers/remote/codex_cli/configs.json",
       "capabilities": [
         "code_generation"
       ],
@@ -101,7 +101,7 @@
       "type": "storage",
       "status": "active",
       "location": "${NOA_ROOT}/cas",
-      "config_path": "${NOA_ROOT}/configs/base/cas/config.json",
+      "configs_path": "${NOA_ROOT}/configss/base/cas/configs.json",
       "capacity_gb": 100,
       "used_gb": 0.5
     },
@@ -111,7 +111,7 @@
       "type": "cache",
       "status": "active",
       "location": "${NOA_ROOT}/cache/pnpm",
-      "config_path": "${NOA_ROOT}/configs/base/cache/cache-policies.json",
+      "configs_path": "${NOA_ROOT}/configss/base/cache/cache-policies.json",
       "max_size_gb": 5,
       "cleanup_strategy": "lru"
     },
@@ -121,7 +121,7 @@
       "type": "cache",
       "status": "active",
       "location": "${NOA_ROOT}/cache/inference",
-      "config_path": "${NOA_ROOT}/configs/base/cache/cache-policies.json",
+      "configs_path": "${NOA_ROOT}/configss/base/cache/cache-policies.json",
       "max_size_gb": 2,
       "cleanup_strategy": "lru"
     },
@@ -131,7 +131,7 @@
       "type": "runtime",
       "status": "active",
       "location": "${NOA_ROOT}/sandbox/runtime",
-      "config_path": "${NOA_ROOT}/configs/base/sandbox-definitions/default-profiles.json",
+      "configs_path": "${NOA_ROOT}/configss/base/sandbox-definitions/default-profiles.json",
       "profiles": ["build", "test", "ai-inference", "general"]
     }
   },

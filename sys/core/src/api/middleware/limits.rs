@@ -16,9 +16,9 @@ use axum::{
 use tokio::sync::Semaphore;
 use tokio::time::timeout;
 
-/// Configuration for request limits.
+/// configsuration for request limits.
 #[derive(Debug, Clone)]
-pub struct RequestLimitsConfig {
+pub struct RequestLimitsconfigs {
     /// Maximum request body size in bytes.
     pub max_body_size: usize,
     /// Maximum concurrent requests.
@@ -27,7 +27,7 @@ pub struct RequestLimitsConfig {
     pub timeout_secs: u64,
 }
 
-impl Default for RequestLimitsConfig {
+impl Default for RequestLimitsconfigs {
     fn default() -> Self {
         Self {
             max_body_size: 10 * 1024 * 1024, // 10MB
@@ -37,8 +37,8 @@ impl Default for RequestLimitsConfig {
     }
 }
 
-impl RequestLimitsConfig {
-    /// Configuration for large uploads.
+impl RequestLimitsconfigs {
+    /// configsuration for large uploads.
     pub fn large_upload() -> Self {
         Self {
             max_body_size: 100 * 1024 * 1024, // 100MB
@@ -47,7 +47,7 @@ impl RequestLimitsConfig {
         }
     }
 
-    /// Configuration for inference endpoints.
+    /// configsuration for inference endpoints.
     pub fn inference() -> Self {
         Self {
             max_body_size: 1 * 1024 * 1024, // 1MB
@@ -59,20 +59,20 @@ impl RequestLimitsConfig {
 
 /// Request limits state.
 pub struct RequestLimits {
-    config: RequestLimitsConfig,
+    configs: RequestLimitsconfigs,
     semaphore: Semaphore,
 }
 
 impl RequestLimits {
-    pub fn new(config: RequestLimitsConfig) -> Self {
+    pub fn new(configs: RequestLimitsconfigs) -> Self {
         Self {
-            semaphore: Semaphore::new(config.max_concurrent),
-            config,
+            semaphore: Semaphore::new(configs.max_concurrent),
+            configs,
         }
     }
 
-    pub fn config(&self) -> &RequestLimitsConfig {
-        &self.config
+    pub fn configs(&self) -> &RequestLimitsconfigs {
+        &self.configs
     }
 }
 
@@ -142,7 +142,7 @@ pub async fn request_limits_middleware(
     let headers = req.headers().clone();
 
     // Check content length
-    if let Err(response) = check_content_length(&headers, limits.config.max_body_size) {
+    if let Err(response) = check_content_length(&headers, limits.configs.max_body_size) {
         return response;
     }
 
@@ -153,7 +153,7 @@ pub async fn request_limits_middleware(
     };
 
     // Apply timeout
-    let timeout_duration = Duration::from_secs(limits.config.timeout_secs);
+    let timeout_duration = Duration::from_secs(limits.configs.timeout_secs);
     let result = timeout(timeout_duration, next.run(req)).await;
 
     // Release permit implicitly when it goes out of scope
@@ -161,7 +161,7 @@ pub async fn request_limits_middleware(
 
     match result {
         Ok(response) => response,
-        Err(_) => timeout_response(limits.config.timeout_secs),
+        Err(_) => timeout_response(limits.configs.timeout_secs),
     }
 }
 
@@ -213,10 +213,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_default_config() {
-        let config = RequestLimitsConfig::default();
-        assert_eq!(config.max_body_size, 10 * 1024 * 1024);
-        assert_eq!(config.max_concurrent, 100);
+    fn test_default_configs() {
+        let configs = RequestLimitsconfigs::default();
+        assert_eq!(configs.max_body_size, 10 * 1024 * 1024);
+        assert_eq!(configs.max_concurrent, 100);
     }
 
     #[test]

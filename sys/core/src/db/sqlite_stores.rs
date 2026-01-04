@@ -349,7 +349,7 @@ impl AuditLogStore for SqliteAuditLogStore {
     }
 }
 
-/// SQLite-based vector store with configurable dimensions.
+/// SQLite-based vector store with configsurable dimensions.
 ///
 /// Supports vector similarity search using brute-force cosine distance
 /// computation in SQLite. For large-scale deployments, consider using
@@ -381,7 +381,7 @@ impl SqliteVectorStore {
         Self { pool, dimension }
     }
 
-    /// Get the configured vector dimension.
+    /// Get the configsured vector dimension.
     pub fn dimension(&self) -> usize {
         self.dimension
     }
@@ -567,7 +567,7 @@ impl DatabaseHealth for SqliteHealth {
 ///
 /// Provides a unified interface to all SQLite-backed data stores.
 /// Use `new()` for default settings or `with_vector_dimension()` for
-/// custom embedding model configurations.
+/// custom embedding model configsurations.
 pub struct SqliteBackend {
     pool: Arc<ConnectionPool>,
     memories: Arc<SqliteMemoryStore>,

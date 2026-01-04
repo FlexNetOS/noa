@@ -39,9 +39,9 @@ impl Specialization {
     }
 }
 
-/// Expert model configuration
+/// Expert model configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExpertConfig {
+pub struct Expertconfigs {
     pub model_id: String,
     pub model_file: String,
     pub specialization: Specialization,
@@ -49,12 +49,12 @@ pub struct ExpertConfig {
     pub priority: u8,  // Higher priority experts are preferred on ties
 }
 
-impl ExpertConfig {
-    /// Get available expert configurations
-    pub fn get_experts() -> Vec<ExpertConfig> {
+impl Expertconfigs {
+    /// Get available expert configsurations
+    pub fn get_experts() -> Vec<Expertconfigs> {
         vec![
             // Qwen3-1.7B: Best for reasoning and general tasks
-            ExpertConfig {
+            Expertconfigs {
                 model_id: "llmware/qwen3-1.7b-gguf".to_string(),
                 model_file: "qwen3-1.7b-instruct-q4_k_m.gguf".to_string(),
                 specialization: Specialization::Reasoning,
@@ -62,7 +62,7 @@ impl ExpertConfig {
                 priority: 10,
             },
             // TinyLlama: Fast general purpose fallback
-            ExpertConfig {
+            Expertconfigs {
                 model_id: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF".to_string(),
                 model_file: "tinyllama-1.1b-chat-v1.0.Q6_K.gguf".to_string(),
                 specialization: Specialization::GeneralPurpose,
@@ -70,7 +70,7 @@ impl ExpertConfig {
                 priority: 5,
             },
             // DeepSeek-Coder: Code generation specialist (placeholder - using Qwen3 for MVP)
-            ExpertConfig {
+            Expertconfigs {
                 model_id: "llmware/qwen3-1.7b-gguf".to_string(),  // TODO: Replace with DeepSeek-Coder
                 model_file: "qwen3-1.7b-instruct-q4_k_m.gguf".to_string(),
                 specialization: Specialization::CodeGeneration,
@@ -78,7 +78,7 @@ impl ExpertConfig {
                 priority: 8,
             },
             // Math specialist (placeholder - using TinyLlama for MVP)
-            ExpertConfig {
+            Expertconfigs {
                 model_id: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF".to_string(),  // TODO: Replace with math model
                 model_file: "tinyllama-1.1b-chat-v1.0.Q6_K.gguf".to_string(),
                 specialization: Specialization::Mathematics,
@@ -213,9 +213,9 @@ pub enum AggregationStrategy {
     Priority,
 }
 
-/// MOE Router configuration
+/// MOE Router configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MoeConfig {
+pub struct Moeconfigs {
     pub enabled: bool,
     pub parallel_consultation: bool,
     pub max_parallel_experts: usize,
@@ -223,7 +223,7 @@ pub struct MoeConfig {
     pub fallback_to_general: bool,
 }
 
-impl Default for MoeConfig {
+impl Default for Moeconfigs {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -237,8 +237,8 @@ impl Default for MoeConfig {
 
 /// MOE Router state
 pub struct MoeRouter {
-    config: Arc<RwLock<MoeConfig>>,
-    experts: Arc<RwLock<Vec<ExpertConfig>>>,
+    configs: Arc<RwLock<Moeconfigs>>,
+    experts: Arc<RwLock<Vec<Expertconfigs>>>,
     // We'll use the existing ModelManager for inference
     // Each expert will be loaded on-demand
 }
@@ -246,8 +246,8 @@ pub struct MoeRouter {
 impl MoeRouter {
     pub fn new() -> Self {
         Self {
-            config: Arc::new(RwLock::new(MoeConfig::default())),
-            experts: Arc::new(RwLock::new(ExpertConfig::get_experts())),
+            configs: Arc::new(RwLock::new(Moeconfigs::default())),
+            experts: Arc::new(RwLock::new(Expertconfigs::get_experts())),
         }
     }
     
@@ -287,8 +287,8 @@ impl MoeRouter {
         ))
     }
     
-    /// Get expert configuration by specialization
-    pub async fn get_expert(&self, spec: Specialization) -> Option<ExpertConfig> {
+    /// Get expert configsuration by specialization
+    pub async fn get_expert(&self, spec: Specialization) -> Option<Expertconfigs> {
         let experts = self.experts.read().await;
         experts.iter()
             .find(|e| e.specialization == spec)
@@ -302,9 +302,9 @@ impl MoeRouter {
         _model_manager: &ModelManager,
     ) -> anyhow::Result<Vec<(Specialization, String)>> {
         let classification = QueryClassifier::classify(query);
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         
-        if !config.parallel_consultation {
+        if !configs.parallel_consultation {
             return Ok(vec![]);
         }
         
@@ -313,7 +313,7 @@ impl MoeRouter {
         let mut selected_experts: Vec<_> = experts
             .iter()
             .filter(|e| e.confidence_threshold <= classification.confidence)
-            .take(config.max_parallel_experts)
+            .take(configs.max_parallel_experts)
             .cloned()
             .collect();
         
@@ -347,14 +347,14 @@ impl MoeRouter {
     /// Get MOE statistics
     pub async fn get_stats(&self) -> MoeStats {
         let experts = self.experts.read().await;
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         
         MoeStats {
-            enabled: config.enabled,
+            enabled: configs.enabled,
             total_experts: experts.len(),
-            parallel_enabled: config.parallel_consultation,
-            max_parallel: config.max_parallel_experts,
-            aggregation: config.aggregation_strategy,
+            parallel_enabled: configs.parallel_consultation,
+            max_parallel: configs.max_parallel_experts,
+            aggregation: configs.aggregation_strategy,
             specializations: experts
                 .iter()
                 .map(|e| e.specialization.as_str().to_string())

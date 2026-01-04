@@ -56,7 +56,7 @@ impl PlaneSwapExecutor {
 
         // TODO: Implement actual plane swap logic
         // 1. Stop component in source plane
-        // 2. Move component state/config to target plane
+        // 2. Move component state/configs to target plane
         // 3. Start component in target plane
         // 4. Verify component health in target plane
         // 5. Update plane registry

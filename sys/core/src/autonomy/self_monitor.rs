@@ -53,16 +53,16 @@ pub enum DegradationSeverity {
     Critical,
 }
 
-/// Performance self-monitor configuration
+/// Performance self-monitor configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SelfMonitorConfig {
+pub struct SelfMonitorconfigs {
     pub monitoring_interval_secs: u64,
     pub baseline_window_secs: u64,
     pub degradation_threshold_percent: f64,
     pub enable_auto_adjustment: bool,
 }
 
-impl Default for SelfMonitorConfig {
+impl Default for SelfMonitorconfigs {
     fn default() -> Self {
         Self {
             monitoring_interval_secs: 30,
@@ -75,16 +75,16 @@ impl Default for SelfMonitorConfig {
 
 /// Performance self-monitor
 pub struct PerformanceSelfMonitor {
-    config: SelfMonitorConfig,
+    configs: SelfMonitorconfigs,
     metrics_history: HashMap<String, Vec<PerformanceMetric>>,
     baselines: HashMap<String, PerformanceBaseline>,
 }
 
 impl PerformanceSelfMonitor {
     /// Create a new performance self-monitor
-    pub fn new(config: SelfMonitorConfig) -> Self {
+    pub fn new(configs: SelfMonitorconfigs) -> Self {
         Self {
-            config,
+            configs,
             metrics_history: HashMap::new(),
             baselines: HashMap::new(),
         }
@@ -101,7 +101,7 @@ impl PerformanceSelfMonitor {
 
         // Trim old metrics
         let cutoff = Utc::now()
-            - chrono::Duration::seconds(self.config.baseline_window_secs as i64);
+            - chrono::Duration::seconds(self.configs.baseline_window_secs as i64);
         history.retain(|m| m.timestamp >= cutoff);
 
         // Update baseline if needed
@@ -125,7 +125,7 @@ impl PerformanceSelfMonitor {
                 if let Some(latest) = history.last() {
                     let degradation = ((latest.value - baseline.average) / baseline.average) * 100.0;
 
-                    if degradation.abs() > self.config.degradation_threshold_percent {
+                    if degradation.abs() > self.configs.degradation_threshold_percent {
                         let severity = if degradation.abs() > 50.0 {
                             DegradationSeverity::Critical
                         } else if degradation.abs() > 30.0 {
@@ -218,7 +218,7 @@ impl PerformanceSelfMonitor {
 
 impl Default for PerformanceSelfMonitor {
     fn default() -> Self {
-        Self::new(SelfMonitorConfig::default())
+        Self::new(SelfMonitorconfigs::default())
     }
 }
 

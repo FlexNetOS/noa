@@ -59,16 +59,16 @@ pub enum OptimizationPriority {
     Critical,
 }
 
-/// Resource optimizer configuration
+/// Resource optimizer configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResourceOptimizerConfig {
+pub struct ResourceOptimizerconfigs {
     pub target_cpu_utilization: f64,
     pub target_memory_utilization: f64,
     pub optimization_interval_secs: u64,
     pub enable_auto_scaling: bool,
 }
 
-impl Default for ResourceOptimizerConfig {
+impl Default for ResourceOptimizerconfigs {
     fn default() -> Self {
         Self {
             target_cpu_utilization: 70.0,
@@ -81,15 +81,15 @@ impl Default for ResourceOptimizerConfig {
 
 /// Resource optimization monitor
 pub struct ResourceOptimizer {
-    config: ResourceOptimizerConfig,
+    configs: ResourceOptimizerconfigs,
     current_allocations: HashMap<ResourceType, ResourceAllocation>,
 }
 
 impl ResourceOptimizer {
     /// Create a new resource optimizer
-    pub fn new(config: ResourceOptimizerConfig) -> Self {
+    pub fn new(configs: ResourceOptimizerconfigs) -> Self {
         Self {
-            config,
+            configs,
             current_allocations: HashMap::new(),
         }
     }
@@ -106,7 +106,7 @@ impl ResourceOptimizer {
         let recommendations = self.generate_recommendations().await?;
 
         // Apply optimizations if enabled
-        if self.config.enable_auto_scaling {
+        if self.configs.enable_auto_scaling {
             for recommendation in &recommendations {
                 if recommendation.priority >= OptimizationPriority::High {
                     self.apply_optimization(recommendation).await?;
@@ -157,8 +157,8 @@ impl ResourceOptimizer {
 
         for (resource_type, allocation) in &self.current_allocations {
             let target = match resource_type {
-                ResourceType::Cpu => self.config.target_cpu_utilization,
-                ResourceType::Memory => self.config.target_memory_utilization,
+                ResourceType::Cpu => self.configs.target_cpu_utilization,
+                ResourceType::Memory => self.configs.target_memory_utilization,
                 _ => 70.0,
             };
 
@@ -238,7 +238,7 @@ impl ResourceOptimizer {
 
 impl Default for ResourceOptimizer {
     fn default() -> Self {
-        Self::new(ResourceOptimizerConfig::default())
+        Self::new(ResourceOptimizerconfigs::default())
     }
 }
 

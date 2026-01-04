@@ -125,7 +125,7 @@ async fn bootstrap(
 
     // For now, generate a JWT for the admin
     let jwt_secret = state
-        .config
+        .configs
         .raw
         .get("noa_server")
         .and_then(|s| s.get("api"))
@@ -135,12 +135,12 @@ async fn bootstrap(
     let jwt_secret = match jwt_secret {
         Some(secret) if !secret.is_empty() => secret,
         _ => {
-            tracing::error!("JWT secret is not configured; refusing to generate admin token");
+            tracing::error!("JWT secret is not configsured; refusing to generate admin token");
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(BootstrapResponse {
                     success: false,
-                    message: "Server configuration error: JWT secret is not set".to_string(),
+                    message: "Server configsuration error: JWT secret is not set".to_string(),
                     token: None,
                     api_key: None,
                 }),

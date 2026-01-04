@@ -1,15 +1,15 @@
-//! CUDA 13.1+ Tiles Configuration
+//! CUDA 13.1+ Tiles configsuration
 //!
-//! T483: Implement CUDA 13.1+ tiles configuration
+//! T483: Implement CUDA 13.1+ tiles configsuration
 //! §3.2: Local-First & Offline-Capable
 //! US2: CUDA tiles for optimized GPU utilization
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
-/// CUDA tiles configuration
+/// CUDA tiles configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CudaTilesConfig {
+pub struct CudaTilesconfigs {
     pub tile_width: u32,
     pub tile_height: u32,
     pub tile_depth: u32,
@@ -17,7 +17,7 @@ pub struct CudaTilesConfig {
     pub block_tiles: u32,
 }
 
-impl Default for CudaTilesConfig {
+impl Default for CudaTilesconfigs {
     fn default() -> Self {
         Self {
             tile_width: 16,
@@ -31,69 +31,69 @@ impl Default for CudaTilesConfig {
 
 /// CUDA tiles manager
 pub struct CudaTilesManager {
-    config: CudaTilesConfig,
+    configs: CudaTilesconfigs,
 }
 
 impl CudaTilesManager {
     /// Create a new CUDA tiles manager
-    pub fn new(config: CudaTilesConfig) -> Self {
-        Self { config }
+    pub fn new(configs: CudaTilesconfigs) -> Self {
+        Self { configs }
     }
 
-    /// Create default tiles configuration
+    /// Create default tiles configsuration
     pub fn with_defaults() -> Self {
-        Self::new(CudaTilesConfig::default())
+        Self::new(CudaTilesconfigs::default())
     }
 
-    /// Configure tiles for a specific compute capability
-    pub fn configure_for_compute_capability(&mut self, compute_capability: &str) -> Result<()> {
-        // Configure based on compute capability
+    /// configsure tiles for a specific compute capability
+    pub fn configsure_for_compute_capability(&mut self, compute_capability: &str) -> Result<()> {
+        // configsure based on compute capability
         // e.g., "8.0" for Ampere, "8.9" for Ada, "9.0" for Hopper
         match compute_capability {
             "9.0" | "9.0a" => {
                 // Hopper architecture - optimized tiles
-                self.config.tile_width = 32;
-                self.config.tile_height = 32;
-                self.config.warp_tiles = 4;
-                self.config.block_tiles = 8;
+                self.configs.tile_width = 32;
+                self.configs.tile_height = 32;
+                self.configs.warp_tiles = 4;
+                self.configs.block_tiles = 8;
             }
             "8.9" | "8.9a" => {
                 // Ada architecture
-                self.config.tile_width = 16;
-                self.config.tile_height = 32;
-                self.config.warp_tiles = 2;
-                self.config.block_tiles = 4;
+                self.configs.tile_width = 16;
+                self.configs.tile_height = 32;
+                self.configs.warp_tiles = 2;
+                self.configs.block_tiles = 4;
             }
             "8.0" | "8.6" => {
                 // Ampere architecture
-                self.config.tile_width = 16;
-                self.config.tile_height = 16;
-                self.config.warp_tiles = 2;
-                self.config.block_tiles = 4;
+                self.configs.tile_width = 16;
+                self.configs.tile_height = 16;
+                self.configs.warp_tiles = 2;
+                self.configs.block_tiles = 4;
             }
             _ => {
-                // Default configuration
+                // Default configsuration
             }
         }
 
         Ok(())
     }
 
-    /// Get optimal tile configuration for matrix multiplication
+    /// Get optimal tile configsuration for matrix multiplication
     pub fn get_matrix_tiles(&self, m: usize, n: usize, k: usize) -> Result<TileLayout> {
         Ok(TileLayout {
-            m_tiles: (m as f64 / self.config.tile_height as f64).ceil() as usize,
-            n_tiles: (n as f64 / self.config.tile_width as f64).ceil() as usize,
-            k_tiles: (k as f64 / self.config.tile_depth as f64).ceil() as usize,
-            tile_width: self.config.tile_width,
-            tile_height: self.config.tile_height,
-            tile_depth: self.config.tile_depth,
+            m_tiles: (m as f64 / self.configs.tile_height as f64).ceil() as usize,
+            n_tiles: (n as f64 / self.configs.tile_width as f64).ceil() as usize,
+            k_tiles: (k as f64 / self.configs.tile_depth as f64).ceil() as usize,
+            tile_width: self.configs.tile_width,
+            tile_height: self.configs.tile_height,
+            tile_depth: self.configs.tile_depth,
         })
     }
 
-    /// Get configuration
-    pub fn config(&self) -> &CudaTilesConfig {
-        &self.config
+    /// Get configsuration
+    pub fn configs(&self) -> &CudaTilesconfigs {
+        &self.configs
     }
 }
 
@@ -113,16 +113,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_default_config() {
+    fn test_default_configs() {
         let manager = CudaTilesManager::with_defaults();
-        assert_eq!(manager.config().tile_width, 16);
+        assert_eq!(manager.configs().tile_width, 16);
     }
 
     #[test]
-    fn test_configure_for_compute_capability() {
+    fn test_configsure_for_compute_capability() {
         let mut manager = CudaTilesManager::with_defaults();
-        manager.configure_for_compute_capability("9.0").unwrap();
-        assert_eq!(manager.config().tile_width, 32);
+        manager.configsure_for_compute_capability("9.0").unwrap();
+        assert_eq!(manager.configs().tile_width, 32);
     }
 
     #[test]

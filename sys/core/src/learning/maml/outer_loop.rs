@@ -6,15 +6,15 @@
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
-/// Outer-loop optimization configuration
+/// Outer-loop optimization configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OuterLoopConfig {
+pub struct OuterLoopconfigs {
     pub meta_learning_rate: f64,
     pub meta_batch_size: usize,
     pub num_tasks: usize,
 }
 
-impl Default for OuterLoopConfig {
+impl Default for OuterLoopconfigs {
     fn default() -> Self {
         Self {
             meta_learning_rate: 0.001,
@@ -26,13 +26,13 @@ impl Default for OuterLoopConfig {
 
 /// Outer-loop optimizer
 pub struct OuterLoopOptimizer {
-    config: OuterLoopConfig,
+    configs: OuterLoopconfigs,
 }
 
 impl OuterLoopOptimizer {
     /// Create a new outer-loop optimizer
-    pub fn new(config: OuterLoopConfig) -> Self {
-        Self { config }
+    pub fn new(configs: OuterLoopconfigs) -> Self {
+        Self { configs }
     }
 
     /// Meta-optimize model initialization
@@ -44,8 +44,8 @@ impl OuterLoopOptimizer {
         // 3. Compute meta-gradient
         // 4. Update initialization
         tracing::debug!(
-            meta_learning_rate = self.config.meta_learning_rate,
-            meta_batch_size = self.config.meta_batch_size,
+            meta_learning_rate = self.configs.meta_learning_rate,
+            meta_batch_size = self.configs.meta_batch_size,
             "Performing meta-optimization step"
         );
         Ok(())
@@ -64,7 +64,7 @@ mod tests {
 
     #[test]
     fn test_meta_gradient() {
-        let optimizer = OuterLoopOptimizer::new(OuterLoopConfig::default());
+        let optimizer = OuterLoopOptimizer::new(OuterLoopconfigs::default());
         let losses = vec![1.0, 2.0, 3.0];
         let meta_grad = optimizer.compute_meta_gradient(&losses);
         assert_eq!(meta_grad, 2.0);

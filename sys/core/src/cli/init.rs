@@ -10,7 +10,7 @@ use clap::Args;
 use tracing::{info, warn};
 
 use crate::error::Result;
-use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure};
+use crate::init::{configsGenerator, DatabaseInitializer, DirectoryStructure};
 
 #[cfg(feature = "full")]
 use crate::services::InitService;
@@ -67,9 +67,9 @@ pub async fn execute(args: InitArgs) -> Result<()> {
         display_progress("✓ Directory structure created");
     }
 
-    display_progress("Generating default configurations...");
-    ConfigGenerator::generate_all(&target)?;
-    display_progress("✓ Default configurations generated");
+    display_progress("Generating default configsurations...");
+    configsGenerator::generate_all(&target)?;
+    display_progress("✓ Default configsurations generated");
 
     display_progress("Initializing database...");
     if !args.skip_db {
@@ -96,8 +96,8 @@ pub async fn execute(args: InitArgs) -> Result<()> {
 
     println!("\n✓ NOA initialized successfully at {}", target.display());
     println!("\nNext steps:");
-    println!("  1. Review configuration in config/");
-    println!("  2. Configure AI providers in config/ai-providers.json");
+    println!("  1. Review configsuration in configss/ (3-layer: base/semantic/enforcement)");
+    println!("  2. configsure AI providers in configss/base/ai-providers.json");
     println!("  3. Run 'noa start' to start NOA services");
 
     Ok(())

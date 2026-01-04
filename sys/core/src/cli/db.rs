@@ -8,7 +8,7 @@ use std::io::Write;
 
 use clap::Subcommand;
 
-use crate::config::NoaConfig;
+use crate::configs::Noaconfigs;
 use crate::db::{self, MigrationRunner};
 use crate::error::{NoaError, Result};
 #[cfg(feature = "full")]
@@ -73,14 +73,14 @@ pub enum DbCommands {
 
 /// Execute database command
 pub async fn execute(command: DbCommands) -> Result<()> {
-    let config = NoaConfig::load()?;
+    let configs = Noaconfigs::load()?;
 
-    if config.database.driver == "postgresql" {
-        return execute_postgres(command, &config).await;
+    if configs.database.driver == "postgresql" {
+        return execute_postgres(command, &configs).await;
     }
 
     // Default: SQLite
-    let db_path = config.noa_root.join(&config.database.path);
+    let db_path = configs.noa_root.join(&configs.database.path);
 
     match command {
         DbCommands::Check { fix } => check_database(&db_path, fix),
@@ -97,10 +97,10 @@ pub async fn execute(command: DbCommands) -> Result<()> {
     }
 }
 
-async fn execute_postgres(command: DbCommands, config: &NoaConfig) -> Result<()> {
+async fn execute_postgres(command: DbCommands, configs: &Noaconfigs) -> Result<()> {
     #[cfg(not(feature = "full"))]
     {
-        let _ = (command, config);
+        let _ = (command, configs);
         return Err(NoaError::Internal {
             message: "PostgreSQL support requires building noa-core with --features full".to_string(),
             source: None,
@@ -111,7 +111,7 @@ async fn execute_postgres(command: DbCommands, config: &NoaConfig) -> Result<()>
     {
         use sqlx::Row;
 
-        let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+        let url = configs.database.url.as_deref().ok_or_else(|| NoaError::Internal {
             message: "database.url is required when database.driver=postgresql".to_string(),
             source: None,
         })?;
@@ -119,21 +119,21 @@ async fn execute_postgres(command: DbCommands, config: &NoaConfig) -> Result<()>
         match command {
             DbCommands::Check { fix: _ } => {
                 println!("Checking PostgreSQL connectivity...");
-                let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+                let pool = crate::db::connect_postgres(url, configs.database.max_connections).await?;
                 crate::db::check_postgres(&pool).await?;
                 println!("✓ PostgreSQL: OK");
                 Ok(())
             }
 
             DbCommands::Migrate { apply, rollback } => {
-                migrate_database_postgres(config, apply, rollback).await
+                migrate_database_postgres(configs, apply, rollback).await
             }
 
             DbCommands::Stats => {
                 println!("Database Statistics (PostgreSQL)");
                 println!("==============================");
 
-                let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+                let pool = crate::db::connect_postgres(url, configs.database.max_connections).await?;
 
                 let row = sqlx::query("SELECT current_database() AS db, current_user AS usr")
                     .fetch_one(&pool)
@@ -170,16 +170,16 @@ async fn execute_postgres(command: DbCommands, config: &NoaConfig) -> Result<()>
 }
 
 #[cfg(feature = "full")]
-async fn migrate_database_postgres(config: &NoaConfig, apply: bool, rollback: bool) -> Result<()> {
+async fn migrate_database_postgres(configs: &Noaconfigs, apply: bool, rollback: bool) -> Result<()> {
     use sqlx::Row;
 
-    let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+    let url = configs.database.url.as_deref().ok_or_else(|| NoaError::Internal {
         message: "database.url is required when database.driver=postgresql".to_string(),
         source: None,
     })?;
 
-    let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
-    let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+    let migrations_dir = NoaPaths::init_migrations_pg(&configs.noa_root);
+    let pool = crate::db::connect_postgres(url, configs.database.max_connections).await?;
 
     // Gather migrations on disk
     let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(&migrations_dir)

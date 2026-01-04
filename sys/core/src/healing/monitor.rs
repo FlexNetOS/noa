@@ -62,9 +62,9 @@ pub struct ComponentHealthSnapshot {
     pub score: f64, // 0.0 (critical) to 1.0 (healthy)
 }
 
-/// Health monitor configuration
+/// Health monitor configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct HealthMonitorConfig {
+pub struct HealthMonitorconfigs {
     pub collection_interval_secs: u64,
     pub retention_period_secs: u64,
     pub metric_thresholds: HashMap<String, MetricThresholds>,
@@ -78,7 +78,7 @@ pub struct MetricThresholds {
 
 /// Continuous health monitor
 pub struct HealthMonitor {
-    config: HealthMonitorConfig,
+    configs: HealthMonitorconfigs,
     metrics_history: Arc<RwLock<Vec<HealthMetric>>>,
     component_snapshots: Arc<RwLock<HashMap<String, ComponentHealthSnapshot>>>,
     running: Arc<RwLock<bool>>,
@@ -86,9 +86,9 @@ pub struct HealthMonitor {
 
 impl HealthMonitor {
     /// Create a new health monitor
-    pub fn new(config: HealthMonitorConfig) -> Self {
+    pub fn new(configs: HealthMonitorconfigs) -> Self {
         Self {
-            config,
+            configs,
             metrics_history: Arc::new(RwLock::new(Vec::new())),
             component_snapshots: Arc::new(RwLock::new(HashMap::new())),
             running: Arc::new(RwLock::new(false)),
@@ -111,7 +111,7 @@ impl HealthMonitor {
 
         let metrics_history = Arc::clone(&self.metrics_history);
         let component_snapshots = Arc::clone(&self.component_snapshots);
-        let config = self.config.clone();
+        let configs = self.configs.clone();
         let running = Arc::clone(&self.running);
 
         tokio::spawn(async move {
@@ -125,7 +125,7 @@ impl HealthMonitor {
                 }
 
                 // Collect metrics
-                match Self::collect_metrics_internal(&config).await {
+                match Self::collect_metrics_internal(&configs).await {
                     Ok(metrics) => {
                         let timestamp = Utc::now();
 
@@ -135,12 +135,12 @@ impl HealthMonitor {
                             history.extend(metrics.clone());
                             history.retain(|m| {
                                 timestamp.signed_duration_since(m.timestamp).num_seconds()
-                                    < config.retention_period_secs as i64
+                                    < configs.retention_period_secs as i64
                             });
                         }
 
                         // Update component snapshots
-                        let snapshots = Self::compute_health_snapshots(&metrics, &config);
+                        let snapshots = Self::compute_health_snapshots(&metrics, &configs);
                         {
                             let mut snapshots_map = component_snapshots.write().await;
                             for snapshot in snapshots {
@@ -157,7 +157,7 @@ impl HealthMonitor {
 
                 // Sleep until next collection
                 tokio::time::sleep(tokio::time::Duration::from_secs(
-                    config.collection_interval_secs,
+                    configs.collection_interval_secs,
                 ))
                 .await;
             }
@@ -176,7 +176,7 @@ impl HealthMonitor {
 
     /// Collect current health metrics
     pub async fn collect_metrics(&self) -> Result<Vec<HealthMetric>> {
-        Self::collect_metrics_internal(&self.config).await
+        Self::collect_metrics_internal(&self.configs).await
     }
 
     /// Get component health snapshot
@@ -196,7 +196,7 @@ impl HealthMonitor {
 
     /// Internal metric collection
     async fn collect_metrics_internal(
-        config: &HealthMonitorConfig,
+        configs: &HealthMonitorconfigs,
     ) -> Result<Vec<HealthMetric>> {
         let mut metrics = Vec::new();
         let timestamp = Utc::now();
@@ -215,11 +215,11 @@ impl HealthMonitor {
             metric_type: MetricType::CpuUsage,
             value: 0.0, // TODO: Get actual CPU usage
             unit: "percent".to_string(),
-            threshold_warning: config
+            threshold_warning: configs
                 .metric_thresholds
                 .get("cpu")
                 .and_then(|t| t.warning),
-            threshold_critical: config
+            threshold_critical: configs
                 .metric_thresholds
                 .get("cpu")
                 .and_then(|t| t.critical),
@@ -233,7 +233,7 @@ impl HealthMonitor {
     /// Compute health snapshots from metrics
     fn compute_health_snapshots(
         metrics: &[HealthMetric],
-        _config: &HealthMonitorConfig,
+        _configs: &HealthMonitorconfigs,
     ) -> Vec<ComponentHealthSnapshot> {
         let mut snapshots: HashMap<String, Vec<&HealthMetric>> = HashMap::new();
 
@@ -323,12 +323,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_monitor_creation() {
-        let config = HealthMonitorConfig {
+        let configs = HealthMonitorconfigs {
             collection_interval_secs: 5,
             retention_period_secs: 300,
             metric_thresholds: HashMap::new(),
         };
-        let monitor = HealthMonitor::new(config);
+        let monitor = HealthMonitor::new(configs);
         assert!(!*monitor.running.read().await);
     }
 

@@ -56,9 +56,9 @@ pub enum AnomalySeverity {
     Critical,
 }
 
-/// Anomaly detector configuration
+/// Anomaly detector configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AnomalyDetectorConfig {
+pub struct AnomalyDetectorconfigs {
     /// Minimum change percentage to trigger anomaly
     pub spike_threshold_percent: f64,
     /// Number of consecutive violations before alerting
@@ -69,7 +69,7 @@ pub struct AnomalyDetectorConfig {
     pub enable_statistical: bool,
 }
 
-impl Default for AnomalyDetectorConfig {
+impl Default for AnomalyDetectorconfigs {
     fn default() -> Self {
         Self {
             spike_threshold_percent: 50.0,
@@ -83,15 +83,15 @@ impl Default for AnomalyDetectorConfig {
 /// Anomaly detector
 #[derive(Clone)]
 pub struct AnomalyDetector {
-    config: AnomalyDetectorConfig,
+    configs: AnomalyDetectorconfigs,
     metric_history: HashMap<String, Vec<(DateTime<Utc>, f64)>>,
 }
 
 impl AnomalyDetector {
     /// Create a new anomaly detector
-    pub fn new(config: AnomalyDetectorConfig) -> Self {
+    pub fn new(configs: AnomalyDetectorconfigs) -> Self {
         Self {
-            config,
+            configs,
             metric_history: HashMap::new(),
         }
     }
@@ -132,7 +132,7 @@ impl AnomalyDetector {
         history.push((metric.timestamp, metric.value));
 
         // Keep only recent history
-        let cutoff = Utc::now() - chrono::Duration::seconds(self.config.pattern_window_secs as i64);
+        let cutoff = Utc::now() - chrono::Duration::seconds(self.configs.pattern_window_secs as i64);
         history.retain(|(ts, _)| *ts >= cutoff);
         
         // Clone history for analysis to release the mutable borrow
@@ -174,7 +174,7 @@ impl AnomalyDetector {
                     .take_while(|(_, value)| *value >= warning_threshold)
                     .count() as u32;
 
-                if consecutive >= self.config.consecutive_violations {
+                if consecutive >= self.configs.consecutive_violations {
                     return Ok(Some(Anomaly {
                         component_id: metric.component_id.clone(),
                         component_type: metric.component_type.clone(),
@@ -199,7 +199,7 @@ impl AnomalyDetector {
         }
 
         // Statistical anomaly detection
-        if self.config.enable_statistical && history_clone.len() >= 10 {
+        if self.configs.enable_statistical && history_clone.len() >= 10 {
             // Use the dedicated statistical anomaly detector
             if let Some(stat_anomaly) = self.detect_statistical_anomaly(metric, &history_clone)? {
                 return Ok(Some(stat_anomaly));
@@ -220,7 +220,7 @@ impl AnomalyDetector {
 
             if std_dev > 0.0 {
                 let z = (metric.value - mean).abs() / std_dev;
-                if z >= (self.config.spike_threshold_percent / 10.0) {
+                if z >= (self.configs.spike_threshold_percent / 10.0) {
                     return Ok(Some(Anomaly {
                         component_id: metric.component_id.clone(),
                         component_type: metric.component_type.clone(),
@@ -287,7 +287,7 @@ impl AnomalyDetector {
         let spike_threshold = mean + 2.0 * std_dev;
         if metric.value > spike_threshold {
             let change_percent = ((metric.value - mean) / mean) * 100.0;
-            if change_percent >= self.config.spike_threshold_percent {
+            if change_percent >= self.configs.spike_threshold_percent {
                 return Ok(Some(Anomaly {
                     component_id: metric.component_id.clone(),
                     component_type: metric.component_type.clone(),
@@ -315,7 +315,7 @@ impl AnomalyDetector {
         let drop_threshold = mean - 2.0 * std_dev;
         if metric.value < drop_threshold && metric.value >= 0.0 {
             let change_percent = ((mean - metric.value) / mean) * 100.0;
-            if change_percent >= self.config.spike_threshold_percent {
+            if change_percent >= self.configs.spike_threshold_percent {
                 return Ok(Some(Anomaly {
                     component_id: metric.component_id.clone(),
                     component_type: metric.component_type.clone(),
@@ -345,8 +345,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_anomaly_detector_creation() {
-        let config = AnomalyDetectorConfig::default();
-        let detector = AnomalyDetector::new(config);
+        let configs = AnomalyDetectorconfigs::default();
+        let detector = AnomalyDetector::new(configs);
         assert!(detector.metric_history.is_empty());
     }
 

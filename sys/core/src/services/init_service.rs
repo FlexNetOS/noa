@@ -5,7 +5,7 @@
 //! §3.6: Security & Privacy
 
 use crate::error::{NoaError, Result};
-use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
+use crate::init::{configsGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
 use std::path::Path;
 use tracing::{info, warn};
 
@@ -16,7 +16,7 @@ pub struct InitService;
 #[derive(Debug, Default)]
 pub(crate) struct InitState {
     directories_created: Vec<std::path::PathBuf>,
-    configs_created: Vec<std::path::PathBuf>,
+    configss_created: Vec<std::path::PathBuf>,
     database_created: bool,
     marker_file_created: bool,
 }
@@ -29,7 +29,7 @@ impl InitService {
         let mut state = InitState::default();
         let mut result = InitResult {
             directories_created: 0,
-            configs_generated: 0,
+            configss_generated: 0,
             database_initialized: false,
             binary_paths_registered: 0,
             errors: Vec::new(),
@@ -68,28 +68,28 @@ impl InitService {
             }
         }
 
-        // Step 3: Generate default configurations
-        match ConfigGenerator::generate_all(noa_root) {
+        // Step 3: Generate default configsurations
+        match configsGenerator::generate_all(noa_root) {
             Ok(_) => {
-                // Track created config files
-                let configs = vec![
+                // Track created configs files
+                let configss = vec![
                     "ai-providers.json",
                     "noa-server.json",
                     "features.json",
                     "models.json",
                 ];
-                for config in configs {
-                    let path = NoaPaths::config(noa_root).join(config);
+                for configs in configss {
+                    let path = NoaPaths::configs(noa_root).join(configs);
                     if path.exists() {
-                        state.configs_created.push(path);
+                        state.configss_created.push(path);
                     }
                 }
-                result.configs_generated = 4; // ai-providers, noa-server, features, models
-                info!("Default configurations generated");
+                result.configss_generated = 4; // ai-providers, noa-server, features, models
+                info!("Default configsurations generated");
             }
             Err(e) => {
-                result.errors.push(format!("Config generation failed: {}", e));
-                warn!("Config generation failed: {}", e);
+                result.errors.push(format!("configs generation failed: {}", e));
+                warn!("configs generation failed: {}", e);
                 // Cleanup on failure
                 Self::cleanup(&state, noa_root);
                 return Ok(result);
@@ -142,12 +142,12 @@ impl InitService {
     pub(crate) fn cleanup(state: &InitState, noa_root: &Path) {
         info!("Cleaning up partial initialization");
 
-        // Remove created config files
-        for config_path in &state.configs_created {
-            if let Err(e) = std::fs::remove_file(config_path) {
-                warn!(path = %config_path.display(), error = %e, "Failed to remove config file during cleanup");
+        // Remove created configs files
+        for configs_path in &state.configss_created {
+            if let Err(e) = std::fs::remove_file(configs_path) {
+                warn!(path = %configs_path.display(), error = %e, "Failed to remove configs file during cleanup");
             } else {
-                info!(path = %config_path.display(), "Removed config file");
+                info!(path = %configs_path.display(), "Removed configs file");
             }
         }
 
@@ -211,7 +211,7 @@ impl InitService {
             // Set permissions on key directories
             let key_dirs = vec![
                 NoaPaths::bin(noa_root),
-                NoaPaths::config(noa_root),
+                NoaPaths::configs(noa_root),
                 NoaPaths::data(noa_root),
             ];
 
@@ -261,7 +261,7 @@ impl InitService {
     pub fn verify(noa_root: &Path) -> Result<VerificationResult> {
         let mut result = VerificationResult {
             directories_ok: false,
-            configs_ok: false,
+            configss_ok: false,
             database_ok: false,
             errors: Vec::new(),
         };
@@ -280,26 +280,26 @@ impl InitService {
             }
         }
 
-        // Verify configs
-        let configs = vec![
+        // Verify configss
+        let configss = vec![
             "ai-providers.json",
             "noa-server.json",
             "features.json",
             "models.json",
         ];
 
-        let mut missing_configs = Vec::new();
-        for config in configs {
-            let path = NoaPaths::config(noa_root).join(config);
+        let mut missing_configss = Vec::new();
+        for configs in configss {
+            let path = NoaPaths::configs(noa_root).join(configs);
             if !path.exists() {
-                missing_configs.push(config);
+                missing_configss.push(configs);
             }
         }
 
-        if missing_configs.is_empty() {
-            result.configs_ok = true;
+        if missing_configss.is_empty() {
+            result.configss_ok = true;
         } else {
-            result.errors.push(format!("Missing configs: {:?}", missing_configs));
+            result.errors.push(format!("Missing configss: {:?}", missing_configss));
         }
 
         // Verify database
@@ -323,7 +323,7 @@ impl InitService {
 #[derive(Debug, Clone)]
 pub struct InitResult {
     pub directories_created: usize,
-    pub configs_generated: usize,
+    pub configss_generated: usize,
     pub database_initialized: bool,
     pub binary_paths_registered: usize,
     pub errors: Vec<String>,
@@ -333,7 +333,7 @@ pub struct InitResult {
 #[derive(Debug, Clone)]
 pub struct VerificationResult {
     pub directories_ok: bool,
-    pub configs_ok: bool,
+    pub configss_ok: bool,
     pub database_ok: bool,
     pub errors: Vec<String>,
 }
@@ -350,7 +350,7 @@ mod tests {
 
         let result = InitService::initialize(root, false).await.unwrap();
         assert!(result.directories_created > 0);
-        assert!(result.configs_generated > 0);
+        assert!(result.configss_generated > 0);
         assert!(result.database_initialized);
     }
 }

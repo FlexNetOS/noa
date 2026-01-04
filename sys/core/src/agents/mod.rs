@@ -20,4 +20,4 @@ pub use rag::{RAGAgent, RAGQuery, RAGResult, RAGResultItem};
 pub use commander::{CommanderChiefAgent, CommanderRequest, ExecutionPlan, AgentTask, TaskPriority, TaskStatus};
 pub use model_selector::ModelSelectorAgent;
 pub use executor::{MultiAgentExecutor, ExecutionRecord, PlanExecutionResult};
-pub use workflows::{WorkflowOrchestrator, WorkflowType, WorkflowConfig, WorkflowResult};
+pub use workflows::{WorkflowOrchestrator, WorkflowType, Workflowconfigs, WorkflowResult};

@@ -56,7 +56,7 @@ fn resolve_model_path(model_path: &PathBuf) -> PathBuf {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LlamaServerConfig {
+pub struct LlamaServerconfigs {
     pub host: String,
     pub port: u16,
     pub model_path: PathBuf,
@@ -65,7 +65,7 @@ pub struct LlamaServerConfig {
     pub threads: Option<usize>,
 }
 
-impl Default for LlamaServerConfig {
+impl Default for LlamaServerconfigs {
     fn default() -> Self {
         Self {
             host: "127.0.0.1".to_string(),
@@ -80,14 +80,14 @@ impl Default for LlamaServerConfig {
 }
 
 pub struct LlamaServer {
-    config: LlamaServerConfig,
+    configs: LlamaServerconfigs,
     process: Option<Child>,
 }
 
 impl LlamaServer {
-    pub fn new(config: LlamaServerConfig) -> Self {
+    pub fn new(configs: LlamaServerconfigs) -> Self {
         Self {
-            config,
+            configs,
             process: None,
         }
     }
@@ -98,7 +98,7 @@ impl LlamaServer {
         }
 
         let llama_server_path = resolve_llama_server_path();
-        let model_path = resolve_model_path(&self.config.model_path);
+        let model_path = resolve_model_path(&self.configs.model_path);
         
         if !llama_server_path.exists() {
             anyhow::bail!(
@@ -115,13 +115,13 @@ impl LlamaServer {
         }
         
         let mut cmd = Command::new(&llama_server_path);
-        cmd.arg("--host").arg(&self.config.host)
-            .arg("--port").arg(self.config.port.to_string())
+        cmd.arg("--host").arg(&self.configs.host)
+            .arg("--port").arg(self.configs.port.to_string())
             .arg("--model").arg(&model_path)
-            .arg("--ctx-size").arg(self.config.context_size.to_string())
-            .arg("--n-gpu-layers").arg(self.config.n_gpu_layers.to_string());
+            .arg("--ctx-size").arg(self.configs.context_size.to_string())
+            .arg("--n-gpu-layers").arg(self.configs.n_gpu_layers.to_string());
         
-        if let Some(threads) = self.config.threads {
+        if let Some(threads) = self.configs.threads {
             cmd.arg("--threads").arg(threads.to_string());
         }
         
@@ -135,7 +135,7 @@ impl LlamaServer {
         
         self.process = Some(child);
         
-        tracing::info!("llama-server started on {}:{}", self.config.host, self.config.port);
+        tracing::info!("llama-server started on {}:{}", self.configs.host, self.configs.port);
         
         Ok(())
     }
@@ -153,7 +153,7 @@ impl LlamaServer {
     }
     
     pub fn base_url(&self) -> String {
-        format!("http://{}:{}", self.config.host, self.config.port)
+        format!("http://{}:{}", self.configs.host, self.configs.port)
     }
 }
 

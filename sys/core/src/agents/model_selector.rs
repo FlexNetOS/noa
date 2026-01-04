@@ -197,14 +197,14 @@ impl<'a> ModelSelectorAgent<'a> {
 
         // Resource constraints
         if criteria.available_resources.gpu_available {
-            if let JsonValue::Number(n) = &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
+            if let JsonValue::Number(n) = &model.configs.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
                 if n.as_i64().unwrap_or(0) > 0 {
                     score += 15.0;
                 }
             }
         } else {
             // CPU-only models preferred when no GPU
-            if let JsonValue::Number(n) = &model.config.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
+            if let JsonValue::Number(n) = &model.configs.get("n_gpu_layers").unwrap_or(&JsonValue::Null) {
                 if n.as_i64().unwrap_or(0) == 0 {
                     score += 10.0;
                 }
@@ -231,7 +231,7 @@ impl<'a> ModelSelectorAgent<'a> {
             }
             CostPreference::Efficiency => {
                 // Prefer quantized models
-                if let Some(JsonValue::String(quant)) = model.config.get("quantization") {
+                if let Some(JsonValue::String(quant)) = model.configs.get("quantization") {
                     if quant.contains("q4") || quant.contains("q5") {
                         score += 15.0;
                     }

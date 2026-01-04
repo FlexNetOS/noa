@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "description": "Audit logging configuration for NOA microkernel",
+  "description": "Audit logging configsuration for NOA microkernel",
   "metadata": {
     "created_at": "2026-01-02T00:00:00Z",
     "updated_at": "2026-01-02T00:00:00Z",

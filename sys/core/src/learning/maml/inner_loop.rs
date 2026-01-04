@@ -6,15 +6,15 @@
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
-/// Inner-loop adaptation configuration
+/// Inner-loop adaptation configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct InnerLoopConfig {
+pub struct InnerLoopconfigs {
     pub learning_rate: f64,
     pub adaptation_steps: usize,
     pub gradient_clip: Option<f64>,
 }
 
-impl Default for InnerLoopConfig {
+impl Default for InnerLoopconfigs {
     fn default() -> Self {
         Self {
             learning_rate: 0.01,
@@ -26,22 +26,22 @@ impl Default for InnerLoopConfig {
 
 /// Inner-loop adapter
 pub struct InnerLoopAdapter {
-    config: InnerLoopConfig,
+    configs: InnerLoopconfigs,
 }
 
 impl InnerLoopAdapter {
     /// Create a new inner-loop adapter
-    pub fn new(config: InnerLoopConfig) -> Self {
-        Self { config }
+    pub fn new(configs: InnerLoopconfigs) -> Self {
+        Self { configs }
     }
 
     /// Adapt model to task
     pub async fn adapt(&self, task_data: &[serde_json::Value]) -> Result<()> {
         // TODO: Implement actual gradient-based adaptation
-        // Use config for learning rate and adaptation steps
+        // Use configs for learning rate and adaptation steps
         tracing::debug!(
-            learning_rate = self.config.learning_rate,
-            adaptation_steps = self.config.adaptation_steps,
+            learning_rate = self.configs.learning_rate,
+            adaptation_steps = self.configs.adaptation_steps,
             "Adapting to task with {} examples",
             task_data.len()
         );
@@ -52,10 +52,10 @@ impl InnerLoopAdapter {
     pub fn adaptation_step(&self, params: &mut std::collections::HashMap<String, f64>, gradient: &std::collections::HashMap<String, f64>) {
         for (param_name, param_value) in params.iter_mut() {
             if let Some(&grad) = gradient.get(param_name) {
-                let clipped_grad = self.config.gradient_clip
+                let clipped_grad = self.configs.gradient_clip
                     .map(|clip| grad.min(clip).max(-clip))
                     .unwrap_or(grad);
-                *param_value -= self.config.learning_rate * clipped_grad;
+                *param_value -= self.configs.learning_rate * clipped_grad;
             }
         }
     }
@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_adaptation_step() {
-        let adapter = InnerLoopAdapter::new(InnerLoopConfig::default());
+        let adapter = InnerLoopAdapter::new(InnerLoopconfigs::default());
         let mut params = std::collections::HashMap::new();
         params.insert("param1".to_string(), 1.0);
 

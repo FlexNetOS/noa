@@ -79,17 +79,29 @@ impl NoaPaths {
         noa_root.join("containers")
     }
 
-    /// Configuration directory
-    pub fn config(noa_root: &Path) -> PathBuf {
-        noa_root.join("config")
+    /// configsuration directory (3-layer: base/semantic/enforcement)
+    pub fn configs(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss")
     }
 
-    pub fn config_schemas(noa_root: &Path) -> PathBuf {
-        noa_root.join("config/schemas")
+    pub fn configs_base(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss/base")
     }
 
-    pub fn config_templates(noa_root: &Path) -> PathBuf {
-        noa_root.join("config/templates")
+    pub fn configs_semantic(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss/semantic")
+    }
+
+    pub fn configs_enforcement(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss/enforcement")
+    }
+
+    pub fn configs_schemas(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss/base/schemas")
+    }
+
+    pub fn configs_templates(noa_root: &Path) -> PathBuf {
+        noa_root.join("configss/base/templates")
     }
 
     /// Binary directory
@@ -102,8 +114,14 @@ impl NoaPaths {
         noa_root.join("ai")
     }
 
+    /// Providers directory (unified from ai/providers)
+    pub fn providers(noa_root: &Path) -> PathBuf {
+        noa_root.join("providers")
+    }
+
+    #[deprecated(note = "Use providers() instead - ai/providers has been consolidated")]
     pub fn ai_providers(noa_root: &Path) -> PathBuf {
-        noa_root.join("ai/providers")
+        noa_root.join("providers")
     }
 
     pub fn ai_shared(noa_root: &Path) -> PathBuf {
@@ -175,9 +193,9 @@ impl NoaPaths {
             Self::init_seeds(noa_root),
             Self::init_services(noa_root),
             Self::containers(noa_root),
-            Self::config(noa_root),
-            Self::config_schemas(noa_root),
-            Self::config_templates(noa_root),
+            Self::configs(noa_root),
+            Self::configs_schemas(noa_root),
+            Self::configs_templates(noa_root),
             Self::bin(noa_root),
             Self::ai(noa_root),
             Self::ai_providers(noa_root),
@@ -206,7 +224,7 @@ mod tests {
     fn test_path_generation() {
         let root = Path::new("/tmp/noa");
         assert_eq!(NoaPaths::sys(&root), PathBuf::from("/tmp/noa/sys"));
-        assert_eq!(NoaPaths::config(&root), PathBuf::from("/tmp/noa/config"));
+        assert_eq!(NoaPaths::configs(&root), PathBuf::from("/tmp/noa/configs"));
         assert_eq!(NoaPaths::data(&root), PathBuf::from("/tmp/noa/data"));
     }
 
@@ -216,7 +234,7 @@ mod tests {
         let dirs = NoaPaths::all_directories(&root);
         assert!(!dirs.is_empty());
         assert!(dirs.contains(&NoaPaths::sys(&root)));
-        assert!(dirs.contains(&NoaPaths::config(&root)));
+        assert!(dirs.contains(&NoaPaths::configs(&root)));
     }
 }
 

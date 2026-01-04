@@ -4,7 +4,7 @@
 
 #[cfg(test)]
 mod integration_tests {
-    use crate::init::{ConfigGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
+    use crate::init::{configsGenerator, DatabaseInitializer, DirectoryStructure, NoaPaths};
     #[cfg(feature = "full")]
     use crate::services::InitService;
     use std::fs;
@@ -24,7 +24,7 @@ mod integration_tests {
         assert!(NoaPaths::opt(root).exists(), "opt/ directory not created");
         assert!(NoaPaths::init(root).exists(), "init/ directory not created");
         assert!(NoaPaths::containers(root).exists(), "containers/ directory not created");
-        assert!(NoaPaths::config(root).exists(), "config/ directory not created");
+        assert!(NoaPaths::config(root).exists(), "configs/ directory not created");
         assert!(NoaPaths::bin(root).exists(), "bin/ directory not created");
         assert!(NoaPaths::ai(root).exists(), "ai/ directory not created");
     }
@@ -41,7 +41,7 @@ mod integration_tests {
         // Check permissions on key directories
         let key_dirs = vec![
             NoaPaths::bin(root),
-            NoaPaths::config(root),
+            NoaPaths::configs(root),
             NoaPaths::data(root),
         ];
 
@@ -84,7 +84,7 @@ mod integration_tests {
         // All operations should be local filesystem only
         let result = std::panic::catch_unwind(|| {
             DirectoryStructure::create_all(root, false).unwrap();
-            ConfigGenerator::generate_all(root).unwrap();
+            configsGenerator::generate_all(root).unwrap();
             DatabaseInitializer::initialize(root, false).unwrap();
         });
 
@@ -99,7 +99,7 @@ mod integration_tests {
 
         // First initialization
         DirectoryStructure::create_all(root, false).unwrap();
-        ConfigGenerator::generate_all(root).unwrap();
+        configsGenerator::generate_all(root).unwrap();
         DatabaseInitializer::initialize(root, false).unwrap();
 
         // Create a test file in data directory
@@ -108,7 +108,7 @@ mod integration_tests {
 
         // Re-run initialization
         DirectoryStructure::create_all(root, false).unwrap();
-        ConfigGenerator::generate_all(root).unwrap();
+        configsGenerator::generate_all(root).unwrap();
         DatabaseInitializer::initialize(root, false).unwrap();
 
         // Verify test file still exists (data preserved)
@@ -125,21 +125,21 @@ mod integration_tests {
         // Create directories first
         DirectoryStructure::create_all(root, false).unwrap();
 
-        // Create some config files
-        ConfigGenerator::generate_all(root).unwrap();
+        // Create some configs files
+        configsGenerator::generate_all(root).unwrap();
 
         // Verify files exist
-        let config_path = NoaPaths::config(root).join("ai-providers.json");
-        assert!(config_path.exists(), "Config file should exist before cleanup");
+        let configs_path = NoaPaths::configs(root).join("ai-providers.json");
+        assert!(configs_path.exists(), "configs file should exist before cleanup");
 
         // Verify cleanup mechanism exists
         // Note: InitState is private, so we test cleanup indirectly
         // by verifying the cleanup function exists in the codebase
-        assert!(config_path.exists(), "Config file exists for cleanup test");
+        assert!(configs_path.exists(), "configs file exists for cleanup test");
 
         // Manual cleanup verification - remove the file to simulate cleanup
-        std::fs::remove_file(&config_path).unwrap();
-        assert!(!config_path.exists(), "Config file should be removable (cleanup mechanism verified)");
+        std::fs::remove_file(&configs_path).unwrap();
+        assert!(!configs_path.exists(), "configs file should be removable (cleanup mechanism verified)");
     }
 
     /// Test full initialization workflow
@@ -152,7 +152,7 @@ mod integration_tests {
         let result = InitService::initialize(root, false).await.unwrap();
 
         assert!(result.directories_created > 0, "Directories should be created");
-        assert!(result.configs_generated > 0, "Configs should be generated");
+        assert!(result.configss_generated > 0, "configss should be generated");
         assert!(result.database_initialized, "Database should be initialized");
         assert!(result.errors.is_empty(), "No errors should occur");
     }
@@ -166,13 +166,13 @@ mod integration_tests {
 
         // Initialize
         DirectoryStructure::create_all(root, false).unwrap();
-        ConfigGenerator::generate_all(root).unwrap();
+        configsGenerator::generate_all(root).unwrap();
         DatabaseInitializer::initialize(root, false).unwrap();
 
         // Verify
         let verification = InitService::verify(root).unwrap();
         assert!(verification.directories_ok, "Directories should be OK");
-        assert!(verification.configs_ok, "Configs should be OK");
+        assert!(verification.configss_ok, "configss should be OK");
         assert!(verification.database_ok, "Database should be OK");
         assert!(verification.errors.is_empty(), "No verification errors");
     }

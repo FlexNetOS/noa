@@ -1,6 +1,6 @@
 //! Neural Runtime - Multi-SLM orchestration
 
-use crate::llama::{LlamaServer, LlamaClient, LlamaServerConfig, CompletionRequest};
+use crate::llama::{LlamaServer, LlamaClient, LlamaServerconfigs, CompletionRequest};
 use crate::model::{Model, ModelStatus};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
@@ -35,16 +35,16 @@ impl NeuralRuntime {
 
         model.status = ModelStatus::Loading;
 
-        if model.config.provider == "llama.cpp" {
-            let model_path = model.config.file_path.clone()
+        if model.configs.provider == "llama.cpp" {
+            let model_path = model.configs.file_path.clone()
                 .context("Model file path not set")?;
-            let context_length = model.config.context_length;
-            let n_gpu_layers = model.config.n_gpu_layers;
+            let context_length = model.configs.context_length;
+            let n_gpu_layers = model.configs.n_gpu_layers;
             let num_models = models.len();
 
             drop(models);
 
-            let config = LlamaServerConfig {
+            let configs = LlamaServerconfigs {
                 host: "127.0.0.1".to_string(),
                 port: 8080 + num_models as u16,
                 model_path: model_path.into(),
@@ -53,7 +53,7 @@ impl NeuralRuntime {
                 threads: None,
             };
 
-            let mut server = LlamaServer::new(config.clone());
+            let mut server = LlamaServer::new(configs.clone());
             server.start().context("Failed to start llama server")?;
 
             let client = LlamaClient::new(server.base_url());
@@ -82,7 +82,7 @@ impl NeuralRuntime {
             tracing::info!("Model {} loaded successfully", model_id);
         } else {
             model.status = ModelStatus::Failed("Unsupported provider".to_string());
-            return Err(anyhow::anyhow!("Unsupported provider: {}", model.config.provider));
+            return Err(anyhow::anyhow!("Unsupported provider: {}", model.configs.provider));
         }
 
         Ok(())

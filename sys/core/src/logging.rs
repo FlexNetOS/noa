@@ -12,12 +12,12 @@ use tracing_subscriber::{
     EnvFilter,
 };
 
-use crate::config::{LogFormat, LogLevel, LoggingConfig};
+use crate::configs::{LogFormat, LogLevel, Loggingconfigs};
 use crate::error::Result;
 
 /// Initialize logging subsystem
-pub fn init(config: &LoggingConfig) -> Result<()> {
-    let filter = match config.level {
+pub fn init(configs: &Loggingconfigs) -> Result<()> {
+    let filter = match configs.level {
         LogLevel::Trace => EnvFilter::new("trace"),
         LogLevel::Debug => EnvFilter::new("debug"),
         LogLevel::Info => EnvFilter::new("info"),
@@ -27,7 +27,7 @@ pub fn init(config: &LoggingConfig) -> Result<()> {
 
     let subscriber = tracing_subscriber::registry().with(filter);
 
-    match config.format {
+    match configs.format {
         LogFormat::Json => {
             let layer = fmt::layer()
                 .json()
@@ -75,23 +75,23 @@ pub fn init(config: &LoggingConfig) -> Result<()> {
 }
 
 /// Initialize logging with file output
-pub fn init_with_file(config: &LoggingConfig) -> Result<()> {
+pub fn init_with_file(configs: &Loggingconfigs) -> Result<()> {
     use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
     // Create parent directory if needed
-    if let Some(parent) = config.output.parent() {
+    if let Some(parent) = configs.output.parent() {
         std::fs::create_dir_all(parent)?;
     }
 
     let file_appender = RollingFileAppender::new(
         Rotation::DAILY,
-        config.output.parent().unwrap_or(Path::new(".")),
-        config.output.file_name().unwrap_or_default(),
+        configs.output.parent().unwrap_or(Path::new(".")),
+        configs.output.file_name().unwrap_or_default(),
     );
 
     let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
-    let filter = match config.level {
+    let filter = match configs.level {
         LogLevel::Trace => EnvFilter::new("trace"),
         LogLevel::Debug => EnvFilter::new("debug"),
         LogLevel::Info => EnvFilter::new("info"),

@@ -128,9 +128,9 @@ impl EscalationNotifier {
                 "Component {} has database connectivity issues. Check database health and connection pool.",
                 component_type
             )
-        } else if root_cause_lower.contains("config") {
+        } else if root_cause_lower.contains("configs") {
             format!(
-                "Component {} has configuration issues. Review and validate configuration.",
+                "Component {} has configsuration issues. Review and validate configsuration.",
                 component_type
             )
         } else {

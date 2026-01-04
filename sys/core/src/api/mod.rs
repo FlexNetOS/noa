@@ -8,5 +8,5 @@ pub mod server;
 pub mod routes;
 pub mod middleware;
 
-pub use server::{ApiServer, ApiConfig};
+pub use server::{ApiServer, Apiconfigs};
 

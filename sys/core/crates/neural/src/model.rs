@@ -1,4 +1,4 @@
-//! Model definitions and configuration
+//! Model definitions and configsuration
 
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +11,7 @@ pub enum ModelType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModelConfig {
+pub struct Modelconfigs {
     pub name: String,
     pub model_type: ModelType,
     pub provider: String,
@@ -24,7 +24,7 @@ pub struct ModelConfig {
     pub n_gpu_layers: i32,
 }
 
-impl Default for ModelConfig {
+impl Default for Modelconfigs {
     fn default() -> Self {
         Self {
             name: "default".to_string(),
@@ -44,7 +44,7 @@ impl Default for ModelConfig {
 #[derive(Debug, Clone)]
 pub struct Model {
     pub id: String,
-    pub config: ModelConfig,
+    pub configs: Modelconfigs,
     pub status: ModelStatus,
 }
 
@@ -57,10 +57,10 @@ pub enum ModelStatus {
 }
 
 impl Model {
-    pub fn new(id: String, config: ModelConfig) -> Self {
+    pub fn new(id: String, configs: Modelconfigs) -> Self {
         Self {
             id,
-            config,
+            configs,
             status: ModelStatus::Available,
         }
     }

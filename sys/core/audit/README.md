@@ -268,7 +268,7 @@ logs/
 Audit logs support SOC2 compliance:
 - **Tamper Protection**: Immutable logs
 - **Access Logging**: All access events recorded
-- **Change Tracking**: File/config modifications logged
+- **Change Tracking**: File/configs modifications logged
 - **Retention**: 90-day minimum retention
 
 ### ISO 27001

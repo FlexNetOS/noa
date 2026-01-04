@@ -7,14 +7,14 @@ use crate::error::Result;
 use crate::learning::ewc::FisherComputer;
 use serde::{Deserialize, Serialize};
 
-/// EWC configuration
+/// EWC configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EwcConfig {
+pub struct Ewcconfigs {
     pub lambda: f64, // EWC penalty weight
     pub fisher_decay: f64, // Decay factor for Fisher Information
 }
 
-impl Default for EwcConfig {
+impl Default for Ewcconfigs {
     fn default() -> Self {
         Self {
             lambda: 0.4,
@@ -26,16 +26,16 @@ impl Default for EwcConfig {
 /// EWC trainer
 pub struct EwcTrainer {
     fisher_computer: FisherComputer,
-    config: EwcConfig,
+    configs: Ewcconfigs,
     old_parameters: std::collections::HashMap<String, f64>,
 }
 
 impl EwcTrainer {
     /// Create a new EWC trainer
-    pub fn new(config: EwcConfig) -> Self {
+    pub fn new(configs: Ewcconfigs) -> Self {
         Self {
             fisher_computer: FisherComputer::new(),
-            config,
+            configs,
             old_parameters: std::collections::HashMap::new(),
         }
     }
@@ -53,7 +53,7 @@ impl EwcTrainer {
             }
         }
 
-        self.config.lambda * penalty
+        self.configs.lambda * penalty
     }
 
     /// Update old parameters after training
@@ -74,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_ewc_penalty() {
-        let trainer = EwcTrainer::new(EwcConfig::default());
+        let trainer = EwcTrainer::new(Ewcconfigs::default());
         let mut params = std::collections::HashMap::new();
         params.insert("param1".to_string(), 1.0);
 

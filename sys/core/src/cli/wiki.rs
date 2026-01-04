@@ -68,7 +68,7 @@ async fn generate_full(force: bool, sequential: bool) -> Result<()> {
         return Ok(());
     }
 
-    println!("🔧 Configuration:");
+    println!("🔧 configsuration:");
     println!("   Model: qwen2.5-coder:1.5b (SLM <3B params)");
     println!("   Mode: {}", if sequential { "Sequential" } else { "Adaptive" });
     println!("   Force: {}", force);

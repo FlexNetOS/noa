@@ -23,7 +23,7 @@ pub struct Model {
     pub parameters: Option<String>,
     pub context_length: Option<i32>,
     pub license: Option<String>,
-    pub config: JsonValue,
+    pub configs: JsonValue,
     pub status: ModelStatus,
     pub metrics: Option<JsonValue>,
 }
@@ -112,10 +112,10 @@ impl<'a> ModelRepository<'a> {
 
     /// Create a new model entry
     pub fn create(&self, model: &Model) -> Result<Uuid> {
-        let config_json = serde_json::to_string(&model.config).map_err(|e| {
+        let configs_json = serde_json::to_string(&model.configs).map_err(|e| {
             DatabaseError::QueryFailed {
                 query: "create model".to_string(),
-                error: format!("Failed to serialize config: {}", e),
+                error: format!("Failed to serialize configs: {}", e),
             }
         })?;
 
@@ -133,7 +133,7 @@ impl<'a> ModelRepository<'a> {
                 r#"
                 INSERT INTO model (
                     id, name, type, provider, path, uri, size_bytes,
-                    parameters, context_length, license, config, status, metrics
+                    parameters, context_length, license, configs, status, metrics
                 )
                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
                 "#,
@@ -148,7 +148,7 @@ impl<'a> ModelRepository<'a> {
                     model.parameters,
                     model.context_length,
                     model.license,
-                    config_json,
+                    configs_json,
                     model.status.as_str(),
                     metrics_json,
                 ],
@@ -168,7 +168,7 @@ impl<'a> ModelRepository<'a> {
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
-                       parameters, context_length, license, config, status, metrics
+                       parameters, context_length, license, configs, status, metrics
                 FROM model
                 WHERE id = ?1
                 "#,
@@ -200,7 +200,7 @@ impl<'a> ModelRepository<'a> {
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
-                       parameters, context_length, license, config, status, metrics
+                       parameters, context_length, license, configs, status, metrics
                 FROM model
                 WHERE name = ?1
                 "#,
@@ -228,7 +228,7 @@ impl<'a> ModelRepository<'a> {
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
-                       parameters, context_length, license, config, status, metrics
+                       parameters, context_length, license, configs, status, metrics
                 FROM model
                 ORDER BY name
                 "#,
@@ -260,7 +260,7 @@ impl<'a> ModelRepository<'a> {
             .prepare(
                 r#"
                 SELECT id, name, type, provider, path, uri, size_bytes,
-                       parameters, context_length, license, config, status, metrics
+                       parameters, context_length, license, configs, status, metrics
                 FROM model
                 WHERE status = ?1
                 ORDER BY name
@@ -288,10 +288,10 @@ impl<'a> ModelRepository<'a> {
 
     /// Update model
     pub fn update(&self, model: &Model) -> Result<()> {
-        let config_json = serde_json::to_string(&model.config).map_err(|e| {
+        let configs_json = serde_json::to_string(&model.configs).map_err(|e| {
             DatabaseError::QueryFailed {
                 query: "update model".to_string(),
-                error: format!("Failed to serialize config: {}", e),
+                error: format!("Failed to serialize configs: {}", e),
             }
         })?;
 
@@ -311,7 +311,7 @@ impl<'a> ModelRepository<'a> {
                 UPDATE model
                 SET name = ?2, type = ?3, provider = ?4, path = ?5, uri = ?6,
                     size_bytes = ?7, parameters = ?8, context_length = ?9,
-                    license = ?10, config = ?11, status = ?12, metrics = ?13
+                    license = ?10, configs = ?11, status = ?12, metrics = ?13
                 WHERE id = ?1
                 "#,
                 params![
@@ -325,7 +325,7 @@ impl<'a> ModelRepository<'a> {
                     model.parameters,
                     model.context_length,
                     model.license,
-                    config_json,
+                    configs_json,
                     model.status.as_str(),
                     metrics_json,
                 ],
@@ -433,8 +433,8 @@ impl<'a> ModelRepository<'a> {
             rusqlite::Error::InvalidColumnType(11, "status".to_string(), rusqlite::types::Type::Text)
         })?;
 
-        let config_str: String = row.get(10)?;
-        let config: JsonValue = serde_json::from_str(&config_str).unwrap_or(JsonValue::Object(serde_json::Map::new()));
+        let configs_str: String = row.get(10)?;
+        let configs: JsonValue = serde_json::from_str(&configs_str).unwrap_or(JsonValue::Object(serde_json::Map::new()));
 
         let metrics: Option<JsonValue> = row.get::<_, Option<String>>(12)?
             .map(|s| serde_json::from_str(&s).unwrap_or(JsonValue::Null))
@@ -451,7 +451,7 @@ impl<'a> ModelRepository<'a> {
             parameters: row.get(7)?,
             context_length: row.get(8)?,
             license: row.get(9)?,
-            config,
+            configs,
             status,
             metrics,
         })
@@ -484,7 +484,7 @@ mod tests {
                 parameters TEXT,
                 context_length INTEGER,
                 license TEXT,
-                config TEXT NOT NULL,
+                configs TEXT NOT NULL,
                 status TEXT NOT NULL,
                 metrics TEXT
             )
@@ -505,7 +505,7 @@ mod tests {
             parameters: Some("7B".to_string()),
             context_length: Some(2048),
             license: Some("MIT".to_string()),
-            config: serde_json::json!({}),
+            configs: serde_json::json!({}),
             status: ModelStatus::Available,
             metrics: None,
         };

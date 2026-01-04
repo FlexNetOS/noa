@@ -11,9 +11,9 @@ use std::time::{Duration, Instant};
 use crate::error::{DatabaseError, Result};
 use super::Connection;
 
-/// Connection pool configuration
+/// Connection pool configsuration
 #[derive(Debug, Clone)]
-pub struct PoolConfig {
+pub struct Poolconfigs {
     /// Maximum number of connections in the pool
     pub max_connections: u32,
 
@@ -30,7 +30,7 @@ pub struct PoolConfig {
     pub idle_timeout_secs: u64,
 }
 
-impl Default for PoolConfig {
+impl Default for Poolconfigs {
     fn default() -> Self {
         Self {
             max_connections: 10,
@@ -91,7 +91,7 @@ struct PooledConnectionEntry {
 
 struct ConnectionPoolInner {
     db_path: PathBuf,
-    config: PoolConfig,
+    configs: Poolconfigs,
     connections: Mutex<VecDeque<PooledConnectionEntry>>,
     active_count: Mutex<u32>,
 }
@@ -104,7 +104,7 @@ impl ConnectionPoolInner {
         *active = active.saturating_sub(1);
 
         // Check if connection is still valid (not too old)
-        let max_lifetime = Duration::from_secs(self.config.max_lifetime_secs);
+        let max_lifetime = Duration::from_secs(self.configs.max_lifetime_secs);
         if created_at.elapsed() < max_lifetime {
             connections.push_back(PooledConnectionEntry {
                 conn,
@@ -123,10 +123,10 @@ pub struct ConnectionPool {
 
 impl ConnectionPool {
     /// Create a new connection pool
-    pub fn new(db_path: &Path, config: PoolConfig) -> Result<Self> {
+    pub fn new(db_path: &Path, configs: Poolconfigs) -> Result<Self> {
         let inner = Arc::new(ConnectionPoolInner {
             db_path: db_path.to_path_buf(),
-            config,
+            configs,
             connections: Mutex::new(VecDeque::new()),
             active_count: Mutex::new(0),
         });
@@ -139,14 +139,14 @@ impl ConnectionPool {
         Ok(pool)
     }
 
-    /// Create a pool with default configuration
+    /// Create a pool with default configsuration
     pub fn with_defaults(db_path: &Path) -> Result<Self> {
-        Self::new(db_path, PoolConfig::default())
+        Self::new(db_path, Poolconfigs::default())
     }
 
     /// Get a connection from the pool
     pub fn get(&self) -> Result<PooledConnection> {
-        let timeout = Duration::from_millis(self.inner.config.connection_timeout_ms);
+        let timeout = Duration::from_millis(self.inner.configs.connection_timeout_ms);
         let start = Instant::now();
 
         loop {
@@ -155,7 +155,7 @@ impl ConnectionPool {
                 let mut connections = self.inner.connections.lock().unwrap();
 
                 // Clean up old connections
-                let idle_timeout = Duration::from_secs(self.inner.config.idle_timeout_secs);
+                let idle_timeout = Duration::from_secs(self.inner.configs.idle_timeout_secs);
                 connections.retain(|entry| entry.last_used.elapsed() < idle_timeout);
 
                 // Try to get a connection
@@ -174,7 +174,7 @@ impl ConnectionPool {
             // Check if we can create a new connection
             {
                 let mut active = self.inner.active_count.lock().unwrap();
-                if *active < self.inner.config.max_connections {
+                if *active < self.inner.configs.max_connections {
                     *active += 1;
                     drop(active);
 
@@ -205,7 +205,7 @@ impl ConnectionPool {
         PoolStatus {
             idle_connections: connections.len() as u32,
             active_connections: *active,
-            max_connections: self.inner.config.max_connections,
+            max_connections: self.inner.configs.max_connections,
         }
     }
 
@@ -214,7 +214,7 @@ impl ConnectionPool {
     }
 
     fn populate_idle(&self) -> Result<()> {
-        let min_idle = self.inner.config.min_idle;
+        let min_idle = self.inner.configs.min_idle;
         let mut connections = self.inner.connections.lock().unwrap();
 
         for _ in 0..min_idle {

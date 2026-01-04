@@ -6,9 +6,9 @@
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
-/// Tensor sharding configuration
+/// Tensor sharding configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TensorShardConfig {
+pub struct TensorShardconfigs {
     pub shard_count: usize,
     pub shard_dimension: ShardDimension,
     pub replication_factor: usize,

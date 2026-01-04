@@ -18,9 +18,9 @@ use axum::{
 };
 use tokio::sync::RwLock;
 
-/// Rate limit configuration.
+/// Rate limit configsuration.
 #[derive(Debug, Clone)]
-pub struct RateLimitConfig {
+pub struct RateLimitconfigs {
     /// Maximum requests per window.
     pub max_requests: u32,
     /// Time window duration.
@@ -31,7 +31,7 @@ pub struct RateLimitConfig {
     pub per_token: bool,
 }
 
-impl Default for RateLimitConfig {
+impl Default for RateLimitconfigs {
     fn default() -> Self {
         Self {
             max_requests: 100,
@@ -42,8 +42,8 @@ impl Default for RateLimitConfig {
     }
 }
 
-impl RateLimitConfig {
-    /// Create a config for expensive endpoints (search, inference).
+impl RateLimitconfigs {
+    /// Create a configs for expensive endpoints (search, inference).
     pub fn expensive() -> Self {
         Self {
             max_requests: 20,
@@ -53,7 +53,7 @@ impl RateLimitConfig {
         }
     }
 
-    /// Create a relaxed config for read-heavy endpoints.
+    /// Create a relaxed configs for read-heavy endpoints.
     pub fn relaxed() -> Self {
         Self {
             max_requests: 500,
@@ -111,15 +111,15 @@ impl RateLimitEntry {
 /// Shared rate limiter state.
 #[derive(Debug)]
 pub struct RateLimiter {
-    config: RateLimitConfig,
+    configs: RateLimitconfigs,
     ip_limits: RwLock<HashMap<IpAddr, RateLimitEntry>>,
     token_limits: RwLock<HashMap<String, RateLimitEntry>>,
 }
 
 impl RateLimiter {
-    pub fn new(config: RateLimitConfig) -> Self {
+    pub fn new(configs: RateLimitconfigs) -> Self {
         Self {
-            config,
+            configs,
             ip_limits: RwLock::new(HashMap::new()),
             token_limits: RwLock::new(HashMap::new()),
         }
@@ -127,57 +127,57 @@ impl RateLimiter {
 
     /// Check and update rate limit for an IP.
     pub async fn check_ip(&self, ip: IpAddr) -> RateLimitResult {
-        if !self.config.per_ip {
+        if !self.configs.per_ip {
             return RateLimitResult::Allowed {
-                remaining: self.config.max_requests,
+                remaining: self.configs.max_requests,
                 reset_after: 0,
             };
         }
 
         let mut limits = self.ip_limits.write().await;
         let entry = limits.entry(ip).or_insert_with(RateLimitEntry::new);
-        let count = entry.increment(self.config.window);
+        let count = entry.increment(self.configs.window);
 
-        if count > self.config.max_requests {
+        if count > self.configs.max_requests {
             RateLimitResult::Limited {
-                retry_after: entry.reset_after(self.config.window),
+                retry_after: entry.reset_after(self.configs.window),
             }
         } else {
             RateLimitResult::Allowed {
-                remaining: entry.remaining(self.config.max_requests, self.config.window),
-                reset_after: entry.reset_after(self.config.window),
+                remaining: entry.remaining(self.configs.max_requests, self.configs.window),
+                reset_after: entry.reset_after(self.configs.window),
             }
         }
     }
 
     /// Check and update rate limit for a token.
     pub async fn check_token(&self, token: &str) -> RateLimitResult {
-        if !self.config.per_token {
+        if !self.configs.per_token {
             return RateLimitResult::Allowed {
-                remaining: self.config.max_requests,
+                remaining: self.configs.max_requests,
                 reset_after: 0,
             };
         }
 
         let mut limits = self.token_limits.write().await;
         let entry = limits.entry(token.to_string()).or_insert_with(RateLimitEntry::new);
-        let count = entry.increment(self.config.window);
+        let count = entry.increment(self.configs.window);
 
-        if count > self.config.max_requests {
+        if count > self.configs.max_requests {
             RateLimitResult::Limited {
-                retry_after: entry.reset_after(self.config.window),
+                retry_after: entry.reset_after(self.configs.window),
             }
         } else {
             RateLimitResult::Allowed {
-                remaining: entry.remaining(self.config.max_requests, self.config.window),
-                reset_after: entry.reset_after(self.config.window),
+                remaining: entry.remaining(self.configs.max_requests, self.configs.window),
+                reset_after: entry.reset_after(self.configs.window),
             }
         }
     }
 
     /// Periodically clean up old entries.
     pub async fn cleanup(&self) {
-        let window = self.config.window;
+        let window = self.configs.window;
 
         // Clean IP limits
         {
@@ -304,7 +304,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_rate_limiter_allows_within_limit() {
-        let limiter = RateLimiter::new(RateLimitConfig {
+        let limiter = RateLimiter::new(RateLimitconfigs {
             max_requests: 5,
             window: Duration::from_secs(60),
             per_ip: true,
@@ -323,7 +323,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_rate_limiter_blocks_over_limit() {
-        let limiter = RateLimiter::new(RateLimitConfig {
+        let limiter = RateLimiter::new(RateLimitconfigs {
             max_requests: 2,
             window: Duration::from_secs(60),
             per_ip: true,

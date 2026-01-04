@@ -11,14 +11,14 @@ use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 use uuid::Uuid;
 
-/// Retry counter configuration
+/// Retry counter configsuration
 #[derive(Debug, Clone)]
-pub struct RetryCounterConfig {
+pub struct RetryCounterconfigs {
     pub max_attempts: u32,
     pub retry_backoff_secs: u64,
 }
 
-impl Default for RetryCounterConfig {
+impl Default for RetryCounterconfigs {
     fn default() -> Self {
         Self {
             max_attempts: 3,
@@ -29,15 +29,15 @@ impl Default for RetryCounterConfig {
 
 /// Retry counter
 pub struct RetryCounter {
-    config: RetryCounterConfig,
+    configs: RetryCounterconfigs,
     event_attempts: Arc<RwLock<HashMap<Uuid, u32>>>,
 }
 
 impl RetryCounter {
     /// Create a new retry counter
-    pub fn new(config: RetryCounterConfig) -> Self {
+    pub fn new(configs: RetryCounterconfigs) -> Self {
         Self {
-            config,
+            configs,
             event_attempts: Arc::new(RwLock::new(HashMap::new())),
         }
     }
@@ -54,11 +54,11 @@ impl RetryCounter {
         info!(
             event_id = %event_id,
             attempt = current_count,
-            max_attempts = self.config.max_attempts,
+            max_attempts = self.configs.max_attempts,
             "Incremented retry counter"
         );
 
-        if current_count >= self.config.max_attempts {
+        if current_count >= self.configs.max_attempts {
             warn!(
                 event_id = %event_id,
                 attempts = current_count,
@@ -78,7 +78,7 @@ impl RetryCounter {
     /// Check if retry limit reached
     pub async fn is_limit_reached(&self, event_id: &Uuid) -> bool {
         let count = self.get_count(event_id).await;
-        count >= self.config.max_attempts
+        count >= self.configs.max_attempts
     }
 
     /// Reset retry count for an event
@@ -100,7 +100,7 @@ impl RetryCounter {
 
 impl Default for RetryCounter {
     fn default() -> Self {
-        Self::new(RetryCounterConfig::default())
+        Self::new(RetryCounterconfigs::default())
     }
 }
 

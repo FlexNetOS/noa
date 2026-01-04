@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::db::Database;
-use noa_neural::llama::{LlamaServer, LlamaServerConfig};
+use noa_neural::llama::{LlamaServer, LlamaServerconfigs};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -45,7 +45,7 @@ impl AppState {
             Err(_) => true,
         };
 
-        let config = LlamaServerConfig {
+        let configs = LlamaServerconfigs {
             host: host.clone(),
             port,
             model_path,
@@ -61,7 +61,7 @@ impl AppState {
                 base_url,
                 client: reqwest::Client::new(),
                 auto_start,
-                server: Mutex::new(LlamaServer::new(config)),
+                server: Mutex::new(LlamaServer::new(configs)),
             }),
             db,
         }

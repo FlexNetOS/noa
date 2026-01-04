@@ -192,7 +192,7 @@ async fn ingest_model(
         parameters: None,
         context_length: None,
         license: None,
-        config: serde_json::json!({}),
+        configs: serde_json::json!({}),
         status: DbStatus::Available,
         metrics: None,
     };

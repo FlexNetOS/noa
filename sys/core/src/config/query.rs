@@ -83,9 +83,9 @@ pub fn compile_from_raw(raw: &serde_json::Value, key: &str) -> Result<Option<Com
     let Some(q) = q else { return Ok(None); };
 
     let query = parse_query(&q).map_err(|e| NoaError::Validation(crate::error::ValidationError::new(
-        "config_query",
+        "configs_query",
         e,
-        "INVALID_CONFIG_QUERY",
+        "INVALID_configs_QUERY",
     )))?;
 
     Ok(Some(CompiledQuery { key: key.to_string(), query }))

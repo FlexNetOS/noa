@@ -3,16 +3,16 @@ use std::sync::Arc;
 
 use tokio::sync::RwLock;
 
-use crate::config::{query, raw_access, NoaConfig};
+use crate::configs::{query, raw_access, Noaconfigs};
 use crate::error::Result;
 
 #[derive(Clone)]
-pub struct ConfigAccess {
+pub struct configsAccess {
     noa_root: PathBuf,
     raw: Arc<RwLock<serde_json::Value>>,
 }
 
-impl ConfigAccess {
+impl configsAccess {
     pub fn new(noa_root: PathBuf, raw: serde_json::Value) -> Self {
         Self {
             noa_root,
@@ -20,7 +20,7 @@ impl ConfigAccess {
         }
     }
 
-    pub fn from_config(cfg: &NoaConfig) -> Self {
+    pub fn from_configs(cfg: &Noaconfigs) -> Self {
         Self::new(cfg.noa_root.clone(), cfg.raw.clone())
     }
 
@@ -64,7 +64,7 @@ impl ConfigAccess {
 
     pub async fn reload(&self) -> Result<()> {
         // Reload by going through the standard loading pipeline.
-        let cfg = NoaConfig::load_from_root(&self.noa_root)?;
+        let cfg = Noaconfigs::load_from_root(&self.noa_root)?;
         self.set_raw(cfg.raw).await;
         Ok(())
     }
@@ -79,7 +79,7 @@ impl ConfigAccess {
     ) -> tokio::sync::watch::Sender<bool> {
         let (tx, rx) = tokio::sync::watch::channel(false);
         let access = self.clone();
-        let watcher = crate::config::watch::ConfigWatch::new(&self.noa_root)
+        let watcher = crate::configs::watch::configsWatch::new(&self.noa_root)
             .with_poll_interval(poll_interval);
 
         tokio::spawn(async move {
@@ -97,7 +97,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_str_pointer() {
         let raw = serde_json::json!({"memory": {"search": {"embedding_model": "m1"}}});
-        let access = ConfigAccess::new(PathBuf::from("."), raw);
+        let access = configsAccess::new(PathBuf::from("."), raw);
 
         let v = access
             .get_str(&["/memory/search/embedding_model", "/fallback"])
@@ -110,7 +110,7 @@ mod tests {
     #[tokio::test]
     async fn test_eval_query_coalesce() {
         let raw = serde_json::json!({"memory": {"search": {}}});
-        let access = ConfigAccess::new(PathBuf::from("."), raw);
+        let access = configsAccess::new(PathBuf::from("."), raw);
 
         let q = query::Query::Coalesce(vec![
             query::Query::Ptr("/memory/search/embedding_model".to_string()),

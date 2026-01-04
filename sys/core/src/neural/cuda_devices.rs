@@ -83,7 +83,7 @@ impl Default for CudaDeviceEnumerator {
     }
 }
 
-/// Device properties for CUDA configuration
+/// Device properties for CUDA configsuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeviceProperties {
     pub device_id: u32,

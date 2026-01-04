@@ -1,7 +1,7 @@
 //! Environment Synthesis Service (Stage 5)
 //!
 //! T157: Implement EnvSynthesisService
-//! §3.4: Digest Everything Pipeline - Stage 5: Synthesize environment configs
+//! §3.4: Digest Everything Pipeline - Stage 5: Synthesize environment configss
 //! US4: Digest Everything Pipeline
 
 use crate::db::Connection;
@@ -19,7 +19,7 @@ impl EnvSynthesisService {
         Self { _conn: conn }
     }
 
-    /// Synthesize environment configuration files
+    /// Synthesize environment configsuration files
     pub async fn synthesize(&self, _source_id: &Uuid) -> Result<()> {
         // TODO: Implement Dockerfile, docker-compose, K8s manifest generation
         Ok(())

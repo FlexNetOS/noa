@@ -16,15 +16,15 @@ use tower_http::{
     trace::TraceLayer,
 };
 
-use crate::config::NoaConfig;
+use crate::configs::Noaconfigs;
 use crate::db::{ConnectionPool, PooledConnection};
 use crate::error::{ApiError, NoaError, Result};
-use crate::config::access::ConfigAccess;
+use crate::configs::access::configsAccess;
 
 use super::middleware::{
-    RateLimitConfig, RateLimiter,
-    RequestLimitsConfig, RequestLimits,
-    AuthConfig, AuthState,
+    RateLimitconfigs, RateLimiter,
+    RequestLimitsconfigs, RequestLimits,
+    Authconfigs, AuthState,
 };
 
 /// Database handle used by the API server.
@@ -50,9 +50,9 @@ impl AppDatabase {
     }
 }
 
-/// API server configuration
+/// API server configsuration
 #[derive(Debug, Clone)]
-pub struct ApiConfig {
+pub struct Apiconfigs {
     /// Server host address
     pub host: String,
 
@@ -96,7 +96,7 @@ pub struct ApiConfig {
     pub jwt_secret: Option<String>,
 }
 
-impl Default for ApiConfig {
+impl Default for Apiconfigs {
     fn default() -> Self {
         Self {
             host: "127.0.0.1".to_string(),
@@ -117,11 +117,11 @@ impl Default for ApiConfig {
     }
 }
 
-impl ApiConfig {
-    pub fn from_noa_config(noa_config: &NoaConfig) -> Self {
-        let mut cfg = ApiConfig::default();
+impl Apiconfigs {
+    pub fn from_noa_configs(noa_configs: &Noaconfigs) -> Self {
+        let mut cfg = Apiconfigs::default();
 
-        if let Some(noa_server) = noa_config.raw.get("noa_server") {
+        if let Some(noa_server) = noa_configs.raw.get("noa_server") {
             // Support either a dedicated api section or legacy top-level server keys.
             // Canonical (authoritative) path: noa_server.api.{host,port,timeout_secs,max_connections,shutdown_timeout_secs}
             if let Some(api) = noa_server.get("api") {
@@ -202,11 +202,11 @@ pub struct AppState {
     /// Database connection pool
     pub db: AppDatabase,
 
-    /// Application configuration
-    pub config: Arc<NoaConfig>,
+    /// Application configsuration
+    pub configs: Arc<Noaconfigs>,
 
-    /// Central dynamic config accessor
-    pub config_access: Arc<ConfigAccess>,
+    /// Central dynamic configs accessor
+    pub configs_access: Arc<configsAccess>,
 
     /// Server start time for uptime tracking
     pub start_time: std::time::Instant,
@@ -222,40 +222,40 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(db: AppDatabase, config: NoaConfig) -> Self {
-        Self::with_api_config(db, config, ApiConfig::default())
+    pub fn new(db: AppDatabase, configs: Noaconfigs) -> Self {
+        Self::with_api_configs(db, configs, Apiconfigs::default())
     }
 
-    pub fn with_api_config(db: AppDatabase, config: NoaConfig, api_config: ApiConfig) -> Self {
-        let config_access = Arc::new(ConfigAccess::from_config(&config));
+    pub fn with_api_configs(db: AppDatabase, configs: Noaconfigs, api_configs: Apiconfigs) -> Self {
+        let configs_access = Arc::new(configsAccess::from_configs(&configs));
 
-        // Create rate limiter from config
-        let rate_limiter = Arc::new(RateLimiter::new(RateLimitConfig {
-            max_requests: api_config.rate_limit_requests_per_minute,
+        // Create rate limiter from configs
+        let rate_limiter = Arc::new(RateLimiter::new(RateLimitconfigs {
+            max_requests: api_configs.rate_limit_requests_per_minute,
             window: Duration::from_secs(60),
             per_ip: true,
             per_token: true,
         }));
 
-        // Create request limits from config
-        let request_limits = Arc::new(RequestLimits::new(RequestLimitsConfig {
-            max_body_size: api_config.max_body_size,
-            max_concurrent: api_config.max_concurrent_requests,
-            timeout_secs: api_config.timeout_secs,
+        // Create request limits from configs
+        let request_limits = Arc::new(RequestLimits::new(RequestLimitsconfigs {
+            max_body_size: api_configs.max_body_size,
+            max_concurrent: api_configs.max_concurrent_requests,
+            timeout_secs: api_configs.timeout_secs,
         }));
 
-        // Create auth state from config
-        let auth = Arc::new(AuthState::new(AuthConfig {
-            enabled: api_config.enable_auth,
+        // Create auth state from configs
+        let auth = Arc::new(AuthState::new(Authconfigs {
+            enabled: api_configs.enable_auth,
             allow_health_unauthenticated: true,
-            jwt_secret: api_config.jwt_secret.clone(),
-            api_keys: Vec::new(), // API keys loaded from config/database separately
+            jwt_secret: api_configs.jwt_secret.clone(),
+            api_keys: Vec::new(), // API keys loaded from configs/database separately
         }));
 
         Self {
             db,
-            config: Arc::new(config),
-            config_access,
+            configs: Arc::new(configs),
+            configs_access,
             start_time: std::time::Instant::now(),
             rate_limiter,
             request_limits,
@@ -263,16 +263,16 @@ impl AppState {
         }
     }
 
-    pub fn new_sqlite(db: ConnectionPool, config: NoaConfig) -> Self {
-        Self::new(AppDatabase::Sqlite(Arc::new(db)), config)
+    pub fn new_sqlite(db: ConnectionPool, configs: Noaconfigs) -> Self {
+        Self::new(AppDatabase::Sqlite(Arc::new(db)), configs)
     }
 
     #[cfg(feature = "full")]
-    pub fn new_postgres(pool: sqlx::PgPool, config: NoaConfig) -> Self {
-        Self::new(AppDatabase::Postgres(pool), config)
+    pub fn new_postgres(pool: sqlx::PgPool, configs: Noaconfigs) -> Self {
+        Self::new(AppDatabase::Postgres(pool), configs)
     }
 
-    /// Get a SQLite pooled connection if this instance is configured for SQLite.
+    /// Get a SQLite pooled connection if this instance is configsured for SQLite.
     ///
     /// Returns a ServiceUnavailable error when running on PostgreSQL, since most
     /// current repositories/routes are still SQLite-first.
@@ -294,14 +294,14 @@ impl AppState {
 
 /// NOA API Server
 pub struct ApiServer {
-    config: ApiConfig,
+    configs: Apiconfigs,
     state: AppState,
 }
 
 impl ApiServer {
     /// Create a new API server
-    pub fn new(config: ApiConfig, state: AppState) -> Self {
-        Self { config, state }
+    pub fn new(configs: Apiconfigs, state: AppState) -> Self {
+        Self { configs, state }
     }
 
     /// Build the router with all routes and middleware
@@ -315,16 +315,16 @@ impl ApiServer {
 
         // Timeout layer (via tower-http)
         router = router.layer(TimeoutLayer::new(Duration::from_secs(
-            self.config.timeout_secs,
+            self.configs.timeout_secs,
         )));
 
         // Tracing layer
-        if self.config.enable_tracing {
+        if self.configs.enable_tracing {
             router = router.layer(TraceLayer::new_for_http());
         }
 
         // CORS layer
-        if self.config.enable_cors {
+        if self.configs.enable_cors {
             let cors = CorsLayer::new()
                 .allow_origin(Any)
                 .allow_methods(Any)
@@ -342,7 +342,7 @@ impl ApiServer {
         }));
 
         // Rate limiting middleware (if enabled)
-        if self.config.enable_rate_limiting {
+        if self.configs.enable_rate_limiting {
             let limiter = self.state.rate_limiter.clone();
             router = router.layer(axum::middleware::from_fn(move |req, next| {
                 let limiter = limiter.clone();
@@ -353,7 +353,7 @@ impl ApiServer {
         }
 
         // Authentication middleware (if enabled)
-        if self.config.enable_auth {
+        if self.configs.enable_auth {
             let auth = self.state.auth.clone();
             router = router.layer(axum::middleware::from_fn(move |req, next| {
                 let auth = auth.clone();
@@ -374,7 +374,7 @@ impl ApiServer {
 
     /// Start the server
     pub async fn start(self) -> Result<()> {
-        let addr: SocketAddr = format!("{}:{}", self.config.host, self.config.port)
+        let addr: SocketAddr = format!("{}:{}", self.configs.host, self.configs.port)
             .parse()
             .map_err(|e| crate::error::NoaError::Internal {
                 message: format!("Invalid server address: {}", e),
@@ -383,15 +383,15 @@ impl ApiServer {
 
         let router = self.build_router();
 
-        // Start config hot reload polling (multi-source configs)
+        // Start configs hot reload polling (multi-source configss)
         let reload_stop = self
             .state
-            .config_access
+            .configs_access
             .start_polling_reload(Duration::from_secs(2));
 
         tracing::info!(
-            host = %self.config.host,
-            port = %self.config.port,
+            host = %self.configs.host,
+            port = %self.configs.port,
             "Starting NOA API server"
         );
 
@@ -419,7 +419,7 @@ impl ApiServer {
 
     /// Get the server address
     pub fn address(&self) -> String {
-        format!("{}:{}", self.config.host, self.config.port)
+        format!("{}:{}", self.configs.host, self.configs.port)
     }
 }
 
@@ -462,7 +462,7 @@ pub struct ApiServerBuilder {
     enable_tracing: Option<bool>,
     shutdown_timeout_secs: Option<u64>,
     db: Option<AppDatabase>,
-    noa_config: Option<NoaConfig>,
+    noa_configs: Option<Noaconfigs>,
 }
 
 impl ApiServerBuilder {
@@ -476,18 +476,18 @@ impl ApiServerBuilder {
             enable_tracing: None,
             shutdown_timeout_secs: None,
             db: None,
-            noa_config: None,
+            noa_configs: None,
         }
     }
 
-    pub fn with_config(self, config: ApiConfig) -> Self {
-        self.with_host(config.host)
-            .with_port(config.port)
-            .with_timeout(config.timeout_secs)
-            .with_enable_cors(config.enable_cors)
-            .with_cors_origins(config.cors_origins)
-            .with_enable_tracing(config.enable_tracing)
-            .with_shutdown_timeout_secs(config.shutdown_timeout_secs)
+    pub fn with_configs(self, configs: Apiconfigs) -> Self {
+        self.with_host(configs.host)
+            .with_port(configs.port)
+            .with_timeout(configs.timeout_secs)
+            .with_enable_cors(configs.enable_cors)
+            .with_cors_origins(configs.cors_origins)
+            .with_enable_tracing(configs.enable_tracing)
+            .with_shutdown_timeout_secs(configs.shutdown_timeout_secs)
     }
 
     pub fn with_host(mut self, host: impl Into<String>) -> Self {
@@ -536,8 +536,8 @@ impl ApiServerBuilder {
         self
     }
 
-    pub fn with_noa_config(mut self, config: NoaConfig) -> Self {
-        self.noa_config = Some(config);
+    pub fn with_noa_configs(mut self, configs: Noaconfigs) -> Self {
+        self.noa_configs = Some(configs);
         self
     }
 
@@ -547,13 +547,13 @@ impl ApiServerBuilder {
             source: None,
         })?;
 
-        let noa_config = self.noa_config.ok_or_else(|| crate::error::NoaError::Internal {
-            message: "NOA configuration required".to_string(),
+        let noa_configs = self.noa_configs.ok_or_else(|| crate::error::NoaError::Internal {
+            message: "NOA configsuration required".to_string(),
             source: None,
         })?;
 
-        // noa-server.json is authoritative: derive base ApiConfig from it.
-        let mut api_cfg = ApiConfig::from_noa_config(&noa_config);
+        // noa-server.json is authoritative: derive base Apiconfigs from it.
+        let mut api_cfg = Apiconfigs::from_noa_configs(&noa_configs);
 
         // Apply explicit overrides only.
         if let Some(host) = self.host {
@@ -578,7 +578,7 @@ impl ApiServerBuilder {
             api_cfg.shutdown_timeout_secs = shutdown_timeout_secs;
         }
 
-        let state = AppState::with_api_config(db, noa_config, api_cfg.clone());
+        let state = AppState::with_api_configs(db, noa_configs, api_cfg.clone());
         Ok(ApiServer::new(api_cfg, state))
     }
 }
@@ -594,11 +594,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_api_config_default() {
-        let config = ApiConfig::default();
-        assert_eq!(config.host, "127.0.0.1");
-        assert_eq!(config.port, 8080);
-        assert_eq!(config.timeout_secs, 30);
+    fn test_api_configs_default() {
+        let configs = Apiconfigs::default();
+        assert_eq!(configs.host, "127.0.0.1");
+        assert_eq!(configs.port, 8080);
+        assert_eq!(configs.timeout_secs, 30);
     }
 
     #[test]

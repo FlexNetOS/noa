@@ -170,7 +170,7 @@ fn test_rag_agent_query_formatting() -> Result<()> {
 fn test_commander_agent_file_task_decomposition() -> Result<()> {
     let commander = CommanderChiefAgent::new();
     let request = CommanderRequest {
-        goal: "Read config.yaml and write to backup.yaml".to_string(),
+        goal: "Read configs.yaml and write to backup.yaml".to_string(),
         context: None,
         constraints: None,
     };
@@ -178,7 +178,7 @@ fn test_commander_agent_file_task_decomposition() -> Result<()> {
     let plan = commander.plan_execution(request)?;
     assert!(!plan.tasks.is_empty());
     assert!(plan.tasks.iter().any(|t| t.agent_name == "file-io"));
-    assert_eq!(plan.goal, "Read config.yaml and write to backup.yaml");
+    assert_eq!(plan.goal, "Read configs.yaml and write to backup.yaml");
 
     Ok(())
 }

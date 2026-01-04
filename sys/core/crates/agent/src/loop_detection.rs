@@ -7,9 +7,9 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
-/// Loop detection configuration
+/// Loop detection configsuration
 #[derive(Debug, Clone)]
-pub struct LoopDetectionConfig {
+pub struct LoopDetectionconfigs {
     /// Maximum number of identical operations before flagging
     pub max_repetitions: usize,
     /// Time window to check for repetitions
@@ -18,7 +18,7 @@ pub struct LoopDetectionConfig {
     pub max_execution_time: Duration,
 }
 
-impl Default for LoopDetectionConfig {
+impl Default for LoopDetectionconfigs {
     fn default() -> Self {
         Self {
             max_repetitions: 10,
@@ -45,16 +45,16 @@ struct OperationEntry {
 
 /// Loop detector for agents
 pub struct LoopDetector {
-    config: LoopDetectionConfig,
+    configs: LoopDetectionconfigs,
     history: Arc<Mutex<Vec<OperationEntry>>>,
     agent_start_times: Arc<Mutex<HashMap<String, Instant>>>,
 }
 
 impl LoopDetector {
     /// Create a new loop detector
-    pub fn new(config: LoopDetectionConfig) -> Self {
+    pub fn new(configs: LoopDetectionconfigs) -> Self {
         Self {
-            config,
+            configs,
             history: Arc::new(Mutex::new(Vec::new())),
             agent_start_times: Arc::new(Mutex::new(HashMap::new())),
         }
@@ -77,7 +77,7 @@ impl LoopDetector {
         let now = Instant::now();
 
         // Clean old entries outside time window
-        history.retain(|entry| now.duration_since(entry.timestamp) <= self.config.time_window);
+        history.retain(|entry| now.duration_since(entry.timestamp) <= self.configs.time_window);
 
         // Add new entry
         history.push(OperationEntry {
@@ -91,7 +91,7 @@ impl LoopDetector {
             .filter(|entry| entry.signature == signature)
             .count();
 
-        if repetitions > self.config.max_repetitions {
+        if repetitions > self.configs.max_repetitions {
             return Err(LoopDetectedError {
                 agent_id: agent_id.to_string(),
                 operation_type: operation_type.to_string(),
@@ -117,14 +117,14 @@ impl LoopDetector {
         let start_times = self.agent_start_times.lock().unwrap();
         if let Some(start_time) = start_times.get(agent_id) {
             let elapsed = start_time.elapsed();
-            if elapsed > self.config.max_execution_time {
+            if elapsed > self.configs.max_execution_time {
                 return Err(LoopDetectedError {
                     agent_id: agent_id.to_string(),
                     operation_type: "execution".to_string(),
                     repetitions: 0,
                     message: format!(
                         "Agent {} execution time exceeded limit: {:?} > {:?}",
-                        agent_id, elapsed, self.config.max_execution_time
+                        agent_id, elapsed, self.configs.max_execution_time
                     ),
                 });
             }
@@ -147,7 +147,7 @@ impl LoopDetector {
 
 impl Default for LoopDetector {
     fn default() -> Self {
-        Self::new(LoopDetectionConfig::default())
+        Self::new(LoopDetectionconfigs::default())
     }
 }
 

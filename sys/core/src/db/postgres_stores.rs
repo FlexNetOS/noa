@@ -11,7 +11,7 @@
 //!
 //! # Vector Storage
 //!
-//! Uses RuVector extension for similarity search with configurable dimensions.
+//! Uses RuVector extension for similarity search with configsurable dimensions.
 
 use std::sync::Arc;
 
@@ -407,7 +407,7 @@ impl ModelStore for PgModelStore {
                 parameters: None,
                 context_length: None,
                 license: None,
-                config: metadata.unwrap_or(serde_json::json!({})),
+                configs: metadata.unwrap_or(serde_json::json!({})),
                 status: ModelStatus::Available,
                 metrics: None,
             }
@@ -458,7 +458,7 @@ impl ModelStore for PgModelStore {
                 parameters: None,
                 context_length: None,
                 license: None,
-                config: metadata.unwrap_or(serde_json::json!({})),
+                configs: metadata.unwrap_or(serde_json::json!({})),
                 status: ModelStatus::Available,
                 metrics: None,
             }
@@ -509,7 +509,7 @@ impl ModelStore for PgModelStore {
                 parameters: None,
                 context_length: None,
                 license: None,
-                config: metadata.unwrap_or(serde_json::json!({})),
+                configs: metadata.unwrap_or(serde_json::json!({})),
                 status: ModelStatus::Available,
                 metrics: None,
             }
@@ -527,7 +527,7 @@ impl ModelStore for PgModelStore {
         .bind(&model.name)
         .bind(&model.provider)
         .bind(model.model_type.as_str())
-        .bind(&model.config)
+        .bind(&model.configs)
         .execute(&self.pool)
         .await
         .map_err(|e| NoaError::Database(DatabaseError::QueryFailed {
@@ -1136,7 +1136,7 @@ impl AuditLogStore for PgAuditLogStore {
 
 /// PostgreSQL-based vector store using RuVector.
 ///
-/// Supports configurable vector dimensions and uses parameterized queries
+/// Supports configsurable vector dimensions and uses parameterized queries
 /// for safety against SQL injection attacks.
 pub struct PgVectorStore {
     pool: PgPool,
@@ -1393,7 +1393,7 @@ impl DatabaseHealth for PgHealth {
 /// The complete PostgreSQL database backend.
 ///
 /// Provides a unified interface to all PostgreSQL-based stores.
-/// Supports configurable vector dimensions for embedding storage.
+/// Supports configsurable vector dimensions for embedding storage.
 pub struct PgBackend {
     pool: PgPool,
     memories: Arc<PgMemoryStore>,

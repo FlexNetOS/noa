@@ -8,8 +8,8 @@ pub type Result<T> = std::result::Result<T, NoaError>;
 /// Main error type for NOA
 #[derive(Error, Debug)]
 pub enum NoaError {
-    #[error("Configuration error: {0}")]
-    Config(String),
+    #[error("configsuration error: {0}")]
+    configs(String),
 
     #[error("Database error: {0}")]
     Database(String),
@@ -52,9 +52,9 @@ pub enum NoaError {
 }
 
 impl NoaError {
-    /// Create a new configuration error
-    pub fn config(msg: impl Into<String>) -> Self {
-        Self::Config(msg.into())
+    /// Create a new configsuration error
+    pub fn configs(msg: impl Into<String>) -> Self {
+        Self::configs(msg.into())
     }
 
     /// Create a new database error

@@ -10,9 +10,9 @@
 
 use crate::error::Result;
 
-/// Telemetry configuration
+/// Telemetry configsuration
 #[derive(Debug, Clone)]
-pub struct TelemetryConfig {
+pub struct Telemetryconfigs {
     /// Service name for traces
     pub service_name: String,
 
@@ -35,7 +35,7 @@ pub struct TelemetryConfig {
     pub export_timeout_ms: u64,
 }
 
-impl Default for TelemetryConfig {
+impl Default for Telemetryconfigs {
     fn default() -> Self {
         Self {
             service_name: "noa-core".to_string(),
@@ -51,17 +51,17 @@ impl Default for TelemetryConfig {
 }
 
 /// Initialize OpenTelemetry with OTLP export (stub - uses tracing only)
-pub fn init_telemetry(config: &TelemetryConfig) -> Result<()> {
-    if !config.tracing_enabled {
+pub fn init_telemetry(configs: &Telemetryconfigs) -> Result<()> {
+    if !configs.tracing_enabled {
         tracing::info!("OpenTelemetry tracing disabled");
         return Ok(());
     }
 
     // TODO: Initialize OpenTelemetry when dependencies are added
     tracing::info!(
-        service_name = %config.service_name,
-        service_version = %config.service_version,
-        otlp_endpoint = %config.otlp_endpoint,
+        service_name = %configs.service_name,
+        service_version = %configs.service_version,
+        otlp_endpoint = %configs.otlp_endpoint,
         "Telemetry initialized (tracing only)"
     );
 

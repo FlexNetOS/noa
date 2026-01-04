@@ -1,6 +1,6 @@
 //! Auto-Fix Executor
 //!
-//! T615: Implement auto-fix executor (restart, reconfig, rollback, redistribute)
+//! T615: Implement auto-fix executor (restart, reconfigs, rollback, redistribute)
 //! FR-074: System MUST automatically apply fixes based on root cause analysis
 //! §3.4: Adaptive & Self-Improving
 
@@ -14,7 +14,7 @@ use tracing::info;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FixType {
     Restart,
-    Reconfigure,
+    Reconfigsure,
     Rollback,
     Redistribute,
     ClearCache,
@@ -95,8 +95,8 @@ impl AutoFixExecutor {
 
         if root_cause_lower.contains("resource") || root_cause_lower.contains("exhaustion") {
             "restart".to_string()
-        } else if root_cause_lower.contains("config") || root_cause_lower.contains("configuration") {
-            "reconfigure".to_string()
+        } else if root_cause_lower.contains("configs") || root_cause_lower.contains("configsuration") {
+            "reconfigsure".to_string()
         } else if root_cause_lower.contains("dependency") || root_cause_lower.contains("service") {
             "redistribute".to_string()
         } else if root_cause_lower.contains("database") {
@@ -116,10 +116,10 @@ impl AutoFixExecutor {
             Box::new(RestartFixHandler),
         );
 
-        // Reconfigure handler
+        // Reconfigsure handler
         self.fix_handlers.insert(
-            "reconfigure".to_string(),
-            Box::new(ReconfigureFixHandler),
+            "reconfigsure".to_string(),
+            Box::new(ReconfigsureFixHandler),
         );
 
         // Rollback handler
@@ -192,26 +192,26 @@ impl FixHandler for RestartFixHandler {
     }
 }
 
-/// Reconfigure fix handler
-struct ReconfigureFixHandler;
+/// Reconfigsure fix handler
+struct ReconfigsureFixHandler;
 
 #[async_trait::async_trait]
-impl FixHandler for ReconfigureFixHandler {
+impl FixHandler for ReconfigsureFixHandler {
     async fn execute(&self, component_id: &str, _context: &FixContext) -> Result<FixResult> {
         let start = std::time::Instant::now();
 
-        info!(component_id = %component_id, "Reconfiguring component");
+        info!(component_id = %component_id, "Reconfigsuring component");
 
-        // TODO: Implement actual reconfiguration logic
+        // TODO: Implement actual reconfigsuration logic
         tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
         Ok(FixResult {
-            fix_type: "reconfigure".to_string(),
+            fix_type: "reconfigsure".to_string(),
             component_id: component_id.to_string(),
             success: true,
-            message: format!("Component {} reconfigured", component_id),
+            message: format!("Component {} reconfigsured", component_id),
             duration_ms,
             metadata: HashMap::new(),
         })

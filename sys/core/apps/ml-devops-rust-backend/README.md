@@ -84,13 +84,13 @@ rust_backend/
 │   │   └── types.rs        # API types (OpenAI-compatible)
 │   └── Cargo.toml          # Dependencies
 ├── .cargo/
-│   └── config.toml         # Cross-compilation config
-├── Cargo.toml              # Workspace config
+│   └── configs.toml         # Cross-compilation configs
+├── Cargo.toml              # Workspace configs
 ├── build.sh                # Automated build script
 └── README.md               # This file
 ```
 
-## 🔧 Configuration
+## 🔧 configsuration
 
 ### Command-Line Options
 
@@ -222,7 +222,7 @@ Currently using mock implementation. To integrate RuvLLM:
    ```
 3. Replace mock in `models.rs` with real inference:
    ```rust
-   use ruvllm::{Model, Config};
+   use ruvllm::{Model, configs};
    
    pub async fn load_model() -> Result<Model> {
        Model::from_pretrained("Qwen/Qwen2.5-7B-Instruct")

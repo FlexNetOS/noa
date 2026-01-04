@@ -21,9 +21,9 @@ use tokenizers::Tokenizer;
 use crate::types::*;
 use crate::moe::{MoeRouter, QueryClassifier, Specialization};
 
-/// Model configuration
+/// Model configsuration
 #[derive(Clone)]
-pub struct ModelConfig {
+pub struct Modelconfigs {
     pub model_id: String,
     pub model_file: String,
     pub tokenizer_file: String,
@@ -34,7 +34,7 @@ pub struct ModelConfig {
     pub seed: u64,
 }
 
-impl Default for ModelConfig {
+impl Default for Modelconfigs {
     fn default() -> Self {
         Self {
             // Qwen3-1.7B: 4x faster, 32K context, better reasoning
@@ -53,7 +53,7 @@ impl Default for ModelConfig {
 
 /// Model state management with full Candle support
 pub struct ModelManager {
-    config: Arc<RwLock<ModelConfig>>,
+    configs: Arc<RwLock<Modelconfigs>>,
     device: Device,
     model_loaded: Arc<RwLock<bool>>,
     model_name: Arc<RwLock<String>>,
@@ -76,7 +76,7 @@ impl ModelManager {
         tracing::info!("🧠 MOE Router initialized with {} experts", 4);
         
         Self {
-            config: Arc::new(RwLock::new(ModelConfig::default())),
+            configs: Arc::new(RwLock::new(Modelconfigs::default())),
             device,
             model_loaded: Arc::new(RwLock::new(false)),
             model_name: Arc::new(RwLock::new("candle-ready".to_string())),
@@ -108,22 +108,22 @@ impl ModelManager {
             return self.load_local_gguf(&local_model_path).await;
         }
 
-        let config = self.config.read().await.clone();
+        let configs = self.configs.read().await.clone();
 
         // Attempt to download and load model from HuggingFace Hub
-        tracing::info!("📥 Downloading from HuggingFace: {}", config.model_id);
+        tracing::info!("📥 Downloading from HuggingFace: {}", configs.model_id);
 
         match Api::new() {
             Ok(api) => {
-                let repo = api.repo(Repo::new(config.model_id.clone(), RepoType::Model));
+                let repo = api.repo(Repo::new(configs.model_id.clone(), RepoType::Model));
 
                 // Try to download model weights
-                match repo.get(&config.model_file) {
+                match repo.get(&configs.model_file) {
                     Ok(model_path) => {
                         tracing::info!("✅ Model file cached: {:?}", model_path);
 
                         // Try to download tokenizer
-                        match repo.get(&config.tokenizer_file) {
+                        match repo.get(&configs.tokenizer_file) {
                             Ok(tokenizer_path) => {
                                 tracing::info!("✅ Tokenizer file cached: {:?}", tokenizer_path);
 
@@ -285,11 +285,11 @@ impl ModelManager {
     /// Get current model info
     pub async fn get_model_info(&self) -> Option<ModelInfo> {
         if self.is_model_loaded().await {
-            let config = self.config.read().await;
+            let configs = self.configs.read().await;
             let use_candle = *self.use_candle.read().await;
             
             let parameters = if use_candle {
-                format!("Candle + GGUF ({})", config.model_file)
+                format!("Candle + GGUF ({})", configs.model_file)
             } else {
                 "Candle-ready (intelligent fallback active)".to_string()
             };
@@ -348,11 +348,11 @@ impl ModelManager {
         tracing::info!("🔧 Starting inference with {} input tokens", token_ids.len());
 
         // Setup logits processor for sampling
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         let mut logits_processor = LogitsProcessor::new(
-            config.seed,
-            Some(config.temperature),
-            Some(config.top_p),
+            configs.seed,
+            Some(configs.temperature),
+            Some(configs.top_p),
         );
 
         let eos_token_id = tokenizer.token_to_id("<|im_end|>").unwrap_or(151643);
@@ -430,11 +430,11 @@ impl ModelManager {
         let token_ids: Vec<u32> = tokens.get_ids().to_vec();
         
         // Setup
-        let config = self.config.read().await;
+        let configs = self.configs.read().await;
         let mut logits_processor = LogitsProcessor::new(
-            config.seed,
-            Some(config.temperature),
-            Some(config.top_p),
+            configs.seed,
+            Some(configs.temperature),
+            Some(configs.top_p),
         );
         
         let eos_token_id = tokenizer.token_to_id("<|im_end|>").unwrap_or(151643);
@@ -593,7 +593,7 @@ impl ModelManager {
             let messages = request.messages.clone();
             let self_ref = self.model_weights.clone();
             let tokenizer_ref = self.tokenizer.clone();
-            let config = self.config.read().await.clone();
+            let configs = self.configs.read().await.clone();
             let device = self.device.clone();
             
             tokio::spawn(async move {

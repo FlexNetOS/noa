@@ -53,8 +53,8 @@ pub fn routes() -> Router {
 async fn get_system_info(Extension(state): Extension<AppState>) -> Result<Json<SystemInfo>, StatusCode> {
     info!("GET /api/v1/system/info");
 
-    let noa_root = state.config.noa_root.clone();
-    let db_path = noa_root.join(&state.config.database.path);
+    let noa_root = state.configs.noa_root.clone();
+    let db_path = noa_root.join(&state.configs.database.path);
 
     let directories = NoaPaths::all_directories(&noa_root)
         .iter()
@@ -76,8 +76,8 @@ async fn get_system_info(Extension(state): Extension<AppState>) -> Result<Json<S
 async fn get_system_health(Extension(state): Extension<AppState>) -> Result<Json<SystemHealth>, StatusCode> {
     info!("GET /api/v1/system/health");
 
-    let noa_root = state.config.noa_root.clone();
-    let db_path = noa_root.join(&state.config.database.path);
+    let noa_root = state.configs.noa_root.clone();
+    let db_path = noa_root.join(&state.configs.database.path);
 
     // Check database health
     let database = if db_path.exists() {

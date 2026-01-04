@@ -1,59 +1,59 @@
-//! Configuration Loader
+//! configsuration Loader
 //!
-//! Loads configuration from JSON and YAML files with validation.
+//! Loads configsuration from JSON and YAML files with validation.
 
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::config::merge_map::{MergeStrategy, CORE_MERGE_SPECS};
-use crate::error::{ConfigError, Result};
+use crate::configs::merge_map::{MergeStrategy, CORE_MERGE_SPECS};
+use crate::error::{configsError, Result};
 use super::{
-    expand_env_vars, DatabaseConfig, LogFormat, LoggingConfig,
-    NoaConfig, ProviderConfig, ProviderSettings,
+    expand_env_vars, Databaseconfigs, LogFormat, Loggingconfigs,
+    Noaconfigs, Providerconfigs, ProviderSettings,
 };
 
-/// Configuration loader for NOA
-pub struct ConfigLoader {
+/// configsuration loader for NOA
+pub struct configsLoader {
     noa_root: PathBuf,
 }
 
-impl ConfigLoader {
+impl configsLoader {
     pub fn new(noa_root: &Path) -> Self {
         Self {
             noa_root: noa_root.to_path_buf(),
         }
     }
 
-    /// Load configuration from standard locations
-    pub fn load(&self) -> Result<NoaConfig> {
-        // Try to load from noa-instance.yaml, then config/noa.yaml, then defaults
-        let config_paths = [
-            self.noa_root.join("config/noa-instance.yaml"),
-            self.noa_root.join("config/noa.yaml"),
-            self.noa_root.join("config/noa.json"),
+    /// Load configsuration from standard locations
+    pub fn load(&self) -> Result<Noaconfigs> {
+        // Try to load from noa-instance.yaml, then configs/noa.yaml, then defaults
+        let configs_paths = [
+            self.noa_root.join("configs/noa-instance.yaml"),
+            self.noa_root.join("configs/noa.yaml"),
+            self.noa_root.join("configs/noa.json"),
         ];
 
         let mut raw = serde_json::Value::Object(serde_json::Map::new());
 
-        for path in &config_paths {
+        for path in &configs_paths {
             if path.exists() {
                 raw = self.load_file(path)?;
                 break;
             }
         }
 
-        // Load additional configuration files and merge
+        // Load additional configsuration files and merge
         self.merge_from_map(&mut raw)?;
 
-        // Build the configuration
-        self.build_config(raw)
+        // Build the configsuration
+        self.build_configs(raw)
     }
 
-    /// Load a single configuration file
+    /// Load a single configsuration file
     fn load_file(&self, path: &Path) -> Result<serde_json::Value> {
         let content = fs::read_to_string(path).map_err(|_| {
-            ConfigError::FileNotFound(path.display().to_string())
+            configsError::FileNotFound(path.display().to_string())
         })?;
 
         let expanded = expand_env_vars(&content);
@@ -63,7 +63,7 @@ impl ConfigLoader {
         match extension {
             "yaml" | "yml" => {
                 serde_yaml::from_str(&expanded).map_err(|e| {
-                    ConfigError::ParseError {
+                    configsError::ParseError {
                         path: path.display().to_string(),
                         error: e.to_string(),
                     }.into()
@@ -71,13 +71,13 @@ impl ConfigLoader {
             }
             "json" => {
                 serde_json::from_str(&expanded).map_err(|e| {
-                    ConfigError::ParseError {
+                    configsError::ParseError {
                         path: path.display().to_string(),
                         error: e.to_string(),
                     }.into()
                 })
             }
-            _ => Err(ConfigError::ParseError {
+            _ => Err(configsError::ParseError {
                 path: path.display().to_string(),
                 error: "Unsupported file format".to_string(),
             }.into()),
@@ -106,8 +106,8 @@ impl ConfigLoader {
         Ok(())
     }
 
-    /// Build NoaConfig from raw JSON
-    fn build_config(&self, raw: serde_json::Value) -> Result<NoaConfig> {
+    /// Build Noaconfigs from raw JSON
+    fn build_configs(&self, raw: serde_json::Value) -> Result<Noaconfigs> {
         let instance_name = raw
             .get("instance")
             .and_then(|v| v.get("name"))
@@ -123,12 +123,12 @@ impl ConfigLoader {
             .parse()
             .unwrap_or_default();
 
-        let database = self.build_database_config(&raw)?;
-        let logging = self.build_logging_config(&raw)?;
-        let providers = self.build_provider_config(&raw)?;
+        let database = self.build_database_configs(&raw)?;
+        let logging = self.build_logging_configs(&raw)?;
+        let providers = self.build_provider_configs(&raw)?;
         let feature_flags = self.build_feature_flags(&raw)?;
 
-        Ok(NoaConfig {
+        Ok(Noaconfigs {
             noa_root: self.noa_root.clone(),
             instance_name,
             environment,
@@ -140,7 +140,7 @@ impl ConfigLoader {
         })
     }
 
-    fn build_database_config(&self, raw: &serde_json::Value) -> Result<DatabaseConfig> {
+    fn build_database_configs(&self, raw: &serde_json::Value) -> Result<Databaseconfigs> {
         let db = raw.get("database");
 
         let driver = db
@@ -160,7 +160,7 @@ impl ConfigLoader {
             .map(|s| s.trim().to_string())
             .filter(|s| !s.is_empty());
 
-        // Allow URL to come purely from environment if not present in config.
+        // Allow URL to come purely from environment if not present in configs.
         // This is especially common for local/dev PostgreSQL setups.
         if url.is_none() {
             url = std::env::var("DATABASE_URL")
@@ -197,7 +197,7 @@ impl ConfigLoader {
             }
         }
 
-        Ok(DatabaseConfig {
+        Ok(Databaseconfigs {
             driver,
             url,
             path,
@@ -206,7 +206,7 @@ impl ConfigLoader {
         })
     }
 
-    fn build_logging_config(&self, raw: &serde_json::Value) -> Result<LoggingConfig> {
+    fn build_logging_configs(&self, raw: &serde_json::Value) -> Result<Loggingconfigs> {
         let log = raw.get("logging");
 
         let level = log
@@ -251,7 +251,7 @@ impl ConfigLoader {
             .and_then(|v| v.as_u64())
             .unwrap_or(10) as u32;
 
-        Ok(LoggingConfig {
+        Ok(Loggingconfigs {
             level,
             format,
             output,
@@ -261,7 +261,7 @@ impl ConfigLoader {
         })
     }
 
-    fn build_provider_config(&self, raw: &serde_json::Value) -> Result<ProviderConfig> {
+    fn build_provider_configs(&self, raw: &serde_json::Value) -> Result<Providerconfigs> {
         let prov = raw.get("providers");
 
         let priority = prov
@@ -286,11 +286,11 @@ impl ConfigLoader {
                     .and_then(|v| v.as_str())
                     .unwrap_or("unknown")
                     .to_string();
-                let config_path_str = settings
-                    .get("configPath")
+                let configs_path_str = settings
+                    .get("configsPath")
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                let config_path = PathBuf::from(expand_env_vars(config_path_str));
+                let configs_path = PathBuf::from(expand_env_vars(configs_path_str));
 
                 providers.insert(
                     name.clone(),
@@ -298,13 +298,13 @@ impl ConfigLoader {
                         enabled,
                         priority: priority_val,
                         provider_type,
-                        config_path,
+                        configs_path,
                     },
                 );
             }
         }
 
-        Ok(ProviderConfig { priority, providers })
+        Ok(Providerconfigs { priority, providers })
     }
 
     fn build_feature_flags(&self, raw: &serde_json::Value) -> Result<HashMap<String, bool>> {

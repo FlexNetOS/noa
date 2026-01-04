@@ -32,7 +32,7 @@ pub use multi_gpu::{MultiGpuDistributor, DistributionStrategy};
 pub use tensor_parallel::{TensorParallelManager, ShardDimension};
 pub use nvlink::NvLinkDetector;
 pub use gpu_pool::{GpuMemoryPool, MemoryAllocation};
-pub use cuda_tiles::{CudaTilesManager, CudaTilesConfig};
+pub use cuda_tiles::{CudaTilesManager, CudaTilesconfigs};
 pub use gpu_scheduler::{GpuScheduler, LoadBalanceStrategy};
 pub use gpu_health::{GpuHealthMonitor, GpuHealthStatus};
 

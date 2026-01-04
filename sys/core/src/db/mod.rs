@@ -27,10 +27,10 @@ pub mod vector_search;
 pub mod repositories;
 pub mod sqlite_stores;
 
-pub use pool::{ConnectionPool, PoolConfig, PooledConnection, PoolStatus};
+pub use pool::{ConnectionPool, Poolconfigs, PooledConnection, PoolStatus};
 pub use repository::{Repository, RepositoryError, PaginatedResult, Filter, Condition, Operator, Value, Direction};
 pub use migrations::{MigrationRunner, Migration};
-pub use vector_search::{VectorSearch, VectorSearchConfig, VectorSearchResult as LegacyVectorSearchResult};
+pub use vector_search::{VectorSearch, VectorSearchconfigs, VectorSearchResult as LegacyVectorSearchResult};
 pub use repositories::{EmbeddingRepository, MemoryRepository};
 
 // Backend abstraction exports
@@ -69,14 +69,14 @@ pub fn init_database(path: &Path) -> Result<Connection> {
         crate::error::DatabaseError::ConnectionFailed(e.to_string())
     })?;
 
-    // Configure SQLite for optimal NOA operation
-    configure_connection(&conn)?;
+    // configsure SQLite for optimal NOA operation
+    configsure_connection(&conn)?;
 
     Ok(conn)
 }
 
-/// Configure a SQLite connection with optimal settings
-fn configure_connection(conn: &rusqlite::Connection) -> Result<()> {
+/// configsure a SQLite connection with optimal settings
+fn configsure_connection(conn: &rusqlite::Connection) -> Result<()> {
     conn.execute_batch(
         r#"
         PRAGMA journal_mode = WAL;
@@ -90,7 +90,7 @@ fn configure_connection(conn: &rusqlite::Connection) -> Result<()> {
         "#,
     ).map_err(|e| {
         crate::error::DatabaseError::QueryFailed {
-            query: "PRAGMA configuration".to_string(),
+            query: "PRAGMA configsuration".to_string(),
             error: e.to_string(),
         }
     })?;

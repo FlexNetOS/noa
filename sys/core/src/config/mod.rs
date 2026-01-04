@@ -1,13 +1,13 @@
-//! NOA Configuration Module
+//! NOA configsuration Module
 //!
-//! Provides configuration loading from JSON/YAML files with environment variable expansion.
-//! §3.2: Configuration management
+//! Provides configsuration loading from JSON/YAML files with environment variable expansion.
+//! §3.2: configsuration management
 //! FR-001: Self-contained operation within noa_root
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::error::{ConfigError, NoaError, Result};
+use crate::error::{configsError, NoaError, Result};
 
 mod loader;
 mod validator;
@@ -18,12 +18,12 @@ pub mod access;
 pub mod watch;
 pub mod merge_map;
 
-pub use loader::ConfigLoader;
-pub use validator::ConfigValidator;
+pub use loader::configsLoader;
+pub use validator::configsValidator;
 
-/// Core NOA configuration
+/// Core NOA configsuration
 #[derive(Debug, Clone)]
-pub struct NoaConfig {
+pub struct Noaconfigs {
     /// Root directory for NOA installation
     pub noa_root: PathBuf,
 
@@ -33,19 +33,19 @@ pub struct NoaConfig {
     /// Environment (development, staging, production)
     pub environment: Environment,
 
-    /// Database configuration
-    pub database: DatabaseConfig,
+    /// Database configsuration
+    pub database: Databaseconfigs,
 
-    /// Logging configuration
-    pub logging: LoggingConfig,
+    /// Logging configsuration
+    pub logging: Loggingconfigs,
 
-    /// Provider configuration
-    pub providers: ProviderConfig,
+    /// Provider configsuration
+    pub providers: Providerconfigs,
 
     /// Feature flags
     pub feature_flags: HashMap<String, bool>,
 
-    /// Raw configuration values for extension
+    /// Raw configsuration values for extension
     pub raw: serde_json::Value,
 }
 
@@ -57,14 +57,14 @@ pub enum Environment {
 }
 
 impl std::str::FromStr for Environment {
-    type Err = ConfigError;
+    type Err = configsError;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "development" | "dev" => Ok(Environment::Development),
             "staging" | "stage" => Ok(Environment::Staging),
             "production" | "prod" => Ok(Environment::Production),
-            _ => Err(ConfigError::InvalidValue {
+            _ => Err(configsError::InvalidValue {
                 field: "environment".to_string(),
                 value: s.to_string(),
                 expected: "development, staging, or production".to_string(),
@@ -80,7 +80,7 @@ impl Default for Environment {
 }
 
 #[derive(Debug, Clone)]
-pub struct DatabaseConfig {
+pub struct Databaseconfigs {
     pub driver: String,
     /// Connection URL (used for PostgreSQL; optional for SQLite)
     pub url: Option<String>,
@@ -89,7 +89,7 @@ pub struct DatabaseConfig {
     pub settings: HashMap<String, String>,
 }
 
-impl Default for DatabaseConfig {
+impl Default for Databaseconfigs {
     fn default() -> Self {
         Self {
             driver: "sqlite".to_string(),
@@ -102,7 +102,7 @@ impl Default for DatabaseConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct LoggingConfig {
+pub struct Loggingconfigs {
     pub level: LogLevel,
     pub format: LogFormat,
     pub output: PathBuf,
@@ -127,7 +127,7 @@ impl Default for LogLevel {
 }
 
 impl std::str::FromStr for LogLevel {
-    type Err = ConfigError;
+    type Err = configsError;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -136,7 +136,7 @@ impl std::str::FromStr for LogLevel {
             "info" => Ok(LogLevel::Info),
             "warn" | "warning" => Ok(LogLevel::Warn),
             "error" => Ok(LogLevel::Error),
-            _ => Err(ConfigError::InvalidValue {
+            _ => Err(configsError::InvalidValue {
                 field: "log_level".to_string(),
                 value: s.to_string(),
                 expected: "trace, debug, info, warn, or error".to_string(),
@@ -158,7 +158,7 @@ impl Default for LogFormat {
     }
 }
 
-impl Default for LoggingConfig {
+impl Default for Loggingconfigs {
     fn default() -> Self {
         Self {
             level: LogLevel::default(),
@@ -172,12 +172,12 @@ impl Default for LoggingConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct ProviderConfig {
+pub struct Providerconfigs {
     pub priority: Vec<String>,
     pub providers: HashMap<String, ProviderSettings>,
 }
 
-impl Default for ProviderConfig {
+impl Default for Providerconfigs {
     fn default() -> Self {
         Self {
             priority: vec!["local".to_string(), "hybrid".to_string(), "cloud".to_string()],
@@ -191,19 +191,19 @@ pub struct ProviderSettings {
     pub enabled: bool,
     pub priority: u32,
     pub provider_type: String,
-    pub config_path: PathBuf,
+    pub configs_path: PathBuf,
 }
 
-impl NoaConfig {
-    /// Load configuration from the default locations
+impl Noaconfigs {
+    /// Load configsuration from the default locations
     pub fn load() -> Result<Self> {
         let noa_root = Self::detect_noa_root()?;
         Self::load_from_root(&noa_root)
     }
 
-    /// Load configuration from a specific NOA root
+    /// Load configsuration from a specific NOA root
     pub fn load_from_root(noa_root: &Path) -> Result<Self> {
-        let loader = ConfigLoader::new(noa_root);
+        let loader = configsLoader::new(noa_root);
         loader.load()
     }
 
@@ -236,12 +236,12 @@ impl NoaConfig {
             }
         }
 
-        Err(ConfigError::MissingRequired(
+        Err(configsError::MissingRequired(
             "NOA_ROOT environment variable or .noa-env marker file".to_string(),
         ).into())
     }
 
-    /// Get a configuration value by path (dot-separated)
+    /// Get a configsuration value by path (dot-separated)
     pub fn get(&self, path: &str) -> Option<&serde_json::Value> {
         let parts: Vec<&str> = path.split('.').collect();
         let mut current = &self.raw;

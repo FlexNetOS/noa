@@ -15,9 +15,9 @@ use axum::{
     Json,
 };
 
-/// Authentication configuration.
+/// Authentication configsuration.
 #[derive(Debug, Clone)]
-pub struct AuthConfig {
+pub struct Authconfigs {
     /// Whether authentication is enabled.
     pub enabled: bool,
     /// Whether to allow unauthenticated requests to health endpoints.
@@ -28,7 +28,7 @@ pub struct AuthConfig {
     pub api_keys: Vec<ApiKeyEntry>,
 }
 
-impl Default for AuthConfig {
+impl Default for Authconfigs {
     fn default() -> Self {
         Self {
             enabled: false, // Disabled by default for development
@@ -39,8 +39,8 @@ impl Default for AuthConfig {
     }
 }
 
-impl AuthConfig {
-    /// Create config for production with required JWT secret.
+impl Authconfigs {
+    /// Create configs for production with required JWT secret.
     pub fn production(jwt_secret: String) -> Self {
         Self {
             enabled: true,
@@ -117,21 +117,21 @@ pub enum AuthMethod {
 
 /// Authentication state for the application.
 pub struct AuthState {
-    config: AuthConfig,
+    configs: Authconfigs,
 }
 
 impl AuthState {
-    pub fn new(config: AuthConfig) -> Self {
-        Self { config }
+    pub fn new(configs: Authconfigs) -> Self {
+        Self { configs }
     }
 
-    pub fn config(&self) -> &AuthConfig {
-        &self.config
+    pub fn configs(&self) -> &Authconfigs {
+        &self.configs
     }
 
     /// Validate an API key and return identity if valid.
     pub fn validate_api_key(&self, key: &str) -> Option<AuthIdentity> {
-        self.config
+        self.configs
             .api_keys
             .iter()
             .find(|k| k.active && k.key == key)
@@ -144,7 +144,7 @@ impl AuthState {
 
     /// Validate a JWT token and return identity if valid.
     pub fn validate_jwt(&self, token: &str) -> Option<AuthIdentity> {
-        let secret = self.config.jwt_secret.as_ref()?;
+        let secret = self.configs.jwt_secret.as_ref()?;
 
         // Simple JWT validation (in production, use a proper JWT library)
         // For now, we'll do basic HMAC-SHA256 validation
@@ -331,15 +331,15 @@ pub async fn auth_middleware(
     next: Next,
 ) -> Response {
     // Skip auth if disabled
-    if !auth.config().enabled {
+    if !auth.configs().enabled {
         return next.run(req).await;
     }
 
     let path = req.uri().path();
     let headers = req.headers().clone();
 
-    // Allow unauthenticated access to health endpoints if configured
-    if auth.config().allow_health_unauthenticated && is_health_path(path) {
+    // Allow unauthenticated access to health endpoints if configsured
+    if auth.configs().allow_health_unauthenticated && is_health_path(path) {
         return next.run(req).await;
     }
 
@@ -408,11 +408,11 @@ mod tests {
 
     #[test]
     fn test_api_key_validation() {
-        let config = AuthConfig::default().with_api_key(
+        let configs = Authconfigs::default().with_api_key(
             ApiKeyEntry::new("test-key-123", "test-app")
                 .with_scopes(vec!["read".to_string(), "write".to_string()]),
         );
-        let auth = AuthState::new(config);
+        let auth = AuthState::new(configs);
 
         // Valid key
         let identity = auth.validate_api_key("test-key-123");

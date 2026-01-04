@@ -19,9 +19,9 @@ pub enum CircuitState {
     HalfOpen,
 }
 
-/// Circuit breaker configuration
+/// Circuit breaker configsuration
 #[derive(Debug, Clone)]
-pub struct CircuitBreakerConfig {
+pub struct CircuitBreakerconfigs {
     /// Number of failures before opening circuit
     pub failure_threshold: usize,
     /// Timeout before attempting half-open
@@ -30,7 +30,7 @@ pub struct CircuitBreakerConfig {
     pub success_threshold: usize,
 }
 
-impl Default for CircuitBreakerConfig {
+impl Default for CircuitBreakerconfigs {
     fn default() -> Self {
         Self {
             failure_threshold: 5,
@@ -62,15 +62,15 @@ impl Default for AgentCircuitState {
 
 /// Circuit breaker for managing agent timeouts and failures
 pub struct CircuitBreaker {
-    config: CircuitBreakerConfig,
+    configs: CircuitBreakerconfigs,
     states: Arc<Mutex<HashMap<String, AgentCircuitState>>>,
 }
 
 impl CircuitBreaker {
     /// Create a new circuit breaker
-    pub fn new(config: CircuitBreakerConfig) -> Self {
+    pub fn new(configs: CircuitBreakerconfigs) -> Self {
         Self {
-            config,
+            configs,
             states: Arc::new(Mutex::new(HashMap::new())),
         }
     }
@@ -84,7 +84,7 @@ impl CircuitBreaker {
             CircuitState::Closed => false,
             CircuitState::Open => {
                 // Check if recovery timeout has passed
-                if state.last_state_change.elapsed() >= self.config.recovery_timeout {
+                if state.last_state_change.elapsed() >= self.configs.recovery_timeout {
                     // Transition to half-open
                     state.state = CircuitState::HalfOpen;
                     state.success_count = 0;
@@ -110,7 +110,7 @@ impl CircuitBreaker {
             }
             CircuitState::HalfOpen => {
                 state.success_count += 1;
-                if state.success_count >= self.config.success_threshold {
+                if state.success_count >= self.configs.success_threshold {
                     // Close the circuit
                     state.state = CircuitState::Closed;
                     state.failure_count = 0;
@@ -132,7 +132,7 @@ impl CircuitBreaker {
         match state.state {
             CircuitState::Closed | CircuitState::HalfOpen => {
                 state.failure_count += 1;
-                if state.failure_count >= self.config.failure_threshold {
+                if state.failure_count >= self.configs.failure_threshold {
                     // Open the circuit
                     state.state = CircuitState::Open;
                     state.last_state_change = Instant::now();
@@ -157,7 +157,7 @@ impl CircuitBreaker {
 
 impl Default for CircuitBreaker {
     fn default() -> Self {
-        Self::new(CircuitBreakerConfig::default())
+        Self::new(CircuitBreakerconfigs::default())
     }
 }
 

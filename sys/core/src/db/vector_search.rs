@@ -16,9 +16,9 @@ pub struct VectorSearchResult {
     pub score: f32, // 1.0 - distance (for cosine similarity)
 }
 
-/// Vector search configuration
+/// Vector search configsuration
 #[derive(Debug, Clone)]
-pub struct VectorSearchConfig {
+pub struct VectorSearchconfigs {
     pub model: String,
     pub dimensions: u32,
     pub distance_metric: String, // 'cosine', 'euclidean', 'dot'
@@ -27,7 +27,7 @@ pub struct VectorSearchConfig {
     pub m: u32,
 }
 
-impl Default for VectorSearchConfig {
+impl Default for VectorSearchconfigs {
     fn default() -> Self {
         Self {
             model: "all-MiniLM-L6-v2".to_string(),
@@ -43,21 +43,21 @@ impl Default for VectorSearchConfig {
 /// Vector search integration for sqlite-vss
 pub struct VectorSearch<'a> {
     conn: &'a Connection,
-    config: VectorSearchConfig,
+    configs: VectorSearchconfigs,
 }
 
 impl<'a> VectorSearch<'a> {
     /// Create a new vector search instance
     pub fn new(conn: &'a Connection) -> Result<Self> {
-        let config = Self::load_config(conn)?;
-        Ok(Self { conn, config })
+        let configs = Self::load_configs(conn)?;
+        Ok(Self { conn, configs })
     }
 
-    /// Load vector search configuration from database
-    fn load_config(conn: &Connection) -> Result<VectorSearchConfig> {
+    /// Load vector search configsuration from database
+    fn load_configs(conn: &Connection) -> Result<VectorSearchconfigs> {
         let model: String = conn
             .query_row(
-                "SELECT value FROM vss_config WHERE key = 'model'",
+                "SELECT value FROM vss_configs WHERE key = 'model'",
                 [],
                 |row| row.get(0),
             )
@@ -65,7 +65,7 @@ impl<'a> VectorSearch<'a> {
 
         let dimensions: u32 = conn
             .query_row(
-                "SELECT value FROM vss_config WHERE key = 'dimensions'",
+                "SELECT value FROM vss_configs WHERE key = 'dimensions'",
                 [],
                 |row| {
                     let s: String = row.get(0)?;
@@ -82,13 +82,13 @@ impl<'a> VectorSearch<'a> {
 
         let distance_metric: String = conn
             .query_row(
-                "SELECT value FROM vss_config WHERE key = 'distance_metric'",
+                "SELECT value FROM vss_configs WHERE key = 'distance_metric'",
                 [],
                 |row| row.get(0),
             )
             .unwrap_or_else(|_| "cosine".to_string());
 
-        Ok(VectorSearchConfig {
+        Ok(VectorSearchconfigs {
             model,
             dimensions,
             distance_metric,
@@ -110,12 +110,12 @@ impl<'a> VectorSearch<'a> {
         limit: u32,
         threshold: f32,
     ) -> Result<Vec<VectorSearchResult>> {
-        if query_vector.len() != self.config.dimensions as usize {
+        if query_vector.len() != self.configs.dimensions as usize {
             return Err(NoaError::Validation(crate::error::ValidationError::new(
                 "query_vector",
                 format!(
                     "Vector dimension mismatch: expected {}, got {}",
-                    self.config.dimensions,
+                    self.configs.dimensions,
                     query_vector.len()
                 ),
                 "DIMENSION_MISMATCH",
@@ -193,9 +193,9 @@ impl<'a> VectorSearch<'a> {
         Ok(results)
     }
 
-    /// Get configuration
-    pub fn config(&self) -> &VectorSearchConfig {
-        &self.config
+    /// Get configsuration
+    pub fn configs(&self) -> &VectorSearchconfigs {
+        &self.configs
     }
 }
 

@@ -7,8 +7,8 @@ use std::time::Duration;
 use clap::Args;
 use tracing::info;
 
-use crate::api::server::ApiConfig;
-use crate::config::NoaConfig;
+use crate::api::server::Apiconfigs;
+use crate::configs::Noaconfigs;
 use crate::db;
 use crate::error::Result;
 
@@ -28,8 +28,8 @@ pub struct StatusArgs {
 pub async fn execute(args: StatusArgs) -> Result<()> {
     info!(detailed = args.detailed, "Checking NOA status");
 
-    // Load configuration
-    let config = match NoaConfig::load() {
+    // Load configsuration
+    let configs = match Noaconfigs::load() {
         Ok(c) => c,
         Err(e) => {
             println!("NOA Status: NOT INITIALIZED");
@@ -40,9 +40,9 @@ pub async fn execute(args: StatusArgs) -> Result<()> {
     };
 
     if args.format == "json" {
-        print_json_status(&config, args.detailed).await?;
+        print_json_status(&configs, args.detailed).await?;
     } else {
-        print_text_status(&config, args.detailed).await?;
+        print_text_status(&configs, args.detailed).await?;
     }
 
     Ok(())
@@ -57,8 +57,8 @@ struct ApiProbe {
     error: Option<String>,
 }
 
-async fn probe_api_server(config: &NoaConfig) -> ApiProbe {
-    let api_cfg = ApiConfig::from_noa_config(config);
+async fn probe_api_server(configs: &Noaconfigs) -> ApiProbe {
+    let api_cfg = Apiconfigs::from_noa_configs(configs);
     let base_url = format!("http://{}:{}", api_cfg.host, api_cfg.port);
     let url = format!("{}/health", base_url);
 
@@ -109,18 +109,18 @@ async fn probe_api_server(config: &NoaConfig) -> ApiProbe {
     }
 }
 
-async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
+async fn print_text_status(configs: &Noaconfigs, detailed: bool) -> Result<()> {
     println!("NOA Status");
     println!("==========");
     println!();
-    println!("Instance: {}", config.instance_name);
-    println!("Environment: {:?}", config.environment);
-    println!("NOA Root: {}", config.noa_root.display());
+    println!("Instance: {}", configs.instance_name);
+    println!("Environment: {:?}", configs.environment);
+    println!("NOA Root: {}", configs.noa_root.display());
     println!();
 
     // Check database
     println!("Components:");
-    if config.database.driver == "postgresql" {
+    if configs.database.driver == "postgresql" {
         #[cfg(not(feature = "full"))]
         {
             println!("  [!] Database: PostgreSQL requires --features full");
@@ -128,7 +128,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
 
         #[cfg(feature = "full")]
         {
-            let url = match config.database.url.as_deref() {
+            let url = match configs.database.url.as_deref() {
                 Some(u) => u,
                 None => {
                     println!("  [✗] Database: Missing database.url");
@@ -136,7 +136,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
                 }
             };
 
-            match crate::db::connect_postgres(url, config.database.max_connections).await {
+            match crate::db::connect_postgres(url, configs.database.max_connections).await {
                 Ok(pool) => match crate::db::check_postgres(&pool).await {
                     Ok(()) => println!("  [✓] Database (PostgreSQL): OK"),
                     Err(e) => println!("  [✗] Database (PostgreSQL): Error - {}", e),
@@ -145,7 +145,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
             }
         }
     } else {
-        let db_path = config.noa_root.join(&config.database.path);
+        let db_path = configs.noa_root.join(&configs.database.path);
         if db_path.exists() {
             match db::init_database(&db_path) {
                 Ok(conn) => match db::check_integrity(&conn) {
@@ -169,7 +169,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     }
 
     // Check API server
-    let api = probe_api_server(config).await;
+    let api = probe_api_server(configs).await;
     match api.status.as_str() {
         "ok" => {
             println!("  [✓] API Server: OK ({})", api.base_url);
@@ -201,7 +201,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     // Check providers
     println!();
     println!("AI Providers:");
-    for (name, settings) in &config.providers.providers {
+    for (name, settings) in &configs.providers.providers {
         let status = if settings.enabled { "enabled" } else { "disabled" };
         println!("  {} ({}): {}", name, settings.provider_type, status);
     }
@@ -209,7 +209,7 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     if detailed {
         println!();
         println!("Feature Flags:");
-        for (name, enabled) in &config.feature_flags {
+        for (name, enabled) in &configs.feature_flags {
             let status = if *enabled { "✓" } else { "✗" };
             println!("  [{}] {}", status, name);
         }
@@ -218,20 +218,20 @@ async fn print_text_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     Ok(())
 }
 
-async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
-    let api = probe_api_server(config).await;
+async fn print_json_status(configs: &Noaconfigs, detailed: bool) -> Result<()> {
+    let api = probe_api_server(configs).await;
 
-    let (db_status, db_ref) = if config.database.driver == "postgresql" {
+    let (db_status, db_ref) = if configs.database.driver == "postgresql" {
         #[cfg(not(feature = "full"))]
         {
-            ("requires_full", config.database.url.clone().unwrap_or_default())
+            ("requires_full", configs.database.url.clone().unwrap_or_default())
         }
 
         #[cfg(feature = "full")]
         {
-            let url = config.database.url.clone().unwrap_or_default();
+            let url = configs.database.url.clone().unwrap_or_default();
             let status = if !url.is_empty() {
-                match crate::db::connect_postgres(&url, config.database.max_connections).await {
+                match crate::db::connect_postgres(&url, configs.database.max_connections).await {
                     Ok(pool) => match crate::db::check_postgres(&pool).await {
                         Ok(()) => "ok",
                         Err(_) => "error",
@@ -244,7 +244,7 @@ async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
             (status, url)
         }
     } else {
-        let db_path = config.noa_root.join(&config.database.path);
+        let db_path = configs.noa_root.join(&configs.database.path);
         let status = if db_path.exists() {
             match db::init_database(&db_path) {
                 Ok(conn) => match db::check_integrity(&conn) {
@@ -259,8 +259,8 @@ async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
         (status, db_path.display().to_string())
     };
 
-    let db_details = if detailed && db_status == "ok" && config.database.driver != "postgresql" {
-        let db_path = config.noa_root.join(&config.database.path);
+    let db_details = if detailed && db_status == "ok" && configs.database.driver != "postgresql" {
+        let db_path = configs.noa_root.join(&configs.database.path);
         match db::init_database(&db_path)
             .and_then(|conn| db::get_stats(&conn).map(|s| (conn, s)))
         {
@@ -278,9 +278,9 @@ async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
     };
 
     let mut status = serde_json::json!({
-        "instance": config.instance_name,
-        "environment": format!("{:?}", config.environment),
-        "noa_root": config.noa_root.display().to_string(),
+        "instance": configs.instance_name,
+        "environment": format!("{:?}", configs.environment),
+        "noa_root": configs.noa_root.display().to_string(),
         "components": {
             "database": {
                 "status": db_status,
@@ -298,7 +298,7 @@ async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
                 "status": "unknown",
             }
         },
-        "providers": config.providers.providers.iter().map(|(name, settings)| {
+        "providers": configs.providers.providers.iter().map(|(name, settings)| {
             (name.clone(), serde_json::json!({
                 "type": settings.provider_type,
                 "enabled": settings.enabled,
@@ -311,7 +311,7 @@ async fn print_json_status(config: &NoaConfig, detailed: bool) -> Result<()> {
             obj.insert(
                 "feature_flags".to_string(),
                 serde_json::Value::Object(
-                    config
+                    configs
                         .feature_flags
                         .iter()
                         .map(|(k, v)| (k.clone(), serde_json::Value::Bool(*v)))

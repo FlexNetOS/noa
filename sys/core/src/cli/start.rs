@@ -5,8 +5,8 @@
 use clap::Args;
 use tracing::{info, error};
 
-use crate::api::server::{ApiConfig, ApiServerBuilder};
-use crate::config::NoaConfig;
+use crate::api::server::{Apiconfigs, ApiServerBuilder};
+use crate::configs::Noaconfigs;
 use crate::db::ConnectionPool;
 use crate::error::{NoaError, Result};
 use crate::init::paths::NoaPaths;
@@ -44,21 +44,21 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         "Starting NOA services"
     );
 
-    // Load configuration
-    let config = NoaConfig::load()?;
-    info!(instance = %config.instance_name, "Configuration loaded");
+    // Load configsuration
+    let configs = Noaconfigs::load()?;
+    info!(instance = %configs.instance_name, "configsuration loaded");
 
     // PostgreSQL path (server deployments)
-    if config.database.driver == "postgresql" {
+    if configs.database.driver == "postgresql" {
         #[cfg(feature = "full")]
         {
-            let url = config.database.url.as_deref().ok_or_else(|| NoaError::Internal {
+            let url = configs.database.url.as_deref().ok_or_else(|| NoaError::Internal {
                 message: "database.url is required when database.driver=postgresql".to_string(),
                 source: None,
             })?;
 
-            let migrations_dir = NoaPaths::init_migrations_pg(&config.noa_root);
-            let pool = crate::db::connect_postgres(url, config.database.max_connections).await?;
+            let migrations_dir = NoaPaths::init_migrations_pg(&configs.noa_root);
+            let pool = crate::db::connect_postgres(url, configs.database.max_connections).await?;
             crate::db::migrate_postgres(&pool, &migrations_dir).await?;
             crate::db::check_postgres(&pool).await?;
 
@@ -69,7 +69,7 @@ pub async fn execute(args: StartArgs) -> Result<()> {
 
             // Start API server if not disabled
             if !args.no_api {
-                let api_config = ApiConfig {
+                let api_configs = Apiconfigs {
                     host: args.host.clone(),
                     port: args.port,
                     timeout_secs: 30,
@@ -89,9 +89,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
                 println!("Starting NOA API server on {}:{} (PostgreSQL)", args.host, args.port);
 
                 let server = ApiServerBuilder::new()
-                    .with_config(api_config)
+                    .with_configs(api_configs)
                     .with_postgres_pool(pool)
-                    .with_noa_config(config)
+                    .with_noa_configs(configs)
                     .build()?;
 
                 if let Err(e) = server.start().await {
@@ -103,7 +103,7 @@ pub async fn execute(args: StartArgs) -> Result<()> {
             // Start agents if not disabled
             if !args.no_agents {
                 info!("Agent startup not yet implemented");
-                // TODO: Start configured agents
+                // TODO: Start configsured agents
             }
 
             info!("NOA services started successfully");
@@ -120,13 +120,13 @@ pub async fn execute(args: StartArgs) -> Result<()> {
     }
 
     // Initialize database pool
-    let db_path = config.noa_root.join(&config.database.path);
+    let db_path = configs.noa_root.join(&configs.database.path);
     let db_pool = ConnectionPool::with_defaults(&db_path)?;
     info!("Database pool initialized");
 
     // Start API server if not disabled
     if !args.no_api {
-        let api_config = ApiConfig {
+        let api_configs = Apiconfigs {
             host: args.host.clone(),
             port: args.port,
             timeout_secs: 30,
@@ -146,9 +146,9 @@ pub async fn execute(args: StartArgs) -> Result<()> {
         println!("Starting NOA API server on {}:{}", args.host, args.port);
 
         let server = ApiServerBuilder::new()
-            .with_config(api_config)
+            .with_configs(api_configs)
             .with_database(db_pool)
-            .with_noa_config(config)
+            .with_noa_configs(configs)
             .build()?;
 
         // Start server
@@ -161,7 +161,7 @@ pub async fn execute(args: StartArgs) -> Result<()> {
     // Start agents if not disabled
     if !args.no_agents {
         info!("Agent startup not yet implemented");
-        // TODO: Start configured agents
+        // TODO: Start configsured agents
     }
 
     info!("NOA services started successfully");

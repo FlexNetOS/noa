@@ -59,7 +59,7 @@ impl<'a> NeuralService<'a> {
 
         let path = PathBuf::from(model_path);
         let context_size = model.context_length.unwrap_or(2048) as usize;
-        let n_gpu_layers = model.config.get("n_gpu_layers")
+        let n_gpu_layers = model.configs.get("n_gpu_layers")
             .and_then(|v| v.as_i64())
             .unwrap_or(0) as i32;
 

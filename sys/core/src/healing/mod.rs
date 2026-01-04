@@ -7,7 +7,7 @@
 //! 1. Monitor: Continuous health monitoring
 //! 2. Detect: Anomaly detection
 //! 3. Diagnose: Root cause analysis
-//! 4. Fix: Auto-fix executor (restart, reconfig, rollback, redistribute)
+//! 4. Fix: Auto-fix executor (restart, reconfigs, rollback, redistribute)
 //! 5. Validate: Fix validation and retry/escalate
 
 pub mod anomaly;

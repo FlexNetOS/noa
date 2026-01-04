@@ -226,7 +226,7 @@ impl MicroserviceManagementAgent {
     pub async fn deploy(
         &self,
         service_name: &str,
-        _service_config: &ServiceConfig,
+        _service_configs: &Serviceconfigs,
     ) -> noa_common::Result<DeploymentResult> {
         use tokio::time::{timeout, Duration, Instant};
 
@@ -287,9 +287,9 @@ impl MicroserviceManagementAgent {
     }
 }
 
-/// Service configuration for deployment
+/// Service configsuration for deployment
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ServiceConfig {
+pub struct Serviceconfigs {
     pub image: String,
     pub ports: Vec<u16>,
     pub env: std::collections::HashMap<String, String>,

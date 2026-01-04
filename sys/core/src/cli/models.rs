@@ -7,7 +7,7 @@ use crate::db::init_database;
 use crate::db::repositories::ModelStatus;
 use crate::error::Result;
 use crate::services::{NeuralService, ModelDownloadService};
-use crate::neural::benchmark::{ModelBenchmark, BenchmarkConfig};
+use crate::neural::benchmark::{ModelBenchmark, Benchmarkconfigs};
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -135,7 +135,7 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
             let engine = neural_service.inference_engine();
             let benchmark = ModelBenchmark::new();
 
-            let config = BenchmarkConfig {
+            let configs = Benchmarkconfigs {
                 model_id: model_id.clone(),
                 test_prompts: vec![
                     "Hello, how are you?".to_string(),
@@ -146,7 +146,7 @@ pub async fn execute(args: ModelArgs, noa_root: Option<String>) -> Result<()> {
                 warmup_iterations: 2,
             };
 
-            let results = benchmark.benchmark(&engine, config).await?;
+            let results = benchmark.benchmark(&engine, configs).await?;
 
             println!("\nBenchmark Results:");
             println!("{:-<80}", "");
