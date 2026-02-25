@@ -117,7 +117,7 @@
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "rimraf": "^6.0.1",
-    "sequelize-cli": "~6.6.2",
+    "sequelize-cli": "~6.6.3",
     "style-loader": "^4.0.0",
     "supertest": "~7.1.1",
     "supertest-session": "^5.0.1",
