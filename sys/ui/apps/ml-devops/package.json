@@ -91,7 +91,7 @@
     "@types/react-plotly.js": "2.6.3",
     "@types/react-table": "^7.7.20",
     "@types/ws": "^8.18.1",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "autoprefixer": "10.4.15",
     "bcryptjs": "2.4.3",
     "chart.js": "4.4.9",
