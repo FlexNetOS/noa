@@ -34,7 +34,7 @@ tokenizers = { workspace = true }
 
 # Additional dependencies
 async-stream = "0.3"
-bytes = "1.5"
+bytes = "1.11"
 http = "1.0"
 http-body-util = "0.1"
 uuid = { version = "1.6", features = ["v4"] }
